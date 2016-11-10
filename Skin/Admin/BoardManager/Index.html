@@ -1,0 +1,51 @@
+<?php if(_BH_ !== true) exit;
+/**
+* @var $Model BoardManagerModel
+ */
+/**
+* @var $Data BH_DB_GetListWithPage
+*/
+/**
+* @var $this BH_Controller
+*/
+?>
+
+<h2>게시판관리</h2>
+
+<table class="list">
+<thead>
+<tr>
+	<th>번호</th>
+	<th><?p. $Model->data['subject']->DisplayName ?></th>
+	<th><?p. $Model->data['bid']->DisplayName ?></th>
+	<th><?p. $Model->data['auth_list_level']->DisplayName ?></th>
+	<th><?p. $Model->data['auth_write_level']->DisplayName ?></th>
+	<th><?p. $Model->data['auth_view_level']->DisplayName ?></th>
+	<th><?p. $Model->data['auth_reply_level']->DisplayName ?></th>
+	<th><?p. $Model->data['auth_answer_level']->DisplayName ?></th>
+	<th><?p. $Model->data['use_reply']->DisplayName ?></th>
+</tr>
+</thead>
+<tbody>
+<?php if($Data->result && $Data->totalRecord){ ?>
+<?php while($row = $Data->Get()){?>
+<tr>
+	<td><?p. $Data->beginNum-- ?></td>
+	<td><a href="<?a. 'View' ?>?bid=<?p. $row['bid'] ?><?fn. '' ?>"><?v. $row['subject']; ?></a></td>
+	<td><?v. $row['bid']; ?></td>
+	<td><?p. $Model->HTMLPrintEnum('auth_list_level', $row['auth_list_level']) ?></td>
+	<td><?p. $Model->HTMLPrintEnum('auth_write_level', $row['auth_write_level']) ?></td>
+	<td><?p. $Model->HTMLPrintEnum('auth_view_level', $row['auth_view_level']) ?></td>
+	<td><?p. $Model->HTMLPrintEnum('auth_reply_level', $row['auth_reply_level']) ?></td>
+	<td><?p. $Model->HTMLPrintEnum('auth_answer_level', $row['auth_answer_level']) ?></td>
+	<td><?p. $Model->HTMLPrintEnum('use_reply', $row['use_reply']) ?></td>
+</tr>
+<?php } ?>
+<?php } else{ ?>
+<tr><td colspan="8" class="nothing">등록된 게시물이 없습니다.</td></tr>
+<?php } ?>
+</tbody>
+</table>
+
+<div class="left_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="btn2">게시판생성</a></div>
+<div class="paging"><?p. $Data->pageHtml ?></div>

@@ -1,0 +1,65 @@
+<?php if(_BH_ !== true) exit;
+/**
+* @var $Model MemberModel
+ */
+/**
+* @var $Data BH_DB_GetListWithPage
+*/
+/**
+* @var $this BH_Controller
+*/
+?>
+
+<table class="list">
+<thead>
+<tr>
+	<th>번호</th>
+	<th><?p. $Model->data['muid']->DisplayName ?></th>
+	<th><?p. $Model->data['mid']->DisplayName ?></th>
+	<th><?p. $Model->data['pwd']->DisplayName ?></th>
+	<th><?p. $Model->data['mname']->DisplayName ?></th>
+	<th><?p. $Model->data['email']->DisplayName ?></th>
+	<th><?p. $Model->data['cname']->DisplayName ?></th>
+	<th><?p. $Model->data['nickname']->DisplayName ?></th>
+	<th><?p. $Model->data['level']->DisplayName ?></th>
+	<th><?p. $Model->data['address1']->DisplayName ?></th>
+	<th><?p. $Model->data['address2']->DisplayName ?></th>
+	<th><?p. $Model->data['zipcode']->DisplayName ?></th>
+	<th><?p. $Model->data['tel']->DisplayName ?></th>
+	<th><?p. $Model->data['phone']->DisplayName ?></th>
+	<th><?p. $Model->data['reg_date']->DisplayName ?></th>
+	<th><?p. $Model->data['approve']->DisplayName ?></th>
+	<th></th>
+</tr>
+</thead>
+<tbody>
+<?php if($Data->result && $Data->totalRecord){ ?>
+<?php while($row = $Data->Get()){?>
+<tr>
+	<td><?p. $Data->beginNum-- ?></td>
+	<td><?v. $row['muid']; ?></td>
+	<td><?v. $row['mid']; ?></td>
+	<td><?v. $row['pwd']; ?></td>
+	<td><?v. $row['mname']; ?></td>
+	<td><?v. $row['email']; ?></td>
+	<td><?v. $row['cname']; ?></td>
+	<td><?v. $row['nickname']; ?></td>
+	<td><?p. $Model->HTMLPrintEnum('level', $row['level']) ?></td>
+	<td><?v. $row['address1']; ?></td>
+	<td><?v. $row['address2']; ?></td>
+	<td><?v. $row['zipcode']; ?></td>
+	<td><?v. $row['tel']; ?></td>
+	<td><?v. $row['phone']; ?></td>
+	<td><?v. $row['reg_date']; ?></td>
+	<td><?p. $Model->HTMLPrintEnum('approve', $row['approve']) ?></td>
+	<td><a href="<?a. 'View' ?>?muid=<?p. $row['muid'] ?><?fn. '' ?>">상세보기</a></td>
+</tr>
+<?php } ?>
+<?php } else{ ?>
+<tr><td colspan="15" class="nothing">등록된 게시물이 없습니다.</td></tr>
+<?php } ?>
+</tbody>
+</table>
+
+<div class="left_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="btn2">글쓰기</a></div>
+<div class="paging"><?p. $Data->pageHtml ?></div>

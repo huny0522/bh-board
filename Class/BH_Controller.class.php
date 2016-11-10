@@ -1,0 +1,205 @@
+<?php
+/**
+ * Bang Hun.
+ * 16.07.10
+ */
+
+abstract class BH_Controller{
+	public $Layout = '';
+	public $Html;
+
+	public $Title;
+	private $CSS = array();
+	private $JS = array();
+	public $Action;
+	public $Controller;
+	public $ID;
+	public $TID;
+	public static $IMAGE_EXT = array('jpg','jpeg','png','gif','bmp');
+	public static $POSSIBLE_EXT = array('jpg','jpeg','png','gif','bmp','zip','7z','gz','xz','tar',
+		'xls', 'xlsx', 'ppt', 'doc', 'hwp', 'pdf', 'docx', 'pptx',
+		'avi', 'mov', 'mkv', 'mpg', 'mpeg', 'wmv','asf','asx', 'flv', 'm4v', 'mp4');
+
+	private $FollowQuery = array();
+	public $_Value = array();
+
+	/**
+	 * @var BH_Common
+	 */
+	public $Common;
+
+	public function __construct(){
+		$this->Common = new BH_Common();
+		$this->Action = $GLOBALS['_BH_App']->Action;
+		$this->Controller = $GLOBALS['_BH_App']->Controller;
+		$this->ID = $GLOBALS['_BH_App']->ID;
+		$this->TID = $GLOBALS['_BH_App']->TID;
+	}
+
+	abstract public function __Init();
+
+	/**
+	 *  항상 따라다니는 URL을 지정
+	 * @param array $ar
+	 */
+	public function SetFollowQuery(array $ar){
+		foreach($ar as $v){
+			if(isset($_GET[$v]) && !empty($_GET[$v])){
+				$this->FollowQuery[$v] = $_GET[$v];
+			}
+		}
+	}
+
+	/**
+	 * 항상 따라다니는 URL을 출력
+	 * @param string $ar 제외할 쿼리 파라미터
+	 * @param string $begin 쿼리 시작(& 또는 ?)
+	 *
+	 * @return string
+	 */
+	public function GetFollowQuery($ar = '', $begin = '?'){
+		$ar = trim($ar);
+		$fq = $this->FollowQuery;
+		if($ar){
+			if(is_string($ar)) $ar = explode(',', $ar);
+
+			if(is_array($ar) && sizeof($ar)){
+				foreach($ar as $v){
+					unset($fq[trim($v)]);
+				}
+			}
+		}
+
+		$queryparam = '';
+		foreach($fq as $k => $v){
+			$queryparam .= ($queryparam ? '&' : $begin ).$k.'='.$v;
+		}
+		return $queryparam;
+	}
+
+	/**
+	 * 항상 따라다니는 URL을 input hidden 출력
+	 * @param string $ar 제외할 쿼리 파라미터
+	 * @return string
+	 */
+	public function GetFollowQueryInput($ar = ''){
+		$ar = trim($ar);
+		$fq = $this->FollowQuery;
+		if($ar){
+			if(is_string($ar)) $ar = explode(',', $ar);
+
+			if(is_array($ar) && sizeof($ar)){
+				foreach($ar as $v){
+					unset($fq[trim($v)]);
+				}
+			}
+		}
+
+		$queryparam = '';
+		foreach($fq as $k => $v){
+			$queryparam .= '<input type="hidden" name="'.GetDBText($k).'" value="'.GetDBText($v).'">';
+		}
+		return $queryparam;
+	}
+
+	/**
+	 * html : $this->Html 를 지정하면 그 파일을 찾고 아니라면 액션명의 파일을 찾는다.
+	 * layout : /Layout 디렉토리에서 $this->Layout 의 파일을 찾아 레이아웃을 생성
+	 * @param BH_Model $Model
+	 * @param null $Data
+	 */
+	public function _View($Model = NULL, $Data = NULL){
+		$viewAction = $this->Html ? $this->Html : $GLOBALS['_BH_App']->Action;
+		if(!$viewAction) $viewAction = 'Index';
+
+		$html = substr($viewAction, 0, 1) == '/' ? $viewAction :
+			($GLOBALS['_BH_App']->SubDir ? '/'.$GLOBALS['_BH_App']->SubDir : '').'/'.$GLOBALS['_BH_App']->Controller.'/'.(substr($viewAction, -5) == '.html' ? $viewAction : $viewAction.'.html');
+
+		if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true){
+			ReplaceHTMLFile(_SKINDIR.$html, _HTMLDIR.$html);
+		}
+
+		ob_start();
+		if(file_exists(_HTMLDIR.$html)){
+			require _HTMLDIR . $html;
+		}else{
+			echo 'ERROR : NOT EXISTS TEMPLATE : '.$viewAction;
+		}
+		$_BODY = ob_get_clean();
+
+		if(isset($this->Layout)){
+			$layout = '/Layout/'.($this->Layout ? $this->Layout.'.html' :  _DEFAULT_LAYOUT.'.html');
+			if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true){
+				ReplaceHTMLFile(_SKINDIR.$layout, _HTMLDIR.$layout);
+			}
+			if($layout && file_exists(_HTMLDIR.$layout)){
+				require _HTMLDIR.$layout;
+			}
+		}
+		echo $_BODY;
+	}
+
+	public function _GetView($Model = NULL, $Data = NULL){
+		$viewAction = $this->Html ? $this->Html : $GLOBALS['_BH_App']->Action;
+		if(!$viewAction) $viewAction = 'Index';
+
+		$html = substr($viewAction, 0, 1) == '/' ? $viewAction :
+			($GLOBALS['_BH_App']->SubDir ? '/'.$GLOBALS['_BH_App']->SubDir : '').'/'.$GLOBALS['_BH_App']->Controller.'/'.(substr($viewAction, -5) == '.html' ? $viewAction : $viewAction.'.html');
+
+		if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true){
+			ReplaceHTMLFile(_SKINDIR.$html, _HTMLDIR.$html);
+		}
+
+		ob_start();
+		if(file_exists(_HTMLDIR.$html)){
+			require _HTMLDIR . $html;
+		}else{
+			echo 'ERROR : NOT EXISTS TEMPLATE : '.$viewAction;
+		}
+		return ob_get_clean();
+	}
+
+	public function JSPrint(){
+		$html = '';
+		if(isset($this->JS) && is_array($this->JS)){
+			ksort($this->JS);
+			foreach($this->JS as $v){
+				foreach($v as $row){
+					if(substr($row, 0, 4) == 'http') $html .= chr(9) . '<script src="' . $row . '" charset="utf8"></script>' . chr(10);
+					else $html .= chr(9) . '<script src="' . _SKINURL . '/js/' . $row . '" charset="utf8"></script>' . chr(10);
+				}
+			}
+		}
+		return $html;
+	}
+
+	public function JSAdd($js, $idx = 100){
+		$this->JS[$idx][] = $js;
+	}
+
+	public function CSSPrint(){
+		$html = '';
+		if(isset($this->CSS) && is_array($this->CSS)){
+			ksort($this->CSS);
+			foreach($this->CSS as $v){
+				foreach($v as $row){
+					$html .= chr(9) . '<link rel="stylesheet" href="' . _SKINURL . '/css/' . $row . '">' . chr(10);
+				}
+			}
+		}
+		return $html;
+	}
+
+	public function CSSAdd($css, $idx = 100){
+		$this->CSS[$idx][] = $css;
+	}
+
+	public function URLAction($Action = ''){
+		return $GLOBALS['_BH_App']->CtrlUrl.'/'.$Action;
+	}
+
+	public function URLBase($Controller = ''){
+		return $GLOBALS['_BH_App']->BaseDir.'/'.$Controller;
+	}
+}
+

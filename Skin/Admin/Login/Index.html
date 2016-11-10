@@ -1,0 +1,60 @@
+<?php if(_BH_ !== true) exit;
+/** @var BH_Controller $this */
+/** @var MemberModel $Model */
+$this->Title = '관리자로그인';
+$this->CSSAdd('adminStyle.css');
+?>
+<div id="container">
+	<div id="contents" class="login">
+		<div id="login_wrap">
+			<h2>관리자로그인</h2>
+			<form id="LoginFrm" name="LoginFrm" action="<?a. 'Login' ?>" method="post">
+				<fieldset>
+					<?p. $Model->HTMLPrintLabel('mid') ?>
+					<span><?p. $Model->HTMLPrintInput('mid') ?></span>
+					<?p. $Model->HTMLPrintLabel('pwd') ?>
+					<span><?p. $Model->HTMLPrintInput('pwd') ?></span>
+				</fieldset>
+				<div id="LoginConfirm"><button type="submit" class="btn1">로그인</button></div>
+				<div id="LoginRemember"><a href="#" id="RemberIDBtn"><i></i>아이디 저장</a></div>
+				<div id="link"><a href="/">메인으로</a></div>
+			</form>
+		</div>
+	</div>
+</div>
+<script>
+	jQuery(function($){
+		$(document).ready(function(){
+			var mid = common.getCookie('adminMid');
+			if(mid != ''){
+				$('input[name=mid]').val(mid);
+				$('#RemberIDBtn').addClass('active');
+				$('input[name=pwd]').focus();
+			}else $('input[name=mid]').focus();
+
+
+			if(jQuery.trim($('input[name=email1]').val()) == '') $('input[name=email1]').focus();
+			else $('input[name=pwd]').focus();
+		});
+
+		$(document).on('submit', '#LoginFrm', function(e){
+			var res = common.valCHeck(this);
+			if(!res) e.preventDefault();
+
+			var mid = $('input[name=mid]');
+			var pwd = $('input[name=pwd]');
+
+			if($('#RemberIDBtn').hasClass('active')){
+				common.setCookie('adminMid', $('input[name=mid]').val(), 9999);
+			}else{
+				common.setCookie('adminMid', '1',0);
+			}
+		});
+
+		$(document).on('click', '#RemberIDBtn', function(e){
+			e.preventDefault();
+			$(this).toggleClass('active');
+		});
+	});
+</script>
+

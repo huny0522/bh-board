@@ -1,0 +1,64 @@
+<?php
+if(_BH_ !== true) exit;
+/**
+ * @var $this ConfigController
+ */
+?>
+
+<h2>기본환경설정</h2>
+
+<form name="ConfigForm" id="ConfigForm" method="post" action="<?a. 'Write' ?>">
+	<input type="hidden" name="Code" value="<?v. $this->_Value['Code'] ?>">
+	<fieldset>
+		<h3><i class="fa fa-angle-right"></i> 기본설정</h3>
+
+		<table class="write">
+			<tr>
+				<th>회사명</th>
+				<td colspan="3">
+					<input type="text" name="Company" value="<?p. $this->Common->Config($this->_Value['Code'], 'Company') ?>">
+				</td>
+			</tr>
+			<tr>
+				<th>사이트명</th>
+				<td colspan="3">
+					<input type="text" name="SiteName" value="<?p. $this->Common->Config($this->_Value['Code'], 'SiteName') ?>">
+				</td>
+			</tr>
+		</table>
+	</fieldset>
+
+	<fieldset>
+		<h3><i class="fa fa-angle-right"></i> 약관등 정보관리</h3>
+		<table class="write">
+			<tr>
+				<th>개인정보보호정책</th>
+				<td colspan="3">
+					<textarea name="Privacy" id="Privacy"><?p. $this->Common->Config($this->_Value['Code'], 'Privacy') ?></textarea>
+				</td>
+			</tr>
+			<tr>
+				<th>이용약관</th>
+				<td colspan="3">
+					<textarea name="Terms" id="Terms"><?p. $this->Common->Config($this->_Value['Code'], 'Terms') ?></textarea>
+				</td>
+			</tr>
+		</table>
+	</fieldset>
+
+
+	<div class="bottomBtn">
+		<button type="submit" class="btn1">확인</button>
+		<button type="reset" class="btn1">취소</button>
+		<a href="#" class="backbtn btn1">뒤로</a>
+	</div>
+</form>
+
+<script>
+	SE2_paste('Privacy', '<?php _URL ?>', true);
+	SE2_paste('Terms', '<?php _URL ?>', true);
+	$(document).on('submit', '#ConfigForm', function(e){
+		SE2_update('Privacy');
+		SE2_update('Terms');
+	});
+</script>

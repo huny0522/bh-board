@@ -1,0 +1,89 @@
+<?php if(_BH_ !== true) exit;
+/**
+* @var $Model MemberModel
+ */
+/**
+* @var $Data BH_DB_GetListWithPage
+*/
+/**
+* @var $this BH_Controller
+*/
+?>
+
+<h2>회원관리</h2>
+
+<div class="boardSearch">
+	<form id="SearchForm" name="SearchForm" method="get" action="<?a. '' ?>">
+		<label for="SearchLevel">등급</label>
+		<span>
+			<select id="SearchLevel" name="SLevel">
+				<option value="">선택</option>
+				<?p. SelectOption(array(_MEMBER_LEVEL => '일반회원', _CLIENT_LEVEL => '클라이언트', _MANAGER_LEVEL => '매니저', _ADMIN_LEVEL => '관리자', _SADMIN_LEVEL => '최고관리자'), GetDBText(isset($_GET['SLevel']) ? $_GET['SLevel'] : '')) ?>
+			</select>
+		</span>
+		<label for="Keyword">검색어</label>
+		<span>
+			<input type="text" id="Keyword" name="Keyword" value="<?v. isset($_GET['Keyword']) ? GetDBText($_GET['Keyword']) : '' ?>">
+		</span>
+		<button type="submit" class="btn2">검색</button>
+	</form>
+</div>
+
+<table class="list">
+<colgroup>
+	<col style="width:5%">
+	<col style="">
+	<col style="">
+	<col style="width:15%">
+	<col style="width:10%">
+	<col style="width:14%">
+	<col style="width:10%">
+	<col style="width:8%">
+	<col style="width:10%">
+</colgroup>
+<thead>
+<tr>
+	<th>번호</th>
+	<th><?p. $Model->data['mid']->DisplayName ?></th>
+	<th><?p. $Model->data['mname']->DisplayName ?></th>
+	<th><?p. $Model->data['nickname']->DisplayName ?></th>
+	<th><?p. $Model->data['level']->DisplayName ?></th>
+	<th><?p. $Model->data['phone']->DisplayName ?></th>
+	<th><?p. $Model->data['reg_date']->DisplayName ?></th>
+	<th><?p. $Model->data['approve']->DisplayName ?></th>
+	<th>관리</th>
+</tr>
+</thead>
+<tbody>
+<?php if($Data->result && $Data->totalRecord){ ?>
+<?php while($row = $Data->Get()){?>
+<tr>
+	<td><?p. $Data->beginNum-- ?></td>
+	<td><a href="<?a. 'View' ?>?muid=<?p. $row['muid'] ?><?fn. '' ?>"><?v. $row['mid']; ?></a></td>
+	<td><a href="<?a. 'View' ?>?muid=<?p. $row['muid'] ?><?fn. '' ?>"><?v. $row['mname']; ?></a></td>
+	<td><?v. $row['nickname']; ?></td>
+	<td><?p. $Model->HTMLPrintEnum('level', $row['level']) ?></td>
+	<td><?v. $row['phone']; ?></td>
+	<td><?p. substr($row['reg_date'],0,10); ?></td>
+	<td><?p. $Model->HTMLPrintEnum('approve', $row['approve']) ?></td>
+	<td><?php if($row['level'] == _ADMIN_LEVEL){ ?><a href="<?a. 'AuthAdmin' ?>?muid=<?p. $row['muid'] ?>" class="adminAuthBtn btn3">관리자권한관리</a><?php } ?></td>
+</tr>
+<?php } ?>
+<?php } else{ ?>
+<tr><td colspan="9" class="nothing">등록된 게시물이 없습니다.</td></tr>
+<?php } ?>
+</tbody>
+</table>
+
+<div class="left_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="btn2">회원추가</a></div>
+<div class="paging"><?p. $Data->pageHtml ?></div>
+
+<script>
+	$(document).on('change', '#SearchLevel', function(){
+		$(this).closest('form').submit();
+	});
+	$(document).on('click', 'a.adminAuthBtn', function(e){
+		e.preventDefault();
+		common.getModal(this.href, {}, '권한관리', null, 800, 600);
+	})
+</script>

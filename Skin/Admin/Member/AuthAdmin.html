@@ -1,0 +1,94 @@
+<?php if(_BH_ !== true) exit;
+/**
+ * @var $Model MemberModel
+ */
+/**
+ * @var $this MemberController
+ */
+?>
+<div id="authContents">
+	<div class="opt">
+		<input type="checkbox" id="AllCheck"><label for="AllCheck">전체선택</label>
+	</div>
+	<form name="AuthForm" id="AuthForm" method="post" action="<?a. $this->Action ?><?fq. '' ?>">
+		<input type="hidden" name="muid" value="<?p. SetDBInt($_GET['muid']) ?>">
+		<?php if(sizeof($this->Common->AdminMenu) && isset($this->Common->AdminMenu)){ ?>
+
+		<ul>
+			<?php
+			foreach($this->Common->AdminMenu as $c => $row){
+				if(strlen($c) == 3){
+					?>
+					<li>
+						<p>
+							<input type="checkbox" name="Category[]" id="Category<? p.$c ?>"
+							       value="<? p.$c ?>"<?php if(in_array($c, $this->_Value['auth'])) echo ' checked' ?>>
+							<label for="Category<? p.$c ?>">
+								<? v.$row['Name'] ?>
+							</label>
+						</p>
+						<?php
+						$sub = '';
+						foreach($this->Common->AdminMenu as $c2 => $row2){
+							if(strlen($c2) == 6 && substr($c2, 0, 3) == $c){
+								$sub .= '<li>'
+									.'<p>'
+									.'<input type="checkbox" name="Category[]" id="Category'. $c2 .'" value="'. $c2 .'"'
+									. ((in_array($c2, $this->_Value['auth'])) ? ' checked' : ''). '>'
+									.'<label for="Category'.$c2 .'">'
+									.$row2['Name']
+									.'</label>'
+									.'</p>'
+									.'</li>';
+							}
+						}
+						if($sub) echo '<ul>'.$sub.'</ul>';
+						?>
+					</li>
+					<?php
+				}
+			}
+			?>
+		</ul>
+
+		<?php } ?>
+
+		<div class="bottomBtn">
+			<button type="submit" class="btn1">등록</button>
+			<button type="reset" class="btn1 cancel">취소</button>
+		</div>
+	</form>
+</div>
+
+<script>
+	$('#AuthForm').on('submit', function(e){
+		e.preventDefault();
+		common.ajaxForm(this, function(data){
+			common.removeModal();
+		})
+	});
+	$('#AuthForm input[type=checkbox]').on('click', function(){
+		var parent =$(this).closest('ul').closest('li').find('input[type=checkbox]');
+		if(parent.length){
+			if($(this).closest('ul').find('input[type=checkbox]:checked').length){
+				parent[0].checked = true;
+			}else{
+				parent[0].checked = false;
+			}
+		}
+
+		var checked = this.checked;
+		var children = $(this).closest('li').find('ul input[type=checkbox]');
+		if(children.length){
+			children.each(function(){
+				this.checked = checked;
+			})
+		}
+	});
+	$('#AllCheck').on('click', function(){
+		var checked = this.checked;
+		$('#AuthForm input[type=checkbox]').each(function(){
+			this.checked = checked;
+		})
+	});
+</script>

@@ -1,0 +1,43 @@
+<?php if(_BH_ !== true) exit;
+/**
+ * @var $Model MemberModel
+ */
+/**
+ * @var $this BH_Controller
+ */
+?>
+<div id="contents" class="register">
+	<form name="RegisterAgreeForm" id="RegisterAgreeForm" method="post" action="<?a. $this->Action ?><?fq. '' ?>">
+
+		<fieldset>
+			<h2>개인정보보호정책</h2>
+			<div class="txt"><?vr. $this->Common->Config('default','Privacy') ?></div>
+			<p class="chk"><input type="checkbox" name="agree1" id="agree1"><label for="agree1">동의1</label></p>
+		</fieldset>
+
+		<fieldset>
+			<h2>이용약관</h2>
+			<div class="txt"><?vr. $this->Common->Config('default','Terms') ?></div>
+			<p class="chk"><input type="checkbox" name="agree2" id="agree2"><label for="agree2">동의2</label></p>
+		</fieldset>
+
+		<div class="bottomBtn">
+			<button type="submit" class="bbtn btn2">동의</button>
+			<a href="#" class="backbtn bbtn btn1">뒤로</a>
+		</div>
+	</form>
+</div>
+<script>
+	$(document).on('submit', '#RegisterAgreeForm', function(e){
+		if(!$('#agree1')[0].checked){
+			e.preventDefault();
+			alert('동의해라');
+			return false;
+		}
+		if(!$('#agree2')[0].checked){
+			e.preventDefault();
+			alert('동의');
+			return false;
+		}
+	});
+</script>

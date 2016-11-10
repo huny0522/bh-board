@@ -1,0 +1,121 @@
+<?php if(_BH_ !== true) exit;
+/**
+* @var $Model BoardModel
+ */
+/**
+* @var $this BH_Controller
+*/
+?>
+GallerySkin
+<form name="BoardWriteForm" id="BoardWriteForm" method="post" action="<?a. $this->Action ?>/<?php if($this->Action == 'Modify') echo $this->ID; ?><?fq. '' ?>" enctype="multipart/form-data">
+<?php if($this->Action == 'Answer'){ ?>
+<input type="hidden" name="mode" value="answer">
+<input type="hidden" name="target" value="<?p. $_GET['target'] ?>">
+<?php } ?>
+
+
+	<table class="write">
+		<?php if(_MEMBERIS === true && $_SESSION['member']['level'] >= _MANAGER_LEVEL){ ?>
+		<tr>
+			<th><?p. $Model->data['notice']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('notice') ?>
+			</td>
+		</tr>
+		<?php } ?>
+		<?php if(sizeof($Data['category'])){ ?>
+		<tr>
+			<th><?p. $Model->data['category']->DisplayName ?></th>
+			<td>
+				<select name="category">
+					<?php foreach($Data['category'] as $cate){ ?>
+						<option><?p. $cate ?></option>
+					<?php } ?>
+				</select>
+			</td>
+		</tr>
+		<?php } ?>
+		<tr>
+			<th><?p. $Model->data['secret']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('secret') ?>
+			</td>
+		</tr>
+
+		<?php if(_MEMBERIS !== true){?>
+			<tr>
+				<th><?p. $Model->data['mname']->DisplayName ?></th>
+				<td>
+					<?p. $Model->HTMLPrintInput('mname') ?>
+				</td>
+			</tr>
+
+			<?php
+				if($this->Action != 'Modify'){
+			?>
+			<tr>
+				<th><?p. $Model->data['pwd']->DisplayName ?></th>
+				<td>
+					<?p. $Model->HTMLPrintInput('pwd') ?>
+					<ul class="guide">
+						<li>16자 이하로 입력하여주세요.</li>
+					</ul>
+				</td>
+			</tr>
+			<?php
+			}
+			?>
+			<tr>
+				<th>비밀번호 확인</th>
+				<td>
+					<input type="password" name="pwdchk" value="<?php if($this->Action == 'Modify') echo $_POST['pwd']; ?>" required="required" data-same="pwd" data-display="비밀번호 확인">
+				</td>
+			</tr>
+		<?php } ?>
+		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['subject']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('subject') ?>
+				<ul class="guide">
+					<li>128자 이하로 입력하여주세요.</li>
+				</ul>
+			</td>
+		</tr>
+
+		<tr>
+			<th><?p. $Model->data['content']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('content') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['file1']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('file1') ?>
+			</td>
+		</tr>
+	</table>
+
+	<div class="bottomBtn">
+		<button type="submit" class="btn1"><?php echo $this->Action == 'Modify' ? '수정' : '등록'; ?></button>
+		<button type="reset" class="btn1">취소</button>
+		<a href="#" class="backbtn btn1">뒤로</a>
+	</div>
+</form>
+
+
+<script>
+
+	SE2_paste('MD_content','<?p. _URL ?>');
+
+	$(document).on('submit', '#BoardWriteForm', function(e){
+		SE2_update('MD_content');
+
+		var res = common.valCHeck(this);
+		if(!res){
+			e.preventDefault();
+			return false;
+		}
+
+	});
+</script>

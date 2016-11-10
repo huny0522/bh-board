@@ -1,0 +1,39 @@
+<?php if(_BH_ !== true) exit;
+/**
+* @var $this MypageController
+*/
+global $_BH_App;
+?>
+<?php foreach($Data as $row){ ?>
+	<section class="MypageMain">
+	<h3><?v. $row['subject'] ?></h3>
+		<?php if(isset($row['list'])){ ?>
+			<table class="list">
+				<colgroup>
+					<col>
+					<col style="width:10%;">
+					<col style="width:20%;">
+				</colgroup>
+				<thead>
+				<tr>
+					<th>제목</th>
+					<th>조회수</th>
+					<th>등록일</th>
+				</tr>
+				</thead>
+				<tbody>
+				<?php foreach($row['list'] as $article){ ?>
+					<tr>
+						<td class="left"><a href="<?v. _URL.'/'.$row['controller'] ?>/View/<?p. toBase($article['seq']) ?>"><?v. $article['subject'] ?></a></td>
+						<td><?v. $article['hit'] ?></td>
+						<td><?v. $article['reg_date'] ?></td>
+					</tr>
+				<?php } ?>
+				</tbody>
+			</table>
+		<?php }else{ ?>
+			<p class="nothing">등록된 글이 없습니다.</p>
+		<?php } ?>
+	</section>
+<?php } ?>
+

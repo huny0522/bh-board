@@ -1,0 +1,24 @@
+<?php
+if(_BH_ !== true) exit;
+/**
+ * @var $this BoardController
+ */
+ob_start();
+?>
+<div class="Board">
+	<h2><?v. $this->boardManger->GetValue('subject') ?></h2>
+	<?php if($this->_Value['categorys']){ ?>
+		<ul class="category">
+			<li<?php if(!isset($_GET['category'])) echo ' class="Active"'; ?>><a href="<?a. '' ?>">전체</a></li>
+		<?php foreach($this->_Value['categorys'] as $row){ ?>
+			<li<?php if(isset($_GET['category']) && $row == $_GET['category']) echo ' class="Active"'; ?>><a href="<?a. '' ?>?category=<?v. $row ?>"><?p. $row ?></a></li>
+		<?php } ?>
+		</ul>
+	<?php } ?>
+
+	<?p. $_BODY ?>
+</div>
+<?php
+$_BODY = ob_get_clean();
+?>
+<?inc. '/Layout/_Default.html' ?>

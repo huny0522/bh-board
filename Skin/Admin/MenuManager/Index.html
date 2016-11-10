@@ -1,0 +1,62 @@
+<?php if(_BH_ !== true) exit;
+/**
+ * @var $this MenuManagerController
+ */
+/**
+ * @var $Data BH_DB_GetList
+ */
+$this->CSSAdd('BHCategory.css');
+$this->JSAdd('BHCategory.js');
+?>
+<h2>메뉴관리</h2>
+<div id="BHCategory"></div>
+<div id="BHMenuConfig"></div>
+
+<script>
+	$(document).ready(function(){
+		var menu = new BHCategory('BHCategory', {
+			maxLevel : 3,
+			width : 400,
+			height : 500,
+			addMenu : function(parentId, title, sort){
+				common.post('<?a. 'InsertMenu' ?>', {'title' : title, 'sort' : sort, 'parent' : parentId, 'enabled' : 'n'}, function(data){
+					menu.AddMenu(data.id, false);
+				});
+			},
+			moveMenu : function(id, sort, parentId){
+				common.post('<?a. 'ModifySort' ?>', {'category' : id, 'sort' : sort, 'parent' : parentId}, function(data){
+					menu.MoveMenu();
+				});
+			},
+			delMenu : function(id){
+				common.post('<?a. 'DeleteMenu' ?>', {'category' : id}, function(data){
+					menu.DeleteMenu();
+				});
+			},
+			modMenu : function(id, title){
+				common.post('<?a. 'ModifyTitle' ?>', {'title' : title, 'category' : id}, function(data){
+					menu.ModifyMenu();
+				});
+			},
+			titleClick : function(id){
+				common.getHtml('<?a. 'Write' ?>', {'category' : id}, function(data){
+					$('#BHMenuConfig').html(data);
+				});
+			},
+			folderLoad : function(element){
+				common.post('<?a. 'GetChild' ?>', {'parent' : element.attr('data-id')}, function(data){
+					if(data.length){
+						for(var i=0; i < data.length; i++){
+							menu.SetMenu(element, data[i].title, data[i].category, data[i].enabled == 'y' ? true : false);
+						}
+					}
+					menu.toggleFolder(element);
+				});
+			}
+		});
+		<?php while($row = $Data->Get()){?>
+		menu.SetMenu('', '<?v. $row['title'] ?>', '<?p. $row['category'] ?>', <?p. $row['enabled'] == 'y' ? 'true' : 'false' ?>);
+		<?php } ?>
+		menu.toggleFolder();
+	});
+</script>

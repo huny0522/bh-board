@@ -1,0 +1,47 @@
+<?php if(_BH_ !== true) exit;
+/**
+* @var $Model ContentModel
+ */
+/**
+* @var $Data BH_DB_GetListWithPage
+*/
+/**
+* @var $this BH_Controller
+*/
+?>
+
+<h2>컨테츠관리</h2>
+
+<table class="list">
+<thead>
+<tr>
+	<th>번호</th>
+	<th><?p. $Model->data['subject']->DisplayName ?></th>
+	<th><?p. $Model->data['bid']->DisplayName ?></th>
+	<th><?p. $Model->data['html']->DisplayName ?></th>
+	<th><?p. $Model->data['layout']->DisplayName ?></th>
+	<th><?p. $Model->data['hit']->DisplayName ?></th>
+	<th><?p. $Model->data['recommend']->DisplayName ?></th>
+</tr>
+</thead>
+<tbody>
+<?php if($Data->result && $Data->totalRecord){ ?>
+<?php while($row = $Data->Get()){?>
+<tr>
+	<td><?p. $Data->beginNum-- ?></td>
+	<td><a href="<?a. 'View' ?>?bid=<?p. $row['bid'] ?><?fn. '' ?>"><?v. $row['subject']; ?></a></td>
+	<td><?v. $row['bid']; ?></td>
+	<td><?v. $row['html']; ?></td>
+	<td><?v. $row['layout']; ?></td>
+	<td><?v. $row['hit']; ?></td>
+	<td><?v. $row['recommend']; ?></td>
+</tr>
+<?php } ?>
+<?php } else{ ?>
+<tr><td colspan="7" class="nothing">등록된 게시물이 없습니다.</td></tr>
+<?php } ?>
+</tbody>
+</table>
+
+<div class="left_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="btn2">글쓰기</a></div>
+<div class="paging"><?p. $Data->pageHtml ?></div>

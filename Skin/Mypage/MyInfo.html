@@ -1,0 +1,103 @@
+<?php if(_BH_ !== true) exit;
+/**
+* @var $Model MemberModel
+ */
+/**
+* @var $this BH_Controller
+*/
+?>
+
+<h3>회원정보수정</h3>
+
+<form name="MemberWriteForm" id="MemberWriteForm" method="post" action="<?a. $this->Action ?><?fq. '' ?>">
+	<?php if(isset($this->_Value['error'])) echo '<p class="alert">'.$this->_Value['error'].'</p>'; ?>
+
+	<table class="write">
+		<tr>
+			<th><?p. $Model->data['mid']->DisplayName ?></th>
+			<td>
+				<?v. $Model->GetValue('mid') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['pwd']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('pwd') ?>
+				<ul class="guide">
+					<li>수정하시려면 입력하여 주세요.</li>
+					<li>8자 이상, 16자 이하로 입력하여주세요.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['pwd']->DisplayName ?>확인</th>
+			<td>
+				<input type="password" name="pwdchk" data-same="pwd">
+			</td>
+		</tr>
+		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['email']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('email') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['nickname']->DisplayName ?></th>
+			<td>
+				<?v. $Model->GetValue('nickname') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['address1']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('address1') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['address2']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('address2') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['zipcode']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('zipcode') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['tel']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('tel') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['phone']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('phone') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['reg_date']->DisplayName ?></th>
+			<td>
+				<?p. $Model->GetValue('reg_date') ?>
+			</td>
+		</tr>
+	</table>
+
+	<div class="bottomBtn">
+		<button type="submit" class="mbtn btn2">수정</button>
+		<button type="reset" class="mbtn btn1">취소</button>
+		<a href="<?a. 'MyInfo' ?><?fq. '' ?>" class="mbtn btn1">뒤로</a>
+	</div>
+</form>
+
+<script>
+	$(document).on('submit', '#MemberWriteForm', function(e){
+		var res = common.valCHeck(this);
+		if(!res){
+			e.preventDefault(); 
+			return false; 
+		} 
+	});
+</script>

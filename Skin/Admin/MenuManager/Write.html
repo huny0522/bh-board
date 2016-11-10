@@ -1,0 +1,92 @@
+<?php if(_BH_ !== true) exit;
+/**
+ * @var $Model MenuModel
+ */
+/**
+ * @var $this BH_Controller
+ */
+?>
+
+<form name="MenuWriteForm" id="MenuWriteForm" method="post" action="<?a. $this->Action ?><?fq. '' ?>">
+	<input type="hidden" name="category" value="<?p. $Model->GetValue('category') ?>">
+	<table class="write">
+		<tr>
+			<th><?p. $Model->data['controller']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('controller') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['title']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('title') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['type']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('type') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['enabled']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('enabled') ?>
+			</td>
+		</tr>
+		<tr class="bid">
+			<th><?p. $Model->data['bid']->DisplayName ?></th>
+			<td>
+				<select id="bid" name="bid" data-default="<?p. $Model->GetValue('bid') ?>"></select>
+			</td>
+		</tr>
+	</table>
+
+	<div class="bottomBtn">
+		<button type="submit" class="btn1"><?php echo $this->Action == 'Modify' ? '수정' : '등록'; ?></button>
+		<button type="reset" class="btn1">취소</button>
+	</div>
+</form>
+
+<script>
+	$(document).ready(function(){
+		getBidList();
+	});
+
+	$('input[name=type]').on('click', function(){
+		getBidList();
+	});
+
+	$('#MenuWriteForm').on('submit', function(e){
+		e.preventDefault();
+		var res = common.valCHeck(this);
+		if(!res){
+			return false;
+		}
+		common.ajaxForm(this, function(data){
+			alert('변경되었습니다.');
+			var enabled = $('#MenuWriteForm input[name=enabled]:checked').val() == 'y';
+			var category = $('#MenuWriteForm input[name=category]').val();
+			$('#BHMenu'+category+' > a.title b').text($('#MenuWriteForm input[name=title]').val());
+			if(enabled) $('#BHMenu'+category+' > a.folder').removeClass('disabled');
+			else $('#BHMenu'+category+' > a.folder').addClass('disabled');
+		});
+	});
+	function getBidList(){
+		var def = $('#bid').attr('data-default');
+		var type = $('#MenuWriteForm input[name=type]:checked').val();
+		if(type == 'board' || type == 'content'){
+			$('tr.bid').show();
+			common.post('<?a. 'GetBidList' ?>', {'type' : type}, function(data){
+				var opt = '<option value="">선택</opt>';
+				for(var i=0; i < data.length; i++){
+					opt += '<option value="' + data[i].bid + '"' + (data[i].bid == def ? ' selected="selected"' : '') + '>' + data[i].subject + '(' + data[i].bid + ')</option>';
+				}
+				$('#bid').html(opt);
+			});
+		}else{
+			$('#bid').val('');
+			$('tr.bid').hide();
+		}
+	}
+</script>

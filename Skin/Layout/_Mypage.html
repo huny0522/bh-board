@@ -1,0 +1,21 @@
+<?php
+if(_BH_ !== true) exit;
+ob_start();
+?>
+<div id="lnb" class="Mypage">
+	<h2>마이페이지</h2>
+	<nav>
+		<ul>
+			<li><a href="<?a. 'MyInfo' ?>">회원정보 수정</a></li>
+			<li><a href="<?a. 'Withdraw' ?>">회원탈퇴</a></li>
+		</ul>
+	</nav>
+</div>
+
+<div id="contents" class="Mypage">
+	<?p. $_BODY ?>
+</div>
+<?php
+$_BODY = ob_get_clean();
+?>
+<?inc. '/Layout/_Default.html' ?>

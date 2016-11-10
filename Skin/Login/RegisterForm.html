@@ -1,0 +1,134 @@
+<?php if(_BH_ !== true) exit;
+/**
+ * @var $Model MemberModel
+ */
+/**
+ * @var $this BH_Controller
+ */
+?>
+
+<div id="contents" class="registerForm">
+	<h2>회원정보 입력</h2>
+	<form name="RegisterForm" id="RegisterForm" method="post" action="<?a. $this->Action ?>Process">
+
+		<?php if(isset($this->_Value['alertMsg'])) echo '<p class="alert">'.$this->_Value['alertMsg'].'</p>'; ?>
+		<table class="write">
+			<tr>
+				<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['email']->DisplayName ?></th>
+				<td class="selectMail">
+					<input type="text" name="email1" value="<?v. $this->_Value['email1'] ?>" required> @ <input type="text" name="email2" value="<?v. $this->_Value['email2'] ?>" required class="emailAddr">
+					<select name="selectMail">
+						<option value="">선택하세요.</option>
+						<?p. OptionEmailAddress() ?>
+						<option value="x">직접입력</option>
+					</select>
+					<button type="button" id="sameCheckEmail" class="mbtn btn2">중복체크</button>
+				</td>
+			</tr>
+			<tr>
+				<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['nickname']->DisplayName ?></th>
+				<td>
+					<?p. $Model->HTMLPrintInput('nickname') ?>
+					<button type="button" id="sameCheckNick" class="mbtn btn2">중복체크</button>
+				</td>
+			</tr>
+			<tr>
+				<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['pwd']->DisplayName ?></th>
+				<td>
+					<?p. $Model->HTMLPrintInput('pwd') ?>
+					<ul class="guide">
+						<li>8자 이상, 16자 이하로 입력하여주세요.</li>
+					</ul>
+				</td>
+			</tr>
+			<tr>
+				<th><i class="requiredBullet" title="필수항목">*</i> 패스워드 확인</th>
+				<td>
+					<input type="password" name="chkpwd" value="" data-same="pwd" required>
+					<ul class="guide">
+						<li>비밀번호 확인을 위해 한번 더 입력하여 주세요.</li>
+					</ul>
+				</td>
+			</tr>
+		</table>
+
+		<div class="bottomBtn">
+			<button type="submit" class="bbtn btn2">확인</button>
+			<button type="reset" class="bbtn">취소</button>
+		</div>
+	</form>
+</div>
+
+<script>
+	$(document).on('change', '#RegisterForm select[name=selectmail]', function(e){
+		$('#sameCheckEmail').addClass('btn2');
+	})
+
+	$(document).on('keyup', '#RegisterForm input[name=email1], #RegisterForm input[name=email2]', function(e){
+		if($(this).attr('data-val') != $(this).val()){
+			$(this).attr('data-val', $(this).val());
+			$('#sameCheckEmail').addClass('btn2');
+		}
+	})
+
+	$(document).on('keyup', '#RegisterForm input[name=nickname]', function(e){
+		if($(this).attr('data-val') != $(this).val()){
+			$(this).attr('data-val', $(this).val());
+			$('#sameCheckNick').addClass('btn2');
+		}
+	})
+
+	$(document).on('click', '#sameCheckEmail', function(){
+		if(!$('#sameCheckEmail').hasClass('btn2')) return;
+		if(jQuery.trim($('input[name=email1]').val()) == '' || jQuery.trim($('input[name=email2]').val()) == ''){
+			alert('이메일을 입력하여주세요.');
+			return;
+		}
+		common.get('<?a. 'EmailCheck' ?>', {'email1' : $('input[name=email1]').val(), 'email2' : $('input[name=email2]').val()}, function(data){
+			if(data){
+				$('#sameCheckEmail').removeClass('btn2');
+				alert('사용 가능한 이메일입니다.');
+			}else{
+				alert('이미 사용중인 이메일입니다.');
+			}
+		})
+	})
+
+	$(document).on('click', '#sameCheckNick', function(){
+		if(!$('#sameCheckNick').hasClass('btn2')) return;
+		if(jQuery.trim($('input[name=nickname]').val()) == ''){
+			alert('닉네임을 입력하여주세요.');
+			return;
+		}
+		common.get('<?a. 'NicknameCheck' ?>', {'nickname' : $('input[name=nickname]').val()}, function(data){
+			if(data){
+				$('#sameCheckNick').removeClass('btn2');
+				alert('사용 가능한 닉네임입니다.');
+			}else{
+				alert('이미 사용중인 닉네임입니다.');
+			}
+		})
+	})
+
+	$(document).on('click', '#sameCheckNick', function(){
+	})
+
+	$(document).on('submit', '#RegisterForm', function(e){
+		var res = common.valCHeck(this);
+		if(!res){
+			e.preventDefault();
+			return false;
+		}
+		if($('#sameCheckEmail').hasClass('btn2')){
+			alert('이메일 중복체크를 해주시기 바랍니다.');
+			e.preventDefault();
+			return false;
+		}
+		if($('#sameCheckNick').hasClass('btn2')){
+			alert('닉네임 중복체크를 해주시기 바랍니다.');
+			e.preventDefault();
+			return false;
+		}
+	});
+	<?php if(isset($this->_Value['alertMsg'])){ ?>alert('<?p. $this->_Value['alertMsg'] ?>');<?php } ?>
+</script>

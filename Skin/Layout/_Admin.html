@@ -1,0 +1,65 @@
+<?php
+if(_BH_ !== true) exit;
+ob_start();
+/**
+ * @var $this BH_Controller
+ */
+$this->CSSAdd('jquery-ui-1.10.1.css', 10);
+$this->CSSAdd('font-awesome/css/font-awesome.min.css', 10);
+$this->CSSAdd('common.css', 10);
+$this->CSSAdd('adminStyle.css', 10);
+
+
+$this->JSAdd('jquery-1.11.3.min.js', 10);
+$this->JSAdd('jquery.form.min.js', 10);
+$this->JSAdd('jquery-ui.min.js', 10);
+$this->JSAdd('common.js', 10);
+$this->JSAdd('admin.js', 10);
+?>
+<?inc. '/Layout/_Header.html' ?>
+<div id="wrap">
+	<header id="header">
+		<div id="header_wrap">
+			<h1><a href="<?p. _ADMINURL ?>"><span>ADMINISTRATOR</span></a></h1>
+			<nav id="gnb">
+				<ul>
+					<!--<li><a href="#">정보수정</a></li>-->
+					<li><a href="<?p. _ADMINURL ?>/Login/Logout">로그아웃</a></li>
+				</ul>
+			</nav>
+			<nav id="tnb">
+				<ul>
+					<?php
+					$NM = $this->_Value['NowMenu'];
+					$AdminAuth = explode(',', $this->Common->GetMember('admin_auth'));
+					foreach($this->Common->AdminMenu as $c => $v){
+						if(strlen($c) == 3 && ($_SESSION['member']['level'] == _SADMIN_LEVEL || in_array($c, $AdminAuth))){
+							echo '<li '.(substr($NM,0,3) == $c ? ' class="Active"' : '').'>'
+								.'<span><a href="'. _ADMINURL.'/'.$v['Category'].'">'.$v['Name'].'</a></span>';
+
+							$sub = '';
+							foreach($this->Common->AdminMenu as $c2 => $v2){
+								if(strlen($c2) == 6 && substr($c2, 0, 3) == $c && ($_SESSION['member']['level'] == _SADMIN_LEVEL || in_array($c2, $AdminAuth))){
+									$sub .= '<li '.(substr($NM,0,6) == $c2 ? ' class="Active"' : '').'>'
+										.'<span><a href="'. _ADMINURL.'/'.$v2['Category'].'">'.$v2['Name'].'</a></span>';
+								}
+							}
+							if($sub) echo '<ol>'.$sub.'</ol>';
+						}
+					}
+					?>
+				</ul>
+			</nav>
+		</div>
+	</header>
+	<div id="container">
+		<?p. $_BODY ?>
+	</div>
+	<footer id="footer">
+		<div id="footer_wrap"></div>
+	</footer>
+</div>
+<?inc. '/Layout/_Footer.html' ?>
+<?php
+$_BODY = ob_get_clean();
+?>

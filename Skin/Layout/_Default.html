@@ -1,0 +1,73 @@
+<?php
+if(_BH_ !== true) exit;
+ob_start();
+/**
+ * @var $this BH_Controller
+ */
+$this->CSSAdd('jquery-ui-1.10.1.css', 10);
+$this->CSSAdd('common.css', 10);
+$this->CSSAdd('style.css', 10);
+$this->CSSAdd('responsive.css', 10);
+
+$this->JSAdd('jquery-1.11.3.min.js', 10);
+$this->JSAdd('jquery.form.min.js', 10);
+$this->JSAdd('jquery-ui.min.js', 10);
+$this->JSAdd('common.js', 10);
+?>
+<?inc. '/Layout/_Header.html' ?>
+<div id="wrap">
+	<header id="header">
+		<div id="header_wrap">
+			<h1><a href="<?p. _URL ?>/"><i><img src="/Skin/images/logo.png"></i> <span>BH BOARD</span></a></h1>
+
+			<nav id="gnb">
+				<ul>
+					<?php if(_MEMBERIS === true){ ?>
+						<li><a href="<?p. _URL ?>/Login/Logout">로그아웃</a></li>
+						<li><a href="<?p. _URL ?>/MyPage">마이페이지</a></li>
+					<?php }else{ ?>
+						<li><a href="<?p. _URL ?>/Login/Register">회원가입</a></li>
+						<li><a href="<?p. _URL ?>/Login">로그인</a></li>
+					<?php } ?>
+				</ul>
+			</nav>
+
+			<nav id="tnb">
+				<ul>
+					<?php foreach($this->Common->MainMenu as $row){ ?>
+						<li<?p. isset($this->Common->ActiveMenu['category']) && substr($this->Common->ActiveMenu['category'], 0, strlen($row['category'])) == $row['category'] ? ' class="Active"' : '' ?>>
+							<a href="<?p. _URL ?>/<?v. $row['controller'] ?>"><?v. $row['title'] ?></a>
+							<?php
+							if(isset($this->Common->SubMenu[$row['category']]) && sizeof($this->Common->SubMenu[$row['category']])){
+								echo '<ol>';
+								foreach($this->Common->SubMenu[$row['category']] as $subMenu){
+									echo '<li'.(isset($this->Common->ActiveMenu['category']) && substr($this->Common->ActiveMenu['category'], 0, strlen($subMenu['category'])) == $subMenu['category'] ? ' class="Active"' : '').'><a href="'._URL.'/'.$subMenu['controller'].'">'.GetDBText($subMenu['title']).'</a></li>';
+								}
+								echo '</ol>';
+							}
+							?>
+						</li>
+					<?php } ?>
+				</ul>
+			</nav>
+		</div>
+	</header>
+
+	<div id="container">
+		<div id="container_wrap">
+			<?p. $_BODY ?>
+		</div>
+	</div>
+
+	<footer id="footer">
+		<div id="footer_wrap">
+			<div id="">
+			</div>
+			<div id="">
+			</div>
+		</div>
+	</footer>
+</div>
+<?inc. '/Layout/_Footer.html' ?>
+<?php
+$_BODY = ob_get_clean();

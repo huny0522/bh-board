@@ -1,0 +1,167 @@
+<?php if(_BH_ !== true) exit;
+/**
+* @var $Model BoardManagerModel
+ */
+/**
+* @var $this BH_Controller
+*/
+?>
+
+<h2>게시판관리</h2>
+
+<form name="BoardManagerWriteForm" id="BoardManagerWriteForm" method="post" action="<?a. $this->Action ?><?fq. '' ?>">
+	<input type="hidden" name="bid" value="<?v. $Model->GetValue('bid') ?>">
+	<table class="write">
+		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['subject']->DisplayName ?></th>
+			<td colspan="3">
+				<?p. $Model->HTMLPrintInput('subject') ?>
+				<ul class="guide">
+					<li>256자 이하로 입력하여주세요.</li>
+				</ul>
+			</td>
+		</tr>
+		<?php if($this->Action == 'Write'){?>
+		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['bid']->DisplayName ?></th>
+			<td colspan="3">
+				<?p. $Model->HTMLPrintInput('bid') ?>
+				<ul class="guide">
+					<li>1자 이상, 20자 이하로 입력하여주세요.</li>
+					<li>영문과 숫자만 입력하여 주세요.</li>
+				</ul>
+			</td>
+		</tr>
+		<?php }else{?>
+		<tr>
+			<th><?p. $Model->data['bid']->DisplayName ?></th>
+			<td colspan="3"><?v. $Model->GetValue('bid') ?></td>
+		</tr>
+		<?php }?>
+		<tr>
+			<th><?p. $Model->data['manager']->DisplayName ?></th>
+			<td colspan="3">
+				<?p. $Model->HTMLPrintInput('manager') ?>
+				<ul class="guide">
+					<li>게시판 관리자의 아이디를 입력하여 주세요. 콤마(,)로 구분</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['skin']->DisplayName ?></th>
+			<td colspan="3">
+				<?p. $Model->HTMLPrintInput('skin') ?>
+				<ul class="guide">
+					<li>1자 이상, 20자 이하로 입력하여주세요.</li>
+					<li>영문과 숫자만 입력하여 주세요.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['reply_skin']->DisplayName ?></th>
+			<td colspan="3">
+				<?p. $Model->HTMLPrintInput('reply_skin') ?>
+				<ul class="guide">
+					<li>1자 이상, 20자 이하로 입력하여주세요.</li>
+					<li>영문과 숫자만 입력하여 주세요.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['category']->DisplayName ?></th>
+			<td colspan="3">
+				<?p. $Model->HTMLPrintInput('category') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['article_count']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('article_count') ?>
+				<ul class="guide">
+					<li>1 이상, 100 이하의 값을 입력하여주세요.</li>
+				</ul>
+			</td>
+			<th><?p. $Model->data['reply_count']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('reply_count') ?>
+				<ul class="guide">
+					<li>1 이상, 100 이하의 값을 입력하여주세요.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['auth_list_level']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('auth_list_level') ?>
+			</td>
+			<th><?p. $Model->data['auth_write_level']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('auth_write_level') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['auth_view_level']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('auth_view_level') ?>
+			</td>
+			<th><?p. $Model->data['auth_reply_level']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('auth_reply_level') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['auth_answer_level']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('auth_answer_level') ?>
+			</td>
+			<th><?p. $Model->data['use_reply']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('use_reply') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['list_in_view']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('list_in_view') ?>
+			</td>
+			<th><?p. $Model->data['man_to_man']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('man_to_man') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['layout']->DisplayName ?></th>
+			<td colspan="3">
+				<?p. $Model->HTMLPrintInput('layout') ?>
+				<ul class="guide">
+					<li>1자 이상, 50자 이하로 입력하여주세요.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<th><?p. $Model->data['new_view_day']->DisplayName ?></th>
+			<td colspan="3">
+				<?p. $Model->HTMLPrintInput('new_view_day') ?>
+				<ul class="guide">
+					<li>1 이상, 50 이하의 값을 입력하여주세요.</li>
+				</ul>
+			</td>
+		</tr>
+	</table>
+
+	<div class="bottomBtn">
+		<button type="submit" class="btn1"><?php echo $this->Action == 'Modify' ? '수정' : '등록'; ?></button>
+		<button type="reset" class="btn1">취소</button>
+		<a href="#" class="backbtn btn1">뒤로</a>
+	</div>
+</form>
+
+<script>
+	$(document).on('submit', '#BoardManagerWriteForm', function(e){
+		var res = common.valCHeck(this);
+		if(!res){
+			e.preventDefault();
+			return false;
+		}
+	});
+</script>

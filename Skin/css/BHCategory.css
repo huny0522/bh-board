@@ -1,0 +1,42 @@
+@charset "utf-8";
+.BHCategory{padding:0 10px; border:2px solid #333; background:white; overflow-y:scroll; overflow-x:auto;}
+.BHCategory ul{margin-top:10px; clear:both;}
+.BHCategory li ul{display:none;}
+.BHCategory li{position:relative; padding:5px 0 0; margin-bottom:5px; border-top:1px solid #eee; line-height:30px;}
+.BHCategory li:after{ content:' '; display:block; clear:both;}
+.BHCategory li:first-child{border-top:0;}
+.BHCategory li.moverTop:before{content:' '; position:absolute; top:-1px; left:0; width:100%; height:1px; background:red;}
+.BHCategory li.moverBottom:before{content:' '; position:absolute; z-index: 1; top:100%; left:0; width:100%; height:1px; margin-top:5px; background:red;}
+.BHCategory > ul ul{margin-left:20px; padding-left:10px; border-left:1px dotted #999;}
+.BHCategory a.title, .BHCategory form.modifyInput{position:relative; margin:0 100px 0 20px; padding-right:20px;}
+.BHCategory form.modifyInput input{margin:0; width:100%; vertical-align: top;}
+.BHCategory .btns{position:absolute; top:5px; right:0; width:90px; text-align:right; vertical-align:top;}
+.BHCategory .btns a{display:inline-block; margin-left:5px; vertical-align:top; font-size:16px;}
+.BHCategory a span{display:none;}
+.BHCategory a.add, .BHCategory span.add{display:inline-block; width:15px; margin-left:5px;}
+.BHCategory a.folder{position:absolute; top:5px; left:0; display:block;}
+.BHCategory a.folder:before{content:'\f07b'; font-family:'FontAwesome'; color:#ccc;}
+.BHCategory a.folder-empty:before{content:'\f114';}
+.BHCategory a.disabled:before{color:#f99 !important;}
+.BHCategory a.not-folder:before{content:'\f0a9'; font-family:'FontAwesome'; cursor:default;}
+.BHCategory a.folder-open:before{content:'\f115'; color:#666;}
+.BHCategory a.modify:before{content:'\f013'; font-family:'FontAwesome'; color:#6D5AA7;}
+.BHCategory a.add:before{content:'\f0fe'; font-family:'FontAwesome'; color:#4FB09B;}
+.BHCategory a.delete:before{content:'\f146'; font-family:'FontAwesome'; color:#E50;}
+.BHCategory a.up,
+.BHCategory a.down{float:left; display:block; width:10px; height:10px; margin:5px 0 0; text-align:center; line-height:10px; font-size:10px; overflow:hidden; font-size:14px; color:#888;}
+.BHCategory a.down{margin:15px 0 0 -10px;}
+.BHCategory a.up:before{content:'\f0d8'; font-family:'FontAwesome';}
+.BHCategory a.down:before{content:'\f0d7'; font-family:'FontAwesome';}
+.BHCategory button.modifyConfirm{position:absolute; top:0; right:0;}
+.BHCategory button.modifyConfirm span{display:none;}
+.BHCategory button.modifyConfirm:before{content:'\f00c'; font-family:'FontAwesome'; margin-left:5px;}
+#dragTitle{position:absolute; top:0; left:0; z-index:1; padding:5px 10px; border:1px solid #999; cursor:pointer; background:white; opacity:0.5;}
+
+/* Other */
+.BHCategory div.onoff{ position:absolute; top:5px; right:0; display:block; width:30px; height:12px; float:right; margin-right:100px; line-height:28px; }
+.BHCategory div.onoff span{ display:none;}
+.BHCategory div.onoff i:before{ content:'ON'; display:inline-block; width:100%; height:100%; background:#7bf; border-radius:3px; line-height:12px; font-style:normal; font-size:11px; font-weight:800; text-align:center; color:#fff;;}
+.BHCategory a.disabled + form + a + div.onoff i:before,
+.BHCategory a.disabled + a + div.onoff i:before{ content:'OFF'; background:#f99;}
+.BHCategory2 form.modifyInput{width:60%; margin-right:0;}

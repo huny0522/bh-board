@@ -1,0 +1,71 @@
+<?php if(_BH_ !== true) exit;
+/**
+ * @var $Model BoardModel
+ * @var $Data BH_DB_GetListWithPage
+ * @var $this BoardController
+ */
+?>
+<table class="Gallerylist">
+	<thead>
+	<tr>
+		<th>번호</th>
+		<th><?p. $Model->data['category']->DisplayName ?></th>
+		<th><?p. $Model->data['subject']->DisplayName ?></th>
+		<th><?p. $Model->data['mname']->DisplayName ?></th>
+		<th><?p. $Model->data['hit']->DisplayName ?></th>
+		<th><?p. $Model->data['recommend']->DisplayName ?></th>
+		<th><?p. $Model->data['reg_date']->DisplayName ?></th>
+	</tr>
+	</thead>
+	<tbody>
+	<?php if($Data->result && $Data->totalRecord){ ?>
+		<?php
+		while($row = $Data->Get()){
+			$secretIcon = $row['secret'] == 'y' ? '<span class="secretDoc">[비밀글]</span> ' : '';
+			?>
+			<tr>
+				<td><?p. $Data->beginNum-- ?></td>
+				<td><?v. $row['category']; ?></td>
+
+				<?php if($this->managerIs || $row['secret'] == 'n' || (_MEMBERIS === true && $_SESSION['member']['level'] == _SADMIN_LEVEL) || ($row['first_member_is'] == 'y' && strlen($row['muid']))){ ?>
+					<td><?p. $secretIcon ?><a href="<?a. 'View' ?>/<?p. toBase($row['seq']) ?><?fq. '' ?>"><?v. $row['subject']; ?></a></td>
+				<?php } else { ?>
+					<td><?p. $secretIcon ?><a href="<?a. 'View' ?>/<?p. toBase($row['seq']) ?><?fq. '' ?>" class="passwordView"><?v. $row['subject']; ?></a></td>
+				<?php } ?>
+
+				<td><?v. $row['mname']; ?></td>
+				<td><?v. $row['hit']; ?></td>
+				<td><?v. $row['recommend']; ?></td>
+				<td><?v. $row['reg_date']; ?></td>
+			</tr>
+		<?php } ?>
+	<?php } else{ ?>
+		<tr><td colspan="7" class="nothing">등록된 게시물이 없습니다.</td></tr>
+	<?php } ?>
+	</tbody>
+</table>
+
+<div class="left_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="btn2">글쓰기</a></div>
+<div class="paging"><?p. $Data->pageHtml ?></div>
+
+<div id="secretViewForm" class="hidden boardPassword">
+	<form id="viewForm" name="viewForm" method="post" action="">
+		<input type="password" name="pwd" required="required">
+		<span>비밀번호를 입력하여 주세요.</span>
+		<div class="sPopBtns">
+			<button type="submit" class="btn2">확인</button>
+			<button type="reset" class="btn2">취소</button>
+		</div>
+	</form>
+</div>
+
+<script>
+	$('.passwordView').on('click', function(e){
+		e.preventDefault();
+		$('#viewForm').attr('action', this.href);
+		$('#secretViewForm').show();
+	});
+	$('#secretViewForm button[type=reset]').on('click', function(e){
+		$('#secretViewForm').hide();
+	});
+</script>

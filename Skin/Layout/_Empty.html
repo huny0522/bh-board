@@ -1,0 +1,21 @@
+<?php
+if(_BH_ !== true) exit;
+
+ob_start();
+
+$this->CSSAdd('jquery-ui-1.10.1.css', 10);
+$this->CSSAdd('common.css', 10);
+$this->CSSAdd('style.css', 10);
+
+$this->JSAdd('jquery-1.11.3.min.js', 10);
+$this->JSAdd('jquery.form.min.js', 10);
+$this->JSAdd('jquery-ui.min.js', 10);
+$this->JSAdd('common.js', 10);
+?>
+<?inc. '/Layout/_Header.html' ?>
+
+<?p. $_BODY ?>
+
+<?inc. '/Layout/_Footer.html' ?>
+<?php
+$_BODY = ob_get_clean();

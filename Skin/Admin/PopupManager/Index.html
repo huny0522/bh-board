@@ -1,0 +1,43 @@
+<?php if(_BH_ !== true) exit;
+/**
+* @var $Model BannerModel
+ */
+/**
+* @var $Data BH_DB_GetListWithPage
+*/
+/**
+* @var $this BH_Controller
+*/
+?>
+
+<table class="list">
+<thead>
+<tr>
+	<th>번호</th>
+	<th><?p. $Model->data['img']->DisplayName ?></th>
+	<th><?p. $Model->data['subject']->DisplayName ?></th>
+	<th>기간</th>
+	<th><?p. $Model->data['enabled']->DisplayName ?></th>
+	<th></th>
+</tr>
+</thead>
+<tbody>
+<?php if($Data->result && $Data->totalRecord){ ?>
+<?php while($row = $Data->Get()){?>
+<tr>
+	<td><?p. $Data->beginNum-- ?></td>
+	<td><img src="<?v. _UPLOAD_URL.$row['img']; ?>" alt=""></td>
+	<td><?v. $row['subject']; ?></td>
+	<td><?v. $row['begin_date']; ?> ~ <?v. $row['end_date']; ?></td>
+	<td><?p. $Model->HTMLPrintEnum('enabled', $row['enabled']) ?></td>
+	<td><a href="<?a. 'Modify' ?>/<?p. toBase($row['seq']) ?><?fn. '' ?>">수정</a></td>
+</tr>
+<?php } ?>
+<?php } else{ ?>
+<tr><td colspan="6" class="nothing">등록된 게시물이 없습니다.</td></tr>
+<?php } ?>
+</tbody>
+</table>
+
+<div class="left_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="btn2">글쓰기</a></div>
+<div class="paging"><?p. $Data->pageHtml ?></div>

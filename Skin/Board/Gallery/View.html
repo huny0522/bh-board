@@ -1,0 +1,109 @@
+<?php if(_BH_ !== true) exit;
+/**
+* @var $Model BoardModel
+ */
+/**
+* @var $this BoardController
+*/
+$this->JSAdd('reply.js', 200);
+?>
+GallerySkin
+<div class="BoardView">
+	<header>
+		<div>
+			<?php if($Model->GetValue('category')){ ?>
+				<b>[<?v. $Model->GetValue('category') ?>]</b>
+			<?php } ?>
+			<?v. $Model->GetValue('subject') ?>
+		</div>
+		<ul>
+			<li class="mname"><b><?p. $Model->data['mname']->DisplayName ?></b> : <?v. $Model->GetValue('mname') ?></li>
+			<li><b><?p. $Model->data['recommend']->DisplayName ?></b> : <?v. $Model->GetValue('recommend') ?></li>
+			<li><b><?p. $Model->data['hit']->DisplayName ?></b> : <?v. $Model->GetValue('hit') ?></li>
+			<li><b><?p. $Model->data['reg_date']->DisplayName ?></b> : <?v. $Model->GetValue('reg_date') ?></li>
+		</ul>
+	</header>
+	<div class="contents">
+		<?php if($Model->GetValue('htmlis')){ ?>
+			<?vr. $Model->GetValue('content') ?>
+		<?php }else{ ?>
+			<?v. $Model->GetValue('content') ?>
+		<?php } ?>
+	</div>
+</div>
+
+<div class="bottomBtn">
+	<a href="<?a. '' ?><?fq. '' ?>" class="btn1">리스트</a>
+	<?php if($this->GetAuth('Write') && (!$Model->GetValue('muid') || (_MEMBERIS === true && $_SESSION['member']['muid'] == $Model->GetValue('muid') && $Model->GetValue('muid')))){ ?>
+	<a href="<?a. 'Modify/' ?><?v. $this->ID ?><?fq. '' ?>" class="btn1" id="modifyBtn">수정</a>
+	<a href="#" id="deleteArticle" data-seq="<?v. $this->ID ?>" class="btn1">삭제</a>
+	<?php } ?>
+	<?php if($this->GetAuth('Answer')){ ?>
+	<a href="<?a. 'Answer/' ?>?target=<?v. $this->ID ?><?fn. '' ?>" class="btn1" id="AnswerBtn">답변</a>
+	<?php } ?>
+	<a href="#" class="backbtn btn1">뒤로</a>
+</div>
+
+<div id="deleteForm" class="hidden boardPassword">
+	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete/' ?><?v. $this->ID ?><?fq. '' ?>">
+		<p>정말 삭제하시겠습니까?</p>
+		<?php if(!$Model->GetValue('muid')){ ?><input type="password" name="pwd" required="required"><?php } ?>
+		<div class="sPopBtns">
+			<button type="submit" class="btn2">삭제하기</button>
+			<button type="reset" class="btn2">취소</button>
+		</div>
+	</form>
+</div>
+
+<?php if(!$Model->GetValue('muid') || (_MEMBERIS === true && $Model->GetValue('muid') == $_SESSION['member']['muid'])){ ?>
+<div id="modifyForm" class="hidden boardPassword">
+	<form id="modForm" name="modForm" method="post" action="<?a. 'Modify/' ?><?v. $this->ID ?><?fq. '' ?>">
+		<?php if(!$Model->GetValue('muid')){ ?><input type="password" name="pwd" required="required"><?php } ?>
+		<span>수정하시려면 비밀번호를 입력하여 주세요.</span>
+		<div class="sPopBtns">
+			<button type="submit" class="btn2">확인</button>
+			<button type="reset" class="btn2">취소</button>
+		</div>
+	</form>
+</div>
+<?php } ?>
+
+<script>
+	$('#deleteArticle').on('click', function(e){
+		e.preventDefault();
+		$('#deleteForm').show();
+	});
+	$('#deleteForm button[type=reset]').on('click', function(e){
+		$('#deleteForm').hide();
+	});
+
+	$('#modifyBtn').on('click', function(e){
+		e.preventDefault();
+		<?php if(_MEMBERIS === true && $Model->GetValue('muid') == $_SESSION['member']['muid']){ ?>
+		$('#modForm').submit();
+		<?php } else { ?>
+		$('#modifyForm').show();
+		<?php } ?>
+	});
+	$('#modifyForm button[type=reset]').on('click', function(e){
+		$('#modifyForm').hide();
+	});
+</script>
+
+
+
+<?php if($this->boardManger->GetValue('use_reply') == 'y'){ ?>
+
+	<form id="replyGetForm" name="replyGetForm" action="<?p. _URL ?>/Reply/<?v. $this->TID ?>" method="post">
+		<input type="hidden" name="page" value="0">
+		<input type="hidden" name="article_seq" value="<?p. to10($this->ID) ?>">
+		<input type="hidden" name="article_pwd" value="<?v. isset($_POST['pwd']) ? $_POST['pwd'] : '' ?>">
+	</form>
+
+	<div id="Reply" data-page="0" data-seq="<?v. $this->ID ?>" data-bid="<?v. $this->TID ?>"></div>
+	<script>
+		$(document).ready(function(){
+			getReplyList();
+		});
+	</script>
+<?php } ?>

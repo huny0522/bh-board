@@ -1,0 +1,69 @@
+<?php if(_BH_ !== true) exit;
+/**
+* @var $Model ContentModel
+ */
+/**
+* @var $this BH_Controller
+*/
+?>
+
+<h2>컨테츠관리</h2>
+
+<table class="view">
+<tr>
+	<th><?p. $Model->data['subject']->DisplayName ?></th>
+	<td>
+		<?v. $Model->GetValue('subject') ?>
+	</td>
+</tr>
+<tr>
+	<th><?p. $Model->data['bid']->DisplayName ?></th>
+	<td>
+		<?v. $Model->GetValue('bid') ?>
+	</td>
+</tr>
+<tr>
+	<th><?p. $Model->data['html']->DisplayName ?></th>
+	<td>
+		<?v. $Model->GetValue('html') ?>
+	</td>
+</tr>
+<tr>
+	<th><?p. $Model->data['layout']->DisplayName ?></th>
+	<td>
+		<?v. $Model->GetValue('layout') ?>
+	</td>
+</tr>
+<tr>
+	<th><?p. $Model->data['hit']->DisplayName ?></th>
+	<td>
+		<?v. $Model->GetValue('hit') ?>
+	</td>
+</tr>
+<tr>
+	<th><?p. $Model->data['recommend']->DisplayName ?></th>
+	<td>
+		<?v. $Model->GetValue('recommend') ?>
+	</td>
+</tr>
+</table>
+<div class="bottomBtn"><a href="<?a. '' ?><?fq. '' ?>" class="btn1">리스트</a><a href="<?a. 'Modify' ?>?bid=<?v. $_GET['bid'] ?><?fn. '' ?>" class="btn1">수정</a><a href="#" id="deleteArticle" data-bid="<?v. $_GET['bid'] ?>" class="btn1">삭제</a></div>
+<div id="deleteForm" class="hidden modalConfirm">
+	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete' ?><?fq. '' ?>">
+		<input type="hidden" name="bid" value="<?v. $_GET['bid'] ?>">
+		<p>정말 삭제하시겠습니까?</p>
+		<div class="sPopBtns">
+			<button type="submit" class="btn2">삭제하기</button>
+			<button type="reset" class="btn2">취소</button>
+		</div>
+	</form>
+</div>
+<script>	$('#deleteArticle').on('click', function(e){
+		e.preventDefault();
+		$('#deleteForm').show();
+	});
+	$('#deleteForm button[type=reset]').on('click', function(e){
+		e.preventDefault();
+		$('#deleteForm').hide();
+	});
+</script>

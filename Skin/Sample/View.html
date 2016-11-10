@@ -1,0 +1,117 @@
+<?php if(_BH_ !== true) exit;
+/**
+* @var $Model MemberModel
+ */
+/**
+* @var $this BH_Controller
+*/
+?>
+
+<table class="view">
+<tr>
+	<th><?p. $Model->data['muid']->DisplayName ?></th>
+	<td>
+		<?v. $Model->GetValue('muid') ?>
+	</td>
+</tr>
+<tr>
+	<th><?p. $Model->data['mid']->DisplayName ?></th>
+	<td>
+		<?v. $Model->GetValue('mid') ?>
+	</td>
+</tr>
+<tr>
+	<th><?p. $Model->data['pwd']->DisplayName ?></th>
+	<td>
+		<?v. $Model->GetValue('pwd') ?>
+	</td>
+</tr>
+<tr>
+	<th><?p. $Model->data['mname']->DisplayName ?></th>
+	<td>
+		<?v. $Model->GetValue('mname') ?>
+	</td>
+</tr>
+<tr>
+	<th><?p. $Model->data['email']->DisplayName ?></th>
+	<td>
+		<?v. $Model->GetValue('email') ?>
+	</td>
+</tr>
+<tr>
+	<th><?p. $Model->data['cname']->DisplayName ?></th>
+	<td>
+		<?v. $Model->GetValue('cname') ?>
+	</td>
+</tr>
+<tr>
+	<th><?p. $Model->data['nickname']->DisplayName ?></th>
+	<td>
+		<?v. $Model->GetValue('nickname') ?>
+	</td>
+</tr>
+<tr>
+	<th><?p. $Model->data['level']->DisplayName ?></th>
+	<td><?p. $Model->HTMLPrintEnum('level', $Model->GetValue('level')) ?></td>
+</tr>
+<tr>
+	<th><?p. $Model->data['address1']->DisplayName ?></th>
+	<td>
+		<?v. $Model->GetValue('address1') ?>
+	</td>
+</tr>
+<tr>
+	<th><?p. $Model->data['address2']->DisplayName ?></th>
+	<td>
+		<?v. $Model->GetValue('address2') ?>
+	</td>
+</tr>
+<tr>
+	<th><?p. $Model->data['zipcode']->DisplayName ?></th>
+	<td>
+		<?v. $Model->GetValue('zipcode') ?>
+	</td>
+</tr>
+<tr>
+	<th><?p. $Model->data['tel']->DisplayName ?></th>
+	<td>
+		<?v. $Model->GetValue('tel') ?>
+	</td>
+</tr>
+<tr>
+	<th><?p. $Model->data['phone']->DisplayName ?></th>
+	<td>
+		<?v. $Model->GetValue('phone') ?>
+	</td>
+</tr>
+<tr>
+	<th><?p. $Model->data['reg_date']->DisplayName ?></th>
+	<td>
+		<?v. $Model->GetValue('reg_date') ?>
+	</td>
+</tr>
+<tr>
+	<th><?p. $Model->data['approve']->DisplayName ?></th>
+	<td><?p. $Model->HTMLPrintEnum('approve', $Model->GetValue('approve')) ?></td>
+</tr>
+</table>
+<div class="bottomBtn"><a href="<?a. '' ?><?fq. '' ?>" class="btn1">리스트</a><a href="<?a. 'Modify' ?>?muid=<?v. $_GET['muid'] ?><?fn. '' ?>" class="btn1">수정</a><a href="#" id="deleteArticle" data-muid="<?v. $_GET['muid'] ?>" class="btn1">삭제</a><a href="#" class="backbtn btn1">뒤로</a></div>
+<div id="deleteForm" class="hidden">
+	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete' ?><?fq. '' ?>">
+		<input type="hidden" name="muid" value="<?v. $_GET['muid'] ?>">
+		<p>정말 삭제하시겠습니까?</p>
+		<div class="sPopBtns">
+			<button type="submit" class="btn2">삭제하기</button>
+			<button type="reset" class="btn2">취소</button>
+		</div>
+	</form>
+</div>
+<script>	$('#deleteArticle').on('click', function(e){
+		e.preventDefault();
+		$('#deleteForm').show();
+	});
+	$('#deleteForm button[type=reset]').on('click', function(e){
+		e.preventDefault();
+		$('#deleteForm').hide();
+	});
+</script>

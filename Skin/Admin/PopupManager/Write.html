@@ -1,0 +1,161 @@
+<?php if(_BH_ !== true) exit;
+/**
+* @var $Model BannerModel
+ */
+/**
+* @var $this BannerManagerController
+*/
+?>
+
+<form name="BannerWriteForm" id="BannerWriteForm" method="post" action="<?a. $this->Action ?><?v. '/'.$this->ID ?><?fq. '' ?>" enctype="multipart/form-data">
+
+	<table class="write">
+		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['subject']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('subject') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['width']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('width') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['height']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('height') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['begin_date']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('begin_date') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['end_date']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('end_date') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['type']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('type') ?>
+			</td>
+		</tr>
+		<tr id="typeFieldI">
+			<th><?p. $Model->data['img']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('img') ?>
+				<div>
+					<?p. $Model->HTMLPrintLabel('link_url') ?>
+					<span><?p. $Model->HTMLPrintInput('link_url') ?></span>
+				</div>
+				<div>
+					<?p. $Model->HTMLPrintLabel('new_window') ?>
+					<span><?p. $Model->HTMLPrintInput('new_window') ?></span>
+				</div>
+			</td>
+		</tr>
+		<tr id="typeFieldC">
+			<th><?p. $Model->data['contents']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('contents') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['enabled']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('enabled') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['mlevel']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('mlevel') ?>
+			</td>
+		</tr>
+	</table>
+
+	<div class="bottomBtn">
+		<button type="submit" class="btn1"><?php echo $this->Action == 'Modify' ? '수정' : '등록'; ?></button>
+		<button type="reset" class="btn1">취소</button>
+		<a href="#" id="deleteArticle" data-seq="<?v. $_GET['seq'] ?>" class="btn1">삭제</a>
+		<a href="#" class="backbtn btn1">뒤로</a>
+	</div>
+</form>
+
+<script>
+	$(document).ready(function(){
+		typeView('<?p. $Model->GetValue('type') ?>');
+	})
+
+	var contentsViewIs = false;
+	function typeView(v){
+		if(v == 'c'){
+			$('#typeFieldI').addClass('hidden');
+			$('#typeFieldC').removeClass('hidden');
+			if(!contentsViewIs){
+				SE2_paste('MD_contents','<?p. _URL ?>');
+				contentsViewIs = true;
+			}
+		}else{
+			$('#typeFieldI').removeClass('hidden');
+			$('#typeFieldC').addClass('hidden');
+		}
+	}
+
+	$(document).on('submit', '#BannerWriteForm', function(e){
+		if(contentsViewIs) SE2_update('MD_contents');
+
+		var res = common.valCHeck(this);
+		if(!res){
+			e.preventDefault(); 
+			return false; 
+		} 
+	});
+
+	$(document).on('change', '#category_choice', function(){
+		if($(this).val() == 'x'){
+			$('#category_real input').val('');
+			$('#category_real').show();
+		}else{
+			$('#category_real input').val($(this).val());
+			$('#category_real').hide();
+		}
+	});
+
+	$(document).on('click', 'input[name=type]', function(){
+		typeView($(this).val());
+	});
+</script>
+
+<?php if($this->Action == 'Modify'){ ?>
+<div id="deleteForm" class="hidden modalConfirm">
+	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete' ?><?fq. '' ?>">
+		<input type="hidden" name="seq" value="<?v. $this->ID ?>">
+		<p>정말 삭제하시겠습니까?</p>
+		<div class="sPopBtns">
+			<button type="submit" class="btn2">삭제하기</button>
+			<button type="reset" class="btn2">취소</button>
+		</div>
+	</form>
+</div>
+
+<script>
+	$('#deleteArticle').on('click', function(e){
+		e.preventDefault();
+		$('#deleteForm').show();
+	});
+	$('#deleteForm button[type=reset]').on('click', function(e){
+		e.preventDefault();
+		$('#deleteForm').hide();
+	});
+
+
+</script>
+
+<?php } ?>

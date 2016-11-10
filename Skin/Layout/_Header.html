@@ -1,0 +1,29 @@
+<?php
+if(_BH_ !== true) exit;
+/**
+ * @var $this BH_Controller
+ */
+?>
+<!DOCTYPE html>
+<html>
+<head>
+
+	<title><?p. $this->Title ? $this->Title.' - ' : '' ?><?p. $this->Common->Config('Default','SiteName') ?></title>
+
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta name="viewport" content="width=device-width, user-scalable=no">
+
+<?p. $this->CSSPrint() ?>
+
+	<!--[if lt IE 9]>
+	<script src="<?p. _SKINURL ?>/js/html5shiv.min.js"></script>
+	<script src="<?p. _SKINURL ?>/js/respond.min.js"></script>
+	<script src="<?p. _SKINURL ?>/js/selectivizr-min.js"></script>
+	<![endif]-->
+
+<?p. $this->JSPrint() ?>
+
+</head>
+
+<body>
