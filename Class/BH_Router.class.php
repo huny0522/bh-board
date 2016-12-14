@@ -58,7 +58,7 @@ class BH_Router
 
 			default:
 
-				if( !$this->SetMenuRouter(_URL) ){
+				if( $this->GetUrl[1] == 'Install' || !$this->SetMenuRouter(_URL) ){
 					$_BH_App->Controller = $this->GetUrl[1];
 					$_BH_App->Action = $this->GetUrl[2];
 					$_BH_App->ID = $this->GetUrl[3];
