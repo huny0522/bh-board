@@ -35,13 +35,13 @@ $this->JSAdd('common.js', 10);
 			<nav id="tnb">
 				<ul>
 					<?php foreach($this->Common->MainMenu as $row){ ?>
-						<li<?p. isset($this->Common->ActiveMenu['category']) && substr($this->Common->ActiveMenu['category'], 0, strlen($row['category'])) == $row['category'] ? ' class="Active"' : '' ?>>
+						<li<?p. isset($this->Common->ActiveMenu['category']) && substr($this->Common->ActiveMenu['category'], 0, strlen($row['category'])) === $row['category'] ? ' class="Active"' : '' ?>>
 							<a href="<?p. _URL ?>/<?v. $row['controller'] ?>"><?v. $row['title'] ?></a>
 							<?php
 							if(isset($this->Common->SubMenu[$row['category']]) && sizeof($this->Common->SubMenu[$row['category']])){
 								echo '<ol>';
 								foreach($this->Common->SubMenu[$row['category']] as $subMenu){
-									echo '<li'.(isset($this->Common->ActiveMenu['category']) && substr($this->Common->ActiveMenu['category'], 0, strlen($subMenu['category'])) == $subMenu['category'] ? ' class="Active"' : '').'><a href="'._URL.'/'.$subMenu['controller'].'">'.GetDBText($subMenu['title']).'</a></li>';
+									echo '<li'.(isset($this->Common->ActiveMenu['category']) && substr($this->Common->ActiveMenu['category'], 0, strlen($subMenu['category'])) === $subMenu['category'] ? ' class="Active"' : '').'><a href="'._URL.'/'.$subMenu['controller'].'">'.GetDBText($subMenu['title']).'</a></li>';
 								}
 								echo '</ol>';
 							}
