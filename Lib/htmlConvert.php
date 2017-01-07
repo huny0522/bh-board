@@ -46,7 +46,7 @@ function ReplaceHTMLFile($source, $target){
 		$f = str_replace("\r",'', $f);
 		$f = preg_replace(
 			array(
-				'/(<\!--)(.*?)(\-\->)/s',
+				'/(<\!--)([^\[].*?)(\-\->)/s',
 				'/(\/\*)(.*?)(\*\/)/s',
 				'/\n\s*/'
 			),
