@@ -230,6 +230,9 @@ function to10($num, $b=62) {
 	return $res;
 }
 
+function JSON($bool, $message, $data){
+	echo json_encode(array('result' => $bool, 'message' => $message, 'data' => $data));
+}
 
 // ----------------------------------------
 //
