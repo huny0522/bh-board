@@ -67,11 +67,6 @@ class BH_Router
 			break;
 		}
 
-		if($_BH_App->Controller != 'MyPage'){
-			$_SESSION['MyInfoView'] = false;
-			unset($_SESSION['MyInfoView']);
-		}
-
 	}
 
 	public function SetMenu(){

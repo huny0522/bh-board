@@ -10,6 +10,12 @@ class BH_Common
 
 	public function __construct(){
 		global $_BH_App;
+
+		if($_BH_App->Controller != 'MyPage'){
+			$_SESSION['MyInfoView'] = false;
+			unset($_SESSION['MyInfoView']);
+		}
+
 		$this->MainMenu = $_BH_App->Router->MainMenu;
 		$this->SubMenu = $_BH_App->Router->SubMenu;
 		$this->ActiveMenu = $_BH_App->Router->ActiveMenu;
