@@ -57,22 +57,26 @@ class BH_Common
 
 	public function AdminAuth(){
 		if(_MEMBERIS !== true || ($_SESSION['member']['level'] != _SADMIN_LEVEL  && $_SESSION['member']['level'] != _ADMIN_LEVEL)){
-			Redirect(_ADMINURL.'/Login', _NO_AUTH.' 로그인하여 주세요.');
+			if(_AJAXIS === true) JSON(false, _NO_AUTH.' 로그인하여 주세요.');
+			else Redirect($GLOBALS['_BH_App']->CTRL->URLBase('Login'), _NO_AUTH.' 로그인하여 주세요.');
 		}
 		if($_SESSION['member']['level'] == _ADMIN_LEVEL){
 			$AdminAuth = explode(',', $this->GetMember('admin_auth'));
 			if(!in_array($GLOBALS['_BH_App']->CTRL->_Value['NowMenu'], $AdminAuth)){
-				Redirect('-1', _NO_AUTH);
+				if(_AJAXIS === true) JSON(false, _NO_AUTH);
+				else Redirect('-1', _NO_AUTH);
 			}
 		}
 	}
 
 	public function MemberAuth($level = 1){
 		if(_MEMBERIS !== true){
-			Redirect(_ADMINURL.'/Login', _NO_AUTH.' 로그인하여 주세요.');
+			if(_AJAXIS === true) JSON(false, _NO_AUTH.' 로그인하여 주세요.');
+			else Redirect($GLOBALS['_BH_App']->CTRL->URLBase('Login'), _NO_AUTH.' 로그인하여 주세요.');
 		}
 		if($_SESSION['member']['level'] < $level){
-			Redirect('-1', _NO_AUTH);
+			if(_AJAXIS === true) JSON(false, _NO_AUTH);
+			else Redirect('-1', _NO_AUTH);
 		}
 	}
 
