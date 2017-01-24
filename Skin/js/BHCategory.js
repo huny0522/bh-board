@@ -19,6 +19,7 @@ function BHCategory(elem, opt){
 	this.optionClickMenu = opt.titleClick;
 	this.optionfolderLoadMenu = opt.folderLoad;
 	this.optionDefaultTitle = typeof opt.defaultTitle != 'undefined' ? opt.defaultTitle : '이름없음';
+	this.optionHTML = typeof opt.maxLevel != 'undefined' ? opt.HTML : false;
 
 	this.ActionOption = null;
 
@@ -95,7 +96,8 @@ function BHCategory(elem, opt){
 	this.ModifyMenu = function(){
 		if(this.ActionOption == null || this.ActionOption.command != 'Mod') return;
 		var title = this.ActionOption.element.children('a.title');
-		title.children('b').text(this.ActionOption.title);
+		if(this.optionHTML) title.children('b').html(this.ActionOption.title);
+		else title.children('b').text(this.ActionOption.title);
 		title.prev().remove();
 		title.show();
 		this.ActionOption = null;
@@ -180,7 +182,7 @@ function BHCategory(elem, opt){
 
 		var title = $(this).closest('li').children('a.title');
 		if(!title.prev().hasClass('modifyInput')){
-			title.before('<form class="modifyInput"><input type="text" value="' + title.children('b').text() + '"><button type="submit" class="modifyConfirm"><span>Confirm</span></button></form>');
+			title.before('<form class="modifyInput"><input type="text" value="' + title.children('b').html().replace(/"/ig, '&quot;') + '"><button type="submit" class="modifyConfirm"><span>Confirm</span></button></form>');
 			$(this).closest('li').children('.modifyInput').children('input').focus();
 			title.hide();
 		}

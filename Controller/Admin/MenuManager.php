@@ -117,8 +117,7 @@ class MenuManagerController extends BH_Controller{
 	public function PostGetChild()
 	{
 		$res = $this->model->GetChild($_POST['parent']);
-		$res->SetData();
-		echo json_encode(array('result'=>true, 'data' => $res->data));
+		echo json_encode(array('result'=>true, 'data' => $res->GetRows()));
 	}
 
 	public function PostModifyTitle(){

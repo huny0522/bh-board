@@ -95,7 +95,7 @@ class BH_DB_GetList{
 	}
 
 	public function AddWhere($str){
-		$this->where[] = $str;
+		$this->where[] = '('.$str.')';
 	}
 
 	public function AddHaving($str){
@@ -116,10 +116,16 @@ class BH_DB_GetList{
 		}
 	}
 
-	public function SetData(){
+	public function DrawRows(){
+		if(!$this->RunIs) $this->Run();
 		while($row = $this->Get()){
 			$this->data[]= $row;
 		}
+	}
+
+	public function GetRows(){
+		$this->DrawRows();
+		return $this->data;
 	}
 
 	function Run(){
@@ -202,7 +208,7 @@ class BH_DB_GetListWithPage{
 	}
 
 	public function AddWhere($str){
-		$this->where[] = $str;
+		$this->where[] = '('.$str.')';
 	}
 
 	public function AddHaving($str){
@@ -223,11 +229,16 @@ class BH_DB_GetListWithPage{
 		}
 	}
 
-	public function SetData(){
+	public function DrawRows(){
 		if(!$this->RunIs) $this->Run();
 		while($row = $this->Get()){
 			$this->data[]= $row;
 		}
+	}
+
+	public function GetRows(){
+		$this->DrawRows();
+		return $this->data;
 	}
 
 	public function Run(){
@@ -388,7 +399,7 @@ class BH_DB_Insert{
 	}
 
 	public function AddWhere($str){
-		$this->where[] = $str;
+		$this->where[] = '('.$str.')';
 	}
 
 	public function UnsetWhere(){
@@ -482,7 +493,7 @@ class BH_DB_Update{
 	}
 
 	public function AddWhere($str){
-		$this->where[] = $str;
+		$this->where[] = '('.$str.')';
 	}
 
 	function Run(){

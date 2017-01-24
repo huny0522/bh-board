@@ -756,7 +756,7 @@ $(document).ready(function () {
 var oEditors = [];
 
 function SE2_paste(id, defaultfolder, hiddenimage){
-	$.getScript('/common/smart_editor/js/HuskyEZCreator.js').done(function( s, Status ) {
+	$.getScript('/Common/smart_editor/js/HuskyEZCreator.js').done(function( s, Status ) {
 
 		var imgbox = hiddenimage ? '' : '<div class="se2_add_img" data-sname="'+id+'">' +
 		'<span><button class="upbtn">이미지첨부</button></span>' +
@@ -774,7 +774,7 @@ function SE2_paste(id, defaultfolder, hiddenimage){
 		nhn.husky.EZCreator.createInIFrame({
 			oAppRef: oEditors,
 			elPlaceHolder: id,
-			sSkinURI: defaultfolder + "/common/smart_editor/SmartEditor2Skin.html",
+			sSkinURI: defaultfolder + "/Common/smart_editor/SmartEditor2Skin.html",
 			htParams : {
 				bUseToolbar : true,				// 툴바 사용 여부 (true:사용/ false:사용하지 않음)
 				bUseVerticalResizer : true,		// 입력창 크기 조절바 사용 여부 (true:사용/ false:사용하지 않음)

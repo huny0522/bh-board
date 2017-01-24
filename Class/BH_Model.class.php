@@ -102,7 +102,7 @@ abstract class BH_Model{
 					}
 				}
 				else{
-					if(isset($this->data[$k]->HtmlType) && $this->data[$k]->HtmlType != HTMLInputFile){
+					if((isset($this->data[$k]->HtmlType) || $this->data[$k]->Required) && $this->data[$k]->HtmlType != HTMLInputFile){
 						// if(!isset($this->Set) || !sizeof($this->Set) || (sizeof($this->Set) && in_array($k, $this->Set))){
 						if(isset($_POST[$k])) $this->data[$k]->Value = $_POST[$k];
 						$this->Need[] = $k;
@@ -307,7 +307,8 @@ abstract class BH_Model{
 	 *
 	 * @return string
 	 */
-	public function HTMLPrintEnum($Name, $Value){
+	public function HTMLPrintEnum($Name, $Value = ''){
+		if($Value == '') $Value = $this->GetValue($Name);
 		return isset($this->data[$Name]->EnumValues[$Value]) ? $this->data[$Name]->EnumValues[$Value] : null;
 	}
 

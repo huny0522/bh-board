@@ -4,9 +4,6 @@
  * 16.07.10
  */
 
-require _DIR.'/Model/Reply.model.php';
-require _DIR.'/Model/BoardManager.model.php';
-
 class ReplyController extends BH_Controller{
 	/**
 	 * @var ReplyModel
@@ -26,6 +23,9 @@ class ReplyController extends BH_Controller{
 		}
 		unset($this->Layout);
 
+		require _DIR.'/Model/Reply.model.php';
+		require _DIR.'/Model/BoardManager.model.php';
+
 		$this->model = new ReplyModel();
 		$this->boardManger = new BoardManagerModel();
 		$this->boardManger->DBGet($this->TID);
@@ -42,7 +42,7 @@ class ReplyController extends BH_Controller{
 			exit;
 		}
 
-		if($this->boardManger->GetValue('use_reply') == 'n') return;
+		if(isset($this->boardManger) && $this->boardManger->GetValue('use_reply') == 'n') return;
 
 		$myArticleIs = false;
 
@@ -67,10 +67,10 @@ class ReplyController extends BH_Controller{
 		$dbList->page = isset($_POST['page']) ? $_POST['page'] : 1;
 		//$dbList->pageUrl = $this->URLAction('').$this->GetFollowQuery('page');
 		$dbList->pageUrl = '#';
-		$dbList->articleCount = $this->boardManger->GetValue('article_count');
-		$dbList->articleCount = 5;
+		$dbList->articleCount = isset($this->boardManger) ? $this->boardManger->GetValue('article_count') : 20;
 		$dbList->AddWhere('article_seq='.$this->_Value['article_seq']);
 		$dbList->sort = 'sort1, sort2';
+		if(method_exists($this, 'IndexAddQuery')) $this->IndexAddQuery($dbList);
 		$dbList->Run();
 		while($row = $dbList->Get()){
 			// 비밀번호없이 수정권한
@@ -107,8 +107,10 @@ class ReplyController extends BH_Controller{
 			$dbList->data[] = $row;
 		}
 
-		$html = '/'.$this->Controller.'/'.$this->boardManger->GetValue('reply_skin').'/Index.html';
-		if(file_exists(_SKINDIR.$html)) $this->Html = $html;
+		if(isset($this->boardManger)){
+			$html = '/'.$this->Controller.'/'.$this->boardManger->GetValue('reply_skin').'/Index.html';
+			if(file_exists(_SKINDIR.$html)) $this->Html = $html;
+		}
 
 		$this->_View(null, $dbList);
 	}
@@ -204,6 +206,8 @@ class ReplyController extends BH_Controller{
 			exit;
 		}
 
+		if(method_exists($this, 'WriteAddQuery'))$this->WriteAddQuery();
+
 		$res = $this->model->DBInsert();
 
 		if($res->result){
@@ -220,7 +224,7 @@ class ReplyController extends BH_Controller{
 	}
 
 	public function PostViewSecret(){
-		$res = $this->model->DBGet(array(SetDBInt($_POST['article_seq']), SetDBInt($_POST['seq'])));
+		$this->GetData();
 
 		$pwd = SqlFetch('SELECT PASSWORD('.SetDBText($_POST['pwd']).') as pwd');
 
@@ -260,7 +264,8 @@ class ReplyController extends BH_Controller{
 			$this->model->Need[] = 'mnane';
 		}
 
-		$this->model->DBGet(array(SetDBInt($_POST['article_seq']), SetDBInt($_POST['seq'])));
+		$this->GetData();
+
 		$res = $this->model->SetPostValues();
 		if(!$res->result){
 			echo json_encode(array('result' => false, 'message' => $res->message));
@@ -331,15 +336,15 @@ class ReplyController extends BH_Controller{
 		$seq = SetDBInt($_POST['seq']);
 		$article_seq = SetDBInt($_POST['article_seq']);
 
-		$this->model->DBGet(array($article_seq, $seq));
+		$this->GetData();
 
 		// 회원 글 체크
 		if($this->model->GetValue('muid')){
 			if(_MEMBERIS !== true){
-				Redirect('-1', 'ERROR#101');
+				JSON(false, 'ERROR#101');
 			}
 			else if($this->model->GetValue('muid') != $_SESSION['member']['muid'] && $_SESSION['member']['level'] < _SADMIN_LEVEL){
-				Redirect('-1', 'ERROR#102');
+				JSON(false, 'ERROR#102');
 			}
 		}
 		else if(_MEMBERIS !== true || $_SESSION['member']['level'] < _SADMIN_LEVEL || !$this->managerIs){
@@ -359,10 +364,15 @@ class ReplyController extends BH_Controller{
 
 
 	public function GetAuth(){
+		if(!isset($this->boardManger)) return true;
 		$memberLevel = _MEMBERIS === true ? $_SESSION['member']['level'] : 0;
 		if($this->managerIs) return true;
 		if($memberLevel < $this->boardManger->GetValue('auth_reply_level')) return false;
 		return true;
+	}
+
+	public function GetData(){
+		return $this->model->DBGet(array(SetDBInt($_POST['article_seq']), SetDBInt($_POST['seq'])));
 	}
 
 }
