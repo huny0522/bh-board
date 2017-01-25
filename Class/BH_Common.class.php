@@ -11,7 +11,7 @@ class BH_Common
 	public function __construct(){
 		global $_BH_App;
 
-		if($_BH_App->Controller != 'MyPage'){
+		if($_BH_App->Controller != 'Mypage'){
 			$_SESSION['MyInfoView'] = false;
 			unset($_SESSION['MyInfoView']);
 		}

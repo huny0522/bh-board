@@ -112,7 +112,7 @@ CREATE TABLE `bh_member` (
 	UNIQUE INDEX `email` (`email`),
 	UNIQUE INDEX `mid` (`mid`)
 )
-COLLATE='utf8mb4_general_ci'
+COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 ";
 
@@ -174,14 +174,21 @@ CREATE TABLE `bh_w_member` (
 	`w_date` DATETIME NOT NULL COMMENT '탈퇴일',
 	PRIMARY KEY (`muid`)
 )
-COLLATE='utf8mb4_general_ci'
+COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 ";
-
-		$sql[] = "INSERT INTO `bh_member` (`muid`, `mid`, `pwd`, `mname`, `cname`, `nickname`, `level`, `reg_date`, `approve`)
- 			SELECT "._DBMAXINT.", 'admin', PASSWORD('12341234'), '관리자', '관리자', '관리자', 20, NOW(), 'y'
- 			WHERE NOT EXISTS (SELECT mid FROM bh_member WHERE mid='admin') LIMIT 1";
 		foreach($sql as $s){
+			@SqlQuery($s);
+		}
+
+
+		$sql2[] = "INSERT INTO `bh_member` (`muid`, `mid`, `pwd`, `mname`, `cname`, `nickname`, `level`, `reg_date`, `approve`, `email`)
+ 			SELECT "._DBMAXINT.", 'admin', PASSWORD('12341234'), '관리자', '관리자', '관리자', 18, NOW(), 'y', 'admin@admin.com'";
+
+		$sql2[] = "INSERT INTO `bh_member` (`muid`, `mid`, `pwd`, `mname`, `cname`, `nickname`, `level`, `reg_date`, `approve`, `email`)
+ 			SELECT ".(_DBMAXINT - 1).", 'developer', PASSWORD('12341234'), '개발자', '개발자', '개발자', 20, NOW(), 'y', 'developer@admin.com'";
+
+		foreach($sql2 as $s){
 			SqlQuery($s);
 		}
 
