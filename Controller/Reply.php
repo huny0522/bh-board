@@ -197,7 +197,7 @@ class ReplyController extends BH_Controller{
 			$this->model->SetValue('depth', $row['depth'] + 1);
 		}else{
 			$this->model->SetValue('first_member_is', _MEMBERIS === true ? 'y' : 'n');
-			$this->model->SetQueryValue('sort1', '(SELECT IF(s.sort1 IS NULL, 0, MIN(s.sort1))-1 FROM '.$this->model->table.' as s WHERE s.article_seq='.$this->_Value['article_seq'].')');
+			$this->model->SetQueryValue('sort1', '(SELECT IF(COUNT(s.sort1) = 0, 0, MIN(s.sort1))-1 FROM '.$this->model->table.' as s WHERE s.article_seq='.$this->_Value['article_seq'].')');
 		}
 
 		$error = $this->model->GetErrorMessage();
