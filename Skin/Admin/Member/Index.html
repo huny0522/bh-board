@@ -18,7 +18,7 @@
 		<span>
 			<select id="SearchLevel" name="SLevel">
 				<option value="">선택</option>
-				<?p. SelectOption(array(_MEMBER_LEVEL => '일반회원', _CLIENT_LEVEL => '클라이언트', _MANAGER_LEVEL => '매니저', _ADMIN_LEVEL => '관리자', _SADMIN_LEVEL => '최고관리자'), GetDBText(isset($_GET['SLevel']) ? $_GET['SLevel'] : '')) ?>
+				<?p. SelectOption(array(_MEMBER_LEVEL => '일반회원', _MANAGER_LEVEL => '매니저', _ADMIN_LEVEL => '관리자', _SADMIN_LEVEL => '최고관리자'), GetDBText(isset($_GET['SLevel']) ? $_GET['SLevel'] : '')) ?>
 			</select>
 		</span>
 		<label for="Keyword">검색어</label>

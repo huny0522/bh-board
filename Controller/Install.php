@@ -182,8 +182,8 @@ ENGINE=InnoDB
 		}
 
 
-		$sql2[] = "INSERT INTO `bh_member` (`muid`, `mid`, `pwd`, `mname`, `cname`, `nickname`, `level`, `reg_date`, `approve`, `email`)
- 			SELECT "._DBMAXINT.", 'admin', PASSWORD('12341234'), '관리자', '관리자', '관리자', 18, NOW(), 'y', 'admin@admin.com'";
+		$sql2[] = "INSERT INTO `bh_member` (`muid`, `mid`, `pwd`, `mname`, `cname`, `nickname`, `level`, `reg_date`, `approve`, `email`, `admin_auth`)
+ 			SELECT "._DBMAXINT.", 'admin', PASSWORD('12341234'), '관리자', '관리자', '관리자', 18, NOW(), 'y', 'admin@admin.com', '001,001001,001002,001003,002,003,005'";
 
 		$sql2[] = "INSERT INTO `bh_member` (`muid`, `mid`, `pwd`, `mname`, `cname`, `nickname`, `level`, `reg_date`, `approve`, `email`)
  			SELECT ".(_DBMAXINT - 1).", 'developer', PASSWORD('12341234'), '개발자', '개발자', '개발자', 20, NOW(), 'y', 'developer@admin.com'";

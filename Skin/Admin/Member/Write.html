@@ -65,21 +65,14 @@
 				<?p. $Model->HTMLPrintInput('nickname') ?>
 			</td>
 		</tr>
-<?php if(0 && $Model->GetValue('level') < 20){ ?>
-		<tr>
-			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['level']->DisplayName ?></th>
-			<td>
-				<?p. $Model->HTMLPrintInput('level') ?>
-			</td>
-		</tr>
-<?php }else{ ?>
 		<tr>
 			<th><?p. $Model->data['level']->DisplayName ?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('level', $Model->data['level']->EnumValues) ?>
+				<select name="level">
+					<?p. SelectOption($this->_Value['level'], $Model->GetValue('level')) ?>
+				</select>
 			</td>
 		</tr>
-<?php } ?>
 		<tr>
 			<th><?p. $Model->data['address1']->DisplayName ?></th>
 			<td>

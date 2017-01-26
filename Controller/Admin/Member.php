@@ -32,6 +32,7 @@ class MemberController extends BH_Controller{
 		$dbGetList->page = isset($_GET['page']) ? $_GET['page'] : 1;
 		$dbGetList->pageUrl = $this->URLAction('').$this->GetFollowQuery('page');
 		$dbGetList->articleCount = 20;
+		$dbGetList->AddWhere('level < '.$_SESSION['member']['level'].' OR muid = '.$_SESSION['member']['muid']);
 		if(isset($_GET['Keyword']) && strlen(trim($_GET['Keyword']))){
 			$keywrod = my_escape_string(trim($_GET['Keyword']));
 			$dbGetList->AddWhere('( mid LIKE \'%'.$keywrod.'%\' OR email LIKE \'%'.$keywrod.'%\' OR mname LIKE \'%'.$keywrod.'%\' OR nickname LIKE \'%'.$keywrod.'%\' OR phone LIKE \'%'.$keywrod.'%\' )');
@@ -46,6 +47,9 @@ class MemberController extends BH_Controller{
 
 	public function View(){
 		$res = $this->model->DBGet($_GET['muid']);
+		if($this->model->GetValue('level') > $_SESSION['member']['level'] || ($_SESSION['member']['muid'] != $this->model->GetValue('muid') && $this->model->GetValue('level') == $_SESSION['member']['level'])){
+			Redirect('-1', _WRONG_CONNECTED);
+		}
 
 		if(!$res->result){
 			Redirect('-1', $res->message);
@@ -54,11 +58,20 @@ class MemberController extends BH_Controller{
 		$this->_View($this->model);
 	}
 	public function Write(){
+		foreach($this->model->data['level']->EnumValues as $k => $v){
+			if($k <= $_SESSION['member']['level']) $this->_Value['level'][$k] = $v;
+		}
 		$this->_View($this->model);
 	}
 	public function Modify(){
+		foreach($this->model->data['level']->EnumValues as $k => $v){
+			if($k <= $_SESSION['member']['level']) $this->_Value['level'][$k] = $v;
+		}
 		$this->model->data['pwd']->Required = false;
 		$res = $this->model->DBGet($_GET['muid']);
+		if($this->model->GetValue('level') > $_SESSION['member']['level'] || ($_SESSION['member']['muid'] != $this->model->GetValue('muid') && $this->model->GetValue('level') == $_SESSION['member']['level'])){
+			Redirect('-1', _WRONG_CONNECTED);
+		}
 
 		if(!$res->result){
 			Redirect('-1', $res->message);
@@ -72,6 +85,9 @@ class MemberController extends BH_Controller{
 			Redirect('-1',$res->message);
 		}
 		else{
+			if($this->model->GetValue('level') >= $_SESSION['member']['level']){
+				Redirect('-1', '해당 레벨로 등록이 불가능합니다.');
+			}
 			$res = $this->model->DBInsert();
 			if($res->result){
 				Redirect($this->URLAction().$this->GetFollowQuery());
@@ -85,7 +101,15 @@ class MemberController extends BH_Controller{
 		if(!$_POST['pwd']) unset($_POST['pwd']);
 
 		$res = $this->model->DBGet($_POST['muid']);
+		if($this->model->GetValue('level') > $_SESSION['member']['level'] || ($_SESSION['member']['muid'] != $this->model->GetValue('muid') && $this->model->GetValue('level') == $_SESSION['member']['level'])){
+			Redirect('-1', _WRONG_CONNECTED);
+		}
+
 		$res = $this->model->SetPostValues();
+		if($this->model->GetValue('level') >= $_SESSION['member']['level'] && $this->model->GetValue('muid') != $_SESSION['member']['muid']){
+			Redirect('-1', '해당 레벨로 등록이 불가능합니다.');
+		}
+
 		if(!$res->result){
 			Redirect('-1',$res->message);
 		}
@@ -102,8 +126,9 @@ class MemberController extends BH_Controller{
 
 	public function PostDelete(){
 		$this->model->DBGet($_POST['muid']);
-		if($this->model->GetValue('level') == _SADMIN_LEVEL){
-			Redirect('-1', '최고관리자는 삭제가 불가능합니다.');
+
+		if($this->model->GetValue('level') >= $_SESSION['member']['level']){
+			Redirect('-1', '관리자는 삭제가 불가능합니다.');
 		}
 		if(isset($_POST['muid']) && $_POST['muid'] != ''){
 			$res = $this->model->DBDelete($_POST['muid']);
@@ -129,6 +154,7 @@ class MemberController extends BH_Controller{
 	}
 
 	public function PostAuthAdmin(){
+		if($_SESSION['member']['level'] != _SADMIN_LEVEL) JSON(false, _WRONG_CONNECTED);
 		$muid = SetDBInt($_POST['muid']);
 		$dbGet = new BH_DB_Get($this->model->table);
 		$dbGet->AddWhere('muid='.$muid);
