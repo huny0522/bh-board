@@ -18,11 +18,15 @@
 		<tr>
 			<th><?p. $Model->data['mid']->DisplayName ?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('mid') ?>
-				<ul class="guide">
-					<li>4자 이상, 16자 이하로 입력하여주세요.</li>
-					<li>영문만 입력하여 주세요.</li>
-				</ul>
+				<?php if($this->Action == 'Modify'){ ?>
+					<?v. $Model->GetValue('mid') ?>
+				<?php }else{ ?>
+					<?p. $Model->HTMLPrintInput('mid') ?>
+					<ul class="guide">
+						<li>4자 이상, 16자 이하로 입력하여주세요.</li>
+						<li>영문만 입력하여 주세요.</li>
+					</ul>
+				<?php } ?>
 			</td>
 		</tr>
 		<tr>

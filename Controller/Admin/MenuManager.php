@@ -15,7 +15,7 @@ class MenuManagerController extends BH_Controller{
 
 	public function __Init(){
 		$this->_Value['NowMenu'] = '004';
-		$this->Common->AdminAuth();
+		$this->_CF->AdminAuth();
 
 		$this->Layout = '_Admin';
 		$this->model = new MenuModel();

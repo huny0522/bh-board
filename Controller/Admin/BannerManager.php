@@ -13,7 +13,7 @@ class BannerManagerController extends BH_Controller
 	public $model = null;
 	public function __Init(){
 		$this->_Value['NowMenu'] = '001002';
-		$this->Common->AdminAuth();
+		$this->_CF->AdminAuth();
 
 		$this->model = new BannerModel();
 
@@ -76,7 +76,7 @@ class BannerManagerController extends BH_Controller
 			}else{
 				$res = $this->model->DBInsert();
 				if($res->result){
-					$this->Common->ContentImageUpate($this->model->table, array('seq' => $res->id), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
+					$this->_CF->ContentImageUpate($this->model->table, array('seq' => $res->id), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
 
 					Redirect($this->URLAction().$this->GetFollowQuery());
 				}else{
@@ -113,7 +113,7 @@ class BannerManagerController extends BH_Controller
 
 			$res = $this->model->DBUpdate();
 			if($res->result){
-				$this->Common->ContentImageUpate($this->model->table, array('seq' => to10($this->ID)), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
+				$this->_CF->ContentImageUpate($this->model->table, array('seq' => to10($this->ID)), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
 				$url = $this->URLAction().$this->GetFollowQuery();
 				Redirect($url, '수정완료');
 			}else{

@@ -15,7 +15,7 @@ class MemberController extends BH_Controller{
 
 	public function __Init(){
 		$this->_Value['NowMenu'] = '005';
-		$this->Common->AdminAuth();
+		$this->_CF->AdminAuth();
 
 		$this->model = new MemberModel();
 
@@ -117,6 +117,7 @@ class MemberController extends BH_Controller{
 
 	public function AuthAdmin(){
 		unset($this->Layout);
+		if($_SESSION['member']['level'] != _SADMIN_LEVEL) return;
 		$dbGet = new BH_DB_Get($this->model->table);
 		$dbGet->AddWhere('muid='.SetDBInt($_GET['muid']));
 		$dbGet->SetKey(array('level', 'admin_auth'));

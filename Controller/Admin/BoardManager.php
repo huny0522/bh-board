@@ -15,7 +15,7 @@ class BoardManagerController extends BH_Controller{
 
 	public function __Init(){
 		$this->_Value['NowMenu'] = '002';
-		$this->Common->AdminAuth();
+		$this->_CF->AdminAuth();
 
 		$this->model = new BoardManagerModel();
 

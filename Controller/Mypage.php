@@ -7,7 +7,7 @@
 require_once _DIR.'/Model/Member.model.php';
 class MypageController extends BH_Controller{
 	public function __Init(){
-		$this->Common->MemberAuth(1);
+		$this->_CF->MemberAuth(1);
 		$this->Layout = '_Mypage';
 	}
 

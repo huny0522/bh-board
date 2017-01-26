@@ -31,14 +31,14 @@ $this->JSAdd('admin.js', 10);
 				<ul>
 					<?php
 					$NM = $this->_Value['NowMenu'];
-					$AdminAuth = explode(',', $this->Common->GetMember('admin_auth'));
-					foreach($this->Common->AdminMenu as $c => $v){
+					$AdminAuth = explode(',', $this->_CF->GetMember('admin_auth'));
+					foreach($this->_CF->AdminMenu as $c => $v){
 						if(strlen($c) == 3 && ($_SESSION['member']['level'] == _SADMIN_LEVEL || in_array($c, $AdminAuth))){
 							echo '<li '.(substr($NM,0,3) == $c ? ' class="Active"' : '').'>'
 								.'<span><a href="'. _ADMINURL.'/'.$v['Category'].'">'.$v['Name'].'</a></span>';
 
 							$sub = '';
-							foreach($this->Common->AdminMenu as $c2 => $v2){
+							foreach($this->_CF->AdminMenu as $c2 => $v2){
 								if(strlen($c2) == 6 && substr($c2, 0, 3) == $c && ($_SESSION['member']['level'] == _SADMIN_LEVEL || in_array($c2, $AdminAuth))){
 									$sub .= '<li '.(substr($NM,0,6) == $c2 ? ' class="Active"' : '').'>'
 										.'<span><a href="'. _ADMINURL.'/'.$v2['Category'].'">'.$v2['Name'].'</a></span>';

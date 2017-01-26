@@ -30,7 +30,7 @@ class ReplyController extends BH_Controller{
 		$this->boardManger = new BoardManagerModel();
 		$this->boardManger->DBGet($this->TID);
 
-		$mid = $this->Common->GetMember('mid');
+		$mid = $this->_CF->GetMember('mid');
 		$manager = explode(',', $this->boardManger->GetValue('manager'));
 		if ($mid !== false && in_array($mid, $manager)) {
 			$this->managerIs = true;
@@ -174,7 +174,7 @@ class ReplyController extends BH_Controller{
 
 		// 회원유무
 		if(_MEMBERIS === true){
-			$member = $this->Common->GetMember();
+			$member = $this->_CF->GetMember();
 
 			$this->model->SetValue('muid', $_SESSION['member']['muid']);
 			$this->model->SetValue('mlevel', $member['level']);

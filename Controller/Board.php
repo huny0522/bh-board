@@ -24,7 +24,7 @@ class BoardController extends BH_Controller{
 		$this->boardManger->DBGet($this->TID);
 		$this->SetFollowQuery(array('page','searchType','searchKeyword','category'));
 
-		$mid = $this->Common->GetMember('mid');
+		$mid = $this->_CF->GetMember('mid');
 		$manager = explode(',', $this->boardManger->GetValue('manager'));
 		if ($mid !== false && in_array($mid, $manager)) {
 			$this->managerIs = true;
@@ -193,7 +193,7 @@ class BoardController extends BH_Controller{
 //			}
 //
 //			if($_SESSION['member']['level'] < _SADMIN_LEVEL){
-//				$member = $this->Common->GetMember();
+//				$member = $this->_CF->GetMember();
 //
 //				$manager = explode(',', $this->boardManger->data['manager']);
 //				if(!in_array($member['mid'], $manager)){
@@ -335,7 +335,7 @@ class BoardController extends BH_Controller{
 
 		$this->model->Need = array('subject', 'content', 'secret');
 		if(_MEMBERIS === true){
-			$member = $this->Common->GetMember();
+			$member = $this->_CF->GetMember();
 			$this->model->AddExcept('pwd');
 		}
 

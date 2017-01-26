@@ -12,7 +12,7 @@ class ContentManagerController extends BH_Controller{
 
 	public function __Init(){
 		$this->_Value['NowMenu'] = '003';
-		$this->Common->AdminAuth();
+		$this->_CF->AdminAuth();
 
 		// 항상 따라다닐 URL 쿼리 파라미터를 지정
 		$this->SetFollowQuery(array('where', 'keyword','page'));

@@ -26,10 +26,10 @@ abstract class BH_Controller{
 	/**
 	 * @var BH_Common
 	 */
-	public $Common;
+	public $_CF;
 
 	public function __construct(){
-		$this->Common = new BH_Common();
+		$this->_CF = new BH_Common();
 		$this->Action = $GLOBALS['_BH_App']->Action;
 		$this->Controller = $GLOBALS['_BH_App']->Controller;
 		$this->ID = $GLOBALS['_BH_App']->ID;

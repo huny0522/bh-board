@@ -12,11 +12,11 @@
 	</div>
 	<form name="AuthForm" id="AuthForm" method="post" action="<?a. $this->Action ?><?fq. '' ?>">
 		<input type="hidden" name="muid" value="<?p. SetDBInt($_GET['muid']) ?>">
-		<?php if(sizeof($this->Common->AdminMenu) && isset($this->Common->AdminMenu)){ ?>
+		<?php if(sizeof($this->_CF->AdminMenu) && isset($this->_CF->AdminMenu)){ ?>
 
 		<ul>
 			<?php
-			foreach($this->Common->AdminMenu as $c => $row){
+			foreach($this->_CF->AdminMenu as $c => $row){
 				if(strlen($c) == 3){
 					?>
 					<li>
@@ -29,7 +29,7 @@
 						</p>
 						<?php
 						$sub = '';
-						foreach($this->Common->AdminMenu as $c2 => $row2){
+						foreach($this->_CF->AdminMenu as $c2 => $row2){
 							if(strlen($c2) == 6 && substr($c2, 0, 3) == $c){
 								$sub .= '<li>'
 									.'<p>'
