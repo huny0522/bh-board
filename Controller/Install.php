@@ -63,16 +63,16 @@ ENGINE=InnoDB
 
 		$sql[] = "
 CREATE TABLE `bh_content` (
-	`bid` VARCHAR(20) NOT NULL DEFAULT '' COLLATE 'utf8_unicode_ci',
-	`subject` VARCHAR(128) NOT NULL DEFAULT '' COLLATE 'utf8_unicode_ci',
-	`layout` VARCHAR(50) NOT NULL DEFAULT '' COLLATE 'utf8_unicode_ci',
-	`html` VARCHAR(64) NOT NULL DEFAULT '' COLLATE 'utf8_unicode_ci',
+	`bid` VARCHAR(20) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
+	`subject` VARCHAR(128) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
+	`layout` VARCHAR(50) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
+	`html` VARCHAR(64) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
 	`hit` INT(11) NOT NULL DEFAULT '0',
 	`recommend` INT(11) NOT NULL DEFAULT '0',
 	`reg_date` DATETIME NOT NULL,
 	PRIMARY KEY (`bid`)
 )
-COLLATE='utf8_unicode_ci'
+COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 ";
 
@@ -120,19 +120,19 @@ ENGINE=InnoDB
 CREATE TABLE `bh_menu` (
 	`category` VARBINARY(50) NOT NULL DEFAULT '0',
 	`sort` INT(11) NOT NULL DEFAULT '0',
-	`controller` VARCHAR(32) NOT NULL DEFAULT '' COLLATE 'utf8_unicode_ci',
-	`title` VARCHAR(64) NOT NULL DEFAULT '0' COLLATE 'utf8_unicode_ci',
-	`type` ENUM('customize','board','content') NOT NULL DEFAULT 'board' COLLATE 'utf8_unicode_ci',
-	`enabled` ENUM('y','n') NOT NULL DEFAULT 'y' COLLATE 'utf8_unicode_ci',
-	`parent_enabled` ENUM('y','n') NOT NULL DEFAULT 'y' COLLATE 'utf8_unicode_ci',
-	`bid` VARCHAR(20) NOT NULL DEFAULT '' COLLATE 'utf8_unicode_ci',
+	`controller` VARCHAR(32) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
+	`title` VARCHAR(64) NOT NULL DEFAULT '0' COLLATE 'utf8_general_ci',
+	`type` ENUM('customize','board','content') NOT NULL DEFAULT 'board' COLLATE 'utf8_general_ci',
+	`enabled` ENUM('y','n') NOT NULL DEFAULT 'y' COLLATE 'utf8_general_ci',
+	`parent_enabled` ENUM('y','n') NOT NULL DEFAULT 'y' COLLATE 'utf8_general_ci',
+	`bid` VARCHAR(20) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
 	PRIMARY KEY (`category`),
 	INDEX `controller` (`controller`),
 	INDEX `enabled` (`enabled`),
 	INDEX `parent_enabled` (`parent_enabled`),
 	INDEX `sort` (`sort`)
 )
-COLLATE='utf8_unicode_ci'
+COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 ";
 
