@@ -173,7 +173,6 @@ function SetDBTrimText($txt){
 
 function SetDBText($txt){
 	if(is_array($txt)){
-		$r = '';
 		foreach($txt as $k => $row){
 			$txt[$k] = SetDBText($row);
 		}
@@ -205,11 +204,23 @@ function SetDBFloat($txt){
 }
 
 function GetDBText($txt){
-	return htmlspecialchars(stripslashes($txt));
+	if(is_array($txt)){
+		foreach($txt as $k => $row){
+			$txt[$k] = GetDBText($row);
+		}
+		return $txt;
+	}
+	else return htmlspecialchars(stripslashes($txt));
 }
 
 function GetDBRaw($txt){
-	return RemoveScriptTag(stripslashes($txt));
+	if(is_array($txt)){
+		foreach($txt as $k => $row){
+			$txt[$k] = GetDBRaw($row);
+		}
+		return $txt;
+	}
+	else return RemoveScriptTag(stripslashes($txt));
 }
 
 function toBase($num, $b=62) {
