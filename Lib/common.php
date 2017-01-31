@@ -172,7 +172,14 @@ function SetDBTrimText($txt){
 }
 
 function SetDBText($txt){
-	return chr(39).(my_escape_string($txt)).chr(39);
+	if(is_array($txt)){
+		$r = '';
+		foreach($txt as $k => $row){
+			$txt[$k] = SetDBText($row);
+		}
+		return $txt;
+	}
+	else return chr(39).(my_escape_string($txt)).chr(39);
 }
 
 function SetDBInt($txt){
