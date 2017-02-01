@@ -41,7 +41,7 @@ p.alert{color:#e00; padding-bottom:10px;}
 /* ---------------------------------------------
 * 1. Header & Footer
 --------------------------------------------- */
-#wrap{height:100%; color:#243854;}
+#wrap{height:100%; color:#243854; min-width:1200px;}
 #header{position:relative; background:#112233 url('../images/bg01.png'); color:white;}
 #header:before{ content:' '; position:absolute; top:50px; left:0; z-index:1; height:27px; width:100%; background:#0E5579;}
 #header:after{ content:' '; z-index:1; display:block; height:24px; width:100%; background:#d3d6df;}
@@ -142,3 +142,5 @@ fieldset{ padding-bottom:30px;}
 #authContents form > ul > li > ul li{ display:inline-block;}
 div.opt{ padding:5px; text-align:right;}
 
+.menuSelectArea .menuSelect{ margin-bottom:5px;}
+a.menuSelectAddBtn{ margin-top:5px;}

@@ -13,6 +13,18 @@
 <h2>게시판관리</h2>
 
 <table class="list">
+	<colgroup>
+		<col style="width:5%;">
+		<col style="width:15%;">
+		<col style="">
+		<col style="">
+		<col style="">
+		<col style="">
+		<col style="">
+		<col style="">
+		<col style="">
+		<col style="width:15%;">
+	</colgroup>
 <thead>
 <tr>
 	<th>번호</th>
@@ -24,6 +36,7 @@
 	<th><?p. $Model->data['auth_reply_level']->DisplayName ?></th>
 	<th><?p. $Model->data['auth_answer_level']->DisplayName ?></th>
 	<th><?p. $Model->data['use_reply']->DisplayName ?></th>
+	<th>연결메뉴</th>
 </tr>
 </thead>
 <tbody>
@@ -39,10 +52,11 @@
 	<td><?p. $Model->HTMLPrintEnum('auth_reply_level', $row['auth_reply_level']) ?></td>
 	<td><?p. $Model->HTMLPrintEnum('auth_answer_level', $row['auth_answer_level']) ?></td>
 	<td><?p. $Model->HTMLPrintEnum('use_reply', $row['use_reply']) ?></td>
+	<td><?v. $row['title'] ?></td>
 </tr>
 <?php } ?>
 <?php } else{ ?>
-<tr><td colspan="8" class="nothing">등록된 게시물이 없습니다.</td></tr>
+<tr><td colspan="10" class="nothing">등록된 게시물이 없습니다.</td></tr>
 <?php } ?>
 </tbody>
 </table>

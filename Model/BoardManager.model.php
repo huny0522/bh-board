@@ -36,11 +36,7 @@ class BoardManagerModel extends BH_Model{
 
 		$this->InitModelData('category', ModelTypeString, false, '분류');
 		$this->data['category']->HtmlType = HTMLInputText;
-		$this->data['subject']->MaxLength = 256;
-
-		$this->InitModelData('category', ModelTypeString, false, '분류');
-		$this->data['category']->HtmlType = HTMLInputText;
-		$this->data['subject']->MaxLength = 256;
+		$this->data['category']->MaxLength = 256;
 
 		$this->InitModelData('article_count', ModelTypeInt, false, '게시물수');
 		$this->data['article_count']->HtmlType = HTMLInputText;

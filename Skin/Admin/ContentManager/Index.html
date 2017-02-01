@@ -13,6 +13,16 @@
 <h2>컨테츠관리</h2>
 
 <table class="list">
+	<colgroup>
+		<col style="width:5%;">
+		<col style="width:15%;">
+		<col style="">
+		<col style="">
+		<col style="">
+		<col style="">
+		<col style="">
+		<col style="width:15%;">
+	</colgroup>
 <thead>
 <tr>
 	<th>번호</th>
@@ -22,6 +32,7 @@
 	<th><?p. $Model->data['layout']->DisplayName ?></th>
 	<th><?p. $Model->data['hit']->DisplayName ?></th>
 	<th><?p. $Model->data['recommend']->DisplayName ?></th>
+	<th>연결메뉴</th>
 </tr>
 </thead>
 <tbody>
@@ -35,10 +46,11 @@
 	<td><?v. $row['layout']; ?></td>
 	<td><?v. $row['hit']; ?></td>
 	<td><?v. $row['recommend']; ?></td>
+	<td><?v. $row['title'] ?></td>
 </tr>
 <?php } ?>
 <?php } else{ ?>
-<tr><td colspan="7" class="nothing">등록된 게시물이 없습니다.</td></tr>
+<tr><td colspan="8" class="nothing">등록된 게시물이 없습니다.</td></tr>
 <?php } ?>
 </tbody>
 </table>

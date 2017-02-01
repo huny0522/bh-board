@@ -122,7 +122,7 @@ CREATE TABLE `bh_menu` (
 	`sort` INT(11) NOT NULL DEFAULT '0',
 	`controller` VARCHAR(32) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
 	`title` VARCHAR(64) NOT NULL DEFAULT '0' COLLATE 'utf8_general_ci',
-	`type` ENUM('customize','board','content') NOT NULL DEFAULT 'board' COLLATE 'utf8_general_ci',
+	`type` ENUM('customize','board','content') NOT NULL DEFAULT 'customize' COLLATE 'utf8_general_ci',
 	`enabled` ENUM('y','n') NOT NULL DEFAULT 'y' COLLATE 'utf8_general_ci',
 	`parent_enabled` ENUM('y','n') NOT NULL DEFAULT 'y' COLLATE 'utf8_general_ci',
 	`bid` VARCHAR(20) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
@@ -187,6 +187,8 @@ ENGINE=InnoDB
 
 		$sql2[] = "INSERT INTO `bh_member` (`muid`, `mid`, `pwd`, `mname`, `cname`, `nickname`, `level`, `reg_date`, `approve`, `email`)
  			SELECT ".(_DBMAXINT - 1).", 'developer', PASSWORD('12341234'), '개발자', '개발자', '개발자', 20, NOW(), 'y', 'developer@admin.com'";
+
+		$sql2[] = "INSERT INTO `bh_menu` (`category`, `sort`, `controller`, `title`, `type`, `enabled`, `parent_enabled`, `bid`) VALUES ('00000', 0, 'Home', 'Home', 'customize', 'y', 'y', '')";
 
 		foreach($sql2 as $s){
 			SqlQuery($s);

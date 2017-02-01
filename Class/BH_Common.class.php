@@ -178,4 +178,35 @@ class BH_Common
 		DeleteOldTempFiles(_UPLOAD_DIR.'/temp/', strtotime('-6 hours'));
 		return true;
 	}
+
+
+	public function MenuConnect($bid, $type){
+		$AdminAuth = explode(',', $this->GetMember('admin_auth'));
+		if(in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL){
+			if(strlen($_POST['select_menu'])){
+				$selectmenu = implode(',', SetDBText(explode(',', $_POST['select_menu'])));
+				$mUpdate = new BH_DB_Update(TABLE_MENU);
+				$mUpdate->AddWhere('category IN ('.$selectmenu.')');
+				$mUpdate->SetData('type', SetDBText($type));
+				$mUpdate->SetData('bid', SetDBText($bid));
+				$mUpdate->Run();
+
+				$mUpdate = new BH_DB_Update(TABLE_MENU);
+				$mUpdate->AddWhere('bid = '.SetDBText($bid));
+				$mUpdate->AddWhere('category NOT IN ('.$selectmenu.')');
+				$mUpdate->AddWhere('type='.SetDBText($type));
+				$mUpdate->SetData('type', SetDBText('customize'));
+				$mUpdate->SetData('bid', SetDBText(''));
+				$mUpdate->Run();
+
+			}else{
+				$mUpdate = new BH_DB_Update(TABLE_MENU);
+				$mUpdate->AddWhere('bid = '.SetDBText($bid));
+				$mUpdate->AddWhere('type='.SetDBText($type));
+				$mUpdate->SetData('type', SetDBText('customize'));
+				$mUpdate->SetData('bid', SetDBText(''));
+				$mUpdate->Run();
+			}
+		}
+	}
 }

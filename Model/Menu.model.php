@@ -26,7 +26,7 @@ class MenuModel extends BH_Model{
 		$this->InitModelData('type', ModelTypeEnum, true, '타입');
 		$this->data['type']->HtmlType = HTMLInputRadio;
 		$this->data['type']->EnumValues = array('board' => '게시판', 'content' => '컨텐츠', 'customize' => '제작메뉴');
-		$this->data['type']->DefaultValue = 'content';
+		$this->data['type']->DefaultValue = 'customize';
 
 		$this->InitModelData('bid', ModelTypeString, false, '아이디');
 		$this->data['bid']->HtmlType = HTMLInputText;

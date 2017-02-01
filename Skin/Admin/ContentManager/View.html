@@ -22,6 +22,14 @@
 		<?v. $Model->GetValue('bid') ?>
 	</td>
 </tr>
+	<tr>
+		<th>연결메뉴</th>
+		<td>
+			<?php foreach($this->_Value['selectedMenu'] as $k => $row){ ?>
+				<?v. ($k ? ', ' : '').$row['title'] ?>
+			<?php } ?>
+		</td>
+	</tr>
 <tr>
 	<th><?p. $Model->data['html']->DisplayName ?></th>
 	<td>

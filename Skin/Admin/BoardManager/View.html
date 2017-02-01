@@ -1,33 +1,41 @@
 <?php if(_BH_ !== true) exit;
 /**
-* @var $Model BoardManagerModel
+ * @var $Model BoardManagerModel
  */
 /**
-* @var $this BH_Controller
-*/
+ * @var $this BH_Controller
+ */
 ?>
 
 <h2>게시판관리</h2>
 
 <table class="view">
-<colgroup>
-	<col style="width:15%;">
-	<col style="width:35%;">
-	<col style="width:15%;">
-	<col style="width:35%;">
-</colgroup>
-<tr>
-	<th><?p. $Model->data['subject']->DisplayName ?></th>
-	<td colspan="3">
-		<?v. $Model->GetValue('subject') ?>
-	</td>
-</tr>
-<tr>
-	<th><?p. $Model->data['bid']->DisplayName ?></th>
-	<td colspan="3">
-		<?v. $Model->GetValue('bid') ?>
-	</td>
-</tr>
+	<colgroup>
+		<col style="width:15%;">
+		<col style="width:35%;">
+		<col style="width:15%;">
+		<col style="width:35%;">
+	</colgroup>
+	<tr>
+		<th><?p. $Model->data['subject']->DisplayName ?></th>
+		<td colspan="3">
+			<?v. $Model->GetValue('subject') ?>
+		</td>
+	</tr>
+	<tr>
+		<th><?p. $Model->data['bid']->DisplayName ?></th>
+		<td colspan="3">
+			<?v. $Model->GetValue('bid') ?>
+		</td>
+	</tr>
+	<tr>
+		<th>연결메뉴</th>
+		<td colspan="3">
+			<?php foreach($this->_Value['selectedMenu'] as $k => $row){ ?>
+			<?v. ($k ? ', ' : '').$row['title'] ?>
+			<?php } ?>
+		</td>
+	</tr>
 	<tr>
 		<th><?p. $Model->data['manager']->DisplayName ?></th>
 		<td colspan="3">
@@ -40,64 +48,64 @@
 			<?v. $Model->GetValue('skin') ?>
 		</td>
 	</tr>
-<tr>
-	<th><?p. $Model->data['reply_skin']->DisplayName ?></th>
-	<td colspan="3">
-		<?v. $Model->GetValue('reply_skin') ?>
-	</td>
-</tr>
-<tr>
-	<th><?p. $Model->data['category']->DisplayName ?></th>
-	<td colspan="3">
-		<?v. $Model->GetValue('category') ?>
-	</td>
-</tr>
-<tr>
-	<th><?p. $Model->data['article_count']->DisplayName ?></th>
-	<td>
-		<?v. $Model->GetValue('article_count') ?>
-	</td>
-	<th><?p. $Model->data['reply_count']->DisplayName ?></th>
-	<td>
-		<?v. $Model->GetValue('reply_count') ?>
-	</td>
-</tr>
-<tr>
-	<th><?p. $Model->data['auth_list_level']->DisplayName ?></th>
-	<td><?p. $Model->HTMLPrintEnum('auth_list_level', $Model->GetValue('auth_list_level')) ?></td>
-	<th><?p. $Model->data['auth_write_level']->DisplayName ?></th>
-	<td><?p. $Model->HTMLPrintEnum('auth_write_level', $Model->GetValue('auth_write_level')) ?></td>
-</tr>
-<tr>
-	<th><?p. $Model->data['auth_view_level']->DisplayName ?></th>
-	<td><?p. $Model->HTMLPrintEnum('auth_view_level', $Model->GetValue('auth_view_level')) ?></td>
-	<th><?p. $Model->data['auth_reply_level']->DisplayName ?></th>
-	<td><?p. $Model->HTMLPrintEnum('auth_reply_level', $Model->GetValue('auth_reply_level')) ?></td>
-</tr>
-<tr>
-	<th><?p. $Model->data['auth_answer_level']->DisplayName ?></th>
-	<td><?p. $Model->HTMLPrintEnum('auth_answer_level', $Model->GetValue('auth_answer_level')) ?></td>
-	<th><?p. $Model->data['use_reply']->DisplayName ?></th>
-	<td><?p. $Model->HTMLPrintEnum('use_reply', $Model->GetValue('use_reply')) ?></td>
-</tr>
-<tr>
-	<th><?p. $Model->data['list_in_view']->DisplayName ?></th>
-	<td><?p. $Model->HTMLPrintEnum('list_in_view', $Model->GetValue('list_in_view')) ?></td>
-	<th><?p. $Model->data['man_to_man']->DisplayName ?></th>
-	<td><?p. $Model->HTMLPrintEnum('man_to_man', $Model->GetValue('man_to_man')) ?></td>
-</tr>
-<tr>
-	<th><?p. $Model->data['layout']->DisplayName ?></th>
-	<td colspan="3">
-		<?v. $Model->GetValue('layout') ?>
-	</td>
-</tr>
-<tr>
-	<th><?p. $Model->data['new_view_day']->DisplayName ?></th>
-	<td colspan="3">
-		<?v. $Model->GetValue('new_view_day') ?>
-	</td>
-</tr>
+	<tr>
+		<th><?p. $Model->data['reply_skin']->DisplayName ?></th>
+		<td colspan="3">
+			<?v. $Model->GetValue('reply_skin') ?>
+		</td>
+	</tr>
+	<tr>
+		<th><?p. $Model->data['category']->DisplayName ?></th>
+		<td colspan="3">
+			<?v. $Model->GetValue('category') ?>
+		</td>
+	</tr>
+	<tr>
+		<th><?p. $Model->data['article_count']->DisplayName ?></th>
+		<td>
+			<?v. $Model->GetValue('article_count') ?>
+		</td>
+		<th><?p. $Model->data['reply_count']->DisplayName ?></th>
+		<td>
+			<?v. $Model->GetValue('reply_count') ?>
+		</td>
+	</tr>
+	<tr>
+		<th><?p. $Model->data['auth_list_level']->DisplayName ?></th>
+		<td><?p. $Model->HTMLPrintEnum('auth_list_level', $Model->GetValue('auth_list_level')) ?></td>
+		<th><?p. $Model->data['auth_write_level']->DisplayName ?></th>
+		<td><?p. $Model->HTMLPrintEnum('auth_write_level', $Model->GetValue('auth_write_level')) ?></td>
+	</tr>
+	<tr>
+		<th><?p. $Model->data['auth_view_level']->DisplayName ?></th>
+		<td><?p. $Model->HTMLPrintEnum('auth_view_level', $Model->GetValue('auth_view_level')) ?></td>
+		<th><?p. $Model->data['auth_reply_level']->DisplayName ?></th>
+		<td><?p. $Model->HTMLPrintEnum('auth_reply_level', $Model->GetValue('auth_reply_level')) ?></td>
+	</tr>
+	<tr>
+		<th><?p. $Model->data['auth_answer_level']->DisplayName ?></th>
+		<td><?p. $Model->HTMLPrintEnum('auth_answer_level', $Model->GetValue('auth_answer_level')) ?></td>
+		<th><?p. $Model->data['use_reply']->DisplayName ?></th>
+		<td><?p. $Model->HTMLPrintEnum('use_reply', $Model->GetValue('use_reply')) ?></td>
+	</tr>
+	<tr>
+		<th><?p. $Model->data['list_in_view']->DisplayName ?></th>
+		<td><?p. $Model->HTMLPrintEnum('list_in_view', $Model->GetValue('list_in_view')) ?></td>
+		<th><?p. $Model->data['man_to_man']->DisplayName ?></th>
+		<td><?p. $Model->HTMLPrintEnum('man_to_man', $Model->GetValue('man_to_man')) ?></td>
+	</tr>
+	<tr>
+		<th><?p. $Model->data['layout']->DisplayName ?></th>
+		<td colspan="3">
+			<?v. $Model->GetValue('layout') ?>
+		</td>
+	</tr>
+	<tr>
+		<th><?p. $Model->data['new_view_day']->DisplayName ?></th>
+		<td colspan="3">
+			<?v. $Model->GetValue('new_view_day') ?>
+		</td>
+	</tr>
 </table>
 <div class="bottomBtn"><a href="<?a. '' ?><?fq. '' ?>" class="btn1">리스트</a><a href="<?a. 'Modify' ?>?bid=<?v. $_GET['bid'] ?><?fn. '' ?>" class="btn1">수정</a><a href="#" id="deleteArticle" data-bid="<?v. $_GET['bid'] ?>" class="btn1">삭제</a></div>
 

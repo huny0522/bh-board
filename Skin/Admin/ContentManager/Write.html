@@ -10,6 +10,8 @@
 <h2>컨테츠관리</h2>
 
 <form name="ContentWriteForm" id="ContentWriteForm" method="post" action="<?a. $this->Action ?><?fq. '' ?>">
+	<input type="hidden" name="bid" value="<?v. $Model->GetValue('bid') ?>">
+	<input type="hidden" name="select_menu" value="" id="select_menu">
 
 	<table class="write">
 		<tr>
@@ -31,6 +33,42 @@
 				</ul>
 			</td>
 		</tr>
+		<?php if($this->_Value['menuAuth']){?>
+			<tr>
+				<th>연결메뉴</th>
+				<td class="menuSelectArea">
+					<?php
+					if(isset($this->_Value['selectedMenu']) && sizeof($this->_Value['selectedMenu'])){
+						foreach($this->_Value['selectedMenu'] as $selectedMenu){ ?>
+							<div class="menuSelect">
+								<select name="selectmenu[]">
+									<option value="">선택</option>
+									<?php
+									foreach($this->_Value['menu'] as $menu){
+										$length = min(strlen($selectedMenu['category']), strlen($menu['category']));
+										$selected = (strlen($selectedMenu['category']) && substr($selectedMenu['category'], 0, $length) == substr($menu['category'], 0, $length)) ? ' selected' : '';
+										?>
+										<option<? p.$selected ?> value="<? p.$menu['category'] ?>"><? v.$menu['title'] ?></option>
+									<?php } ?>
+								</select>
+								<a href="#" class="menuSelectRemoveBtn btn3">삭제</a>
+							</div>
+						<?php }
+					}else{?>
+						<div class="menuSelect">
+							<select name="selectmenu[]">
+								<option value="">선택</option>
+								<?php foreach($this->_Value['menu'] as $menu){ ?>
+									<option value="<? p.$menu['category'] ?>"><? v.$menu['title'] ?></option>
+								<?php } ?>
+							</select>
+							<a href="#" class="menuSelectRemoveBtn btn3">삭제</a>
+						</div>
+					<?php } ?>
+					<a href="#" class="menuSelectAddBtn btn3">추가</a>
+				</td>
+			</tr>
+		<?php } ?>
 		<tr>
 			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['html']->DisplayName ?></th>
 			<td>
@@ -60,10 +98,73 @@
 
 <script>
 	$(document).on('submit', '#ContentWriteForm', function(e){
+		var ms = '';
+		$('div.menuSelect').each(function(){
+			var obj = $(this).find('select').last();
+			while(obj.length && obj.val() == ''){
+				obj = obj.prev();
+			}
+			if(obj.length && obj.val() != ''){
+				ms += (ms == '' ? '' : ',') + obj.val();
+			}
+		});
+		$('#select_menu').val(ms);
+
 		var res = common.valCHeck(this);
 		if(!res){
 			e.preventDefault();
 			return false;
 		}
 	});
+
+	<?php if($this->_Value['menuAuth']){?>
+
+	$(document).on('change', '.menuSelect select', function(){
+		removeNext(this);
+		getSubMenu(this);
+	});
+
+	$(document).ready(function(){
+		<?php if(isset($this->_Value['selectedMenu'])) foreach($this->_Value['selectedMenu'] as $k => $selectedMenu){ ?>
+		getSubMenu($('.menuSelect').eq(<?p. $k ?>).find('select'), '<?p. $selectedMenu['category'] ?>');
+		<?php } ?>
+	});
+
+	function removeNext(obj){
+		if($(obj).next().next().length) removeNext($(obj).next());
+		if($(obj).next().length && $(obj).next()[0].tagName == 'SELECT') $(obj).next().remove();
+	}
+
+	function getSubMenu(obj, nowCategory){
+		if($(obj).val() == '') return;
+		if(typeof nowCategory == 'undefined') nowCategory = '';
+		common.get('<?a. 'GetSubMenu' ?>/' + $(obj).val(), {}, function(data){
+			if(data.length){
+				var html = '<select>' +
+					'<option value="">선택</option>';
+
+				for(var i=0; i < data.length; i++){
+					var selected = (nowCategory != '' && data[i].category == nowCategory.substr(0, data[i].category.length)) ? ' selected' : '';
+					html += '<option' + selected + ' value="' + data[i].category + '">' + data[i].title + '</option>';
+				}
+				html += '</select>';
+				$(obj).closest('.menuSelect').find('select').last().after(html);
+				if($(obj).next().val() != '') getSubMenu($(obj).next(), nowCategory);
+			}
+		});
+	}
+
+	$(document).on('click', 'a.menuSelectAddBtn', function(e){
+		e.preventDefault();
+		var html = $('.menuSelect select').eq(0).html().replace(/selected/ig, '');
+		$(this).before('<div class="menuSelect"><select name="selectmenu[]">' + html + '</select><a href="#" class="menuSelectRemoveBtn btn3">삭제</a></div>');
+	});
+
+	$(document).on('click', 'a.menuSelectRemoveBtn', function(e){
+		e.preventDefault();
+		if($('.menuSelect').length < 2) return;
+		$(this).closest('.menuSelect').remove();
+	});
+
+	<?php } ?>
 </script>
