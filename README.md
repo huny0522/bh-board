@@ -9,7 +9,8 @@
 
 ##설치
     설치 및 admin 계정 생성
-/Install
+1. /Common/db.info.php 에서 정보 수정   
+2. http://mydomain.com/Install
 
 ##주요 파일 및 디렉토리
 
@@ -70,6 +71,10 @@
 - *\<?v. $guide ?>* : HTML태그를 문자로 표현하여 출력.
 
     변환 후 : *\<?php echo GetDBText($guide); ?>*
+
+- *\<?vb. $guide ?>* : HTML태그를 문자로 표현하고 출력하고 줄바꿈태그를 추가.
+
+    변환 후 : *\<?php echo nl2br(GetDBText($guide)); ?>*
 
 - *\<?vr. $guide ?>* : HTML태그를 그대로 표현하고 스크립트를 제거하여 출력.
 
@@ -193,13 +198,15 @@
 - public $group : ‘group by’ 구문을 생성.
 - public $test : true 설정 시 쿼리문을 출력.
 - (결과값) public $result : 결과 성공여부.
-- (결과값) public $data : 결과물의 배열. SetData()를 실행필요.
+- (결과값) public $data : 결과물의 배열. DrawRows()를 실행필요.
 - function AddWhere($str) : ‘where’ 구문을 만듭니다. 여러 번 호출하여 ‘and’ 로 묶어줍니다.
 - function AddHaving($str) : ‘having’ 구문을 만듭니다.
 - function SetKey($keys) : sql의 키값을 지정합니다. string값이나 string배열값이 들어갈 수 있습니다.
 - function AddKey($keys) : sql의 키값을 추가합니다. string값이나 string배열값이 들어갈 수 있습니다.
 - function Run() : mysqli_query를 실행.
 - function Get() : mysqli_fetch_assoc를 실행한 결과를 반환합니다. Run()이 실행되지 않았을 경우 자동으로 실행.
+- function DrawRows() : mysqli_fetch_assoc를 실행한 모든 결과를 $data에 등록합니다.
+- function GetRows() : $data를 반환합니다.
 
 ###BH_DB_GetListWithPage
     생성자 인수로 테이블명을 입력.
@@ -219,14 +226,15 @@
 - (결과값) public $totalRecord : 전체 게시물 수.
 - (결과값) public $beginNum : 현재페이지 게시물의 상단 번호.
 - (결과값) public $pageHtml : 페이지 html 결과.
-- (결과값) public $data : 결과물의 배열. SetData()를 실행필요.
+- (결과값) public $data : 결과물의 배열. DrawRows()를 실행필요.
 - function AddWhere($str) : ‘where’ 구문을 만듭니다. 여러 번 호출하여 ‘and’ 로 묶어줍니다.
 - function AddHaving($str) : ‘having’ 구문을 만듭니다.
 - function SetKey($keys) : sql의 키값을 지정합니다. string값이나 string배열값이 들어갈 수 있습니다.
 - function AddKey($keys) : sql의 키값을 추가합니다. string값이나 string배열값이 들어갈 수 있습니다.
 - function Run() : mysqli_query를 실행.
 - function Get() : mysqli_fetch_assoc를 실행한 결과를 반환합니다. Run()이 실행되지 않았을 경우 자동으로 실행.
-
+- function DrawRows() : mysqli_fetch_assoc를 실행한 모든 결과를 $data에 등록합니다.
+- function GetRows() : $data를 반환합니다.
 
 ###BH_DB_Insert
     생성자 인수로 테이블명을 입력.
@@ -276,7 +284,7 @@
 - public $Layout : 스킨 레이아웃 지정 변수.
 - public $Html : 스킨 html 지정 변수.
 - public $_Value : html에 사용을 위한 변수.
-- public $common : BH_Common 클래스
+- public $_CF : BH_Common 클래스
 - function __Init() : BH_Controller를 상속한 클래스에서 생성자용으로 사용.
 - function SetFollowQuery(array $ar) : 항상 따라다니는 URL쿼리파라미터의 키를 설정.
 - function GetFollowQuery($ar, $begin=’?’) : 항상 따라다니는 URL을 문자열로 반환.
