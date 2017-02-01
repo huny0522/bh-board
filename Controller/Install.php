@@ -11,7 +11,7 @@ class InstallController extends BH_Controller{
 	public function Index(){
 		$sql = array();
 		$sql[]="
-CREATE TABLE `bh_banner` (
+CREATE TABLE `".TABLE_BANNER."` (
 	`seq` INT(11) NOT NULL,
 	`category` VARCHAR(20) NOT NULL DEFAULT '',
 	`subject` VARCHAR(50) NOT NULL DEFAULT '',
@@ -34,7 +34,7 @@ ENGINE=InnoDB
 ";
 
 		$sql[] = "
-CREATE TABLE `bh_board_manager` (
+CREATE TABLE `".TABLE_BOARD_MNG."` (
 	`bid` VARCHAR(20) NOT NULL,
 	`manager` VARCHAR(128) NOT NULL,
 	`skin` VARCHAR(20) NOT NULL,
@@ -62,7 +62,7 @@ ENGINE=InnoDB
 ";
 
 		$sql[] = "
-CREATE TABLE `bh_content` (
+CREATE TABLE `".TABLE_CONTENT."` (
 	`bid` VARCHAR(20) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
 	`subject` VARCHAR(128) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
 	`layout` VARCHAR(50) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
@@ -77,7 +77,7 @@ ENGINE=InnoDB
 ";
 
 		$sql[]= "
-CREATE TABLE `bh_images` (
+CREATE TABLE `".TABLE_IMAGES."` (
 	`tid` VARCHAR(32) NOT NULL DEFAULT '',
 	`article_seq` VARCHAR(64) NOT NULL DEFAULT '0',
 	`seq` INT(10) NOT NULL DEFAULT '0',
@@ -90,7 +90,7 @@ ENGINE=InnoDB
 ";
 
 		$sql[] = "
-CREATE TABLE `bh_member` (
+CREATE TABLE `".TABLE_MEMBER."` (
 	`muid` INT(11) NOT NULL,
 	`mid` VARCHAR(128) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
 	`pwd` VARCHAR(64) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
@@ -117,7 +117,7 @@ ENGINE=InnoDB
 ";
 
 		$sql[] = "
-CREATE TABLE `bh_menu` (
+CREATE TABLE `".TABLE_MENU."` (
 	`category` VARBINARY(50) NOT NULL DEFAULT '0',
 	`sort` INT(11) NOT NULL DEFAULT '0',
 	`controller` VARCHAR(32) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
@@ -137,7 +137,7 @@ ENGINE=InnoDB
 ";
 
 		$sql[]= "
-CREATE TABLE `bh_popup` (
+CREATE TABLE `".TABLE_POPUP."` (
 	`seq` INT(11) NOT NULL,
 	`subject` VARCHAR(50) NOT NULL DEFAULT '',
 	`img` VARCHAR(50) NOT NULL DEFAULT '',
@@ -161,7 +161,7 @@ ENGINE=InnoDB
 ";
 
 		$sql[]= "
-CREATE TABLE `bh_w_member` (
+CREATE TABLE `".TABLE_WITHDRAW_MEMBER."` (
 	`muid` INT(11) NOT NULL,
 	`mid` VARCHAR(128) NOT NULL DEFAULT '',
 	`mname` VARCHAR(32) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
@@ -182,13 +182,13 @@ ENGINE=InnoDB
 		}
 
 
-		$sql2[] = "INSERT INTO `bh_member` (`muid`, `mid`, `pwd`, `mname`, `cname`, `nickname`, `level`, `reg_date`, `approve`, `email`, `admin_auth`)
+		$sql2[] = "INSERT INTO `".TABLE_MEMBER."` (`muid`, `mid`, `pwd`, `mname`, `cname`, `nickname`, `level`, `reg_date`, `approve`, `email`, `admin_auth`)
  			SELECT "._DBMAXINT.", 'admin', PASSWORD('12341234'), '관리자', '관리자', '관리자', 18, NOW(), 'y', 'admin@admin.com', '001,001001,001002,001003,002,003,005'";
 
-		$sql2[] = "INSERT INTO `bh_member` (`muid`, `mid`, `pwd`, `mname`, `cname`, `nickname`, `level`, `reg_date`, `approve`, `email`)
+		$sql2[] = "INSERT INTO `".TABLE_MEMBER."` (`muid`, `mid`, `pwd`, `mname`, `cname`, `nickname`, `level`, `reg_date`, `approve`, `email`)
  			SELECT ".(_DBMAXINT - 1).", 'developer', PASSWORD('12341234'), '개발자', '개발자', '개발자', 20, NOW(), 'y', 'developer@admin.com'";
 
-		$sql2[] = "INSERT INTO `bh_menu` (`category`, `sort`, `controller`, `title`, `type`, `enabled`, `parent_enabled`, `bid`) VALUES ('00000', 0, 'Home', 'Home', 'customize', 'y', 'y', '')";
+		$sql2[] = "INSERT INTO `".TABLE_MENU."` (`category`, `sort`, `controller`, `title`, `type`, `enabled`, `parent_enabled`, `bid`) VALUES ('00000', 0, 'Home', 'Home', 'customize', 'y', 'y', '')";
 
 		foreach($sql2 as $s){
 			SqlQuery($s);
