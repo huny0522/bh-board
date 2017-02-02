@@ -44,23 +44,7 @@ class ReplyController extends BH_Controller{
 
 		if(isset($this->boardManger) && $this->boardManger->GetValue('use_reply') == 'n') return;
 
-		$myArticleIs = false;
-
-		if(!$this-$this->managerIs || (_MEMBERIS === true && $_SESSION['member']['level'] == _SADMIN_LEVEL)) $myArticleIs = true;
-		else{
-			$dbGet = new BH_DB_Get($this->model->boardTable);
-			$dbGet->AddWhere('seq='.$this->_Value['article_seq']);
-			$dbGet->SetKey(array('muid','pwd','secret'));
-			$boardArticle = $dbGet->Get();
-			if($boardArticle['secret'] == 'y'){
-				if(strlen($boardArticle['muid'])){
-					$myArticleIs = (_MEMBERIS === true && $boardArticle['muid'] == $_SESSION['member']['muid']);
-				}else{
-					$pwd = SqlFetch('SELECT PASSWORD('.SetDBText($_POST['pwd']).') as pwd');
-					$myArticleIs = ($pwd['pwd'] == $boardArticle['pwd']);
-				}
-			}
-		}
+		$myArticleIs = $this->MyArticleCheck();
 
 		// 리스트를 불러온다.
 		$dbList = new BH_DB_GetListWithPage($this->model->table);
@@ -96,9 +80,11 @@ class ReplyController extends BH_Controller{
 			$row['secretIs'] = false;
 			if($row['delis'] == 'y') $row['comment'] = '삭제된 댓글입니다.';
 			else if($row['secret'] == 'y'){
-				if(!($myArticleIs && _MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || $_SESSION['member']['level'] === _SADMIN_LEVEL || $this->managerIs))){
-					$row['comment'] = '비밀글입니다.';
-					$row['secretIs'] = true;
+				if(!$myArticleIs){
+					if(!(_MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || $_SESSION['member']['level'] === _SADMIN_LEVEL || $this->managerIs))){
+						$row['comment'] = '비밀글입니다.';
+						$row['secretIs'] = true;
+					}
 				}
 			}
 
@@ -375,4 +361,23 @@ class ReplyController extends BH_Controller{
 		return $this->model->DBGet(array(SetDBInt($_POST['article_seq']), SetDBInt($_POST['seq'])));
 	}
 
+	protected function MyArticleCheck(){
+		$myArticleIs = false;
+
+		if(!$this-$this->managerIs || (_MEMBERIS === true && $_SESSION['member']['level'] == _SADMIN_LEVEL)) $myArticleIs = true;
+		else{
+			$dbGet = new BH_DB_Get($this->model->boardTable);
+			$dbGet->AddWhere('seq='.$this->_Value['article_seq']);
+			$dbGet->SetKey(array('muid','pwd','secret'));
+			$boardArticle = $dbGet->Get();
+			if(strlen($boardArticle['muid'])){
+				$myArticleIs = (_MEMBERIS === true && $boardArticle['muid'] == $_SESSION['member']['muid']);
+			}
+			else if($boardArticle['secret'] == 'y'){
+				$pwd = SqlFetch('SELECT PASSWORD('.SetDBText($_POST['pwd']).') as pwd');
+				$myArticleIs = ($pwd['pwd'] == $boardArticle['pwd']);
+			}
+		}
+		return $myArticleIs;
+	}
 }
