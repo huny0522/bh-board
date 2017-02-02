@@ -364,7 +364,7 @@ class ReplyController extends BH_Controller{
 	protected function MyArticleCheck(){
 		$myArticleIs = false;
 
-		if($this-$this->managerIs || (_MEMBERIS === true && $_SESSION['member']['level'] == _SADMIN_LEVEL)) $myArticleIs = true;
+		if($this->managerIs || (_MEMBERIS === true && $_SESSION['member']['level'] == _SADMIN_LEVEL)) $myArticleIs = true;
 		else{
 			$dbGet = new BH_DB_Get($this->model->boardTable);
 			$dbGet->AddWhere('seq='.$this->_Value['article_seq']);
