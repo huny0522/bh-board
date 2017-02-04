@@ -68,6 +68,26 @@ $this->JSAdd('common.js', 10);
 		</div>
 	</footer>
 </div>
+	<script>
+		jQuery(function($){
+			$(document).ready(function(){
+				$('#tnb ul > li').each(function(){
+					tnbAlign(this);
+				});
+			});
+
+			$(document).on('mouseenter', '#tnb ul > li', function(){
+				tnbAlign(this);
+			});
+		});
+		function tnbAlign(obj){
+			var sub = $(obj).find('ol');
+			if(!sub.length) return;
+			var thisCenter = $(obj).offset().left + ($(obj).outerWidth() / 2);
+			var subCenter = sub.offset().left + (sub.outerWidth() / 2) - parseInt(sub.css('margin-left'));
+			sub.css({'margin-left' : (thisCenter - subCenter) + 'px'});
+		}
+	</script>
 <?inc. '/Layout/_Footer.html' ?>
 <?php
 $_BODY = ob_get_clean();
