@@ -209,4 +209,59 @@ class BH_Common
 			}
 		}
 	}
+
+	public function GetBoardArticle($bid, $category = ''){
+		// 리스트를 불러온다.
+		$dbList = new BH_DB_GetList(TABLE_FIRST.'bbs_'.$bid);
+		$dbList->AddWhere('delis=\'n\'');
+		$dbList->sort = 'sort1, sort2';
+		if(strlen($category)){
+			$dbList->AddWhere('category = '.SetDBText($category));
+		}
+		return $dbList;
+	}
+
+	public function GetBanner($category){
+		$banner = new BH_DB_GetList(TABLE_BANNER);
+		$banner->AddWhere('begin_date <= \''.date('Y-m-d').'\'');
+		$banner->AddWhere('end_date >= \''.date('Y-m-d').'\'');
+		$banner->AddWhere('enabled = \'y\'');
+		$banner->AddWhere('category = '.SetDBText($category));
+		$mlevel = _MEMBERIS === true ? $_SESSION['member']['level'] : 0;
+		$banner->AddWhere('mlevel <= '.$mlevel);
+
+		$data = array();
+		while($row = $banner->Get()){
+			$html = '';
+			if($row['link_url']) $html .= '<a href="'.$row['link_url'].'"'.($row['new_window'] == 'y' ? ' target="_blank"' : '').'>';
+			$html .= '<img src="'._UPLOAD_URL.$row['img'].'" alt="'.GetDBText($row['subject']).'">';
+			if($row['link_url']) $html .= '</a>';
+			$data[] = $html;
+		}
+		return $data;
+	}
+
+
+	public function GetPopup(){
+		$banner = new BH_DB_GetList(TABLE_POPUP);
+		$banner->AddWhere('begin_date <= \''.date('Y-m-d').'\'');
+		$banner->AddWhere('end_date >= \''.date('Y-m-d').'\'');
+		$banner->AddWhere('enabled = \'y\'');
+		$mlevel = _MEMBERIS === true ? $_SESSION['member']['level'] : 0;
+		$banner->AddWhere('mlevel <= '.$mlevel);
+
+		$data = array();
+		while($row = $banner->Get()){
+			if($row['type'] == 'i'){
+				$html = '';
+				if($row['link_url']) $html .= '<a href="'.$row['link_url'].'"'.($row['new_window'] == 'y' ? ' target="_blank"' : '').'>';
+				$html .= '<img src="'._UPLOAD_URL.$row['img'].'" alt="'.GetDBText($row['subject']).'">';
+				if($row['link_url']) $html .= '</a>';
+			}
+			else $html = GetDBRaw(addslashes($row['contents']));
+
+			$data[] = array('html' => $html, 'seq' => $row['seq'], 'width' => $row['width'], 'height' => $row['height']);
+		}
+		return $data;
+	}
 }

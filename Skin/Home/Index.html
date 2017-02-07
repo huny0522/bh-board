@@ -3,21 +3,14 @@ if(_BH_ !== true) exit;
 /**
  * @var $this BH_Controller
  */
-
+$popup = $this->_CF->GetPopup();
 ?>
 
 <script>
 	<?php
 	$left = 100;
-	foreach($this->_Value['Popup'] as $row){
-	if($row['type'] == 'i'){
-		$html = 'var html = \'';
-		if($row['link_url']) $html .= '<a href="'.$row['link_url'].'"'.($row['new_window'] == 'y' ? ' target="_blank"' : '').'>';
-		$html .= '<img src="'._UPLOAD_URL.$row['img'].'" alt="'.GetDBText($row['subject']).'">';
-		if($row['link_url']) $html .= '</a>';
-		echo $html.'\';';
-	}
-	else echo 'var html = \''.GetDBRaw(addslashes($row['contents'])).'\';';
+	foreach($popup as $row){
+	echo 'var html = \''.$row['html'].'\';';
 	?>
 	common.popup('body', <?p. $row['seq'] ?>, 100, <?p. $left ?>, <?p. $row['width'] ?>, <?p. $row['height'] ?>, html);
 	<?php

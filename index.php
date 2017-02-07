@@ -60,20 +60,21 @@ else define('_MOBILEIS', false);
 
 
 
-if(_DEVELOPERIS === true){
-	$_ClassesPath = _DIR.'/Common/Classes.php';
-	require _LIBDIR . '/HtmlConvert.php';
+if(_DEVELOPERIS === true) require _LIBDIR . '/HtmlConvert.php';
+
+$_ClassesPath = _DIR.'/Common/Classes.php';
+if(1 && _DEVELOPERIS === true){
 	$_f = file_get_contents(_DIR . '/Common/db.info.php');
 	$_f .= str_replace('<?php', '', file_get_contents( _DIR . '/Lib/common.php'));
 	$_f .= str_replace('<?php', '', file_get_contents( _CLASSDIR . '/BH_DB.class.php'));
 	$_f .= str_replace('<?php', '', file_get_contents( _CLASSDIR . '/BH_Application.class.php'));
 	$_f .= str_replace('<?php', '', file_get_contents( _CLASSDIR . '/BH_Controller.class.php'));
 	$_f .= str_replace('<?php', '', file_get_contents( _CLASSDIR . '/BH_Model.class.php'));
-	$_f .= str_replace('<?php', '', file_get_contents( _CLASSDIR . '/BH_Common.class.php'));
 	$_f .= str_replace('<?php', '', file_get_contents( _CLASSDIR . '/BH_Router.class.php'));
 	file_put_contents($_ClassesPath, $_f);
 }
-require _DIR.'/Common/Classes.php';
+require $_ClassesPath;
+require _CLASSDIR . '/BH_Common.class.php';
 
 if(_CREATE_HTML_ALL === true){
 	delTree(_HTMLDIR);
