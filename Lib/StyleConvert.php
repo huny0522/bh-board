@@ -113,18 +113,18 @@ function BH_CSS($path){
 		'/(-\S+-transition)\s*[:]\s*(.*?);\s*/',
 		'/(-\S+-transform)\s*[:]\s*(.*?);\s*/',
 		'/(-\S+-border-radius)\s*[:]\s*(.*?);\s*/',
-		'/([^-][\s*|\{])(border-radius)\s*[:]\s*(.*?);/',
-		'/([^-][\s*|\{])(transition)\s*[:]\s*(.*?);/',
-		'/([^-][\s*|\{])(transform)\s*[:]\s*(.*?);/',
+		'/(border-radius)\s*[:]\s*(.*?);/',
+		'/(transition)\s*[:]\s*(.*?);/',
+		'/(transform)\s*[:]\s*(.*?);/',
 	);
 
 	$replace = array(
 		'',
 		'',
 		'',
-		'$1border-radius:$3; -webkit-border-radius:$3; -moz-border-radius:$3;',
-		'$1-moz-transition:$3; -webkit-transition:$3; -ms-transition:$3; -o-transition:$3; transition:$3;',
-		'$1-moz-transform:$3; -webkit-transform:$3; -ms-transform:$3; -o-transform:$3; transform:$3;',
+		'border-radius:$2; -webkit-border-radius:$2; -moz-border-radius:$2;',
+		'-moz-transition:$2; -webkit-transition:$2; -ms-transition:$2; -o-transition:$2; transition:$2;',
+		'-moz-transform:$2; -webkit-transform:$2; -ms-transform:$2; -o-transform:$2; transform:$2;',
 	);
 
 	$convCSS = preg_replace($patterns, $replace, $convCSS);
