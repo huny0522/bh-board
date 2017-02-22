@@ -195,6 +195,13 @@ abstract class BH_Controller{
 	}
 
 	public function CSSAdd2($css, $idx = 100){
+		$queryParam = '';
+		if(strpos($css, '?') !== false){
+			$ex1 = explode('?', $css);
+			$queryParam = '?'.array_pop($ex1);
+			$css = $ex1[0];
+		}
+
 		$ex = explode('.', $css);
 		$ext = array_pop($ex);
 		$convCss = implode('.', $ex).'.css';
@@ -202,7 +209,7 @@ abstract class BH_Controller{
 			$d = BH_CSS(_SKINDIR.'/css/'.$css);
 			file_put_contents(_SKINDIR.'/css/'.$convCss, $d);
 		}
-		$this->CSS[$idx][] = $convCss;
+		$this->CSS[$idx][] = $convCss.$queryParam;
 	}
 
 	public function URLAction($Action = ''){
