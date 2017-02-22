@@ -74,7 +74,8 @@ function BH_CSS($path){
 						$line = preg_replace('/'.str_replace('@', '\@', $k).'\s*/', $v, $line);
 					}
 					else if(substr($k, 0, 1) == '~'){
-						$line = preg_replace('/'.str_replace('~', '\~', $k).'\s*;\s*/', $v.'; ', $line);
+						if(substr($v, -1) != ';') $v .= ';';
+						$line = preg_replace('/\s*'.str_replace('~', '\~', $k).'\s*;\s*/', ' '.$v, $line);
 					}
 				}
 			}
@@ -82,9 +83,9 @@ function BH_CSS($path){
 			if(!$openis){
 				if($start !== false){
 					$openis = true;
-					$inSelector .= substr($line, 0, $start);
+					if(substr($line, 0, 1) != '@') $inSelector .= substr($line, 0, $start);
 				}else{
-					$inSelector .= $line;
+					if(substr($line, 0, 1) != '@') $inSelector .= $line;
 				}
 				$slt = trim(implode(' ', $selector));
 				if(strlen($line)) $convCSS.= $slt.' '.$line.chr(10);
