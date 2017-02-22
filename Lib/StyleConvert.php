@@ -20,8 +20,7 @@ function BH_CSS($path){
 	$commentis = false;
 	foreach($explode_f as $line){
 		if(substr(trim($line), 0, 2) == '//') continue;
-		$line = preg_replace('/([^http:|https:])\/\/(.*)/', '$1', $line);
-		$line = preg_replace('/\/\/(.*)/', '$1', $line);
+		$line = preg_replace('/([^http:|https:|url(|url(\'])\/\/(.*)/', '$1', $line);
 		$line = preg_replace('/\s+/', ' ', $line);
 		$line = trim($line);
 
