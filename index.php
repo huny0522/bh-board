@@ -60,7 +60,10 @@ else define('_MOBILEIS', false);
 
 
 
-if(_DEVELOPERIS === true) require _LIBDIR . '/HtmlConvert.php';
+if(_DEVELOPERIS === true){
+	require _LIBDIR . '/HtmlConvert.php';
+	require _LIBDIR . '/StyleConvert.php';
+}
 
 $_ClassesPath = _DIR.'/Common/Classes.php';
 if(1 && _DEVELOPERIS === true){

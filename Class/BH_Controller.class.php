@@ -194,6 +194,17 @@ abstract class BH_Controller{
 		$this->CSS[$idx][] = $css;
 	}
 
+	public function CSSAdd2($css, $idx = 100){
+		$ex = explode('.', $css);
+		$ext = array_pop($ex);
+		$convCss = implode('.', $ex).'.css';
+		if(_DEVELOPERIS === true){
+			$d = BH_CSS(_SKINDIR.'/css/'.$css);
+			file_put_contents(_SKINDIR.'/css/'.$convCss, $d);
+		}
+		$this->CSS[$idx][] = $convCss;
+	}
+
 	public function URLAction($Action = ''){
 		return $GLOBALS['_BH_App']->CtrlUrl.'/'.$Action;
 	}
