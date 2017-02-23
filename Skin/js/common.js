@@ -188,10 +188,10 @@ var common = new function ($) {
 	 */
 	this.getModal = function (ur, dt, title, modal_id, w, h) {
 		this._ajaxModal('get', ur, dt, title, modal_id, w, h);
-	}
+	};;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	this.postModal = function (ur, dt, title, modal_id, w, h) {
 		this._ajaxModal('post', ur, dt, title, modal_id, w, h);
-	}
+	};;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 	this._ajaxModal = function (type, ur, dt, title, modal_id, w, h) {
 		if (dt.loadingDisble !== true) {
@@ -330,7 +330,7 @@ var common = new function ($) {
 		} else {
 			common.popDaumPostCode(callback);
 		}
-	}
+	};;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	this.popDaumPostCode = function (callback) {
 		if ($('#DaumPostCode').length) return;
 		$('body').append('<div id="DaumPostCode"><div id="DaumPostCodeWrap"></div></div>');
@@ -371,7 +371,7 @@ var common = new function ($) {
 				height: '490px'
 			}).embed($('#DaumPostCodeWrap')[0]);
 		});
-	}
+	};;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 	$(window).resize(function () {
@@ -560,7 +560,7 @@ var common = new function ($) {
 	this.todayPopupClose = function(seq) {
 		common.setCookie('todayClosePopup' + seq, 'y', 1);
 		jQuery('#BH_Popup' + seq).hide();
-	}
+	};;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 	this.popup = function(target, seq, top, left, width, height, data) {
 		var ck = common.getCookie('todayClosePopup' + seq);
@@ -575,7 +575,7 @@ var common = new function ($) {
 			+ '</div>'
 			+ '</div>';
 		$(target).append(html);
-	}
+	};;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 	/* Image Preview
 	 * file입력창 바로 전에 클래스 filePreviewImg 가 있으면 이미지 미리보기

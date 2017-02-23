@@ -209,7 +209,11 @@ abstract class BH_Controller{
 		$queryParam .= strlen($queryParam) ? '&'.$lastmod : '?'.$lastmod;
 
 		if(_DEVELOPERIS === true){
-			$path = _DIR.'/Common/fileModTime.inc';
+			if(fileModifyIs(_SKINURL.'/css/'.$css)){
+				$d = BH_CSS(_SKINDIR.'/css/'.$css);
+				file_put_contents(_SKINDIR.'/css/'.$convCss, $d);
+			}
+			/*$path = _DIR.'/Common/fileModTime.inc';
 			$mod = true;
 			if(file_exists($path)){
 				$val = json_decode(file_get_contents($path), true);
@@ -228,7 +232,7 @@ abstract class BH_Controller{
 			if($mod){
 				$d = BH_CSS(_SKINDIR.'/css/'.$css);
 				file_put_contents(_SKINDIR.'/css/'.$convCss, $d);
-			}
+			}*/
 		}
 		$this->CSS[$idx][] = $convCss.$queryParam;
 	}

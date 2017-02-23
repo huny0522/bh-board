@@ -1,4 +1,6 @@
 <?php
+if(_BH_ !== true) exit;
+
 function BH_CSS($path){
 	$ex = explode('.', $path);
 	$ext = strtolower(array_pop($ex));
@@ -49,6 +51,7 @@ function BH_CSS($path){
 				$k = $lineExplode[1];
 				array_splice($lineExplode, 0, 2);
 				$replaceVar[$k] = implode(' ', $lineExplode);
+				uksort($replaceVar, 'mySort');
 			}
 			continue;
 		}
@@ -108,35 +111,57 @@ function BH_CSS($path){
 			if($openis){
 				if($end !== false){
 					$openis = false;
-					if(strlen($afterCSS)) $convCSS .= (strlen($slt) ? $slt.' ' : '' ).trim($inSelector).':after{'.$afterCSS.'}'.chr(10);
+					$slt = trim(implode(' ', $selector));
+					$inSelector = trim($inSelector);
+					if(strlen($afterCSS)) $convCSS .= $slt.(strlen($slt) && strlen($inSelector) ? ' ' : '' ).$inSelector.':after{'.$afterCSS.'}'.chr(10);
 					$afterCSS = '';
-					if(strlen($beforeCSS)) $convCSS .= (strlen($slt) ? $slt.' ' : '' ).trim($inSelector).':before{'.$beforeCSS.'}'.chr(10);
+					if(strlen($beforeCSS)) $convCSS .= $slt.(strlen($slt) && strlen($inSelector) ? ' ' : '' ).$inSelector.':before{'.$beforeCSS.'}'.chr(10);
 					$beforeCSS = '';
 					$inSelector = '';
 				}
 			}
 		}
 	}
-
-	$patterns = array(
+	$convCSS = preg_replace(array(
 		'/(-\S+-transition)\s*[:]\s*(.*?);\s*/',
 		'/(-\S+-transform)\s*[:]\s*(.*?);\s*/',
 		'/(-\S+-border-radius)\s*[:]\s*(.*?);\s*/',
+		'/(-\S+-box-shadow)\s*[:]\s*(.*?);\s*/',
+		'/(-\S+-box-sizing)\s*[:]\s*(.*?);\s*/',
+		'/(-\S+-background-size)\s*[:]\s*(.*?);\s*/',
+		'/(-\S+-text-overflow)\s*[:]\s*(.*?);\s*/',
+	), '', $convCSS);
+
+	$patterns = array(
 		'/(border-radius)\s*[:]\s*(.*?);/',
 		'/(transition)\s*[:]\s*(.*?);/',
 		'/(transform)\s*[:]\s*(.*?);/',
+		'/(box-shadow)\s*[:]\s*(.*?);/',
+		'/(box-sizing)\s*[:]\s*(.*?);/',
+		'/(background-size)\s*[:]\s*(.*?);/',
+		'/(text-overflow)\s*[:]\s*(.*?);/',
 	);
 
 	$replace = array(
-		'',
-		'',
-		'',
 		'border-radius:$2; -webkit-border-radius:$2; -moz-border-radius:$2;',
 		'-moz-transition:$2; -webkit-transition:$2; -ms-transition:$2; -o-transition:$2; transition:$2;',
 		'-moz-transform:$2; -webkit-transform:$2; -ms-transform:$2; -o-transform:$2; transform:$2;',
+		'-webkit-box-shadow:$2; -moz-box-shadow:$2; box-shadow:$2;',
+		'-webkit-box-sizing:$2; -moz-box-sizing:$2; box-sizing:$2;',
+		'-webkit-background-size:$2; background-size:$2;',
+		'-ms-text-overflow:$2; text-overflow:$2;',
 	);
 
 	$convCSS = preg_replace($patterns, $replace, $convCSS);
 
 	return $convCSS;
+}
+
+
+function mySort($key1, $key2) {
+	$s1 = strlen($key1);
+	$s2 = strlen($key2);
+	if($s1 == $s2) return 0;
+
+	return $s1 > $s2 ? -1 : 1;
 }

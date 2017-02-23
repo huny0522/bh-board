@@ -253,6 +253,33 @@ function JSON($bool, $message, $data){
 	exit;
 }
 
+function fileModifyIs($file){
+	if(_BH_ !== true) return false;
+	$path = _DIR.'/Common/fileModTime.inc';
+
+	$val = array();
+	$modIs = false;
+	if(file_exists($path)) $val = json_decode(file_get_contents($path), true);
+
+	if(is_array($file)){
+		foreach($file as $v){
+			$lastmod = date("YmdHis", filemtime(_DIR.$v));
+			if(!isset($val[$v]) || $val[$v] != $lastmod){
+				$val[$v] = $lastmod;
+				$modIs = true;
+			}
+		}
+	}else{
+		$lastmod = date("YmdHis", filemtime(_DIR.$file));
+		if(!isset($val[$file]) || $val[$file] != $lastmod){
+			$val[$file] = $lastmod;
+			$modIs = true;
+		}
+	}
+	if($modIs) file_put_contents($path, json_encode($val));
+	return $modIs;
+}
+
 // ----------------------------------------
 //
 //			SQL

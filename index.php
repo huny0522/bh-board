@@ -14,6 +14,8 @@ date_default_timezone_set("Asia/Seoul");
 
 define('_DIR', str_replace('\\', '/', dirname(__FILE__)));
 define('_CLASSDIR', _DIR . '/Class');
+define('_MODELDIR', _DIR . '/Model');
+define('_CONTROLLERDIR', _DIR . '/Controller');
 define('_LIBDIR', _DIR . '/Lib');
 define('_SKINDIR', _DIR.'/Skin');
 define('_HTMLDIR', _DIR.'/_HTML');
@@ -59,25 +61,33 @@ else define('_MOBILEIS', false);
 
 
 
+require _DIR.'/Lib/common.php';
 
+$_ClassesPath = _DIR.'/Common/Classes.php';
 if(_DEVELOPERIS === true){
 	require _LIBDIR . '/HtmlConvert.php';
 	require _LIBDIR . '/StyleConvert.php';
+
+	$_file_array = array(
+		'/Common/db.info.php',
+		'/Class/BH_DB.class.php',
+		'/Class/BH_Application.class.php',
+		'/Class/BH_Controller.class.php',
+		'/Class/BH_Model.class.php',
+		'/Class/BH_Router.class.php',
+		'/Class/BH_Common.class.php'
+	);
+	if(fileModifyIs($_file_array)){
+		$_f = '';
+		foreach($_file_array as $k => $v){
+			if($k) $_f .= str_replace('<?php', '', file_get_contents(_DIR . $v));
+			else $_f .= file_get_contents(_DIR . $v);
+		}
+		file_put_contents($_ClassesPath, $_f);
+	}
 }
 
-$_ClassesPath = _DIR.'/Common/Classes.php';
-if(1 && _DEVELOPERIS === true){
-	$_f = file_get_contents(_DIR . '/Common/db.info.php');
-	$_f .= str_replace('<?php', '', file_get_contents( _DIR . '/Lib/common.php'));
-	$_f .= str_replace('<?php', '', file_get_contents( _CLASSDIR . '/BH_DB.class.php'));
-	$_f .= str_replace('<?php', '', file_get_contents( _CLASSDIR . '/BH_Application.class.php'));
-	$_f .= str_replace('<?php', '', file_get_contents( _CLASSDIR . '/BH_Controller.class.php'));
-	$_f .= str_replace('<?php', '', file_get_contents( _CLASSDIR . '/BH_Model.class.php'));
-	$_f .= str_replace('<?php', '', file_get_contents( _CLASSDIR . '/BH_Router.class.php'));
-	file_put_contents($_ClassesPath, $_f);
-}
 require $_ClassesPath;
-require _CLASSDIR . '/BH_Common.class.php';
 
 if(_CREATE_HTML_ALL === true){
 	delTree(_HTMLDIR);
