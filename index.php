@@ -35,8 +35,9 @@ define('_POSTIS', $_SERVER['REQUEST_METHOD'] == 'POST');
 define('_AJAXIS', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
 
 define('_DEVELOPER_IP','127.0.0.1');
-define('_DEVELOPERIS', true && _DEVELOPER_IP === $_SERVER['REMOTE_ADDR']);
-define('_CREATE_HTML_ALL', false && _DEVELOPER_IP === $_SERVER['REMOTE_ADDR']);
+define('_DEVELOPER_IP2','127.0.0.1');
+define('_DEVELOPERIS', true && _DEVELOPER_IP === $_SERVER['REMOTE_ADDR'] || _DEVELOPER_IP2 === $_SERVER['REMOTE_ADDR']);
+define('_CREATE_HTML_ALL', false && _DEVELOPERIS === true);
 define('_REMOVE_SPACE', false);
 define('_ViewMicrotime', true);
 
@@ -134,7 +135,7 @@ define('_SADMIN_LEVEL',20);
 $_BH_App = new BH_Application();
 $_BH_App->run();
 
-if(_ViewMicrotime === true && _AJAXIS !== true && _DEVELOPER_IP === $_SERVER['REMOTE_ADDR']){
+if(_ViewMicrotime === true && _AJAXIS !== true && _DEVELOPERIS === true){
 	$_END_MICROTIME = array_sum(explode(' ',microtime()));
 	$_RES_MICROTIME = $_END_MICROTIME - $_BEGIN_MICROTIME;
 	echo chr(10).'<!-- RUNTIME : '.$_RES_MICROTIME.' -->';
