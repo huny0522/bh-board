@@ -213,26 +213,6 @@ abstract class BH_Controller{
 				$d = BH_CSS(_SKINDIR.'/css/'.$css);
 				file_put_contents(_SKINDIR.'/css/'.$convCss, $d);
 			}
-			/*$path = _DIR.'/Common/fileModTime.inc';
-			$mod = true;
-			if(file_exists($path)){
-				$val = json_decode(file_get_contents($path), true);
-				if($val[$css] == $lastmod){
-					$mod = false;
-				}
-				else{
-					$val[$css] = $lastmod;
-					file_put_contents($path, json_encode($val));
-				}
-			}else{
-				$val[$css] = $lastmod;
-				file_put_contents($path, json_encode($val));
-			}
-
-			if($mod){
-				$d = BH_CSS(_SKINDIR.'/css/'.$css);
-				file_put_contents(_SKINDIR.'/css/'.$convCss, $d);
-			}*/
 		}
 		$this->CSS[$idx][] = $convCss.$queryParam;
 	}
