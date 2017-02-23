@@ -63,11 +63,11 @@ function BH_CSS($path){
 		}else{
 			foreach($replaceVar as $k => $v){
 				if(strpos($line, $k) !== false){
-					if(substr($k, 0, 2) == '++'){
+					if(substr($k, 0, 2) == '~+'){
 						$afterCSS .= $v;
 						$line = preg_replace('/'.str_replace('+', '\+', $k).'\s*;\s*/', '', $line);
 					}
-					else if(substr($k, 0, 2) == '--'){
+					else if(substr($k, 0, 2) == '~-'){
 						$beforeCSS .= $v;
 						$line = preg_replace('/'.str_replace('+', '\+', $k).'\s*;\s*/', '', $line);
 					}
