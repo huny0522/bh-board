@@ -94,7 +94,12 @@ function BH_CSS($path){
 					if(substr($line, 0, 1) != '@') $inSelector .= $line;
 				}
 				$slt = trim(implode(' ', $selector));
-				if(strlen($line)) $convCSS.= (strlen($slt) ? $slt.' ' : '').$line.chr(10);
+				$space = substr($line, 0, 1) == ':' || substr($line, 0, 1) == '{' ? '' : ' ';
+				if(substr($line, 0, 1) == '+'){
+					$space = '';
+					$line = substr($line, 1, strlen($line));
+				}
+				if(strlen($line)) $convCSS.= (strlen($slt) ? $slt.$space : '').$line.chr(10);
 			}else{
 				$convCSS.= $line.chr(10);
 			}
