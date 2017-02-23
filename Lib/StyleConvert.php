@@ -54,10 +54,10 @@ function BH_CSS($path){
 		}
 
 		// 출력
-		if(strlen($line) > 2 && substr($line, -2) == '++'){
-			$selector []= substr($line, 0, strlen($line) - 2);
+		if(strlen($line) > 3 && substr($line, -3) == '++{'){
+			$selector []= substr($line, 0, strlen($line) - 3);
 		}
-		else if($line == '--'){
+		else if($line == '++}'){
 			array_pop($selector);
 
 		}else{
@@ -72,7 +72,12 @@ function BH_CSS($path){
 						$line = preg_replace('/'.str_replace('+', '\+', $k).'\s*;\s*/', '', $line);
 					}
 					else if(substr($k, 0, 1) == '@'){
-						$line = preg_replace('/'.str_replace('@', '\@', $k).'\s*/', $v, $line);
+						$temp1 = $temp2 = $v;
+						if(substr($temp1, -1) != ';') $temp1 .= ';';
+						if(substr($temp2, -1) != ':') $temp2 .= ':';
+						$line = preg_replace('/\s*'.str_replace('@', '\@', $k).'\s*;/', ' '.$temp1, $line);
+						$line = preg_replace('/\s*'.str_replace('@', '\@', $k).'\s*:/', ' '.$temp2, $line);
+						$line = preg_replace('/'.str_replace('@', '\@', $k).'/', $v, $line);
 					}
 					else if(substr($k, 0, 1) == '~'){
 						if(substr($v, -1) != ';') $v .= ';';
@@ -89,7 +94,7 @@ function BH_CSS($path){
 					if(substr($line, 0, 1) != '@') $inSelector .= $line;
 				}
 				$slt = trim(implode(' ', $selector));
-				if(strlen($line)) $convCSS.= $slt.' '.$line.chr(10);
+				if(strlen($line)) $convCSS.= (strlen($slt) ? $slt.' ' : '').$line.chr(10);
 			}else{
 				$convCSS.= $line.chr(10);
 			}
