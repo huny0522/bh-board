@@ -36,7 +36,7 @@ define('_AJAXIS', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['H
 
 define('_DEVELOPER_IP','127.0.0.1');
 define('_DEVELOPER_IP2','127.0.0.1');
-define('_DEVELOPERIS', true && _DEVELOPER_IP === $_SERVER['REMOTE_ADDR'] || _DEVELOPER_IP2 === $_SERVER['REMOTE_ADDR']);
+define('_DEVELOPERIS', true && (_DEVELOPER_IP === $_SERVER['REMOTE_ADDR'] || _DEVELOPER_IP2 === $_SERVER['REMOTE_ADDR']));
 define('_CREATE_HTML_ALL', false && _DEVELOPERIS === true);
 define('_REMOVE_SPACE', false);
 define('_ViewMicrotime', true);
