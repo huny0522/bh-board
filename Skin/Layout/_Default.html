@@ -7,6 +7,7 @@ ob_start();
 $this->CSSAdd('jquery-ui-1.10.1.css', 10);
 $this->CSSAdd('common.css', 10);
 $this->CSSAdd('style.css', 10);
+$this->CSSAdd2('_bhinline.css2', 10);
 $this->CSSAdd('responsive.css', 10);
 
 $this->JSAdd('jquery-1.11.3.min.js', 10);
@@ -32,6 +33,35 @@ $this->JSAdd('common.js', 10);
 				</ul>
 			</nav>
 
+			<style>
+				#tnb{
+				{ $pa; top:3.0rem; left:0; z-index:1; width:100%; padding-left:28%; font-weight:700; font-size:1.4em;}
+				ol, ul{ $cb--; }
+				ul{
+				> li{ $fll; height:1.2em; padding:0 1.8em;}
+				> li > a{ display:block; height:2.8rem; color:#222; letter-spacing:0em; transition:0.4s;}
+				> li:hover > a{ letter-spacing:0.2em; color:#555;}
+				> li.Active > a{ color:#37b;}
+				> li.Active ol{ -webkit-transition:0.3s; -moz-transition:0.3s; -ms-transition:0.3s; -o-transition:0.3s; transition:0.3s;}
+				> li.Active ol li{ background:#369 url('../images/bg02.png');}
+				ol{
+				{ position:absolute; top:100%; line-height:1.2em; padding-top:0; margin-left:-0.5rem;}
+				li{ position:relative; float:left; font-size:0.7em; font-weight:700; color:#ccc; letter-spacing:0; transition:0.3s; padding:0 1.0rem; background:#222; transition:0.3s;overflow:hidden; height:0;}
+				li:first-child{border-radius:0.85em 0 0 0.85em; padding-left:1.5rem;}
+				li:last-child{border-radius:0 0.85em 0.85em 0; padding-right:1.5rem;}
+				li:first-child:last-child{border-radius:0.85em;}
+				li:hover{ color:#fff; letter-spacing:0.1em;}
+				li.Active{ color:#fff;}
+				li:before{ content:''; position:absolute; top:0.5rem; left:0; width:1px; height:1em; background:#ccc;}
+				li:first-child:before{ content:none;}
+				} //ol
+				> li:hover ol li{ height:1.7em; border-top-width:0.1em;}
+				> li.Active ol li{ height:1.7em; border-top-width:0.1em;}
+				+:hover > li ol li{ height:0; border-top-width:0;}
+				+:hover > li:hover ol li{ height:1.7em; border-top-width:0.1em;}
+				} //ul
+				} //#tnb
+			</style>
 			<nav id="tnb">
 				<ul>
 					<?php foreach($this->_CF->MainMenu as $row){ ?>

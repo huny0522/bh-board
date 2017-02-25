@@ -41,6 +41,8 @@ define('_CREATE_HTML_ALL', false && _DEVELOPERIS === true);
 define('_REMOVE_SPACE', false);
 define('_ViewMicrotime', true);
 
+define('_STYLEFILE', _SKINDIR.'/css/_bhinline.css2');
+
 define('MAX_IMAGE_COUNT', 10);
 define('MAX_IMAGE_SIZE', '1024');
 define('_DBMAXINT', 2147483647);
