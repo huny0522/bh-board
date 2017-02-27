@@ -27,6 +27,7 @@ function BH_CSS($path){
 	$f = chr(13).str_replace(chr(13), '', file_get_contents($path));
 	$pattern = '/(\$.[^;}\n]+?)\s*{\s*(.+?)\s*\}/is';
 	preg_match_all($pattern, $f, $matches);
+	$replaceVar = array();
 	foreach($matches[1] as $k => $v){
 		$replaceVar[$v] = $matches[2][$k];
 	}
