@@ -209,8 +209,8 @@ abstract class BH_Controller{
 		$queryParam .= strlen($queryParam) ? '&'.$lastmod : '?'.$lastmod;
 		if(_DEVELOPERIS === true){
 			if(fileModifyIs($css2)){
-				$d = BH_CSS($css2);
-				file_put_contents(_DIR.$convCss, $d);
+				$d = BH_CSS(_DIR.$css2);
+				file_put_contents(_SKINDIR.'/css'.($convCss[0] == '/' ? $convCss : '/'.$convCss), $d);
 			}
 		}
 		$this->CSS[$idx][] = $convCss.$queryParam;
