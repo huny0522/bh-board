@@ -137,7 +137,7 @@ function __styleGet(){
 	if($styleData !== false) return;
 	$styleData = array();
 	$f = '';
-	$path = _SKINDIR.'/css/'.$GLOBALS['_BH_App']->SubDir.'/';
+	$path = _SKINDIR.'/css/'.( $GLOBALS['_BH_App']->SubDir ? $GLOBALS['_BH_App']->SubDir.'/' : '');
 	if(!is_dir($path)){
 		mkdir($path, '777', true);
 	}
@@ -200,6 +200,6 @@ function __styleWrite(){
 		}
 		else $f .= trim($row['data']).chr(10);
 	}
-	$path = _SKINDIR.'/css/'.$GLOBALS['_BH_App']->SubDir.'/';
+	$path = _SKINDIR.'/css/'.( $GLOBALS['_BH_App']->SubDir ? $GLOBALS['_BH_App']->SubDir.'/' : '');
 	file_put_contents($path._STYLEFILE, $f);
 }
