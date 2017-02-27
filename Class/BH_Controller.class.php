@@ -204,14 +204,13 @@ abstract class BH_Controller{
 		$ex = explode('.', $css);
 		$ext = array_pop($ex);
 		$convCss = implode('.', $ex).'.css';
-
-		$lastmod = date("YmdHis", filemtime(_SKINDIR.'/css/'.$css));
+		$css2 = _SKINURL.'/css'.($css[0] == '/' ? $css : '/'.$css);
+		$lastmod = date("YmdHis", filemtime(_DIR.$css2));
 		$queryParam .= strlen($queryParam) ? '&'.$lastmod : '?'.$lastmod;
-
 		if(_DEVELOPERIS === true){
-			if(fileModifyIs(_SKINURL.'/css/'.$css)){
-				$d = BH_CSS(_SKINDIR.'/css/'.$css);
-				file_put_contents(_SKINDIR.'/css/'.$convCss, $d);
+			if(fileModifyIs($css2)){
+				$d = BH_CSS($css2);
+				file_put_contents(_DIR.$convCss, $d);
 			}
 		}
 		$this->CSS[$idx][] = $convCss.$queryParam;
