@@ -137,7 +137,11 @@ function __styleGet(){
 	if($styleData !== false) return;
 	$styleData = array();
 	$f = '';
-	if(file_exists(_STYLEFILE)) $f = str_replace(chr(13), '', file_get_contents(_STYLEFILE));
+	$path = _SKINDIR.'/css/'.$GLOBALS['_BH_App']->SubDir.'/';
+	if(!is_dir($path)){
+		mkdir($path, '777', true);
+	}
+	if(file_exists($path._STYLEFILE)) $f = str_replace(chr(13), '', file_get_contents($path._STYLEFILE));
 	$styleData = array();
 	$flen = strlen($f);
 	for($i=0; $i < $flen; $i++){
@@ -196,5 +200,6 @@ function __styleWrite(){
 		}
 		else $f .= trim($row['data']).chr(10);
 	}
-	file_put_contents(_STYLEFILE, $f);
+	$path = _SKINDIR.'/css/'.$GLOBALS['_BH_App']->SubDir.'/';
+	file_put_contents($path._STYLEFILE, $f);
 }
