@@ -57,7 +57,7 @@ function BH_CSS($path){
 						$p->setNext();
 						$p = &$p->Next;
 					}
-					$p->data = substr($f, $i, $findEnd - $i);
+					$p->data = substr($f, $i, $findEnd - $i + 1);
 					$i = $findEnd + 1;
 				}
 				else{
