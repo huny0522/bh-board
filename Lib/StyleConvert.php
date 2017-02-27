@@ -180,7 +180,7 @@ function convCssNode($node, $replaceVar, $group = array()){
 			$s = explode(',', $node->selector);
 			foreach($s as $k => $v){
 				$v = trim($v);
-				$s[$k] = $groups.($v[0] == '+' ? substr($v, 1, strlen($v)) : ($v[0] == ':' ? '' : ' ').$v);
+				$s[$k] = $groups.($v[0] == '+' ? trim(substr($v, 1, strlen($v))) : ($v[0] == ':' ? '' : ' ').$v);
 			}
 			$f .= implode(',', $s).'{'.$node->data.'}';
 			if(strlen($after)){
