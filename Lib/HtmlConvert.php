@@ -196,7 +196,7 @@ function __styleWrite(){
 	$f = '';
 	foreach($styleData as $row){
 		if($row['type'] == 'incss'){
-			$f .= _BHSTYLEBEGIN.$row['file'].chr(10).trim(preg_replace('/'.chr(10).'\s*/', chr(10), $row['data'])).chr(10)._BHSTYLEND.chr(10);
+			$f .= chr(10)._BHSTYLEBEGIN.$row['file'].chr(10).trim(preg_replace('/'.chr(10).'\s*/', chr(10), $row['data'])).chr(10)._BHSTYLEND.chr(10);
 		}
 		else $f .= trim($row['data']).chr(10);
 	}
