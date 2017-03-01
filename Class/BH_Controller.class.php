@@ -205,15 +205,17 @@ abstract class BH_Controller{
 		$ext = array_pop($ex);
 		$convCss = implode('.', $ex).'.css';
 		$css2 = _SKINURL.'/css'.($css[0] == '/' ? $css : '/'.$css);
-		$lastmod = date("YmdHis", filemtime(_DIR.$css2));
-		$queryParam .= strlen($queryParam) ? '&'.$lastmod : '?'.$lastmod;
-		if(_DEVELOPERIS === true){
-			if(fileModifyIs($css2)){
-				$d = BH_CSS(_DIR.$css2);
-				file_put_contents(_SKINDIR.'/css'.($convCss[0] == '/' ? $convCss : '/'.$convCss), $d);
+		if(file_exists(_DIR.$css2)){
+			$lastmod = date("YmdHis", filemtime(_DIR.$css2));
+			$queryParam .= strlen($queryParam) ? '&'.$lastmod : '?'.$lastmod;
+			if(_DEVELOPERIS === true){
+				if(fileModifyIs($css2)){
+					$d = BH_CSS(_DIR.$css2);
+					file_put_contents(_SKINDIR.'/css'.($convCss[0] == '/' ? $convCss : '/'.$convCss), $d);
+				}
 			}
+			$this->CSS[$idx][] = $convCss.$queryParam;
 		}
-		$this->CSS[$idx][] = $convCss.$queryParam;
 	}
 
 	public function URLAction($Action = ''){

@@ -263,18 +263,22 @@ function fileModifyIs($file){
 
 	if(is_array($file)){
 		foreach($file as $v){
-			$lastmod = date("YmdHis", filemtime(_DIR.$v));
-			if(!isset($val[$v]) || $val[$v] != $lastmod){
-				$val[$v] = $lastmod;
-				$modIs = true;
-			}
+			if(file_exists(_DIR.$v)){
+				$lastmod = date("YmdHis", filemtime(_DIR.$v));
+				if(!isset($val[$v]) || $val[$v] != $lastmod){
+					$val[$v] = $lastmod;
+					$modIs = true;
+				}
+			}else unset($val[$v]);
 		}
 	}else{
-		$lastmod = date("YmdHis", filemtime(_DIR.$file));
-		if(!isset($val[$file]) || $val[$file] != $lastmod){
-			$val[$file] = $lastmod;
-			$modIs = true;
-		}
+		if(file_exists(_DIR.$file)){
+			$lastmod = date("YmdHis", filemtime(_DIR.$file));
+			if(!isset($val[$file]) || $val[$file] != $lastmod){
+				$val[$file] = $lastmod;
+				$modIs = true;
+			}
+		}else unset($val[$file]);
 	}
 	if($modIs) file_put_contents($path, json_encode($val));
 	return $modIs;
