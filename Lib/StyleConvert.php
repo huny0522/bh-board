@@ -116,6 +116,7 @@ function BH_CSS($path){
 		'/(-\S+-box-sizing)\s*[:]\s*(.*?);\s*/',
 		'/(-\S+-background-size)\s*[:]\s*(.*?);\s*/',
 		'/(-\S+-text-overflow)\s*[:]\s*(.*?);\s*/',
+		'/(\S+?)\s*[:]\s*\-(webkit\-|moz\-|o\-)(linear\-|radial\-)gradient\s*\((.*?)\)\s*;/',
 	), '', $f);
 
 	$patterns = array(
@@ -126,6 +127,7 @@ function BH_CSS($path){
 		'/(box-sizing)\s*[:]\s*(.*?);/',
 		'/(background-size)\s*[:]\s*(.*?);/',
 		'/(text-overflow)\s*[:]\s*(.*?);/',
+		'/(\S+?)\s*[:]\s*(linear\-|radial\-)gradient\s*\((.*?)\)\s*;/',
 	);
 
 	$replace = array(
@@ -136,6 +138,7 @@ function BH_CSS($path){
 		'-webkit-box-sizing:$2; -moz-box-sizing:$2; box-sizing:$2;',
 		'-webkit-background-size:$2; background-size:$2;',
 		'-ms-text-overflow:$2; text-overflow:$2;',
+		'$1:-webkit-$2gradient($3); $1:-moz-$2gradient($3); $1:-o-$2gradient($3); $1:$2gradient($3);',
 	);
 
 	$f = preg_replace($patterns, $replace, $f);

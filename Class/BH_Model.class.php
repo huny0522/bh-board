@@ -361,23 +361,23 @@ abstract class BH_Model{
 			$Attribute .= ' required="required"';
 		}
 		if($this->data[$Name]->Type == ModelTypeInt){
-			$HtmlAttribute['class'] = ($HtmlAttribute['class'] ? ' ' : '').'numberonly';
+			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'numberonly';
 		}
 
 		if($this->data[$Name]->Type == ModelTypeEngNum){
-			$HtmlAttribute['class'] = ($HtmlAttribute['class'] ? ' ' : '').'engnumonly';
+			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engnumonly';
 		}
 
 		if($this->data[$Name]->Type == ModelTypeEng){
-			$HtmlAttribute['class'] = ($HtmlAttribute['class'] ? ' ' : '').'engonly';
+			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engonly';
 		}
 
 		if($this->data[$Name]->Type == ModelTypeEngSpecial){
-			$HtmlAttribute['class'] = ($HtmlAttribute['class'] ? ' ' : '').'engspecialonly';
+			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engspecialonly';
 		}
 
 		if($this->data[$Name]->Type == ModelTypeDate || $this->data[$Name]->Type == ModelTypeDatetime){
-			$HtmlAttribute['class'] = ($HtmlAttribute['class'] ? ' ' : '').'date';
+			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'date';
 			$HtmlAttribute['readonly'] = 'readonly';
 		}
 
