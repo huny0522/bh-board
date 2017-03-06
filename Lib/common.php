@@ -53,6 +53,10 @@ function KrDate($date, $opt = 'ymdhis', $hourView = 0){
 	return trim($res);
 }
 
+function DotDate($dt){
+	return str_replace('-', '.', substr($dt, 0, 10));
+}
+
 function AutoLinkText($text){
 	$text= preg_replace("/(^|[\n ])([\w]*?)((ht|f)tp(s)?:\/\/[\w]+[^ \,\"\n\r\t<]*)/is", "$1$2<a href=\"$3\" target=\"_blank\">$3</a>", $text);
 	$text= preg_replace("/(^|[\n ])([\w]*?)((www|ftp)\.[^ \,\"\t\n\r<]*)/is", "$1$2<a href=\"http://$3\" target=\"_blank\">$3</a>", $text);
@@ -248,39 +252,39 @@ function to10($num, $b=62) {
 	return $res;
 }
 
-function JSON($bool, $message, $data){
+function JSON($bool, $message = '', $data = array()){
 	echo json_encode(array('result' => $bool, 'message' => $message, 'data' => $data));
 	exit;
 }
 
+$_BH_MODINFODATA = array();
 function fileModifyIs($file){
 	if(_BH_ !== true) return false;
 	$path = _DIR.'/Common/fileModTime.inc';
 
-	$val = array();
 	$modIs = false;
-	if(file_exists($path)) $val = json_decode(file_get_contents($path), true);
+	if(!sizeof($GLOBALS['_BH_MODINFODATA']) && file_exists($path)) $GLOBALS['_BH_MODINFODATA'] = json_decode(file_get_contents($path), true);
 
 	if(is_array($file)){
 		foreach($file as $v){
 			if(file_exists(_DIR.$v)){
 				$lastmod = date("YmdHis", filemtime(_DIR.$v));
-				if(!isset($val[$v]) || $val[$v] != $lastmod){
-					$val[$v] = $lastmod;
+				if(!isset($GLOBALS['_BH_MODINFODATA'][$v]) || $GLOBALS['_BH_MODINFODATA'][$v] != $lastmod){
+					$GLOBALS['_BH_MODINFODATA'][$v] = $lastmod;
 					$modIs = true;
 				}
-			}else unset($val[$v]);
+			}else unset($GLOBALS['_BH_MODINFODATA'][$v]);
 		}
 	}else{
 		if(file_exists(_DIR.$file)){
 			$lastmod = date("YmdHis", filemtime(_DIR.$file));
-			if(!isset($val[$file]) || $val[$file] != $lastmod){
-				$val[$file] = $lastmod;
+			if(!isset($GLOBALS['_BH_MODINFODATA'][$file]) || $GLOBALS['_BH_MODINFODATA'][$file] != $lastmod){
+				$GLOBALS['_BH_MODINFODATA'][$file] = $lastmod;
 				$modIs = true;
 			}
-		}else unset($val[$file]);
+		}else unset($GLOBALS['_BH_MODINFODATA'][$file]);
 	}
-	if($modIs) file_put_contents($path, json_encode($val));
+	if($modIs) file_put_contents($path, json_encode($GLOBALS['_BH_MODINFODATA']));
 	return $modIs;
 }
 

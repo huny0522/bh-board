@@ -174,7 +174,21 @@ abstract class BH_Controller{
 	}
 
 	public function JSAdd($js, $idx = 100){
-		$this->JS[$idx][] = $js;
+		if(substr($js, 0, 4) == 'http'){
+			$this->JS[$idx][] = $js;
+		}else{
+			$path = _SKINDIR.'/js/'.$js;
+			if(!file_exists($path)) return;
+			$lastmod = date("YmdHis", filemtime($path));
+			$queryParam = '';
+			if(strpos($js, '?') !== false){
+				$ex1 = explode('?', $js);
+				$queryParam = '?'.array_pop($ex1);
+				$js = $ex1[0];
+			}
+			$queryParam .= strlen($queryParam) ? '&'.$lastmod : '?'.$lastmod;
+			$this->JS[$idx][] = $js.$queryParam;
+		}
 	}
 
 	public function CSSPrint(){
@@ -191,7 +205,21 @@ abstract class BH_Controller{
 	}
 
 	public function CSSAdd($css, $idx = 100){
-		$this->CSS[$idx][] = $css;
+		if(substr($css, 0, 4) == 'http'){
+			$this->CSS[$idx][] = $css;
+		}else{
+			$path = _SKINDIR.'/css/'.$css;
+			if(!file_exists($path)) return;
+			$lastmod = date("YmdHis", filemtime($path));
+			$queryParam = '';
+			if(strpos($css, '?') !== false){
+				$ex1 = explode('?', $css);
+				$queryParam = '?'.array_pop($ex1);
+				$css = $ex1[0];
+			}
+			$queryParam .= strlen($queryParam) ? '&'.$lastmod : '?'.$lastmod;
+			$this->CSS[$idx][] = $css.$queryParam;
+		}
 	}
 
 	public function CSSAdd2($css, $idx = 100){

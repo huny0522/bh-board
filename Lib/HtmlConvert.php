@@ -43,34 +43,48 @@ function ReplaceHTMLFile($source, $target){
 		$f = file_get_contents($source);
 
 		// 인라인 스타일 찾기 Begin
-		$findStyle = '/\<style.*?\>(.*?)\<\/style\>/is';
+		$findStyle = '/\<style(.*?)\>(.*?)\<\/style\>/is';
 		preg_match_all($findStyle, $f, $matches);
-		$data = '';
-		__styleGet();
+
+		$data = array();
+		$files = array();
 		if(sizeof($matches[1])){
 			foreach($matches[1] as $v){
-				$data .= trim(str_replace(chr(13), '', $v));
+				preg_match('/.*?data-file="(.*?)".*?/', $v, $matches2);
+				$matchFile = sizeof($matches2) ? $matches2[1].'.css2' : _STYLEFILE;
+				$files[]= $matchFile;
+				__styleGet($matchFile);
 			}
-			$data = preg_replace('/'.chr(10).'\s*/', chr(10),trim($data));
+		}
+
+		if(sizeof($matches[2])){
+			foreach($matches[2] as $k => $v){
+				$data[$files[$k]] .= trim(str_replace(chr(13), '', $v)).chr(10);
+			}
+			$data[$files[$k]] = trim(preg_replace('/'.chr(10).'\s*/', chr(10),trim($data[$files[$k]])));
 		}
 
 		$file = str_replace(_DIR, '', $source);
-		$findIs = false;
-		foreach($styleData as $k => $v){
-			if($v['type'] == 'incss' && $v['file'] == $file){
-				$findIs = true;
-				if($styleData[$k]['data'] != $data){
-					if(!$data) unset($styleData[$k]);
-					else $styleData[$k]['data'] = $data;
-					__styleWrite();
+
+		foreach($files as $css){
+			$findIs = false;
+			if($styleData[$css]) foreach($styleData[$css] as $k => $v){
+				if($v['type'] == 'incss' && $v['file'] == $file){
+					$findIs = true;
+					if($styleData[$css][$k]['data'] != $data[$css]){
+						if(!$data[$css]) unset($styleData[$css][$k]);
+						else $styleData[$css][$k]['data'] = $data[$css];
+						__styleWrite($css);
+					}
+					break;
 				}
-				break;
+			}
+			if(!$findIs && $data[$css]){
+				$styleData[$css][] = array('type' => 'incss', 'file' => $file, 'data' => preg_replace('/'.chr(10).'\s*/', chr(10), $data[$css]));
+				__styleWrite($css);
 			}
 		}
-		if(!$findIs && $data){
-			$styleData[] = array('type' => 'incss', 'file' => $file, 'data' => preg_replace('/'.chr(10).'\s*/', chr(10), $data));
-			__styleWrite();
-		}
+
 
 
 		$f = preg_replace($findStyle, '', $f);
@@ -132,28 +146,30 @@ function delTree($dir) {
 	return rmdir($dir);
 }
 
-function __styleGet(){
+function __styleGet($file = ''){
+	if($file == '') $file = _STYLEFILE;
 	global $styleData;
-	if($styleData !== false) return;
-	$styleData = array();
+	if(isset($styleData[$file])) return;
+
 	$f = '';
 	$path = _SKINDIR.'/css/'.( $GLOBALS['_BH_App']->SubDir ? $GLOBALS['_BH_App']->SubDir.'/' : '');
 	if(!is_dir($path)){
 		mkdir($path, '777', true);
 	}
-	if(file_exists($path._STYLEFILE)) $f = str_replace(chr(13), '', file_get_contents($path._STYLEFILE));
-	$styleData = array();
+	if(file_exists($path.$file)) $f = str_replace(chr(13), '', file_get_contents($path.$file));
+
+	$styleData[$file] = array();
 	$flen = strlen($f);
 	for($i=0; $i < $flen; $i++){
 		//주석찾기
 		if(substr($f, $i, 2) == '/*'){
 			$find = strpos($f, '*/', $i);
 			if($find !== false){
-				$styleData[]= array('type' => 'comment', 'data' => trim(substr($f, $i, $find-$i + 2)));
+				$styleData[$file][]= array('type' => 'comment', 'data' => trim(substr($f, $i, $find-$i + 2)));
 				$i = $find + 1;
 			}
 			else{
-				$styleData[]= array('type' => 'txt', 'data' => trim(substr($f, $i, $flen - $i)));
+				$styleData[$file][]= array('type' => 'txt', 'data' => trim(substr($f, $i, $flen - $i)));
 				return;
 			}
 			continue;
@@ -166,40 +182,43 @@ function __styleGet(){
 				$styleName = substr($f, $i + strlen(_BHSTYLEBEGIN), $find - $i - strlen(_BHSTYLEBEGIN));
 				$find2 = strpos($f, _BHSTYLEND, $find);
 				if($find2 !== false){
-					$styleData[]=array('type' => 'incss', 'file' => $styleName, 'data' => trim(preg_replace('/'.chr(10).'\s*/', chr(10), substr($f, $find, $find2 - $find))));
+					$styleData[$file][]=array('type' => 'incss', 'file' => $styleName, 'data' => trim(preg_replace('/'.chr(10).'\s*/', chr(10), substr($f, $find, $find2 - $find))));
 					$i = $find2 + strlen(_BHSTYLEND);
 				}
 				else{
-					$styleData[]= array('type' => '', 'data' => trim(substr($f, $i, $flen - $i)));
+					$styleData[$file][]= array('type' => '', 'data' => trim(substr($f, $i, $flen - $i)));
 					return;
 				}
 			}
 			else{
-				$styleData[]= array('type' => '', 'data' => trim(substr($f, $i, $flen - $i)));
+				$styleData[$file][]= array('type' => '', 'data' => trim(substr($f, $i, $flen - $i)));
 				return;
 			}
 			continue;
 		}
-		if($styleData === false || !sizeof($styleData)){
-			$styleData[0] = array('type' => 'txt', 'data' => $f[$i]);
+		if($styleData[$file] === false || !sizeof($styleData[$file])){
+			$styleData[$file][0] = array('type' => 'txt', 'data' => $f[$i]);
 		}
-		else if($styleData[sizeof($styleData)-1]['type'] == 'txt'){
-			$styleData[sizeof($styleData)-1]['data'] .= $f[$i];
+		else if($styleData[$file][sizeof($styleData[$file])-1]['type'] == 'txt'){
+			$styleData[$file][sizeof($styleData[$file])-1]['data'] .= $f[$i];
 		}else{
-			$styleData[] = array('type' => 'txt', 'data' => $f[$i]);
+			$styleData[$file][] = array('type' => 'txt', 'data' => $f[$i]);
 		}
 	}
 }
 
-function __styleWrite(){
+function __styleWrite($file = ''){
+	if($file == '') $file = _STYLEFILE;
 	global $styleData;
 	$f = '';
-	foreach($styleData as $row){
+	foreach($styleData[$file] as $row){
 		if($row['type'] == 'incss'){
 			$f .= chr(10)._BHSTYLEBEGIN.$row['file'].chr(10).trim(preg_replace('/'.chr(10).'\s*/', chr(10), $row['data'])).chr(10)._BHSTYLEND.chr(10);
 		}
 		else $f .= trim($row['data']).chr(10);
 	}
+
 	$path = _SKINDIR.'/css/'.( $GLOBALS['_BH_App']->SubDir ? $GLOBALS['_BH_App']->SubDir.'/' : '');
-	file_put_contents($path._STYLEFILE, $f);
+	file_put_contents($path.$file, $f);
+	@chmod($path.$file, 0777);
 }
