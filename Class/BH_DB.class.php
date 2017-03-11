@@ -7,6 +7,8 @@
 class BH_DB_Get{
 	public $table = '';
 	public $test = false;
+	public $sort = '';
+	public $group = '';
 	private $query = null;
 	private $having = array();
 	private $where = array();
@@ -20,12 +22,14 @@ class BH_DB_Get{
 		if($this->query) SqlFree($this->query);
 	}
 
-	public function AddWhere($str){
-		$this->where[] = $str;
+	public function AddWhere(){
+		$w = StrToQry(func_get_args());
+		if($w !== false) $this->where[] = '('.$w.')';
 	}
 
-	public function AddHaving($str){
-		$this->having[] = $str;
+	public function AddHaving(){
+		$w = StrToQry(func_get_args());
+		if($w !== false) $this->having[] = '('.$w.')';
 	}
 
 	public function SetKey($keys){
@@ -55,7 +59,10 @@ class BH_DB_Get{
 			$key = '*';
 		}
 
-		$sql = 'SELECT '.$key.' FROM '.$this->table.' '.$where.$having;
+		$sql = 'SELECT '.$key.' FROM '.$this->table.' '.$where;
+		if($this->group) $sql .= ' GROUP BY ' . $this->group;
+		$sql .= $having;
+		if($this->sort) $sql .= ' ORDER BY ' . $this->sort;
 		if($this->test){
 			echo $sql;
 			exit;
@@ -94,12 +101,14 @@ class BH_DB_GetList{
 		if($this->query) SqlFree($this->query);
 	}
 
-	public function AddWhere($str){
-		$this->where[] = '('.$str.')';
+	public function AddWhere(){
+		$w = StrToQry(func_get_args());
+		if($w !== false) $this->where[] = '('.$w.')';
 	}
 
-	public function AddHaving($str){
-		$this->having[] = $str;
+	public function AddHaving(){
+		$w = StrToQry(func_get_args());
+		if($w !== false) $this->having[] = '('.$w.')';
 	}
 
 	public function SetKey($keys){
@@ -207,8 +216,9 @@ class BH_DB_GetListWithPage{
 		if($this->query) SqlFree($this->query);
 	}
 
-	public function AddWhere($str){
-		$this->where[] = '('.$str.')';
+	public function AddWhere(){
+		$w = StrToQry(func_get_args());
+		if($w !== false) $this->where[] = '('.$w.')';
 	}
 
 	public function AddHaving($str){
@@ -398,8 +408,9 @@ class BH_DB_Insert{
 		$this->data[$key] = $val;
 	}
 
-	public function AddWhere($str){
-		$this->where[] = '('.$str.')';
+	public function AddWhere(){
+		$w = StrToQry(func_get_args());
+		if($w !== false) $this->where[] = '('.$w.')';
 	}
 
 	public function UnsetWhere(){
@@ -492,8 +503,9 @@ class BH_DB_Update{
 		$this->data[$key] = $val;
 	}
 
-	public function AddWhere($str){
-		$this->where[] = '('.$str.')';
+	public function AddWhere(){
+		$w = StrToQry(func_get_args());
+		if($w !== false) $this->where[] = '('.$w.')';
 	}
 
 	function Run(){

@@ -188,10 +188,10 @@ var common = new function ($) {
 	 */
 	this.getModal = function (ur, dt, title, modal_id, w, h) {
 		this._ajaxModal('get', ur, dt, title, modal_id, w, h);
-	};;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	};
 	this.postModal = function (ur, dt, title, modal_id, w, h) {
 		this._ajaxModal('post', ur, dt, title, modal_id, w, h);
-	};;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	};
 
 	this._ajaxModal = function (type, ur, dt, title, modal_id, w, h) {
 		if (dt.loadingDisble !== true) {
@@ -223,9 +223,13 @@ var common = new function ($) {
 	};
 
 
-	this.removeModal = function (modal_id) {
-		if (!modal_id) $('.modal_layer').remove();
-		else $('#' + modal_id).remove();
+	this.removeModal = function (obj) {
+		var modal = (typeof obj == 'undefined') ? $('.modal_layer:visible').last() : $(obj);
+		if(!modal.length) return;
+
+		if(modal.attr('data-close-type') == 'hidden') modal.hide();
+		else modal.remove();
+
 		$('body').css('overflow-y', 'scroll');
 	};
 
@@ -234,7 +238,7 @@ var common = new function ($) {
 		if (!w) w = 400;
 		if (!h) h = 300;
 		var html = '<div id="' + modal_id + '" class="modal_layer"><div class="modal_wrap">';
-		if (title && title != '') html += '<div class="modal_header"><h1 class="modal_title">' + title + '</h1><p class="close_modal_btn"><i class="fa fa-close" title="닫기" onclick="common.removeModal(\'' + modal_id + '\')"></i></p></div>';
+		if (title && title != '') html += '<div class="modal_header"><h1 class="modal_title">' + title + '</h1><p class="close_modal_btn"><i class="fa fa-close" title="닫기" onclick="common.removeModal(\'#' + modal_id + '\')"></i></p></div>';
 		html += '<div class="modal_contents">' + data + '</div>';
 		html += '</div></div>';
 		$('body').append(html);
@@ -251,11 +255,10 @@ var common = new function ($) {
 			'margin': '-' + (box.outerHeight() / 2) + 'px' + ' 0 0 -' + (box.outerWidth() / 2) + 'px'
 		});
 		$('body').css('overflow-y', 'hidden');
-
 	};
 
 	$(document).on('click', '.modal_layer', function (e) {
-		common.removeModal();
+		common.removeModal(this);
 	});
 
 	$(document).on('click', '.modal_wrap', function (e) {
@@ -264,7 +267,7 @@ var common = new function ($) {
 
 	$(document).on('click', '.modal_layer .cancel, .modal_layer .close', function (e) {
 		e.preventDefault();
-		common.removeModal($(this).parents('.modal_layer').attr('id'));
+		common.removeModal($(this).closest('.modal_layer'));
 	});
 
 

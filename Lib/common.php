@@ -16,6 +16,10 @@ function my_escape_string($str) {
 
 function Redirect($url, $msg=''){
 
+	if(_AJAXIS === true){
+		JSON($url != '-1', $msg);
+	}
+
 	echo "<script>";
 	if($msg){
 		echo "alert('".$msg."');";
@@ -156,6 +160,11 @@ function StringCut($title, $length, $last = '...'){
  *
  */
 function GetLastDay($month, $year = false) {
+	if(!strlen($month)){
+		echo 'Error';
+		exit;
+	}
+
 	if($year === false){
 		$temp = explode('-', $month);
 		if(sizeof($temp) < 2) return false;
@@ -172,6 +181,12 @@ function ToFloat($s){return preg_replace('/[^0-9\.\-]/','$1',$s);}
 function RemoveScriptTag($str){return preg_replace('!<script(.*?)<\/script>!is','',$str);}
 
 function SetDBTrimText($txt){
+	if(is_array($txt)){
+		foreach($txt as $k => $row){
+			$txt[$k] = SetDBTrimText($row);
+		}
+		return $txt;
+	}
 	return chr(39).trim(my_escape_string($txt)).chr(39);
 }
 
@@ -288,6 +303,56 @@ function fileModifyIs($file){
 	return $modIs;
 }
 
+function StrToQry($args){
+	$n = sizeof($args);
+	if(!$n) return false;
+	if($n == 1) return $args[0];
+	else{
+		$p = -1;
+		$w = $args[0];
+		for($i = 1; $i < $n; $i++){
+			$p = strpos($w, '%', $p+1);
+			$find = false;
+			while(!$find && $p !== false && $p < strlen($w)){
+				$t = $w[$p+1];
+				switch($t){
+					case 's':
+						$t = is_array($args[$i]) ? implode(',', SetDBText($args[$i])) : SetDBText($args[$i]);
+						$w = substr_replace($w, $t, $p, 2);
+						$p += strlen($t);
+						$find = true;
+					break;
+					case 'f':
+						$t = is_array($args[$i]) ? implode(',', SetDBFloat($args[$i])) : SetDBFloat($args[$i]);
+						$w = substr_replace($w, $t, $p, 2);
+						$p += strlen($t);
+						$find = true;
+					break;
+					case 'd':
+						$t = is_array($args[$i]) ? implode(',', SetDBInt($args[$i])) : SetDBInt($args[$i]);
+						$w = substr_replace($w, $t, $p, 2);
+						$p += strlen($t);
+						$find = true;
+					break;
+					case '1':
+						$t = is_array($args[$i]) ? implode(',', my_escape_string($args[$i])) : my_escape_string($args[$i]);
+						$w = substr_replace($w, $t, $p, 2);
+						$p += strlen($t);
+						$find = true;
+					break;
+					default:
+						$p = strpos($w, '%', $p+1);
+					break;
+				}
+			}
+		}
+		return str_replace(array('%\s', '%\f', '%\d', '%\1'), array('%s', '%f', '%d', '%1'), $w);
+	}
+}
+
+function QryStr(){
+	return StrToQry(func_get_args());
+}
 // ----------------------------------------
 //
 //			SQL
@@ -318,17 +383,11 @@ function SqlTableExists($table){
  * @return bool|mysqli_result
  */
 function SqlQuery($sql){
-	try{
+	if(_DEVELOPERIS === true)
+		$res = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql) or die('ERROR SQL : '.$sql);
+	else
 		$res = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql);
-		if($GLOBALS['_BH_App']->_Conn->error){
-			throw new Exception($GLOBALS['_BH_App']->_Conn->error);
-		}
-		return $res;
-	}
-	catch(Exception $e){
-		if(_DEVELOPERIS === true) echo 'QUERY MESSAGE(DEBUG ON) : <b>'. $e->getMessage().'</b><br>'.$sql;
-		return false;
-	}
+	return $res;
 }
 
 /**
@@ -367,16 +426,10 @@ function SqlFetch($qry){
 		$string_is = true;
 	}
 
-	try{
-		$r = mysqli_fetch_assoc($qry);
-		if($string_is) SqlFree($qry);
+	$r = mysqli_fetch_assoc($qry);
+	if($string_is) SqlFree($qry);
 
-		return $r;
-	}
-	catch(Exception $e){
-		if(_DEVELOPERIS === true) echo 'FETCH ASSOC MESSAGE(DEBUG ON) : <b>'. $e->getMessage().'</b><br>';
-		return false;
-	}
+	return $r;
 }
 
 
