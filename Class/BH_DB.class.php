@@ -412,6 +412,10 @@ class BH_DB_Insert{
 		$this->data[$key] = SetDBText($val);
 	}
 
+	public function SetDataNum($key, $val){
+		$this->data[$key] = SetDBFloat($val);
+	}
+
 	public function AddWhere(){
 		$w = StrToQry(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
@@ -509,6 +513,10 @@ class BH_DB_Update{
 
 	public function SetDataStr($key, $val){
 		$this->data[$key] = SetDBText($val);
+	}
+
+	public function SetDataNum($key, $val){
+		$this->data[$key] = SetDBFloat($val);
 	}
 
 	public function AddWhere(){
