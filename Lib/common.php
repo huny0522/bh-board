@@ -383,6 +383,7 @@ function SqlTableExists($table){
  * @return bool|mysqli_result
  */
 function SqlQuery($sql){
+	$sql = StrToQry(func_get_args());
 	if(_DEVELOPERIS === true)
 		$res = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql) or die('ERROR SQL : '.$sql);
 	else
@@ -421,6 +422,8 @@ function SqlFetch($qry){
 	}
 	$string_is = false;
 	if(is_string($qry)){
+		$w = func_get_args();
+		if(func_num_args() > 1 && is_string($w[0])) $qry = StrToQry($w);
 		$qry = SqlQuery($qry);
 		if($qry === false) return false;
 		$string_is = true;

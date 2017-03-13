@@ -75,13 +75,15 @@ abstract class BH_Model{
 	 * @param string $Type
 	 * @param bool $Required
 	 * @param string $DisplayName
+	 * @param string $HtmlType
 	 */
-	public function InitModelData($key, $Type = '', $Required = false, $DisplayName = ''){
+	public function InitModelData($key, $Type = '', $Required = false, $DisplayName = '', $HtmlType = ''){
 		$this->data[$key] = new BH_ModelData();
 		$this->data[$key]->Name = $key;
 		$this->data[$key]->Type = $Type;
 		$this->data[$key]->Required = $Required;
 		$this->data[$key]->DisplayName = $DisplayName;
+		if($HtmlType) $this->data[$key]->HtmlType = $HtmlType;
 	}
 
 	/**

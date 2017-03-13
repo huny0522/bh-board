@@ -22,7 +22,6 @@ class ContentsController extends BH_Controller{
 		}
 		if($this->model->GetValue('layout')) $this->Layout = $this->model->GetValue('layout');
 		if($this->model->GetValue('html')) $this->Html = $this->model->GetValue('html');
-		$this->_View();
 
 		$cookieName = $this->model->table.$this->model->GetValue('bid');
 		if(!isset($_COOKIE[$cookieName]) || !$_COOKIE[$cookieName]){
@@ -32,5 +31,8 @@ class ContentsController extends BH_Controller{
 			$dbUpdate->Run();
 			setcookie($cookieName, 'y');
 		}
+
+		$this->_View();
+
 	}
 }

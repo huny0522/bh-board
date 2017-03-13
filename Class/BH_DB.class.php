@@ -22,26 +22,42 @@ class BH_DB_Get{
 		if($this->query) SqlFree($this->query);
 	}
 
-	public function AddWhere(){
+	public function AddWhere($str){
 		$w = StrToQry(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
 	}
 
-	public function AddHaving(){
+	public function AddHaving($str){
 		$w = StrToQry(func_get_args());
 		if($w !== false) $this->having[] = '('.$w.')';
 	}
 
-	public function SetKey($keys){
-		if(is_string($keys)) $this->key = array($keys);
-		else if(is_array($keys)) $this->key = $keys;
+	public function SetKey($str){
+		$args = func_get_args();
+		foreach($args as $k => $keys){
+			if(is_string($keys)){
+				if($k) $this->key[] = $keys;
+				else $this->key = array($keys);
+			}
+			else if(is_array($keys)){
+				if($k){
+					foreach($keys as $row){
+						$this->key[] = $row;
+					}
+				}
+				else $this->key = $keys;
+			}
+		}
 	}
 
-	public function AddKey($keys){
-		if(is_string($keys)) $this->key[] = $keys;
-		else if(is_array($keys)){
-			foreach($keys as $row){
-				$this->key[] = $row;
+	public function AddKey($str){
+		$args = func_get_args();
+		foreach($args as $keys){
+			if(is_string($keys)) $this->key[] = $keys;
+			else if(is_array($keys)){
+				foreach($keys as $row){
+					$this->key[] = $row;
+				}
 			}
 		}
 	}
@@ -101,26 +117,42 @@ class BH_DB_GetList{
 		if($this->query) SqlFree($this->query);
 	}
 
-	public function AddWhere(){
+	public function AddWhere($str){
 		$w = StrToQry(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
 	}
 
-	public function AddHaving(){
+	public function AddHaving($str){
 		$w = StrToQry(func_get_args());
 		if($w !== false) $this->having[] = '('.$w.')';
 	}
 
-	public function SetKey($keys){
-		if(is_string($keys)) $this->key = array($keys);
-		else if(is_array($keys)) $this->key = $keys;
+	public function SetKey($str){
+		$args = func_get_args();
+		foreach($args as $k => $keys){
+			if(is_string($keys)){
+				if($k) $this->key[] = $keys;
+				else $this->key = array($keys);
+			}
+			else if(is_array($keys)){
+				if($k){
+					foreach($keys as $row){
+						$this->key[] = $row;
+					}
+				}
+				else $this->key = $keys;
+			}
+		}
 	}
 
-	public function AddKey($keys){
-		if(is_string($keys)) $this->key[] = $keys;
-		else if(is_array($keys)){
-			foreach($keys as $row){
-				$this->key[] = $row;
+	public function AddKey($str){
+		$args = func_get_args();
+		foreach($args as $keys){
+			if(is_string($keys)) $this->key[] = $keys;
+			else if(is_array($keys)){
+				foreach($keys as $row){
+					$this->key[] = $row;
+				}
 			}
 		}
 	}
@@ -216,7 +248,7 @@ class BH_DB_GetListWithPage{
 		if($this->query) SqlFree($this->query);
 	}
 
-	public function AddWhere(){
+	public function AddWhere($str){
 		$w = StrToQry(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
 	}
@@ -225,16 +257,32 @@ class BH_DB_GetListWithPage{
 		$this->having[] = $str;
 	}
 
-	public function SetKey($keys){
-		if(is_string($keys)) $this->key = array($keys);
-		else if(is_array($keys)) $this->key = $keys;
+	public function SetKey($str){
+		$args = func_get_args();
+		foreach($args as $k => $keys){
+			if(is_string($keys)){
+				if($k) $this->key[] = $keys;
+				else $this->key = array($keys);
+			}
+			else if(is_array($keys)){
+				if($k){
+					foreach($keys as $row){
+						$this->key[] = $row;
+					}
+				}
+				else $this->key = $keys;
+			}
+		}
 	}
 
-	public function AddKey($keys){
-		if(is_string($keys)) $this->key[] = $keys;
-		else if(is_array($keys)){
-			foreach($keys as $row){
-				$this->key[] = $row;
+	public function AddKey($str){
+		$args = func_get_args();
+		foreach($args as $keys){
+			if(is_string($keys)) $this->key[] = $keys;
+			else if(is_array($keys)){
+				foreach($keys as $row){
+					$this->key[] = $row;
+				}
 			}
 		}
 	}
@@ -416,7 +464,7 @@ class BH_DB_Insert{
 		$this->data[$key] = SetDBFloat($val);
 	}
 
-	public function AddWhere(){
+	public function AddWhere($str){
 		$w = StrToQry(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
 	}
@@ -519,7 +567,7 @@ class BH_DB_Update{
 		$this->data[$key] = SetDBFloat($val);
 	}
 
-	public function AddWhere(){
+	public function AddWhere($str){
 		$w = StrToQry(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
 	}
