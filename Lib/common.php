@@ -201,6 +201,13 @@ function SetDBText($txt){
 }
 
 function SetDBInt($txt){
+	if(is_array($txt)){
+		foreach($txt as $k => $row){
+			$txt[$k] = SetDBInt($row);
+		}
+		return $txt;
+	}
+
 	if(!strlen($txt)){
 		Redirect('-1', '숫자값이 비어있습니다.');
 	}
@@ -212,6 +219,13 @@ function SetDBInt($txt){
 }
 
 function SetDBFloat($txt){
+	if(is_array($txt)){
+		foreach($txt as $k => $row){
+			$txt[$k] = SetDBFloat($row);
+		}
+		return $txt;
+	}
+
 	if(!strlen($txt)){
 		Redirect('-1', '숫자값이 비어있습니다.');
 	}
@@ -245,12 +259,12 @@ function GetDBRaw($txt){
 function toBase($num, $b=62) {
 	if(!isset($num) || !strlen($num)) return '';
 	$base='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-	$r = $num  % $b ;
+	$r = bcmod($num, $b);
 	$res = $base[$r];
-	$q = floor($num/$b);
+	$q = bcdiv($num, $b);
 	while ($q) {
-		$r = $q % $b;
-		$q =floor($q/$b);
+		$r = bcmod($q, $b);
+		$q =bcdiv($q, $b);
 		$res = $base[$r].$res;
 	}
 	return $res;
