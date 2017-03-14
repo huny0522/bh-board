@@ -50,6 +50,13 @@ class BH_ModelData{
 	public $HtmlType;
 	public $AutoDecrement = false;
 	public $ValueIsQuery = false;
+
+	public function __construct($Type = '', $Required = false, $DisplayName = '', $HtmlType = ''){
+		$this->Type = $Type;
+		$this->Required = $Required;
+		$this->DisplayName = $DisplayName;
+		if($HtmlType) $this->HtmlType = $HtmlType;
+	}
 }
 
 abstract class BH_Model{
@@ -432,7 +439,7 @@ abstract class BH_Model{
 	 * 가지고 있는 BH_ModelData를 등록
 	 * @return BH_InsertResult
 	 */
-	public function DBInsert(){
+	public function DBInsert($test = false){
 		$dbInsert = new BH_DB_Insert($this->table);
 		$result = new BH_InsertResult();
 
@@ -450,8 +457,28 @@ abstract class BH_Model{
 						continue;
 					}
 					if($v->ValueIsQuery) $dbInsert->data[$k] = $v->Value;
-					else if($v->Type == ModelTypeInt) $dbInsert->data[$k] = !strlen($v->Value) && isset($v->DefaultValue) ? $v->DefaultValue : SetDBInt($v->Value);
-					else if($v->Type == ModelTypeFloat) $dbInsert->data[$k] = !strlen($v->Value) && isset($v->DefaultValue) ? $v->DefaultValue : SetDBFloat($v->Value);
+					else if($v->Type == ModelTypeInt){
+						if(!strlen($v->Value) && isset($v->DefaultValue)) $dbInsert->data[$k] = $v->DefaultValue;
+						else{
+							$res = $this->CheckInt($k, $v->Value);
+							if($res === true) $dbInsert->data[$k] = $v->Value;
+							else{
+								$result->result = false;
+								$result->message = $res;
+							}
+						}
+					}
+					else if($v->Type == ModelTypeFloat){
+						if(!strlen($v->Value) && isset($v->DefaultValue)) $dbInsert->data[$k] = $v->DefaultValue;
+						else{
+							$res = $this->CheckFloat($k, $v->Value);
+							if($res === true) $dbInsert->data[$k] = $v->Value;
+							else{
+								$result->result = false;
+								$result->message = $res;
+							}
+						}
+					}
 					else if($v->Type == ModelTypePassword) $dbInsert->data[$k] = 'PASSWORD('.SetDBText($v->Value).')';
 					else $dbInsert->data[$k] = SetDBText($v->Value);
 				}
@@ -465,7 +492,7 @@ abstract class BH_Model{
 			else if($this->data[$k]->Value) $dbInsert->AddWhere($k.'='.SetDBText($this->data[$k]->Value));
 		}
 		if(!$dbInsert->decrement) $dbInsert->UnsetWhere();
-		//$params->test = true;
+		if(_DEVELOPERIS === true) $dbInsert->test = $test;
 		$dbInsert->Run();
 		$result->id = $dbInsert->id;
 		$result->message = $dbInsert->message;
@@ -477,7 +504,7 @@ abstract class BH_Model{
 	 * 가지고 있는 BH_ModelData를 업데이트
 	 * @return BH_Result
 	 */
-	public function DBUpdate(){
+	public function DBUpdate($test = false){
 		$result = new BH_Result();
 
 		$dbUpdate = new BH_DB_Update($this->table);
@@ -495,8 +522,22 @@ abstract class BH_Model{
 						continue;
 					}
 					if($v->ValueIsQuery) $dbUpdate->data[$k] = $v->Value;
-					else if($v->Type == ModelTypeInt) $dbUpdate->data[$k] = SetDBInt($v->Value);
-					else if($v->Type == ModelTypeFloat) $dbUpdate->data[$k] = SetDBFloat($v->Value);
+					else if($v->Type == ModelTypeInt){
+						$res = $this->CheckInt($k, $v->Value);
+						if($res === true) $dbUpdate->data[$k] = $v->Value;
+						else{
+							$result->result = false;
+							$result->message = $res;
+						}
+					}
+					else if($v->Type == ModelTypeFloat){
+						$res = $this->CheckFloat($k, $v->Value);
+						if($res === true) $dbUpdate->data[$k] = $v->Value;
+						else{
+							$result->result = false;
+							$result->message = $res;
+						}
+					}
 					else if($v->Type == ModelTypePassword) $dbUpdate->data[$k] = 'PASSWORD('.SetDBText($v->Value).')';
 					else $dbUpdate->data[$k] = SetDBText($v->Value);
 				}
@@ -510,7 +551,7 @@ abstract class BH_Model{
 				return $result;
 			}
 		}
-		// $dbUpdate->test = true;
+		if(_DEVELOPERIS === true) $dbUpdate->test = $test;
 		$dbUpdate->Run();
 		$result->result = $dbUpdate->result;
 		$result->message = $dbUpdate->message;
@@ -519,15 +560,13 @@ abstract class BH_Model{
 
 	/**
 	 * 키값에 해당하는 DB데이터를 한 행 가져온다.
-	 * @param array $keyData
 	 * @return BH_Result
 	 */
-	public function DBGet($keyData){
+	public function DBGet($keys){
 		$res = new BH_Result();
 
-		if(!is_array($keyData)){
-			$keyData = array($keyData);
-		}
+		$keyData = func_get_args();
+
 		if(!isset($this->Key) || !is_array($this->Key)){
 			if(_DEVELOPERIS === true){
 				echo '키값이 존재하지 않습니다.';
@@ -611,4 +650,37 @@ abstract class BH_Model{
 		return $res;
 	}
 
+	private function CheckInt($k, $v){
+		if(!strlen($v)){
+			if(_DEVELOPERIS === true){
+				if(_AJAXIS === true) JSON(false, '['.$k.']숫자값이 비어있습니다.');
+				else Redirect('-1', '['.$k.']숫자값이 비어있습니다.');
+			}else return 'ERROR#102';
+		}
+		$val = ToInt($v);
+		if($val != $v){
+			if(_DEVELOPERIS === true){
+				if(_AJAXIS === true) JSON(false, '['.$k.']숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+				else Redirect('-1', '['.$k.']숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+			}else return 'ERROR#103';
+		}
+		return true;
+	}
+
+	private function CheckFloat($k, $v){
+		if(!strlen($v)){
+			if(_DEVELOPERIS === true){
+				if(_AJAXIS === true) JSON(false, '['.$k.']숫자값이 비어있습니다.');
+				else Redirect('-1', '['.$k.']숫자값이 비어있습니다.');
+			}else return 'ERROR#112';
+		}
+		$val = ToFloat($v);
+		if($val != $v){
+			if(_DEVELOPERIS === true){
+				if(_AJAXIS === true) JSON(false, '['.$k.']숫자(소수)가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+				else Redirect('-1', '['.$k.']숫자(소수)가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+			}else return 'ERROR#113';
+		}
+		return true;
+	}
 }
