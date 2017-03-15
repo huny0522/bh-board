@@ -56,6 +56,10 @@ function ReplaceHTMLFile($source, $target){
 				__styleGet($matchFile);
 			}
 		}
+		else{
+			$files[]= _STYLEFILE;
+			__styleGet(_STYLEFILE);
+		}
 
 		if(sizeof($matches[2])){
 			foreach($matches[2] as $k => $v){

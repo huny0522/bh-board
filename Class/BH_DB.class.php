@@ -23,12 +23,12 @@ class BH_DB_Get{
 	}
 
 	public function AddWhere($str){
-		$w = StrToQry(func_get_args());
+		$w = StrToSql(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
 	}
 
 	public function AddHaving($str){
-		$w = StrToQry(func_get_args());
+		$w = StrToSql(func_get_args());
 		if($w !== false) $this->having[] = '('.$w.')';
 	}
 
@@ -83,7 +83,7 @@ class BH_DB_Get{
 			echo $sql;
 			exit;
 		}
-		$this->query = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql);
+		$this->query = SqlQuery($sql);
 		if($this->query){
 			$row = mysqli_fetch_assoc($this->query);
 			if($row){
@@ -118,12 +118,12 @@ class BH_DB_GetList{
 	}
 
 	public function AddWhere($str){
-		$w = StrToQry(func_get_args());
+		$w = StrToSql(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
 	}
 
 	public function AddHaving($str){
-		$w = StrToQry(func_get_args());
+		$w = StrToSql(func_get_args());
 		if($w !== false) $this->having[] = '('.$w.')';
 	}
 
@@ -249,7 +249,7 @@ class BH_DB_GetListWithPage{
 	}
 
 	public function AddWhere($str){
-		$w = StrToQry(func_get_args());
+		$w = StrToSql(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
 	}
 
@@ -465,7 +465,7 @@ class BH_DB_Insert{
 	}
 
 	public function AddWhere($str){
-		$w = StrToQry(func_get_args());
+		$w = StrToSql(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
 	}
 
@@ -522,7 +522,7 @@ class BH_DB_Insert{
 					echo $sql;
 					exit;
 				}
-				$r = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql);
+				$r = SqlQuery($sql);
 				$cnt --;
 			}
 			$this->result = $r ? true : false;
@@ -568,7 +568,7 @@ class BH_DB_Update{
 	}
 
 	public function AddWhere($str){
-		$w = StrToQry(func_get_args());
+		$w = StrToSql(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
 	}
 

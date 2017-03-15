@@ -316,8 +316,10 @@ abstract class BH_Model{
 	 *
 	 * @return string
 	 */
-	public function HTMLPrintEnum($Name, $Value = ''){
-		if($Value == '') $Value = $this->GetValue($Name);
+	public function HTMLPrintEnum($Name, $Value = false){
+		if($Value === false){
+			$Value = $this->GetValue($Name);
+		}
 		return isset($this->data[$Name]->EnumValues[$Value]) ? $this->data[$Name]->EnumValues[$Value] : null;
 	}
 
@@ -388,6 +390,8 @@ abstract class BH_Model{
 		if($this->data[$Name]->Type == ModelTypeDate || $this->data[$Name]->Type == ModelTypeDatetime){
 			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'date';
 			$HtmlAttribute['readonly'] = 'readonly';
+			$HtmlAttribute['maxlength'] = '10';
+			$HtmlAttribute['minlength'] = '10';
 		}
 
 		foreach($HtmlAttribute as $k => $row){
