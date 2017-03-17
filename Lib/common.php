@@ -256,15 +256,28 @@ function GetDBRaw($txt){
 	else return RemoveScriptTag(stripslashes($txt));
 }
 
+function my_bcmod( $x, $y ){
+	$take = 5;
+	$mod = '';
+	do{
+		$a = (int)$mod.substr( $x, 0, $take );
+		$x = substr( $x, $take );
+		$mod = $a % $y;
+	}
+	while ( strlen($x) );
+
+	return (int)$mod;
+}
+
 function toBase($num, $b=62) {
 	if(!isset($num) || !strlen($num)) return '';
 	$base='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-	$r = bcmod($num, $b);
+	$r = my_bcmod($num, $b);
 	$res = $base[$r];
-	$q = bcdiv($num, $b);
+	$q = floor($num/$b);
 	while ($q) {
-		$r = bcmod($q, $b);
-		$q =bcdiv($q, $b);
+		$r = my_bcmod($q, $b);
+		$q = floor($q / $b);
 		$res = $base[$r].$res;
 	}
 	return $res;
