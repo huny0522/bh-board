@@ -54,6 +54,10 @@ class BannerModel extends BH_Model{
 		$this->data['mlevel']->EnumValues = $GLOBALS['_LevelArray'];
 		$this->data['mlevel']->DefaultValue = '0';
 
+		$this->InitModelData('sort', ModelTypeInt, true, '정렬');
+		$this->data['sort']->HtmlType = HTMLInputText;
+		$this->data['sort']->DefaultValue = '0';
+
 		$this->InitModelData('link_url', ModelTypeString, false, '링크주소');
 		$this->data['link_url']->HtmlType = HTMLInputText;
 	}

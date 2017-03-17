@@ -18,6 +18,7 @@
 	<th><?p. $Model->data['subject']->DisplayName ?></th>
 	<th>기간</th>
 	<th><?p. $Model->data['enabled']->DisplayName ?></th>
+	<th><?p. $Model->data['sort']->DisplayName ?></th>
 	<th></th>
 </tr>
 </thead>
@@ -30,6 +31,7 @@
 	<td><?v. $row['subject']; ?></td>
 	<td><?v. $row['begin_date']; ?> ~ <?v. $row['end_date']; ?></td>
 	<td><?p. $Model->HTMLPrintEnum('enabled', $row['enabled']) ?></td>
+	<td><?v. $row['sort']; ?></td>
 	<td><a href="<?a. 'Modify' ?>/<?p. toBase($row['seq']) ?><?fn. '' ?>">수정</a></td>
 </tr>
 <?php } ?>

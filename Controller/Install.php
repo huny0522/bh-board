@@ -6,6 +6,7 @@
 
 class InstallController extends BH_Controller{
 	public function __Init(){
+		if($GLOBALS['_BH_App']->InstallIs) exit;
 	}
 
 	public function Index(){
@@ -24,7 +25,9 @@ CREATE TABLE `".TABLE_BANNER."` (
 	`new_window` ENUM('y','n') NOT NULL DEFAULT 'n',
 	`link_url` VARCHAR(256) NOT NULL DEFAULT '',
 	`mlevel` TINYINT(4) NOT NULL DEFAULT '0',
+	`sort` INT(4) NOT NULL DEFAULT '0',
 	PRIMARY KEY (`seq`),
+	INDEX `category` (`category`),
 	INDEX `begin_date` (`begin_date`),
 	INDEX `end_date` (`end_date`),
 	INDEX `enabled` (`enabled`)
@@ -151,6 +154,7 @@ CREATE TABLE `".TABLE_POPUP."` (
 	`mlevel` TINYINT(4) NOT NULL DEFAULT '0',
 	`width` SMALLINT(6) NOT NULL DEFAULT '0',
 	`height` SMALLINT(6) NOT NULL DEFAULT '0',
+	`sort` INT(6) NOT NULL DEFAULT '0',
 	PRIMARY KEY (`seq`),
 	INDEX `begin_date` (`begin_date`),
 	INDEX `end_date` (`end_date`),

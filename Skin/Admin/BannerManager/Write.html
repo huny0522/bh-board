@@ -87,6 +87,12 @@
 				<?p. $Model->HTMLPrintInput('mlevel') ?>
 			</td>
 		</tr>
+		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['sort']->DisplayName ?></th>
+			<td>
+				<?p. $Model->HTMLPrintInput('sort') ?> <span class="guide">* 숫자가 높을수록 먼저 노출됩니다.</span>
+			</td>
+		</tr>
 	</table>
 
 	<div class="bottomBtn">

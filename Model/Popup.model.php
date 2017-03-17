@@ -61,6 +61,10 @@ class PopupModel extends BH_Model{
 		$this->data['height']->HtmlType = HTMLInputText;
 		$this->data['height']->DefaultValue = '400';
 
+		$this->InitModelData('sort', ModelTypeInt, true, '정렬');
+		$this->data['sort']->HtmlType = HTMLInputText;
+		$this->data['sort']->DefaultValue = '0';
+
 	}
 
 }
