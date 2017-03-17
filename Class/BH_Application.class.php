@@ -41,7 +41,7 @@ class BH_Application{
 	}
 
 	public function run(){
-		if(_DEVELOPERIS === true) $this->InstallIs = SqlTableExists('bh_member');
+		if(_DEVELOPERIS === true) $this->InstallIs = SqlTableExists(TABLE_MEMBER);
 
 		$this->Router = new BH_Router();
 		$this->Router->router();
