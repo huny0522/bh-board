@@ -12,6 +12,7 @@ class BH_Application{
 	public $BaseDir = '';
 	public $TID = '';
 	public $CtrlUrl = '';
+	public $InstallIs = true;
 
 	/**
 	 * @var BH_Controller
@@ -33,7 +34,6 @@ class BH_Application{
 			echo("ACCESS_DENIED_DB_CONNECTION");
 			exit;
 		}
-
 	}
 
 	public function __destruct(){
@@ -41,6 +41,7 @@ class BH_Application{
 	}
 
 	public function run(){
+		if(_DEVELOPERIS === true) $this->InstallIs = SqlTableExists('bh_member');
 
 		$this->Router = new BH_Router();
 		$this->Router->router();

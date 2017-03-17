@@ -63,6 +63,7 @@ function ReplaceHTMLFile($source, $target){
 
 		if(sizeof($matches[2])){
 			foreach($matches[2] as $k => $v){
+				if(!isset($data[$files[$k]])) $data[$files[$k]] = '';
 				$data[$files[$k]] .= trim(str_replace(chr(13), '', $v)).chr(10);
 			}
 			$data[$files[$k]] = trim(preg_replace('/'.chr(10).'\s*/', chr(10),trim($data[$files[$k]])));
@@ -83,7 +84,7 @@ function ReplaceHTMLFile($source, $target){
 					break;
 				}
 			}
-			if(!$findIs && $data[$css]){
+			if(!$findIs && isset($data[$css])){
 				$styleData[$css][] = array('type' => 'incss', 'file' => $file, 'data' => preg_replace('/'.chr(10).'\s*/', chr(10), $data[$css]));
 				__styleWrite($css);
 			}

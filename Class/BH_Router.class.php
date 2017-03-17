@@ -13,7 +13,7 @@ class BH_Router
 	public $RootC = '';
 	public $GetUrl = array();
 	public function __construct(){
-		$this->SetMenu();
+		if($GLOBALS['_BH_App']->InstallIs) $this->SetMenu();
 		$this->GetUrl = explode('/', isset($_GET['url']) ? $_GET['url'] : '');
 		for($i = 0; $i < 10; $i++){
 			if(!isset($this->GetUrl[$i])) $this->GetUrl[$i] = '';
@@ -36,35 +36,46 @@ class BH_Router
 		// 메뉴
 		//----------------------
 		$_BH_App->BaseDir = _URL;
-		switch($this->GetUrl[1]){
-			case _ADMINURLNAME: // 관리자
-				$_BH_App->SubDir = 'Admin';
-				$_BH_App->Controller = $this->GetUrl[2];
-				$_BH_App->Action = $this->GetUrl[3];
-				$_BH_App->ID = $this->GetUrl[4];
-				$_BH_App->BaseDir .= '/'.$this->GetUrl[1];
-				$_BH_App->CtrlUrl = _URL.'/'.$this->GetUrl[1].'/'.$_BH_App->Controller;
-			break;
+		if($GLOBALS['_BH_App']->InstallIs){
+			switch($this->GetUrl[1]){
+				case _ADMINURLNAME: // 관리자
+					$_BH_App->SubDir = 'Admin';
+					$_BH_App->Controller = $this->GetUrl[2];
+					$_BH_App->Action = $this->GetUrl[3];
+					$_BH_App->ID = $this->GetUrl[4];
+					$_BH_App->BaseDir .= '/'.$this->GetUrl[1];
+					$_BH_App->CtrlUrl = _URL.'/'.$this->GetUrl[1].'/'.$_BH_App->Controller;
+				break;
 
-			case 'Board': // 게시판
-			case 'Contents': // Contents
-			case 'Reply': // 댓글
-				$_BH_App->Controller = $this->GetUrl[1];
-				$_BH_App->TID = $this->GetUrl[2];
-				$_BH_App->Action = $this->GetUrl[3];
-				$_BH_App->ID = $this->GetUrl[4];
-				$_BH_App->CtrlUrl = _URL.'/'.$_BH_App->Controller.'/'.$_BH_App->TID;
-			break;
-
-			default:
-
-				if( $this->GetUrl[1] == 'Install' || !$this->SetMenuRouter(_URL) ){
+				case 'Board': // 게시판
+				case 'Contents': // Contents
+				case 'Reply': // 댓글
 					$_BH_App->Controller = $this->GetUrl[1];
-					$_BH_App->Action = $this->GetUrl[2];
-					$_BH_App->ID = $this->GetUrl[3];
-					$_BH_App->CtrlUrl = _URL.'/'.$_BH_App->Controller;
-				}
-			break;
+					$_BH_App->TID = $this->GetUrl[2];
+					$_BH_App->Action = $this->GetUrl[3];
+					$_BH_App->ID = $this->GetUrl[4];
+					$_BH_App->CtrlUrl = _URL.'/'.$_BH_App->Controller.'/'.$_BH_App->TID;
+				break;
+
+				default:
+
+					if(!$this->SetMenuRouter(_URL)){
+						$_BH_App->Controller = $this->GetUrl[1];
+						$_BH_App->Action = $this->GetUrl[2];
+						$_BH_App->ID = $this->GetUrl[3];
+						$_BH_App->CtrlUrl = _URL.'/'.$_BH_App->Controller;
+					}
+				break;
+			}
+		}else{
+			if($this->GetUrl[1] == 'Install'){
+				$_BH_App->Controller = $this->GetUrl[1];
+				$_BH_App->Action = $this->GetUrl[2];
+				$_BH_App->ID = $this->GetUrl[3];
+				$_BH_App->CtrlUrl = _URL.'/'.$_BH_App->Controller;
+			}else{
+				exit;
+			}
 		}
 
 	}

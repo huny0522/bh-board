@@ -35,9 +35,9 @@ function Redirect($url, $msg=''){
 }
 
 function PhoneNumber($num){
-    $num = str_replace('-','',$num);
-    if(strlen($num) == 11) return substr($num, 0, 3).'-'.substr($num, 3, 4).'-'.substr($num, 7, 4);
-    else return substr($num, 0, 3).'-'.substr($num, 3, 3).'-'.substr($num, 6, 4);
+	$num = str_replace('-','',$num);
+	if(strlen($num) == 11) return substr($num, 0, 3).'-'.substr($num, 3, 4).'-'.substr($num, 7, 4);
+	else return substr($num, 0, 3).'-'.substr($num, 3, 3).'-'.substr($num, 6, 4);
 }
 
 function KrDate($date, $opt = 'ymdhis', $hourView = 0){
@@ -384,7 +384,7 @@ function SqlFree($result){
  * @return bool
  * */
 function SqlTableExists($table){
-	$exists = SqlFetch("SHOW TABLES LIKE '" . $table . "'");
+	$exists = SqlNumRows("SHOW TABLES LIKE '" . $table . "'");
 	if($exists)
 		return true;
 	else
