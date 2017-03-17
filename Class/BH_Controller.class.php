@@ -197,7 +197,8 @@ abstract class BH_Controller{
 			ksort($this->CSS);
 			foreach($this->CSS as $v){
 				foreach($v as $row){
-					$html .= chr(9) . '<link rel="stylesheet" href="' . _SKINURL . '/css/' . $row . '">' . chr(10);
+					if(substr($row, 0, 4) == 'http') $html .= chr(9) . '<link rel="stylesheet" href="' . $row . '">' . chr(10);
+					else $html .= chr(9) . '<link rel="stylesheet" href="' . _SKINURL . '/css/' . $row . '">' . chr(10);
 				}
 			}
 		}
