@@ -442,14 +442,13 @@ function SqlNumRows($qry){
  * @return array|bool|null
  */
 function SqlFetch($qry){
-	if($qry === false || !isset($qry) || empty($qry)){
+	if(!isset($qry) || $qry === false || empty($qry)){
 		if(_DEVELOPERIS === true) echo 'FETCH ASSOC MESSAGE(DEBUG ON) : <b>query is empty( or null, false).</b><br>';
 		return false;
 	}
 	$string_is = false;
 	if(is_string($qry)){
-		$w = func_get_args();
-		if(func_num_args() > 1 && is_string($w[0])) $qry = StrToSql($w);
+		if(func_num_args() > 1) $qry = StrToSql(func_get_args());
 		$qry = SqlQuery($qry);
 		if($qry === false) return false;
 		$string_is = true;

@@ -34,6 +34,7 @@ class BH_Application{
 			echo("ACCESS_DENIED_DB_CONNECTION");
 			exit;
 		}
+		mysqli_set_charset($this->_Conn,"utf8");
 	}
 
 	public function __destruct(){
