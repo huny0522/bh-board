@@ -251,20 +251,28 @@ function __styleWrite($file = ''){
 		}
 		else $f .= trim($row['data']).chr(10);
 	}
-	if(trim($f)){
-		if(file_exists(_SKINDIR.'/css/_common.css2')){
-			$f = file_get_contents(_SKINDIR.'/css/_common.css2').chr(10).$f;
-		};
-	}
 
-	$p = $path = _HTMLDIR.'/css/'.$file;
-	$p = explode('/', $p);
-	array_pop($p);
-	$p = 	implode('/', $p);
-	if(!is_dir($p)){
-		mkdir($p, 0777, true);
+	$path = _HTMLDIR.'/css/'.$file;
+
+	if(trim($f)){
+		$p = explode('/', $path);
+		array_pop($p);
+		$p = 	implode('/', $p);
+		if(!is_dir($p)){
+			mkdir($p, 0777, true);
+		}
+
+		$temp = _SKINDIR.'/css/_common.css2';
+		if(file_exists($temp)){
+			$begin = strpos($f, _BHSTYLEBEGIN);
+			if($begin !== false){
+				$temp2 = trim(file_get_contents($temp)).chr(10).chr(10);
+				$f = substr_replace($f, $temp2, 0, $begin);
+			}
+		}
 	}
 
 	file_put_contents($path, $f);
 	@chmod($path, 0777);
 }
+
