@@ -206,7 +206,7 @@ abstract class BH_Controller{
 	}
 
 	public function CSSAdd($css, $idx = 100){
-		if(substr($css, 0, 4) == 'http' || substr($css, 0, 2) == '/'){
+		if(substr($css, 0, 4) == 'http' || substr($css, 0, 1) == '/'){
 			$this->CSS[$idx][] = $css;
 		}else{
 			$path = _SKINDIR.'/css/'.$css;
