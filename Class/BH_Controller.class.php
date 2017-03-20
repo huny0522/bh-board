@@ -197,7 +197,7 @@ abstract class BH_Controller{
 			ksort($this->CSS);
 			foreach($this->CSS as $v){
 				foreach($v as $row){
-					if(substr($row, 0, 4) == 'http') $html .= chr(9) . '<link rel="stylesheet" href="' . $row . '">' . chr(10);
+					if(substr($row, 0, 4) == 'http' || substr($row, 0, 1) == '/') $html .= chr(9) . '<link rel="stylesheet" href="' . $row . '">' . chr(10);
 					else $html .= chr(9) . '<link rel="stylesheet" href="' . _SKINURL . '/css/' . $row . '">' . chr(10);
 				}
 			}
@@ -206,7 +206,7 @@ abstract class BH_Controller{
 	}
 
 	public function CSSAdd($css, $idx = 100){
-		if(substr($css, 0, 4) == 'http'){
+		if(substr($css, 0, 4) == 'http' || substr($css, 0, 2) == '/'){
 			$this->CSS[$idx][] = $css;
 		}else{
 			$path = _SKINDIR.'/css/'.$css;
@@ -234,16 +234,26 @@ abstract class BH_Controller{
 		$ext = array_pop($ex);
 		$convCss = implode('.', $ex).'.css';
 		$css2 = _SKINURL.'/css'.($css[0] == '/' ? $css : '/'.$css);
-		if(file_exists(_DIR.$css2)){
-			$lastmod = date("YmdHis", filemtime(_DIR.$css2));
+
+		$dir = _SKINDIR;
+		$url = _SKINURL;
+		if(file_exists(_HTMLDIR.$css2)){
+			$dir = _HTMLDIR;
+			$url = _HTMLURL;
+		}
+		else if(!file_exists(_SKINDIR.$css2)) return;
+
+		if(file_exists($dir.$css2)){
+			$lastmod = date("YmdHis", filemtime($dir.$css2));
 			$queryParam .= strlen($queryParam) ? '&'.$lastmod : '?'.$lastmod;
 			if(_DEVELOPERIS === true){
-				if(fileModifyIs($css2)){
-					$d = BH_CSS(_DIR.$css2);
-					file_put_contents(_SKINDIR.'/css'.($convCss[0] == '/' ? $convCss : '/'.$convCss), $d);
+				if(fileModifyIs($url.$css2)){
+					$d = BH_CSS($dir.$css2);
+					file_put_contents(_HTMLDIR.'/css'.($convCss[0] == '/' ? $convCss : '/'.$convCss), $d);
+					@chmod(_HTMLDIR.'/css/'.$convCss, 0777);
 				}
 			}
-			$this->CSS[$idx][] = $convCss.$queryParam;
+			$this->CSS[$idx][] = _HTMLURL.'/css/'.$convCss.$queryParam;
 		}
 	}
 

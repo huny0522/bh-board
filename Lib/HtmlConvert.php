@@ -43,6 +43,15 @@ function ReplaceHTMLFile($source, $target){
 		$f = file_get_contents($source);
 
 		// 인라인 스타일 찾기 Begin
+		$cssPath = explode('/', $source);
+		array_pop($cssPath);array_pop($cssPath);
+		$cp = '';
+		for($i = sizeof($cssPath) -1; $i >= 0; $i--){
+			if($cssPath[$i] == 'Skin') break;
+			$cp = $cssPath[$i].'/'.$cp;
+		}
+		$cp = substr($cp, 0, -1);
+
 		$findStyle = '/\<style(.*?)\>(.*?)\<\/style\>/is';
 		preg_match_all($findStyle, $f, $matches);
 
@@ -52,13 +61,13 @@ function ReplaceHTMLFile($source, $target){
 			foreach($matches[1] as $v){
 				preg_match('/.*?data-file="(.*?)".*?/', $v, $matches2);
 				$matchFile = sizeof($matches2) ? $matches2[1].'.css2' : _STYLEFILE;
-				$files[]= $matchFile;
-				__styleGet($matchFile);
+				$files[]= $cp.'/'.$matchFile;
+				__styleGet($cp.'/'.$matchFile);
 			}
 		}
 		else{
-			$files[]= _STYLEFILE;
-			__styleGet(_STYLEFILE);
+			$files[]= $cp.'/'._STYLEFILE;
+			__styleGet($cp.'/'._STYLEFILE);
 		}
 
 		if(sizeof($matches[2])){
@@ -142,6 +151,29 @@ function ReplaceHTMLAll($tempfile_path, $target_path) {
 	}
 }
 
+function ReplaceCSS2ALL($tempfile_path, $target_path) {
+	if(!$target_path) return;
+	if(is_dir($tempfile_path)) {
+		if($dh = opendir($tempfile_path)) {
+			while(($file = readdir($dh)) !== false) {
+				if($file != "." && $file != "..") {
+					$dest_path = "{$tempfile_path}/{$file}";
+					if(is_dir($dest_path)) {
+						ReplaceCSS2ALL($dest_path, $target_path.'/'.$file);
+					} else if(substr($file, -5) == '.css2'){
+						$f = BH_CSS($dest_path);
+						$pth = $target_path.'/'.substr($file, 0, -1);
+						file_put_contents($pth, $f);
+						@chmod($pth, 0777);
+					}
+				}
+			}
+			closedir($dh);
+		}
+	}
+}
+
+
 function delTree($dir) {
 	if(!is_dir($dir)) return;
 	$files = array_diff(scandir($dir), array('.','..'));
@@ -157,10 +189,7 @@ function __styleGet($file = ''){
 	if(isset($styleData[$file])) return;
 
 	$f = '';
-	$path = _SKINDIR.'/css/'.( $GLOBALS['_BH_App']->SubDir ? $GLOBALS['_BH_App']->SubDir.'/' : '');
-	if(!is_dir($path)){
-		mkdir($path, '777', true);
-	}
+	$path = _HTMLDIR.'/css/';
 	if(file_exists($path.$file)) $f = str_replace(chr(13), '', file_get_contents($path.$file));
 
 	$styleData[$file] = array();
@@ -213,8 +242,8 @@ function __styleGet($file = ''){
 }
 
 function __styleWrite($file = ''){
-	if($file == '') $file = _STYLEFILE;
 	global $styleData;
+	if($file == '') $file = _STYLEFILE;
 	$f = '';
 	foreach($styleData[$file] as $row){
 		if($row['type'] == 'incss'){
@@ -222,8 +251,20 @@ function __styleWrite($file = ''){
 		}
 		else $f .= trim($row['data']).chr(10);
 	}
+	if(trim($f)){
+		if(file_exists(_SKINDIR.'/css/_common.css2')){
+			$f = file_get_contents(_SKINDIR.'/css/_common.css2').chr(10).$f;
+		};
+	}
 
-	$path = _SKINDIR.'/css/'.( $GLOBALS['_BH_App']->SubDir ? $GLOBALS['_BH_App']->SubDir.'/' : '');
-	file_put_contents($path.$file, $f);
-	@chmod($path.$file, 0777);
+	$p = $path = _HTMLDIR.'/css/'.$file;
+	$p = explode('/', $p);
+	array_pop($p);
+	$p = 	implode('/', $p);
+	if(!is_dir($p)){
+		mkdir($p, 0777, true);
+	}
+
+	file_put_contents($path, $f);
+	@chmod($path, 0777);
 }

@@ -24,6 +24,7 @@ define('_UPLOAD_DIR', _DIR.'/'._UPLOAD_DIRNAME);
 
 define('_URL', '');
 define('_SKINURL', _URL.'/Skin');
+define('_HTMLURL', _URL.'/_HTML');
 define('_ADMINURLNAME', 'BHAdm');
 define('_ADMINURL', _URL.'/'._ADMINURLNAME);
 define('_IMGURL', _SKINURL.'/images');
@@ -95,6 +96,8 @@ require $_ClassesPath;
 if(_CREATE_HTML_ALL === true){
 	delTree(_HTMLDIR);
 	ReplaceHTMLAll(_SKINDIR, _HTMLDIR);
+	ReplaceCSS2ALL(_HTMLDIR, _HTMLDIR);
+	ReplaceCSS2ALL(_SKINDIR, _HTMLDIR);
 }
 
 // -------------------------------------
