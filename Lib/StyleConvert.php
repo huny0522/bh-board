@@ -16,6 +16,10 @@ class _BH_Node{
 		$this->Next->Parent = &$this->Parent;
 	}
 }
+
+$_CommonCssPath = _SKINDIR.'/css/_common.css2';
+$_CommonCssData = '';
+
 function BH_CSS($path){
 	$at = array('@charset', '@import', '@namespace');
 	$ex = explode('.', $path);
@@ -24,7 +28,11 @@ function BH_CSS($path){
 		echo 'CSS 확장자명은 \'.css2\'이어야 합니다.';
 	}
 
-	$f = chr(13).str_replace(chr(13), '', file_get_contents($path));
+	if(!strlen($GLOBALS['_CommonCssData']) && file_exists($GLOBALS['_CommonCssPath'])){
+		$GLOBALS['_CommonCssData'] = file_get_contents($GLOBALS['_CommonCssPath']);
+	}
+
+	$f = chr(13).str_replace(chr(13), '', $GLOBALS['_CommonCssData'].chr(10).file_get_contents($path));
 	$pattern = '/(\$.[^;}\n]+?)\s*{\s*(.+?)\s*\}/is';
 	preg_match_all($pattern, $f, $matches);
 	$replaceVar = array();
@@ -199,7 +207,14 @@ function convCssNode($node, $replaceVar, $group = array()){
 			$f .= chr(10);
 		}
 		else if(strlen($node->selector)){
-			$f .= $node->selector.'{'.$node->data.'}'.chr(10);
+			$f .= $node->selector.'{'.$node->data.'}';
+			if(strlen($after)){
+				$f .= $node->selector.':after'.'{'.$after.'}';
+			}
+			if(strlen($before)){
+				$f .= $node->selector.':after'.'{'.$before.'}';
+			}
+			$f .= chr(10);
 		}else{
 			$f .= $node->data.chr(10);
 		}

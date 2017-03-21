@@ -261,15 +261,6 @@ function __styleWrite($file = ''){
 		if(!is_dir($p)){
 			mkdir($p, 0777, true);
 		}
-
-		$temp = _SKINDIR.'/css/_common.css2';
-		if(file_exists($temp)){
-			$begin = strpos($f, _BHSTYLEBEGIN);
-			if($begin !== false){
-				$temp2 = trim(file_get_contents($temp)).chr(10).chr(10);
-				$f = substr_replace($f, $temp2, 0, $begin);
-			}
-		}
 	}
 
 	file_put_contents($path, $f);
