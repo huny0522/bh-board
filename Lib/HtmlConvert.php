@@ -60,9 +60,9 @@ function ReplaceHTMLFile($source, $target){
 		if(sizeof($matches[1])){
 			foreach($matches[1] as $v){
 				preg_match('/.*?data-file="(.*?)".*?/', $v, $matches2);
-				$matchFile = sizeof($matches2) ? $matches2[1].'.css2' : _STYLEFILE;
-				$files[]= $cp.'/'.$matchFile;
-				__styleGet($cp.'/'.$matchFile);
+				$matchFile = sizeof($matches2) ? (strlen($cp) ? $cp.'/' : '').$matches2[1].'.css2' : _STYLEFILE;
+				$files[]= $matchFile;
+				__styleGet($matchFile);
 			}
 		}
 		else{

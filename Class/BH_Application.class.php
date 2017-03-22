@@ -55,11 +55,16 @@ class BH_Application{
 
 		if(file_exists($path)){
 			require $path;
-			$controller = $this->Controller.'Controller';
+			$controller = $this->SubDir.'\\'.$this->Controller.'Controller';
+			if (!class_exists($controller)) $controller = $this->Controller.'Controller';
+			if (!class_exists($controller)){
+				if(_DEVELOPERIS === true) echo '클래스('.$controller.')가 존재하지 않습니다.';
+				exit;
+			}
 
 			$action = _POSTIS === true ? 'Post'.$this->Action : $this->Action;
 
-			if(method_exists($controller, $action)){
+			if(method_exists($controller, $action) && is_callable(array($controller, $action))){
 
 				$this->CTRL = new $controller();
 				if(method_exists($this->CTRL, '__Init')) $this->CTRL->__Init();

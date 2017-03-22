@@ -4,9 +4,6 @@
  * 16.07.10
  */
 
-require _DIR.'/Model/Board.model.php';
-require _DIR.'/Model/BoardManager.model.php';
-
 class BoardController extends BH_Controller{
 	/**
 	 * @var BoardModel
@@ -18,8 +15,18 @@ class BoardController extends BH_Controller{
 	public $boardManger;
 	public $managerIs = false;
 	public function __Init(){
+
+		$this->BoardSetting();
+
+		require _DIR.'/Model/Board.model.php';
+		$this->model = new BoardModel();
+
+	}
+
+	protected function BoardSetting(){
 		if(!isset($this->TID) || $this->TID == '') Redirect('-1', '잘못된 접근입니다.');
 
+		require _DIR.'/Model/BoardManager.model.php';
 		$this->boardManger = new BoardManagerModel();
 		$this->boardManger->DBGet($this->TID);
 		$this->SetFollowQuery(array('page','searchType','searchKeyword','category'));
@@ -33,12 +40,6 @@ class BoardController extends BH_Controller{
 		$this->Html = '/Board/' . $this->Action.'.html';
 		$layout = $this->boardManger->GetValue('layout');
 		if($layout) $this->Layout = $layout;
-
-		if(method_exists($this, 'Init')){
-			$this->Init();
-			return;
-		}
-		$this->model = new BoardModel();
 
 
 		$this->_Value['categorys'] = array();
@@ -81,7 +82,7 @@ class BoardController extends BH_Controller{
 		}
 		$dbList->Run();
 
-		$html = '/'.$this->Controller.'/'.$this->boardManger->GetValue('skin').'/Index.html';
+		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Index.html';
 		if(file_exists(_SKINDIR.$html)) $this->Html = $html;
 
 		if($this->Action == 'View') return $this->_GetView($this->model, $dbList);
@@ -160,7 +161,7 @@ class BoardController extends BH_Controller{
 			setcookie($cookieName, 'y');
 		}
 
-		$html = '/'.$this->Controller.'/'.$this->boardManger->GetValue('skin').'/View.html';
+		$html = '/Board/'.$this->boardManger->GetValue('skin').'/View.html';
 		if(file_exists(_SKINDIR.$html)) $this->Html = $html;
 
 		$this->_View($this->model, $data);
@@ -170,7 +171,7 @@ class BoardController extends BH_Controller{
 		$res = $this->GetAuth('Write');
 		if(!$res) Redirect('-1', _NO_AUTH);
 
-		$html = '/'.$this->Controller.'/'.$this->boardManger->GetValue('skin').'/Write.html';
+		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Write.html';
 		if(file_exists(_SKINDIR.$html)) $this->Html = $html;
 
 		$this->_View($this->model);
@@ -205,7 +206,7 @@ class BoardController extends BH_Controller{
 		$this->model->SetValue('subject', strpos('[답변]', $data['subject']) === false ? '[답변] '.$data['subject'] : $data['subject']);
 		$this->model->SetValue('secret', $data['secret']);
 
-		$html = '/'.$this->Controller.'/'.$this->boardManger->GetValue('skin').'/Write.html';
+		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Write.html';
 		if(file_exists(_SKINDIR.$html)) $this->Html = $html;
 
 		$this->_View($this->model);
@@ -230,7 +231,7 @@ class BoardController extends BH_Controller{
 		}
 
 
-		$html = '/'.$this->Controller.'/'.$this->boardManger->GetValue('skin').'/Write.html';
+		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Write.html';
 		if(file_exists(_SKINDIR.$html)) $this->Html = $html;
 
 		$this->_View($this->model);
@@ -315,18 +316,17 @@ class BoardController extends BH_Controller{
 
 		$first_seq = '';
 		$first_member_is = 'n';
-		$target = '';
 
-		if(isset($_POST['mode']) && $_POST['mode'] == 'answer'){
+
+		if($this->Action == 'Answer'){
 			$auth = $this->GetAuth('Answer');
 			if(!$auth) Redirect('-1', _NO_AUTH);
-			$target = to10($_POST['target']);
 			$dbGet = new BH_DB_Get($this->model->table);
-			$dbGet->AddWhere('seq='.$target);
-			$dbGet->SetKey(array('seq', 'first_seq', 'first_member_is'));
-			$targetData = $dbGet->Get();
-			$first_seq = strlen($targetData['first_seq']) ? $targetData['first_seq'] : $targetData['seq'];
-			$first_member_is = $targetData['first_member_is'];
+			$dbGet->AddWhere('seq=%d', to10($_POST['target']));
+			$dbGet->SetKey('mname, depth, muid, sort1, sort2', 'seq', 'first_seq', 'first_member_is', 'category');
+			$this->_Value['targetData'] = $dbGet->Get();
+			$first_seq = strlen($this->_Value['targetData']['first_seq']) ? $this->_Value['targetData']['first_seq'] : $this->_Value['targetData']['seq'];
+			$first_member_is = $this->_Value['targetData']['first_member_is'];
 		}
 
 		require_once _LIBDIR.'/FileUpload.php';
@@ -374,21 +374,21 @@ class BoardController extends BH_Controller{
 		}
 
 		// 답글쓰기라면 sort 정렬
-		if(isset($_POST['mode']) && $_POST['mode'] == 'answer'){
-			$row = SqlFetch('SELECT mname, depth, muid, sort1, sort2 FROM '.$this->model->table.' WHERE seq = '.$target);
-			if(!SqlQuery('UPDATE '.$this->model->table.' SET sort2 = sort2 + 1 WHERE sort1='.$row['sort1'].' AND sort2 > '.$row['sort2'].' ORDER BY sort2 DESC')){
+		if($this->Action == 'Answer'){
+			//$row = SqlFetch('SELECT mname, depth, muid, sort1, sort2 FROM '.$this->model->table.' WHERE seq = '.$target);
+			if(!SqlQuery('UPDATE '.$this->model->table.' SET sort2 = sort2 + 1 WHERE sort1='.$this->_Value['targetData']['sort1'].' AND sort2 > '.$this->_Value['targetData']['sort2'].' ORDER BY sort2 DESC')){
 				$this->_Value['error'] = 'ERROR#201';
 				$this->Write();
 				return;
 			}
 			$this->model->SetValue('first_seq', $first_seq);
 			$this->model->SetValue('first_member_is', $first_member_is);
-			$this->model->SetValue('target_mname', $row['mname']);
-			$this->model->SetValue('target_muid', $row['muid'] ? $row['muid'] : 0);
-			$this->model->SetValue('sort1', $row['sort1']);
+			$this->model->SetValue('target_mname', $this->_Value['targetData']['mname']);
+			$this->model->SetValue('target_muid', $this->_Value['targetData']['muid'] ? $this->_Value['targetData']['muid'] : 0);
+			$this->model->SetValue('sort1', $this->_Value['targetData']['sort1']);
 			//echo  $row['sort1'];exit;
-			$this->model->SetValue('sort2', $row['sort2'] + 1);
-			$this->model->SetValue('depth', $row['depth'] + 1);
+			$this->model->SetValue('sort2', $this->_Value['targetData']['sort2'] + 1);
+			$this->model->SetValue('depth', $this->_Value['targetData']['depth'] + 1);
 		}else{
 			$this->model->SetValue('first_member_is', _MEMBERIS === true ? 'y' : 'n');
 			$this->model->SetQueryValue('sort1', '(SELECT IF(COUNT(s.sort1) = 0, 0, MIN(s.sort1))-1 FROM '.$this->model->table.' as s)');
@@ -470,7 +470,7 @@ class BoardController extends BH_Controller{
 	/**
 	 * 이미지 등록
 	 */
-	private function ContentImageUpate($content, $seq, $mode = 'write'){
+	protected function ContentImageUpate($content, $seq, $mode = 'write'){
 		$newcontent = $content;
 		$maxImage = MAX_IMAGE_COUNT;
 		$imageCount = 0;
@@ -538,7 +538,7 @@ class BoardController extends BH_Controller{
 		return true;
 	}
 
-	private function PasswordCheck(){
+	protected function PasswordCheck(){
 		if($this->model->GetValue('muid')){
 			if(_MEMBERIS !== true){
 				return 'ERROR#101';

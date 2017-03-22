@@ -233,7 +233,7 @@ abstract class BH_Controller{
 		$ex = explode('.', $css);
 		$ext = array_pop($ex);
 		$convCss = implode('.', $ex).'.css';
-		$css2 = _SKINURL.'/css'.($css[0] == '/' ? $css : '/'.$css);
+		$css2 = '/css'.($css[0] == '/' ? $css : '/'.$css);
 
 		$dir = _SKINDIR;
 		$url = _SKINURL;
@@ -243,18 +243,16 @@ abstract class BH_Controller{
 		}
 		else if(!file_exists(_SKINDIR.$css2)) return;
 
-		if(file_exists($dir.$css2)){
-			$lastmod = date("YmdHis", filemtime($dir.$css2));
-			$queryParam .= strlen($queryParam) ? '&'.$lastmod : '?'.$lastmod;
-			if(_DEVELOPERIS === true){
-				if(fileModifyIs($url.$css2)){
-					$d = BH_CSS($dir.$css2);
-					file_put_contents(_HTMLDIR.'/css'.($convCss[0] == '/' ? $convCss : '/'.$convCss), $d);
-					@chmod(_HTMLDIR.'/css/'.$convCss, 0777);
-				}
+		$lastmod = date("YmdHis", filemtime($dir.$css2));
+		$queryParam .= strlen($queryParam) ? '&'.$lastmod : '?'.$lastmod;
+		if(_DEVELOPERIS === true){
+			if(fileModifyIs($url.$css2)){
+				$d = BH_CSS($dir.$css2);
+				file_put_contents(_HTMLDIR.'/css'.($convCss[0] == '/' ? $convCss : '/'.$convCss), $d);
+				@chmod(_HTMLDIR.'/css/'.$convCss, 0777);
 			}
-			$this->CSS[$idx][] = _HTMLURL.'/css/'.$convCss.$queryParam;
 		}
+		$this->CSS[$idx][] = _HTMLURL.'/css/'.$convCss.$queryParam;
 	}
 
 	public function URLAction($Action = ''){
