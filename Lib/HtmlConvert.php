@@ -35,7 +35,7 @@ function ReplaceHTMLFile($source, $target){
 	);
 
 	$a = explode('/', $target);
-	$filename = array_pop($a);
+	array_pop($a);
 	$path = implode('/', $a).'/';
 
 	if(file_exists($source)){
@@ -74,8 +74,8 @@ function ReplaceHTMLFile($source, $target){
 			foreach($matches[2] as $k => $v){
 				if(!isset($data[$files[$k]])) $data[$files[$k]] = '';
 				$data[$files[$k]] .= trim(str_replace(chr(13), '', $v)).chr(10);
+				$data[$files[$k]] = trim(preg_replace('/'.chr(10).'\s*/', chr(10),trim($data[$files[$k]])));
 			}
-			$data[$files[$k]] = trim(preg_replace('/'.chr(10).'\s*/', chr(10),trim($data[$files[$k]])));
 		}
 
 		$file = str_replace(_DIR, '', $source);
@@ -175,7 +175,7 @@ function ReplaceCSS2ALL($tempfile_path, $target_path) {
 
 
 function delTree($dir) {
-	if(!is_dir($dir)) return;
+	if(!is_dir($dir)) return false;
 	$files = array_diff(scandir($dir), array('.','..'));
 	foreach ($files as $file) {
 		(is_dir($dir.'/'.$file)) ? delTree($dir.'/'.$file) : unlink($dir.'/'.$file);

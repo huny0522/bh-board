@@ -492,7 +492,7 @@ var common = new function ($) {
 					}
 
 					if($(this).hasClass('engspecialonly')) {
-						var val = this.value.replace(/[^a-zA-Z0-9~!@\#$%^&*\()\-=+_']/gi,'');
+						var val = this.value.replace(/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>'\"\?\-=\+_\:\;\[\]\{\}\/]/gi,'');
 						if(val != this.value){
 							alert($(this).attr('data-displayname') + ' 항목은 영문 및 숫자, 특수문자만 입력하여 주세요.');
 							$(this).focus();
@@ -640,7 +640,7 @@ var common = new function ($) {
 	});
 
 	$(document).on('keyup', 'input.engspecialonly', function() {
-		var val = this.value.replace(/[^a-zA-Z0-9~!@\#$%^&*\()\-=+_']/gi,'');
+		var val = this.value.replace(/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>'\"\?\-=\+_\:\;\[\]\{\}\/]/gi,'');
 		if(this.value != val) this.value = val;
 	});
 

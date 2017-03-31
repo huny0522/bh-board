@@ -105,8 +105,8 @@ abstract class BH_Controller{
 	/**
 	 * html : $this->Html 를 지정하면 그 파일을 찾고 아니라면 액션명의 파일을 찾는다.
 	 * layout : /Layout 디렉토리에서 $this->Layout 의 파일을 찾아 레이아웃을 생성
-	 * @param BH_Model $Model
-	 * @param null $Data
+	 * @param $Model mixed
+	 * @param $Data mixed
 	 */
 	public function _View($Model = NULL, $Data = NULL){
 		$viewAction = $this->Html ? $this->Html : $GLOBALS['_BH_App']->Action;
@@ -231,7 +231,7 @@ abstract class BH_Controller{
 			$css = $ex1[0];
 		}
 		$ex = explode('.', $css);
-		$ext = array_pop($ex);
+		array_pop($ex);
 		$convCss = implode('.', $ex).'.css';
 		$css2 = '/css'.($css[0] == '/' ? $css : '/'.$css);
 

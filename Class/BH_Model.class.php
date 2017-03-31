@@ -4,16 +4,16 @@
  * 16.07.10
  */
 
-define('ModelTypeInt', 'int');
-define('ModelTypeString', 'string');
-define('ModelTypeEng', 'eng');
-define('ModelTypeEngNum', 'engnum');
-define('ModelTypeEngSpecial', 'engspecial');
-define('ModelTypeFloat', 'float');
-define('ModelTypeDatetime', 'datetime');
-define('ModelTypeDate', 'date');
-define('ModelTypeEnum', 'enum');
-define('ModelTypePassword', 'password');
+define('ModelTypeInt', 1);
+define('ModelTypeString', 2);
+define('ModelTypeEng', 3);
+define('ModelTypeEngNum', 4);
+define('ModelTypeEngSpecial', 5);
+define('ModelTypeFloat', 6);
+define('ModelTypeDatetime', 7);
+define('ModelTypeDate', 8);
+define('ModelTypeEnum', 9);
+define('ModelTypePassword', 10);
 
 define('HTMLInputText', 'text');
 define('HTMLInputPassword', 'password');
@@ -22,6 +22,29 @@ define('HTMLInputCheckbox', 'checkbox');
 define('HTMLInputFile', 'file');
 define('HTMLSelect', 'select');
 define('HTMLTextarea', 'textarea');
+
+class ModelType{
+	const Int = 1;
+	const String = 2;
+	const Eng = 3;
+	const EngNum = 4;
+	const EngSpecial = 5;
+	const Float = 6;
+	const Datetime = 7;
+	const Date = 8;
+	const Enum = 9;
+	const Password = 10;
+}
+
+class HTMLType{
+	const InputText = 'text';
+	const InputPassword = 'password';
+	const InputRadio = 'radio';
+	const InputCheckbox = 'checkbox';
+	const InputFile = 'file';
+	const Select = 'select';
+	const Textarea = 'textarea';
+}
 
 class BH_Result{
 	public $result = false;
@@ -51,7 +74,7 @@ class BH_ModelData{
 	public $AutoDecrement = false;
 	public $ValueIsQuery = false;
 
-	public function __construct($Type = '', $Required = false, $DisplayName = '', $HtmlType = ''){
+	public function __construct($Type = ModelType::String, $Required = false, $DisplayName = '', $HtmlType = HTMLType::InputText){
 		$this->Type = $Type;
 		$this->Required = $Required;
 		$this->DisplayName = $DisplayName;
@@ -79,12 +102,12 @@ abstract class BH_Model{
 	/**
 	 * 모델데이타의 값을 생성
 	 * @param string $key
-	 * @param string $Type
+	 * @param int $Type
 	 * @param bool $Required
 	 * @param string $DisplayName
 	 * @param string $HtmlType
 	 */
-	public function InitModelData($key, $Type = '', $Required = false, $DisplayName = '', $HtmlType = ''){
+	public function InitModelData($key, $Type = ModelType::String, $Required = false, $DisplayName = '', $HtmlType = HTMLType::InputText){
 		$this->data[$key] = new BH_ModelData();
 		$this->data[$key]->Name = $key;
 		$this->data[$key]->Type = $Type;
@@ -208,6 +231,7 @@ abstract class BH_Model{
 			if($this->CheckLength($key) === false) return false;
 			if($this->CheckValue($key) === false) return false;
 		}
+		return true;
 	}
 
 
@@ -257,17 +281,14 @@ abstract class BH_Model{
 				return true;
 			break;
 			case ModelTypeEngSpecial:
-				$val = preg_replace('/[^a-zA-Z0-9~!@\#$%^&*\()\-=+_\']/','',$this->data[$key]->Value);
+				$val = preg_replace('/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>\'\"\?\-=\+_\:\;\[\]\{\}\/]/','',$this->data[$key]->Value);
 				if($val != $this->data[$key]->Value){
 					$this->data[$key]->ModelErrorMsg = $this->data[$key]->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문과 숫자, 특수문자만 입력가능합니다.';
 					return false;
 				}
 				return true;
-			default:
-				return true;
-			break;
-
 		}
+		return true;
 	}
 
 	public function CheckValue($key){
@@ -312,7 +333,7 @@ abstract class BH_Model{
 	/**
 	 * BH_ModelData에서 Enum 값을 출력
 	 * @param string $Name
-	 * @param string $Value
+	 * @param bool|string $Value
 	 *
 	 * @return string
 	 */
@@ -437,11 +458,13 @@ abstract class BH_Model{
 				return $ret.'</select>';
 			break;
 		};
+		return '';
 	}
 
 	/**
 	 * 가지고 있는 BH_ModelData를 등록
 	 * @return BH_InsertResult
+	 * @param $test bool
 	 */
 	public function DBInsert($test = false){
 		$dbInsert = new BH_DB_Insert($this->table);
@@ -507,6 +530,7 @@ abstract class BH_Model{
 	/**
 	 * 가지고 있는 BH_ModelData를 업데이트
 	 * @return BH_Result
+	 * @param $test bool
 	 */
 	public function DBUpdate($test = false){
 		$result = new BH_Result();
@@ -565,6 +589,7 @@ abstract class BH_Model{
 	/**
 	 * 키값에 해당하는 DB데이터를 한 행 가져온다.
 	 * @return BH_Result
+	 * @param  $keys string
 	 */
 	public function DBGet($keys){
 		$res = new BH_Result();
