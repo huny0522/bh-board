@@ -11,15 +11,21 @@ function ReplaceHTMLFile($source, $target){
 	global $styleData;
 
 	$patterns = array(
-		'/<\?\s*p\.\s*(.*?)(\s*\?>|;\s*\?>)/',
-		'/<\?\s*v\.\s*(.*?)(\s*\?>|;\s*\?>)/',
-		'/<\?\s*vr\.\s*(.*?)(\s*\?>|;\s*\?>)/',
-		'/<\?\s*vb\.\s*(.*?)(\s*\?>|;\s*\?>)/',
-		'/<\?\s*fn\.\s*(.*?)(\s*\?>|;\s*\?>)/',
-		'/<\?\s*fq\.\s*(.*?)(\s*\?>|;\s*\?>)/',
-		'/<\?\s*a\.\s*(.*?)(\s*\?>|;\s*\?>)/',
-		'/<\?\s*c\.\s*(.*?)(\s*\?>|;\s*\?>)/',
-		'/<\?\s*inc\.\s*(.*?)(\s*\?>|;\s*\?>)/'
+		'/<\?\s*p[\.|\;]\s*(.*?)(;*\s*\?>)/',
+		'/<\?\s*v[\.|\;]\s*(.*?)(;*\s*\?>)/',
+		'/<\?\s*vr[\.|\;]\s*(.*?)(;*\s*\?>)/',
+		'/<\?\s*vb[\.|\;]\s*(.*?)(;*\s*\?>)/',
+		'/<\?\s*fn[\.|\;]\s*(.*?)(;*\s*\?>)/',
+		'/<\?\s*fq[\.|\;]\s*(.*?)(;*\s*\?>)/',
+		'/<\?\s*a[\.|\;]\s*(.*?)(;*\s*\?>)/',
+		'/<\?\s*c[\.|\;]\s*(.*?)(;*\s*\?>)/',
+		'/<\?\s*inc[\.|\;]\s*(.*?)(;*\s*\?>)/',
+		'/<\?\s*mt\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/',
+		'/<\?\s*mv\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/',
+		'/<\?\s*mvr\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/',
+		'/<\?\s*mvb\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/',
+		'/<\?\s*minp\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/',
+		'/<\?\s*menum\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/'
 	);
 
 	$replace = array(
@@ -32,6 +38,12 @@ function ReplaceHTMLFile($source, $target){
 		'<?php echo $this->URLAction($1); ?>',
 		'<?php echo $this->URLBase($1); ?>',
 		'<?php if(_DEVELOPERIS === true) ReplaceHTMLFile(_SKINDIR.$1, _HTMLDIR.$1); require _HTMLDIR.$1; ?>',
+		'<?php echo $Model->data[$1]->DisplayName; ?>',
+		'<?php echo GetDBText($Model->GetValue($1)); ?>',
+		'<?php echo GetDBRaw($Model->GetValue($1)); ?>',
+		'<?php echo nl2br(GetDBText($Model->GetValue($1))); ?>',
+		'<?php echo $Model->HTMLPrintInput($1); ?>',
+		'<?php echo $Model->HTMLPrintEnum($1); ?>'
 	);
 
 	$a = explode('/', $target);

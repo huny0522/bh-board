@@ -72,7 +72,12 @@ abstract class BH_Controller{
 
 		$queryparam = '';
 		foreach($fq as $k => $v){
-			$queryparam .= ($queryparam ? '&' : $begin ).$k.'='.$v;
+			if(is_array($v)){
+				foreach($v as $v2){
+					$queryparam .= ($queryparam ? '&' : $begin ).$k.'[]='.$v2;
+				}
+			}
+			else $queryparam .= ($queryparam ? '&' : $begin ).$k.'='.$v;
 		}
 		return $queryparam;
 	}
