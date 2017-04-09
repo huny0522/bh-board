@@ -104,12 +104,14 @@ class BH_Common
 	public function Config($code, $key){
 		// 설정불러오기
 		if(!isset($this->CFG[$code])){
-			$path = _DIR.'/Common/CFG/'.$code.'.inc';
-			if(!file_exists($path)) return null;
-			$var = file_get_contents($path);
-			$this->CFG[$code] = json_decode($var);
+			$path = _DATADIR.'/CFG/'.$code.'.php';
+			if(file_exists($path)){
+				require_once $path;
+				/** @var string $data */
+				$this->CFG[$code] = json_decode(stripslashes($data), true);
+			}else $this->CFG[$code] = array();
 		}
-		return isset($this->CFG[$code]->$key) ? $this->CFG[$code]->$key : null;
+		return isset($this->CFG[$code][$key]) ? $this->CFG[$code][$key] : null;
 	}
 
 	/**
@@ -174,7 +176,7 @@ class BH_Common
 			}
 		}
 
-		require_once _LIBDIR.'/FileUpload.php';
+		require_once _COMMONDIR.'/FileUpload.php';
 		DeleteOldTempFiles(_UPLOAD_DIR.'/temp/', strtotime('-6 hours'));
 		return true;
 	}

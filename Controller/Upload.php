@@ -3,7 +3,7 @@
  * Bang Hun.
  * 16.07.10
  */
-require _LIBDIR.'/FileUpload.php';
+require _COMMONDIR.'/FileUpload.php';
 
 class UploadController extends BH_Controller{
 	public function __Init(){

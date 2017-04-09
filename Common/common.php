@@ -302,10 +302,11 @@ function JSON($bool, $message = '', $data = array()){
 $_BH_MODINFODATA = array();
 function fileModifyIs($file){
 	if(_BH_ !== true) return false;
-	$path = _DIR.'/Common/fileModTime.inc';
+	$path = _DATADIR.'/fileModTime.php';
 
 	$modIs = false;
-	if(!sizeof($GLOBALS['_BH_MODINFODATA']) && file_exists($path)) $GLOBALS['_BH_MODINFODATA'] = json_decode(file_get_contents($path), true);
+	if(!sizeof($GLOBALS['_BH_MODINFODATA']) && file_exists($path)) require_once $path;
+	if(isset($data)) $GLOBALS['_BH_MODINFODATA'] = json_decode(stripslashes($data), true);
 
 	if(is_array($file)){
 		foreach($file as $v){
@@ -326,7 +327,7 @@ function fileModifyIs($file){
 			}
 		}else unset($GLOBALS['_BH_MODINFODATA'][$file]);
 	}
-	if($modIs) file_put_contents($path, json_encode($GLOBALS['_BH_MODINFODATA']));
+	if($modIs) file_put_contents($path, '<?php $data = \''.addslashes(json_encode($GLOBALS['_BH_MODINFODATA'])).'\';');
 	return $modIs;
 }
 

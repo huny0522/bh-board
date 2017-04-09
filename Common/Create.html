@@ -1,0 +1,30 @@
+<?php
+/**
+ * Bang Hun.
+ * 17.04.09
+ */
+if(_BH_ !== true) exit;
+?>
+<b>'<?php echo $this->Controller ?>'</b>컨트롤러가 존재하지 않습니다. 컨트롤러를 생성하시려면 아래 형식을 제출하세요.<br><br>
+
+<form method="post" action="<?php echo _URL ?>/~Create"><input type="hidden" name="controller_name" value="<?php echo $this->Controller ?>">
+
+	<table>
+		<tr>
+			<th>테이블명</th>
+			<td>
+				<input type="text" name="table_name" value="<?php echo TABLE_FIRST ?>" required="required">
+				ex) <?php echo TABLE_FIRST ?>member<br>
+				<label><input type="checkbox" name="const" value="y"> 상수</label>
+			</td>
+		</tr>
+		<tr>
+			<th>모델명</th>
+			<td>
+				<input type="text" name="model_name" required="required">
+				ex) Member
+			</td>
+		</tr>
+	</table>
+	<button type="submit">제출</button>
+</form>

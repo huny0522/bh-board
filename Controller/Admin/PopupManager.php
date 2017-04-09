@@ -51,7 +51,7 @@ class PopupManagerController extends BH_Controller
 		}
 		else{
 			if(isset($_FILES['img'])){
-				require_once _LIBDIR.'/FileUpload.php';
+				require_once _COMMONDIR.'/FileUpload.php';
 				$fres_em = FileUpload($_FILES['img'], self::$POSSIBLE_EXT, '/board/'.date('ym').'/');
 
 				if($fres_em === 'noext'){
@@ -86,7 +86,7 @@ class PopupManagerController extends BH_Controller
 		}
 		else{
 			if(isset($_FILES['img'])){
-				require_once _LIBDIR.'/FileUpload.php';
+				require_once _COMMONDIR.'/FileUpload.php';
 				$fres_em = FileUpload($_FILES['img'], self::$POSSIBLE_EXT, '/board/'.date('ym').'/');
 
 				if($fres_em === 'noext'){

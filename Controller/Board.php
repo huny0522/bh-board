@@ -245,7 +245,7 @@ class BoardController extends BH_Controller{
 		$res = $this->GetAuth('Modify');
 		if(!$res) Redirect('-1', _NO_AUTH);
 
-		require_once _LIBDIR.'/FileUpload.php';
+		require_once _COMMONDIR.'/FileUpload.php';
 
 		$seq = to10($this->ID);
 
@@ -329,7 +329,7 @@ class BoardController extends BH_Controller{
 			$first_member_is = $this->_Value['targetData']['first_member_is'];
 		}
 
-		require_once _LIBDIR.'/FileUpload.php';
+		require_once _COMMONDIR.'/FileUpload.php';
 
 		$result = new BH_Result();
 
@@ -533,7 +533,7 @@ class BoardController extends BH_Controller{
 			}
 		}
 
-		require_once _LIBDIR.'/FileUpload.php';
+		require_once _COMMONDIR.'/FileUpload.php';
 		DeleteOldTempFiles(_UPLOAD_DIR.'/temp/', strtotime('-6 hours'));
 		return true;
 	}

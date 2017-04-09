@@ -23,8 +23,9 @@ class ConfigController extends BH_Controller{
 
 	public function PostWrite(){
 		$var = json_encode($_POST);
-		$path = _DIR.'/Common/CFG/'.$_POST['Code'].'.inc';
-		file_put_contents($path, $var);
+		if(!file_exists( _DATADIR.'/CFG') || !is_dir(_DATADIR.'/CFG')) mkdir(_DATADIR.'/CFG', 0757);
+		$path = _DATADIR.'/CFG/'.$_POST['Code'].'.php';
+		file_put_contents($path, '<?php $data = \''.addslashes($var).'\';');
 		Redirect($this->URLAction(), '설정되었습니다.');
 	}
 }

@@ -31,10 +31,10 @@ class BH_Application{
 		$this->_Conn = SqlConnection($GLOBALS['_DBInfo']);
 		$this->_MainConn = $this->_Conn;
 		if(!$this->_Conn){
-			echo("ACCESS_DENIED_DB_CONNECTION");
+			echo('ACCESS_DENIED_DB_CONNECTION');
 			exit;
 		}
-		mysqli_set_charset($this->_Conn,"utf8");
+		mysqli_set_charset($this->_Conn,'utf8');
 	}
 
 	public function __destruct(){
@@ -48,7 +48,10 @@ class BH_Application{
 		$this->Router->router();
 
 		if(!$this->Controller) $this->Controller = _DEFAULT_CONTROLLER;
-		if(!$this->Action) $this->Action = 'Index';
+		if(!strlen($this->Action)) $this->Action = 'Index';
+		else if(strtolower(substr($this->Action, 0, 4)) == 'post'){
+			$this->Action = substr($this->Action, (strlen($this->Action) - 4)*(-1));
+		}
 
 
 		$path = _DIR.'/Controller/'.($this->SubDir ? $this->SubDir.'/' : '').$this->Controller.'.php';
@@ -75,7 +78,9 @@ class BH_Application{
 				else Redirect(_URL.'/');
 			}
 		}else{
-			if(_DEVELOPERIS === true) echo '파일이 존재하지 않습니다.(#1)';
+			if(_DEVELOPERIS === true){
+				require _COMMONDIR.'/Create.html';
+			}
 			else Redirect(_URL.'/');
 		}
 	}

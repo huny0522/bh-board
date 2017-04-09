@@ -6,6 +6,204 @@
 
 class BH_HtmlCreate
 {
+	public static function CreateController($ControllerName, $ModelName, $TableName){
+		if(_DEVELOPERIS !== true) return;
+		$path = _CONTROLLERDIR.'/'.$GLOBALS['_BH_App']->SubDir.'/'.$ControllerName.'.php';
+		$modelPath = _MODELDIR.'/'.$ModelName.'.model.php';
+		$text = "<?php
+
+class {$ControllerName}Controller extends BH_Controller{
+	/** @var {$ModelName} */
+	public \$model;
+	public function __Init(){
+		exit;
+		require _MODELDIR.'/{$ModelName}.model.php';
+		if(_DEVELOPERIS === true){
+			BH_HtmlCreate::ModifyModel('{$ModelName}');
+			BH_HtmlCreate::Create('{$ControllerName}', '{$ModelName}');
+		}
+		\$this->model = new {$ModelName}Model();
+	}
+
+	public function Index(){
+		\$qry = new BH_DB_GetListWithPage(\$this->model->table);
+		\$qry->articleCount = 10;
+		\$qry->page = \$_GET['page'];
+		\$qry->pageUrl = \$this->URLAction().\$this->GetFollowQuery('page');
+		\$qry->Run();
+
+		\$this->_View(\$this->model, \$qry);
+	}
+
+	public function View(){
+		\$this->_ModelSet();
+		\$this->_View(\$this->model);
+	}
+
+	public function Write(){
+		\$this->_View(\$this->model);
+	}
+
+	public function Modify(){
+		\$this->_ModelSet();
+		\$this->Html = 'Write';
+		\$this->_View(\$this->model);
+	}
+
+	public function PostWrite(){
+		\$this->model->SetPostValues();
+		\$err = \$this->model->GetErrorMessage();
+		if(sizeof(\$err)){
+			\$this->_Value['error'] = \$err[0];
+			\$this->_View(\$this->model);
+			return;
+		}
+		\$res = \$this->model->DBInsert();
+		if(!\$res->result) {
+			\$this->_Value['error'] = \$res->message ? \$res->message : 'Query Error';
+		}
+		else Redirect(\$this->URLAction().\$this->GetFollowQuery());
+	}
+
+	public function PostModify(){
+		\$this->_ModelSet();
+		\$this->model->SetPostValues();
+		\$err = \$this->model->GetErrorMessage();
+		if(sizeof(\$err)){
+			\$this->_Value['error'] = \$err[0];
+			\$this->_View(\$this->model);
+			return;
+		}
+		\$res = \$this->model->DBUpdate();
+		if(!\$res->result) {
+			\$this->_Value['error'] = \$res->message ? \$res->message : 'Query Error';
+		}
+		else Redirect(\$this->URLAction('View/'.\$this->ID).\$this->GetFollowQuery());
+	}
+
+	public function PostDelete(){
+		\$res = \$this->model->DBDelete(\$this->ID);
+
+		if(\$res->result){
+			Redirect(\$this->URLAction('').\$this->GetFollowQuery());
+		}
+		else{
+			Redirect(\$this->URLAction('View/'.\$this->ID).\$this->GetFollowQuery(), \$res->message ? \$res->message : 'Query Error');
+		}
+	}
+
+	private function _ModelSet(){
+		if(!strlen(\$this->ID)) Redirect(-1, _WRONG_CONNECTED);
+		\$res = \$this->model->DBGet(\$this->ID);
+		if(!\$res->result) Redirect(-1, \$res->message ? \$res->message : _NO_ARTICLE);
+	}
+}";
+		if(!file_exists($path)){
+			file_put_contents($path, $text);
+			@chmod($path, 0757);
+		}
+
+
+		$modelText = "<?php
+
+class {$ModelName}Model extends BH_Model{
+
+	public function __Init(){
+		\$this->table = {$TableName};
+	}// __Init
+
+}";
+		if(!file_exists($modelPath)){
+			file_put_contents($modelPath, $modelText);
+			@chmod($path, 0757);
+		}
+	}
+
+	public static function ModifyModel($ModelName){
+		if(_DEVELOPERIS !== true) return;
+		$modelPath = _MODELDIR.'/'.$ModelName.'.model.php';
+		$f = file_get_contents($modelPath);
+		$pattern = '/\$this\-\>table\s*=\s*[\'|\"](.*?)[\'|\"]\;/i';
+		preg_match($pattern, $f, $matches);
+		$TableName = '';
+		if(!sizeof($matches) || $matches[1] == ''){
+			$pattern = '/\$this\-\>table\s*=\s*(.*?)\;/i';
+			preg_match($pattern, $f, $matches);
+			if(sizeof($matches) > 1 && $matches[1]) $TableName = constant($matches[1]);
+		}else $TableName = $matches[1];
+
+		if(!$TableName) return;
+
+		$pattern = '/function\s+__Init\s*\(\s*\)\s*\{\s*(.*?)\s*\}\s*\/\/\s*__Init/is';
+		preg_match($pattern, $f, $fn_matches);
+		$initFuncText = '';
+		if(sizeof($fn_matches) > 1 && $fn_matches[1]) $initFuncText = str_replace(chr(9), '', $fn_matches[1]);
+
+		$qry = SqlQuery('DESC '.$TableName);
+		$primaryKey = array();
+		//$tData = array();
+		while($row = SqlFetch($qry)){
+			//$tData[$row['Field']] = $row;
+			$findIs = preg_match('/\$this\-\>InitModelData\(\s*\''.$row['Field'].'\'/is', $initFuncText, $matches);
+			if(!$findIs) $findIs = preg_match('/\$this\-\>data\[\''.$row['Field'].'\'\]\s*=\s*new\s*BH_ModelData/is', $initFuncText);
+			if(strtolower($row['Key']) == 'pri') $primaryKey[] = "'{$row['Field']}'";
+
+			if(!$findIs){
+				$modelType = 'ModelType::String';
+				$htmlType = 'HTMLType::InputText';
+				$addOption = '';
+				$row['Type'] = strtolower($row['Type']);
+				if(strpos($row['Type'], 'int(') !== false){
+					$modelType = 'ModelType::Int';
+					$addOption .= chr(10).'$this->data[\''.$row['Field'].'\']->DefaultValue = '.(int)$row['Default'].';';
+				}
+				else if(strpos($row['Type'], 'date') !== false){
+					$modelType = 'ModelType::Date';
+				}
+				else if(strpos($row['Type'], 'datetime') !== false){
+					$modelType = 'ModelType::Datetime';
+				}
+				else if(strpos($row['Type'], 'enum(') !== false){
+					$modelType = 'ModelType::Enum';
+					$htmlType = 'HTMLType::Select';
+					preg_match('/\((.*?)\)/', $row['Type'], $matches);
+					$enum = explode(',', $matches[1]);
+					$enum_t = array();
+					foreach($enum as $v){
+						$enum_t[]= $v.' => '.$v;
+					}
+					$addOption .= chr(10).'$this->data[\''.$row['Field'].'\']->EnumValues = array('.implode(',', $enum_t).');';
+					$addOption .= chr(10).'$this->data[\''.$row['Field'].'\']->DefaultValue = \''.$row['Default'].'\';';
+				}
+				else if(strpos($row['Type'], 'varchar(') !== false){
+					preg_match('/\(([0-9]*?)\)/', $row['Type'], $matches);
+					$addOption .= chr(10).'$this->data[\''.$row['Field'].'\']->MaxLength = \''.$matches[1].'\';';
+				}
+
+				$initFuncText .= chr(10).chr(10).'$this->InitModelData(\''.$row['Field'].'\', '.$modelType.', false, \''.$row['Field'].'\', '.$htmlType.');'.$addOption;
+			}
+
+		}
+
+		$pattern = '/\$this\-\>Key\s*=\s*array/i';
+		preg_match($pattern, $initFuncText, $matches);
+		if(!sizeof($matches)){
+			$initFuncText = '$this->Key = array('.implode(',', $primaryKey).');'.chr(10).$initFuncText;
+		}
+
+		$initFuncText = str_replace(chr(11), '', $initFuncText);
+		$initFuncText = str_replace(chr(10), chr(10).chr(9).chr(9), $initFuncText);
+		$pattern = '/function\s+__Init\s*\(\s*\)\s*\{\s*(.*?)\s*\}\s*\/\/\s*__Init/is';
+		$res = preg_replace($pattern, 'function __Init(){'.chr(10).chr(9).chr(9).$initFuncText.chr(10).chr(9).'} // __Init', $f);
+		//echo $initFuncText;
+
+
+
+		file_put_contents($modelPath, $res);
+		//print_r($tData);
+
+		//echo $initFuncText;
+	}
 
 	/**
 	 * @param $path : HTML 이 위치할 패스
@@ -13,12 +211,13 @@ class BH_HtmlCreate
 	 */
 	public static function Create($path, $model){
 		/**
-		* @var $_BH_App BH_Application
-		*/
+		 * @var $_BH_App BH_Application
+		 */
 
 		if(_DEVELOPERIS !== true) return;
 		$path = '/'.$path;
 		if($GLOBALS['_BH_App']->SubDir) $path = '/'.$GLOBALS['_BH_App']->SubDir.$path;
+		if(file_exists($path) && is_dir($path)) return;
 
 		self::Index($path.'/Index.html', $model);
 		self::View($path.'/View.html', $model);
@@ -45,33 +244,19 @@ class BH_HtmlCreate
 
 			if(!is_dir($path2)) mkdir($path2, 0777, true);
 
-			$Key = array();
-			foreach($modelClass->Key as $k){
-				$Key[] = $k.'=<?v. $_GET[\''.$k.'\'] ?>';
-			}
-
-			$DeleteKey = array();
-			foreach($modelClass->Key as $k){
-				$DeleteKey[] = ' data-'.$k.'="<?v. $_GET[\''.$k.'\'] ?>"';
-			}
-
 			$html = '<?php if(_BH_ !== true) exit;' . chr(10) . '/**'.chr(10).'* @var $Model '.$classname.chr(10).' */' . chr(10) .'/**'.chr(10).'* @var $this BH_Controller'.chr(10).'*/' . chr(10) . '?>' . chr(10) . chr(10) . '<table class="view">' . chr(10);
 			foreach($modelClass->data as $k => $row){
 
 				$html .= '<tr>' . chr(10)
-					. '	<th><?p. $Model->data[\'' . $k . '\']->DisplayName ?></th>' . chr(10);
-				if(isset($row->EnumValues) && is_array($row->EnumValues)) $html .= '	<td><?p. $Model->HTMLPrintEnum(\''.$k.'\', $Model->GetValue(\''.$k.'\')) ?></td>'. chr(10);
-				else $html .= '	<td>'.chr(10). '		<?v. $Model->GetValue(\'' . $k . '\') ?>'. chr(10) . '	</td>'.chr(10);
+					. '	<th><?mt(\'' . $k . '\') ?></th>' . chr(10);
+				if(isset($row->EnumValues) && is_array($row->EnumValues)) $html .= '	<td><?menum(\''.$k.'\') ?></td>'. chr(10);
+				else $html .= '	<td>'.chr(10). '		<?mv(\'' . $k . '\') ?>'. chr(10) . '	</td>'.chr(10);
 				$html .= '</tr>' . chr(10);
 			}
 			$html .= '</table>' . chr(10);
-			$html .= '<div class="bottomBtn"><a href="<?a. \'\' ?><?fq. \'\' ?>" class="btn1">리스트</a><a href="<?a. \'Modify\' ?>'.(sizeof($Key) ? '?'.implode('&amp;', $Key).'<?fn. \'\' ?>' : '<?fq. \'\' ?>').'" class="btn1">수정</a><a href="#" id="deleteArticle"'.(sizeof($DeleteKey) ? implode($DeleteKey) : '').' class="btn1">삭제</a><a href="#" class="backbtn btn1">뒤로</a></div>' . chr(10);
+			$html .= '<div class="bottomBtn"><a href="<?a. \'\' ?><?fq. \'\' ?>" class="btn1">리스트</a><a href="<?a. \'Modify/\'.$this->ID ?><?fq. \'\' ?>" class="btn1">수정</a><a href="#" id="deleteArticle" class="btn1">삭제</a><a href="#" class="backbtn btn1">뒤로</a></div>' . chr(10);
 			$html .= '<div id="deleteForm" class="hidden">'. chr(10)
-				. chr(9).'<form id="delForm" name="delForm" method="post" action="<?a. \'Delete\' ?><?fq. \'\' ?>">'. chr(10);
-
-			foreach($modelClass->Key as $k){
-				$html .= chr(9). chr(9).'<input type="hidden" name="'.$k.'" value="<?v. $_GET[\''.$k.'\'] ?>">'. chr(10);
-			}
+				. chr(9).'<form id="delForm" name="delForm" method="post" action="<?a. \'Delete/\'.$this->ID ?><?fq. \'\' ?>">'. chr(10);
 
 			$html .= chr(9). chr(9).'<p>정말 삭제하시겠습니까?</p>'.chr(10)
 				. chr(9). chr(9).'<div class="sPopBtns">' . chr(10)
@@ -112,16 +297,16 @@ class BH_HtmlCreate
 
 
 			$html = '<?php if(_BH_ !== true) exit;' . chr(10) .'/**'.chr(10).'* @var $Model '.$classname.chr(10).' */' . chr(10) . '/**'.chr(10).'* @var $this BH_Controller'.chr(10).'*/' . chr(10) .'?>' . chr(10) . chr(10);
-			$html .= '<form name="'.$model.'WriteForm" id="'.$model.'WriteForm" method="post" action="<?a. $this->Action ?><?fq. \'\' ?>">'. chr(10);
+			$html .= '<form name="'.$model.'WriteForm" id="'.$model.'WriteForm" method="post" action="<?a. $this->Action.\'/\'.$this->ID ?><?fq. \'\' ?>">'. chr(10);
 
 			$html .= chr(10).'	<table class="write">' . chr(10);
 			foreach($modelClass->data as $k => $row){
 				$html .= '		<tr>' . chr(10)
 					. '			<th>';
 				if($row->Required) $html .= '<i class="requiredBullet" title="필수항목">*</i> ';
-				$html .= '<?p. $Model->data[\'' . $k . '\']->DisplayName ?></th>' . chr(10);
+				$html .= '<?mt(\'' . $k . '\') ?></th>' . chr(10);
 				$html .= '			<td>' . chr(10);
-				$html .= '				<?p. $Model->HTMLPrintInput(\'' . $k . '\') ?>' . chr(10);
+				$html .= '				<?minp(\'' . $k . '\') ?>' . chr(10);
 				$guide = '';
 				if($row->MaxLength !== false){
 					$guide .= '					<li>';
@@ -145,8 +330,8 @@ class BH_HtmlCreate
 				}
 				if($guide) $html .= '				<ul class="guide">' . chr(10).$guide.'				</ul>'.chr(10);
 
-					$html .= '			</td>' . chr(10)
-						. '		</tr>' . chr(10);
+				$html .= '			</td>' . chr(10)
+					. '		</tr>' . chr(10);
 			}
 			$html .= '	</table>' . chr(10) . chr(10);
 			$html .= '	<div class="bottomBtn">' . chr(10)
@@ -174,7 +359,7 @@ class BH_HtmlCreate
 
 		require_once _DIR . '/Model/' . $model . '.model.php';
 		$classname = $model . 'Model';
-		/** @var Model $modelClass */
+		/** @var BH_Model $modelClass */
 		$modelClass = new $classname();
 		if(!file_exists(_SKINDIR . $path)){
 
@@ -185,11 +370,6 @@ class BH_HtmlCreate
 			if(!is_dir($path2)) mkdir($path2, 0777, true);
 
 			//키값
-			$addUrl = '';
-			foreach($modelClass->Key as $v){
-				$addUrl .= ($addUrl ? '&' : '?').$v.'=<?p. $row[\''.$v.'\'] ?>';
-			}
-
 			$html = '<?php if(_BH_ !== true) exit;' . chr(10) . '/**'.chr(10).'* @var $Model '.$classname.chr(10).' */' . chr(10) . '/**'.chr(10).'* @var $Data BH_DB_GetListWithPage'.chr(10).'*/' . chr(10) . '/**'.chr(10).'* @var $this BH_Controller'.chr(10).'*/' . chr(10) . '?>' . chr(10) . chr(10);
 			$html .= '<table class="list">'.chr(10);
 			$html .= '<thead>'. chr(10);
@@ -197,7 +377,7 @@ class BH_HtmlCreate
 			$n = 0;
 			$html .= '	<th>번호</th>' . chr(10);
 			foreach($modelClass->data as $k => $row){
-				$html .= '	<th><?p. $Model->data[\'' . $k . '\']->DisplayName ?></th>' . chr(10);
+				$html .= '	<th><?mt(\'' . $k . '\') ?></th>' . chr(10);
 				$n ++;
 			}
 			$html .= '	<th></th>'. chr(10);
@@ -209,10 +389,14 @@ class BH_HtmlCreate
 			$html .= '<tr>'. chr(10);
 			$html .= '	<td><?p. $Data->beginNum-- ?></td>'. chr(10);
 			foreach($modelClass->data as $k => $row){
-				if(isset($row->EnumValues) && is_array($row->EnumValues)) $html .= '	<td><?p. $Model->HTMLPrintEnum(\''.$k.'\', $row[\''.$k.'\']) ?></td>'. chr(10);
-			else $html .= '	<td><?v. $row[\''.$k.'\']; ?></td>'. chr(10);
+				if(isset($row->EnumValues) && is_array($row->EnumValues)) $html .= '	<td><?menum(\''.$k.'\', $row[\''.$k.'\']) ?></td>'. chr(10);
+				else $html .= '	<td><?v. $row[\''.$k.'\']; ?></td>'. chr(10);
 			}
-			$html .= '	<td><a href="<?a. \'View\' ?>'.$addUrl.'<?fn. \'\' ?>">상세보기</a></td>'. chr(10);
+			$keys = array();
+			foreach($modelClass->Key as $k){
+				$keys[] = '$row[\''.$k.'\']';
+			}
+			$html .= '	<td><a href="<?a. \'View/\'.'.implode('.\'/\'.', $keys).' ?><?fn. \'\' ?>">상세보기</a></td>'. chr(10);
 
 			$html .= '</tr>'. chr(10);
 			$html .= '<?php } ?>'. chr(10);

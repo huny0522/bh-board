@@ -28,6 +28,17 @@ class BH_Router
 			exit;
 		}
 
+		if($this->GetUrl[1] == '~Create'){
+			if(_DEVELOPERIS === true && _POSTIS === true){
+				if($_POST['const'] != 'y') $_POST['table_name'] = "'{$_POST['table_name']}'";
+				BH_HtmlCreate::CreateController($_POST['controller_name'], $_POST['model_name'], $_POST['table_name']);
+				BH_HtmlCreate::ModifyModel($_POST['model_name']);
+				BH_HtmlCreate::Create($_POST['controller_name'], $_POST['model_name']);
+				Redirect('./'.$_POST['controller_name']);
+			}
+			exit;
+		}
+
 		if(!isset($this->GetUrl[1]) || !strlen($this->GetUrl[1])){
 			$this->GetUrl[1] = _DEFAULT_CONTROLLER;
 		}

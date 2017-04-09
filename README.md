@@ -110,7 +110,7 @@
 
 
 ##기본적인 상수
-- _DIR, _CLASSDIR, _LIBDIR, _SKINDIR, _HTMLDIR, _UPLOAD_DIRNAME, _UPLOAD_DIR : php 파일 서버경로 위치를 위한 상수
+- _DIR, _CLASSDIR, _COMMONDIR, _SKINDIR, _HTMLDIR, _UPLOAD_DIRNAME, _UPLOAD_DIR : php 파일 서버경로 위치를 위한 상수
 - _URL, _SKINURL, _ADMINURLNAME, _ADMINURL, _IMGURL, _UPLOAD_URL : 웹사이트 절대경로를 위한 상수
 - _POSTIS : 서버요청방식 정의. POST일 경우 true.
 - _AJAXIS : 서버요청이 AJAX인 경우 true.

@@ -140,7 +140,7 @@ class ReplyController extends BH_Controller{
 		}
 		else $this->model->SetValue('secret', isset($_POST['secret']) && $_POST['secret'] == 'y' ? 'y' : 'n');
 
-		require_once _LIBDIR.'/FileUpload.php';
+		require_once _COMMONDIR.'/FileUpload.php';
 
 		// 파일 업로드
 		if(isset($_FILES['file'])){
@@ -241,7 +241,7 @@ class ReplyController extends BH_Controller{
 			exit;
 		}
 
-		require_once _LIBDIR.'/FileUpload.php';
+		require_once _COMMONDIR.'/FileUpload.php';
 
 		$result = new BH_Result();
 

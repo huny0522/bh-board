@@ -16,19 +16,21 @@ define('_DIR', str_replace('\\', '/', dirname(__FILE__)));
 define('_CLASSDIR', _DIR . '/Class');
 define('_MODELDIR', _DIR . '/Model');
 define('_CONTROLLERDIR', _DIR . '/Controller');
-define('_LIBDIR', _DIR . '/Lib');
+define('_COMMONDIR', _DIR . '/Common');
 define('_SKINDIR', _DIR.'/Skin');
-define('_HTMLDIR', _DIR.'/_HTML');
+define('_DATADIR', _DIR.'/Data');
+define('_HTMLDIR', _DATADIR.'/_HTML');
 define('_UPLOAD_DIRNAME', 'Upload');
-define('_UPLOAD_DIR', _DIR.'/'._UPLOAD_DIRNAME);
+define('_UPLOAD_DIR', _DATADIR.'/'._UPLOAD_DIRNAME);
 
 define('_URL', '');
+define('_DATAURL', _URL.'/Data');
 define('_SKINURL', _URL.'/Skin');
-define('_HTMLURL', _URL.'/_HTML');
+define('_HTMLURL', _DATAURL.'/_HTML');
 define('_ADMINURLNAME', 'BHAdm');
 define('_ADMINURL', _URL.'/'._ADMINURLNAME);
 define('_IMGURL', _SKINURL.'/images');
-define('_UPLOAD_URL', _URL.'/'._UPLOAD_DIRNAME);
+define('_UPLOAD_URL', _DATAURL.'/'._UPLOAD_DIRNAME);
 
 define('_BH_', true);
 define('_OB_COMP', 'zlib.output_compression');
@@ -64,15 +66,17 @@ else define('_MOBILEIS', false);
 
 
 
-require _DIR.'/Lib/common.php';
+require _COMMONDIR.'/common.php';
+require _COMMONDIR.'/db.info.php';
 
-$_ClassesPath = _DIR.'/Common/Classes.php';
+$_ClassesPath = _DATADIR.'/Classes.php';
 if(_DEVELOPERIS === true){
-	require _LIBDIR . '/HtmlConvert.php';
-	require _LIBDIR . '/StyleConvert.php';
+	if(!file_exists(_DATADIR) || !is_dir(_DATADIR)) @mkdir(_DATADIR, 0757, true);
+	require _COMMONDIR . '/HtmlConvert.php';
+	require _COMMONDIR . '/StyleConvert.php';
+	require _CLASSDIR.'/BH_HtmlCreate.class.php';
 
 	$_file_array = array(
-		'/Common/db.info.php',
 		'/Class/BH_DB.class.php',
 		'/Class/BH_Application.class.php',
 		'/Class/BH_Controller.class.php',
@@ -124,6 +128,7 @@ define('_SECRET_ARTICLE', '비밀글입니다.');
 define('_DELETED_ARTICLE', '삭제된 게시물입니다.');
 define('_DELETED_REPLY', '삭제된 댓글입니다.');
 define('_WRONG_CONNECTED', '잘못된 접근입니다.');
+define('_NO_ARTICLE', '존재하지 않는 게시물입니다.');
 define('_PAYMENT_WAIT', '입금대기중');
 define('_PAYMENT_FIN', '입금완료');
 define('_NO_AUTH', '권한이 없습니다.');

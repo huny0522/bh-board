@@ -1,1 +1,0 @@
-{"Code":"Default","Company":"","SiteName":"BH Board","Privacy":"\uac1c\uc778\uc815\ubcf4\ubcf4\ud638\uc815\ucc45","Terms":"<p>\uc774\uc6a9\uc57d\uad00<\/p>"}
