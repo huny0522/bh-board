@@ -107,8 +107,6 @@ class BH_Common
 			$path = _DATADIR.'/CFG/'.$code.'.php';
 			if(file_exists($path)){
 				require_once $path;
-				/** @var string $data */
-				$this->CFG[$code] = json_decode(stripslashes($data), true);
 			}else $this->CFG[$code] = array();
 		}
 		return isset($this->CFG[$code][$key]) ? $this->CFG[$code][$key] : null;

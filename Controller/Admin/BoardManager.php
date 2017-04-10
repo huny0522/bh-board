@@ -24,7 +24,7 @@ class BoardManagerController extends BH_Controller{
 
 		// HTMl 생성
 		// 디버그 모드일때 Index, Write, View 파일을 자동 생성(파일이 존재하지 않을 경우)
-		// require _CLASSDIR . '/BH_HtmlCreate.class.php';
+		// require _COMMONDIR . '/BH_HtmlCreate.class.php';
 		// BH_HtmlCreate::Create('BoardManager', 'BoardManager');
 
 		// 항상 따라다닐 URL 쿼리 파라미터를 지정

@@ -13,7 +13,6 @@ error_reporting(E_ALL);
 date_default_timezone_set("Asia/Seoul");
 
 define('_DIR', str_replace('\\', '/', dirname(__FILE__)));
-define('_CLASSDIR', _DIR . '/Class');
 define('_MODELDIR', _DIR . '/Model');
 define('_CONTROLLERDIR', _DIR . '/Controller');
 define('_COMMONDIR', _DIR . '/Common');
@@ -65,36 +64,21 @@ if(preg_match('/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|c
 else define('_MOBILEIS', false);
 
 
-
 require _COMMONDIR.'/common.php';
-require _COMMONDIR.'/db.info.php';
+require _COMMONDIR .'/db.info.php';
+require _COMMONDIR .'/BH_DB.class.php';
+require _COMMONDIR .'/BH_Application.class.php';
+require _COMMONDIR .'/BH_Controller.class.php';
+require _COMMONDIR .'/BH_Model.class.php';
+require _COMMONDIR .'/BH_Router.class.php';
+require _COMMONDIR .'/BH_Common.class.php';
 
-$_ClassesPath = _DATADIR.'/Classes.php';
 if(_DEVELOPERIS === true){
 	if(!file_exists(_DATADIR) || !is_dir(_DATADIR)) @mkdir(_DATADIR, 0757, true);
 	require _COMMONDIR . '/HtmlConvert.php';
 	require _COMMONDIR . '/StyleConvert.php';
-	require _CLASSDIR.'/BH_HtmlCreate.class.php';
-
-	$_file_array = array(
-		'/Class/BH_DB.class.php',
-		'/Class/BH_Application.class.php',
-		'/Class/BH_Controller.class.php',
-		'/Class/BH_Model.class.php',
-		'/Class/BH_Router.class.php',
-		'/Class/BH_Common.class.php'
-	);
-	if(fileModifyIs($_file_array)){
-		$_f = '';
-		foreach($_file_array as $k => $v){
-			if($k) $_f .= str_replace('<?php', '', file_get_contents(_DIR . $v));
-			else $_f .= file_get_contents(_DIR . $v);
-		}
-		file_put_contents($_ClassesPath, $_f);
-	}
+	require _COMMONDIR.'/BH_HtmlCreate.class.php';
 }
-
-require $_ClassesPath;
 
 if(_CREATE_HTML_ALL === true){
 	delTree(_HTMLDIR);

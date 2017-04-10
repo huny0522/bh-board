@@ -16,12 +16,8 @@ class {$ControllerName}Controller extends BH_Controller{
 	/** @var {$ModelName} */
 	public \$model;
 	public function __Init(){
-		exit;
 		require _MODELDIR.'/{$ModelName}.model.php';
-		if(_DEVELOPERIS === true){
-			BH_HtmlCreate::ModifyModel('{$ModelName}');
-			BH_HtmlCreate::Create('{$ControllerName}', '{$ModelName}');
-		}
+		if(_DEVELOPERIS === true) BH_HtmlCreate::Create('{$ControllerName}', '{$ModelName}');
 		\$this->model = new {$ModelName}Model();
 	}
 
@@ -99,8 +95,8 @@ class {$ControllerName}Controller extends BH_Controller{
 	}
 }";
 		if(!file_exists($path)){
-			file_put_contents($path, $text);
-			@chmod($path, 0757);
+			$path = '/Controller/'.($_POST['sub_dir'] ? $_POST['sub_dir'].'/' : '').$ControllerName.'.php';
+			echo '<b>'.$path.'파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(GetDBText($text)).'</textarea>';
 		}
 
 
@@ -114,15 +110,18 @@ class {$ModelName}Model extends BH_Model{
 
 }";
 		if(!file_exists($modelPath)){
-			file_put_contents($modelPath, $modelText);
-			@chmod($path, 0757);
+			$modelPath = '/Model/'.$ModelName.'.model.php';
+			echo '<br><br><b>'.$modelPath.'파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(GetDBText(self::ModifyModel($modelText))).'</textarea>';
 		}
+		echo '<br><br><a href="'.$_POST['controller_url'].'">완료</a>';
 	}
 
-	public static function ModifyModel($ModelName){
+	public static function ModifyModel($f){
 		if(_DEVELOPERIS !== true) return;
-		$modelPath = _MODELDIR.'/'.$ModelName.'.model.php';
-		$f = file_get_contents($modelPath);
+		/*$modelPath = _MODELDIR.'/'.$ModelName.'.model.php';
+		if(!file_exists($modelPath)) $modelPath = _DATADIR.'/'.$ModelName.'.model.php';
+		if(!file_exists($modelPath)) exit;
+		$f = file_get_contents($modelPath);*/
 		$pattern = '/\$this\-\>table\s*=\s*[\'|\"](.*?)[\'|\"]\;/i';
 		preg_match($pattern, $f, $matches);
 		$TableName = '';
@@ -199,7 +198,8 @@ class {$ModelName}Model extends BH_Model{
 
 
 
-		file_put_contents($modelPath, $res);
+		//file_put_contents($modelPath, $res);
+		return $res;
 		//print_r($tData);
 
 		//echo $initFuncText;
@@ -217,11 +217,19 @@ class {$ModelName}Model extends BH_Model{
 		if(_DEVELOPERIS !== true) return;
 		$path = '/'.$path;
 		if($GLOBALS['_BH_App']->SubDir) $path = '/'.$GLOBALS['_BH_App']->SubDir.$path;
-		if(file_exists($path) && is_dir($path)) return;
+		if(file_exists(_SKINDIR.$path) && is_dir(_SKINDIR.$path)) return;
 
-		self::Index($path.'/Index.html', $model);
-		self::View($path.'/View.html', $model);
-		self::Write($path.'/Write.html', $model);
+		$IndexHtml = self::Index($path.'/Index.html', $model);
+		$ViewHtml = self::View($path.'/View.html', $model);
+		$WriteHtml = self::Write($path.'/Write.html', $model);
+		$path = _SKINURL.'/'.($GLOBALS['_BH_App']->SubDir ? $GLOBALS['_BH_App']->SubDir.'/' : '').$GLOBALS['_BH_App']->Controller.'/';
+		echo '<b>'.$path.'Index.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(GetDBText($IndexHtml)).'</textarea>';
+		echo '<br><br>';
+		echo '<b>'.$path.'View.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(GetDBText($ViewHtml)).'</textarea>';
+		echo '<br><br>';
+		echo '<b>'.$path.'Write.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(GetDBText($WriteHtml)).'</textarea>';
+		echo '<br><br>';
+		exit;
 	}
 	/**
 	 * @param string $path
@@ -242,7 +250,7 @@ class {$ModelName}Model extends BH_Model{
 			$filename = array_pop($a);
 			$path2 = implode('/', $a).'/';
 
-			if(!is_dir($path2)) mkdir($path2, 0777, true);
+			//if(!is_dir($path2)) mkdir($path2, 0777, true);
 
 			$html = '<?php if(_BH_ !== true) exit;' . chr(10) . '/**'.chr(10).'* @var $Model '.$classname.chr(10).' */' . chr(10) .'/**'.chr(10).'* @var $this BH_Controller'.chr(10).'*/' . chr(10) . '?>' . chr(10) . chr(10) . '<table class="view">' . chr(10);
 			foreach($modelClass->data as $k => $row){
@@ -275,8 +283,9 @@ class {$ModelName}Model extends BH_Model{
 				.chr(9).chr(9).'$(\'#deleteForm\').hide();' . chr(10)
 				.chr(9).'});' . chr(10)
 				.'</script>';
-			file_put_contents(_SKINDIR . $path, $html);
-			ReplaceHTMLFile(_SKINDIR . $path, _HTMLDIR . $path);
+			return $html;
+			/*file_put_contents(_SKINDIR . $path, $html);
+			ReplaceHTMLFile(_SKINDIR . $path, _HTMLDIR . $path);*/
 		}
 	}
 
@@ -293,7 +302,7 @@ class {$ModelName}Model extends BH_Model{
 			$filename = array_pop($a);
 			$path2 = implode('/', $a).'/';
 
-			if(!is_dir($path2)) mkdir($path2, 0777, true);
+			//if(!is_dir($path2)) mkdir($path2, 0777, true);
 
 
 			$html = '<?php if(_BH_ !== true) exit;' . chr(10) .'/**'.chr(10).'* @var $Model '.$classname.chr(10).' */' . chr(10) . '/**'.chr(10).'* @var $this BH_Controller'.chr(10).'*/' . chr(10) .'?>' . chr(10) . chr(10);
@@ -349,8 +358,9 @@ class {$ModelName}Model extends BH_Model{
 				. '		} ' . chr(10)
 				. '	});' . chr(10)
 				. '</script>' . chr(10);
-			file_put_contents(_SKINDIR . $path, $html);
-			ReplaceHTMLFile(_SKINDIR . $path, _HTMLDIR . $path);
+			return $html;
+			/*file_put_contents(_SKINDIR . $path, $html);
+			ReplaceHTMLFile(_SKINDIR . $path, _HTMLDIR . $path);*/
 		}
 	}
 
@@ -367,7 +377,7 @@ class {$ModelName}Model extends BH_Model{
 			$filename = array_pop($a);
 			$path2 = implode('/', $a).'/';
 
-			if(!is_dir($path2)) mkdir($path2, 0777, true);
+			//if(!is_dir($path2)) mkdir($path2, 0777, true);
 
 			//키값
 			$html = '<?php if(_BH_ !== true) exit;' . chr(10) . '/**'.chr(10).'* @var $Model '.$classname.chr(10).' */' . chr(10) . '/**'.chr(10).'* @var $Data BH_DB_GetListWithPage'.chr(10).'*/' . chr(10) . '/**'.chr(10).'* @var $this BH_Controller'.chr(10).'*/' . chr(10) . '?>' . chr(10) . chr(10);
@@ -407,8 +417,9 @@ class {$ModelName}Model extends BH_Model{
 			$html .= '</table>'.chr(10). chr(10);
 			$html .= '<div class="left_btn"><a href="<?a. \'Write\' ?><?fq. \'\' ?>" class="btn2">글쓰기</a></div>'. chr(10);
 			$html .= '<div class="paging"><?p. $Data->pageHtml ?></div>'. chr(10);
-			file_put_contents(_SKINDIR . $path, $html);
-			ReplaceHTMLFile(_SKINDIR . $path, _HTMLDIR . $path);
+			return $html;
+			/*file_put_contents(_SKINDIR . $path, $html);
+			ReplaceHTMLFile(_SKINDIR . $path, _HTMLDIR . $path);*/
 		}
 	}
 }

@@ -25,7 +25,11 @@ class ConfigController extends BH_Controller{
 		$var = json_encode($_POST);
 		if(!file_exists( _DATADIR.'/CFG') || !is_dir(_DATADIR.'/CFG')) mkdir(_DATADIR.'/CFG', 0757);
 		$path = _DATADIR.'/CFG/'.$_POST['Code'].'.php';
-		file_put_contents($path, '<?php $data = \''.addslashes($var).'\';');
+		$txt = '';
+		foreach($_POST as $k => $v){
+			$txt .= '$this->CFG[\''.addslashes($_POST['Code']).'\'][\''.addslashes($k).'\'] = \''.addslashes($v).'\';'.chr(10);
+		}
+		file_put_contents($path, '<?php'.chr(10).$txt);
 		Redirect($this->URLAction(), '설정되었습니다.');
 	}
 }

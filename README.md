@@ -110,7 +110,7 @@
 
 
 ##기본적인 상수
-- _DIR, _CLASSDIR, _COMMONDIR, _SKINDIR, _HTMLDIR, _UPLOAD_DIRNAME, _UPLOAD_DIR : php 파일 서버경로 위치를 위한 상수
+- _DIR, _COMMONDIR, _COMMONDIR, _SKINDIR, _HTMLDIR, _UPLOAD_DIRNAME, _UPLOAD_DIR : php 파일 서버경로 위치를 위한 상수
 - _URL, _SKINURL, _ADMINURLNAME, _ADMINURL, _IMGURL, _UPLOAD_URL : 웹사이트 절대경로를 위한 상수
 - _POSTIS : 서버요청방식 정의. POST일 경우 true.
 - _AJAXIS : 서버요청이 AJAX인 경우 true.
@@ -358,7 +358,7 @@
 
     컨트롤러 클래스명이 TestContoller이고 ‘/skin/Test’ 디렉토리에 모델 클래스명이 ‘MemberModel’일 경우 
 
-require _CLASSDIR.'/BH_HtmlCreate.class.php';
+require _COMMONDIR.'/BH_HtmlCreate.class.php';
 
 BH_HtmlCreate::Create('Test', 'Member');
 
