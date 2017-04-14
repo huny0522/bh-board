@@ -4,6 +4,29 @@
  * 16.07.10
  */
 
+define('ModelTypeInt', 1);
+define('ModelTypeString', 2);
+define('ModelTypeEng', 3);
+define('ModelTypeEngNum', 4);
+define('ModelTypeEngSpecial', 5);
+define('ModelTypeFloat', 6);
+define('ModelTypeDatetime', 7);
+define('ModelTypeDate', 8);
+define('ModelTypeEnum', 9);
+define('ModelTypePassword', 10);
+
+define('HTMLInputText', 'text');
+define('HTMLInputPassword', 'password');
+define('HTMLInputRadio', 'radio');
+define('HTMLInputCheckbox', 'checkbox');
+define('HTMLInputFile', 'file');
+define('HTMLSelect', 'select');
+define('HTMLTextarea', 'textarea');
+
+define('ENG_NUM', '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
+define('ENG_UPPER', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+define('ENG_LOWER', 'abcdefghijklmnopqrstuvwxyz');
+
 // -------------------------------------
 //
 //		기본 함수
@@ -20,17 +43,17 @@ function Redirect($url, $msg=''){
 		JSON($url != '-1', $msg);
 	}
 
-	echo "<script>";
+	echo '<script>';
 	if($msg){
-		echo "alert('".$msg."');";
+		echo 'alert(\''.$msg.'\');';
 	}
 	if($url == '-1'){
-		echo "history.go(-1);";
+		echo 'history.go(-1);';
 	}else{
-		$url = str_replace(" ", "%20", $url);
-		echo "location.replace('".$url."');";
+		$url = str_replace(' ', '%20', $url);
+		echo 'location.replace(\''.$url.'\');';
 	}
-	echo "</script>";
+	echo '</script>';
 	exit;
 }
 
@@ -269,9 +292,8 @@ function my_bcmod( $x, $y ){
 	return (int)$mod;
 }
 
-function toBase($num, $b=62) {
+function toBase($num, $b=62, $base=ENG_NUM) {
 	if(!isset($num) || !strlen($num)) return '';
-	$base='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 	$r = my_bcmod($num, $b);
 	$res = $base[$r];
 	$q = floor($num/$b);
@@ -283,9 +305,8 @@ function toBase($num, $b=62) {
 	return $res;
 }
 
-function to10($num, $b=62) {
+function to10($num, $b=62, $base=ENG_NUM) {
 	if(!isset($num) || !strlen($num)) return '';
-	$base='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 	$limit = strlen($num);
 	$res=strpos($base,$num[0]);
 	for($i=1;$i<$limit;$i++) {
@@ -299,36 +320,32 @@ function JSON($bool, $message = '', $data = array()){
 	exit;
 }
 
-$_BH_MODINFODATA = array();
-function fileModifyIs($file){
-	if(_BH_ !== true) return false;
-	$path = _DATADIR.'/fileModTime.php';
+$_ModCfg = array();
+$_ModPath = _DATADIR.'/ModTime.php';
 
-	$modIs = false;
-	if(!sizeof($GLOBALS['_BH_MODINFODATA']) && file_exists($path)) require_once $path;
-	if(isset($data)) $GLOBALS['_BH_MODINFODATA'] = json_decode(stripslashes($data), true);
+// DB가 수정된 상태임을 저장
+function _DBModTime($table){
+	if(!file_exists(_DATADIR) && !is_dir(_DATADIR)) mkdir(_DATADIR);
+	if(!sizeof($GLOBALS['_ModCfg']) && file_exists($GLOBALS['_ModPath'])) require_once $GLOBALS['_ModPath'];
 
-	if(is_array($file)){
-		foreach($file as $v){
-			if(file_exists(_DIR.$v)){
-				$lastmod = date("YmdHis", filemtime(_DIR.$v));
-				if(!isset($GLOBALS['_BH_MODINFODATA'][$v]) || $GLOBALS['_BH_MODINFODATA'][$v] != $lastmod){
-					$GLOBALS['_BH_MODINFODATA'][$v] = $lastmod;
-					$modIs = true;
-				}
-			}else unset($GLOBALS['_BH_MODINFODATA'][$v]);
-		}
-	}else{
-		if(file_exists(_DIR.$file)){
-			$lastmod = date("YmdHis", filemtime(_DIR.$file));
-			if(!isset($GLOBALS['_BH_MODINFODATA'][$file]) || $GLOBALS['_BH_MODINFODATA'][$file] != $lastmod){
-				$GLOBALS['_BH_MODINFODATA'][$file] = $lastmod;
-				$modIs = true;
-			}
-		}else unset($GLOBALS['_BH_MODINFODATA'][$file]);
+	if(!isset($GLOBALS['_ModCfg']['db'][$table]) || $GLOBALS['_ModCfg']['db'][$table] === false){
+		$GLOBALS['_ModCfg']['db'][$table] = true;
+		$txt = '$GLOBALS[\'_ModCfg\'] = '.var_export($GLOBALS['_ModCfg'], true);
+		file_put_contents($GLOBALS['_ModPath'], '<?php'.chr(10).$txt.';');
 	}
-	if($modIs) file_put_contents($path, '<?php $data = \''.addslashes(json_encode($GLOBALS['_BH_MODINFODATA'])).'\';');
-	return $modIs;
+}
+
+// DB 수정여부 가져오기
+function _DBModifyIs($table){
+	if(!file_exists(_DATADIR) && !is_dir(_DATADIR)) mkdir(_DATADIR);
+	if(!sizeof($GLOBALS['_ModCfg']) && file_exists($GLOBALS['_ModPath'])) require_once $GLOBALS['_ModPath'];
+	if(!isset($GLOBALS['_ModCfg']['db'][$table]) || $GLOBALS['_ModCfg']['db'][$table] === true){
+		$GLOBALS['_ModCfg']['db'][$table] = false;
+		$txt = '$GLOBALS[\'_ModCfg\'] = '.var_export($GLOBALS['_ModCfg'], true);
+		file_put_contents($GLOBALS['_ModPath'], '<?php'.chr(10).$txt.';');
+		return true;
+	}
+	return false;
 }
 
 function StrToSql($args){
@@ -462,3 +479,499 @@ function SqlFetch($qry){
 }
 
 
+
+// -------------------------------------
+//
+//		Model
+//
+
+
+
+class ModelType{
+	const Int = 1;
+	const String = 2;
+	const Eng = 3;
+	const EngNum = 4;
+	const EngSpecial = 5;
+	const Float = 6;
+	const Datetime = 7;
+	const Date = 8;
+	const Enum = 9;
+	const Password = 10;
+}
+
+class HTMLType{
+	const InputText = 'text';
+	const InputPassword = 'password';
+	const InputRadio = 'radio';
+	const InputCheckbox = 'checkbox';
+	const InputFile = 'file';
+	const Select = 'select';
+	const Textarea = 'textarea';
+}
+
+class BH_Result{
+	public $result = false;
+	public $message = '';
+}
+
+class BH_InsertResult{
+	public $result = false;
+	public $id = null;
+	public $message = '';
+}
+
+class BH_ModelData{
+	public $Name;
+	public $Type;
+	public $Required = false;
+	public $DisplayName;
+	public $ModelErrorMsg;
+	public $MinLength = false;
+	public $MaxLength = false;
+	public $MinValue = false;
+	public $MaxValue = false;
+	public $EnumValues;
+	public $Value;
+	public $DefaultValue;
+	public $HtmlType;
+	public $AutoDecrement = false;
+	public $ValueIsQuery = false;
+
+	public function __construct($Type = ModelType::String, $Required = false, $DisplayName = '', $HtmlType = HTMLType::InputText){
+		$this->Type = $Type;
+		$this->Required = $Required;
+		$this->DisplayName = $DisplayName;
+		if($HtmlType) $this->HtmlType = $HtmlType;
+	}
+}
+
+
+class _ModelFunc{
+	public static function SetPostValues($Data, $Except, &$Need){
+		$ret = new BH_Result();
+		$ret->result = true;
+		foreach($Data as $k=>$v){
+			if(!in_array($k, $Except) && $Data[$k]->AutoDecrement !== true){
+				if(!isset($_POST[$k])){
+					if(isset($Need) && in_array($k, $Need)){
+						$ret->message = $Data[$k]->ModelErrorMsg = $Data[$k]->DisplayName.' 항목이 정의되지 않았습니다.';
+						$ret->result = false;
+						return $ret;
+					}
+				}
+				else{
+					if((isset($Data[$k]->HtmlType) || $Data[$k]->Required) && $Data[$k]->HtmlType != HTMLInputFile){
+						if(isset($_POST[$k])) $Data[$k]->Value = $_POST[$k];
+						$Need[] = $k;
+					}
+				}
+			}
+
+		}
+
+		return $ret;
+	}
+
+	public static function CheckType($key, &$data){
+		switch($data->Type){
+			case ModelTypeInt:
+				$val = preg_replace('/[^Z0-9\-]/','',$data->Value);
+				if($val != $data->Value){
+					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 숫자만 입력 가능합니다.';
+					return false;
+				}
+				return true;
+			break;
+			case ModelTypeFloat:
+				$val = preg_replace('/[^Z0-9\.\-]/','',$data->Value);
+				if($val != $data->Value){
+					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 숫자만 입력 가능합니다.';
+					return false;
+				}
+			break;
+			case ModelTypeEnum:
+				if(isset($data->EnumValues) && is_array($data->EnumValues) && isset($data->EnumValues[$data->Value])){
+					return true;
+				}else{
+					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목에 값이 필요합니다.';
+					return false;
+				}
+			break;
+			case ModelTypeEng:
+				$val = preg_replace('/[^a-zA-Z]/','',$data->Value);
+				if($val != $data->Value){
+					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문만 입력가능합니다.';
+					return false;
+				}
+				return true;
+			break;
+			case ModelTypeEngNum:
+				if ( !ctype_alnum($data->Value) ) {
+					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문과 숫자만 입력가능합니다.';
+					return false;
+				}
+				return true;
+			break;
+			case ModelTypeEngSpecial:
+				$val = preg_replace('/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>\'\"\?\-=\+_\:\;\[\]\{\}\/]/','',$data->Value);
+				if($val != $data->Value){
+					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문과 숫자, 특수문자만 입력가능합니다.';
+					return false;
+				}
+				return true;
+		}
+		return true;
+	}
+
+	public static function CheckValue($key, &$Data){
+		if($Data->Type == ModelTypeInt || $Data->Type == ModelTypeFloat){
+			if($Data->MinValue !== false && $Data->MinValue > $Data->Value){
+				$Data->ModelErrorMsg = $Data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목에 '.$Data->MinValue.' 이상의 값을 입력하여 주세요.';
+				return false;
+			}
+			if($Data->MaxValue !== false && $Data->MaxValue < $Data->Value){
+				$Data->ModelErrorMsg = $Data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목에 '.$Data->MaxValue.' 이하의 값을 입력하여 주세요.';
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public static function CheckLength($key, &$Data){
+		if($Data->Type == ModelTypeString){
+			if($Data->MinLength !== false && $Data->MinLength > strlen($Data->Value)){
+				$Data->ModelErrorMsg = $Data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 '.$Data->MinLength.'자 이상 입력하여 주세요.';
+				return false;
+			}
+			if($Data->MaxLength !== false && $Data->MaxLength < strlen($Data->Value)){
+				$Data->ModelErrorMsg = $Data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 '.$Data->MaxLength.'자 이하 입력하여 주세요.';
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public static function HTMLPrintInput($Name, $data, $HtmlAttribute = false){
+		$htmlType = strtolower($data->HtmlType);
+		$Attribute = '';
+		$val = isset($data->Value) ? $data->Value : $data->DefaultValue;
+
+		if($HtmlAttribute === false) $HtmlAttribute = array();
+
+		if(!isset($HtmlAttribute['class'])) $HtmlAttribute['class'] = '';
+
+		if($data->MinLength !== false){
+			$Attribute .= ' data-minlength="'.$data->MinLength.'"';
+		}
+		if($data->MaxLength !== false){
+			$Attribute .= ' data-maxlength="'.$data->MaxLength.'"';
+			$Attribute .= ' maxlength="'.$data->MaxLength.'"';
+		}
+		if($data->MinValue !== false){
+			$Attribute .= ' data-minvalue="'.$data->MinValue.'"';
+		}
+		if($data->MaxValue !== false){
+			$Attribute .= ' data-maxvalue="'.$data->MaxValue.'"';
+		}
+		if($data->Required){
+			$Attribute .= ' required="required"';
+		}
+		if($data->Type == ModelTypeInt){
+			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'numberonly';
+		}
+
+		if($data->Type == ModelTypeEngNum){
+			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engnumonly';
+		}
+
+		if($data->Type == ModelTypeEng){
+			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engonly';
+		}
+
+		if($data->Type == ModelTypeEngSpecial){
+			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engspecialonly';
+		}
+
+		if($data->Type == ModelTypeDate || $data->Type == ModelTypeDatetime){
+			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'date';
+			$HtmlAttribute['readonly'] = 'readonly';
+			$HtmlAttribute['maxlength'] = '10';
+			$HtmlAttribute['minlength'] = '10';
+		}
+
+		foreach($HtmlAttribute as $k => $row){
+			$Attribute .= ' '.$k.'="'.$row.'"';
+		}
+
+		switch($htmlType){
+			case HTMLInputText:
+			case HTMLInputPassword:
+				return '<input type="'.$htmlType.'" name="'.$Name.'" id="MD_'.$Name.'" '.(isset($val) && $htmlType != HTMLInputPassword ? 'value="'.$val.'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+			break;
+			case HTMLInputFile:
+				return '<input type="'.$htmlType.'" name="'.$Name.'" id="MD_'.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+			break;
+			case HTMLTextarea:
+				return '<textarea name="'.$Name.'" id="MD_'.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>'.(isset($val) ? $val : '').'</textarea>';
+			break;
+			case HTMLInputRadio:
+			case HTMLInputCheckbox:
+				$ret = '';
+				if(isset($data->EnumValues) && is_array($data->EnumValues)){
+					$i = 1;
+					foreach($data->EnumValues as $k=>$v){
+						$checked = isset($val) && $k == $val ? ' checked="checked"' : '';
+
+						$ret .= '<input type="'.$htmlType.'" name="'.$Name.'" id="MD_'.$Name.'_'.$i.'" value="'.$k.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.$checked.'>';
+						$ret .= '<label for="MD_'.$Name.'_'.$i.'">'.$v.'</label>';
+						$i++;
+					}
+				}
+				return $ret;
+			break;
+			case HTMLSelect:
+				$ret = '<select name="'.$Name.'" id="MD_'.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+
+				if(isset($data->EnumValues) && is_array($data->EnumValues)){
+					foreach($data->EnumValues as $k=>$v){
+						$selected = isset($val) && $k == $val ? ' selected="selected"' : '';
+
+						$ret .= '<option value="'.$k.'" '.$selected.'>'.$v.'</option>';
+					}
+				}
+				return $ret.'</select>';
+			break;
+		};
+		return '';
+	}
+
+	public static function DBInsert($Table, $Data, $Except, $Key, $Need, $test = false){
+		$dbInsert = new BH_DB_Insert($Table);
+		$result = new BH_InsertResult();
+
+		foreach($Data as $k=>$v){
+			if(!isset($v->Value) && in_array($k, $Need)){
+				$result->result = false;
+				$result->message = 'ERROR#101';
+				return $result;
+			}
+
+			// 예외 패스, 셋이 없거나 셋에 있는것
+			if((!in_array($k, $Except) && (!sizeof($Need) || in_array($k, $Need)))){
+				if(isset($v->Value)){
+					if(in_array($k, $Key) && $Data[$k]->AutoDecrement === true){
+						continue;
+					}
+					if($v->ValueIsQuery) $dbInsert->data[$k] = $v->Value;
+					else if($v->Type == ModelTypeInt){
+						if(!strlen($v->Value) && isset($v->DefaultValue)) $dbInsert->data[$k] = $v->DefaultValue;
+						else{
+							$res = self::CheckInt($k, $v->Value);
+							if($res === true) $dbInsert->data[$k] = $v->Value;
+							else{
+								$result->result = false;
+								$result->message = $res;
+							}
+						}
+					}
+					else if($v->Type == ModelTypeFloat){
+						if(!strlen($v->Value) && isset($v->DefaultValue)) $dbInsert->data[$k] = $v->DefaultValue;
+						else{
+							$res = self::CheckFloat($k, $v->Value);
+							if($res === true) $dbInsert->data[$k] = $v->Value;
+							else{
+								$result->result = false;
+								$result->message = $res;
+							}
+						}
+					}
+					else if($v->Type == ModelTypePassword) $dbInsert->data[$k] = 'PASSWORD('.SetDBText($v->Value).')';
+					else $dbInsert->data[$k] = SetDBText($v->Value);
+				}
+			}
+		}
+
+		foreach($Key as $k){
+			if($Data[$k]->AutoDecrement === true){
+				$dbInsert->decrement = $k;
+			}
+			else if($Data[$k]->Value) $dbInsert->AddWhere($k.'='.SetDBText($Data[$k]->Value));
+		}
+		if(!$dbInsert->decrement) $dbInsert->UnsetWhere();
+		if(_DEVELOPERIS === true) $dbInsert->test = $test;
+		$dbInsert->Run();
+		$result->id = $dbInsert->id;
+		$result->message = $dbInsert->message;
+		$result->result = $dbInsert->result;
+		return $result;
+	}
+
+	public static function DBUpdate($Table, $Data, $Except, $Key, $Need, $test = false){
+		$result = new BH_Result();
+
+		$dbUpdate = new BH_DB_Update($Table);
+		foreach($Data as $k=>$v){
+			if(!isset($v->Value) && in_array($k, $Need)){
+				$result->result = false;
+				$result->message = 'ERROR';
+				return $result;
+			}
+
+			// 예외와 키값 패스, 셋이 없거나 셋에 있는것
+			if(!in_array($k, $Except) && (!sizeof($Need) || in_array($k, $Need)) && !in_array($k, $Key)){
+				if(isset($v->Value)){
+					if(in_array($k, $Key) && $Data[$k]->AutoDecrement === true){
+						continue;
+					}
+					if($v->ValueIsQuery) $dbUpdate->data[$k] = $v->Value;
+					else if($v->Type == ModelTypeInt){
+						$res = self::CheckInt($k, $v->Value);
+						if($res === true) $dbUpdate->data[$k] = $v->Value;
+						else{
+							$result->result = false;
+							$result->message = $res;
+						}
+					}
+					else if($v->Type == ModelTypeFloat){
+						$res = self::CheckFloat($k, $v->Value);
+						if($res === true) $dbUpdate->data[$k] = $v->Value;
+						else{
+							$result->result = false;
+							$result->message = $res;
+						}
+					}
+					else if($v->Type == ModelTypePassword) $dbUpdate->data[$k] = 'PASSWORD('.SetDBText($v->Value).')';
+					else $dbUpdate->data[$k] = SetDBText($v->Value);
+				}
+			}
+		}
+		foreach($Key as $k){
+			if(isset($Data[$k]->Value) && strlen($Data[$k]->Value)) $dbUpdate->AddWhere($k.'='.SetDBText($Data[$k]->Value));
+			else{
+				$result->message = 'Empty Key';
+				$result->result = false;
+				return $result;
+			}
+		}
+		if(_DEVELOPERIS === true) $dbUpdate->test = $test;
+		$dbUpdate->Run();
+		$result->result = $dbUpdate->result;
+		$result->message = $dbUpdate->message;
+		return $result;
+	}
+
+	public static function DBGet($keys, $modelKey, $table){
+		$res = new BH_Result();
+
+		if(!isset($modelKey) || !is_array($modelKey)){
+			if(_DEVELOPERIS === true){
+				echo '키값이 존재하지 않습니다.';
+				exit;
+			}
+			$res->result = false;
+			$res->message = 'ERROR#01';
+			return $res;
+		}
+		else if(sizeof($keys) != sizeof($modelKey)){
+			if(_DEVELOPERIS === true){
+				echo '모델의 키의 길이와 인자값의 키의 길이가 동일하지 않습니다.';
+				exit;
+			}
+			$res->result = false;
+			$res->message = 'ERROR#02';
+			return $res;
+		}
+		$dbGet = new BH_DB_Get($table);
+		foreach($modelKey as $k => $v){
+			$dbGet->AddWhere($v.' = '.SetDBTrimText($keys[$k]));
+		}
+		//$dbGet->test = true;
+
+		$data = $dbGet->Get();
+
+		if($data !== false){
+			$res->result = $data;
+		}else{
+			$res->result = false;
+		}
+		return $res;
+	}
+
+	public static function DBDelete($keyData, $ModelKey, $Table){
+		$res = new BH_Result();
+
+		if(!is_array($keyData)){
+			$keyData = array($keyData);
+		}
+		if(!isset($ModelKey) || !is_array($ModelKey)){
+			if(_DEVELOPERIS === true){
+				echo '키값이 존재하지 않습니다.';
+				exit;
+			}
+
+			$res->result = false;
+			$res->message = 'ERROR#01';
+			return $res;
+		}
+		else if(sizeof($keyData) != sizeof($ModelKey)){
+			if(_DEVELOPERIS === true){
+				echo '모델의 키의 길이와 인자값의 키의 길이가 동일하지 않습니다.';
+				exit;
+			}
+
+			$res->result = false;
+			$res->message = 'ERROR#02';
+			return $res;
+		}
+		$params['table'] = $Table;
+		$params['where'] = array();
+		foreach($ModelKey as $k => $v){
+			$params['where'][] = $v.' = '.SetDBTrimText($keyData[$k]);
+		}
+
+		if(!sizeof($params['where'])){
+			$res->result = false;
+			$res->message = 'ERROR#03';
+			return $res;
+		}
+
+		$sql = 'DELETE FROM '.$params['table'].' WHERE '.implode(' AND ', $params['where']);
+		$res->result = SqlQuery($sql);
+		return $res;
+	}
+
+	public static function CheckInt($k, $v){
+		if(!strlen($v)){
+			if(_DEVELOPERIS === true){
+				if(_AJAXIS === true) JSON(false, '['.$k.']숫자값이 비어있습니다.');
+				else Redirect('-1', '['.$k.']숫자값이 비어있습니다.');
+			}else return 'ERROR#102';
+		}
+		$val = ToInt($v);
+		if($val != $v){
+			if(_DEVELOPERIS === true){
+				if(_AJAXIS === true) JSON(false, '['.$k.']숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+				else Redirect('-1', '['.$k.']숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+			}else return 'ERROR#103';
+		}
+		return true;
+	}
+
+	public static function CheckFloat($k, $v){
+		if(!strlen($v)){
+			if(_DEVELOPERIS === true){
+				if(_AJAXIS === true) JSON(false, '['.$k.']숫자값이 비어있습니다.');
+				else Redirect('-1', '['.$k.']숫자값이 비어있습니다.');
+			}else return 'ERROR#112';
+		}
+		$val = ToFloat($v);
+		if($val != $v){
+			if(_DEVELOPERIS === true){
+				if(_AJAXIS === true) JSON(false, '['.$k.']숫자(소수)가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+				else Redirect('-1', '['.$k.']숫자(소수)가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+			}else return 'ERROR#113';
+		}
+		return true;
+	}
+}

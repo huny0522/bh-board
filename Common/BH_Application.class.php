@@ -12,7 +12,6 @@ class BH_Application{
 	public $BaseDir = '';
 	public $TID = '';
 	public $CtrlUrl = '';
-	public $InstallIs = true;
 
 	/**
 	 * @var BH_Controller
@@ -26,6 +25,9 @@ class BH_Application{
 
 	public $_Conn = null;
 	public $_MainConn = null;
+
+	public $InstallIs = true;
+	public $_Category = array();
 
 	public function __construct(){
 		$this->_Conn = SqlConnection($GLOBALS['_DBInfo']);

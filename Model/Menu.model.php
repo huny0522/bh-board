@@ -1,9 +1,7 @@
 <?php
 /**
- *
  * Bang Hun.
  * 16.07.10
- *
  */
 class MenuModel extends BH_Model{
 
@@ -49,7 +47,7 @@ class MenuModel extends BH_Model{
 		$dbGet->AddWhere('LEFT(category, '.strlen($parent).') = '.SetDBText($parent));
 		$dbGet->AddWhere('LENGTH(category) = '.(strlen($parent) + _CATEGORY_LENGTH));
 		$dbGet->sort = 'sort';
-		return $dbGet;
+		return $dbGet->GetRows();
 	}
 
 	public function SetChildEnabled($parent = NULL, $enabled = false){
@@ -72,5 +70,4 @@ class MenuModel extends BH_Model{
 		$dbGet->AddWhere('category='.SetDBText($parent));
 		return $dbGet->Get();
 	}
-
 }

@@ -6,11 +6,11 @@
 session_start();
 $_BEGIN_MICROTIME = array_sum(explode(' ',microtime()));
 
-header("Content-Type: text/html; charset=UTF-8");
+header('Content-Type: text/html; charset=UTF-8');
 //error_reporting(E_ERROR | E_WARNING);
 error_reporting(E_ALL);
 
-date_default_timezone_set("Asia/Seoul");
+date_default_timezone_set('Asia/Seoul');
 
 define('_DIR', str_replace('\\', '/', dirname(__FILE__)));
 define('_MODELDIR', _DIR . '/Model');
@@ -38,7 +38,7 @@ define('_AJAXIS', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['H
 
 $_DEVELOPER_IP = array('127.0.0.1');
 define('_DEVELOPERIS', true && in_array($_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP));
-define('_CREATE_HTML_ALL', false && _DEVELOPERIS === true);
+define('_CREATE_HTML_ALL', (false || !file_exists(_HTMLDIR) || !is_dir(_HTMLDIR)) && _DEVELOPERIS === true);
 define('_REMOVE_SPACE', false);
 define('_ViewMicrotime', true);
 
@@ -72,6 +72,7 @@ require _COMMONDIR .'/BH_Controller.class.php';
 require _COMMONDIR .'/BH_Model.class.php';
 require _COMMONDIR .'/BH_Router.class.php';
 require _COMMONDIR .'/BH_Common.class.php';
+require _COMMONDIR .'/BH_Category.class.php';
 
 if(_DEVELOPERIS === true){
 	if(!file_exists(_DATADIR) || !is_dir(_DATADIR)) @mkdir(_DATADIR, 0757, true);
@@ -122,6 +123,7 @@ define('_MEMBER_LEVEL',1);
 define('_MANAGER_LEVEL',15);
 define('_ADMIN_LEVEL',18);
 define('_SADMIN_LEVEL',20);
+
 /**
  * @var BH_Application $_BH_App
  */

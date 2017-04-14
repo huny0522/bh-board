@@ -22,7 +22,6 @@ class ConfigController extends BH_Controller{
 	}
 
 	public function PostWrite(){
-		$var = json_encode($_POST);
 		if(!file_exists( _DATADIR.'/CFG') || !is_dir(_DATADIR.'/CFG')) mkdir(_DATADIR.'/CFG', 0757);
 		$path = _DATADIR.'/CFG/'.$_POST['Code'].'.php';
 		$txt = '';

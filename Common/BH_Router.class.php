@@ -30,7 +30,7 @@ class BH_Router
 
 		if($this->GetUrl[1] == '~Create'){
 			if(_DEVELOPERIS === true && _POSTIS === true){
-				if($_POST['const'] != 'y') $_POST['table_name'] = "'{$_POST['table_name']}'";
+				if(!isset($_POST['const']) || $_POST['const'] != 'y') $_POST['table_name'] = "'{$_POST['table_name']}'";
 				BH_HtmlCreate::CreateController($_POST['controller_name'], $_POST['model_name'], $_POST['table_name']);
 			}
 			exit;
@@ -88,47 +88,23 @@ class BH_Router
 
 	}
 
-	public function SetMenu(){
+	public function SetMenu($Title = 'Home'){
 		if(sizeof($this->MainMenu)) return;
-		$Menu = $this->GetRootMenu('Home');
+
+		BH_Category::_SetFile(TABLE_MENU);
+
+		$Menu = BH_Category::_GetRoot(TABLE_MENU, $Title);
 		if($Menu){
 			$this->RootC = $Menu['category'];
-			$menu = $this->GetSubMenu($this->RootC);
+			$menu = BH_Category::_GetSub(TABLE_MENU, $this->RootC);
 			foreach($menu as $row){
-				if(strlen($row['category']) == strlen($this->RootC) + _CATEGORY_LENGTH) $this->MainMenu[] = $row;
-				else $this->SubMenu[substr($row['category'], 0, strlen($row['category']) - _CATEGORY_LENGTH)][] = $row;
+				$this->MainMenu[] = $row;
+				$sub_menu = BH_Category::_GetSub(TABLE_MENU, $row['category']);
+				foreach($sub_menu as $row2){
+					$this->SubMenu[$row['category']][] = $row2;
+				}
 			}
 		}
-	}
-
-
-	/**
-	 * @param string $title
-	 * @return array|bool|null
-	 */
-	public function GetRootMenu($title = ''){
-		$dbGet = new BH_DB_Get(TABLE_MENU);
-		$dbGet->AddWhere('LENGTH(category) = '._CATEGORY_LENGTH);
-		$dbGet->AddWhere('enabled = \'y\'');
-		$dbGet->AddWhere('parent_enabled = \'y\'');
-		if($title) $dbGet->AddWhere('controller='.SetDBText($title));
-		return $dbGet->Get();
-	}
-
-	public function GetSubMenu($key){
-		$dbGetList = new BH_DB_GetList(TABLE_MENU);
-
-		$dbGetList->AddWhere('LEFT(category,'.strlen($key).') ='. SetDBText($key));
-		$dbGetList->AddWhere('LENGTH(category) IN ('. (strlen($key) + _CATEGORY_LENGTH).','. (strlen($key) + _CATEGORY_LENGTH + _CATEGORY_LENGTH).')');
-
-		$dbGetList->AddWhere('enabled = \'y\'');
-		$dbGetList->AddWhere('parent_enabled = \'y\'');
-		$dbGetList->sort = 'sort';
-		$menu = array();
-		while($row = $dbGetList->Get()){
-			$menu[$row['category']] = $row;
-		}
-		return $menu;
 	}
 
 	public function SetMenuRouter($url, $start = 1){
@@ -136,20 +112,27 @@ class BH_Router
 		$cont = $this->GetUrl[$start];
 		if(!$cont) $cont = _DEFAULT_CONTROLLER;
 
-		$sql = 'SELECT * FROM '.TABLE_MENU.' WHERE controller = '.SetDBText($cont).' AND LEFT(category, '.strlen($this->RootC).') = '.SetDBText($this->RootC).' ORDER BY LENGTH(category) DESC';
-		$this->ActiveMenu = SqlFetch($sql);
-
-		if($this->ActiveMenu){
-			if($this->ActiveMenu['parent_enabled'] != 'y' || $this->ActiveMenu['enabled'] != 'y'){
-				exit;
+		$find = 0;
+		foreach($_BH_App->_Category[TABLE_MENU] as $k => $v){
+			if($this->RootC != substr($k, 0, strlen($this->RootC)) && $k != BH_Category::ROOT_CATEGORY_CODE) continue;
+			foreach($v as $k2=> $row){
+				if($this->RootC != substr($k2, 0, strlen($this->RootC))) continue;
+				if($row['controller'] == $cont){
+					if($row['parent_enabled'] == 'y' && $row['enabled'] == 'y' && (!sizeof($this->ActiveMenu) || strlen($this->ActiveMenu['category']) < strlen($row['category']))) $this->ActiveMenu = $row;
+					$find++;
+				}
 			}
 		}
 
+		if($find && !sizeof($this->ActiveMenu)){
+			if(_DEVELOPERIS === true) Redirect(-1, '사용중지된 메뉴입니다.');
+			Redirect(-1);
+		}
 
 		if($this->ActiveMenu){
 			if($this->ActiveMenu['type'] == 'board') $_BH_App->Controller = 'Board';
 			else if($this->ActiveMenu['type'] == 'content') $_BH_App->Controller = 'Contents';
-			else $_BH_App->Controller = $this->GetUrl[$start];
+			else $_BH_App->Controller = $this->GetUrl[$start] ? $this->GetUrl[$start] : _DEFAULT_CONTROLLER;
 
 			$_BH_App->TID = $this->ActiveMenu['bid'];
 			$_BH_App->Action = $this->GetUrl[$start + 1];

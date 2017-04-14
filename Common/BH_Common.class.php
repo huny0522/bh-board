@@ -207,6 +207,7 @@ class BH_Common
 				$mUpdate->SetData('bid', SetDBText(''));
 				$mUpdate->Run();
 			}
+			_DBModTime(TABLE_MENU);
 		}
 	}
 

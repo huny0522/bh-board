@@ -54,7 +54,7 @@ $this->JSAdd('BHCategory.js');
 				});
 			}
 		});
-		<?php while($row = $Data->Get()){?>
+		<?php foreach($Data as $row){?>
 		menu.SetMenu('', '<?v. $row['title'] ?>', '<?p. $row['category'] ?>', <?p. $row['enabled'] == 'y' ? 'true' : 'false' ?>);
 		<?php } ?>
 		menu.toggleFolder();

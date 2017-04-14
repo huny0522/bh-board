@@ -251,11 +251,9 @@ abstract class BH_Controller{
 		$lastmod = date("YmdHis", filemtime($dir.$css2));
 		$queryParam .= strlen($queryParam) ? '&'.$lastmod : '?'.$lastmod;
 		if(_DEVELOPERIS === true){
-			if(fileModifyIs($url.$css2)){
-				$d = BH_CSS($dir.$css2);
-				file_put_contents(_HTMLDIR.'/css'.($convCss[0] == '/' ? $convCss : '/'.$convCss), $d);
-				@chmod(_HTMLDIR.'/css/'.$convCss, 0777);
-			}
+			$d = BH_CSS($dir.$css2);
+			file_put_contents(_HTMLDIR.'/css'.($convCss[0] == '/' ? $convCss : '/'.$convCss), $d);
+			@chmod(_HTMLDIR.'/css/'.$convCss, 0777);
 		}
 		$this->CSS[$idx][] = _HTMLURL.'/css/'.$convCss.$queryParam;
 	}
