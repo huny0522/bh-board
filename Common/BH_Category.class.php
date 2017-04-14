@@ -155,7 +155,7 @@ class BH_Category extends BH_Controller{
 		}
 		_DBModTime($this->model->table);
 		$res = $this->model->DBUpdate();
-		JSON($res);
+		JSON($res->result, $res->message);
 	}
 
 	public function PostModifySort(){

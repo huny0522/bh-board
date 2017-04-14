@@ -320,6 +320,16 @@ function JSON($bool, $message = '', $data = array()){
 	exit;
 }
 
+function aes_encrypt($plaintext, $password){
+	$qry = SqlFetch('SELECT HEX(AES_ENCRYPT(%s, %s)) as txt', $plaintext, $password);
+	return $qry['txt'];
+}
+
+function aes_decrypt($ciphertext, $password){
+	$qry = SqlFetch('SELECT AES_DECRYPT(UNHEX(%s), %s) as txt', $ciphertext, $password);
+	return $qry['txt'];
+}
+
 $_ModCfg = array();
 $_ModPath = _DATADIR.'/ModTime.php';
 
