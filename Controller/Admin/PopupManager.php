@@ -3,9 +3,10 @@
  * Bang Hun.
  * 16.07.10
  */
-require _DIR.'/Model/Popup.model.php';
 
-class PopupManagerController extends BH_Controller
+namespace Admin;
+
+class PopupManagerController extends \BH_Controller
 {
 	/**
 	 * @var PopupModel
@@ -15,14 +16,15 @@ class PopupManagerController extends BH_Controller
 		$this->_Value['NowMenu'] = '001003';
 		$this->_CF->AdminAuth();
 
-		$this->model = new PopupModel();
+		require _DIR.'/Model/Popup.model.php';
+		$this->model = new \PopupModel();
 
 		$this->Layout = '_Admin';
 	}
 
 	public function Index(){
 		// 리스트를 불러온다.
-		$dbGetList = new BH_DB_GetListWithPage($this->model->table);
+		$dbGetList = new \BH_DB_GetListWithPage($this->model->table);
 		$dbGetList->page = isset($_GET['page']) ? $_GET['page'] : 1;
 		$dbGetList->pageUrl = $this->URLAction().$this->GetFollowQuery('page');
 		$dbGetList->articleCount = 20;

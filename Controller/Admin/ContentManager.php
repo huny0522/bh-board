@@ -4,9 +4,9 @@
  * 16.07.10
  */
 
-require _DIR.'/Model/Content.model.php';
+namespace Admin;
 
-class ContentManagerController extends BH_Controller{
+class ContentManagerController extends \BH_Controller{
 
 	public $model;
 
@@ -17,7 +17,8 @@ class ContentManagerController extends BH_Controller{
 		// 항상 따라다닐 URL 쿼리 파라미터를 지정
 		$this->SetFollowQuery(array('where', 'keyword','page'));
 		$this->Layout = '_Admin';
-		$this->model = new ContentModel();
+		require _DIR.'/Model/Content.model.php';
+		$this->model = new \ContentModel();
 
 		$AdminAuth = explode(',', $this->_CF->GetMember('admin_auth'));
 		$this->_Value['menuAuth'] = (in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL);
@@ -25,7 +26,7 @@ class ContentManagerController extends BH_Controller{
 
 	public function Index(){
 		// 리스트를 불러온다.
-		$dbGetList = new BH_DB_GetListWithPage($this->model->table.' A LEFT JOIN '.TABLE_MENU.' B ON A.bid = B.bid AND B.type=\'content\'');
+		$dbGetList = new \BH_DB_GetListWithPage($this->model->table.' A LEFT JOIN '.TABLE_MENU.' B ON A.bid = B.bid AND B.type=\'content\'');
 		$dbGetList->page = isset($_GET['page']) ? $_GET['page'] : 1;
 		$dbGetList->pageUrl = $this->URLAction('').$this->GetFollowQuery('page');
 		$dbGetList->articleCount = 20;
@@ -39,7 +40,7 @@ class ContentManagerController extends BH_Controller{
 	public function View(){
 		$res = $this->model->DBGet($_GET['bid']);
 
-		$dbGet = new BH_DB_GetList(TABLE_MENU);
+		$dbGet = new \BH_DB_GetList(TABLE_MENU);
 		$dbGet->AddWhere('type=\'content\'');
 		$dbGet->AddWhere('bid='.SetDBText($this->model->GetValue('bid')));
 		$this->_Value['selectedMenu'] = $dbGet->GetRows();
@@ -51,18 +52,18 @@ class ContentManagerController extends BH_Controller{
 		$this->_View($this->model);
 	}
 	public function Write(){
-		$dbGetList = new BH_DB_GetList(TABLE_MENU);
+		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
 		$dbGetList->AddWhere('LENGTH(category) = '._CATEGORY_LENGTH);
 		$this->_Value['menu'] = $dbGetList->GetRows();
 		$this->_View($this->model);
 	}
 	public function Modify(){
-		$dbGetList = new BH_DB_GetList(TABLE_MENU);
+		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
 		$dbGetList->AddWhere('LENGTH(category) = '._CATEGORY_LENGTH);
 		$this->_Value['menu'] = $dbGetList->GetRows();
 
 		$res = $this->model->DBGet($_GET['bid']);
-		$dbGet = new BH_DB_GetList(TABLE_MENU);
+		$dbGet = new \BH_DB_GetList(TABLE_MENU);
 		$dbGet->AddWhere('type=\'content\'');
 		$dbGet->AddWhere('bid='.SetDBText($this->model->GetValue('bid')));
 		$this->_Value['selectedMenu'] = $dbGet->GetRows();
@@ -107,7 +108,7 @@ class ContentManagerController extends BH_Controller{
 	}
 
 	public function GetSubMenu(){
-		$dbGetList = new BH_DB_GetList(TABLE_MENU);
+		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
 		$dbGetList->AddWhere('LENGTH(category) = '.(strlen($this->ID) + _CATEGORY_LENGTH));
 		$dbGetList->AddWhere('LEFT(category, '.strlen($this->ID).') = '.SetDBText($this->ID));
 		JSON(true, '', $dbGetList->GetRows());

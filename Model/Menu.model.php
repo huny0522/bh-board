@@ -41,33 +41,17 @@ class MenuModel extends BH_Model{
 		$this->data['parent_enabled']->EnumValues = array('y' => '사용', 'n' => '사용안함');
 	}
 
+
 	// 자식레벨 가져오기
 	public function GetChild($parent = ''){
-		$dbGet = new BH_DB_GetList($this->table);
-		$dbGet->AddWhere('LEFT(category, '.strlen($parent).') = '.SetDBText($parent));
-		$dbGet->AddWhere('LENGTH(category) = '.(strlen($parent) + _CATEGORY_LENGTH));
-		$dbGet->sort = 'sort';
-		return $dbGet->GetRows();
+		return _CategoryGetChild($this->table, $parent, $this->CategoryLength);
 	}
 
 	public function SetChildEnabled($parent = NULL, $enabled = false){
-		if(is_null($parent)) return;
-
-		$dbUpdate = new BH_DB_Update();
-		$dbUpdate->table = $this->table;
-		$dbUpdate->AddWhere('LEFT(category, '.strlen($parent).') = '.SetDBText($parent));
-		$dbUpdate->data['parent_enabled'] = SetDBText($enabled);
-		//$dbUpdate->test = true;
-		$dbUpdate->Run();
+		_CategorySetChildEnable($this->table, $parent, $enabled);
 	}
 
 	public function GetParent($category = NULL){
-		if(is_null($category)) return false;
-		$parent = substr($category, 0, strlen($category) - _CATEGORY_LENGTH);
-		if(!$parent) return false;
-
-		$dbGet = new BH_DB_Get($this->table);
-		$dbGet->AddWhere('category='.SetDBText($parent));
-		return $dbGet->Get();
+		return _CategoryGetParent($this->table, $category, $this->CategoryLength);
 	}
 }

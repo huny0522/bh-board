@@ -3,9 +3,10 @@
  * Bang Hun.
  * 16.07.10
  */
-require _DIR.'/Model/Banner.model.php';
 
-class BannerManagerController extends BH_Controller
+namespace Admin;
+
+class BannerManagerController extends \BH_Controller
 {
 	/**
 	 * @var BannerModel
@@ -15,11 +16,12 @@ class BannerManagerController extends BH_Controller
 		$this->_Value['NowMenu'] = '001002';
 		$this->_CF->AdminAuth();
 
-		$this->model = new BannerModel();
+		require _DIR.'/Model/Banner.model.php';
+		$this->model = new \BannerModel();
 
 		$this->Layout = '_Admin';
 
-		$dbGetList = new BH_DB_GetList($this->model->table);
+		$dbGetList = new \BH_DB_GetList($this->model->table);
 		$dbGetList->SetKey('DISTINCT category');
 		//$cateParams['test'] = true;
 		while($row = $dbGetList->Get()){
@@ -29,7 +31,7 @@ class BannerManagerController extends BH_Controller
 
 	public function Index(){
 		// 리스트를 불러온다.
-		$dbGetList = new BH_DB_GetListWithPage($this->model->table);
+		$dbGetList = new \BH_DB_GetListWithPage($this->model->table);
 		$dbGetList->page = isset($_GET['page']) ? $_GET['page'] : 1;
 		$dbGetList->pageUrl = $this->URLAction().$this->GetFollowQuery('page');
 		$dbGetList->articleCount = 20;

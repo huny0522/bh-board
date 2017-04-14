@@ -4,13 +4,14 @@
  * 16.07.10
  */
 
-require _DIR.'/Model/Member.model.php';
+namespace Admin;
 
-class LoginController extends BH_Controller{
+class LoginController extends \BH_Controller{
 	public $model;
 
 	public function __Init(){
-		$this->model = new MemberModel();
+		require _DIR.'/Model/Member.model.php';
+		$this->model = new \MemberModel();
 		$this->model->data['mid']->Required = true;
 		$this->Layout = '_Empty';
 	}
@@ -47,7 +48,7 @@ class LoginController extends BH_Controller{
 
 
 	private function LoginMidCheck($mid, $pwd, $level = 1){
-		$dbGet = new BH_DB_Get($this->model->table);
+		$dbGet = new \BH_DB_Get($this->model->table);
 		$dbGet->SetKey(array('muid', 'level', 'pwd', 'PASSWORD('.SetDBText($pwd).') as pwd2'));
 		$dbGet->AddWhere('mid='.SetDBText($mid));
 		if(is_array($level)) $dbGet->AddWhere('level IN ('.implode(',', $level).')');
@@ -59,7 +60,7 @@ class LoginController extends BH_Controller{
 	}
 
 	private function LoginEmailCheck($email, $pwd, $level = 1){
-		$dbGet = new BH_DB_Get($this->model->table);
+		$dbGet = new \BH_DB_Get($this->model->table);
 		$dbGet->SetKey(array('muid', 'level', 'pwd', 'PASSWORD('.SetDBText($pwd).') as pwd2'));
 		$dbGet->AddWhere('email='.SetDBText($email));
 		$dbGet->AddWhere('level='.$level);

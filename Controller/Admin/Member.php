@@ -4,9 +4,9 @@
  * 16.07.10
  */
 
-require _DIR.'/Model/Member.model.php';
+namespace Admin;
 
-class MemberController extends BH_Controller{
+class MemberController extends \BH_Controller{
 
 	/**
 	 * @var MemberModel
@@ -17,7 +17,8 @@ class MemberController extends BH_Controller{
 		$this->_Value['NowMenu'] = '005';
 		$this->_CF->AdminAuth();
 
-		$this->model = new MemberModel();
+		require _DIR.'/Model/Member.model.php';
+		$this->model = new \MemberModel();
 
 		// 항상 따라다닐 URL 쿼리 파라미터를 지정
 		$this->SetFollowQuery(array('SLevel', 'keyword','page'));
@@ -27,7 +28,7 @@ class MemberController extends BH_Controller{
 	public function Index(){
 
 		// 리스트를 불러온다.
-		$dbGetList = new BH_DB_GetListWithPage();
+		$dbGetList = new \BH_DB_GetListWithPage();
 		$dbGetList->table = $this->model->table;
 		$dbGetList->page = isset($_GET['page']) ? $_GET['page'] : 1;
 		$dbGetList->pageUrl = $this->URLAction('').$this->GetFollowQuery('page');
@@ -143,7 +144,7 @@ class MemberController extends BH_Controller{
 	public function AuthAdmin(){
 		unset($this->Layout);
 		if($_SESSION['member']['level'] != _SADMIN_LEVEL) return;
-		$dbGet = new BH_DB_Get($this->model->table);
+		$dbGet = new \BH_DB_Get($this->model->table);
 		$dbGet->AddWhere('muid='.SetDBInt($_GET['muid']));
 		$dbGet->SetKey(array('level', 'admin_auth'));
 		$res = $dbGet->Get();
@@ -156,7 +157,7 @@ class MemberController extends BH_Controller{
 	public function PostAuthAdmin(){
 		if($_SESSION['member']['level'] != _SADMIN_LEVEL) JSON(false, _WRONG_CONNECTED);
 		$muid = SetDBInt($_POST['muid']);
-		$dbGet = new BH_DB_Get($this->model->table);
+		$dbGet = new \BH_DB_Get($this->model->table);
 		$dbGet->AddWhere('muid='.$muid);
 		$dbGet->SetKey(array('level'));
 		$res = $dbGet->Get();

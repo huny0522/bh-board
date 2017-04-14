@@ -975,3 +975,30 @@ class _ModelFunc{
 		return true;
 	}
 }
+
+function _CategoryGetChild($table, $parent, $length){
+	$dbGet = new BH_DB_GetList($table);
+	$dbGet->AddWhere('LEFT(category, '.strlen($parent).') = '.SetDBText($parent));
+	$dbGet->AddWhere('LENGTH(category) = '.(strlen($parent) + $length));
+	$dbGet->sort = 'sort';
+	return $dbGet->GetRows();
+}
+
+function _CategorySetChildEnable($table, $parent, $enabled){
+	if(is_null($parent)) return;
+
+	$dbUpdate = new BH_DB_Update($table);
+	$dbUpdate->AddWhere('LEFT(category, '.strlen($parent).') = '.SetDBText($parent));
+	$dbUpdate->data['parent_enabled'] = SetDBText($enabled);
+	$dbUpdate->Run();
+}
+
+function _CategoryGetParent($table, $category, $length){
+	if(is_null($category)) return false;
+	$parent = substr($category, 0, strlen($category) - $length);
+	if(!$parent) return false;
+
+	$dbGet = new BH_DB_Get($table);
+	$dbGet->AddWhere('category='.SetDBText($parent));
+	return $dbGet->Get();
+}

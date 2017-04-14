@@ -3,8 +3,9 @@
  * Bang Hun.
  * 16.07.10
  */
+namespace Admin;
 
-class ConfigController extends BH_Controller{
+class ConfigController extends \BH_Controller{
 
 	public function __Init(){
 		$this->_Value['NowMenu'] = '001001';

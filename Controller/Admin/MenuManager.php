@@ -3,6 +3,7 @@
  * Bang Hun.
  * 16.07.10
  */
+namespace Admin;
 
 class MenuManagerController extends \BH_Category{
 
@@ -19,7 +20,7 @@ class MenuManagerController extends \BH_Category{
 	}
 
 	public function PostGetBidList(){
-		$dbGetList = new BH_DB_GetList();
+		$dbGetList = new \BH_DB_GetList();
 		if($_POST['type'] == 'board') $dbGetList->table = TABLE_BOARD_MNG;
 		else if($_POST['type'] == 'content') $dbGetList->table = TABLE_CONTENT;
 		else {
