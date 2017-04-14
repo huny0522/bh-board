@@ -4,7 +4,7 @@
  * 16.07.10
  */
 
-class BoardController extends BH_Controller{
+class BoardController extends \BH_Controller{
 	/**
 	 * @var BoardModel
 	 */
@@ -19,7 +19,7 @@ class BoardController extends BH_Controller{
 		$this->BoardSetting();
 
 		require _DIR.'/Model/Board.model.php';
-		$this->model = new BoardModel();
+		$this->model = new \BoardModel();
 
 	}
 
@@ -27,7 +27,7 @@ class BoardController extends BH_Controller{
 		if(!isset($this->TID) || $this->TID == '') Redirect('-1', '잘못된 접근입니다.');
 
 		require _DIR.'/Model/BoardManager.model.php';
-		$this->boardManger = new BoardManagerModel();
+		$this->boardManger = new \BoardManagerModel();
 		$this->boardManger->DBGet($this->TID);
 		$this->SetFollowQuery(array('page','searchType','searchKeyword','category'));
 
@@ -55,7 +55,7 @@ class BoardController extends BH_Controller{
 		if(!$res) Redirect('-1', _NO_AUTH);
 
 		// 리스트를 불러온다.
-		$dbList = new BH_DB_GetListWithPage($this->model->table);
+		$dbList = new \BH_DB_GetListWithPage($this->model->table);
 		$dbList->page = isset($_GET['page']) ? $_GET['page'] : 1;
 		$dbList->pageUrl = $this->URLAction('').$this->GetFollowQuery('page');
 		$dbList->articleCount = $this->boardManger->GetValue('article_count');
@@ -120,7 +120,7 @@ class BoardController extends BH_Controller{
 
 			// first_seq 가 있으면 첫째글을 호출
 			if(strlen($this->model->GetValue('first_seq'))){
-				$dbGet = new BH_DB_Get($this->model->table);
+				$dbGet = new \BH_DB_Get($this->model->table);
 				$dbGet->AddWhere('seq=' . $this->model->GetValue('first_seq'));
 				$firstDoc = $dbGet->Get();
 			}
@@ -154,7 +154,7 @@ class BoardController extends BH_Controller{
 
 		$cookieName = $this->model->table.$seq;
 		if(!isset($_COOKIE[$cookieName]) || !$_COOKIE[$cookieName]){
-			$dbUpdate = new BH_DB_Update($this->model->table);
+			$dbUpdate = new \BH_DB_Update($this->model->table);
 			$dbUpdate->SetData('hit', 'hit + 1');
 			$dbUpdate->AddWhere('seq='.$seq);
 			$dbUpdate->Run();
@@ -321,7 +321,7 @@ class BoardController extends BH_Controller{
 		if($this->Action == 'Answer'){
 			$auth = $this->GetAuth('Answer');
 			if(!$auth) Redirect('-1', _NO_AUTH);
-			$dbGet = new BH_DB_Get($this->model->table);
+			$dbGet = new \BH_DB_Get($this->model->table);
 			$dbGet->AddWhere('seq=%d', to10($_POST['target']));
 			$dbGet->SetKey('mname, depth, muid, sort1, sort2', 'seq', 'first_seq', 'first_member_is', 'category');
 			$this->_Value['targetData'] = $dbGet->Get();
@@ -331,7 +331,7 @@ class BoardController extends BH_Controller{
 
 		require_once _COMMONDIR.'/FileUpload.php';
 
-		$result = new BH_Result();
+		$result = new \BH_Result();
 
 		$this->model->Need = array('subject', 'content', 'secret');
 		if(_MEMBERIS === true){
@@ -476,7 +476,7 @@ class BoardController extends BH_Controller{
 		$imageCount = 0;
 
 		if($mode == 'modify'){
-			$dbGetList = new BH_DB_GetList($this->model->imageTable);
+			$dbGetList = new \BH_DB_GetList($this->model->imageTable);
 			$dbGetList->AddWhere('article_seq='.$seq);
 			while($img = $dbGetList->Get()){
 				if(strpos($content,$img['image']) === false){
@@ -509,7 +509,7 @@ class BoardController extends BH_Controller{
 					// 파일이 있으면 등록
 
 					unset($dbInsert);
-					$dbInsert = new BH_DB_Insert($this->model->imageTable);
+					$dbInsert = new \BH_DB_Insert($this->model->imageTable);
 					$dbInsert->data['article_seq'] = $seq;
 					$dbInsert->data['image'] = SetDBText($newpath);
 					$dbInsert->data['imagename'] = SetDBText($exp[1]);
@@ -523,7 +523,7 @@ class BoardController extends BH_Controller{
 
 			if($newcontent != $content){
 				if(!$this->model->GetValue('thumnail')){
-					$dbGet = new BH_DB_Get($this->model->imageTable);
+					$dbGet = new \BH_DB_Get($this->model->imageTable);
 					$dbGet->AddWhere('article_seq='.$seq);
 					$dbGet->sort = 'seq';
 					$new = $dbGet->Get();

@@ -5,7 +5,7 @@
  * 16.07.10
  *
  */
-class MemberModel extends BH_Model{
+class MemberModel extends \BH_Model{
 
 	public function __Init(){
 		$this->Key = array('muid');

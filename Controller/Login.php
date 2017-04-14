@@ -6,13 +6,13 @@
 
 require _DIR.'/Model/Member.model.php';
 
-class LoginController extends BH_Controller{
+class LoginController extends \BH_Controller{
 	/**
 	 * @var MemberModel
 	 */
 	public $model = null;
 	public function __Init(){
-		$this->model = new MemberModel();
+		$this->model = new \MemberModel();
 	}
 
 	public function Index(){
@@ -105,13 +105,13 @@ class LoginController extends BH_Controller{
 	}
 
 	private function Check($key, $val, $wcheck = true){
-		$dbGet = new BH_DB_Get($this->model->table);
+		$dbGet = new \BH_DB_Get($this->model->table);
 		$dbGet->SetKey('COUNT(muid) as cnt');
 		$dbGet->AddWhere($key.'='.SetDBText($val));
 		$res = $dbGet->Get();
 
 		if($wcheck){ // 탈퇴회원 체크여부
-			$dbGet = new BH_DB_Get(TABLE_WITHDRAW_MEMBER);
+			$dbGet = new \BH_DB_Get(TABLE_WITHDRAW_MEMBER);
 			$dbGet->SetKey('COUNT(muid) as cnt');
 			$dbGet->AddWhere($key.'='.SetDBText($val));
 			$res2 = $dbGet->Get();
@@ -127,7 +127,7 @@ class LoginController extends BH_Controller{
 	}
 
 	private function LoginMidCheck($mid, $pwd){
-		$dbGet = new BH_DB_Get($this->model->table);
+		$dbGet = new \BH_DB_Get($this->model->table);
 		$dbGet->SetKey(array('muid', 'level', 'pwd', 'PASSWORD('.SetDBText($pwd).') as pwd2'));
 		$dbGet->AddWhere('mid='.SetDBText($mid));
 		//$params->test = true;
@@ -137,7 +137,7 @@ class LoginController extends BH_Controller{
 	}
 
 	private function LoginEmailCheck($email, $pwd){
-		$dbGet = new BH_DB_Get();
+		$dbGet = new \BH_DB_Get();
 		$dbGet->table = $this->model->table;
 		$dbGet->SetKey(array('muid', 'level', 'pwd', 'PASSWORD('.SetDBText($pwd).') as pwd2'));
 		$dbGet->AddWhere('email='.SetDBText($email));

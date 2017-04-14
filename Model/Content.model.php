@@ -5,7 +5,7 @@
  * 16.07.10
  *
  */
-class ContentModel extends BH_Model{
+class ContentModel extends \BH_Model{
 
 	public function __Init(){
 		$this->Key[] = 'bid';

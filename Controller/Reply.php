@@ -4,7 +4,7 @@
  * 16.07.10
  */
 
-class ReplyController extends BH_Controller{
+class ReplyController extends \BH_Controller{
 	/**
 	 * @var ReplyModel
 	 */
@@ -26,8 +26,8 @@ class ReplyController extends BH_Controller{
 		require _DIR.'/Model/Reply.model.php';
 		require _DIR.'/Model/BoardManager.model.php';
 
-		$this->model = new ReplyModel();
-		$this->boardManger = new BoardManagerModel();
+		$this->model = new \ReplyModel();
+		$this->boardManger = new \BoardManagerModel();
 		$this->boardManger->DBGet($this->TID);
 
 		$mid = $this->_CF->GetMember('mid');
@@ -47,7 +47,7 @@ class ReplyController extends BH_Controller{
 		$myArticleIs = $this->MyArticleCheck();
 
 		// 리스트를 불러온다.
-		$dbList = new BH_DB_GetListWithPage($this->model->table);
+		$dbList = new \BH_DB_GetListWithPage($this->model->table);
 		$dbList->page = isset($_POST['page']) ? $_POST['page'] : 1;
 		//$dbList->pageUrl = $this->URLAction('').$this->GetFollowQuery('page');
 		$dbList->pageUrl = '#';
@@ -130,7 +130,7 @@ class ReplyController extends BH_Controller{
 
 		if($answerIs){
 			$target = SetDBInt($_POST['target_seq']);
-			$dbGet = new BH_DB_Get($this->model->table);
+			$dbGet = new \BH_DB_Get($this->model->table);
 			$dbGet->AddWhere('seq='.$target);
 			$dbGet->SetKey(array('seq', 'first_seq', 'first_member_is', 'secret'));
 			$targetData = $dbGet->Get();
@@ -217,7 +217,7 @@ class ReplyController extends BH_Controller{
 		if($pwd['pwd'] != $this->model->GetValue('pwd')){
 			$same = false;
 			if($this->model->GetValue('first_seq') && $this->model->GetValue('first_member_is') == 'n'){
-				$dbGet = new BH_DB_Get($this->model->table);
+				$dbGet = new \BH_DB_Get($this->model->table);
 				$dbGet->AddWhere('article_seq = '.SetDBInt($_POST['article_seq']));
 				$dbGet->AddWhere('seq = '.$this->model->GetValue('first_seq'));
 				$dbGet->SetKey('pwd');
@@ -243,7 +243,7 @@ class ReplyController extends BH_Controller{
 
 		require_once _COMMONDIR.'/FileUpload.php';
 
-		$result = new BH_Result();
+		$result = new \BH_Result();
 
 		$this->model->Need = array('comment');
 		if(_MEMBERIS !== true){
@@ -366,7 +366,7 @@ class ReplyController extends BH_Controller{
 
 		if($this->managerIs || (_MEMBERIS === true && $_SESSION['member']['level'] == _SADMIN_LEVEL)) $myArticleIs = true;
 		else{
-			$dbGet = new BH_DB_Get($this->model->boardTable);
+			$dbGet = new \BH_DB_Get($this->model->boardTable);
 			$dbGet->AddWhere('seq='.$this->_Value['article_seq']);
 			$dbGet->SetKey(array('muid','pwd','secret'));
 			$boardArticle = $dbGet->Get();

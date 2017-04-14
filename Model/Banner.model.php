@@ -6,7 +6,7 @@
  *
  */
 
-class BannerModel extends BH_Model{
+class BannerModel extends \BH_Model{
 	public function __Init(){
 		$this->Key[] = 'seq';
 		$this->table = TABLE_BANNER;

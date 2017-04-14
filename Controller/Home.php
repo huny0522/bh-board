@@ -1,6 +1,6 @@
 <?php
 
-class HomeController extends BH_Controller{
+class HomeController extends \BH_Controller{
 	public function __Init(){
 
 	}

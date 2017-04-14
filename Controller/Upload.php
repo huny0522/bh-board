@@ -5,7 +5,7 @@
  */
 require _COMMONDIR.'/FileUpload.php';
 
-class UploadController extends BH_Controller{
+class UploadController extends \BH_Controller{
 	public function __Init(){
 	}
 

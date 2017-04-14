@@ -6,7 +6,7 @@
  *
  */
 
-class PopupModel extends BH_Model{
+class PopupModel extends \BH_Model{
 	public function __Init(){
 		$this->Key[] = 'seq';
 		$this->table = TABLE_POPUP;

@@ -6,7 +6,7 @@
  *
  */
 
-class ReplyModel extends BH_Model{
+class ReplyModel extends \BH_Model{
 	public $bid = '';
 	public $boardTable = '';
 	public function __Init(){

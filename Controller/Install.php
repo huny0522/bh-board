@@ -4,7 +4,7 @@
  * 16.07.10
  */
 
-class InstallController extends BH_Controller{
+class InstallController extends \BH_Controller{
 	public function __Init(){
 		if($GLOBALS['_BH_App']->InstallIs) exit;
 	}

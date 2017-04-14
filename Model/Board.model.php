@@ -6,7 +6,7 @@
  *
  */
 
-class BoardModel extends BH_Model{
+class BoardModel extends \BH_Model{
 	public $imageTable = '';
 	public $bid = '';
 	public function __Init(){

@@ -6,7 +6,7 @@
  *
  */
 
-class BoardManagerModel extends BH_Model{
+class BoardManagerModel extends \BH_Model{
 
 	public function __Init(){
 		$this->Key[] = 'bid';

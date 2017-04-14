@@ -5,7 +5,7 @@
  */
 
 require_once _DIR.'/Model/Member.model.php';
-class MypageController extends BH_Controller{
+class MypageController extends \BH_Controller{
 	public function __Init(){
 		$this->_CF->MemberAuth(1);
 		$this->Layout = '_Mypage';
@@ -13,7 +13,7 @@ class MypageController extends BH_Controller{
 
 	public function Index(){
 		require_once _DIR.'/Model/BoardManager.model.php';
-		$dbGetList = new BH_DB_GetList(TABLE_BOARD_MNG);
+		$dbGetList = new \BH_DB_GetList(TABLE_BOARD_MNG);
 		$dbGetList->SetKey('bid, subject');
 		$data = array();
 		while($row = $dbGetList->Get()){
@@ -25,7 +25,7 @@ class MypageController extends BH_Controller{
 					}
 				}
 			}
-			$boardGetList = new BH_DB_GetList(TABLE_FIRST.'bbs_'.$row['bid']);
+			$boardGetList = new \BH_DB_GetList(TABLE_FIRST.'bbs_'.$row['bid']);
 			$boardGetList->AddWhere('muid='.$_SESSION['member']['muid']);
 			$boardGetList->SetKey('seq, subject, mname, reg_date, hit, recommend');
 			$boardGetList->limit = '5';
@@ -39,12 +39,12 @@ class MypageController extends BH_Controller{
 	}
 
 	public function PostPassword(){
-		$model = new MemberModel();
+		$model = new \MemberModel();
 		if(!isset($_POST['pwd']) || strlen($_POST['pwd']) < 1){
 			Redirect('-1', '패스워드를 입력하여 주세요.');
 		}
 
-		$dbGet = new BH_DB_Get();
+		$dbGet = new \BH_DB_Get();
 		$dbGet->table = $model->table;
 		$dbGet->SetKey(array('muid', 'pwd', 'PASSWORD('.SetDBText($_POST['pwd']).') as pwd2'));
 		$dbGet->AddWhere('muid='.$_SESSION['member']['muid']);
@@ -62,7 +62,7 @@ class MypageController extends BH_Controller{
 			$this->Html = 'Password.html';
 			$this->_View();
 		}
-		$model = new MemberModel();
+		$model = new \MemberModel();
 		$model->data['pwd']->Required = false;
 		$model->DBGet($_SESSION['member']['muid']);
 		$this->_View($model);
@@ -73,7 +73,7 @@ class MypageController extends BH_Controller{
 			Redirect(_URL.'/', _WRONG_CONNECTED);
 		}
 
-		$model = new MemberModel();
+		$model = new \MemberModel();
 		$model->DBGet($_SESSION['member']['muid']);
 		$model->AddExcept(array('level','approve'));
 		$model->data['pwd']->Required = false;
@@ -112,9 +112,9 @@ class MypageController extends BH_Controller{
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
 			Redirect(_URL.'/', _WRONG_CONNECTED);
 		}
-		$model = new MemberModel();
+		$model = new \MemberModel();
 		$model->DBGet($_SESSION['member']['muid']);
-		$dbInsert = new BH_DB_Insert(TABLE_WITHDRAW_MEMBER);
+		$dbInsert = new \BH_DB_Insert(TABLE_WITHDRAW_MEMBER);
 		$dbInsert->SetData('muid', $model->GetValue('muid'));
 		$dbInsert->SetData('mid', SetDBText($model->GetValue('mid')));
 		$dbInsert->SetData('mname', SetDBText($model->GetValue('mname')));

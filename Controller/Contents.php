@@ -6,13 +6,13 @@
 
 require _DIR.'/Model/Content.model.php';
 
-class ContentsController extends BH_Controller{
+class ContentsController extends \BH_Controller{
 	/**
 	 * @var ContentModel
 	 */
 	public $model = null;
 	public function __Init(){
-		$this->model = new ContentModel();
+		$this->model = new \ContentModel();
 	}
 
 	public function Index(){
@@ -25,7 +25,7 @@ class ContentsController extends BH_Controller{
 
 		$cookieName = $this->model->table.$this->model->GetValue('bid');
 		if(!isset($_COOKIE[$cookieName]) || !$_COOKIE[$cookieName]){
-			$dbUpdate = new BH_DB_Update($this->model->table);
+			$dbUpdate = new \BH_DB_Update($this->model->table);
 			$dbUpdate->SetData('hit', 'hit + 1');
 			$dbUpdate->AddWhere('bid='.SetDBText($this->model->GetValue('bid')));
 			$dbUpdate->Run();
