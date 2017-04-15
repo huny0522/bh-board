@@ -46,7 +46,7 @@ class BH_Application{
 	public function run(){
 		if(_DEVELOPERIS === true) $this->InstallIs = SqlTableExists(TABLE_MEMBER);
 
-		$this->Router = new BH_Router();
+		$this->Router = new \BH_Router();
 		$this->Router->router();
 
 		if(!$this->Controller) $this->Controller = _DEFAULT_CONTROLLER;

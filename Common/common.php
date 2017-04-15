@@ -330,32 +330,21 @@ function aes_decrypt($ciphertext, $password){
 	return $qry['txt'];
 }
 
-$_ModCfg = array();
-$_ModPath = _DATADIR.'/ModTime.php';
-
-// DB가 수정된 상태임을 저장
-function _DBModTime($table){
-	if(!file_exists(_DATADIR) && !is_dir(_DATADIR)) mkdir(_DATADIR);
-	if(!sizeof($GLOBALS['_ModCfg']) && file_exists($GLOBALS['_ModPath'])) require_once $GLOBALS['_ModPath'];
-
-	if(!isset($GLOBALS['_ModCfg']['db'][$table]) || $GLOBALS['_ModCfg']['db'][$table] === false){
-		$GLOBALS['_ModCfg']['db'][$table] = true;
-		$txt = '$GLOBALS[\'_ModCfg\'] = '.var_export($GLOBALS['_ModCfg'], true);
-		file_put_contents($GLOBALS['_ModPath'], '<?php'.chr(10).$txt.';');
+function delTree($dir) {
+	if(!is_dir($dir)) return false;
+	$files = array_diff(scandir($dir), array('.','..'));
+	foreach ($files as $file) {
+		(is_dir($dir.'/'.$file)) ? delTree($dir.'/'.$file) : unlink($dir.'/'.$file);
 	}
+	return rmdir($dir);
 }
 
-// DB 수정여부 가져오기
-function _DBModifyIs($table){
-	if(!file_exists(_DATADIR) && !is_dir(_DATADIR)) mkdir(_DATADIR);
-	if(!sizeof($GLOBALS['_ModCfg']) && file_exists($GLOBALS['_ModPath'])) require_once $GLOBALS['_ModPath'];
-	if(!isset($GLOBALS['_ModCfg']['db'][$table]) || $GLOBALS['_ModCfg']['db'][$table] === true){
-		$GLOBALS['_ModCfg']['db'][$table] = false;
-		$txt = '$GLOBALS[\'_ModCfg\'] = '.var_export($GLOBALS['_ModCfg'], true);
-		file_put_contents($GLOBALS['_ModPath'], '<?php'.chr(10).$txt.';');
-		return true;
+function findDelTree($dir) {
+	if(!file_exists(_DATADIR.'/temp/') && !is_dir(_DATADIR.'/temp/')) mkdir(_DATADIR.'/temp/', 0755, true);
+	$files = array_diff(scandir(_DATADIR.'/temp/'), array('.','..'));
+	foreach ($files as $file) {
+		if(is_dir(_DATADIR.'/temp/'.$file) && strpos($file, $dir) !== false) delTree(_DATADIR.'/temp/'.$file);
 	}
-	return false;
 }
 
 function StrToSql($args){
@@ -559,7 +548,7 @@ class BH_ModelData{
 
 class _ModelFunc{
 	public static function SetPostValues($Data, $Except, &$Need){
-		$ret = new BH_Result();
+		$ret = new \BH_Result();
 		$ret->result = true;
 		foreach($Data as $k=>$v){
 			if(!in_array($k, $Except) && $Data[$k]->AutoDecrement !== true){
@@ -757,8 +746,8 @@ class _ModelFunc{
 	}
 
 	public static function DBInsert($Table, $Data, $Except, $Key, $Need, $test = false){
-		$dbInsert = new BH_DB_Insert($Table);
-		$result = new BH_InsertResult();
+		$dbInsert = new \BH_DB_Insert($Table);
+		$result = new \BH_InsertResult();
 
 		foreach($Data as $k=>$v){
 			if(!isset($v->Value) && in_array($k, $Need)){
@@ -818,9 +807,9 @@ class _ModelFunc{
 	}
 
 	public static function DBUpdate($Table, $Data, $Except, $Key, $Need, $test = false){
-		$result = new BH_Result();
+		$result = new \BH_Result();
 
-		$dbUpdate = new BH_DB_Update($Table);
+		$dbUpdate = new \BH_DB_Update($Table);
 		foreach($Data as $k=>$v){
 			if(!isset($v->Value) && in_array($k, $Need)){
 				$result->result = false;
@@ -864,6 +853,7 @@ class _ModelFunc{
 				return $result;
 			}
 		}
+
 		if(_DEVELOPERIS === true) $dbUpdate->test = $test;
 		$dbUpdate->Run();
 		$result->result = $dbUpdate->result;
@@ -872,7 +862,7 @@ class _ModelFunc{
 	}
 
 	public static function DBGet($keys, $modelKey, $table){
-		$res = new BH_Result();
+		$res = new \BH_Result();
 
 		if(!isset($modelKey) || !is_array($modelKey)){
 			if(_DEVELOPERIS === true){
@@ -892,7 +882,7 @@ class _ModelFunc{
 			$res->message = 'ERROR#02';
 			return $res;
 		}
-		$dbGet = new BH_DB_Get($table);
+		$dbGet = new \BH_DB_Get($table);
 		foreach($modelKey as $k => $v){
 			$dbGet->AddWhere($v.' = '.SetDBTrimText($keys[$k]));
 		}
@@ -909,7 +899,7 @@ class _ModelFunc{
 	}
 
 	public static function DBDelete($keyData, $ModelKey, $Table){
-		$res = new BH_Result();
+		$res = new \BH_Result();
 
 		if(!is_array($keyData)){
 			$keyData = array($keyData);
@@ -930,6 +920,7 @@ class _ModelFunc{
 				exit;
 			}
 
+
 			$res->result = false;
 			$res->message = 'ERROR#02';
 			return $res;
@@ -948,6 +939,7 @@ class _ModelFunc{
 
 		$sql = 'DELETE FROM '.$params['table'].' WHERE '.implode(' AND ', $params['where']);
 		$res->result = SqlQuery($sql);
+		BH_DB_Cache::DelPath($params['table']);
 		return $res;
 	}
 
@@ -987,7 +979,7 @@ class _ModelFunc{
 }
 
 function _CategoryGetChild($table, $parent, $length){
-	$dbGet = new BH_DB_GetList($table);
+	$dbGet = new \BH_DB_GetList($table);
 	$dbGet->AddWhere('LEFT(category, '.strlen($parent).') = '.SetDBText($parent));
 	$dbGet->AddWhere('LENGTH(category) = '.(strlen($parent) + $length));
 	$dbGet->sort = 'sort';
@@ -997,7 +989,7 @@ function _CategoryGetChild($table, $parent, $length){
 function _CategorySetChildEnable($table, $parent, $enabled){
 	if(is_null($parent)) return;
 
-	$dbUpdate = new BH_DB_Update($table);
+	$dbUpdate = new \BH_DB_Update($table);
 	$dbUpdate->AddWhere('LEFT(category, '.strlen($parent).') = '.SetDBText($parent));
 	$dbUpdate->data['parent_enabled'] = SetDBText($enabled);
 	$dbUpdate->Run();
@@ -1008,7 +1000,7 @@ function _CategoryGetParent($table, $category, $length){
 	$parent = substr($category, 0, strlen($category) - $length);
 	if(!$parent) return false;
 
-	$dbGet = new BH_DB_Get($table);
+	$dbGet = new \BH_DB_Get($table);
 	$dbGet->AddWhere('category='.SetDBText($parent));
 	return $dbGet->Get();
 }

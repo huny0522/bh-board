@@ -56,11 +56,9 @@ class ReplyModel extends \BH_Model{
 
 	// 게시물의 리플 수 갱신
 	public function article_count_set($seq){
-		$sql = 'UPDATE '.$this->boardTable.' SET reply_cnt = ('
-			.'SELECT COUNT(article_seq) FROM '.$this->table.' WHERE article_seq = '.$seq.' AND delis=\'n\''
-			.')'
-			.'WHERE seq= '.$seq;
-		//echo $query;
-		SqlQuery($sql);
+		$qry = new \BH_DB_Update($this->boardTable);
+		$qry->SetData('reply_cnt', StrToSql('(SELECT COUNT(article_seq) FROM %1 WHERE article_seq = %d AND delis=%s)', $this->table, $seq, 'n'));
+		$qry->AddWhere('seq = %d', $seq);
+		$qry->Run();
 	}
 }

@@ -41,6 +41,7 @@ define('_DEVELOPERIS', true && in_array($_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP)
 define('_CREATE_HTML_ALL', (false || !file_exists(_HTMLDIR) || !is_dir(_HTMLDIR)) && _DEVELOPERIS === true);
 define('_REMOVE_SPACE', false);
 define('_ViewMicrotime', true);
+define('_USE_DB_CACHE', true);
 
 define('_STYLEFILE', '_bhinline.css2');
 
@@ -49,7 +50,7 @@ define('MAX_IMAGE_SIZE', '1024');
 define('_DBMAXINT', 2147483647);
 define('_CATEGORY_LENGTH', 5);
 
-$noext = array('php','htm','html','cfg','inc','phtml');
+$noext = array('php','htm','html','cfg','inc','phtml', 'php5', 'asp', 'jsp');
 
 
 // -------------------------------------
@@ -65,19 +66,18 @@ else define('_MOBILEIS', false);
 
 
 require _COMMONDIR.'/common.php';
-require _COMMONDIR .'/db.info.php';
-require _COMMONDIR .'/BH_DB.class.php';
-require _COMMONDIR .'/BH_Application.class.php';
-require _COMMONDIR .'/BH_Controller.class.php';
-require _COMMONDIR .'/BH_Model.class.php';
-require _COMMONDIR .'/BH_Router.class.php';
-require _COMMONDIR .'/BH_Common.class.php';
-require _COMMONDIR .'/BH_Category.class.php';
+require _COMMONDIR.'/db.info.php';
+require _COMMONDIR.'/BH_DB.class.php';
+require _COMMONDIR.'/BH_Application.class.php';
+require _COMMONDIR.'/BH_Controller.class.php';
+require _COMMONDIR.'/BH_Model.class.php';
+require _COMMONDIR.'/BH_Router.class.php';
+require _COMMONDIR.'/BH_Common.class.php';
 
 if(_DEVELOPERIS === true){
 	if(!file_exists(_DATADIR) || !is_dir(_DATADIR)) @mkdir(_DATADIR, 0757, true);
-	require _COMMONDIR . '/HtmlConvert.php';
-	require _COMMONDIR . '/StyleConvert.php';
+	require _COMMONDIR.'/HtmlConvert.php';
+	require _COMMONDIR.'/StyleConvert.php';
 	require _COMMONDIR.'/BH_HtmlCreate.class.php';
 }
 
@@ -108,6 +108,9 @@ define('TABLE_BANNER', TABLE_FIRST.'banner');
 define('TABLE_POPUP', TABLE_FIRST.'popup');
 define('TABLE_IMAGES', TABLE_FIRST.'images');
 
+BH_DB_Cache::$DBTableFirst = array(TABLE_FIRST);
+BH_DB_Cache::$ExceptTable = array(TABLE_MEMBER);
+
 
 define('_SECRET_ARTICLE', '비밀글입니다.');
 define('_DELETED_ARTICLE', '삭제된 게시물입니다.');
@@ -127,7 +130,7 @@ define('_SADMIN_LEVEL',20);
 /**
  * @var BH_Application $_BH_App
  */
-$_BH_App = new BH_Application();
+$_BH_App = new \BH_Application();
 $_BH_App->run();
 
 if(_ViewMicrotime === true && _AJAXIS !== true){

@@ -95,6 +95,7 @@ class MypageController extends \BH_Controller{
 
 		if(!isset($this->_Value['error'])){
 			$model->DBUpdate();
+			Redirect($this->URLAction(), '수정되었습니다.');
 		}
 		else{
 			$this->_View($model);

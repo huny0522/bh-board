@@ -55,8 +55,8 @@ class ReplyController extends \BH_Controller{
 		$dbList->AddWhere('article_seq='.$this->_Value['article_seq']);
 		$dbList->sort = 'sort1, sort2';
 		if(method_exists($this, 'IndexAddQuery')) $this->IndexAddQuery($dbList);
-		$dbList->Run();
-		while($row = $dbList->Get()){
+		$dbList->DrawRows();
+		foreach($dbList->data as &$row){
 			// 비밀번호없이 수정권한
 			$row['modifyAuthDirect'] = false;
 			if($this->GetAuth() && _MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || $_SESSION['member']['level'] == _SADMIN_LEVEL )){
@@ -89,8 +89,6 @@ class ReplyController extends \BH_Controller{
 			}
 
 			$row['kdate'] = krDate($row['reg_date'],'mdhi');
-
-			$dbList->data[] = $row;
 		}
 
 		if(isset($this->boardManger)){
@@ -169,8 +167,20 @@ class ReplyController extends \BH_Controller{
 
 		// 답글쓰기라면 sort 정렬
 		if($answerIs){
-			$row = SqlFetch('SELECT mname, depth, muid, sort1, sort2 FROM '.$this->model->table.' WHERE article_seq='.$this->_Value['article_seq'].' AND seq = '.$target);
-			if(!SqlQuery('UPDATE '.$this->model->table.' SET sort2 = sort2 + 1 WHERE article_seq='.$this->_Value['article_seq'].' AND sort1='.$row['sort1'].' AND sort2 > '.$row['sort2'].' ORDER BY sort2 DESC')){
+			$qry = new \BH_DB_Get($this->model->table);
+			$qry->SetKey('mname, depth, muid, sort1, sort2');
+			$qry->AddWhere('article_seq = %d', $this->_Value['article_seq']);
+			$qry->AddWhere('seq = %d', $target);
+			$row = $qry->Get();
+
+			$qry = new \BH_DB_Update($this->model->table);
+			$qry->SetData('sort2', 'sort2 + 1');
+			$qry->AddWhere('article_seq = %d', $this->_Value['article_seq']);
+			$qry->AddWhere('sort1 = %d', $row['sort1']);
+			$qry->AddWhere('sort2 > %d', $row['sort2']);
+			$qry->sort = 'sort2 DESC';
+			$qry->Run();
+			if(!$qry->result){
 				echo json_encode(array('result' => false, 'message' => 'ERROR#201'));
 				exit;
 			}
@@ -322,16 +332,13 @@ class ReplyController extends \BH_Controller{
 		$seq = SetDBInt($_POST['seq']);
 		$article_seq = SetDBInt($_POST['article_seq']);
 
-		$this->GetData();
+		$res = $this->GetData();
+		if(!$res->result) JSON(false, $res->message ? $res->message : 'ERROR#201');
 
 		// 회원 글 체크
 		if($this->model->GetValue('muid')){
-			if(_MEMBERIS !== true){
-				JSON(false, 'ERROR#101');
-			}
-			else if($this->model->GetValue('muid') != $_SESSION['member']['muid'] && $_SESSION['member']['level'] < _SADMIN_LEVEL){
-				JSON(false, 'ERROR#102');
-			}
+			if(_MEMBERIS !== true) JSON(false, 'ERROR#101');
+			else if($this->model->GetValue('muid') != $_SESSION['member']['muid'] && $_SESSION['member']['level'] < _SADMIN_LEVEL) JSON(false, 'ERROR#102');
 		}
 		else if(_MEMBERIS !== true || $_SESSION['member']['level'] < _SADMIN_LEVEL || !$this->managerIs){
 			$getpwd = SqlFetch('SELECT *, PASSWORD('.SetDBText($_POST['pwd']).') as getpwd FROM '.$this->model->table.' WHERE article_seq = '.$article_seq.' AND seq='.$seq);
@@ -358,7 +365,7 @@ class ReplyController extends \BH_Controller{
 	}
 
 	public function GetData(){
-		return $this->model->DBGet(array(SetDBInt($_POST['article_seq']), SetDBInt($_POST['seq'])));
+		return $this->model->DBGet(SetDBInt($_POST['article_seq']), SetDBInt($_POST['seq']));
 	}
 
 	protected function MyArticleCheck(){

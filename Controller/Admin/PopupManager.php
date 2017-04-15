@@ -9,7 +9,7 @@ namespace Admin;
 class PopupManagerController extends \BH_Controller
 {
 	/**
-	 * @var PopupModel
+	 * @var \PopupModel
 	 */
 	public $model = null;
 	public function __Init(){

@@ -29,7 +29,7 @@ abstract class BH_Controller{
 	public $_CF;
 
 	public function __construct(){
-		$this->_CF = new BH_Common();
+		$this->_CF = new \BH_Common();
 		$this->Action = $GLOBALS['_BH_App']->Action;
 		$this->Controller = $GLOBALS['_BH_App']->Controller;
 		$this->ID = $GLOBALS['_BH_App']->ID;
@@ -44,9 +44,7 @@ abstract class BH_Controller{
 	 */
 	public function SetFollowQuery(array $ar){
 		foreach($ar as $v){
-			if(isset($_GET[$v]) && !empty($_GET[$v])){
-				$this->FollowQuery[$v] = $_GET[$v];
-			}
+			if(isset($_GET[$v]) && !empty($_GET[$v])) $this->FollowQuery[$v] = $_GET[$v];
 		}
 	}
 
@@ -118,17 +116,16 @@ abstract class BH_Controller{
 		if(!$viewAction) $viewAction = 'Index';
 
 		$html = substr($viewAction, 0, 1) == '/' ? $viewAction :
-			($GLOBALS['_BH_App']->SubDir ? '/'.$GLOBALS['_BH_App']->SubDir : '').'/'.$GLOBALS['_BH_App']->Controller.'/'.(substr($viewAction, -5) == '.html' ? $viewAction : $viewAction.'.html');
+			($GLOBALS['_BH_App']->SubDir ? '/'.$GLOBALS['_BH_App']->SubDir : '').'/'.$GLOBALS['_BH_App']->Controller.'/'.$viewAction;
+		if(substr($html, -5) != '.html') $html .= '.html';
 
-		if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true){
-			ReplaceHTMLFile(_SKINDIR.$html, _HTMLDIR.$html);
-		}
+		if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR.$html, _HTMLDIR.$html);
 
 		ob_start();
-		if(file_exists(_HTMLDIR.$html)){
-			require _HTMLDIR . $html;
-		}else{
-			echo 'ERROR : NOT EXISTS TEMPLATE : '.$viewAction;
+		if(file_exists(_HTMLDIR.$html)) require _HTMLDIR . $html;
+		else{
+			if(_DEVELOPERIS !== true) echo 'ERROR : NOT EXISTS TEMPLATE';
+			else echo 'ERROR : NOT EXISTS TEMPLATE : '._HTMLDIR.$html;
 		}
 		$_BODY = ob_get_clean();
 
@@ -141,6 +138,7 @@ abstract class BH_Controller{
 				require _HTMLDIR.$layout;
 			}
 		}
+
 		echo $_BODY;
 	}
 
@@ -241,11 +239,7 @@ abstract class BH_Controller{
 		$css2 = '/css'.($css[0] == '/' ? $css : '/'.$css);
 
 		$dir = _SKINDIR;
-		$url = _SKINURL;
-		if(file_exists(_HTMLDIR.$css2)){
-			$dir = _HTMLDIR;
-			$url = _HTMLURL;
-		}
+		if(file_exists(_HTMLDIR.$css2)) $dir = _HTMLDIR;
 		else if(!file_exists(_SKINDIR.$css2)) return;
 
 		$lastmod = date("YmdHis", filemtime($dir.$css2));

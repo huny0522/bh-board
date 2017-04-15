@@ -156,10 +156,9 @@ class MemberController extends \BH_Controller{
 
 	public function PostAuthAdmin(){
 		if($_SESSION['member']['level'] != _SADMIN_LEVEL) JSON(false, _WRONG_CONNECTED);
-		$muid = SetDBInt($_POST['muid']);
 		$dbGet = new \BH_DB_Get($this->model->table);
-		$dbGet->AddWhere('muid='.$muid);
-		$dbGet->SetKey(array('level'));
+		$dbGet->AddWhere('muid =  %d', $_POST['muid']);
+		$dbGet->SetKey('level');
 		$res = $dbGet->Get();
 		if(!$res) return;
 		if($res['level'] != _ADMIN_LEVEL){
@@ -171,8 +170,10 @@ class MemberController extends \BH_Controller{
 		if(isset($_POST['Category'])){
 			$adminAuth = implode(',', $_POST['Category']);
 		}
-		$sql = 'UPDATE '.TABLE_MEMBER.' SET admin_auth = '.SetDBText($adminAuth).' WHERE muid = ' . $muid;
-		SqlQuery($sql);
+		$qry = new \BH_DB_Update(TABLE_MEMBER);
+		$qry->SetDataStr('admin_auth = %s', $adminAuth);
+		$qry->AddWhere('muid = %d', $_POST['muid']);
+		$qry->Run();
 		echo json_encode(array('result' => true));
 	}
 

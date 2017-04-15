@@ -3,19 +3,55 @@
  * Bang Hun.
  * 16.07.10
  */
+class BH_DB_Cache{
+	public static $DBTableFirst = array();
+	public static $ExceptTable = array();
+	public static function GetCachePath($table, $sql){
+		$table = trim($table);
+		$folder = '';
+		if($table){
+			$tx = explode(' ', trim($table));
+			foreach($tx as $v){
+				foreach(self::$DBTableFirst as $v2){
+					if(substr($v, 0, strlen($v2)) == $v2) $folder .= urlencode($v).'+';
+				}
+			}
+			$folder = urlencode($table).'+';
+		}
+		else exit;
+
+		$path = _DATADIR.'/temp/+'.$folder;
+		$file = $path.'/'.strlen( $sql).'.php';
+		foreach(self::$ExceptTable as $v){
+			if(strpos($table, $v) !== false) return array('result' => false, 'file' => $file);
+		}
+		if(!file_exists($path) && !is_dir($path)) mkdir($path, 0755, true);
+		return array('result' => true, 'file' => $file);
+	}
+
+	public static function DelPath($table){
+		$tx = explode(' ', $table);
+		foreach($tx as $v){
+			$v = trim($v);
+			if(strlen($v)) findDelTree('+'.$v.'+');
+		}
+	}
+}
 
 class BH_DB_Get{
 	public $table = '';
 	public $test = false;
 	public $sort = '';
 	public $group = '';
+	public $cache = false;
 	private $query = null;
 	private $having = array();
 	private $where = array();
 	private $key = array();
 
-	public function  __construct($table = ''){
+	public function  __construct($table = '', $cache = _USE_DB_CACHE){
 		$this->table = $table;
+		$this->cache = $cache;
 	}
 
 	public function __destruct(){
@@ -83,10 +119,30 @@ class BH_DB_Get{
 			echo $sql;
 			exit;
 		}
+
+		// Cache
+		if($this->cache){
+			$path = BH_DB_Cache::GetCachePath($this->table, $sql);
+			$this->cache = $path['result'];
+			if($path['result'] && file_exists($path['file'])){
+				require_once $path['file'];
+				/** @var $data */
+				if(isset($GetData[$sql])) return $GetData[$sql];
+			}
+		}
+
 		$this->query = SqlQuery($sql);
 		if($this->query){
 			$row = mysqli_fetch_assoc($this->query);
 			if($row){
+
+				// Cache
+				if($this->cache){
+					$GetData[$sql] = $row;
+					$txt = '<?php $GetData = '.var_export($GetData, true).';';
+					file_put_contents($path['file'], $txt);
+					chmod($path['file'], 0700);
+				}
 				return $row;
 			}
 		}
@@ -100,6 +156,9 @@ class BH_DB_GetList{
 	public $sort = '';
 	public $group = '';
 	public $test = false;
+	public $cache = false;
+
+	private $pointer = -1;
 	private $query = null;
 	private $having = array();
 	private $where = array();
@@ -109,8 +168,9 @@ class BH_DB_GetList{
 	public $data = array();
 	private $RunIs = false;
 
-	public function  __construct($table = ''){
+	public function  __construct($table = '', $cache = _USE_DB_CACHE){
 		$this->table = $table;
+		$this->cache = $cache;
 	}
 
 	public function __destruct(){
@@ -159,6 +219,7 @@ class BH_DB_GetList{
 
 	public function DrawRows(){
 		if(!$this->RunIs) $this->Run();
+		if($this->cache) return;
 		while($row = $this->Get()){
 			$this->data[]= $row;
 		}
@@ -201,8 +262,36 @@ class BH_DB_GetList{
 			echo $sql;
 			exit;
 		}
+
+		$sql = trim($sql);
+
+		// Cache
+		if($this->cache){
+			$path = BH_DB_Cache::GetCachePath($this->table, $sql);
+			$this->cache = $path['result'];
+			if($path['result'] && file_exists($path['file'])){
+				require_once $path['file'];
+				if(isset($GetListData[$sql])){
+					$this->data = $GetListData[$sql];
+					$this->result = true;
+					return;
+				}
+			}
+		}
+
 		$this->query = SqlQuery($sql);
 		if($this->query){
+			// Cache
+			if($this->cache){
+				while($row = mysqli_fetch_assoc($this->query)){
+					$this->data[]= $row;
+				}
+
+				$GetListData[$sql] = $this->data;
+				$txt = '<?php $GetListData = '.var_export($GetListData, true).';';
+				file_put_contents($path['file'], $txt);
+				chmod($path['file'], 0700);
+			}
 			$this->result = true;
 		}
 		else{
@@ -212,7 +301,12 @@ class BH_DB_GetList{
 
 	public function Get(){
 		if(!$this->RunIs) $this->Run();
-		return $this->query ? mysqli_fetch_assoc($this->query) : false;
+
+		// Cache
+		if($this->cache){
+			$this->pointer++;
+			return isset($this->data[$this->pointer]) ? $this->data[$this->pointer] : false;
+		}else return $this->query ? mysqli_fetch_assoc($this->query) : false;
 	}
 }
 
@@ -227,6 +321,9 @@ class BH_DB_GetListWithPage{
 	public $pageCount = 10;
 	public $pageUrl = '';
 	public $CountKey = '';
+	public $cache = false;
+
+	private $pointer = -1;
 	private $query = null;
 	private $where = array();
 	private $having = array();
@@ -240,8 +337,9 @@ class BH_DB_GetListWithPage{
 	public $beginNum = '';
 	public $pageHtml = '';
 
-	public function  __construct($table = ''){
+	public function  __construct($table = '', $cache = _USE_DB_CACHE){
 		$this->table = $table;
+		$this->cache = $cache;
 	}
 
 	public function __destruct(){
@@ -289,6 +387,7 @@ class BH_DB_GetListWithPage{
 
 	public function DrawRows(){
 		if(!$this->RunIs) $this->Run();
+		if($this->cache) return;
 		while($row = $this->Get()){
 			$this->data[]= $row;
 		}
@@ -346,6 +445,30 @@ class BH_DB_GetListWithPage{
 			echo $sql;
 			exit;
 		}
+
+		// Cache
+		if($this->cache){
+			$path = BH_DB_Cache::GetCachePath($this->table, $sql);
+			$this->cache = $path['result'];
+			if($path['result'] && file_exists($path['file'])){
+				require_once $path['file'];
+				if(isset($GetListWithPage[$sql])){
+					$this->totalRecord = $pagedata['totalRecord'] = $GetListWithPage[$sql]['totalRecord'];
+					$this->beginNum = $GetListWithPage[$sql]['beginNum'];
+					$this->data = $GetListWithPage[$sql]['data'];
+					$pagedata['articleCount'] = $this->articleCount;
+					$pagedata['pageCount'] = $this->pageCount;
+					$pagedata['page'] = $this->page ? $this->page : 1;
+					$pagedata['pageUrl'] = $this->pageUrl;
+					$pagedata['totalRecord'] = $this->totalRecord;
+					$this->pageHtml = $this->SqlGetPage($pagedata);
+
+					$this->result = true;
+					return;
+				}
+			}
+		}
+
 		$result_cnt = SqlFetch($this->group ? 'SELECT COUNT(*) as cnt FROM ('.$sql_cnt.') AS x' : $sql_cnt);
 		$totalRecord = $result_cnt['cnt']; //total값 구함
 		//SqlFree($result_cnt);
@@ -355,6 +478,21 @@ class BH_DB_GetListWithPage{
 
 		$this->query = SqlQuery($sql);
 		if($this->query){
+			// Cache
+			if($this->cache){
+				while($row = mysqli_fetch_assoc($this->query)){
+					$this->data[]= $row;
+				}
+
+				if($this->cache){
+					$GetListWithPage[$sql]['beginNum'] = $this->beginNum;
+					$GetListWithPage[$sql]['totalRecord'] = $this->totalRecord;
+					$GetListWithPage[$sql]['data'] = $this->data;
+					$txt = '<?php $GetListWithPage = '.var_export($GetListWithPage, true).';';
+					file_put_contents($path['file'], $txt);
+					chmod($path['file'], 0700);
+				}
+			}
 
 			$pagedata['articleCount'] = $this->articleCount;
 			$pagedata['pageCount'] = $this->pageCount;
@@ -372,7 +510,13 @@ class BH_DB_GetListWithPage{
 	}
 
 	public function Get(){
-		return $this->query ? mysqli_fetch_assoc($this->query) : false;
+		if(!$this->RunIs) $this->Run();
+
+		// Cache
+		if($this->cache){
+			$this->pointer++;
+			return isset($this->data[$this->pointer]) ? $this->data[$this->pointer] : false;
+		}else return $this->query ? mysqli_fetch_assoc($this->query) : false;
 	}
 
 	/**
@@ -534,13 +678,13 @@ class BH_DB_Insert{
 				echo $sql;
 				exit;
 			}
+
 			$this->result = SqlQuery($sql);
 			$this->id = mysqli_insert_id($GLOBALS['_BH_App']->_Conn);
 		}
+
+		BH_DB_Cache::DelPath($this->table);
 	}
-
-
-
 }
 
 class BH_DB_Update{
@@ -549,6 +693,7 @@ class BH_DB_Update{
 	public $data = array();
 	public $test = false;
 	public $result = false;
+	public $sort = '';
 	public $message = '';
 
 	public function  __construct($table = ''){
@@ -589,11 +734,36 @@ class BH_DB_Update{
 		}
 
 		$sql = 'UPDATE ' . $this->table . ' SET ' . $set . $where;
+		if($this->sort) $sql .= ' ORDER BY ' . $this->sort;
 		if($this->test){
 			echo $sql;
 			exit;
 		}
+		BH_DB_Cache::DelPath($this->table);
 		$this->result = SqlQuery($sql);
 	}
 
+}
+
+class BH_DB_Delete{
+	public $table = '';
+	private $where = array();
+
+	public function  __construct($table = ''){
+		$this->table = $table;
+	}
+
+	public function AddWhere($str){
+		$w = StrToSql(func_get_args());
+		if($w !== false) $this->where[] = '('.$w.')';
+	}
+
+	function Run(){
+		$where = '';
+		if(isset($this->where) && is_array($this->where) && sizeof($this->where)) $where = ' WHERE ' . implode(' AND ', $this->where);
+
+		$sql = 'DELETE FROM '.$this->table.' '.$where;
+		BH_DB_Cache::DelPath($this->table);
+		return SqlQuery($sql);
+	}
 }

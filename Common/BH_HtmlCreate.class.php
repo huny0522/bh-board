@@ -12,7 +12,7 @@ class BH_HtmlCreate
 		$modelPath = _MODELDIR.'/'.$ModelName.'.model.php';
 		$text = "<?php
 
-class {$ControllerName}Controller extends BH_Controller{
+class {$ControllerName}Controller extends \BH_Controller{
 	/** @var {$ModelName} */
 	public \$model;
 	public function __Init(){
@@ -22,7 +22,7 @@ class {$ControllerName}Controller extends BH_Controller{
 	}
 
 	public function Index(){
-		\$qry = new BH_DB_GetListWithPage(\$this->model->table);
+		\$qry = new \\BH_DB_GetListWithPage(\$this->model->table);
 		\$qry->articleCount = 10;
 		\$qry->page = \$_GET['page'];
 		\$qry->pageUrl = \$this->URLAction().\$this->GetFollowQuery('page');
@@ -102,7 +102,7 @@ class {$ControllerName}Controller extends BH_Controller{
 
 		$modelText = "<?php
 
-class {$ModelName}Model extends BH_Model{
+class {$ModelName}Model extends \\BH_Model{
 
 	public function __Init(){
 		\$this->table = {$TableName};

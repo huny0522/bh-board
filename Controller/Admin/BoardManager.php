@@ -133,8 +133,11 @@ class BoardManagerController extends \BH_Controller{
 				$board_nm = TABLE_FIRST.'bbs_'.$_POST['bid'];
 
 				@Sqlquery("DROP TABLE `{$board_nm}`");
+				\BH_DB_Cache::DelPath($board_nm);
 				@Sqlquery("DROP TABLE `{$board_nm}_reply`");
+				\BH_DB_Cache::DelPath($board_nm.'_reply');
 				@Sqlquery("DROP TABLE `{$board_nm}_images`");
+				\BH_DB_Cache::DelPath($board_nm.'_images');
 
 				Redirect($this->URLAction('').$this->GetFollowQuery(), '삭제되었습니다.');
 			}else{

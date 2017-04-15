@@ -89,7 +89,7 @@ class BH_Common
 		// 원글 가져오기
 		if(_MEMBERIS === true){
 			if(!isset($this->Member) || !$this->Member){
-				$dbGet = new BH_DB_Get(TABLE_MEMBER);
+				$dbGet = new \BH_DB_Get(TABLE_MEMBER);
 				$dbGet->AddWhere('muid=' . SetDBInt($_SESSION['member']['muid']));
 				$this->Member = $dbGet->Get();
 			}
@@ -121,16 +121,19 @@ class BH_Common
 		$imageCount = 0;
 
 		if($mode == 'modify'){
-			$dbTid = SetDBText($tid);
 			$dbKeyValue = SetDBText(implode('|',$keyValue));
-			$dbGetList = new BH_DB_GetList(TABLE_IMAGES);
-			$dbGetList->AddWhere('tid='.$dbTid);
+			$dbGetList = new \BH_DB_GetList(TABLE_IMAGES);
+			$dbGetList->AddWhere('tid=%s', $tid);
 			$dbGetList->AddWhere('article_seq='.$dbKeyValue);
 			while($img = $dbGetList->Get()){
 				if(strpos($content['contents'], $img['image']) === false){
 					// 파일이 없으면 삭제
 					@unlink(_UPLOAD_DIR.$img['image']);
-					SqlQuery('DELETE FROM '.TABLE_IMAGES.' WHERE tid='.$dbTid.' AND article_seq='.$dbKeyValue.' AND seq='.$img['seq']);
+					$qry = new \BH_DB_Delete(TABLE_IMAGES);
+					$qry->AddWhere('tid = %s', $tid);
+					$qry->AddWhere('article_seq = %d', $dbKeyValue);
+					$qry->AddWhere('seq = %d', $img['seq']);
+					$qry->Run();
 				}else $imageCount ++;
 			}
 		}
@@ -152,7 +155,7 @@ class BH_Common
 					// 파일이 있으면 등록
 
 					unset($dbInsert);
-					$dbInsert = new BH_DB_Insert(TABLE_IMAGES);
+					$dbInsert = new \BH_DB_Insert(TABLE_IMAGES);
 					$dbInsert->data['tid'] = SetDBText($tid);
 					$dbInsert->data['article_seq'] = SetDBText(implode('|',$keyValue));
 					$dbInsert->data['image'] = SetDBText($newpath);
@@ -166,11 +169,12 @@ class BH_Common
 			}
 
 			if($newcontent != $content['contents']){
-				$where = array();
+				$qry = new \BH_DB_Update($tid);
+				$qry->SetData('%1 = %s', $content['name'], $newcontent);
 				foreach($keyValue as $k=>$v){
-					$where[] = $k.'='.SetDBText($v);
+					$qry->AddWhere('%1 = %s', $k, $v);
 				}
-				SqlQuery('UPDATE '.$tid.' SET '.$content['name'].' = '.SetDBText($newcontent).' WHERE '.implode('AND', $keyValue));
+				$qry->Run();
 			}
 		}
 
@@ -185,13 +189,13 @@ class BH_Common
 		if(in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL){
 			if(strlen($_POST['select_menu'])){
 				$selectmenu = implode(',', SetDBText(explode(',', $_POST['select_menu'])));
-				$mUpdate = new BH_DB_Update(TABLE_MENU);
+				$mUpdate = new \BH_DB_Update(TABLE_MENU);
 				$mUpdate->AddWhere('category IN ('.$selectmenu.')');
 				$mUpdate->SetData('type', SetDBText($type));
 				$mUpdate->SetData('bid', SetDBText($bid));
 				$mUpdate->Run();
 
-				$mUpdate = new BH_DB_Update(TABLE_MENU);
+				$mUpdate = new \BH_DB_Update(TABLE_MENU);
 				$mUpdate->AddWhere('bid = '.SetDBText($bid));
 				$mUpdate->AddWhere('category NOT IN ('.$selectmenu.')');
 				$mUpdate->AddWhere('type='.SetDBText($type));
@@ -200,22 +204,22 @@ class BH_Common
 				$mUpdate->Run();
 
 			}else{
-				$mUpdate = new BH_DB_Update(TABLE_MENU);
+				$mUpdate = new \BH_DB_Update(TABLE_MENU);
 				$mUpdate->AddWhere('bid = '.SetDBText($bid));
 				$mUpdate->AddWhere('type='.SetDBText($type));
 				$mUpdate->SetData('type', SetDBText('customize'));
 				$mUpdate->SetData('bid', SetDBText(''));
 				$mUpdate->Run();
 			}
-			_DBModTime(TABLE_MENU);
 		}
 	}
 
-	public function GetBoardArticle($bid, $category = ''){
+	public function GetBoardArticle($bid, $category = '', $limit = 10){
 		// 리스트를 불러온다.
-		$dbList = new BH_DB_GetList(TABLE_FIRST.'bbs_'.$bid);
+		$dbList = new \BH_DB_GetList(TABLE_FIRST.'bbs_'.$bid);
 		$dbList->AddWhere('delis=\'n\'');
 		$dbList->sort = 'sort1, sort2';
+		$dbList->limit = $limit;
 		if(strlen($category)){
 			$dbList->AddWhere('category = '.SetDBText($category));
 		}
@@ -223,7 +227,7 @@ class BH_Common
 	}
 
 	public function GetBanner($category){
-		$banner = new BH_DB_GetList(TABLE_BANNER);
+		$banner = new \BH_DB_GetList(TABLE_BANNER);
 		$banner->AddWhere('begin_date <= \''.date('Y-m-d').'\'');
 		$banner->AddWhere('end_date >= \''.date('Y-m-d').'\'');
 		$banner->AddWhere('enabled = \'y\'');
@@ -244,7 +248,7 @@ class BH_Common
 
 
 	public function GetPopup(){
-		$banner = new BH_DB_GetList(TABLE_POPUP);
+		$banner = new \BH_DB_GetList(TABLE_POPUP);
 		$banner->AddWhere('begin_date <= \''.date('Y-m-d').'\'');
 		$banner->AddWhere('end_date >= \''.date('Y-m-d').'\'');
 		$banner->AddWhere('enabled = \'y\'');

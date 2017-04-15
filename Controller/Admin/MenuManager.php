@@ -5,6 +5,7 @@
  */
 namespace Admin;
 
+require _COMMONDIR.'/BH_Category.class.php';
 class MenuManagerController extends \BH_Category{
 
 	/**

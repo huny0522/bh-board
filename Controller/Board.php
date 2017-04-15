@@ -185,7 +185,9 @@ class BoardController extends \BH_Controller{
 		$seq = to10($_GET['target']);
 		if(!strlen($seq)) Redirect('-1');
 
-		$data = SqlFetch('SELECT * FROM '.$this->model->table.' WHERE seq = '.SetDBInt($seq));
+		$qry = new \BH_DB_Get($this->model->table);
+		$qry->AddWhere('seq = %d', $seq);
+		$data = $qry->Get();
 
 //		// 비밀글일경우 답변 권한 : 관리자 또는 게시판 매니저
 //		if($data['secret'] == 'y'){
@@ -375,8 +377,13 @@ class BoardController extends \BH_Controller{
 
 		// 답글쓰기라면 sort 정렬
 		if($this->Action == 'Answer'){
-			//$row = SqlFetch('SELECT mname, depth, muid, sort1, sort2 FROM '.$this->model->table.' WHERE seq = '.$target);
-			if(!SqlQuery('UPDATE '.$this->model->table.' SET sort2 = sort2 + 1 WHERE sort1='.$this->_Value['targetData']['sort1'].' AND sort2 > '.$this->_Value['targetData']['sort2'].' ORDER BY sort2 DESC')){
+			$qry = new \BH_DB_Update($this->model->table);
+			$qry->SetData('sort2', 'sort2 + 1');
+			$qry->AddWhere('sort1 = %d', $this->_Value['targetData']['sort1']);
+			$qry->AddWhere('sort2 > %d', $this->_Value['targetData']['sort2']);
+			$qry->sort = 'sort2 DESC';
+			$qry->Run();
+			if(!$qry->result){
 				$this->_Value['error'] = 'ERROR#201';
 				$this->Write();
 				return;
@@ -487,7 +494,10 @@ class BoardController extends \BH_Controller{
 						$this->model->SetValue('thumnail', '');
 					}
 
-					SqlQuery('DELETE FROM '.$this->model->table.'_images WHERE article_seq='.$img['article_seq'].' AND seq='.$img['seq']);
+					$qry = new \BH_DB_Delete($this->model->table.'_images');
+					$qry->AddWhere('article_seq = '.$img['article_seq']);
+					$qry->AddWhere('seq = '.$img['seq']);
+					$qry->Run();
 				}else $imageCount ++;
 			}
 		}
@@ -529,7 +539,11 @@ class BoardController extends \BH_Controller{
 					$new = $dbGet->Get();
 					$this->model->SetValue('thumnail', $new['image']);
 				}
-				SqlQuery('UPDATE '.$this->model->table.' SET thumnail=\''.$this->model->GetValue('thumnail').'\', content='.SetDBText($newcontent).' WHERE seq='.$seq);
+				$qry = new \BH_DB_Update($this->model->table);
+				$qry->SetDataStr('thumnail', $this->model->GetValue('thumnail'));
+				$qry->SetDataStr('content', $newcontent);
+				$qry->AddWhere('seq = '.$seq);
+				$qry->Run();
 			}
 		}
 

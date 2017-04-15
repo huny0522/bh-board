@@ -94,12 +94,12 @@ function ReplaceHTMLFile($source, $target){
 
 		foreach($files as $css){
 			$findIs = false;
-			if($styleData[$css]) foreach($styleData[$css] as $k => $v){
+			if($styleData[$css]) foreach($styleData[$css] as $k => &$v){
 				if($v['type'] == 'incss' && $v['file'] == $file){
 					$findIs = true;
-					if($styleData[$css][$k]['data'] != $data[$css]){
-						if(!$data[$css]) unset($styleData[$css][$k]);
-						else $styleData[$css][$k]['data'] = $data[$css];
+					if($v['data'] != $data[$css]){
+						if(!$data[$css]) unset($v);
+						else $v['data'] = $data[$css];
 						__styleWrite($css);
 					}
 					break;
@@ -183,16 +183,6 @@ function ReplaceCSS2ALL($tempfile_path, $target_path) {
 			closedir($dh);
 		}
 	}
-}
-
-
-function delTree($dir) {
-	if(!is_dir($dir)) return false;
-	$files = array_diff(scandir($dir), array('.','..'));
-	foreach ($files as $file) {
-		(is_dir($dir.'/'.$file)) ? delTree($dir.'/'.$file) : unlink($dir.'/'.$file);
-	}
-	return rmdir($dir);
 }
 
 function __styleGet($file = ''){
