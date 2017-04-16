@@ -8,7 +8,7 @@ class BH_Application{
 	public $Controller = '';
 	public $Action = '';
 	public $ID = '';
-	public $SubDir = '';
+	public $NativeDir = '';
 	public $BaseDir = '';
 	public $TID = '';
 	public $CtrlUrl = '';
@@ -56,11 +56,11 @@ class BH_Application{
 		}
 
 
-		$path = _DIR.'/Controller/'.($this->SubDir ? $this->SubDir.'/' : '').$this->Controller.'.php';
+		$path = _DIR.'/Controller/'.($this->NativeDir ? $this->NativeDir.'/' : '').$this->Controller.'.php';
 
 		if(file_exists($path)){
 			require $path;
-			$controller = $this->SubDir.'\\'.$this->Controller.'Controller';
+			$controller = $this->NativeDir.'\\'.$this->Controller.'Controller';
 			if (!class_exists($controller)) $controller = $this->Controller.'Controller';
 			if (!class_exists($controller)){
 				if(_DEVELOPERIS === true) echo '클래스('.$controller.')가 존재하지 않습니다.';

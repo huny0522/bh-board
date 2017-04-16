@@ -47,7 +47,7 @@ class BH_Router
 		if($GLOBALS['_BH_App']->InstallIs){
 			switch($this->GetUrl[1]){
 				case _ADMINURLNAME: // 관리자
-					$_BH_App->SubDir = 'Admin';
+					$_BH_App->NativeDir = 'Admin';
 					$_BH_App->Controller = $this->GetUrl[2];
 					$_BH_App->Action = $this->GetUrl[3];
 					$_BH_App->ID = $this->GetUrl[4];
