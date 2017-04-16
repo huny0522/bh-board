@@ -89,6 +89,7 @@ class MemberController extends \BH_Controller{
 			if($this->model->GetValue('level') >= $_SESSION['member']['level']){
 				Redirect('-1', '해당 레벨로 등록이 불가능합니다.');
 			}
+			$this->model->SetValue('reg_date', date('Y-m-d H:i:s'));
 			$res = $this->model->DBInsert();
 			if($res->result){
 				Redirect($this->URLAction().$this->GetFollowQuery());

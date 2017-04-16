@@ -31,10 +31,8 @@ $this->JSAdd('reply.js', 200);
 	</div>
 
 	<div class="bottomBtn">
-		<?php if($this->GetAuth('Write')){ ?>
+		<?php if($this->GetAuth('Write') && (!strlen($Model->GetValue('muid')) || $Data['modifyAuthDirect'] || $this->managerIs)){ ?>
 			<a href="<?a. 'Modify/' ?><?v. $this->ID ?><?fq. '' ?>" class="mbtn btn2" <?php if(!$Data['modifyAuthDirect']){ ?>id="modifyBtn"<?php } ?>>수정</a>
-		<?php } ?>
-		<?php if($this->GetAuth('Write') && (!$Model->GetValue('muid') || $Data['modifyAuthDirect'] || $this->managerIs)){ ?>
 			<a href="#" id="deleteArticle" data-seq="<?v. $this->ID ?>" class="mbtn btn2">삭제</a>
 		<?php } ?>
 		<?php if($this->GetAuth('Answer')){ ?>
@@ -42,7 +40,6 @@ $this->JSAdd('reply.js', 200);
 		<?php } ?>
 		<a href="<?a. '' ?><?fq. '' ?>" class="mbtn btn2">리스트</a>
 	</div>
-
 </div>
 
 <div id="deleteForm" class="hidden boardPassword modalConfirm">

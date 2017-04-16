@@ -380,10 +380,6 @@ class ReplyController extends \BH_Controller{
 			if(strlen($boardArticle['muid'])){
 				$myArticleIs = (_MEMBERIS === true && $boardArticle['muid'] == $_SESSION['member']['muid']);
 			}
-			else if($boardArticle['secret'] == 'y'){
-				$pwd = SqlFetch('SELECT PASSWORD('.SetDBText($_POST['pwd']).') as pwd');
-				$myArticleIs = ($pwd['pwd'] == $boardArticle['pwd']);
-			}
 		}
 		return $myArticleIs;
 	}
