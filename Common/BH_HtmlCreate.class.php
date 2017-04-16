@@ -12,7 +12,7 @@ class BH_HtmlCreate
 		$modelPath = _MODELDIR.'/'.$ModelName.'.model.php';
 		$text = "<?php
 
-class {$ControllerName}Controller extends \BH_Controller{
+class {$ControllerName}Controller extends \\BH_Controller{
 	/** @var {$ModelName} */
 	public \$model;
 	public function __Init(){
@@ -96,9 +96,8 @@ class {$ControllerName}Controller extends \BH_Controller{
 }";
 		if(!file_exists($path)){
 			$path = '/Controller/'.($_POST['sub_dir'] ? $_POST['sub_dir'].'/' : '').$ControllerName.'.php';
-			echo '<b>'.$path.'파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(GetDBText($text)).'</textarea>';
+			echo '<b>'.$path.'파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.($text).'</textarea>';
 		}
-
 
 		$modelText = "<?php
 
@@ -111,7 +110,7 @@ class {$ModelName}Model extends \\BH_Model{
 }";
 		if(!file_exists($modelPath)){
 			$modelPath = '/Model/'.$ModelName.'.model.php';
-			echo '<br><br><b>'.$modelPath.'파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(GetDBText(self::ModifyModel($modelText))).'</textarea>';
+			echo '<br><br><b>'.$modelPath.'파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(self::ModifyModel($modelText)).'</textarea>';
 		}
 		echo '<br><br><a href="'.$_POST['controller_url'].'">완료</a>';
 	}
