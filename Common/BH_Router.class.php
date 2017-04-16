@@ -143,7 +143,10 @@ class BH_Router
 
 		$cnt = 0;
 		while($row = $qry->Get()){
-			if($row['parent_enabled'] == 'y' && $row['enabled'] == 'y') $this->ActiveMenu = $row;
+			if($row['parent_enabled'] == 'y' && $row['enabled'] == 'y'){
+				$this->ActiveMenu = $row;
+				break;
+			}
 			$cnt ++;
 		}
 
