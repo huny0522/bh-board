@@ -116,7 +116,7 @@ abstract class BH_Controller{
 		if(!$viewAction) $viewAction = 'Index';
 
 		$html = substr($viewAction, 0, 1) == '/' ? $viewAction :
-			($GLOBALS['_BH_App']->SubDir ? '/'.$GLOBALS['_BH_App']->SubDir : '').'/'.$GLOBALS['_BH_App']->Controller.'/'.$viewAction;
+			($GLOBALS['_BH_App']->NativeDir ? '/'.$GLOBALS['_BH_App']->NativeDir : '').'/'.$GLOBALS['_BH_App']->Controller.'/'.$viewAction;
 		if(substr($html, -5) != '.html') $html .= '.html';
 
 		if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR.$html, _HTMLDIR.$html);
@@ -147,7 +147,7 @@ abstract class BH_Controller{
 		if(!$viewAction) $viewAction = 'Index';
 
 		$html = substr($viewAction, 0, 1) == '/' ? $viewAction :
-			($GLOBALS['_BH_App']->SubDir ? '/'.$GLOBALS['_BH_App']->SubDir : '').'/'.$GLOBALS['_BH_App']->Controller.'/'.(substr($viewAction, -5) == '.html' ? $viewAction : $viewAction.'.html');
+			($GLOBALS['_BH_App']->NativeDir ? '/'.$GLOBALS['_BH_App']->NativeDir : '').'/'.$GLOBALS['_BH_App']->Controller.'/'.(substr($viewAction, -5) == '.html' ? $viewAction : $viewAction.'.html');
 
 		if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true){
 			ReplaceHTMLFile(_SKINDIR.$html, _HTMLDIR.$html);

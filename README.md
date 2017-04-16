@@ -270,7 +270,7 @@
 - public $Controller : 불러올 컨트롤러를 위한 값.
 - public $Action : 불러올 컨트롤러의 메쏘드를 위한 값.
 - public $ID : 메쏘드에서 사용할 키값.
-- public $SubDir : 컨트롤러파일이나 스킨파일의 서브디렉토리.
+- public $NativeDir : 컨트롤러파일이나 스킨파일의 서브디렉토리.
 - public $BaseUrl : 컨트롤러 이전의 서브디렉토리를 포함한 URL.
 - public $CtrlUrl : 컨트롤러의 URL.
 - public $TID : 게시판이나 컨텐츠, 댓글의 키.
