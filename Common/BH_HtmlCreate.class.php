@@ -57,6 +57,8 @@ class {$ControllerName}Controller extends \\BH_Controller{
 		\$res = \$this->model->DBInsert();
 		if(!\$res->result) {
 			\$this->_Value['error'] = \$res->message ? \$res->message : 'Query Error';
+			\$this->_View(\$this->model);
+			return;
 		}
 		else Redirect(\$this->URLAction().\$this->GetFollowQuery());
 	}
@@ -73,6 +75,8 @@ class {$ControllerName}Controller extends \\BH_Controller{
 		\$res = \$this->model->DBUpdate();
 		if(!\$res->result) {
 			\$this->_Value['error'] = \$res->message ? \$res->message : 'Query Error';
+			\$this->_View(\$this->model);
+			return;
 		}
 		else Redirect(\$this->URLAction('View/'.\$this->ID).\$this->GetFollowQuery());
 	}
