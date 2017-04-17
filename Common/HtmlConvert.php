@@ -55,15 +55,6 @@ function ReplaceHTMLFile($source, $target){
 		$f = file_get_contents($source);
 
 		// 인라인 스타일 찾기 Begin
-		$cssPath = explode('/', $source);
-		array_pop($cssPath);array_pop($cssPath);
-		$cp = '';
-		for($i = sizeof($cssPath) -1; $i >= 0; $i--){
-			if($cssPath[$i] == 'Skin') break;
-			$cp = $cssPath[$i].'/'.$cp;
-		}
-		$cp = substr($cp, 0, -1);
-
 		$findStyle = '/\<style(.*?)\>(.*?)\<\/style\>/is';
 		preg_match_all($findStyle, $f, $matches);
 
@@ -72,14 +63,14 @@ function ReplaceHTMLFile($source, $target){
 		if(sizeof($matches[1])){
 			foreach($matches[1] as $v){
 				preg_match('/.*?data-file="(.*?)".*?/', $v, $matches2);
-				$matchFile = sizeof($matches2) ? (strlen($cp) ? $cp.'/' : '').$matches2[1].'.css2' : _STYLEFILE;
+				$matchFile = sizeof($matches2) ? $matches2[1].'.css2' : _STYLEFILE;
 				$files[]= $matchFile;
 				__styleGet($matchFile);
 			}
 		}
 		else{
-			$files[]= $cp.'/'._STYLEFILE;
-			__styleGet($cp.'/'._STYLEFILE);
+			$files[]= _STYLEFILE;
+			__styleGet(_STYLEFILE);
 		}
 
 		if(sizeof($matches[2])){
