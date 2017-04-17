@@ -434,6 +434,22 @@ function SqlQuery($sql){
 	return $res;
 }
 
+function SqlCCQuery($table, $sql){
+	$args = func_get_args();
+	array_shift($args);
+	$sql = trim(StrToSql($args));
+	if(strpos($sql, '%t') === false) die('ERROR SQL(CC)'.(_DEVELOPERIS === true ? ' : $sql' : ''));
+	$sql = str_replace('%t', $table, $sql);
+	if(_DEVELOPERIS === true)
+		$res = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql) or die('ERROR SQL : '.$sql);
+	else
+		$res = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql) or die('ERROR SQL');
+
+	if($res && (strtolower(substr($sql, 0, 6)) == 'delete' || strtolower(substr($sql, 0, 6)) == 'update' || strtolower(substr($sql, 0, 6)) == 'insert')) BH_DB_Cache::DelPath($table);
+
+	return $res;
+}
+
 /**
  * @param $qry
  * @return bool|int

@@ -28,7 +28,7 @@ abstract class BH_Model{
 	 * @param string $HtmlType
 	 */
 	public function InitModelData($key, $Type = ModelType::String, $Required = false, $DisplayName = '', $HtmlType = HTMLType::InputText){
-		$this->data[$key] = new BH_ModelData();
+		$this->data[$key] = new \BH_ModelData();
 		$this->data[$key]->Name = $key;
 		$this->data[$key]->Type = $Type;
 		$this->data[$key]->Required = $Required;
@@ -120,6 +120,7 @@ abstract class BH_Model{
 	}
 
 	public function ValueCheck($key){
+		if(in_array($key, $this->Except)) return true;
 		if($this->data[$key]->ValueIsQuery) return true;
 		if($this->CheckRequired($key) === false) return false;
 		if(isset($this->data[$key]->Value) && strlen($this->data[$key]->Value)){

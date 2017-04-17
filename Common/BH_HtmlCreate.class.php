@@ -17,7 +17,7 @@ class {$ControllerName}Controller extends \\BH_Controller{
 	public \$model;
 	public function __Init(){
 		require _MODELDIR.'/{$ModelName}.model.php';
-		if(_DEVELOPERIS === true) BH_HtmlCreate::Create('{$ControllerName}', '{$ModelName}');
+		if(_DEVELOPERIS === true) \\BH_HtmlCreate::Create('{$ControllerName}', '{$ModelName}');
 		\$this->model = new {$ModelName}Model();
 	}
 
@@ -380,6 +380,7 @@ class {$ModelName}Model extends \\BH_Model{
 
 			//키값
 			$html = '<?php if(_BH_ !== true) exit;' . chr(10) . '/**'.chr(10).'* @var $Model '.$classname.chr(10).' */' . chr(10) . '/**'.chr(10).'* @var $Data BH_DB_GetListWithPage'.chr(10).'*/' . chr(10) . '/**'.chr(10).'* @var $this BH_Controller'.chr(10).'*/' . chr(10) . '?>' . chr(10) . chr(10);
+			$html .= '<?php if($Data->result && $Data->totalRecord){ ?>'. chr(10);
 			$html .= '<table class="list">'.chr(10);
 			$html .= '<thead>'. chr(10);
 			$html .= '<tr>' . chr(10);
@@ -393,7 +394,6 @@ class {$ModelName}Model extends \\BH_Model{
 			$html .= '</tr>'. chr(10);
 			$html .= '</thead>'. chr(10);
 			$html .= '<tbody>'. chr(10);
-			$html .= '<?php if($Data->result && $Data->totalRecord){ ?>'. chr(10);
 			$html .= '<?php while($row = $Data->Get()){?>'. chr(10);
 			$html .= '<tr>'. chr(10);
 			$html .= '	<td><?p. $Data->beginNum-- ?></td>'. chr(10);
@@ -409,11 +409,11 @@ class {$ModelName}Model extends \\BH_Model{
 
 			$html .= '</tr>'. chr(10);
 			$html .= '<?php } ?>'. chr(10);
-			$html .= '<?php } else{ ?>'. chr(10);
-			$html .= '<tr><td colspan="' . $n . '" class="nothing">등록된 게시물이 없습니다.</td></tr>'. chr(10);
-			$html .= '<?php } ?>'. chr(10);
 			$html .= '</tbody>'. chr(10);
 			$html .= '</table>'.chr(10). chr(10);
+			$html .= '<?php } else{ ?>'. chr(10);
+			$html .= '<p class="nothing">등록된 게시물이 없습니다.</p>'. chr(10);
+			$html .= '<?php } ?>'. chr(10);
 			$html .= '<div class="left_btn"><a href="<?a. \'Write\' ?><?fq. \'\' ?>" class="btn2">글쓰기</a></div>'. chr(10);
 			$html .= '<div class="paging"><?p. $Data->pageHtml ?></div>'. chr(10);
 			return $html;
