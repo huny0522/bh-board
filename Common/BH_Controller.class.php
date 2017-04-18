@@ -177,21 +177,7 @@ abstract class BH_Controller{
 	}
 
 	public function JSAdd($js, $idx = 100){
-		if(substr($js, 0, 4) == 'http'){
-			$this->JS[$idx][] = $js;
-		}else{
-			$path = _SKINDIR.'/js/'.$js;
-			if(!file_exists($path)) return;
-			$lastmod = date("YmdHis", filemtime($path));
-			$queryParam = '';
-			if(strpos($js, '?') !== false){
-				$ex1 = explode('?', $js);
-				$queryParam = '?'.array_pop($ex1);
-				$js = $ex1[0];
-			}
-			$queryParam .= strlen($queryParam) ? '&'.$lastmod : '?'.$lastmod;
-			$this->JS[$idx][] = $js.$queryParam;
-		}
+		$this->JS[$idx][] = $js;
 	}
 
 	public function CSSPrint(){
@@ -209,42 +195,26 @@ abstract class BH_Controller{
 	}
 
 	public function CSSAdd($css, $idx = 100){
-		if(substr($css, 0, 4) == 'http' || substr($css, 0, 1) == '/'){
-			$this->CSS[$idx][] = $css;
-		}else{
-			$path = _SKINDIR.'/css/'.$css;
-			if(!file_exists($path)) return;
-			$lastmod = date("YmdHis", filemtime($path));
-			$queryParam = '';
-			if(strpos($css, '?') !== false){
-				$ex1 = explode('?', $css);
-				$queryParam = '?'.array_pop($ex1);
-				$css = $ex1[0];
-			}
-			$queryParam .= strlen($queryParam) ? '&'.$lastmod : '?'.$lastmod;
-			$this->CSS[$idx][] = $css.$queryParam;
-		}
+		$this->CSS[$idx][] = $css;
 	}
 
 	public function CSSAdd2($css, $idx = 100){
-		$queryParam = '';
 		if(strpos($css, '?') !== false){
 			$ex1 = explode('?', $css);
 			$queryParam = '?'.array_pop($ex1);
 			$css = $ex1[0];
-		}
+		}else $queryParam = '';
+
 		$ex = explode('.', $css);
 		array_pop($ex);
 		$convCss = implode('.', $ex).'.css';
-		$css2 = '/css'.($css[0] == '/' ? $css : '/'.$css);
 
-		$dir = _SKINDIR;
-		if(file_exists(_HTMLDIR.$css2)) $dir = _HTMLDIR;
-		else if(!file_exists(_SKINDIR.$css2)) return;
-
-		$lastmod = date("YmdHis", filemtime($dir.$css2));
-		$queryParam .= strlen($queryParam) ? '&'.$lastmod : '?'.$lastmod;
 		if(_DEVELOPERIS === true){
+			$css2 = '/css'.($css[0] == '/' ? $css : '/'.$css);
+			$dir = _SKINDIR;
+			if(file_exists(_HTMLDIR.$css2)) $dir = _HTMLDIR;
+			else if(!file_exists(_SKINDIR.$css2)) return;
+
 			$d = BH_CSS($dir.$css2);
 			file_put_contents(_HTMLDIR.'/css'.($convCss[0] == '/' ? $convCss : '/'.$convCss), $d);
 			@chmod(_HTMLDIR.'/css/'.$convCss, 0777);

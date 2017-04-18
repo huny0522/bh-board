@@ -62,7 +62,7 @@ function ReplaceHTMLFile($source, $target){
 		$files = array();
 		if(sizeof($matches[1])){
 			foreach($matches[1] as $v){
-				preg_match('/.*?data-file="(.*?)".*?/', $v, $matches2);
+				preg_match('/.*?file="(.*?)".*?/', $v, $matches2);
 				$matchFile = sizeof($matches2) ? $matches2[1].'.css2' : _STYLEFILE;
 				$files[]= $matchFile;
 				__styleGet($matchFile);
@@ -239,6 +239,7 @@ function __styleWrite($file = ''){
 	if($file == '') $file = _STYLEFILE;
 	$f = '';
 	foreach($styleData[$file] as $row){
+		if(!strlen($row['data'])) continue;
 		if($row['type'] == 'incss'){
 			$f .= chr(10)._BHSTYLEBEGIN.$row['file'].chr(10).trim(preg_replace('/'.chr(10).'\s*/', chr(10), $row['data'])).chr(10)._BHSTYLEND.chr(10);
 		}
