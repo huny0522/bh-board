@@ -392,7 +392,7 @@ function StrToSql($args){
 				}
 			}
 		}
-		return str_replace(array('%\s', '%\f', '%\d', '%\1'), array('%s', '%f', '%d', '%1'), $w);
+		return str_replace(array('%\s', '%\f', '%\d', '%\1', '%\t'), array('%s', '%f', '%d', '%1', '%t'), $w);
 	}
 }
 
@@ -437,9 +437,10 @@ function SqlQuery($sql){
 function SqlCCQuery($table, $sql){
 	$args = func_get_args();
 	array_shift($args);
+	if(strpos($sql, '%t') === false) die('ERROR SQL(CC)'.(_DEVELOPERIS === true ? ' : '.$sql : ''));
+	$args[0] = str_replace('%t', $table, $args[0]);
 	$sql = trim(StrToSql($args));
-	if(strpos($sql, '%t') === false) die('ERROR SQL(CC)'.(_DEVELOPERIS === true ? ' : $sql' : ''));
-	$sql = str_replace('%t', $table, $sql);
+
 	if(_DEVELOPERIS === true)
 		$res = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql) or die('ERROR SQL : '.$sql);
 	else
