@@ -172,7 +172,7 @@ class MemberController extends \BH_Controller{
 			$adminAuth = implode(',', $_POST['Category']);
 		}
 		$qry = new \BH_DB_Update(TABLE_MEMBER);
-		$qry->SetDataStr('admin_auth = %s', $adminAuth);
+		$qry->SetDataStr('admin_auth', $adminAuth);
 		$qry->AddWhere('muid = %d', $_POST['muid']);
 		$qry->Run();
 		echo json_encode(array('result' => true));
