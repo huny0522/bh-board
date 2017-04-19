@@ -6,14 +6,14 @@ ob_start();
  */
 $this->CSSAdd('jquery-ui-1.10.1.css', 10);
 $this->CSSAdd('common.css', 10);
-$this->CSSAdd('style.css', 10);
-$this->CSSAdd2(_STYLEFILE, 10);
-$this->CSSAdd('responsive.css', 10);
+$this->CSSAdd('style.css?r='.BH_Common::Config('Default', 'Refresh'), 10);
+$this->CSSAdd2(_STYLEFILE.'?r='.BH_Common::Config('Default', 'Refresh'), 10);
+$this->CSSAdd('responsive.css?r='.BH_Common::Config('Default', 'Refresh'), 10);
 
 $this->JSAdd('jquery-1.11.3.min.js', 10);
 $this->JSAdd('jquery.form.min.js', 10);
 $this->JSAdd('jquery-ui.min.js', 10);
-$this->JSAdd('common.js', 10);
+$this->JSAdd('common.js?r='.BH_Common::Config('Default', 'Refresh'), 10);
 ?>
 <?inc. '/Layout/_Header.html' ?>
 <div id="wrap">
@@ -118,6 +118,8 @@ $this->JSAdd('common.js', 10);
 			sub.css({'margin-left' : (thisCenter - subCenter) + 'px'});
 		}
 	</script>
+
+<?p. _REFRESH_BTN ?>
 <?inc. '/Layout/_Footer.html' ?>
 <?php
 $_BODY = ob_get_clean();

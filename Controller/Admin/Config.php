@@ -27,7 +27,7 @@ class ConfigController extends \BH_Controller{
 		$path = _DATADIR.'/CFG/'.$_POST['Code'].'.php';
 		$txt = '';
 		foreach($_POST as $k => $v){
-			$txt .= '$this->CFG[\''.addslashes($_POST['Code']).'\'][\''.addslashes($k).'\'] = \''.addslashes($v).'\';'.chr(10);
+			$txt .= '$GLOBALS[\'_BH_App\']->CFG[\''.addslashes($_POST['Code']).'\'][\''.addslashes($k).'\'] = \''.addslashes($v).'\';'.chr(10);
 		}
 		file_put_contents($path, '<?php'.chr(10).$txt);
 		Redirect($this->URLAction(), '설정되었습니다.');

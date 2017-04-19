@@ -36,6 +36,25 @@ class BH_Router
 			exit;
 		}
 
+		if($this->GetUrl[1] == '_Refresh'){
+			if(_DEVELOPERIS === true){
+				$s = BH_Common::Config('Default', 'Refresh');
+				$res = BH_Common::SetConfig('Default', 'Refresh', $s+1);
+
+				if($res->result){
+					if(_REFRESH_HTML_ALL === true){
+						delTree(_HTMLDIR);
+						ReplaceHTMLAll(_SKINDIR, _HTMLDIR);
+						ReplaceCSS2ALL(_HTMLDIR, _HTMLDIR);
+						ReplaceCSS2ALL(_SKINDIR, _HTMLDIR);
+					}
+					Redirect($_GET['r_url']);
+				}
+				else Redirect(-1, $res->message);
+			}
+			exit;
+		}
+
 		if(!isset($this->GetUrl[1]) || !strlen($this->GetUrl[1])){
 			$this->GetUrl[1] = _DEFAULT_CONTROLLER;
 		}

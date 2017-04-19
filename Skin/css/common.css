@@ -35,3 +35,5 @@ input[type=button], input[type=submit], button{height:30px; padding:0; color:inh
 label{margin:0 5px; font-family:'Nanum Gothic';}
 textarea{ width:100%;}
 .hidden, .hide{display:none;}
+
+#_BH_RefreshBtn{ position:fixed; bottom:10px; right:10px; z-index:100; display:block; height:30px; line-height:30px; padding:0 15px; font-size:12px; background:rgba(0,0,0,0.5); color:#fff; border-radius:15px;}

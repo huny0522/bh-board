@@ -27,7 +27,7 @@ class BH_Application{
 	public $_MainConn = null;
 
 	public $InstallIs = true;
-	public $_Category = array();
+	public $CFG = array();
 
 	public function __construct(){
 		$this->_Conn = SqlConnection($GLOBALS['_DBInfo']);

@@ -46,6 +46,17 @@ if(_BH_ !== true) exit;
 		</table>
 	</fieldset>
 
+	<fieldset>
+		<h3><i class="fa fa-angle-right"></i> 기타설정</h3>
+		<table class="write">
+			<tr>
+				<th>새로고침숫자</th>
+				<td colspan="3">
+					<input type="text" name="Refresh" id="Refresh" value="<?p. $this->_CF->Config($this->_Value['Code'], 'Refresh') ?>">
+				</td>
+			</tr>
+		</table>
+	</fieldset>
 
 	<div class="bottomBtn">
 		<button type="submit" class="btn1">확인</button>

@@ -39,6 +39,8 @@ define('_AJAXIS', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['H
 $_DEVELOPER_IP = array('127.0.0.1');
 define('_DEVELOPERIS', true && in_array($_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP));
 define('_CREATE_HTML_ALL', false && _DEVELOPERIS === true);
+define('_REFRESH_HTML_ALL', true && _DEVELOPERIS === true);
+define('_REFRESH_BTN', _DEVELOPERIS === true ? '<a id="_BH_RefreshBtn" href="'._URL.'/_Refresh?r_url='.urlencode($_SERVER['REQUEST_URI']).'">새로고침</a>' : '');
 define('_REMOVE_SPACE', false);
 define('_ViewMicrotime', true);
 define('_USE_DB_CACHE', true);

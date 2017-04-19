@@ -58,7 +58,7 @@ function ReplaceHTMLFile($source, $target){
 		$findStyle = '/\<style(.*?)\>(.*?)\<\/style\>/is';
 		preg_match_all($findStyle, $f, $matches);
 
-		$data = array();
+		$cssFileData = array();
 		$files = array();
 		if(sizeof($matches[1])){
 			foreach($matches[1] as $v){
@@ -75,9 +75,9 @@ function ReplaceHTMLFile($source, $target){
 
 		if(sizeof($matches[2])){
 			foreach($matches[2] as $k => $v){
-				if(!isset($data[$files[$k]])) $data[$files[$k]] = '';
-				$data[$files[$k]] .= trim(str_replace(chr(13), '', $v)).chr(10);
-				$data[$files[$k]] = trim(preg_replace('/'.chr(10).'\s*/', chr(10),trim($data[$files[$k]])));
+				if(!isset($cssFileData[$files[$k]])) $cssFileData[$files[$k]] = '';
+				$cssFileData[$files[$k]] .= trim(str_replace(chr(13), '', $v)).chr(10);
+				$cssFileData[$files[$k]] = trim(preg_replace('/'.chr(10).'\s*/', chr(10),trim($cssFileData[$files[$k]])));
 			}
 		}
 
@@ -88,16 +88,16 @@ function ReplaceHTMLFile($source, $target){
 			if($styleData[$css]) foreach($styleData[$css] as $k => &$v){
 				if($v['type'] == 'incss' && $v['file'] == $file){
 					$findIs = true;
-					if($v['data'] != $data[$css]){
-						if(!$data[$css]) unset($v);
-						else $v['data'] = $data[$css];
+					if(!isset($cssFileData[$css]) || $v['data'] != $cssFileData[$css]){
+						if(!isset($cssFileData[$css]) || !$cssFileData[$css]) unset($v);
+						else $v['data'] = $cssFileData[$css];
 						__styleWrite($css);
 					}
 					break;
 				}
 			}
-			if(!$findIs && isset($data[$css])){
-				$styleData[$css][] = array('type' => 'incss', 'file' => $file, 'data' => preg_replace('/'.chr(10).'\s*/', chr(10), $data[$css]));
+			if(!$findIs && isset($cssFileData[$css])){
+				$styleData[$css][] = array('type' => 'incss', 'file' => $file, 'data' => preg_replace('/'.chr(10).'\s*/', chr(10), $cssFileData[$css]));
 				__styleWrite($css);
 			}
 		}

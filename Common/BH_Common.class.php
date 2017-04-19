@@ -5,7 +5,6 @@ class BH_Common
 	public $MainMenu = array();
 	public $SubMenu = array();
 	public $ActiveMenu = array();
-	public $CFG = array();
 	public $AdminMenu = array();
 
 	public function __construct(){
@@ -101,15 +100,43 @@ class BH_Common
 	}
 
 
-	public function Config($code, $key){
+	public static function Config($code, $key){
 		// 설정불러오기
-		if(!isset($this->CFG[$code])){
+		if(!isset($GLOBALS['_BH_App']->CFG[$code])){
 			$path = _DATADIR.'/CFG/'.$code.'.php';
 			if(file_exists($path)){
 				require_once $path;
-			}else $this->CFG[$code] = array();
+			}else $GLOBALS['_BH_App']->CFG[$code] = array();
 		}
-		return isset($this->CFG[$code][$key]) ? $this->CFG[$code][$key] : null;
+		return isset($GLOBALS['_BH_App']->CFG[$code][$key]) ? $GLOBALS['_BH_App']->CFG[$code][$key] : null;
+	}
+
+	public static function SetConfig($code, $key, $val){
+		$res = new \BH_Result();
+		if(_DEVELOPERIS !== true){
+			$res->result = false;
+			$res->message = _WRONG_CONNECTED;
+			return;
+		}
+		if(!isset($GLOBALS['_BH_App']->CFG[$code])){
+			$path = _DATADIR.'/CFG/'.$code.'.php';
+			if(file_exists($path)){
+				require_once $path;
+			}else $GLOBALS['_BH_App']->CFG[$code] = array();
+		}
+
+		if(!isset($GLOBALS['_BH_App']->CFG[$code][$key])){
+			$res->result = false;
+			$res->message = '기본값이 설정되어 있지 않습니다.(관리자화면 환경설정에서 기본값을 설정하여 주세요)';
+			return $res;
+		}
+
+		$GLOBALS['_BH_App']->CFG[$code][$key] = $val;
+		$path = _DATADIR.'/CFG/'.$code.'.php';
+		$txt = '<?php $GLOBALS[\'_BH_App\']->CFG = '.var_export($GLOBALS['_BH_App']->CFG, true).';';
+		file_put_contents($path, $txt);
+		$res->result = true;
+		return $res;
 	}
 
 	/**
@@ -268,5 +295,51 @@ class BH_Common
 			$data[] = array('html' => $html, 'seq' => $row['seq'], 'width' => $row['width'], 'height' => $row['height']);
 		}
 		return $data;
+	}
+
+	public function Download($path, $fname){
+		$temp = explode('/', $path);
+		if(!$fname){
+			$fname = $temp[sizeof($temp)-1];
+		}
+
+		unset($GLOBALS['_BH_App']->CTRL->Layout);
+
+		ignore_user_abort(true);
+		set_time_limit(0); // disable the time limit for this script
+
+
+		if(strpos($path, '..') !== false){
+			Redirect('-1', '경로오류');
+		}
+		$dl_file = filter_var($path, FILTER_SANITIZE_URL); // Remove (more) invalid characters
+		$fullPath = _UPLOAD_DIR.$dl_file;
+
+		if ($fd = fopen ($fullPath, "r")) {
+			$fsize = filesize($fullPath);
+			$path_parts = pathinfo($fullPath);
+			$ext = strtolower($path_parts["extension"]);
+			switch ($ext) {
+				case "pdf":
+					header("Content-type: application/pdf");
+					header("Content-Disposition: attachment; filename=\"".$fname."\""); // use 'attachment' to force a file download
+				break;
+				// add more headers for other content types here
+				default;
+					header("Content-type: application/octet-stream");
+					header( 'Content-Description: File Download' );
+					header('Content-Disposition: attachment; filename="'.$fname.'"');
+					header( 'Content-Transfer-Encoding: binary' );
+				break;
+			}
+			header("Content-length: $fsize");
+			header("Cache-control: private"); //use this to open files directly
+			while(!feof($fd)) {
+				$buffer = fread($fd, 2048);
+				echo $buffer;
+			}
+		}
+		fclose ($fd);
+		exit;
 	}
 }
