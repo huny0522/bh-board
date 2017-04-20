@@ -55,6 +55,7 @@ class BH_Application{
 			$this->Action = substr($this->Action, (strlen($this->Action) - 4)*(-1));
 		}
 
+		if(substr($this->Action, 0, 1) == '_') $this->Action = preg_replace('/_+(.*+)/', '$1', $this->Action);
 
 		$path = _DIR.'/Controller/'.($this->NativeDir ? $this->NativeDir.'/' : '').$this->Controller.'.php';
 
