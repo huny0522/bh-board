@@ -112,10 +112,8 @@ class {$ModelName}Model extends \\BH_Model{
 	}// __Init
 
 }";
-		if(!file_exists($modelPath)){
-			$modelPath = '/Model/'.$ModelName.'.model.php';
-			echo '<br><br><b>'.$modelPath.'파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(self::ModifyModel($modelText)).'</textarea>';
-		}
+		$modelPath = '/Model/'.$ModelName.'.model.php';
+		echo '<br><br><b>'.$modelPath.'파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(self::ModifyModel($modelText)).'</textarea>';
 		echo '<br><br><a href="'.$_POST['controller_url'].'">완료</a>';
 	}
 
@@ -180,6 +178,9 @@ class {$ModelName}Model extends \\BH_Model{
 				else if(strpos($row['Type'], 'varchar(') !== false){
 					preg_match('/\(([0-9]*?)\)/', $row['Type'], $matches);
 					$addOption .= chr(10).'$this->data[\''.$row['Field'].'\']->MaxLength = \''.$matches[1].'\';';
+				}
+				else if(strpos($row['Type'], 'text') !== false){
+					$htmlType = 'HTMLType::Textarea';
 				}
 
 				$initFuncText .= chr(10).chr(10).'$this->InitModelData(\''.$row['Field'].'\', '.$modelType.', false, \''.$row['Field'].'\', '.$htmlType.');'.$addOption;
