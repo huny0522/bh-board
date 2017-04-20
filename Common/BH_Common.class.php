@@ -118,17 +118,15 @@ class BH_Common
 			$res->message = _WRONG_CONNECTED;
 			return;
 		}
+
+		$dirPath = _DATADIR.'/CFG';
+		if(!file_exists($dirPath) && !is_dir($dirPath)) mkdir($dirPath, 0700, true);
+
 		if(!isset($GLOBALS['_BH_App']->CFG[$code])){
 			$path = _DATADIR.'/CFG/'.$code.'.php';
 			if(file_exists($path)){
 				require_once $path;
 			}else $GLOBALS['_BH_App']->CFG[$code] = array();
-		}
-
-		if(!isset($GLOBALS['_BH_App']->CFG[$code][$key])){
-			$res->result = false;
-			$res->message = '기본값이 설정되어 있지 않습니다.(관리자화면 환경설정에서 기본값을 설정하여 주세요)';
-			return $res;
 		}
 
 		$GLOBALS['_BH_App']->CFG[$code][$key] = $val;
