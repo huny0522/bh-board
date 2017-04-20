@@ -6,6 +6,7 @@
 class BH_DB_Cache{
 	public static $DBTableFirst = array();
 	public static $ExceptTable = array();
+	public static $sqlData = array();
 	public static function GetCachePath($table, $sql){
 		$table = trim($table);
 		$folder = '';
@@ -124,11 +125,11 @@ class BH_DB_Get{
 		if($this->cache){
 			$path = BH_DB_Cache::GetCachePath($this->table, $sql);
 			$this->cache = $path['result'];
-			if($path['result'] && file_exists($path['file'])){
-				require_once $path['file'];
-				/** @var $data */
-				if(isset($GetData[$sql])) return $GetData[$sql];
+			if(!isset(BH_DB_Cache::$sqlData['GetData'][$sql])){
+				if($path['result'] && file_exists($path['file'])) require_once $path['file'];
 			}
+
+			if(isset(BH_DB_Cache::$sqlData['GetData'][$sql])) return BH_DB_Cache::$sqlData['GetData'][$sql];
 		}
 
 		$this->query = SqlQuery($sql);
@@ -138,8 +139,8 @@ class BH_DB_Get{
 
 				// Cache
 				if($this->cache){
-					$GetData[$sql] = $row;
-					$txt = '<?php $GetData = '.var_export($GetData, true).';';
+					BH_DB_Cache::$sqlData['GetData'][$sql] = $row;
+					$txt = '<?php BH_DB_Cache::$sqlData[\'GetData\'] = '.var_export(BH_DB_Cache::$sqlData['GetData'], true).';';
 					file_put_contents($path['file'], $txt);
 					chmod($path['file'], 0700);
 				}
@@ -269,13 +270,14 @@ class BH_DB_GetList{
 		if($this->cache){
 			$path = BH_DB_Cache::GetCachePath($this->table, $sql);
 			$this->cache = $path['result'];
-			if($path['result'] && file_exists($path['file'])){
-				require_once $path['file'];
-				if(isset($GetListData[$sql])){
-					$this->data = $GetListData[$sql];
-					$this->result = true;
-					return;
-				}
+			if(!isset(BH_DB_Cache::$sqlData['GetListData'][$sql])){
+				if($path['result'] && file_exists($path['file'])) require_once $path['file'];
+			}
+
+			if(isset(BH_DB_Cache::$sqlData['GetListData'][$sql])){
+				$this->data = BH_DB_Cache::$sqlData['GetListData'][$sql];
+				$this->result = true;
+				return;
 			}
 		}
 
@@ -287,8 +289,8 @@ class BH_DB_GetList{
 					$this->data[]= $row;
 				}
 
-				$GetListData[$sql] = $this->data;
-				$txt = '<?php $GetListData = '.var_export($GetListData, true).';';
+				BH_DB_Cache::$sqlData['GetListData'][$sql] = $this->data;
+				$txt = '<?php BH_DB_Cache::$sqlData[\'GetListData\'] = '.var_export(BH_DB_Cache::$sqlData['GetListData'], true).';';
 				file_put_contents($path['file'], $txt);
 				chmod($path['file'], 0700);
 			}
@@ -321,6 +323,7 @@ class BH_DB_GetListWithPage{
 	public $pageCount = 10;
 	public $pageUrl = '';
 	public $CountKey = '';
+	public $SubCountKey = array();
 	public $cache = false;
 
 	private $pointer = -1;
@@ -332,6 +335,7 @@ class BH_DB_GetListWithPage{
 
 	// Result
 	public $result = false;
+	public $countResult = false;
 	public $data = array();
 	public $totalRecord = '';
 	public $beginNum = '';
@@ -422,8 +426,14 @@ class BH_DB_GetListWithPage{
 			$key = '*';
 		}
 
+		$subCnt_sql = '';
+		$subCnt_sql2 = '';
+		if(sizeof($this->SubCountKey)) foreach($this->SubCountKey as $k=>$v){
+			$subCnt_sql .= ', '.$v.' as '.$k;
+			$subCnt_sql2 .= ', COUNT('.$k.') as '.$k;
+		}
 
-		$sql_cnt = 'SELECT COUNT('.($this->CountKey ? $this->CountKey : '*').') as cnt FROM '.$this->table.' '.$where;
+		$sql_cnt = 'SELECT COUNT('.($this->CountKey ? $this->CountKey : '*').') as cnt'.$subCnt_sql.' FROM '.$this->table.' '.$where;
 		$sql = 'SELECT '.$key.' FROM '.$this->table.' '.$where;
 		if($this->group){
 			$sql .= ' GROUP BY ' . $this->group;
@@ -450,27 +460,30 @@ class BH_DB_GetListWithPage{
 		if($this->cache){
 			$path = BH_DB_Cache::GetCachePath($this->table, $sql);
 			$this->cache = $path['result'];
-			if($path['result'] && file_exists($path['file'])){
-				require_once $path['file'];
-				if(isset($GetListWithPage[$sql])){
-					$this->totalRecord = $pagedata['totalRecord'] = $GetListWithPage[$sql]['totalRecord'];
-					$this->beginNum = $GetListWithPage[$sql]['beginNum'];
-					$this->data = $GetListWithPage[$sql]['data'];
-					$pagedata['articleCount'] = $this->articleCount;
-					$pagedata['pageCount'] = $this->pageCount;
-					$pagedata['page'] = $this->page ? $this->page : 1;
-					$pagedata['pageUrl'] = $this->pageUrl;
-					$pagedata['totalRecord'] = $this->totalRecord;
-					$this->pageHtml = $this->SqlGetPage($pagedata);
-
-					$this->result = true;
-					return;
-				}
+			if(!isset(BH_DB_Cache::$sqlData['GetListWithPage'][$sql])){
+				if($path['result'] && file_exists($path['file'])) require_once $path['file'];
 			}
+
+			if(isset(BH_DB_Cache::$sqlData['GetListWithPage'][$sql])){
+				$this->totalRecord = $pagedata['totalRecord'] = BH_DB_Cache::$sqlData['GetListWithPage'][$sql]['totalRecord'];
+				$this->beginNum = BH_DB_Cache::$sqlData['GetListWithPage'][$sql]['beginNum'];
+				$this->data = BH_DB_Cache::$sqlData['GetListWithPage'][$sql]['data'];
+				$this->countResult = BH_DB_Cache::$sqlData['GetListWithPage'][$sql]['countResult'];
+				$pagedata['articleCount'] = $this->articleCount;
+				$pagedata['pageCount'] = $this->pageCount;
+				$pagedata['page'] = $this->page ? $this->page : 1;
+				$pagedata['pageUrl'] = $this->pageUrl;
+				$pagedata['totalRecord'] = $this->totalRecord;
+				$this->pageHtml = $this->SqlGetPage($pagedata);
+
+				$this->result = true;
+				return;
+			}
+
 		}
 
-		$result_cnt = SqlFetch($this->group ? 'SELECT COUNT(*) as cnt FROM ('.$sql_cnt.') AS x' : $sql_cnt);
-		$totalRecord = $result_cnt['cnt']; //total값 구함
+		$this->countResult = SqlFetch($this->group ? 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x' : $sql_cnt);
+		$totalRecord = $this->countResult['cnt']; //total값 구함
 		//SqlFree($result_cnt);
 
 		$this->totalRecord = $totalRecord;
@@ -485,10 +498,11 @@ class BH_DB_GetListWithPage{
 				}
 
 				if($this->cache){
-					$GetListWithPage[$sql]['beginNum'] = $this->beginNum;
-					$GetListWithPage[$sql]['totalRecord'] = $this->totalRecord;
-					$GetListWithPage[$sql]['data'] = $this->data;
-					$txt = '<?php $GetListWithPage = '.var_export($GetListWithPage, true).';';
+					BH_DB_Cache::$sqlData['GetListWithPage'][$sql]['beginNum'] = $this->beginNum;
+					BH_DB_Cache::$sqlData['GetListWithPage'][$sql]['totalRecord'] = $this->totalRecord;
+					BH_DB_Cache::$sqlData['GetListWithPage'][$sql]['data'] = $this->data;
+					BH_DB_Cache::$sqlData['GetListWithPage'][$sql]['countResult'] = $this->countResult;
+					$txt = '<?php BH_DB_Cache::$sqlData[\'GetListWithPage\'] = '.var_export(BH_DB_Cache::$sqlData['GetListWithPage'], true).';';
 					file_put_contents($path['file'], $txt);
 					chmod($path['file'], 0700);
 				}

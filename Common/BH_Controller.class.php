@@ -42,7 +42,8 @@ abstract class BH_Controller{
 	 *  항상 따라다니는 URL을 지정
 	 * @param array $ar
 	 */
-	public function SetFollowQuery(array $ar){
+	public function SetFollowQuery($ar){
+		if(!is_array($ar)) $ar = func_get_args();
 		foreach($ar as $v){
 			if(isset($_GET[$v]) && !empty($_GET[$v])) $this->FollowQuery[$v] = $_GET[$v];
 		}
