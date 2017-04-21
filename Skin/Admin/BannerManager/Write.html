@@ -96,10 +96,10 @@
 	</table>
 
 	<div class="bottomBtn">
-		<button type="submit" class="btn1"><?php echo $this->Action == 'Modify' ? '수정' : '등록'; ?></button>
-		<button type="reset" class="btn1">취소</button>
-		<a href="#" id="deleteArticle" data-seq="<?v. $_GET['seq'] ?>" class="btn1">삭제</a>
-		<a href="#" class="backbtn btn1">뒤로</a>
+		<button type="submit" class="bBtn"><?php echo $this->Action == 'Modify' ? '수정' : '등록'; ?></button>
+		<button type="reset" class="bBtn">취소</button>
+		<a href="#" id="deleteArticle" data-seq="<?v. $_GET['seq'] ?>" class="bBtn">삭제</a>
+		<a href="#" class="backbtn bBtn">뒤로</a>
 	</div>
 </form>
 
@@ -154,8 +154,8 @@
 		<input type="hidden" name="seq" value="<?v. $this->ID ?>">
 		<p>정말 삭제하시겠습니까?</p>
 		<div class="sPopBtns">
-			<button type="submit" class="btn2">삭제하기</button>
-			<button type="reset" class="btn2">취소</button>
+			<button type="submit" class="mBtn">삭제하기</button>
+			<button type="reset" class="mBtn">취소</button>
 		</div>
 	</form>
 </div>

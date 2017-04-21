@@ -7,8 +7,8 @@ ob_start();
 $this->CSSAdd('jquery-ui-1.10.1.css', 10);
 $this->CSSAdd('font-awesome/css/font-awesome.min.css', 10);
 $this->CSSAdd('common.css', 10);
-$this->CSSAdd('adminStyle.css', 10);
-
+$this->CSSAdd2('admin.css2', 10);
+$this->CSSAdd('nanumgothic.css', 10);
 
 $this->JSAdd('jquery-1.11.3.min.js', 10);
 $this->JSAdd('jquery.form.min.js', 10);
@@ -17,7 +17,7 @@ $this->JSAdd('common.js', 10);
 $this->JSAdd('admin.js', 10);
 ?>
 <?inc. '/Layout/_Header.html' ?>
-<div id="wrap">
+<div id="wrap"<?php if(isset($_COOKIE['managerSideView']) && $_COOKIE['managerSideView'] == 'no') echo ' class="sideHidden"'; ?>>
 	<header id="header">
 		<div id="header_wrap">
 			<h1><a href="<?p. _ADMINURL ?>"><span>ADMINISTRATOR</span></a></h1>
@@ -59,6 +59,42 @@ $this->JSAdd('admin.js', 10);
 		<div id="footer_wrap"></div>
 	</footer>
 </div>
+<?php if($this->Controller != 'Home'){ ?>
+	<script>
+		$(document).ready(function(){
+			if(common.getCookie('managerSideView') == 'no'){
+				$('#wrap').addClass('sideHidden');
+			}
+
+			//if($('#tnb ul > li.Active').length && $('#tnb ul > li.Active ol').length){
+			$('#container').append('<aside id="sideMenu"><a href="#" id="sideClose" title="닫기"><i class="fa fa-angle-left"></i></a><h2>' + ( $('#tnb ul > li.Active').length ? $('#tnb ul > li.Active a').eq(0).text() : '' ) + '</h2><ul>'+( $('#tnb ul > li.Active ol').length ? $('#tnb ul > li.Active ol').html() : '' ) +'</ul></aside>')
+			//}
+
+			$(document).on('click', '#sideClose', function(e){
+				e.preventDefault();
+				if($('#wrap').hasClass('sideHidden')){
+					$('#wrap').removeClass('sideHidden');
+					common.setCookie('managerSideView', 'yes');
+				}else{
+					$('#wrap').addClass('sideHidden');
+					common.setCookie('managerSideView', 'no');
+				}
+			});
+		});
+		$(window).scroll(function(){
+			var st = ($('body').scrollTop() | $('html').scrollTop() );
+			if(st < 0) st = 0;
+			$('#sideMenu').css({
+				'padding-top' : st + 'px'
+			});
+			$('#sideClose').css({
+				'top' : (st + 10) + 'px'
+			});
+		});
+	</script>
+<?php } ?>
+
+<?p. _REFRESH_BTN ?>
 <?inc. '/Layout/_Footer.html' ?>
 <?php
 $_BODY = ob_get_clean();

@@ -2,7 +2,7 @@
 /** @var BH_Controller $this */
 /** @var MemberModel $Model */
 $this->Title = '관리자로그인';
-$this->CSSAdd('adminStyle.css');
+$this->CSSAdd2('admin.css2');
 ?>
 <div id="container">
 	<div id="contents" class="login">
@@ -15,7 +15,7 @@ $this->CSSAdd('adminStyle.css');
 					<?p. $Model->HTMLPrintLabel('pwd') ?>
 					<span><?p. $Model->HTMLPrintInput('pwd') ?></span>
 				</fieldset>
-				<div id="LoginConfirm"><button type="submit" class="btn1">로그인</button></div>
+				<div id="LoginConfirm"><button type="submit" class="bBtn">로그인</button></div>
 				<div id="LoginRemember"><a href="#" id="RemberIDBtn"><i></i>아이디 저장</a></div>
 				<div id="link"><a href="/">메인으로</a></div>
 			</form>

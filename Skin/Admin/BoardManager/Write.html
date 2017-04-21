@@ -57,7 +57,7 @@
 									<option<? p.$selected ?> value="<? p.$menu['category'] ?>"><? v.$menu['title'] ?></option>
 								<?php } ?>
 							</select>
-							<a href="#" class="menuSelectRemoveBtn btn3">삭제</a>
+							<a href="#" class="menuSelectRemoveBtn sBtn">삭제</a>
 						</div>
 					<?php }
 				}else{?>
@@ -68,10 +68,10 @@
 								<option value="<? p.$menu['category'] ?>"><? v.$menu['title'] ?></option>
 							<?php } ?>
 						</select>
-						<a href="#" class="menuSelectRemoveBtn btn3">삭제</a>
+						<a href="#" class="menuSelectRemoveBtn sBtn">삭제</a>
 					</div>
 				<?php } ?>
-				<a href="#" class="menuSelectAddBtn btn3">추가</a>
+				<a href="#" class="menuSelectAddBtn sBtn">추가</a>
 			</td>
 		</tr>
 		<?php } ?>
@@ -187,9 +187,9 @@
 	</table>
 
 	<div class="bottomBtn">
-		<button type="submit" class="btn1"><?php echo $this->Action == 'Modify' ? '수정' : '등록'; ?></button>
-		<button type="reset" class="btn1">취소</button>
-		<a href="#" class="backbtn btn1">뒤로</a>
+		<button type="submit" class="bBtn"><?php echo $this->Action == 'Modify' ? '수정' : '등록'; ?></button>
+		<button type="reset" class="bBtn">취소</button>
+		<a href="#" class="backbtn bBtn">뒤로</a>
 	</div>
 </form>
 
@@ -254,7 +254,7 @@
 	$(document).on('click', 'a.menuSelectAddBtn', function(e){
 		e.preventDefault();
 		var html = $('.menuSelect select').eq(0).html().replace(/selected/ig, '');
-		$(this).before('<div class="menuSelect"><select name="selectmenu[]">' + html + '</select><a href="#" class="menuSelectRemoveBtn btn3">삭제</a></div>');
+		$(this).before('<div class="menuSelect"><select name="selectmenu[]">' + html + '</select><a href="#" class="menuSelectRemoveBtn sBtn">삭제</a></div>');
 	});
 
 	$(document).on('click', 'a.menuSelectRemoveBtn', function(e){

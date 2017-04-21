@@ -55,14 +55,14 @@
 	</td>
 </tr>
 </table>
-<div class="bottomBtn"><a href="<?a. '' ?><?fq. '' ?>" class="btn1">리스트</a><a href="<?a. 'Modify' ?>?bid=<?v. $_GET['bid'] ?><?fn. '' ?>" class="btn1">수정</a><a href="#" id="deleteArticle" data-bid="<?v. $_GET['bid'] ?>" class="btn1">삭제</a></div>
+<div class="bottomBtn"><a href="<?a. '' ?><?fq. '' ?>" class="bBtn">리스트</a><a href="<?a. 'Modify' ?>?bid=<?v. $_GET['bid'] ?><?fn. '' ?>" class="bBtn">수정</a><a href="#" id="deleteArticle" data-bid="<?v. $_GET['bid'] ?>" class="bBtn">삭제</a></div>
 <div id="deleteForm" class="hidden modalConfirm">
 	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete' ?><?fq. '' ?>">
 		<input type="hidden" name="bid" value="<?v. $_GET['bid'] ?>">
 		<p>정말 삭제하시겠습니까?</p>
 		<div class="sPopBtns">
-			<button type="submit" class="btn2">삭제하기</button>
-			<button type="reset" class="btn2">취소</button>
+			<button type="submit" class="mBtn">삭제하기</button>
+			<button type="reset" class="mBtn">취소</button>
 		</div>
 	</form>
 </div>

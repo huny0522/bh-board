@@ -25,7 +25,7 @@
 		<span>
 			<input type="text" id="Keyword" name="Keyword" value="<?v. isset($_GET['Keyword']) ? GetDBText($_GET['Keyword']) : '' ?>">
 		</span>
-		<button type="submit" class="btn2">검색</button>
+		<button type="submit" class="mBtn">검색</button>
 	</form>
 </div>
 
@@ -66,7 +66,7 @@
 	<td><?v. $row['phone']; ?></td>
 	<td><?p. substr($row['reg_date'],0,10); ?></td>
 	<td><?p. $Model->HTMLPrintEnum('approve', $row['approve']) ?></td>
-	<td><?php if($row['level'] == _ADMIN_LEVEL && $_SESSION['member']['level'] == _SADMIN_LEVEL){ ?><a href="<?a. 'AuthAdmin' ?>?muid=<?p. $row['muid'] ?>" class="adminAuthBtn btn3">관리자권한관리</a><?php } ?></td>
+	<td><?php if($row['level'] == _ADMIN_LEVEL && $_SESSION['member']['level'] == _SADMIN_LEVEL){ ?><a href="<?a. 'AuthAdmin' ?>?muid=<?p. $row['muid'] ?>" class="adminAuthBtn sBtn">관리자권한관리</a><?php } ?></td>
 </tr>
 <?php } ?>
 <?php } else{ ?>
@@ -75,7 +75,7 @@
 </tbody>
 </table>
 
-<div class="left_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="btn2">회원추가</a></div>
+<div class="left_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn">회원추가</a></div>
 <div class="paging"><?p. $Data->pageHtml ?></div>
 
 <script>
