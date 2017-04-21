@@ -157,8 +157,9 @@ function OptionEmailAddress($find = ''){
  * @param string $SelectValue
  * @return string
  */
-function SelectOption($OptionValues, $SelectValue){
+function SelectOption($OptionValues, $SelectValue = ''){
 	$str = '';
+	if(!isset($OptionValues) || !is_array($OptionValues)) return $str;
 	foreach($OptionValues as $k=>$v){
 		$str .= '<option value="' . $k . '"' . ($SelectValue == $k ? ' selected="selected"' : '') . '>' . $v . '</option>';
 	}
@@ -205,8 +206,8 @@ function RemoveScriptTag($str){return preg_replace('!<script(.*?)<\/script>!is',
 
 function SetDBTrimText($txt){
 	if(is_array($txt)){
-		foreach($txt as $k => $row){
-			$txt[$k] = SetDBTrimText($row);
+		foreach($txt as $k => &$v){
+			$v = SetDBTrimText($v);
 		}
 		return $txt;
 	}
@@ -215,18 +216,28 @@ function SetDBTrimText($txt){
 
 function SetDBText($txt){
 	if(is_array($txt)){
-		foreach($txt as $k => $row){
-			$txt[$k] = SetDBText($row);
+		foreach($txt as $k => &$v){
+			$v = SetDBText($v);
 		}
 		return $txt;
 	}
-	else return chr(39).(my_escape_string($txt)).chr(39);
+	return chr(39).(my_escape_string($txt)).chr(39);
+}
+
+function SetDBQuot($txt){
+	if(is_array($txt)){
+		foreach($txt as $k => &$v){
+			$v = SetDBQuot($v);
+		}
+		return $txt;
+	}
+	return chr(39).$txt.chr(39);
 }
 
 function SetDBInt($txt){
 	if(is_array($txt)){
-		foreach($txt as $k => $row){
-			$txt[$k] = SetDBInt($row);
+		foreach($txt as $k => &$v){
+			$v = SetDBInt($v);
 		}
 		return $txt;
 	}
@@ -243,8 +254,8 @@ function SetDBInt($txt){
 
 function SetDBFloat($txt){
 	if(is_array($txt)){
-		foreach($txt as $k => $row){
-			$txt[$k] = SetDBFloat($row);
+		foreach($txt as $k => &$v){
+			$v = SetDBFloat($v);
 		}
 		return $txt;
 	}
@@ -261,8 +272,8 @@ function SetDBFloat($txt){
 
 function GetDBText($txt){
 	if(is_array($txt)){
-		foreach($txt as $k => $row){
-			$txt[$k] = GetDBText($row);
+		foreach($txt as $k => &$v){
+			$v = GetDBText($v);
 		}
 		return $txt;
 	}
@@ -271,8 +282,8 @@ function GetDBText($txt){
 
 function GetDBRaw($txt){
 	if(is_array($txt)){
-		foreach($txt as $k => $row){
-			$txt[$k] = GetDBRaw($row);
+		foreach($txt as $k => &$v){
+			$v = GetDBRaw($v);
 		}
 		return $txt;
 	}
@@ -494,6 +505,14 @@ function SqlFetch($qry){
 	return $r;
 }
 
+function SqlPassword($input) {
+	$pass = strtoupper(
+		sha1(
+			sha1($input, true)
+		)
+	);
+	return $pass;
+}
 
 
 // -------------------------------------
@@ -711,7 +730,6 @@ class _ModelFunc{
 
 		if($data->Type == ModelTypeDate || $data->Type == ModelTypeDatetime){
 			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'date';
-			$HtmlAttribute['readonly'] = 'readonly';
 			$HtmlAttribute['maxlength'] = '10';
 			$HtmlAttribute['minlength'] = '10';
 		}
