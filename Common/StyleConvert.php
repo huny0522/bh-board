@@ -191,16 +191,14 @@ function convCssNode($node, $replaceVar, $group = array()){
 			foreach($group as $k => $v){
 				$v = trim($v);
 				if(!$k) $groups = $v;
-				else if(substr($v, 0, 2) == '++') $groups .= ' '.substr($v, 1);
-				else $groups .= ($v[0] == '+' ? substr($v, 1) : ($v[0] == ':' ? '' : ' ').$v);
+				else $groups .= ($v[0] == '~' ? trim(substr($v, 1)) : ($v[0] == ':' ? '' : ' ').$v);
 			}
 
 			$s = explode(',', $node->selector);
 			foreach($s as $k => &$v){
 				$v = trim($v);
 				if(!strlen($v)) $v = $groups;
-				else if(substr($v, 0, 2) == '++') $v = $groups.' '.substr($v, 1);
-				else $v = $groups.($v[0] == '+' ? substr($v, 1) : ($v[0] == ':' ? '' : ' ').$v);
+				else $v = $groups.($v[0] == '~' ? trim(substr($v, 1)) : ($v[0] == ':' ? '' : ' ').$v);
 			}
 			$f .= implode(',', $s).'{'.$node->data.'}';
 			if(strlen($after)){
