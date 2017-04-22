@@ -187,11 +187,20 @@ function convCssNode($node, $replaceVar, $group = array()){
 		}
 
 		if(is_array($group) && sizeof($group)){
-			$groups = implode(' ', $group);
-			$s = explode(',', $node->selector);
-			foreach($s as $k => $v){
+			$groups = '';
+			foreach($group as $k => $v){
 				$v = trim($v);
-				$s[$k] = $groups.(strlen($v) && $v[0] == '+' ? trim(substr($v, 1, strlen($v))) : (strlen($v) && $v[0] == ':' ? '' : ' ').$v);
+				if(!$k) $groups = $v;
+				else if(substr($v, 0, 2) == '++') $groups .= ' '.substr($v, 1);
+				else $groups .= ($v[0] == '+' ? substr($v, 1) : ($v[0] == ':' ? '' : ' ').$v);
+			}
+
+			$s = explode(',', $node->selector);
+			foreach($s as $k => &$v){
+				$v = trim($v);
+				if(!strlen($v)) $v = $groups;
+				else if(substr($v, 0, 2) == '++') $v = $groups.' '.substr($v, 1);
+				else $v = $groups.($v[0] == '+' ? substr($v, 1) : ($v[0] == ':' ? '' : ' ').$v);
 			}
 			$f .= implode(',', $s).'{'.$node->data.'}';
 			if(strlen($after)){
