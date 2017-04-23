@@ -353,13 +353,5 @@
 
     BH_Router 클래스 router메쏘드에서 BH_Application 클래스의 인스턴스 변수를 설정.
 
-##List, View, Write(Modify) html 생성방법.
-    사용자 컨트롤러 __Init() 메쏘드에 아래와 같이 코드 작성 후 실행. 생성 확인 후 해당 코드 삭제.
-
-    컨트롤러 클래스명이 TestContoller이고 ‘/skin/Test’ 디렉토리에 모델 클래스명이 ‘MemberModel’일 경우 
-
-require _COMMONDIR.'/BH_HtmlCreate.class.php';
-
-BH_HtmlCreate::Create('Test', 'Member');
 
 

@@ -61,6 +61,7 @@ class MypageController extends \BH_Controller{
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
 			$this->Html = 'Password.html';
 			$this->_View();
+			return;
 		}
 		$model = new \MemberModel();
 		$model->data['pwd']->Required = false;
@@ -106,6 +107,7 @@ class MypageController extends \BH_Controller{
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
 			$this->Html = 'Password.html';
 			$this->_View();
+			return;
 		}
 		$this->_View();
 	}
