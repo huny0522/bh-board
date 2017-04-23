@@ -1,13 +1,13 @@
 <?php if(_BH_ !== true) exit;
 /**
-* @var $Model ContentModel
+ * @var $Model ContentModel
  */
 /**
-* @var $this BH_Controller
-*/
+ * @var $this BH_Controller
+ */
 ?>
 
-<h2>컨테츠관리</h2>
+<h2>컨텐츠관리</h2>
 
 <form name="ContentWriteForm" id="ContentWriteForm" method="post" action="<?a. $this->Action ?><?fq. '' ?>">
 	<input type="hidden" name="bid" value="<?v. $Model->GetValue('bid') ?>">
@@ -73,18 +73,12 @@
 			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['html']->DisplayName ?></th>
 			<td>
 				<?p. $Model->HTMLPrintInput('html') ?>
-				<ul class="guide">
-					<li>1자 이상, 20자 이하로 입력하여주세요.</li>
-				</ul>
 			</td>
 		</tr>
 		<tr>
 			<th><?p. $Model->data['layout']->DisplayName ?></th>
 			<td>
 				<?p. $Model->HTMLPrintInput('layout') ?>
-				<ul class="guide">
-					<li>1자 이상, 50자 이하로 입력하여주세요.</li>
-				</ul>
 			</td>
 		</tr>
 	</table>

@@ -8,6 +8,9 @@ namespace Admin;
 
 class ContentManagerController extends \BH_Controller{
 
+	/**
+	 * @var \ContentModel;
+	 */
 	public $model;
 
 	public function __Init(){
@@ -91,6 +94,11 @@ class ContentManagerController extends \BH_Controller{
 		}
 	}
 	public function PostModify(){
+		$res = $this->model->DBGet($_GET['bid']);
+		if(!$res->result){
+			Redirect('-1',$res->message);
+		}
+
 		$res = $this->model->SetPostValues();
 		if(!$res->result){
 			Redirect('-1',$res->message);
@@ -112,6 +120,11 @@ class ContentManagerController extends \BH_Controller{
 		$dbGetList->AddWhere('LENGTH(category) = '.(strlen($this->ID) + _CATEGORY_LENGTH));
 		$dbGetList->AddWhere('LEFT(category, '.strlen($this->ID).') = '.SetDBText($this->ID));
 		JSON(true, '', $dbGetList->GetRows());
+	}
 
+	public function PostDelete(){
+		$res = $this->model->DBDelete($_POST['bid']);
+		if($res->result) Redirect($this->URLAction('').$this->GetFollowQuery());
+		else Redirect('-1', '삭제에 실패했습니다.');
 	}
 }
