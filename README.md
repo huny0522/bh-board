@@ -18,21 +18,13 @@
 
     상수 선언과 파일 인클루드를 담당.
 
-- Class 폴더
-
-    BH BOARD의 핵심 클래스들.
-
 - Common 폴더
 
-    설정파일들이 위치하는 폴더.
+    BH BOARD의 라이브러리들 및 설정파일들이 위치하는 폴더.
 
 - Common/db.info.php 파일
 
     DB연결 정보.
-
-- Lib 폴더
-
-    라이브러리 함수 모음.
 
 - Controller 폴더
 
@@ -46,13 +38,13 @@
 
     MVC의 뷰에 해당하는 html파일들이 위치하는 폴더.
 
-- _HTML 폴더
+- Data/_HTML 폴더
 
     Skin 폴더에서 만들어진 파일을 변환하여 만들어지는 html 파일들의 폴더.
 
     개발자 모드에서만 자동으로 생성되고, 개발자 모드가 아닌 클라이언트는 Skin폴더가 아닌 이곳에서 파일을 불러온다. index.php에서 재정의 가능.
 
-- Upload 폴더
+- Data/Upload 폴더
 
     업로드 된 파일들이 위치하는 폴더.
 
@@ -109,12 +101,19 @@
     변환 후 : *\<?php if(_DEVELOPERIS === true) ReplaceHTMLFile(_SKINDIR.$file, _HTMLDIR.$file); require _HTMLDIR.$file; ?>*
 
 
+- *\<?mt('Title')' ?>* : 모델 데이타명
+
+    변환 후 : *\<?php echo $Model->data['Title']->DisplayName; ?>*
+    
+- *\<?mv('Name')' ?>* : 모델 데이타값
+	
+	변환 후 : *\<?php echo GetDBText($Model->GetValue('Title'); ?>*
+        
 ##기본적인 상수
-- _DIR, _COMMONDIR, _COMMONDIR, _SKINDIR, _HTMLDIR, _UPLOAD_DIRNAME, _UPLOAD_DIR : php 파일 서버경로 위치를 위한 상수
+- _DIR, _COMMONDIR, _MODELDIR, _CONTROLLERDIR, _SKINDIR, _HTMLDIR, _UPLOAD_DIRNAME, _UPLOAD_DIR : php 파일 서버경로 위치를 위한 상수
 - _URL, _SKINURL, _ADMINURLNAME, _ADMINURL, _IMGURL, _UPLOAD_URL : 웹사이트 절대경로를 위한 상수
 - _POSTIS : 서버요청방식 정의. POST일 경우 true.
 - _AJAXIS : 서버요청이 AJAX인 경우 true.
-- _DEVELOPER_IP : 개발자의 IP.
 - _DEVELOPERIS : 개발자모드 스위치. 개발자 모드인 경우 _SKIN폴더에서 *.html 파일을 변환하여 _HTML 폴더에 php가 읽을 수 있는 정상적인 파일을 생성.
 - _REMOVE_SPACE : html파일을 변환 할 때 최대한 빈칸을 제거해주는 스위치.
 
@@ -124,6 +123,7 @@
 - SqlFree
 - SqlTableExists
 - SqlQuery
+- SqlCCQuery
 - SqlNumRows
 - SqlFetch : 인자로 쿼리 결과값이나 sql문자열 입력.
 
