@@ -118,6 +118,7 @@
 - _REMOVE_SPACE : html파일을 변환 할 때 최대한 빈칸을 제거해주는 스위치.
 
 ##라이브러리 함수
+
 ###SQL 함수 (Lib/common.php)
 - SqlConnection : 배열인자[ hostName, userName,userPassword, dbName ]
 - SqlFree

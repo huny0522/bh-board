@@ -53,7 +53,9 @@ $this->JSAdd('admin.js', 10);
 		</div>
 	</header>
 	<div id="container">
-		<?p. $_BODY ?>
+		<div id="container_wrap">
+			<?p. $_BODY ?>
+		</div>
 	</div>
 	<footer id="footer">
 		<div id="footer_wrap"></div>
@@ -67,7 +69,7 @@ $this->JSAdd('admin.js', 10);
 			}
 
 			//if($('#tnb ul > li.Active').length && $('#tnb ul > li.Active ol').length){
-			$('#container').append('<aside id="sideMenu"><a href="#" id="sideClose" title="닫기"><i class="fa fa-angle-left"></i></a><h2>' + ( $('#tnb ul > li.Active').length ? $('#tnb ul > li.Active a').eq(0).text() : '' ) + '</h2><ul>'+( $('#tnb ul > li.Active ol').length ? $('#tnb ul > li.Active ol').html() : '' ) +'</ul></aside>')
+			$('#container_wrap').append('<aside id="sideMenu"><a href="#" id="sideClose" title="닫기"><i class="fa fa-angle-left"></i></a><h2>' + ( $('#tnb ul > li.Active').length ? $('#tnb ul > li.Active a').eq(0).text() : '' ) + '</h2><ul>'+( $('#tnb ul > li.Active ol').length ? $('#tnb ul > li.Active ol').html() : '' ) +'</ul></aside>')
 			//}
 
 			$(document).on('click', '#sideClose', function(e){
@@ -81,8 +83,8 @@ $this->JSAdd('admin.js', 10);
 				}
 			});
 		});
-		$(window).scroll(function(){
-			var st = ($('body').scrollTop() | $('html').scrollTop() );
+		$('#container').scroll(function(){
+			var st = $('#container').scrollTop();
 			if(st < 0) st = 0;
 			$('#sideMenu').css({
 				'padding-top' : st + 'px'
