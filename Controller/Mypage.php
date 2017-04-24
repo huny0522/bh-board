@@ -46,10 +46,10 @@ class MypageController extends \BH_Controller{
 
 		$dbGet = new \BH_DB_Get();
 		$dbGet->table = $model->table;
-		$dbGet->SetKey(array('muid', 'pwd', 'PASSWORD('.SetDBText($_POST['pwd']).') as pwd2'));
+		$dbGet->SetKey(array('muid', 'pwd'));
 		$dbGet->AddWhere('muid='.$_SESSION['member']['muid']);
 		$res = $dbGet->Get();
-		if(!$res || $res['pwd'] != $res['pwd2']){
+		if(!$res || !_password_verify($_POST['pwd'], $res['pwd'])){
 			Redirect('-1', '비밀번호가 일치하지 않습니다.');
 		}else{
 			$_SESSION['MyInfoView'] = true;

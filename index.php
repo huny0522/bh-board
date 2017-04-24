@@ -44,6 +44,7 @@ define('_REFRESH_BTN', _DEVELOPERIS === true ? '<a id="_BH_RefreshBtn" href="'._
 define('_REMOVE_SPACE', false);
 define('_ViewMicrotime', true);
 define('_USE_DB_CACHE', true);
+define('USE_OLD_PASSWORD', false);
 
 define('_STYLEFILE', '_bhinline.css2');
 

@@ -49,23 +49,23 @@ class LoginController extends \BH_Controller{
 
 	private function LoginMidCheck($mid, $pwd, $level = 1){
 		$dbGet = new \BH_DB_Get($this->model->table);
-		$dbGet->SetKey(array('muid', 'level', 'pwd', 'PASSWORD('.SetDBText($pwd).') as pwd2'));
+		$dbGet->SetKey(array('muid', 'level', 'pwd'));
 		$dbGet->AddWhere('mid='.SetDBText($mid));
 		if(is_array($level)) $dbGet->AddWhere('level IN ('.implode(',', $level).')');
 		else $dbGet->AddWhere('level='.$level);
 		//$dbGet->test = true;
 		$res = $dbGet->Get();
 		if($res === false) return false;
-		return ($res['pwd'] == $res['pwd2']) ? array('muid' => $res['muid'], 'level' => $res['level']) : false;
+		return (_password_verify($pwd, $res['pwd'])) ? array('muid' => $res['muid'], 'level' => $res['level']) : false;
 	}
 
 	private function LoginEmailCheck($email, $pwd, $level = 1){
 		$dbGet = new \BH_DB_Get($this->model->table);
-		$dbGet->SetKey(array('muid', 'level', 'pwd', 'PASSWORD('.SetDBText($pwd).') as pwd2'));
+		$dbGet->SetKey(array('muid', 'level', 'pwd'));
 		$dbGet->AddWhere('email='.SetDBText($email));
 		$dbGet->AddWhere('level='.$level);
 		$res = $dbGet->Get();
 		if($res === false) return false;
-		return ($res['pwd'] == $res['pwd2']) ? array('muid' => $res['muid'], 'level' => $res['level']) : false;
+		return (_password_verify($pwd, $res['pwd'])) ? array('muid' => $res['muid'], 'level' => $res['level']) : false;
 	}
 }

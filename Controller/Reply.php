@@ -222,9 +222,7 @@ class ReplyController extends \BH_Controller{
 	public function PostViewSecret(){
 		$this->GetData();
 
-		$pwd = SqlFetch('SELECT PASSWORD('.SetDBText($_POST['pwd']).') as pwd');
-
-		if($pwd['pwd'] != $this->model->GetValue('pwd')){
+		if(!_password_verify($_POST['pwd'], $this->model->GetValue('pwd'))){
 			$same = false;
 			if($this->model->GetValue('first_seq') && $this->model->GetValue('first_member_is') == 'n'){
 				$dbGet = new \BH_DB_Get($this->model->table);
@@ -232,7 +230,7 @@ class ReplyController extends \BH_Controller{
 				$dbGet->AddWhere('seq = '.$this->model->GetValue('first_seq'));
 				$dbGet->SetKey('pwd');
 				$first = $dbGet->Get();
-				if($first['pwd'] == $pwd['pwd']) $same = true;
+				if(_password_verify($_POST['pwd'], $first['pwd'])) $same = true;
 			}
 			if(!$same){
 				echo json_encode(array('result' => false, 'message' => '비밀번호가 일치하지 않습니다.'));
@@ -280,8 +278,8 @@ class ReplyController extends \BH_Controller{
 			}
 		}
 		else if(_MEMBERIS !== true || $_SESSION['member']['level'] < _SADMIN_LEVEL){
-			$pwd = SqlFetch('SELECT pwd, PASSWORD('.SetDBText($_POST['pwd']).') as getpwd FROM '.$this->model->table.' WHERE article_seq='.SetDBInt($_POST['article_seq']).' AND seq='.SetDBInt($_POST['seq']));
-			if($pwd['pwd'] != $pwd['getpwd']){
+			$pwd = SqlFetch('SELECT pwd FROM '.$this->model->table.' WHERE article_seq='.SetDBInt($_POST['article_seq']).' AND seq='.SetDBInt($_POST['seq']));
+			if(!_password_verify($_POST['pwd'], $pwd['pwd'])){
 				echo json_encode(array('result' => false, 'message' => '비밀번호가 일치하지 않습니다.'));
 				exit;
 			}
@@ -341,8 +339,8 @@ class ReplyController extends \BH_Controller{
 			else if($this->model->GetValue('muid') != $_SESSION['member']['muid'] && $_SESSION['member']['level'] < _SADMIN_LEVEL) JSON(false, 'ERROR#102');
 		}
 		else if(_MEMBERIS !== true || $_SESSION['member']['level'] < _SADMIN_LEVEL || !$this->managerIs){
-			$getpwd = SqlFetch('SELECT *, PASSWORD('.SetDBText($_POST['pwd']).') as getpwd FROM '.$this->model->table.' WHERE article_seq = '.$article_seq.' AND seq='.$seq);
-			if($this->model->GetValue('pwd') != $getpwd['getpwd']){
+			$getpwd = SqlFetch('SELECT pwd FROM '.$this->model->table.' WHERE article_seq = '.$article_seq.' AND seq='.$seq);
+			if(!_password_verify($_POST['pwd'], $getpwd['pwd'])){
 				echo json_encode(array('result' => false, 'message' => '비밀번호가 일치하지 않습니다.'));
 				exit;
 			}

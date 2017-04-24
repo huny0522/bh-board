@@ -514,6 +514,21 @@ function SqlPassword($input) {
 	return $pass;
 }
 
+function _password_hash($str) {
+	if(USE_OLD_PASSWORD === true) return '*'.SqlPassword($str);
+	if(phpversion() < '5.3.7') return hash('sha256', hash('sha512', sha1(sha1($str, true))));
+	else if(phpversion() < '5.5') require_once _COMMONDIR.'/password.php';
+	return password_hash(hash('sha256', $str), PASSWORD_BCRYPT);
+}
+
+function _password_verify($str, $hash){
+	if(USE_OLD_PASSWORD === true) return '*'.SqlPassword($str) == $hash;
+	if(phpversion() < '5.3.7') return $hash === hash('sha256', hash('sha512', sha1(sha1($str, true))));
+	else if(phpversion() < '5.5') require_once _COMMONDIR.'/password.php';
+	if(password_verify(hash('sha256', $str), $hash)) return true;
+	return false;
+}
+
 $fileModTime = array();
 function modifyFileTime($file){
 	if(!file_exists($file)) return false;
@@ -836,7 +851,7 @@ class _ModelFunc{
 							}
 						}
 					}
-					else if($v->Type == ModelTypePassword) $dbInsert->data[$k] = 'PASSWORD('.SetDBText($v->Value).')';
+					else if($v->Type == ModelTypePassword) $dbInsert->data[$k] = SetDBText(_password_hash($v->Value));
 					else $dbInsert->data[$k] = SetDBText($v->Value);
 				}
 			}
@@ -891,7 +906,7 @@ class _ModelFunc{
 							$result->message = $res;
 						}
 					}
-					else if($v->Type == ModelTypePassword) $dbUpdate->data[$k] = 'PASSWORD('.SetDBText($v->Value).')';
+					else if($v->Type == ModelTypePassword) $dbUpdate->data[$k] = SetDBText(_password_hash($v->Value));
 					else $dbUpdate->data[$k] = SetDBText($v->Value);
 				}
 			}

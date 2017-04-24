@@ -141,8 +141,7 @@ class BoardController extends \BH_Controller{
 				if(_POSTIS !==	true){
 					Redirect('-1', _WRONG_CONNECTED);
 				}
-				$pwd = SqlFetch('SELECT PASSWORD('.SetDBText($_POST['pwd']).') as pwd');
-				if($pwd['pwd'] == $this->model->GetValue('pwd') || (isset($firstDoc) && $pwd['pwd'] == $firstDoc['pwd'])){
+				if(_password_verify($_POST['pwd'], $this->model->GetValue('pwd')) || (isset($firstDoc) && _password_verify($_POST['pwd'], $firstDoc['pwd']))){
 					$viewAuth = true;
 				}else{
 					Redirect('-1', '비밀번호가 일치하지 않습니다.');
@@ -565,8 +564,8 @@ class BoardController extends \BH_Controller{
 			if(!isset($_POST['pwd'])){
 				return _WRONG_CONNECTED;
 			}
-			$pwd = SqlFetch('SELECT pwd, PASSWORD('.SetDBText($_POST['pwd']).') as getpwd FROM '.$this->model->table.' WHERE seq='.$this->model->GetValue('seq'));
-			if($pwd['pwd'] != $pwd['getpwd']){
+			$pwd = SqlFetch('SELECT pwd FROM '.$this->model->table.' WHERE seq='.$this->model->GetValue('seq'));
+			if(!_password_verify($_POST['pwd'], $pwd['pwd'])){
 				return '비밀번호가 일치하지 않습니다.';
 			}
 		}
