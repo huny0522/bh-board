@@ -22,6 +22,11 @@ $_CommonCssData = '';
 
 function BH_CSS($path, $target){
 
+	$exp = explode('/', $target);
+	array_pop($exp);
+	$tempPath = implode('/', $exp);
+	if(!file_exists($tempPath) || !is_dir($tempPath)) mkdir($tempPath, 0755, true);
+
 	$modifyIs = modifyFileTime($path);
 	if(file_exists($target) && !$modifyIs) return;
 
