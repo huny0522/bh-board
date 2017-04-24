@@ -516,6 +516,7 @@ function SqlPassword($input) {
 
 $fileModTime = array();
 function modifyFileTime($file){
+	if(!file_exists($file)) return false;
 	$path = _DATADIR.'/fileModTime.php';
 	if(file_exists($path)) require_once $path;
 
