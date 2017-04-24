@@ -583,21 +583,21 @@ class BH_ModelData{
 
 
 class _ModelFunc{
-	public static function SetPostValues($Data, $Except, &$Need){
+	public static function SetPostValues(&$Data, $Except, &$Need){
 		$ret = new \BH_Result();
 		$ret->result = true;
-		foreach($Data as $k=>$v){
-			if(!in_array($k, $Except) && $Data[$k]->AutoDecrement !== true){
+		foreach($Data as $k => &$v){
+			if(!in_array($k, $Except) && $v->AutoDecrement !== true){
 				if(!isset($_POST[$k])){
 					if(isset($Need) && in_array($k, $Need)){
-						$ret->message = $Data[$k]->ModelErrorMsg = $Data[$k]->DisplayName.' 항목이 정의되지 않았습니다.';
+						$ret->message = $v->ModelErrorMsg = $v->DisplayName.' 항목이 정의되지 않았습니다.';
 						$ret->result = false;
 						return $ret;
 					}
 				}
 				else{
-					if((isset($Data[$k]->HtmlType) || $Data[$k]->Required) && $Data[$k]->HtmlType != HTMLInputFile){
-						if(isset($_POST[$k])) $Data[$k]->Value = $_POST[$k];
+					if((isset($v->HtmlType) || $v->Required) && $v->HtmlType != HTMLInputFile){
+						if(isset($_POST[$k])) $v->Value = $_POST[$k];
 						$Need[] = $k;
 					}
 				}
@@ -794,7 +794,7 @@ class _ModelFunc{
 			// 예외 패스, 셋이 없거나 셋에 있는것
 			if((!in_array($k, $Except) && (!sizeof($Need) || in_array($k, $Need)))){
 				if(isset($v->Value)){
-					if(in_array($k, $Key) && $Data[$k]->AutoDecrement === true){
+					if(in_array($k, $Key) && $v->AutoDecrement === true){
 						continue;
 					}
 					if($v->ValueIsQuery) $dbInsert->data[$k] = $v->Value;
@@ -855,7 +855,7 @@ class _ModelFunc{
 			// 예외와 키값 패스, 셋이 없거나 셋에 있는것
 			if(!in_array($k, $Except) && (!sizeof($Need) || in_array($k, $Need)) && !in_array($k, $Key)){
 				if(isset($v->Value)){
-					if(in_array($k, $Key) && $Data[$k]->AutoDecrement === true){
+					if(in_array($k, $Key) && $v->AutoDecrement === true){
 						continue;
 					}
 					if($v->ValueIsQuery) $dbUpdate->data[$k] = $v->Value;
