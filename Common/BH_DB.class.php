@@ -655,6 +655,12 @@ class BH_DB_Insert{
 	}
 
 	public function MultiRun(){
+		if(!sizeof($this->data)){
+			$this->result = false;
+			$this->message = '등록할 자료가 없습니다.';
+			return;
+		}
+
 		$sql = 'INSERT INTO ' . $this->table . '(' . $this->MultiNames . ') VALUES '.implode(',', $this->MultiValues);
 		if($this->test){
 			echo $sql;exit;
