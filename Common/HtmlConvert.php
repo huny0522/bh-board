@@ -10,6 +10,9 @@ $styleData = false;
 function ReplaceHTMLFile($source, $target){
 	global $styleData;
 
+	$modifyIs = modifyFileTime($source);
+	if(file_exists($target) && !$modifyIs) return;
+
 	$patterns = array(
 		'/<\?\s*p[\.|\;]\s*(.*?)(;*\s*\?>)/is',
 		'/<\?\s*v[\.|\;]\s*(.*?)(;*\s*\?>)/is',
@@ -164,10 +167,8 @@ function ReplaceCSS2ALL($tempfile_path, $target_path) {
 					if(is_dir($dest_path)) {
 						ReplaceCSS2ALL($dest_path, $target_path.'/'.$file);
 					} else if(substr($file, -5) == '.css2'){
-						$f = BH_CSS($dest_path);
 						$pth = $target_path.'/'.substr($file, 0, -1);
-						file_put_contents($pth, $f);
-						@chmod($pth, 0777);
+						BH_CSS($dest_path, $pth);
 					}
 				}
 			}

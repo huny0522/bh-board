@@ -209,6 +209,7 @@ abstract class BH_Controller{
 		$ex = explode('.', $css);
 		array_pop($ex);
 		$convCss = implode('.', $ex).'.css';
+		$target = _HTMLURL.'/css'.($convCss[0] == '/' ? $convCss : '/'.$convCss);
 
 		if(_DEVELOPERIS === true){
 			$css2 = '/css'.($css[0] == '/' ? $css : '/'.$css);
@@ -216,11 +217,9 @@ abstract class BH_Controller{
 			if(file_exists(_HTMLDIR.$css2)) $dir = _HTMLDIR;
 			else if(!file_exists(_SKINDIR.$css2)) return;
 
-			$d = BH_CSS($dir.$css2);
-			file_put_contents(_HTMLDIR.'/css'.($convCss[0] == '/' ? $convCss : '/'.$convCss), $d);
-			@chmod(_HTMLDIR.'/css/'.$convCss, 0777);
+			BH_CSS($dir.$css2, _DIR.$target);
 		}
-		$this->CSS[$idx][] = _HTMLURL.'/css/'.$convCss.$queryParam;
+		$this->CSS[$idx][] = $target.$queryParam;
 	}
 
 	public function URLAction($Action = ''){

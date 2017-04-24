@@ -514,6 +514,21 @@ function SqlPassword($input) {
 	return $pass;
 }
 
+$fileModTime = array();
+function modifyFileTime($file){
+	$path = _DATADIR.'/fileModTime.php';
+	if(file_exists($path)) require_once $path;
+
+	$t = filemtime($file);
+
+	if(!isset($GLOBALS['fileModTime'][$file]) || $t != $GLOBALS['fileModTime'][$file]){
+		$GLOBALS['fileModTime'][$file] = $t;
+		$txt = '<?php $GLOBALS[\'fileModTime\'] = '.var_export($GLOBALS['fileModTime'], true).';';
+		file_put_contents($path, $txt);
+		return true;
+	}
+	return false;
+}
 
 // -------------------------------------
 //

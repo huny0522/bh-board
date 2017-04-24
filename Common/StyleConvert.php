@@ -20,7 +20,12 @@ class _BH_Node{
 $_CommonCssPath = _SKINDIR.'/css/_common.css2';
 $_CommonCssData = '';
 
-function BH_CSS($path){
+function BH_CSS($path, $target){
+
+	$modifyIs = modifyFileTime($path);
+	if(file_exists($target) && !$modifyIs) return;
+
+
 	$at = array('@charset', '@import', '@namespace');
 	$ex = explode('.', $path);
 	$ext = strtolower(array_pop($ex));
@@ -151,7 +156,8 @@ function BH_CSS($path){
 
 	$f = preg_replace($patterns, $replace, $f);
 
-	return $f;
+	file_put_contents($target, $f);
+	@chmod($target, 0777);
 }
 
 function convCssNode($node, $replaceVar, $group = array()){
