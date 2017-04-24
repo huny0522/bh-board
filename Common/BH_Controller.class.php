@@ -215,9 +215,9 @@ abstract class BH_Controller{
 			$css2 = '/css'.($css[0] == '/' ? $css : '/'.$css);
 			$dir = _SKINDIR;
 			if(file_exists(_HTMLDIR.$css2)) $dir = _HTMLDIR;
-			else if(!file_exists(_SKINDIR.$css2)) return;
+			else if(!file_exists(_SKINDIR.$css2)) $dir = false;
 
-			BH_CSS($dir.$css2, _DIR.$target);
+			if($dir !== false) BH_CSS($dir.$css2, _DIR.$target);
 		}
 		$this->CSS[$idx][] = $target.$queryParam;
 	}
