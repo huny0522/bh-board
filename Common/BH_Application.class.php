@@ -51,11 +51,14 @@ class BH_Application{
 
 		if(!$this->Controller) $this->Controller = _DEFAULT_CONTROLLER;
 		if(!strlen($this->Action)) $this->Action = 'Index';
-		else if(strtolower(substr($this->Action, 0, 4)) == 'post'){
-			$this->Action = substr($this->Action, (strlen($this->Action) - 4)*(-1));
-		}
+		else if(strtolower(substr($this->Action, 0, 4)) == 'post') $this->Action = preg_replace('/^(Post)+(.*)/i', '$2', $this->Action);
 
 		if(substr($this->Action, 0, 1) == '_') $this->Action = preg_replace('/_+(.*+)/', '$1', $this->Action);
+
+		if(substr($this->Action, 0, 1) == '~'){
+			$this->ID = substr($this->Action, 1);
+			$this->Action = '_DirectView';
+		}
 
 		$path = _DIR.'/Controller/'.($this->NativeDir ? $this->NativeDir.'/' : '').$this->Controller.'.php';
 

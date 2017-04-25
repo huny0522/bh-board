@@ -161,7 +161,7 @@ function SelectOption($OptionValues, $SelectValue = ''){
 	$str = '';
 	if(!isset($OptionValues) || !is_array($OptionValues)) return $str;
 	foreach($OptionValues as $k=>$v){
-		$str .= '<option value="' . $k . '"' . ($SelectValue == $k ? ' selected="selected"' : '') . '>' . $v . '</option>';
+		$str .= '<option value="' . $k . '"' . (isset($SelectValue) && $SelectValue === (string)$k ? ' selected="selected"' : '') . '>' . $v . '</option>';
 	}
 	return $str;
 }
