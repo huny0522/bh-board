@@ -91,8 +91,8 @@ function ReplaceHTMLFile($source, $target){
 			if($styleData[$css]) foreach($styleData[$css] as $k => &$v){
 				if($v['type'] == 'incss' && $v['file'] == $file){
 					$findIs = true;
-					if(!isset($cssFileData[$css]) || $v['data'] != $cssFileData[$css]){
-						if(!isset($cssFileData[$css]) || !$cssFileData[$css]) unset($v);
+					if(!isset($cssFileData[$css]) || $v['data'] !== $cssFileData[$css]){
+						if(!isset($cssFileData[$css]) || !$cssFileData[$css]) $v['data'] = '';
 						else $v['data'] = $cssFileData[$css];
 						__styleWrite($css);
 					}
