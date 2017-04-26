@@ -76,6 +76,7 @@ class BH_Application{
 			if(method_exists($controller, $action) && is_callable(array($controller, $action))){
 
 				$this->CTRL = new $controller();
+				$this->CTRL->Layout = $this->Router->Layout;
 				if(method_exists($this->CTRL, '__Init')) $this->CTRL->__Init();
 
 				$this->CTRL->{$action}();

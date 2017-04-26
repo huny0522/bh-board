@@ -12,6 +12,8 @@ class BH_Router
 	public $ActiveMenu = array();
 	public $RootC = '';
 	public $GetUrl = array();
+	public $Layout = '';
+
 	public function __construct(){
 		if($GLOBALS['_BH_App']->InstallIs) $this->SetMenu();
 		$this->GetUrl = explode('/', isset($_GET['_bh_url']) ? $_GET['_bh_url'] : '');
