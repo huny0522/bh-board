@@ -34,7 +34,6 @@ abstract class BH_Controller{
 		$this->Controller = $GLOBALS['_BH_App']->Controller;
 		$this->ID = $GLOBALS['_BH_App']->ID;
 		$this->TID = $GLOBALS['_BH_App']->TID;
-		if(_AJAXIS === true) unset($this->Layout);
 	}
 
 	abstract public function __Init();
