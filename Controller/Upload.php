@@ -44,20 +44,12 @@ class UploadController extends \BH_Controller{
 				exit;
 			}
 			else {
-
 				$path = '/temp/';
 				$uploadDir = _UPLOAD_DIR.$path;
-				//mkdir(_DIR.'/upload/smarteditor/', 0777, true);
-				if(!is_dir($uploadDir)){
-					mkdir($uploadDir, 0777, true);
-				}
+				if(!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
-
-				$newPath = $uploadDir.urlencode($_FILES['Filedata']['name']);
 				$newFileName = RandomFileName().'.'.$filename_ext;
-
-
-				Thumbnail($tmp_name, $uploadDir.$newFileName, MAX_IMAGE_SIZE);
+				Thumbnail($tmp_name, $uploadDir.$newFileName, _MAX_IMAGE_WIDTH);
 				//else @move_uploaded_file($tmp_name, $uploadDir.$newFileName);
 
 				$data['uploadDir'] = _UPLOAD_URL;

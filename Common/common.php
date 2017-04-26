@@ -3,29 +3,49 @@
  * Bang Hun.
  * 16.07.10
  */
+define('_OB_COMP', 'zlib.output_compression');
+define('_POSTIS', $_SERVER['REQUEST_METHOD'] == 'POST');
+define('_AJAXIS', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
 
-define('ModelTypeInt', 1);
-define('ModelTypeString', 2);
-define('ModelTypeEng', 3);
-define('ModelTypeEngNum', 4);
-define('ModelTypeEngSpecial', 5);
-define('ModelTypeFloat', 6);
-define('ModelTypeDatetime', 7);
-define('ModelTypeDate', 8);
-define('ModelTypeEnum', 9);
-define('ModelTypePassword', 10);
+require _COMMONDIR.'/db.info.php';
+require _COMMONDIR.'/BH_DB.class.php';
+require _COMMONDIR.'/BH_Application.class.php';
+require _COMMONDIR.'/BH_Controller.class.php';
+require _COMMONDIR.'/BH_Model.class.php';
+require _COMMONDIR.'/BH_Router.class.php';
+require _COMMONDIR.'/BH_Common.class.php';
 
-define('HTMLInputText', 'text');
-define('HTMLInputPassword', 'password');
-define('HTMLInputRadio', 'radio');
-define('HTMLInputCheckbox', 'checkbox');
-define('HTMLInputFile', 'file');
-define('HTMLSelect', 'select');
-define('HTMLTextarea', 'textarea');
+if(_DEVELOPERIS === true){
+	if(!file_exists(_DATADIR) || !is_dir(_DATADIR)) @mkdir(_DATADIR, 0757, true);
+	require _COMMONDIR.'/HtmlConvert.php';
+	require _COMMONDIR.'/StyleConvert.php';
+	require _COMMONDIR.'/BH_HtmlCreate.class.php';
+}
+
+if(_CREATE_HTML_ALL === true){
+	delTree(_HTMLDIR);
+	ReplaceHTMLAll(_SKINDIR, _HTMLDIR);
+	ReplaceCSS2ALL(_HTMLDIR, _HTMLDIR);
+	ReplaceCSS2ALL(_SKINDIR, _HTMLDIR);
+}
+
+BH_DB_Cache::$DBTableFirst = array(TABLE_FIRST);
+BH_DB_Cache::$ExceptTable = array(TABLE_MEMBER);
 
 define('ENG_NUM', '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
 define('ENG_UPPER', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
 define('ENG_LOWER', 'abcdefghijklmnopqrstuvwxyz');
+
+// -------------------------------------
+//
+//		Mobile Check
+//
+$useragent = $_SERVER['HTTP_USER_AGENT'];
+if(preg_match('/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i', $useragent) || preg_match('/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i', substr($useragent, 0, 4))){
+	define('_MOBILEIS', true);
+}
+else define('_MOBILEIS', false);
+
 
 // -------------------------------------
 //
@@ -196,6 +216,64 @@ function GetLastDay($month, $year = false) {
 		$month = $temp[1];
 	}
 	return date('t', mktime(0,0,0,$month, 1, $year));
+}
+
+function Download($path, $fname){
+	$temp = explode('/', $path);
+	if(!$fname){
+		$fname = $temp[sizeof($temp)-1];
+	}
+
+	if(isset($GLOBALS['_BH_App']) && isset($GLOBALS['_BH_App']->CTRL) && isset($GLOBALS['_BH_App']->CTRL->Layout)) unset($GLOBALS['_BH_App']->CTRL->Layout);
+
+	ignore_user_abort(true);
+	set_time_limit(0); // disable the time limit for this script
+
+
+	if(strpos($path, '..') !== false){
+		Redirect('-1', '경로오류');
+	}
+	$dl_file = filter_var($path, FILTER_SANITIZE_URL); // Remove (more) invalid characters
+	$fullPath = _UPLOAD_DIR.$dl_file;
+
+	if ($fd = fopen ($fullPath, "r")) {
+		$fsize = filesize($fullPath);
+		$path_parts = pathinfo($fullPath);
+		$ext = strtolower($path_parts["extension"]);
+		switch ($ext) {
+			case "pdf":
+				header("Content-type: application/pdf");
+				header("Content-Disposition: attachment; filename=\"".$fname."\""); // use 'attachment' to force a file download
+			break;
+			// add more headers for other content types here
+			default;
+				header("Content-type: application/octet-stream");
+				header( 'Content-Description: File Download' );
+				header('Content-Disposition: attachment; filename="'.$fname.'"');
+				header( 'Content-Transfer-Encoding: binary' );
+			break;
+		}
+		header("Content-length: $fsize");
+		header("Cache-control: private"); //use this to open files directly
+		while(!feof($fd)) {
+			$buffer = fread($fd, 2048);
+			echo $buffer;
+		}
+	}
+	fclose ($fd);
+	exit;
+}
+
+function ResizeImage($path, $width, $noext = _NO_IMG){
+	if(!file_exists(_UPLOAD_DIR.$path)) return $noext ? _URL.$noext : _UPLOAD_URL.$path;
+	$temp = explode('/', $path);
+	$temp[sizeof($temp) - 1] = $width.'_'.$temp[sizeof($temp) - 1];
+	$new = implode('/', $temp);
+	if(!file_exists(_UPLOAD_DIR.$new)){
+		require_once _COMMONDIR.'/FileUpload.php';
+		Thumbnail(_UPLOAD_DIR.$path, _UPLOAD_DIR.$new, $width);
+	}
+	return _UPLOAD_URL.$new;
 }
 
 function ToInt($s){return preg_replace('/[^0-9\-]/','$1',$s);}
@@ -515,14 +593,14 @@ function SqlPassword($input) {
 }
 
 function _password_hash($str) {
-	if(USE_OLD_PASSWORD === true) return '*'.SqlPassword($str);
+	if(_USE_OLD_PASSWORD === true) return '*'.SqlPassword($str);
 	if(phpversion() < '5.3.7') return hash('sha256', hash('sha512', sha1(sha1($str, true))));
 	else if(phpversion() < '5.5') require_once _COMMONDIR.'/password.php';
 	return password_hash(hash('sha256', $str), PASSWORD_BCRYPT);
 }
 
 function _password_verify($str, $hash){
-	if(USE_OLD_PASSWORD === true) return '*'.SqlPassword($str) == $hash;
+	if(_USE_OLD_PASSWORD === true) return '*'.SqlPassword($str) == $hash;
 	if(phpversion() < '5.3.7') return $hash === hash('sha256', hash('sha512', sha1(sha1($str, true))));
 	else if(phpversion() < '5.5') require_once _COMMONDIR.'/password.php';
 	if(password_verify(hash('sha256', $str), $hash)) return true;
@@ -627,7 +705,7 @@ class _ModelFunc{
 					}
 				}
 				else{
-					if((isset($v->HtmlType) || $v->Required) && $v->HtmlType != HTMLInputFile){
+					if((isset($v->HtmlType) || $v->Required) && $v->HtmlType != HTMLType::InputFile){
 						if(isset($_POST[$k])) $v->Value = $_POST[$k];
 						$Need[] = $k;
 					}
@@ -641,7 +719,7 @@ class _ModelFunc{
 
 	public static function CheckType($key, &$data){
 		switch($data->Type){
-			case ModelTypeInt:
+			case ModelType::Int:
 				$val = preg_replace('/[^Z0-9\-]/','',$data->Value);
 				if($val != $data->Value){
 					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 숫자만 입력 가능합니다.';
@@ -649,14 +727,14 @@ class _ModelFunc{
 				}
 				return true;
 			break;
-			case ModelTypeFloat:
+			case ModelType::Float:
 				$val = preg_replace('/[^Z0-9\.\-]/','',$data->Value);
 				if($val != $data->Value){
 					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 숫자만 입력 가능합니다.';
 					return false;
 				}
 			break;
-			case ModelTypeEnum:
+			case ModelType::Enum:
 				if(isset($data->EnumValues) && is_array($data->EnumValues) && isset($data->EnumValues[$data->Value])){
 					return true;
 				}else{
@@ -664,7 +742,7 @@ class _ModelFunc{
 					return false;
 				}
 			break;
-			case ModelTypeEng:
+			case ModelType::Eng:
 				$val = preg_replace('/[^a-zA-Z]/','',$data->Value);
 				if($val != $data->Value){
 					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문만 입력가능합니다.';
@@ -672,14 +750,14 @@ class _ModelFunc{
 				}
 				return true;
 			break;
-			case ModelTypeEngNum:
+			case ModelType::EngNum:
 				if ( !ctype_alnum($data->Value) ) {
 					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문과 숫자만 입력가능합니다.';
 					return false;
 				}
 				return true;
 			break;
-			case ModelTypeEngSpecial:
+			case ModelType::EngSpecial:
 				$val = preg_replace('/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>\'\"\?\-=\+_\:\;\[\]\{\}\/]/','',$data->Value);
 				if($val != $data->Value){
 					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문과 숫자, 특수문자만 입력가능합니다.';
@@ -691,7 +769,7 @@ class _ModelFunc{
 	}
 
 	public static function CheckValue($key, &$Data){
-		if($Data->Type == ModelTypeInt || $Data->Type == ModelTypeFloat){
+		if($Data->Type == ModelType::Int || $Data->Type == ModelType::Float){
 			if($Data->MinValue !== false && $Data->MinValue > $Data->Value){
 				$Data->ModelErrorMsg = $Data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목에 '.$Data->MinValue.' 이상의 값을 입력하여 주세요.';
 				return false;
@@ -705,7 +783,7 @@ class _ModelFunc{
 	}
 
 	public static function CheckLength($key, &$Data){
-		if($Data->Type == ModelTypeString){
+		if($Data->Type == ModelType::String){
 			if($Data->MinLength !== false && $Data->MinLength > strlen($Data->Value)){
 				$Data->ModelErrorMsg = $Data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 '.$Data->MinLength.'자 이상 입력하여 주세요.';
 				return false;
@@ -743,23 +821,23 @@ class _ModelFunc{
 		if($data->Required){
 			$Attribute .= ' required="required"';
 		}
-		if($data->Type == ModelTypeInt){
+		if($data->Type == ModelType::Int){
 			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'numberonly';
 		}
 
-		if($data->Type == ModelTypeEngNum){
+		if($data->Type == ModelType::EngNum){
 			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engnumonly';
 		}
 
-		if($data->Type == ModelTypeEng){
+		if($data->Type == ModelType::Eng){
 			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engonly';
 		}
 
-		if($data->Type == ModelTypeEngSpecial){
+		if($data->Type == ModelType::EngSpecial){
 			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engspecialonly';
 		}
 
-		if($data->Type == ModelTypeDate || $data->Type == ModelTypeDatetime){
+		if($data->Type == ModelType::Date || $data->Type == ModelType::Datetime){
 			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'date';
 			$HtmlAttribute['maxlength'] = '10';
 			$HtmlAttribute['minlength'] = '10';
@@ -770,18 +848,18 @@ class _ModelFunc{
 		}
 
 		switch($htmlType){
-			case HTMLInputText:
-			case HTMLInputPassword:
-				return '<input type="'.$htmlType.'" name="'.$Name.'" id="MD_'.$Name.'" '.(isset($val) && $htmlType != HTMLInputPassword ? 'value="'.$val.'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+			case HTMLType::InputText:
+			case HTMLType::InputPassword:
+				return '<input type="'.$htmlType.'" name="'.$Name.'" id="MD_'.$Name.'" '.(isset($val) && $htmlType != HTMLType::InputPassword ? 'value="'.$val.'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
 			break;
-			case HTMLInputFile:
+			case HTMLType::InputFile:
 				return '<input type="'.$htmlType.'" name="'.$Name.'" id="MD_'.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
 			break;
-			case HTMLTextarea:
+			case HTMLType::Textarea:
 				return '<textarea name="'.$Name.'" id="MD_'.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>'.(isset($val) ? $val : '').'</textarea>';
 			break;
-			case HTMLInputRadio:
-			case HTMLInputCheckbox:
+			case HTMLType::InputRadio:
+			case HTMLType::InputCheckbox:
 				$ret = '';
 				if(isset($data->EnumValues) && is_array($data->EnumValues)){
 					$i = 1;
@@ -795,7 +873,7 @@ class _ModelFunc{
 				}
 				return $ret;
 			break;
-			case HTMLSelect:
+			case HTMLType::Select:
 				$ret = '<select name="'.$Name.'" id="MD_'.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
 
 				if(isset($data->EnumValues) && is_array($data->EnumValues)){
@@ -829,7 +907,7 @@ class _ModelFunc{
 						continue;
 					}
 					if($v->ValueIsQuery) $dbInsert->data[$k] = $v->Value;
-					else if($v->Type == ModelTypeInt){
+					else if($v->Type == ModelType::Int){
 						if(!strlen($v->Value) && isset($v->DefaultValue)) $dbInsert->data[$k] = $v->DefaultValue;
 						else{
 							$res = self::CheckInt($k, $v->Value);
@@ -840,7 +918,7 @@ class _ModelFunc{
 							}
 						}
 					}
-					else if($v->Type == ModelTypeFloat){
+					else if($v->Type == ModelType::Float){
 						if(!strlen($v->Value) && isset($v->DefaultValue)) $dbInsert->data[$k] = $v->DefaultValue;
 						else{
 							$res = self::CheckFloat($k, $v->Value);
@@ -851,7 +929,7 @@ class _ModelFunc{
 							}
 						}
 					}
-					else if($v->Type == ModelTypePassword) $dbInsert->data[$k] = SetDBText(_password_hash($v->Value));
+					else if($v->Type == ModelType::Password) $dbInsert->data[$k] = SetDBText(_password_hash($v->Value));
 					else $dbInsert->data[$k] = SetDBText($v->Value);
 				}
 			}
@@ -890,7 +968,7 @@ class _ModelFunc{
 						continue;
 					}
 					if($v->ValueIsQuery) $dbUpdate->data[$k] = $v->Value;
-					else if($v->Type == ModelTypeInt){
+					else if($v->Type == ModelType::Int){
 						$res = self::CheckInt($k, $v->Value);
 						if($res === true) $dbUpdate->data[$k] = $v->Value;
 						else{
@@ -898,7 +976,7 @@ class _ModelFunc{
 							$result->message = $res;
 						}
 					}
-					else if($v->Type == ModelTypeFloat){
+					else if($v->Type == ModelType::Float){
 						$res = self::CheckFloat($k, $v->Value);
 						if($res === true) $dbUpdate->data[$k] = $v->Value;
 						else{
@@ -906,7 +984,7 @@ class _ModelFunc{
 							$result->message = $res;
 						}
 					}
-					else if($v->Type == ModelTypePassword) $dbUpdate->data[$k] = SetDBText(_password_hash($v->Value));
+					else if($v->Type == ModelType::Password) $dbUpdate->data[$k] = SetDBText(_password_hash($v->Value));
 					else $dbUpdate->data[$k] = SetDBText($v->Value);
 				}
 			}

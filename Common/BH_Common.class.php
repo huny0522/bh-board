@@ -142,8 +142,7 @@ class BH_Common
 	 */
 	public function ContentImageUpate($tid, $keyValue, $content, $mode = 'write'){
 		$newcontent = $content['contents'];
-		$maxImage = MAX_IMAGE_COUNT;
-		$imageCount = 0;
+		$maxImage = _MAX_IMAGE_COUNT;
 
 		if($mode == 'modify'){
 			$dbKeyValue = SetDBText(implode('|',$keyValue));
@@ -159,9 +158,15 @@ class BH_Common
 					$qry->AddWhere('article_seq = %d', $dbKeyValue);
 					$qry->AddWhere('seq = %d', $img['seq']);
 					$qry->Run();
-				}else $imageCount ++;
+				}
 			}
 		}
+
+		$dbGet = new \BH_DB_Get(TABLE_IMAGES);
+		$dbGet->AddWhere('tid = %s', $tid);
+		$dbGet->SetKey('COUNT(*) as cnt');
+		$cnt = $dbGet->Get();
+		$imageCount = $cnt['cnt'];
 
 		if(isset($_POST['addimg']) && is_array($_POST['addimg'])){
 			$ym = date('ym');
@@ -169,7 +174,11 @@ class BH_Common
 				$exp = explode('|', $img);
 
 				if(strpos($content['contents'], $exp[0]) !== false){
-					if($imageCount >= $maxImage) break;
+					if($imageCount >= $maxImage){
+						@unlink(_UPLOAD_DIR.$exp[0]);
+						continue;
+					}
+
 					$newpath = str_replace('/'._UPLOAD_DIRNAME.'/temp/', '/'._UPLOAD_DIRNAME.'/image/'.$ym.'/', $exp[0]);
 					$uploadDir = _UPLOAD_DIR.'/image/'.$ym;
 					if(!is_dir($uploadDir)){
@@ -186,6 +195,7 @@ class BH_Common
 					$dbInsert->data['image'] = SetDBText($newpath);
 					$dbInsert->data['imagename'] = SetDBText($exp[1]);
 					$dbInsert->decrement = 'seq';
+					$dbInsert->AddWhere('tid = %s', $tid);
 					//$params['test'] = true;
 					$dbInsert->Run();
 					$imageCount++;
@@ -293,51 +303,5 @@ class BH_Common
 			$data[] = array('html' => $html, 'seq' => $row['seq'], 'width' => $row['width'], 'height' => $row['height']);
 		}
 		return $data;
-	}
-
-	public function Download($path, $fname){
-		$temp = explode('/', $path);
-		if(!$fname){
-			$fname = $temp[sizeof($temp)-1];
-		}
-
-		unset($GLOBALS['_BH_App']->CTRL->Layout);
-
-		ignore_user_abort(true);
-		set_time_limit(0); // disable the time limit for this script
-
-
-		if(strpos($path, '..') !== false){
-			Redirect('-1', '경로오류');
-		}
-		$dl_file = filter_var($path, FILTER_SANITIZE_URL); // Remove (more) invalid characters
-		$fullPath = _UPLOAD_DIR.$dl_file;
-
-		if ($fd = fopen ($fullPath, "r")) {
-			$fsize = filesize($fullPath);
-			$path_parts = pathinfo($fullPath);
-			$ext = strtolower($path_parts["extension"]);
-			switch ($ext) {
-				case "pdf":
-					header("Content-type: application/pdf");
-					header("Content-Disposition: attachment; filename=\"".$fname."\""); // use 'attachment' to force a file download
-				break;
-				// add more headers for other content types here
-				default;
-					header("Content-type: application/octet-stream");
-					header( 'Content-Description: File Download' );
-					header('Content-Disposition: attachment; filename="'.$fname.'"');
-					header( 'Content-Transfer-Encoding: binary' );
-				break;
-			}
-			header("Content-length: $fsize");
-			header("Cache-control: private"); //use this to open files directly
-			while(!feof($fd)) {
-				$buffer = fread($fd, 2048);
-				echo $buffer;
-			}
-		}
-		fclose ($fd);
-		exit;
 	}
 }

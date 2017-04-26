@@ -1,8 +1,7 @@
-var common = new function ($) {
+function Common($) {
 
 	this.data_trans_error = '데이타 전송오류';
 	this.loading_cnt = 0;
-
 
 	this.preload = function (imgs) {
 		$(imgs).each(function () {
@@ -48,7 +47,6 @@ var common = new function ($) {
 	this.removeComma = function (nStr) {
 		return nStr.replace(/,/g, '');
 	};
-
 
 	/**
 	 * 폼 ajax 전송
@@ -159,7 +157,6 @@ var common = new function ($) {
 		this._ajax(ur, dt, {type : 'post', dataType : 'json'}, success_func, fail_func);
 	};
 
-
 	/**
 	 * ajax get
 	 */
@@ -174,7 +171,6 @@ var common = new function ($) {
 		this._ajax(ur, dt, {type : 'post', dataType : 'html'}, success_func, fail_func);
 	};
 
-
 	/**
 	 * ajax get, get HTML
 	 */
@@ -182,13 +178,13 @@ var common = new function ($) {
 		this._ajax(ur, dt, {type : 'get', dataType : 'html'}, success_func, fail_func);
 	};
 
-
 	/**
 	 * ajax를 보낸 후 모달창을 띄움(createModal)
 	 */
 	this.getModal = function (ur, dt, title, modal_id, w, h) {
 		this._ajaxModal('get', ur, dt, title, modal_id, w, h);
 	};
+
 	this.postModal = function (ur, dt, title, modal_id, w, h) {
 		this._ajaxModal('post', ur, dt, title, modal_id, w, h);
 	};
@@ -221,7 +217,6 @@ var common = new function ($) {
 			});
 		}, 50);
 	};
-
 
 	this.removeModal = function (obj) {
 		var modal = (typeof obj == 'undefined') ? $('.modal_layer:visible').last() : $(obj);
@@ -256,20 +251,6 @@ var common = new function ($) {
 		});
 		$('body').css('overflow-y', 'hidden');
 	};
-
-	$(document).on('click', '.modal_layer', function (e) {
-		common.removeModal(this);
-	});
-
-	$(document).on('click', '.modal_wrap', function (e) {
-		e.stopPropagation();
-	});
-
-	$(document).on('click', '.modal_layer .cancel, .modal_layer .close', function (e) {
-		e.preventDefault();
-		common.removeModal($(this).closest('.modal_layer'));
-	});
-
 
 	/*
 	 *	이미지 정렬
@@ -333,7 +314,8 @@ var common = new function ($) {
 		} else {
 			common.popDaumPostCode(callback);
 		}
-	};;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	};
+
 	this.popDaumPostCode = function (callback) {
 		if ($('#DaumPostCode').length) return;
 		$('body').append('<div id="DaumPostCode"><div id="DaumPostCodeWrap"></div></div>');
@@ -374,22 +356,12 @@ var common = new function ($) {
 				height: '490px'
 			}).embed($('#DaumPostCodeWrap')[0]);
 		});
-	};;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-	$(window).resize(function () {
-		common.img_align();
-	});
-
-	$(document).ready(function () {
-		common.img_align();
-	});
+	};
 
 	/* scrollTop */
 	this.goTop = function () {
 		$(window).scrollTop(0);
 	};
-
 
 	this.goBottom = function () {
 		$(window).scrollTop($('body').prop('scrollHeight') + $('body').height());
@@ -419,8 +391,6 @@ var common = new function ($) {
 		}
 		document.cookie = cname + "=" + cvalue + "; path=/;" + expires;
 	};
-
-
 
 	this.replaceTag = function(tag) {
 		var tagsToReplace = {
@@ -559,11 +529,10 @@ var common = new function ($) {
 		return ret;
 	};
 
-
 	this.todayPopupClose = function(seq) {
 		common.setCookie('todayClosePopup' + seq, 'y', 1);
 		jQuery('#BH_Popup' + seq).hide();
-	};;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	};
 
 	this.popup = function(target, seq, top, left, width, height, data) {
 		var ck = common.getCookie('todayClosePopup' + seq);
@@ -578,80 +547,94 @@ var common = new function ($) {
 			+ '</div>'
 			+ '</div>';
 		$(target).append(html);
-	};;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	};
 
-	/* Image Preview
-	 * file입력창 바로 전에 클래스 filePreviewImg 가 있으면 이미지 미리보기
-	 * ie10+
-	 */
+	// =================================================================
+	//
+	//      파일업로드
+	//
+	this.imageFileForm = function(){
+		if($('#goodsImgFrm').length) return;
+		var frm = '<form id="goodsImgFrm" method="post" action="/Upload/ImageUpload/" enctype="multipart/form-data" style="display:block; width:0; height:0; opacity:0; overflow:hidden;">' +
+			'<input type="file" name="Filedata" value="" data-sname="" id="goodsImgInp" style="display:block; width:0; height:0; opacity:0;" />' +
+			'</form>';
+		$('body').append(frm);
 
-	$(document).on('change', '.UploadImagePreview input[type=file]', function () {
-		if (common.ie8 || common.ie9) return;
-
-		var img = $(this).closest('.UploadImagePreview').find('img.preview');
-		if (img.length) {
-
-			var reader = new FileReader();
-			reader.onload = function (e) {
-				img.attr('src', e.target.result);
-			};
-
-			reader.readAsDataURL(this.files[0]);
-		}
-	});
-
-	$(document).ready(function () {
-		$('.UploadImagePreview img.preview').each(function () {
-			var obj = $(this);
-			this.onerror = function () {
-				obj.parent().hide();
-			};
-			this.oncomplete = function () {
-				obj.parent().show();
-			};
-			this.src = obj.attr('src') == '' ? '#' : obj.attr('src');
+		$(document).on('click','button.fileUploadBtn',function(e){
+			e.preventDefault();
+			$('#goodsImgFrm').data({
+				obj : $(this).closest('.fileUploadArea').find('input.fileUploadInput')[0]
+			});
+			$('#goodsImgInp').click();
+		});
+		$(document).on('change', '#goodsImgInp', function(e){
+			e.preventDefault();
+			$('#goodsImgFrm').submit();
 		});
 
-		if ($('.selectMail select[name=selectMail]').length) {
-			$(document).on('change', '.selectMail select[name=selectMail]', function (e) {
-				var inp = $(this).closest('.selectMail').find('input.emailAddr');
-				if ($(this).val() == 'x') {
-					inp.val('');
-				} else if ($(this).val() != '') {
-					inp.val($(this).val());
-				}
+		$(document).on('submit','#goodsImgFrm',function(e){
+			e.preventDefault();
+			common.ajaxForm(this, function(result){
+				$('#goodsImgFrm')[0].reset();
+				var obj = $('#goodsImgFrm').data().obj;
+				$(obj).val(result.path);
+				var img = $(obj).closest('.fileUploadArea').find('.fileUploadImage');
+				if(img.length) img.html('<img src="' + result.uploadDir + result.path + '">');
 			});
-		}
-	});
+		});
+	};
+};
 
-	$(document).on('keyup', 'input.numberonly', function() {
-		var val = this.value.replace(/[^0-9]/gi,'');
-		if(this.value != val) this.value = val;
-	});
+var common = new Common(jQuery);
 
-	$(document).on('keyup', 'input.engonly', function() {
-		var val = this.value.replace(/[^a-zA-Z]/gi,'');
-		if(this.value != val) this.value = val;
-	});
-
-	$(document).on('keyup', 'input.engnumonly', function() {
-		var val = this.value.replace(/[^a-zA-Z0-9]/gi,'');
-		if(this.value != val) this.value = val;
-	});
-
-	$(document).on('keyup', 'input.engspecialonly', function() {
-		var val = this.value.replace(/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>'\"\?\-=\+_\:\;\[\]\{\}\/]/gi,'');
-		if(this.value != val) this.value = val;
-	});
-
-}(jQuery);
-
-
-$(document).on('click', '.backbtn, .hback a, a.hback', function (e) {
-	e.preventDefault();
-	history.back();
+/* -------------------------------------------
+ *
+ *   Input Value Check
+ *
+ ------------------------------------------- */
+$(document).on('keyup', 'input.numberonly', function() {
+	var val = this.value.replace(/[^0-9]/gi,'');
+	if(this.value != val) this.value = val;
 });
 
+$(document).on('keyup', 'input.engonly', function() {
+	var val = this.value.replace(/[^a-zA-Z]/gi,'');
+	if(this.value != val) this.value = val;
+});
+
+$(document).on('keyup', 'input.engnumonly', function() {
+	var val = this.value.replace(/[^a-zA-Z0-9]/gi,'');
+	if(this.value != val) this.value = val;
+});
+
+$(document).on('keyup', 'input.engspecialonly', function() {
+	var val = this.value.replace(/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>'\"\?\-=\+_\:\;\[\]\{\}\/]/gi,'');
+	if(this.value != val) this.value = val;
+});
+
+/* -------------------------------------------
+ *
+ *   Modal
+ *
+ ------------------------------------------- */
+$(document).on('click', '.modal_layer', function (e) {
+	common.removeModal(this);
+});
+
+$(document).on('click', '.modal_wrap', function (e) {
+	e.stopPropagation();
+});
+
+$(document).on('click', '.modal_layer .cancel, .modal_layer .close', function (e) {
+	e.preventDefault();
+	common.removeModal($(this).closest('.modal_layer'));
+});
+
+/* -------------------------------------------
+ *
+ *   Swiper
+ *
+ ------------------------------------------- */
 $(window).load(function () {
 	$('.swiper-container').each(function () {
 		if ($(this).attr('data-auto-init') == '0') return;
@@ -661,7 +644,6 @@ $(window).load(function () {
 });
 
 function swiper_init(obj, opt) {
-
 	var def_opt = {
 		slidesPerView: '1',
 		spaceBetween: 0,
@@ -669,8 +651,6 @@ function swiper_init(obj, opt) {
 		calculateHeight: true,
 		DOMAnimation: (common.ie8 || common.ie9) ? false : true
 	};
-
-
 
 	if(obj.attr('data-complete') == 'y'){
 		return;
@@ -713,16 +693,18 @@ function swiper_init(obj, opt) {
 			mySwiper.swipeNext();
 		});
 	}
-
 }
 
-/* datepicker */
+/* -------------------------------------------
+ *
+ *   Datepicker
+ *
+ ------------------------------------------- */
 $.datepicker.regional.ko = { closeText: "닫기", prevText: "이전달", nextText: "다음 달", currentText: "오늘", monthNames: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"], monthNamesShort: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"], dayNames: ["일", "월", "화", "수", "목", "금", "토"], dayNamesShort: ["일", "월", "화", "수", "목", "금", "토"], dayNamesMin: ["일", "월", "화", "수", "목", "금", " 토"], dateFormat: "yy-mm-dd", firstDay: 0, isRTL: false };
 $.datepicker.setDefaults($.datepicker.regional.ko);
 
-
 function datepicker(selector) {
-	selector.datepicker({
+	$(selector).datepicker({
 		changeYear: true,
 		changeMonth: true,
 		showMonthAfterYear: true,
@@ -735,19 +717,9 @@ function datepicker(selector) {
 }
 
 $(document).ready(function () {
-	if ($('input.date').length) {
-		datepicker($('input.date'));
-	}
-
-	$(document).on('click', '.tap_menu a', function (e) {
-		e.preventDefault();
-		var container = $(this).closest('.tap_container');
-		var li = container.find('.tap_menu li');
-		var idx = li.index($(this).parent());
-		li.eq(idx).addClass('on').siblings().removeClass('on');
-		container.find('section').eq(idx).addClass('on').siblings('section').removeClass('on');
+	$('input.date').not('.nopicker').each(function(){
+		datepicker(this);
 	});
-
 });
 
 
@@ -757,47 +729,42 @@ $(document).ready(function () {
  *
  ------------------------------------------- */
 var oEditors = [];
-
+var seditLoadIs = false;
 function SE2_paste(id, defaultfolder, hiddenimage){
-	$.getScript('/Common/smart_editor/js/HuskyEZCreator.js').done(function( s, Status ) {
-
-		var imgbox = hiddenimage ? '' : '<div class="se2_add_img" data-sname="'+id+'">' +
+	var imgbox = hiddenimage ? '' : '<div class="se2_add_img" data-sname="'+id+'">' +
 		'<span><button class="upbtn">이미지첨부</button></span>' +
 		'<div></div>' +
 		'</div>';
 
-		$('#'+id).after(imgbox);
-		if(!$('#fileupfrm').length){
-			var imgfrm = '<form id="fileupfrm" method="post" action="/Upload/ImageUpload/" enctype="multipart/form-data">' +
-				'<input type="file" name="Filedata" value="" data-sname="" id="fileupinp" style="display:block; width:0; height:0;" />' +
-				'</form>';
-			$('body').append(imgfrm);
-		}
+	$('#'+id).after(imgbox);
+	if(!$('#fileupfrm').length){
+		var imgfrm = '<form id="fileupfrm" method="post" action="/Upload/ImageUpload/" enctype="multipart/form-data">' +
+			'<input type="file" name="Filedata" value="" data-sname="" id="fileupinp" style="display:block; width:0; height:0;" />' +
+			'</form>';
+		$('body').append(imgfrm);
+	}
 
-		nhn.husky.EZCreator.createInIFrame({
-			oAppRef: oEditors,
-			elPlaceHolder: id,
-			sSkinURI: defaultfolder + "/Common/smart_editor/SmartEditor2Skin.html",
-			htParams : {
-				bUseToolbar : true,				// 툴바 사용 여부 (true:사용/ false:사용하지 않음)
-				bUseVerticalResizer : true,		// 입력창 크기 조절바 사용 여부 (true:사용/ false:사용하지 않음)
-				bUseModeChanger : true,			// 모드 탭(Editor | HTML | TEXT) 사용 여부 (true:사용/ false:사용하지 않음)
-				//aAdditionalFontList : aAdditionalFontSet,		// 추가 글꼴 목록
-				fOnBeforeUnload : function(){
-					//alert("완료!");
-				}
-			}, //boolean
-			fOnAppLoad : function(){
-				var sDefaultFont = '나눔고딕';
-				var nFontSize = 11;
-				oEditors.getById[id].setDefaultFont(sDefaultFont, nFontSize);
-				//예제 코드
-			},
-			fCreator: "createSEditor2"
-		});
-
+	nhn.husky.EZCreator.createInIFrame({
+		oAppRef: oEditors,
+		elPlaceHolder: id,
+		sSkinURI: defaultfolder + "/Common/smart_editor/SmartEditor2Skin.html",
+		htParams : {
+			bUseToolbar : true,				// 툴바 사용 여부 (true:사용/ false:사용하지 않음)
+			bUseVerticalResizer : true,		// 입력창 크기 조절바 사용 여부 (true:사용/ false:사용하지 않음)
+			bUseModeChanger : true,			// 모드 탭(Editor | HTML | TEXT) 사용 여부 (true:사용/ false:사용하지 않음)
+			//aAdditionalFontList : aAdditionalFontSet,		// 추가 글꼴 목록
+			fOnBeforeUnload : function(){
+				//alert("완료!");
+			}
+		}, //boolean
+		fOnAppLoad : function(){
+			var sDefaultFont = '나눔고딕';
+			var nFontSize = 11;
+			oEditors.getById[id].setDefaultFont(sDefaultFont, nFontSize);
+			//예제 코드
+		},
+		fCreator: "createSEditor2"
 	});
-
 }
 
 $(document).on('click','.se2_add_img button.upbtn',function(e){
@@ -805,6 +772,7 @@ $(document).on('click','.se2_add_img button.upbtn',function(e){
 	$('#fileupinp').attr('data-sname', $(this).parents('.se2_add_img').attr('data-sname'));
 	$('#fileupinp').click();
 });
+
 $(document).on('change', '#fileupinp', function(e){
 	e.preventDefault();
 	$('#fileupfrm').submit();
@@ -825,6 +793,11 @@ function SE2_update(id){
 	oEditors.getById[id].exec("UPDATE_CONTENTS_FIELD", []);	// 에디터의 내용이 textarea에 적용됩니다.
 }
 
+/* -------------------------------------------
+ *
+ *   Check All
+ *
+ ------------------------------------------- */
 $(document).on('click', '.checkAllArea input.checkAll', function(){
 	var checked = this.checked;
 	$(this).closest('.checkAllArea').find('input.checkItem').each(function(){
@@ -836,4 +809,77 @@ $(document).on('click', '.checkAllArea input.checkItem', function(){
 	var area = $(this).closest('.checkAllArea');
 	if(area.find('input.checkItem:not(:checked)').length) area.find('input.checkAll')[0].checked = false;
 	else area.find('input.checkAll')[0].checked = true;
+});
+
+/* -------------------------------------------
+ *
+ *   Image Preview
+ *   file입력창 바로 전에 클래스 filePreviewImg 가 있으면 이미지 미리보기
+ *   ie10+
+ *
+ ------------------------------------------- */
+$(document).on('change', '.UploadImagePreview input[type=file]', function () {
+	if (common.ie8 || common.ie9) return;
+
+	var img = $(this).closest('.UploadImagePreview').find('img.preview');
+	if (img.length) {
+
+		var reader = new FileReader();
+		reader.onload = function (e) {
+			img.attr('src', e.target.result);
+		};
+
+		reader.readAsDataURL(this.files[0]);
+	}
+});
+
+$(document).ready(function () {
+	$('.UploadImagePreview img.preview').each(function () {
+		var obj = $(this);
+		this.onerror = function () {
+			obj.parent().hide();
+		};
+		this.oncomplete = function () {
+			obj.parent().show();
+		};
+		this.src = obj.attr('src') == '' ? '#' : obj.attr('src');
+	});
+
+	if ($('.selectMail select[name=selectMail]').length) {
+		$(document).on('change', '.selectMail select[name=selectMail]', function (e) {
+			var inp = $(this).closest('.selectMail').find('input.emailAddr');
+			if ($(this).val() == 'x') {
+				inp.val('');
+			} else if ($(this).val() != '') {
+				inp.val($(this).val());
+			}
+		});
+	}
+});
+
+/* -------------------------------------------
+ *
+ *   Other
+ *
+ ------------------------------------------- */
+$(window).resize(function () {
+	common.img_align();
+});
+
+$(document).ready(function () {
+	common.img_align();
+
+	$(document).on('click', '.tap_menu a', function (e) {
+		e.preventDefault();
+		var container = $(this).closest('.tap_container');
+		var li = container.find('.tap_menu li');
+		var idx = li.index($(this).parent());
+		li.eq(idx).addClass('on').siblings().removeClass('on');
+		container.find('section').eq(idx).addClass('on').siblings('section').removeClass('on');
+	});
+});
+
+$(document).on('click', '.backbtn, .hback a, a.hback', function (e) {
+	e.preventDefault();
+	history.back();
 });

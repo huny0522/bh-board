@@ -335,10 +335,10 @@ class {$ModelName}Model extends \\BH_Model{
 				}else if($row->MinValue !== false){
 					$guide .= '					<li>'.$row->MinValue.' 이상의 값을 입력하여주세요.</li>'.chr(10);
 				}
-				if($row->Type == ModelTypeEng){
+				if($row->Type == ModelType::Eng){
 					$guide .= '					<li>영문만 입력하여 주세요.</li>'.chr(10);
 				}
-				if($row->Type == ModelTypeEngNum){
+				if($row->Type == ModelType::EngNum){
 					$guide .= '					<li>영문과 숫자만 입력하여 주세요.</li>'.chr(10);
 				}
 				if($guide) $html .= '				<ul class="guide">' . chr(10).$guide.'				</ul>'.chr(10);

@@ -16,41 +16,41 @@ class ReplyModel extends \BH_Model{
 		$this->table = TABLE_FIRST.'bbs_'.$this->bid.'_reply';
 		$this->boardTable = TABLE_FIRST.'bbs_'.$this->bid;
 
-		$this->InitModelData('seq', ModelTypeInt, false, '');
+		$this->InitModelData('seq', ModelType::Int, false, '');
 		$this->data['seq']->AutoDecrement = true;
-		$this->InitModelData('sort1', ModelTypeInt, false, '');
-		$this->InitModelData('sort2', ModelTypeInt, false, '');
-		$this->InitModelData('article_seq', ModelTypeInt, false, '');
-		$this->InitModelData('article_sort', ModelTypeInt, false, '');
-		$this->InitModelData('depth', ModelTypeInt, false, '');
-		$this->InitModelData('mlevel', ModelTypeInt, false, '');
-		$this->InitModelData('muid', ModelTypeString, false, '');
-		$this->InitModelData('first_seq', ModelTypeInt, false, '');
-		$this->InitModelData('first_member_is', ModelTypeEnum, false, '');
+		$this->InitModelData('sort1', ModelType::Int, false, '');
+		$this->InitModelData('sort2', ModelType::Int, false, '');
+		$this->InitModelData('article_seq', ModelType::Int, false, '');
+		$this->InitModelData('article_sort', ModelType::Int, false, '');
+		$this->InitModelData('depth', ModelType::Int, false, '');
+		$this->InitModelData('mlevel', ModelType::Int, false, '');
+		$this->InitModelData('muid', ModelType::String, false, '');
+		$this->InitModelData('first_seq', ModelType::Int, false, '');
+		$this->InitModelData('first_member_is', ModelType::Enum, false, '');
 		$this->data['first_member_is']->EnumValues = array('y'=>'회원','n'=>'비회원');
-		$this->InitModelData('target_muid', ModelTypeString, false, '');
-		$this->InitModelData('target_mname', ModelTypeString, false, '');
-		$this->InitModelData('reg_date', ModelTypeDatetime, false, '등록일');
-		$this->InitModelData('delis', ModelTypeString, false, '삭제여부');
-		$this->InitModelData('file', ModelTypeString, false, 'FILE');
+		$this->InitModelData('target_muid', ModelType::String, false, '');
+		$this->InitModelData('target_mname', ModelType::String, false, '');
+		$this->InitModelData('reg_date', ModelType::Datetime, false, '등록일');
+		$this->InitModelData('delis', ModelType::String, false, '삭제여부');
+		$this->InitModelData('file', ModelType::String, false, 'FILE');
 		$this->data['delis']->DefaultValue = 'n';
 
-		$this->InitModelData('secret', ModelTypeString, false, '비밀글');
-		$this->data['secret']->HtmlType = HTMLInputRadio;
+		$this->InitModelData('secret', ModelType::String, false, '비밀글');
+		$this->data['secret']->HtmlType = HTMLType::InputRadio;
 		$this->data['secret']->EnumValues = array('y'=>'사용','n'=>'사용안함');
 		$this->data['secret']->DefaultValue = 'n';
 
-		$this->InitModelData('mname', ModelTypeString, false, '이름');
-		$this->data['mname']->HtmlType = HTMLInputText;
+		$this->InitModelData('mname', ModelType::String, false, '이름');
+		$this->data['mname']->HtmlType = HTMLType::InputText;
 		$this->data['mname']->MaxLength = 32;
 
-		$this->InitModelData('pwd', ModelTypePassword, false, '패스워드');
-		$this->data['pwd']->HtmlType = HTMLInputPassword;
+		$this->InitModelData('pwd', ModelType::Password, false, '패스워드');
+		$this->data['pwd']->HtmlType = HTMLType::InputPassword;
 		$this->data['pwd']->MaxLength = 8;
 		$this->data['pwd']->MaxLength = 16;
 
-		$this->InitModelData('comment', ModelTypeString, false, '내용');
-		$this->data['comment']->HtmlType = HTMLTextarea;
+		$this->InitModelData('comment', ModelType::String, false, '내용');
+		$this->data['comment']->HtmlType = HTMLType::Textarea;
 	}
 
 

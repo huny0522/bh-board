@@ -1,8 +1,10 @@
 <?php
 if(_BH_ !== true) exit;
 /**
- * @var $this ConfigController
+ * @var $this \Admin\ConfigController
  */
+
+$this->JSAdd('/Common/smart_editor/js/HuskyEZCreator.js');
 ?>
 
 <h2>기본환경설정</h2>
@@ -68,6 +70,7 @@ if(_BH_ !== true) exit;
 <script>
 	SE2_paste('Privacy', '<?php _URL ?>', true);
 	SE2_paste('Terms', '<?php _URL ?>', true);
+
 	$(document).on('submit', '#ConfigForm', function(e){
 		SE2_update('Privacy');
 		SE2_update('Terms');

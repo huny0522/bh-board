@@ -478,8 +478,7 @@ class BoardController extends \BH_Controller{
 	 */
 	protected function ContentImageUpate($content, $seq, $mode = 'write'){
 		$newcontent = $content;
-		$maxImage = MAX_IMAGE_COUNT;
-		$imageCount = 0;
+		$maxImage = _MAX_IMAGE_COUNT;
 
 		if($mode == 'modify'){
 			$dbGetList = new \BH_DB_GetList($this->model->imageTable);
@@ -497,9 +496,15 @@ class BoardController extends \BH_Controller{
 					$qry->AddWhere('article_seq = '.$img['article_seq']);
 					$qry->AddWhere('seq = '.$img['seq']);
 					$qry->Run();
-				}else $imageCount ++;
+				}
 			}
 		}
+
+		$dbGet = new \BH_DB_Get($this->model->imageTable);
+		$dbGet->AddWhere('article_seq='.$seq);
+		$dbGet->SetKey('COUNT(*) as cnt');
+		$cnt = $dbGet->Get();
+		$imageCount = $cnt['cnt'];
 
 		if(isset($_POST['addimg']) && is_array($_POST['addimg'])){
 			$ym = date('ym');
@@ -507,7 +512,11 @@ class BoardController extends \BH_Controller{
 				$exp = explode('|', $img);
 
 				if(strpos($content, $exp[0]) !== false){
-					if($imageCount >= $maxImage) break;
+					if($imageCount >= $maxImage){
+						@unlink(_UPLOAD_DIR.$exp[0]);
+						continue;
+					}
+
 					$newpath = str_replace('/temp/', '/image/'.$ym.'/', $exp[0]);
 					$uploadDir = _UPLOAD_DIR.'/image/'.$ym;
 					if(!is_dir($uploadDir)){
@@ -523,6 +532,7 @@ class BoardController extends \BH_Controller{
 					$dbInsert->data['image'] = SetDBText($newpath);
 					$dbInsert->data['imagename'] = SetDBText($exp[1]);
 					$dbInsert->decrement = 'seq';
+					$dbInsert->AddWhere('article_seq = %d', $seq);
 					//$params['test'] = true;
 					$dbInsert->Run();
 					$imageCount++;

@@ -48,6 +48,9 @@ class BH_Router
 						ReplaceCSS2ALL(_HTMLDIR, _HTMLDIR);
 						ReplaceCSS2ALL(_SKINDIR, _HTMLDIR);
 					}
+					if(_REFRESH_DB_CACHE_ALL === true){
+						delTree(_DATADIR.'/temp');
+					}
 					Redirect($_GET['r_url']);
 				}
 				else Redirect(-1, $res->message);

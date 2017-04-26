@@ -169,7 +169,7 @@ abstract class BH_Controller{
 			ksort($this->JS);
 			foreach($this->JS as $v){
 				foreach($v as $row){
-					if(substr($row, 0, 4) == 'http') $html .= chr(9) . '<script src="' . $row . '" charset="utf8"></script>' . chr(10);
+					if(substr($row, 0, 4) == 'http' || substr($row, 0, 1) == '/') $html .= chr(9) . '<script src="' . $row . '" charset="utf8"></script>' . chr(10);
 					else $html .= chr(9) . '<script src="' . _SKINURL . '/js/' . $row . '" charset="utf8"></script>' . chr(10);
 				}
 			}

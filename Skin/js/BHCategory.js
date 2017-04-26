@@ -35,7 +35,7 @@ function BHCategory(elem, opt){
 	this.element.css({
 		width : this.optionWidth,
 		height : this.optionHeight
-	});;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	});
 	this.element.append('<ul data-level="0"></ul>');
 
 	this.modifyButtonHtml = '<a href="#" class="modify"><span>Modify</span></a>';
@@ -76,7 +76,7 @@ function BHCategory(elem, opt){
 		pr.append('<li id="' + this.IDFirst + id + '" data-id="' + id + '"><a href="#" class="folder' + ( enabled ? '' : ' disabled') + '"><span>Show</span></a><a href="#" class="title"><b>' + nm + '</b></a><div class="btns">' +btnHtml+ '</div></li>');
 		var last = pr.children('li').last();
 		return last;
-	};;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	};
 
 	this.AddMenu = function(id, enabled){
 		if(this.ActionOption == null || this.ActionOption.command != 'Add') return;
@@ -91,7 +91,7 @@ function BHCategory(elem, opt){
 		this.ActionOption = null;
 
 		return li;
-	};;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	};
 
 	this.ModifyMenu = function(){
 		if(this.ActionOption == null || this.ActionOption.command != 'Mod') return;
@@ -101,13 +101,13 @@ function BHCategory(elem, opt){
 		title.prev().remove();
 		title.show();
 		this.ActionOption = null;
-	};;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	};
 
 	this.DeleteMenu = function(){
 		if(this.ActionOption == null || this.ActionOption.command != 'Del') return;
 		this.ActionOption.element.remove();
 		this.ActionOption = null;
-	};;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	};
 
 	this.MoveMenu = function(){
 		if(this.ActionOption == null || this.ActionOption.command != 'Mov') return;
@@ -118,7 +118,7 @@ function BHCategory(elem, opt){
 			this.ActionOption.target.after(this.ActionOption.element);
 		}
 		this.ActionOption = null;
-	};;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	};
 
 
 	this.toggleFolder = function(obj){
@@ -138,7 +138,7 @@ function BHCategory(elem, opt){
 			}
 			this.BeforeAddMenu(obj);
 		}
-	};;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	};
 
 	// 메뉴추가
 	this.element.on('click', 'a.add', function(e){
@@ -173,7 +173,7 @@ function BHCategory(elem, opt){
 
 			menuObject.optionAddMenu(li.attr('data-id'), menuObject.optionDefaultTitle, li.children('ul').children().length);
 		}
-	};;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	};
 
 	// 메뉴 수정
 	this.element.on('click', 'a.modify', function(e){
