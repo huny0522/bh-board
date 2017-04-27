@@ -48,7 +48,7 @@ class BoardController extends \BH_Controller{
 		}
 	}
 
-	public function Index(){
+	public function Index($viewPageIs = false){
 		if(_AJAXIS === true) unset($this->Layout);
 
 		$res = $this->GetAuth('List');
@@ -61,9 +61,9 @@ class BoardController extends \BH_Controller{
 		$dbList->articleCount = $this->boardManger->GetValue('article_count');
 		$dbList->AddWhere('delis=\'n\'');
 		$dbList->sort = 'sort1, sort2';
-		if(isset($_GET['category']) && strlen($_GET['category'])){
-			$dbList->AddWhere('category = '.SetDBText($_GET['category']));
-		}
+
+		if(isset($_GET['category']) && strlen($_GET['category'])) $dbList->AddWhere('category = '.SetDBText($_GET['category']));
+
 		if(isset($_GET['searchType']) && strlen($_GET['searchType']) && isset($_GET['searchKeyword']) && strlen($_GET['searchKeyword'])){
 			$searchWhere = '';
 			$keyword = my_escape_string($_GET['searchKeyword']);
@@ -85,7 +85,7 @@ class BoardController extends \BH_Controller{
 		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Index.html';
 		if(file_exists(_SKINDIR.$html)) $this->Html = $html;
 
-		if($this->Action == 'View') return $this->_GetView($this->model, $dbList);
+		if($viewPageIs) return $this->_GetView($this->model, $dbList);
 		else $this->_View($this->model, $dbList);
 	}
 
@@ -93,11 +93,10 @@ class BoardController extends \BH_Controller{
 		$this->View();
 	}
 	public function View(){
-		if($this->boardManger->GetValue('list_in_view') == 'y') $this->_Value['List'] = $this->Index();
+		if($this->boardManger->GetValue('list_in_view') == 'y') $this->_Value['List'] = $this->Index(true);
 
-		if(!isset($this->ID) || !strlen($this->ID)){
-			Redirect('-1');
-		}
+		if(!isset($this->ID) || !strlen($this->ID)) Redirect('-1');
+
 		$seq = to10($this->ID);
 
 		if(_AJAXIS === true) unset($this->Layout);
@@ -138,14 +137,12 @@ class BoardController extends \BH_Controller{
 
 			// 원글이나 현재 글이 비회원글일 경우 비밀번호를 체크
 			if(!$viewAuth && (!$this->model->GetValue('muid') || $this->model->GetValue('first_member_is') == 'n')){
-				if(_POSTIS !==	true){
-					Redirect('-1', _WRONG_CONNECTED);
-				}
+				if(_POSTIS !==	true) Redirect('-1', _WRONG_CONNECTED);
+
 				if(_password_verify($_POST['pwd'], $this->model->GetValue('pwd')) || (isset($firstDoc) && _password_verify($_POST['pwd'], $firstDoc['pwd']))){
 					$viewAuth = true;
-				}else{
-					Redirect('-1', '비밀번호가 일치하지 않습니다.');
 				}
+				else Redirect('-1', '비밀번호가 일치하지 않습니다.');
 			}
 
 			if(!$viewAuth) Redirect('-1', _NO_AUTH);
@@ -188,21 +185,21 @@ class BoardController extends \BH_Controller{
 		$qry->AddWhere('seq = %d', $seq);
 		$data = $qry->Get();
 
-//		// 비밀글일경우 답변 권한 : 관리자 또는 게시판 매니저
-//		if($data['secret'] == 'y'){
-//			if(_MEMBERIS !== true){
-//				Redirect('-1', _NO_AUTH);
-//			}
-//
-//			if($_SESSION['member']['level'] < _SADMIN_LEVEL){
-//				$member = $this->_CF->GetMember();
-//
-//				$manager = explode(',', $this->boardManger->data['manager']);
-//				if(!in_array($member['mid'], $manager)){
-//					Redirect('-1', _NO_AUTH);
-//				}
-//			}
-//		}
+		//		// 비밀글일경우 답변 권한 : 관리자 또는 게시판 매니저
+		//		if($data['secret'] == 'y'){
+		//			if(_MEMBERIS !== true){
+		//				Redirect('-1', _NO_AUTH);
+		//			}
+		//
+		//			if($_SESSION['member']['level'] < _SADMIN_LEVEL){
+		//				$member = $this->_CF->GetMember();
+		//
+		//				$manager = explode(',', $this->boardManger->data['manager']);
+		//				if(!in_array($member['mid'], $manager)){
+		//					Redirect('-1', _NO_AUTH);
+		//				}
+		//			}
+		//		}
 
 		$this->model->SetValue('subject', strpos('[답변]', $data['subject']) === false ? '[답변] '.$data['subject'] : $data['subject']);
 		$this->model->SetValue('secret', $data['secret']);
@@ -251,24 +248,17 @@ class BoardController extends \BH_Controller{
 		$seq = to10($this->ID);
 
 		$this->model->Need = array('subject', 'content', 'secret');
-		if(_MEMBERIS !== true){
-			$this->model->Need[] = 'mnane';
-		}else{
-			$this->model->AddExcept('pwd');
-		}
+		if(_MEMBERIS !== true) $this->model->Need[] = 'mnane';
+		else $this->model->AddExcept('pwd');
 
 		$this->model->DBGet($seq);
 		$res = $this->model->SetPostValues();
-		if(!$res->result){
-			Redirect($this->URLAction('View/'.$this->ID).$this->GetFollowQuery(), $res->message);
-		}
+		if(!$res->result) Redirect($this->URLAction('View/'.$this->ID).$this->GetFollowQuery(), $res->message);
 
 		// 회원 글 체크
 		if(_MEMBERIS !== true || $_SESSION['member']['level'] != _SADMIN_LEVEL){
 			$res = $this->PasswordCheck();
-			if($res !== true){
-				Redirect($this->URLAction('View/'.$this->ID).$this->GetFollowQuery(), $res);
-			}
+			if($res !== true) Redirect($this->URLAction('View/'.$this->ID).$this->GetFollowQuery(), $res);
 		}
 
 		// 파일 업로드
@@ -276,9 +266,7 @@ class BoardController extends \BH_Controller{
 			if(!isset($_FILES['file'.$n])) continue;
 			$fres_em = FileUpload($_FILES['file'.$n], self::$POSSIBLE_EXT, '/board/'.date('ym').'/');
 
-			if($fres_em === 'noext'){
-				Redirect('-1', '등록 불가능한 파일입니다.');
-			}
+			if($fres_em === 'noext') Redirect('-1', '등록 불가능한 파일입니다.');
 			else if(is_array($fres_em)){
 				if($this->model->GetValue('file'.$n)) @unlink (_UPLOAD_DIR.$this->model->GetValue('file'.$n));
 				$this->model->SetValue('file'.$n, $fres_em['file']);
@@ -290,19 +278,14 @@ class BoardController extends \BH_Controller{
 		$this->model->SetValue('htmlis', _MOBILEIS === true ? 'n' : 'y');
 
 		$error = $this->model->GetErrorMessage();
-		if(sizeof($error)){
-			Redirect($this->URLAction('View/'.$this->ID).$this->GetFollowQuery(), $error[0]);
-		}
+		if(sizeof($error)) Redirect($this->URLAction('View/'.$this->ID).$this->GetFollowQuery(), $error[0]);
 
 		$res2 = $this->model->DBUpdate();
 		$this->ContentImageUpate($_POST['content'], $seq, 'modify');
 
 
-		if($res2->result){
-			Redirect($this->URLAction('View/'.$this->ID).$this->GetFollowQuery(), '수정되었습니다.');
-		}else{
-			Redirect($this->URLAction('View/'.$this->ID).$this->GetFollowQuery(), $res2->message ? $res2->message : 'ERROR');
-		}
+		if($res2->result) Redirect($this->URLAction('View/'.$this->ID).$this->GetFollowQuery(), '수정되었습니다.');
+		else Redirect($this->URLAction('View/'.$this->ID).$this->GetFollowQuery(), $res2->message ? $res2->message : 'ERROR');
 	}
 
 	public function PostAnswer(){
@@ -413,13 +396,8 @@ class BoardController extends \BH_Controller{
 		$result->result = $res->result;
 		$result->message = $res->message;
 
-		if($res->result){
-			$this->ContentImageUpate($_POST['content'], $res->id);
-		}
-
-
-
 		if($result->result){
+			$this->ContentImageUpate($_POST['content'], $res->id);
 			Redirect($this->URLAction(), '등록되었습니다.');
 		}else{
 			Redirect($this->URLAction('Write').$this->GetFollowQuery(), $result->message ? $result->message : 'ERROR');
@@ -458,16 +436,16 @@ class BoardController extends \BH_Controller{
 			case 'Write':
 			case 'Modify':
 				if($memberLevel < $this->boardManger->GetValue('auth_write_level')) return false;
-				break;
+			break;
 			case 'Answer':
 				if($memberLevel < $this->boardManger->GetValue('auth_answer_level')) return false;
-				break;
+			break;
 			case 'View':
 				if($memberLevel < $this->boardManger->GetValue('auth_view_level')) return false;
-				break;
+			break;
 			case 'List':
 				if($memberLevel < $this->boardManger->GetValue('auth_list_level')) return false;
-				break;
+			break;
 		}
 
 		return true;
@@ -488,9 +466,7 @@ class BoardController extends \BH_Controller{
 					// 파일이 없으면 삭제
 					@unlink(_UPLOAD_DIR.$img['image']);
 
-					if($img['image'] == $this->model->GetValue('thumnail')){
-						$this->model->SetValue('thumnail', '');
-					}
+					if($img['image'] == $this->model->GetValue('thumnail')) $this->model->SetValue('thumnail', '');
 
 					$qry = new \BH_DB_Delete($this->model->table.'_images');
 					$qry->AddWhere('article_seq = '.$img['article_seq']);
@@ -563,17 +539,12 @@ class BoardController extends \BH_Controller{
 
 	protected function PasswordCheck(){
 		if($this->model->GetValue('muid')){
-			if(_MEMBERIS !== true){
-				return 'ERROR#101';
-			}
-			else if($this->model->GetValue('muid') != $_SESSION['member']['muid']){
-				return 'ERROR#102';
-			}
+			if(_MEMBERIS !== true) return 'ERROR#101';
+			else if($this->model->GetValue('muid') != $_SESSION['member']['muid']) return 'ERROR#102';
 		}
 		else{
-			if(!isset($_POST['pwd'])){
-				return _WRONG_CONNECTED;
-			}
+			if(!isset($_POST['pwd'])) return _WRONG_CONNECTED;
+
 			$pwd = SqlFetch('SELECT pwd FROM '.$this->model->table.' WHERE seq='.$this->model->GetValue('seq'));
 			if(!_password_verify($_POST['pwd'], $pwd['pwd'])){
 				return '비밀번호가 일치하지 않습니다.';
@@ -582,4 +553,7 @@ class BoardController extends \BH_Controller{
 		return true;
 	}
 
+	public function _DirectView(){
+		$this->View();
+	}
 }

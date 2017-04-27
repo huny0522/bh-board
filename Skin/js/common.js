@@ -48,6 +48,13 @@ function Common($) {
 		return nStr.replace(/,/g, '');
 	};
 
+	this.html2xt = function(str){
+		str = str.replace(/\</ig, '&lt;');
+		str = str.replace(/\>/ig, '&gt;');
+		str = str.replace(/\'/ig, '&#39;');
+		return str;
+	}
+
 	/**
 	 * 폼 ajax 전송
 	 */
@@ -673,11 +680,15 @@ function swiper_init(obj, opt) {
 	if (obj.attr('data-per-view')) {
 		opt.slidesPerView = parseFloat(obj.attr('data-per-view'));
 	}
+	if (obj.attr('data-center') == '1') {
+		opt.centeredSlides = true;
+	}
+
 	var paging = obj.find('.swiper_paging');
 
 	if (!paging.length) paging = obj.parent().children('.swiper_paging');
 	if (paging.length) {
-		if (paging.find('.pagination').length) opt.pagination = paging.find('.pagination');
+		if (paging.find('.pagination').length) opt.pagination = paging.find('.pagination')[0];
 	}
 
 	for (var attrname in opt) { def_opt[attrname] = opt[attrname]; }

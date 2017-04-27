@@ -24,6 +24,7 @@ class UploadController extends \BH_Controller{
 	}
 
 	private function FileUpload($type = ''){
+		DeleteOldTempFiles(_UPLOAD_DIR.'/temp/', strtotime('-6 hours'));
 
 		if(strpos('../', $_FILES['Filedata']['name']) !== false){
 			Redirect('-1');
@@ -49,8 +50,10 @@ class UploadController extends \BH_Controller{
 				if(!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
 				$newFileName = RandomFileName().'.'.$filename_ext;
-				Thumbnail($tmp_name, $uploadDir.$newFileName, _MAX_IMAGE_WIDTH);
-				//else @move_uploaded_file($tmp_name, $uploadDir.$newFileName);
+
+
+				if($type == 'image' && $filename_ext != 'gif') Thumbnail($tmp_name, $uploadDir.$newFileName, _MAX_IMAGE_WIDTH);
+				else @move_uploaded_file($tmp_name, $uploadDir.$newFileName);
 
 				$data['uploadDir'] = _UPLOAD_URL;
 				$data['path'] = $path.$newFileName;
@@ -63,6 +66,26 @@ class UploadController extends \BH_Controller{
 		else {
 			echo json_encode(array('result' => false));
 		}
+	}
 
+	private function DeleteOldTempFiles($tempfile_path, $time) {
+		if(is_dir($tempfile_path)) {
+			if($dh = opendir($tempfile_path)) {
+				while(($file = readdir($dh)) !== false) {
+					if($file != "." && $file != "..") {
+						$dest_path = "{$tempfile_path}/{$file}";
+						if(is_dir($dest_path)) {
+							DeleteOldTempFiles($dest_path, $time);
+						} else {
+							$fat = filemtime($dest_path);
+							if($fat < $time) {
+								@unlink($dest_path);
+							}
+						}
+					}
+				}
+				closedir($dh);
+			}
+		}
 	}
 }

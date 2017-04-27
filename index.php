@@ -110,6 +110,9 @@ define('_DEFAULT_LAYOUT', '_Default');
  * @var BH_Application $_BH_App
  */
 require _COMMONDIR.'/common.php';
+BH_DB_Cache::$DBTableFirst = array(TABLE_FIRST, TABLE_MALL_FIRST);
+BH_DB_Cache::$ExceptTable = array(TABLE_MEMBER);
+
 $_BH_App = new \BH_Application();
 $_BH_App->run();
 

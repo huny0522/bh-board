@@ -29,9 +29,6 @@ if(_CREATE_HTML_ALL === true){
 	ReplaceCSS2ALL(_SKINDIR, _HTMLDIR);
 }
 
-BH_DB_Cache::$DBTableFirst = array(TABLE_FIRST);
-BH_DB_Cache::$ExceptTable = array(TABLE_MEMBER);
-
 define('ENG_NUM', '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
 define('ENG_UPPER', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
 define('ENG_LOWER', 'abcdefghijklmnopqrstuvwxyz');
