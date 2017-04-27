@@ -143,19 +143,19 @@ class BH_Common
 	public function ContentImageUpate($tid, $keyValue, $content, $mode = 'write'){
 		$newcontent = $content['contents'];
 		$maxImage = _MAX_IMAGE_COUNT;
+		$dbKeyValue = implode('|',$keyValue);
 
 		if($mode == 'modify'){
-			$dbKeyValue = SetDBText(implode('|',$keyValue));
 			$dbGetList = new \BH_DB_GetList(TABLE_IMAGES);
 			$dbGetList->AddWhere('tid=%s', $tid);
-			$dbGetList->AddWhere('article_seq='.$dbKeyValue);
+			$dbGetList->AddWhere('article_seq = %s', $dbKeyValue);
 			while($img = $dbGetList->Get()){
 				if(strpos($content['contents'], $img['image']) === false){
 					// 파일이 없으면 삭제
 					@unlink(_UPLOAD_DIR.$img['image']);
 					$qry = new \BH_DB_Delete(TABLE_IMAGES);
 					$qry->AddWhere('tid = %s', $tid);
-					$qry->AddWhere('article_seq = %d', $dbKeyValue);
+					$qry->AddWhere('article_seq = %s', $dbKeyValue);
 					$qry->AddWhere('seq = %d', $img['seq']);
 					$qry->Run();
 				}
@@ -179,23 +179,24 @@ class BH_Common
 						continue;
 					}
 
-					$newpath = str_replace('/'._UPLOAD_DIRNAME.'/temp/', '/'._UPLOAD_DIRNAME.'/image/'.$ym.'/', $exp[0]);
+					$newpath = str_replace('/temp/', '/image/'.$ym.'/', $exp[0]);
 					$uploadDir = _UPLOAD_DIR.'/image/'.$ym;
 					if(!is_dir($uploadDir)){
 						mkdir($uploadDir, 0777, true);
 					}
-					@copy(_DIR.$exp[0],_DIR.$newpath);
+					@copy(_UPLOAD_DIR.$exp[0],_UPLOAD_DIR.$newpath);
 					$newcontent = str_replace($exp[0],$newpath, $newcontent);
 					// 파일이 있으면 등록
 
 					unset($dbInsert);
 					$dbInsert = new \BH_DB_Insert(TABLE_IMAGES);
-					$dbInsert->data['tid'] = SetDBText($tid);
-					$dbInsert->data['article_seq'] = SetDBText(implode('|',$keyValue));
-					$dbInsert->data['image'] = SetDBText($newpath);
-					$dbInsert->data['imagename'] = SetDBText($exp[1]);
+					$dbInsert->SetDataStr('tid', $tid);
+					$dbInsert->SetDataStr('article_seq', $dbKeyValue);
+					$dbInsert->SetDataStr('image', $newpath);
+					$dbInsert->SetDataStr('imagename', $exp[1]);
 					$dbInsert->decrement = 'seq';
 					$dbInsert->AddWhere('tid = %s', $tid);
+					$dbInsert->AddWhere('article_seq = %s', $dbKeyValue);
 					//$params['test'] = true;
 					$dbInsert->Run();
 					$imageCount++;
@@ -205,7 +206,7 @@ class BH_Common
 
 			if($newcontent != $content['contents']){
 				$qry = new \BH_DB_Update($tid);
-				$qry->SetData('%1 = %s', $content['name'], $newcontent);
+				$qry->SetDataStr($content['name'], $newcontent);
 				foreach($keyValue as $k=>$v){
 					$qry->AddWhere('%1 = %s', $k, $v);
 				}
@@ -217,7 +218,6 @@ class BH_Common
 		DeleteOldTempFiles(_UPLOAD_DIR.'/temp/', strtotime('-6 hours'));
 		return true;
 	}
-
 
 	public function MenuConnect($bid, $type){
 		$AdminAuth = explode(',', $this->GetMember('admin_auth'));
