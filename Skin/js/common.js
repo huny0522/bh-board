@@ -740,42 +740,64 @@ $(document).ready(function () {
  *
  ------------------------------------------- */
 var oEditors = [];
-var seditLoadIs = false;
+var SE2LoadIs = false;
 function SE2_paste(id, defaultfolder, hiddenimage){
-	var imgbox = hiddenimage ? '' : '<div class="se2_add_img" data-sname="'+id+'">' +
-		'<span><button class="upbtn">이미지첨부</button></span>' +
-		'<div></div>' +
-		'</div>';
-
-	$('#'+id).after(imgbox);
-	if(!$('#fileupfrm').length){
-		var imgfrm = '<form id="fileupfrm" method="post" action="/Upload/ImageUpload/" enctype="multipart/form-data">' +
-			'<input type="file" name="Filedata" value="" data-sname="" id="fileupinp" style="display:block; width:0; height:0;" />' +
-			'</form>';
-		$('body').append(imgfrm);
+	var scriptLoadIs = typeof(nhn) != 'undefined' && typeof(nhn.husky) != 'undefined' && typeof(nhn.husky.EZCreator) != 'undefined';
+	if(scriptLoadIs){
+		SE2LoadIs = true;
+		spaste(id, defaultfolder, hiddenimage);
+	}
+	else{
+		if(!SE2LoadIs){
+			SE2LoadIs = true;
+			$.getScript('/Common/smart_editor/js/HuskyEZCreator.js').done(function( s, Status ) {
+				spaste(id, defaultfolder, hiddenimage);
+			});
+		}
+		else{
+			setTimeout(function(){
+				SE2_paste(id, defaultfolder, hiddenimage);
+			}, 200);
+		}
 	}
 
-	nhn.husky.EZCreator.createInIFrame({
-		oAppRef: oEditors,
-		elPlaceHolder: id,
-		sSkinURI: defaultfolder + "/Common/smart_editor/SmartEditor2Skin.html",
-		htParams : {
-			bUseToolbar : true,				// 툴바 사용 여부 (true:사용/ false:사용하지 않음)
-			bUseVerticalResizer : true,		// 입력창 크기 조절바 사용 여부 (true:사용/ false:사용하지 않음)
-			bUseModeChanger : true,			// 모드 탭(Editor | HTML | TEXT) 사용 여부 (true:사용/ false:사용하지 않음)
-			//aAdditionalFontList : aAdditionalFontSet,		// 추가 글꼴 목록
-			fOnBeforeUnload : function(){
-				//alert("완료!");
-			}
-		}, //boolean
-		fOnAppLoad : function(){
-			var sDefaultFont = '나눔고딕';
-			var nFontSize = 11;
-			oEditors.getById[id].setDefaultFont(sDefaultFont, nFontSize);
-			//예제 코드
-		},
-		fCreator: "createSEditor2"
-	});
+
+	function spaste(id, defaultfolder, hiddenimage){
+		var imgbox = hiddenimage ? '' : '<div class="se2_add_img" data-sname="'+id+'">' +
+			'<span><button class="upbtn">이미지첨부</button></span>' +
+			'<div></div>' +
+			'</div>';
+
+		$('#'+id).after(imgbox);
+		if(!$('#fileupfrm').length){
+			var imgfrm = '<form id="fileupfrm" method="post" action="/Upload/ImageUpload/" enctype="multipart/form-data">' +
+				'<input type="file" name="Filedata" value="" data-sname="" id="fileupinp" style="display:block; width:0; height:0;" />' +
+				'</form>';
+			$('body').append(imgfrm);
+		}
+
+		nhn.husky.EZCreator.createInIFrame({
+			oAppRef: oEditors,
+			elPlaceHolder: id,
+			sSkinURI: defaultfolder + "/Common/smart_editor/SmartEditor2Skin.html",
+			htParams : {
+				bUseToolbar : true,				// 툴바 사용 여부 (true:사용/ false:사용하지 않음)
+				bUseVerticalResizer : true,		// 입력창 크기 조절바 사용 여부 (true:사용/ false:사용하지 않음)
+				bUseModeChanger : true,			// 모드 탭(Editor | HTML | TEXT) 사용 여부 (true:사용/ false:사용하지 않음)
+				//aAdditionalFontList : aAdditionalFontSet,		// 추가 글꼴 목록
+				fOnBeforeUnload : function(){
+					//alert("완료!");
+				}
+			}, //boolean
+			fOnAppLoad : function(){
+				var sDefaultFont = '나눔고딕';
+				var nFontSize = 11;
+				oEditors.getById[id].setDefaultFont(sDefaultFont, nFontSize);
+				//예제 코드
+			},
+			fCreator: "createSEditor2"
+		});
+	}
 }
 
 $(document).on('click','.se2_add_img button.upbtn',function(e){
