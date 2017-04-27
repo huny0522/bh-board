@@ -25,11 +25,7 @@ class UploadController extends \BH_Controller{
 
 	private function FileUpload($type = ''){
 		DeleteOldTempFiles(_UPLOAD_DIR.'/temp/', strtotime('-6 hours'));
-
-		if(strpos('../', $_FILES['Filedata']['name']) !== false){
-			Redirect('-1');
-		}
-
+		if(strpos('../', $_FILES['Filedata']['name']) !== false) Redirect('-1');
 		$bSuccessUpload = is_uploaded_file($_FILES['Filedata']['tmp_name']);
 
 		// SUCCESSFUL
@@ -63,29 +59,6 @@ class UploadController extends \BH_Controller{
 			}
 		}
 		// FAILED
-		else {
-			echo json_encode(array('result' => false));
-		}
-	}
-
-	private function DeleteOldTempFiles($tempfile_path, $time) {
-		if(is_dir($tempfile_path)) {
-			if($dh = opendir($tempfile_path)) {
-				while(($file = readdir($dh)) !== false) {
-					if($file != "." && $file != "..") {
-						$dest_path = "{$tempfile_path}/{$file}";
-						if(is_dir($dest_path)) {
-							DeleteOldTempFiles($dest_path, $time);
-						} else {
-							$fat = filemtime($dest_path);
-							if($fat < $time) {
-								@unlink($dest_path);
-							}
-						}
-					}
-				}
-				closedir($dh);
-			}
-		}
+		else echo json_encode(array('result' => false));
 	}
 }

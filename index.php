@@ -92,7 +92,7 @@ define('TABLE_POPUP', TABLE_FIRST.'popup');
 define('TABLE_IMAGES', TABLE_FIRST.'images');
 
 define('_MEMBERIS', isset($_SESSION['member']) && strlen($_SESSION['member']['muid']));
-$_LevelArray = array(1 => '일반회원', 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 15 => '매니저', 18 => '관리자', 20 => '최고관리자');
+$_LevelArray = array(0 => '비회원', 1 => '일반회원', 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 15 => '매니저', 18 => '관리자', 20 => '최고관리자');
 define('_MEMBER_LEVEL',1);
 define('_MANAGER_LEVEL',15);
 define('_ADMIN_LEVEL',18);
@@ -110,7 +110,7 @@ define('_DEFAULT_LAYOUT', '_Default');
  * @var BH_Application $_BH_App
  */
 require _COMMONDIR.'/common.php';
-BH_DB_Cache::$DBTableFirst = array(TABLE_FIRST, TABLE_MALL_FIRST);
+BH_DB_Cache::$DBTableFirst = array(TABLE_FIRST);
 BH_DB_Cache::$ExceptTable = array(TABLE_MEMBER);
 
 $_BH_App = new \BH_Application();

@@ -214,7 +214,6 @@ class BH_Common
 			}
 		}
 
-		require_once _COMMONDIR.'/FileUpload.php';
 		DeleteOldTempFiles(_UPLOAD_DIR.'/temp/', strtotime('-6 hours'));
 		return true;
 	}

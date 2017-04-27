@@ -532,7 +532,6 @@ class BoardController extends \BH_Controller{
 			}
 		}
 
-		require_once _COMMONDIR.'/FileUpload.php';
 		DeleteOldTempFiles(_UPLOAD_DIR.'/temp/', strtotime('-6 hours'));
 		return true;
 	}

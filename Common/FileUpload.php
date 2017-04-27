@@ -130,25 +130,3 @@ function Thumbnail($source, $thumb, $width, $height = 0){
 	@chmod($thumb, 0666); // 추후 삭제를 위하여 파일모드 변경
 	return 1;
 }
-
-function DeleteOldTempFiles($tempfile_path, $time) {
-	if(is_dir($tempfile_path)) {
-		if($dh = opendir($tempfile_path)) {
-			while(($file = readdir($dh)) !== false) {
-				if($file != "." && $file != "..") {
-					$dest_path = "{$tempfile_path}/{$file}";
-					if(is_dir($dest_path)) {
-						DeleteOldTempFiles($dest_path, $time);
-					} else {
-						$fat = filemtime($dest_path);
-						if($fat < $time) {
-							@unlink($dest_path);
-						}
-					}
-				}
-			}
-			closedir($dh);
-		}
-	}
-}
-

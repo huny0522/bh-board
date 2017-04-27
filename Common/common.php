@@ -273,6 +273,29 @@ function ResizeImage($path, $width, $noext = _NO_IMG){
 	return _UPLOAD_URL.$new;
 }
 
+function UnlinkImage($file){
+	$temp = explode('/', $file);
+	$temp[sizeof($temp) - 1] = '*_'.$temp[sizeof($temp) - 1];
+	@unlink($file);
+	array_map('unlink', glob(implode('/', $temp)));
+}
+
+function DeleteOldTempFiles($tempfile_path, $time){
+	if(is_dir($tempfile_path)) if($dh = opendir($tempfile_path)){
+		while(($file = readdir($dh)) !== false){
+			if($file != '.' && $file != '..'){
+				$dest_path = $tempfile_path.'/'.$file;
+				if(is_dir($dest_path)) DeleteOldTempFiles($dest_path, $time);
+				else{
+					$fat = filemtime($dest_path);
+					if($fat < $time) @unlink($dest_path);
+				}
+			}
+		}
+		closedir($dh);
+	}
+}
+
 function ToInt($s){return preg_replace('/[^0-9\-]/','$1',$s);}
 
 function ToFloat($s){return preg_replace('/[^0-9\.\-]/','$1',$s);}
