@@ -300,7 +300,9 @@ function ToInt($s){return preg_replace('/[^0-9\-]/','$1',$s);}
 
 function ToFloat($s){return preg_replace('/[^0-9\.\-]/','$1',$s);}
 
-function RemoveScriptTag($str){return preg_replace(array('/\<(\/script|script)(.*?)\>/is', '/\<(\/form|form)(.*?)\>/is', '/\<(.*?)on(.*?)\>/is'), array('', '', '<$1>'),$str);}
+function RemoveScriptTag($str){
+	return preg_replace(array('/\<\/*\s*(script|form|input|select|button|textarea)(.*?)\>/is', '/\<(.*?)(\s+on.*?)\>/is'), array('', '<$1>'), $str);
+}
 
 function SetDBTrimText($txt){
 	if(is_array($txt)){
