@@ -1,7 +1,10 @@
 function Common($) {
+	var _this = this;
 
 	this.data_trans_error = '데이타 전송오류';
 	this.loading_cnt = 0;
+
+	this.bodyOverflow = '';
 
 	this.preload = function (imgs) {
 		$(imgs).each(function () {
@@ -231,8 +234,7 @@ function Common($) {
 
 		if(modal.attr('data-close-type') == 'hidden') modal.hide();
 		else modal.remove();
-
-		$('body').css('overflow-y', 'scroll');
+		$('body').css('overflow-y', _this.bodyOverflow);
 	};
 
 	this.createModal = function (title, modal_id, data, w, h) {
@@ -256,6 +258,7 @@ function Common($) {
 		box.css({
 			'margin': '-' + (box.outerHeight() / 2) + 'px' + ' 0 0 -' + (box.outerWidth() / 2) + 'px'
 		});
+		_this.bodyOverflow = $('body').css('overflow-y');
 		$('body').css('overflow-y', 'hidden');
 	};
 

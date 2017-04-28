@@ -14,8 +14,7 @@ function ReplaceHTMLFile($source, $target){
 	if(file_exists($target) && !$modifyIs) return;
 
 	$patterns = array(
-		'/<\?\s*p[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'/<\?\s*e[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'/<\?\s*[p|e][\.|\;]\s*(.*?)(;*\s*\?>)/is',
 		'/<\?\s*v[\.|\;]\s*(.*?)(;*\s*\?>)/is',
 		'/<\?\s*vr[\.|\;]\s*(.*?)(;*\s*\?>)/is',
 		'/<\?\s*vb[\.|\;]\s*(.*?)(;*\s*\?>)/is',
@@ -33,7 +32,6 @@ function ReplaceHTMLFile($source, $target){
 	);
 
 	$replace = array(
-		'<?php echo str_replace(array(\'&39\', \'&33\'), array(chr(39), \'&3\'), $1); ?>',
 		'<?php echo $1; ?>',
 		'<?php echo GetDBText($1); ?>',
 		'<?php echo GetDBRaw($1); ?>',

@@ -296,9 +296,19 @@ function DeleteOldTempFiles($tempfile_path, $time){
 	}
 }
 
-function ToInt($s){return preg_replace('/[^0-9\-]/','$1',$s);}
+function _FromDB(&$txt){
+	if(is_string($txt)) $txt = str_replace(array('&39', '&33'), array(chr(39), '&3'), $txt);
+	else if(is_array($txt)){
+		foreach($txt as $k => &$v){
+			if(is_array($v)) _FromDB($v);
+			else if(is_string($v)) $v = str_replace(array('&39', '&33'), array(chr(39), '&3'), $v);
+		}
+	}
+}
 
-function ToFloat($s){return preg_replace('/[^0-9\.\-]/','$1',$s);}
+function ToInt($s){return ($s[0] == '-' ? $s[0] : '').preg_replace('/[^0-9]/','',$s);}
+
+function ToFloat($s){return ($s[0] == '-' ? $s[0] : '').preg_replace('/[^0-9\.]/','',$s);}
 
 function RemoveScriptTag($str){
 	return preg_replace(array('/\<\/*\s*(script|form|input|select|button|textarea)(.*?)\>/is', '/\<(.*?)(\s+on.*?)\>/is'), array('', '<$1>'), $str);
@@ -377,7 +387,7 @@ function GetDBText($txt){
 		}
 		return $txt;
 	}
-	else return htmlspecialchars(stripslashes(str_replace(array('&39', '&33'), array(chr(39), '&3'),  $txt)));
+	else return htmlspecialchars(stripslashes($txt));
 }
 
 function GetDBRaw($txt){
@@ -387,7 +397,7 @@ function GetDBRaw($txt){
 		}
 		return $txt;
 	}
-	else return RemoveScriptTag(stripslashes(str_replace(array('&39', '&33'), array(chr(39), '&3'),  $txt)));
+	else return RemoveScriptTag(stripslashes($txt));
 }
 
 function my_bcmod( $x, $y ){
@@ -601,6 +611,8 @@ function SqlFetch($qry){
 
 	$r = mysqli_fetch_assoc($qry);
 	if($string_is) SqlFree($qry);
+
+	if($r) _FromDB($r);
 
 	return $r;
 }
