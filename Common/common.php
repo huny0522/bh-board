@@ -55,18 +55,12 @@ function my_escape_string($str) {
 }
 
 function Redirect($url, $msg=''){
-
-	if(_AJAXIS === true){
-		JSON($url != '-1', $msg);
-	}
+	if(_AJAXIS === true) JSON($url != '-1', $msg);
 
 	echo '<script>';
-	if($msg){
-		echo 'alert(\''.$msg.'\');';
-	}
-	if($url == '-1'){
-		echo 'history.go(-1);';
-	}else{
+	if($msg) echo 'alert(\''.$msg.'\');';
+	if($url == '-1') echo 'history.go(-1);';
+	else{
 		$url = str_replace(' ', '%20', $url);
 		echo 'location.replace(\''.$url.'\');';
 	}
@@ -130,17 +124,14 @@ function OptionAreaNumber($num = ''){
 	$numbers[] = array( 'num' => '064', 'loc' => '제주' );
 
 	$str = '';
-
 	foreach ($numbers as $item){
 		$str .= '<option value="' . $item['num'] . '"' . ($num == $item['num'] ? ' selected="selected"' : '') . '>' . $item['num'] . '(' . $item['loc'] . ')</option>';
 	}
-
 	return $str;
 }
 
 
 function OptionPhoneFirstNumber($find = ''){
-
 	$numbers = array();
 	$numbers[] = '010';
 	$numbers[] = '011';
@@ -188,9 +179,7 @@ function StringCut($title, $length, $last = '...'){
 	if(mb_strlen($title,'utf-8') > $length){
 		$result_title = mb_substr($title, 0, $length, 'utf-8').$last;
 	}
-	else{
-		$result_title = $title;
-	}
+	else $result_title = $title;
 
 	Return $result_title;
 }
@@ -217,9 +206,7 @@ function GetLastDay($month, $year = false) {
 
 function Download($path, $fname){
 	$temp = explode('/', $path);
-	if(!$fname){
-		$fname = $temp[sizeof($temp)-1];
-	}
+	if(!$fname) $fname = $temp[sizeof($temp)-1];
 
 	if(isset($GLOBALS['_BH_App']) && isset($GLOBALS['_BH_App']->CTRL) && isset($GLOBALS['_BH_App']->CTRL->Layout)) unset($GLOBALS['_BH_App']->CTRL->Layout);
 
@@ -306,9 +293,9 @@ function _FromDB(&$txt){
 	}
 }
 
-function ToInt($s){return ($s[0] == '-' ? $s[0] : '').preg_replace('/[^0-9]/','',$s);}
+function ToInt($s){if(!$s)return 0; return ($s[0] == '-' ? $s[0] : '').preg_replace('/[^0-9]/','',$s);}
 
-function ToFloat($s){return ($s[0] == '-' ? $s[0] : '').preg_replace('/[^0-9\.]/','',$s);}
+function ToFloat($s){if(!$s)return 0; return ($s[0] == '-' ? $s[0] : '').preg_replace('/[^0-9\.]/','',$s);}
 
 function RemoveScriptTag($str){
 	return preg_replace(array('/\<\/*\s*(script|form|input|select|button|textarea)(.*?)\>/is', '/\<(.*?)(\s+on.*?)\>/is'), array('', '<$1>'), $str);
@@ -352,13 +339,11 @@ function SetDBInt($txt){
 		return $txt;
 	}
 
-	if(!strlen($txt)){
-		Redirect('-1', '숫자값이 비어있습니다.');
-	}
-	$val = ToInt($txt);
-	if($val != $txt){
-		Redirect('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
-	}
+	if(!strlen($txt)) Redirect('-1', '숫자값이 비어있습니다.');
+
+	$val = (int)$txt;
+	if((string)$val != (string)$txt) Redirect('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+
 	return $val;
 }
 
@@ -370,13 +355,11 @@ function SetDBFloat($txt){
 		return $txt;
 	}
 
-	if(!strlen($txt)){
-		Redirect('-1', '숫자값이 비어있습니다.');
-	}
-	$val = ToFloat($txt);
-	if($val != $txt){
-		Redirect('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
-	}
+	if(!strlen($txt)) Redirect('-1', '숫자값이 비어있습니다.');
+
+	$val = (float)$txt;
+	if((string)$val != (string)$txt) Redirect('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+
 	return $val;
 }
 
@@ -536,10 +519,8 @@ function SqlFree($result){
  * */
 function SqlTableExists($table){
 	$exists = SqlNumRows("SHOW TABLES LIKE '" . $table . "'");
-	if($exists)
-		return true;
-	else
-		return false;
+	if($exists) return true;
+	else return false;
 }
 
 /**
@@ -548,10 +529,8 @@ function SqlTableExists($table){
  */
 function SqlQuery($sql){
 	$sql = StrToSql(func_get_args());
-	if(_DEVELOPERIS === true)
-		$res = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql) or die('ERROR SQL : '.$sql);
-	else
-		$res = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql) or die('ERROR');
+	if(_DEVELOPERIS === true) $res = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql) or die('ERROR SQL : '.$sql);
+	else $res = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql) or die('ERROR');
 	return $res;
 }
 
@@ -562,10 +541,8 @@ function SqlCCQuery($table, $sql){
 	$args[0] = str_replace('%t', $table, $args[0]);
 	$sql = trim(StrToSql($args));
 
-	if(_DEVELOPERIS === true)
-		$res = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql) or die('ERROR SQL : '.$sql);
-	else
-		$res = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql) or die('ERROR SQL');
+	if(_DEVELOPERIS === true) $res = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql) or die('ERROR SQL : '.$sql);
+	else $res = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql) or die('ERROR SQL');
 
 	if($res && (strtolower(substr($sql, 0, 6)) == 'delete' || strtolower(substr($sql, 0, 6)) == 'update' || strtolower(substr($sql, 0, 6)) == 'insert')) BH_DB_Cache::DelPath($table);
 
@@ -577,13 +554,11 @@ function SqlCCQuery($table, $sql){
  * @return bool|int
  */
 function SqlNumRows($qry){
-	if(is_string($qry))
-		$qry = SqlQuery($qry);
+	if(is_string($qry)) $qry = SqlQuery($qry);
 	if($qry === false) return false;
 
 	try{
 		$r = mysqli_num_rows($qry);
-
 		return $r;
 	}
 	catch(Exception $e){
@@ -618,11 +593,7 @@ function SqlFetch($qry){
 }
 
 function SqlPassword($input) {
-	$pass = strtoupper(
-		sha1(
-			sha1($input, true)
-		)
-	);
+	$pass = strtoupper(sha1(sha1($input, true)));
 	return $pass;
 }
 
@@ -662,8 +633,6 @@ function modifyFileTime($file){
 //
 //		Model
 //
-
-
 
 class ModelType{
 	const Int = 1;
@@ -724,7 +693,6 @@ class BH_ModelData{
 	}
 }
 
-
 class _ModelFunc{
 	public static function SetPostValues(&$Data, $Except, &$Need){
 		$ret = new \BH_Result();
@@ -745,9 +713,7 @@ class _ModelFunc{
 					}
 				}
 			}
-
 		}
-
 		return $ret;
 	}
 
@@ -769,9 +735,8 @@ class _ModelFunc{
 				}
 			break;
 			case ModelType::Enum:
-				if(isset($data->EnumValues) && is_array($data->EnumValues) && isset($data->EnumValues[$data->Value])){
-					return true;
-				}else{
+				if(isset($data->EnumValues) && is_array($data->EnumValues) && isset($data->EnumValues[$data->Value])) return true;
+				else{
 					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목에 값이 필요합니다.';
 					return false;
 				}
@@ -785,7 +750,7 @@ class _ModelFunc{
 				return true;
 			break;
 			case ModelType::EngNum:
-				if ( !ctype_alnum($data->Value) ) {
+				if ( !ctype_alnum($data->Value) ){
 					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문과 숫자만 입력가능합니다.';
 					return false;
 				}
@@ -839,37 +804,25 @@ class _ModelFunc{
 
 		if(!isset($HtmlAttribute['class'])) $HtmlAttribute['class'] = '';
 
-		if($data->MinLength !== false){
-			$Attribute .= ' data-minlength="'.$data->MinLength.'"';
-		}
+		if($data->MinLength !== false) $Attribute .= ' data-minlength="'.$data->MinLength.'"';
+
 		if($data->MaxLength !== false){
 			$Attribute .= ' data-maxlength="'.$data->MaxLength.'"';
 			$Attribute .= ' maxlength="'.$data->MaxLength.'"';
 		}
-		if($data->MinValue !== false){
-			$Attribute .= ' data-minvalue="'.$data->MinValue.'"';
-		}
-		if($data->MaxValue !== false){
-			$Attribute .= ' data-maxvalue="'.$data->MaxValue.'"';
-		}
-		if($data->Required){
-			$Attribute .= ' required="required"';
-		}
-		if($data->Type == ModelType::Int){
-			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'numberonly';
-		}
+		if($data->MinValue !== false) $Attribute .= ' data-minvalue="'.$data->MinValue.'"';
 
-		if($data->Type == ModelType::EngNum){
-			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engnumonly';
-		}
+		if($data->MaxValue !== false) $Attribute .= ' data-maxvalue="'.$data->MaxValue.'"';
 
-		if($data->Type == ModelType::Eng){
-			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engonly';
-		}
+		if($data->Required) $Attribute .= ' required="required"';
 
-		if($data->Type == ModelType::EngSpecial){
-			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engspecialonly';
-		}
+		if($data->Type == ModelType::Int) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'numberonly';
+
+		if($data->Type == ModelType::EngNum) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engnumonly';
+
+		if($data->Type == ModelType::Eng) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engonly';
+
+		if($data->Type == ModelType::EngSpecial) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engspecialonly';
 
 		if($data->Type == ModelType::Date || $data->Type == ModelType::Datetime){
 			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'date';
@@ -937,9 +890,8 @@ class _ModelFunc{
 			// 예외 패스, 셋이 없거나 셋에 있는것
 			if((!in_array($k, $Except) && (!sizeof($Need) || in_array($k, $Need)))){
 				if(isset($v->Value)){
-					if(in_array($k, $Key) && $v->AutoDecrement === true){
-						continue;
-					}
+					if(in_array($k, $Key) && $v->AutoDecrement === true) continue;
+
 					if($v->ValueIsQuery) $dbInsert->data[$k] = $v->Value;
 					else if($v->Type == ModelType::Int){
 						if(!strlen($v->Value) && isset($v->DefaultValue)) $dbInsert->data[$k] = $v->DefaultValue;
@@ -970,9 +922,7 @@ class _ModelFunc{
 		}
 
 		foreach($Key as $k){
-			if($Data[$k]->AutoDecrement === true){
-				$dbInsert->decrement = $k;
-			}
+			if($Data[$k]->AutoDecrement === true) $dbInsert->decrement = $k;
 			else if($Data[$k]->Value) $dbInsert->AddWhere($k.'='.SetDBText($Data[$k]->Value));
 		}
 		if(!$dbInsert->decrement) $dbInsert->UnsetWhere();
@@ -998,9 +948,8 @@ class _ModelFunc{
 			// 예외와 키값 패스, 셋이 없거나 셋에 있는것
 			if(!in_array($k, $Except) && (!sizeof($Need) || in_array($k, $Need)) && !in_array($k, $Key)){
 				if(isset($v->Value)){
-					if(in_array($k, $Key) && $v->AutoDecrement === true){
-						continue;
-					}
+					if(in_array($k, $Key) && $v->AutoDecrement === true) continue;
+
 					if($v->ValueIsQuery) $dbUpdate->data[$k] = $v->Value;
 					else if($v->Type == ModelType::Int){
 						$res = self::CheckInt($k, $v->Value);
@@ -1064,7 +1013,6 @@ class _ModelFunc{
 		foreach($modelKey as $k => $v){
 			$dbGet->AddWhere($v.' = '.SetDBTrimText($keys[$k]));
 		}
-		//$dbGet->test = true;
 
 		$data = $dbGet->Get();
 
@@ -1079,9 +1027,8 @@ class _ModelFunc{
 	public static function DBDelete($keyData, $ModelKey, $Table){
 		$res = new \BH_Result();
 
-		if(!is_array($keyData)){
-			$keyData = array($keyData);
-		}
+		if(!is_array($keyData)) $keyData = array($keyData);
+
 		if(!isset($ModelKey) || !is_array($ModelKey)){
 			if(_DEVELOPERIS === true){
 				echo '키값이 존재하지 않습니다.';
@@ -1097,7 +1044,6 @@ class _ModelFunc{
 				echo '모델의 키의 길이와 인자값의 키의 길이가 동일하지 않습니다.';
 				exit;
 			}
-
 
 			$res->result = false;
 			$res->message = 'ERROR#02';
