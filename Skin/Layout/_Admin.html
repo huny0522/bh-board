@@ -23,8 +23,8 @@ $this->JSAdd('admin.js', 10);
 			<h1><a href="<?p. _ADMINURL ?>"><span>ADMINISTRATOR</span></a></h1>
 			<nav id="gnb">
 				<ul>
-					<!--<li><a href="#">정보수정</a></li>-->
-					<li><a href="<?p. _ADMINURL ?>/Login/Logout">로그아웃</a></li>
+					<li class="home"><a href="<?p. _URL.'/' ?>" target="_blank">홈으로</a></li>
+					<li class="logout"><a href="<?p. _ADMINURL ?>/Login/Logout">로그아웃</a></li>
 				</ul>
 			</nav>
 			<nav id="tnb">
@@ -82,8 +82,15 @@ $this->JSAdd('admin.js', 10);
 					common.setCookie('managerSideView', 'no');
 				}
 			});
+
+			$('#container').scroll(function(){
+				sideScroll();
+			});
+
+			sideScroll();
 		});
-		$('#container').scroll(function(){
+
+		function sideScroll(){
 			var st = $('#container').scrollTop();
 			if(st < 0) st = 0;
 			$('#sideMenu').css({
@@ -92,7 +99,7 @@ $this->JSAdd('admin.js', 10);
 			$('#sideClose').css({
 				'top' : (st + 10) + 'px'
 			});
-		});
+		}
 	</script>
 <?php } ?>
 

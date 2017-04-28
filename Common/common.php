@@ -51,7 +51,7 @@ else define('_MOBILEIS', false);
 
 function my_escape_string($str) {
 	if(is_array($str)) return array_map('my_escape_string', $str);
-	else return trim(str_replace(array(';'),array(chr(92).';'),mysqli_real_escape_string($GLOBALS['_BH_App']->_MainConn, $str)));
+	else return trim(str_replace(array(';'),array(chr(92).';'), mysqli_real_escape_string($GLOBALS['_BH_App']->_MainConn, str_replace(array('&3', chr(39)), array('&33', '&39'),  $str))));
 }
 
 function Redirect($url, $msg=''){
@@ -375,7 +375,7 @@ function GetDBText($txt){
 		}
 		return $txt;
 	}
-	else return htmlspecialchars(stripslashes($txt));
+	else return htmlspecialchars(stripslashes(str_replace(array('&39', '&33'), array(chr(39), '&3'),  $txt)));
 }
 
 function GetDBRaw($txt){
@@ -385,7 +385,7 @@ function GetDBRaw($txt){
 		}
 		return $txt;
 	}
-	else return RemoveScriptTag(stripslashes($txt));
+	else return RemoveScriptTag(stripslashes(str_replace(array('&39', '&33'), array(chr(39), '&3'),  $txt)));
 }
 
 function my_bcmod( $x, $y ){
@@ -870,13 +870,13 @@ class _ModelFunc{
 		switch($htmlType){
 			case HTMLType::InputText:
 			case HTMLType::InputPassword:
-				return '<input type="'.$htmlType.'" name="'.$Name.'" id="MD_'.$Name.'" '.(isset($val) && $htmlType != HTMLType::InputPassword ? 'value="'.$val.'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+				return '<input type="'.$htmlType.'" name="'.$Name.'" id="MD_'.$Name.'" '.(isset($val) && $htmlType != HTMLType::InputPassword ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
 			break;
 			case HTMLType::InputFile:
 				return '<input type="'.$htmlType.'" name="'.$Name.'" id="MD_'.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
 			break;
 			case HTMLType::Textarea:
-				return '<textarea name="'.$Name.'" id="MD_'.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>'.(isset($val) ? $val : '').'</textarea>';
+				return '<textarea name="'.$Name.'" id="MD_'.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>'.(isset($val) ? GetDBText($val) : '').'</textarea>';
 			break;
 			case HTMLType::InputRadio:
 			case HTMLType::InputCheckbox:
@@ -900,7 +900,7 @@ class _ModelFunc{
 					foreach($data->EnumValues as $k=>$v){
 						$selected = isset($val) && $k == $val ? ' selected="selected"' : '';
 
-						$ret .= '<option value="'.$k.'" '.$selected.'>'.$v.'</option>';
+						$ret .= '<option value="'.$k.'" '.$selected.'>'.GetDBText($v).'</option>';
 					}
 				}
 				return $ret.'</select>';

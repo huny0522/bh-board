@@ -24,7 +24,7 @@ class {$ControllerName}Controller extends \\BH_Controller{
 	public function Index(){
 		\$qry = new \\BH_DB_GetListWithPage(\$this->model->table);
 		\$qry->articleCount = 10;
-		\$qry->page = \$_GET['page'];
+		\$qry->page = isset(\$_GET['page']) ? \$_GET['page'] : 0;
 		\$qry->pageUrl = \$this->URLAction().\$this->GetFollowQuery('page');
 		\$qry->Run();
 
@@ -266,7 +266,7 @@ class {$ModelName}Model extends \\BH_Model{
 				$html .= '</tr>' . chr(10);
 			}
 			$html .= '</table>' . chr(10);
-			$html .= '<div class="bottomBtn"><a href="<?a. \'\' ?><?fq. \'\' ?>" class="btn1">리스트</a><a href="<?a. \'Modify/\'.$this->ID ?><?fq. \'\' ?>" class="btn1">수정</a><a href="#" id="deleteArticle" class="btn1">삭제</a><a href="#" class="backbtn btn1">뒤로</a></div>' . chr(10);
+			$html .= '<div class="bottomBtn"><a href="<?a. \'\' ?><?fq. \'\' ?>" class="bBtn">리스트</a><a href="<?a. \'Modify/\'.$this->ID ?><?fq. \'\' ?>" class="bBtn">수정</a><a href="#" id="deleteArticle" class="bBtn">삭제</a><a href="#" class="backbtn bBtn">뒤로</a></div>' . chr(10);
 			$html .= '<div id="deleteForm" class="hidden">'. chr(10)
 				. chr(9).'<form id="delForm" name="delForm" method="post" action="<?a. \'Delete/\'.$this->ID ?><?fq. \'\' ?>">'. chr(10);
 
@@ -348,9 +348,9 @@ class {$ModelName}Model extends \\BH_Model{
 			}
 			$html .= '	</table>' . chr(10) . chr(10);
 			$html .= '	<div class="bottomBtn">' . chr(10)
-				.'		<button type="submit" class="btn1"><?php echo $this->Action == \'Modify\' ? \'수정\' : \'등록\'; ?></button>' . chr(10)
-				.'		<button type="reset" class="btn1">취소</button>' . chr(10)
-				.'		<a href="#" class="backbtn btn1">뒤로</a>'.chr(10)
+				.'		<button type="submit" class="bBtn"><?php echo $this->Action == \'Modify\' ? \'수정\' : \'등록\'; ?></button>' . chr(10)
+				.'		<button type="reset" class="bBtn">취소</button>' . chr(10)
+				.'		<a href="#" class="backbtn bBtn">뒤로</a>'.chr(10)
 				.'	</div>' . chr(10);
 			$html .= '</form>' . chr(10). chr(10);
 			$html .= chr(60).'script>' . chr(10)
@@ -401,7 +401,7 @@ class {$ModelName}Model extends \\BH_Model{
 			$html .= '<tbody>'. chr(10);
 			$html .= '<?php while($row = $Data->Get()){?>'. chr(10);
 			$html .= '<tr>'. chr(10);
-			$html .= '	<td><?p. $Data->beginNum-- ?></td>'. chr(10);
+			$html .= '	<td><?e. $Data->beginNum-- ?></td>'. chr(10);
 			foreach($modelClass->data as $k => $row){
 				if(isset($row->EnumValues) && is_array($row->EnumValues)) $html .= '	<td><?menum(\''.$k.'\', $row[\''.$k.'\']) ?></td>'. chr(10);
 				else $html .= '	<td><?v. $row[\''.$k.'\']; ?></td>'. chr(10);
@@ -419,8 +419,8 @@ class {$ModelName}Model extends \\BH_Model{
 			$html .= '<?php } else{ ?>'. chr(10);
 			$html .= '<p class="nothing">등록된 게시물이 없습니다.</p>'. chr(10);
 			$html .= '<?php } ?>'. chr(10);
-			$html .= '<div class="left_btn"><a href="<?a. \'Write\' ?><?fq. \'\' ?>" class="btn2">글쓰기</a></div>'. chr(10);
-			$html .= '<div class="paging"><?p. $Data->pageHtml ?></div>'. chr(10);
+			$html .= '<div class="left_btn"><a href="<?a. \'Write\' ?><?fq. \'\' ?>" class="mBtn">글쓰기</a></div>'. chr(10);
+			$html .= '<div class="paging"><?e. $Data->pageHtml ?></div>'. chr(10);
 			return $html;
 			/*file_put_contents(_SKINDIR . $path, $html);
 			ReplaceHTMLFile(_SKINDIR . $path, _HTMLDIR . $path);*/
