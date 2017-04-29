@@ -65,21 +65,19 @@ class BoardController extends \BH_Controller{
 		if(isset($_GET['category']) && strlen($_GET['category'])) $dbList->AddWhere('category = '.SetDBText($_GET['category']));
 
 		if(isset($_GET['searchType']) && strlen($_GET['searchType']) && isset($_GET['searchKeyword']) && strlen($_GET['searchKeyword'])){
-			$searchWhere = '';
-			$keyword = my_escape_string($_GET['searchKeyword']);
 			switch($_GET['searchType']){
 				case 's':
-					$searchWhere = 'subject LIKE \'%'.$keyword.'%\'';
+					$dbList->AddWhere('subject LIKE %s', '%'.$_GET['searchKeyword'].'%');
 				break;
 				case 'c':
-					$searchWhere = 'content LIKE \'%'.$keyword.'%\'';
+					$dbList->AddWhere('content LIKE %s', '%'.$_GET['searchKeyword'].'%');
 				break;
 				case 'snc':
-					$searchWhere = '(subject LIKE \'%'.$keyword.'%\' OR content LIKE \'%'.$keyword.'%\')';
+					$dbList->AddWhere('subject LIKE %s OR content LIKE %s', '%'.$_GET['searchKeyword'].'%', '%'.$_GET['searchKeyword'].'%');
 				break;
 			}
-			if($searchWhere) $dbList->AddWhere($searchWhere);
 		}
+		//$dbList->test = true;
 		$dbList->Run();
 
 		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Index.html';

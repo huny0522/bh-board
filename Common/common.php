@@ -54,7 +54,7 @@ else define('_MOBILEIS', false);
 //
 function my_escape_string($str) {
 	if(is_array($str)) return array_map('my_escape_string', $str);
-	else return trim(str_replace(array(';'),array(chr(92).';'), mysqli_real_escape_string($GLOBALS['_BH_App']->_MainConn, str_replace(array(_ESC_OUT_CHR, chr(39)), array(_ESC_IN_CHR, _ESC_CHANGE_CHR),  $str))));
+	else return mysqli_real_escape_string($GLOBALS['_BH_App']->_MainConn, trim($str));
 }
 
 function Redirect($url, $msg=''){
@@ -289,9 +289,8 @@ function DeleteOldTempFiles($tempfile_path, $time){
 function _FromDB(&$txt){
 	if(is_string($txt)) $txt = str_replace(array(_ESC_CHANGE_CHR, _ESC_IN_CHR), array(chr(39), _ESC_OUT_CHR), $txt);
 	else if(is_array($txt)){
-		foreach($txt as $k => &$v){
-			if(is_array($v)) _FromDB($v);
-			else if(is_string($v)) $v = str_replace(array(_ESC_CHANGE_CHR, _ESC_IN_CHR), array(chr(39), _ESC_OUT_CHR), $v);
+		foreach($txt as &$v){
+			_FromDB($v);
 		}
 	}
 }
@@ -311,7 +310,7 @@ function SetDBTrimText($txt){
 		}
 		return $txt;
 	}
-	return chr(39).trim(my_escape_string($txt)).chr(39);
+	return 'x\''.bin2hex(trim($txt)).'\'';
 }
 
 function SetDBText($txt){
@@ -321,7 +320,7 @@ function SetDBText($txt){
 		}
 		return $txt;
 	}
-	return chr(39).(my_escape_string($txt)).chr(39);
+	return 'x\''.bin2hex($txt).'\'';
 }
 
 function SetDBQuot($txt){
