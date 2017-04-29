@@ -139,7 +139,7 @@ class {$ModelName}Model extends \\BH_Model{
 		$initFuncText = '';
 		if(sizeof($fn_matches) > 1 && $fn_matches[1]) $initFuncText = str_replace(chr(9), '', $fn_matches[1]);
 
-		$qry = SqlQuery('DESC '.$TableName);
+		$qry = SqlQuery('SHOW FULL COLUMNS FROM '.$TableName);
 		$primaryKey = array();
 		//$tData = array();
 		while($row = SqlFetch($qry)){
@@ -183,7 +183,7 @@ class {$ModelName}Model extends \\BH_Model{
 					$htmlType = 'HTMLType::Textarea';
 				}
 
-				$initFuncText .= chr(10).chr(10).'$this->InitModelData(\''.$row['Field'].'\', '.$modelType.', false, \''.$row['Field'].'\', '.$htmlType.');'.$addOption;
+				$initFuncText .= chr(10).chr(10).'$this->InitModelData(\''.$row['Field'].'\', '.$modelType.', false, \''.($row['Comment'] ? $row['Comment'] : $row['Field']).'\', '.$htmlType.');'.$addOption;
 			}
 
 		}
