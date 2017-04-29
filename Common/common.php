@@ -478,7 +478,7 @@ function StrToSql($args){
 						$find = true;
 					break;
 					case '1':
-						$t = is_array($args[$i]) ? implode(',', my_escape_string($args[$i])) : my_escape_string($args[$i]);
+						$t = is_array($args[$i]) ? implode(',', $args[$i]) : $args[$i];
 						$w = substr_replace($w, $t, $p, 2);
 						$p += strlen($t);
 						$find = true;
