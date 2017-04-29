@@ -141,7 +141,6 @@ class BH_DB_Get{
 		$this->query = SqlQuery($sql);
 		if($this->query){
 			$row = mysqli_fetch_assoc($this->query);
-			if($row) _FromDB($row);
 			if($row){
 				// Cache
 				if($this->cache){
@@ -293,7 +292,6 @@ class BH_DB_GetList{
 			// Cache
 			if($this->cache){
 				while($row = mysqli_fetch_assoc($this->query)){
-					if($row) _FromDB($row);
 					$this->data[]= $row;
 				}
 
@@ -318,7 +316,6 @@ class BH_DB_GetList{
 			return isset($this->data[$this->pointer]) ? $this->data[$this->pointer] : false;
 		}else{
 			$res = $this->query ? mysqli_fetch_assoc($this->query) : false;
-			if($res) _FromDB($res);
 			return $res;
 		}
 	}
@@ -509,7 +506,6 @@ class BH_DB_GetListWithPage{
 			// Cache
 			if($this->cache){
 				while($row = mysqli_fetch_assoc($this->query)){
-					if($row) _FromDB($row);
 					$this->data[]= $row;
 				}
 
@@ -548,7 +544,6 @@ class BH_DB_GetListWithPage{
 			return isset($this->data[$this->pointer]) ? $this->data[$this->pointer] : false;
 		}else{
 			$res = $this->query ? mysqli_fetch_assoc($this->query) : false;
-			if($res) _FromDB($res);
 			return $res;
 		}
 	}

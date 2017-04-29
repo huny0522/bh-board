@@ -286,15 +286,6 @@ function DeleteOldTempFiles($tempfile_path, $time){
 	}
 }
 
-function _FromDB(&$txt){
-	if(is_string($txt)) $txt = str_replace(array(_ESC_CHANGE_CHR, _ESC_IN_CHR), array(chr(39), _ESC_OUT_CHR), $txt);
-	else if(is_array($txt)){
-		foreach($txt as &$v){
-			_FromDB($v);
-		}
-	}
-}
-
 function ToInt($s){if(!$s)return 0; return ($s[0] == '-' ? $s[0] : '').preg_replace('/[^0-9]/','',$s);}
 
 function ToFloat($s){if(!$s)return 0; return ($s[0] == '-' ? $s[0] : '').preg_replace('/[^0-9\.]/','',$s);}
@@ -588,8 +579,6 @@ function SqlFetch($qry){
 
 	$r = mysqli_fetch_assoc($qry);
 	if($string_is) SqlFree($qry);
-
-	if($r) _FromDB($r);
 
 	return $r;
 }
