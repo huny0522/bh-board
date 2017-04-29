@@ -1,18 +1,18 @@
-#BH BOARD 소개
+# BH BOARD 소개
     MVC형태를 띄우면서 최대한 PHP의 속도를 내기 위해 만든 개인 프로젝트입니다.
     클래스 안에서도 외부의 함수들을 많이 포함하고 있습니다.
     약간의 수고로 List, View, Write(Modify) 타입의 간단한 예제 html파일을 생성할 수 있습니다.
     기능은 언제든 추가될 예정이며, 부족한 부분의 많은 의견과 지적, 도움을 받고 싶습니다.
 
-##DB정보입력
+## DB정보입력
 /Common/db.info.php
 
-##설치
+## 설치
     설치 및 admin 계정 생성
 1. /Common/db.info.php 에서 정보 수정   
 2. http://mydomain.com/Install
 
-##주요 파일 및 디렉토리
+## 주요 파일 및 디렉토리
 
 - index.php 파일
 
@@ -52,7 +52,7 @@
 
 
 
-##PHP 임의 단축 변환 태그
+## PHP 임의 단축 변환 태그
 
     Lib/htmlConvert.php의 ReplaceHtmlFile함수를 변경하여 추가 변경 가능.
 
@@ -109,7 +109,7 @@
 	
 	변환 후 : *\<?php echo GetDBText($Model->GetValue('Title'); ?>*
         
-##기본적인 상수
+## 기본적인 상수
 - _DIR, _COMMONDIR, _MODELDIR, _CONTROLLERDIR, _SKINDIR, _HTMLDIR, _UPLOAD_DIRNAME, _UPLOAD_DIR : php 파일 서버경로 위치를 위한 상수
 - _URL, _SKINURL, _ADMINURLNAME, _ADMINURL, _IMGURL, _UPLOAD_URL : 웹사이트 절대경로를 위한 상수
 - _POSTIS : 서버요청방식 정의. POST일 경우 true.
@@ -117,9 +117,9 @@
 - _DEVELOPERIS : 개발자모드 스위치. 개발자 모드인 경우 _SKIN폴더에서 *.html 파일을 변환하여 _HTML 폴더에 php가 읽을 수 있는 정상적인 파일을 생성.
 - _REMOVE_SPACE : html파일을 변환 할 때 최대한 빈칸을 제거해주는 스위치.
 
-##라이브러리 함수
+## 라이브러리 함수
 
-###SQL 함수 (Lib/common.php)
+### SQL 함수 (Lib/common.php)
 - SqlConnection : 배열인자[ hostName, userName,userPassword, dbName ]
 - SqlFree
 - SqlTableExists
@@ -128,7 +128,7 @@
 - SqlNumRows
 - SqlFetch : 인자로 쿼리 결과값이나 sql문자열 입력.
 
-###기능함수 (Lib/common.php)
+### 기능함수 (Lib/common.php)
 - my_escape_string : mysqli_real_escape_string
 - Redirect : 페이지 이동명령(인자값 : 경로, 경고메시지)
 - PhoneNumber : 숫자를 폰번호 형식으로 대쉬(-)를 붙여줌.
@@ -151,7 +151,7 @@
 - toBase : 62진법으로 변경.
 - to10 : 10진법으로 변경.
 
-###파일 관련 함수 (Lib/FileUpload.php)
+### 파일 관련 함수 (Lib/FileUpload.php)
 - RandomFileName : 랜덤파일명 생성.
 
 - FileUploadArray : 배열로 업로드한 파일 처리.
@@ -176,8 +176,8 @@
     - $width : 넓이값
     - $height : 높이값(기본값 0)
 
-##sql 라이브러리 클래스
-###BH_DB_Get
+## sql 라이브러리 클래스
+### BH_DB_Get
     생성자 인수로 테이블명을 입력.
     ex. $get = new BH_DB_Get(‘my_table’)
 
@@ -189,7 +189,7 @@
 - function AddKey($keys) : sql의 키값을 추가합니다. string값이나 string배열값이 들어갈 수 있습니다.
 - function Get() : mysqli_fetch_assoc를 실행한 결과를 반환합니다.
 
-###BH_DB_GetList
+### BH_DB_GetList
     생성자 인수로 테이블명을 입력.
     ex. $get = new BH_DB_GetList(‘my_table’)
 
@@ -209,7 +209,7 @@
 - function DrawRows() : mysqli_fetch_assoc를 실행한 모든 결과를 $data에 등록합니다.
 - function GetRows() : $data를 반환합니다.
 
-###BH_DB_GetListWithPage
+### BH_DB_GetListWithPage
     생성자 인수로 테이블명을 입력.
     ex. $get = new BH_DB_GetListWithPage(‘my_table’)
 
@@ -237,7 +237,7 @@
 - function DrawRows() : mysqli_fetch_assoc를 실행한 모든 결과를 $data에 등록합니다.
 - function GetRows() : $data를 반환합니다.
 
-###BH_DB_Insert
+### BH_DB_Insert
     생성자 인수로 테이블명을 입력.
     ex. $get = new BH_DB_Insert(‘my_table’)
 
@@ -254,7 +254,7 @@
 - function MultiAdd() : insert 구문의 다중 삽입 추가.
 - function MultiRun() : 다중 삽입 된 구문을 실행.
 
-###BH_DB_Update
+### BH_DB_Update
     생성자 인수로 테이블명을 입력.
     ex. $get = new BH_DB_Update(‘my_table’)
 
@@ -266,8 +266,8 @@
 - function AddWhere($str) : ‘where’ 구문을 만듭니다. 여러 번 호출하여 ‘and’ 로 묶어줍니다.
 - function Run() : mysqli_query를 실행.
 
-##주요 클래스
-###BH_Application 클래스
+## 주요 클래스
+### BH_Application 클래스
 - public $Controller : 불러올 컨트롤러를 위한 값.
 - public $Action : 불러올 컨트롤러의 메쏘드를 위한 값.
 - public $ID : 메쏘드에서 사용할 키값.
@@ -277,7 +277,7 @@
 - public $TID : 게시판이나 컨텐츠, 댓글의 키.
 - function run() : 실행.
 
-###BH_Controller 클래스
+### BH_Controller 클래스
 - public $Controller : BH_Application 클래스의 변수와 동일
 - public $Action : BH_Application 클래스의 변수와 동일
 - public $ID : BH_Application 클래스의 변수와 동일
@@ -303,10 +303,10 @@
 - function URLAction($action) : 현재 컨트롤러에 $Action 값을 변경 후의 URL 반환.
 - function URLBase($controller) : 현재 서브디렉토리에 $Controller 값을 변경 후 URL 반환.
 
-###BH_Common
+### BH_Common
     공통적으로 사용할 임의의 함수를 위한 클래스.
 
-###BH_ModelData
+### BH_ModelData
     모델의 데이터    
 - public $Name : 데이터베이스의 키.
 - public $Type : 값의 형식.
@@ -324,7 +324,7 @@
 - public $AutoDecrement = false : 현재 키의 자동 역순여부.
 - public $ValueIsQuery = false : 값을 쿼리문으로 날릴 때 특수문자를 여과없이 내보낼지 여부.
 
-###BH_Model
+### BH_Model
     모델 데이터를 담고 컨트롤.
 - public $data : BH_ModelData 클래스 배열.
 - public $table : 데이터들의 테이블명.
@@ -349,7 +349,7 @@
 - function DBGet($keyData) : 키값 인자에 해당하는 데이터를 DB에서 가져와 설정.
 - function DBDelete($keyData) : 키값 인자에 해당하는 데이터를 DB에서 삭제.
 
-###BH_Router
+### BH_Router
     라우팅을 위한 클래스.
 
     BH_Router 클래스 router메쏘드에서 BH_Application 클래스의 인스턴스 변수를 설정.
