@@ -7,10 +7,6 @@ define('_OB_COMP', 'zlib.output_compression');
 define('_POSTIS', $_SERVER['REQUEST_METHOD'] == 'POST');
 define('_AJAXIS', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
 
-define('_ESC_CHANGE_CHR', chr(8).chr(34).chr(27));
-define('_ESC_OUT_CHR', chr(8).chr(34));
-define('_ESC_IN_CHR', chr(8).chr(34).chr(34));
-
 require _COMMONDIR.'/db.info.php';
 require _COMMONDIR.'/BH_DB.class.php';
 require _COMMONDIR.'/BH_Application.class.php';
@@ -334,10 +330,9 @@ function SetDBInt($txt){
 
 	if(!strlen($txt)) Redirect('-1', '숫자값이 비어있습니다.');
 
-	$val = (int)$txt;
-	if((string)$val != (string)$txt) Redirect('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+	if(!is_numeric($txt)) Redirect('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
 
-	return $val;
+	return $txt;
 }
 
 function SetDBFloat($txt){

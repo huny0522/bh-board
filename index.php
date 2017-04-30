@@ -56,7 +56,7 @@ define('_STYLEFILE', '_bhinline.css2');
 
 define('_MAX_IMAGE_COUNT', 10);
 define('_MAX_IMAGE_WIDTH', '1024');
-define('_DBMAXINT', 4000000000);
+define('_DBMAXINT', 2147483647);
 define('_CATEGORY_LENGTH', 5);
 define('_NO_IMG', '');
 

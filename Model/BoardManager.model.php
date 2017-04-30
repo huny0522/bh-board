@@ -106,22 +106,22 @@ class BoardManagerModel extends \BH_Model{
 
 	public function CreateTableBoard($board_nm){
 		$sql = "CREATE TABLE `{$board_nm}` (
-					`seq` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+					`seq` INT(10) NOT NULL DEFAULT '0',
 					`sort1` INT(10) NOT NULL DEFAULT '0',
 					`sort2` INT(10) NOT NULL DEFAULT '0',
 					`depth` TINYINT(1) NOT NULL DEFAULT '0',
 					`notice` ENUM('y','n') NOT NULL DEFAULT 'n' COMMENT '공지여부',
 					`category` VARCHAR(128) NOT NULL DEFAULT '' COMMENT '카테고리',
-					`muid` INT(10) UNSIGNED NULL DEFAULT NULL COMMENT '작성자 uid',
+					`muid` INT(10) NULL DEFAULT NULL COMMENT '작성자 uid',
 					`mlevel` TINYINT(1) NOT NULL DEFAULT '0',
 					`secret` ENUM('y','n') NOT NULL DEFAULT 'n' COMMENT '비밀글 여부',
 					`mname` VARCHAR(32) NOT NULL DEFAULT '' COMMENT '작성자명',
 					`pwd` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '패스워드(비회원용)',
 					`subject` VARCHAR(128) NOT NULL DEFAULT '' COMMENT '제목',
 					`content` TEXT NOT NULL COMMENT '내용',
-					`first_seq` INT(10) UNSIGNED NULL DEFAULT NULL,
+					`first_seq` INT(10) NULL DEFAULT NULL,
 					`first_member_is` ENUM('y','n') NOT NULL DEFAULT 'n',
-					`target_muid` INT(10) UNSIGNED NULL DEFAULT NULL,
+					`target_muid` INT(10) NULL DEFAULT NULL,
 					`target_mname` VARCHAR(32) NOT NULL DEFAULT '',
 					`reg_date` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '등록일',
 					`hit` INT(10) NOT NULL DEFAULT '0' COMMENT '조회수',
@@ -147,20 +147,20 @@ class BoardManagerModel extends \BH_Model{
 
 	public function CreateTableReply($reply_nm){
 		$sql = "CREATE TABLE `{$reply_nm}` (
-					`article_seq` INT(10) UNSIGNED NOT NULL DEFAULT '0',
-					`seq` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+					`seq` INT(10) NOT NULL DEFAULT '0',
 					`sort1` INT(11) NOT NULL DEFAULT '0',
 					`sort2` INT(11) NOT NULL DEFAULT '0',
+					`article_seq` INT(10) NOT NULL DEFAULT '0',
 					`depth` TINYINT(1) NOT NULL DEFAULT '0',
 					`secret` ENUM('y','n') NOT NULL DEFAULT 'n',
 					`mlevel` TINYINT(1) NOT NULL DEFAULT '0',
-					`muid` INT(10) UNSIGNED NULL DEFAULT NULL,
+					`muid` INT(10) NULL DEFAULT NULL,
 					`mname` VARCHAR(64) NOT NULL DEFAULT '',
 					`pwd` VARCHAR(64) NOT NULL DEFAULT '',
 					`comment` TEXT NOT NULL,
-					`first_seq` INT(10) UNSIGNED NULL DEFAULT NULL,
+					`first_seq` INT(11) NULL DEFAULT NULL,
 					`first_member_is` ENUM('y','n') NOT NULL DEFAULT 'n',
-					`target_muid` INT(10) UNSIGNED NULL DEFAULT NULL,
+					`target_muid` INT(10) NULL DEFAULT NULL,
 					`target_mname` VARCHAR(32) NOT NULL DEFAULT '',
 					`reg_date` DATETIME NOT NULL,
 					`file` VARCHAR(128) NOT NULL DEFAULT '' COMMENT '파일',
@@ -177,8 +177,8 @@ class BoardManagerModel extends \BH_Model{
 
 	public function CreateTableImg($board_nm){
 		$sql = "CREATE TABLE `{$board_nm}` (
-					`article_seq` INT(10) UNSIGNED NOT NULL DEFAULT '0',
-					`seq` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+					`article_seq` INT(10) NOT NULL DEFAULT '0',
+					`seq` INT(10) NOT NULL DEFAULT '0',
 					`image` VARCHAR(128) NOT NULL DEFAULT '',
 					`imagename` VARCHAR(128) NOT NULL DEFAULT '',
 					PRIMARY KEY (`article_seq`, `seq`)
