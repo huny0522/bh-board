@@ -44,7 +44,7 @@
 			</td>
 		</tr>
 
-		<?php if(_MEMBERIS !== true){?>
+		<?php if(_MEMBERIS !== true || !strlen($Model->GetValue('muid'))){?>
 			<tr>
 				<th><?p. $Model->data['mname']->DisplayName ?></th>
 				<td>
