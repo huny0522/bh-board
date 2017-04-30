@@ -13,7 +13,7 @@ class InstallController extends \BH_Controller{
 		$sql = array();
 		$sql[]="
 CREATE TABLE `".TABLE_BANNER."` (
-	`seq` INT(11) NOT NULL,
+	`seq` INT(11) UNSIGNED NOT NULL,
 	`category` VARCHAR(20) NOT NULL DEFAULT '',
 	`subject` VARCHAR(50) NOT NULL DEFAULT '',
 	`img` VARCHAR(50) NOT NULL DEFAULT '',
@@ -83,7 +83,7 @@ ENGINE=InnoDB
 CREATE TABLE `".TABLE_IMAGES."` (
 	`tid` VARCHAR(32) NOT NULL DEFAULT '',
 	`article_seq` VARCHAR(64) NOT NULL DEFAULT '0',
-	`seq` INT(10) NOT NULL DEFAULT '0',
+	`seq` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	`image` VARCHAR(128) NOT NULL DEFAULT '',
 	`imagename` VARCHAR(128) NOT NULL DEFAULT '',
 	PRIMARY KEY (`tid`, `article_seq`, `seq`)
@@ -94,7 +94,7 @@ ENGINE=InnoDB
 
 		$sql[] = "
 CREATE TABLE `".TABLE_MEMBER."` (
-	`muid` INT(11) NOT NULL,
+	`muid` INT(11) UNSIGNED NOT NULL,
 	`mid` VARCHAR(128) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
 	`pwd` VARCHAR(64) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
 	`mname` VARCHAR(32) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
@@ -141,7 +141,7 @@ ENGINE=InnoDB
 
 		$sql[]= "
 CREATE TABLE `".TABLE_POPUP."` (
-	`seq` INT(11) NOT NULL,
+	`seq` INT(11) UNSIGNED NOT NULL,
 	`subject` VARCHAR(50) NOT NULL DEFAULT '',
 	`img` VARCHAR(50) NOT NULL DEFAULT '',
 	`contents` TEXT NOT NULL,
@@ -166,7 +166,7 @@ ENGINE=InnoDB
 
 		$sql[]= "
 CREATE TABLE `".TABLE_WITHDRAW_MEMBER."` (
-	`muid` INT(11) NOT NULL,
+	`muid` INT(11) UNSIGNED NOT NULL,
 	`mid` VARCHAR(128) NOT NULL DEFAULT '',
 	`mname` VARCHAR(32) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
 	`cname` VARCHAR(32) NOT NULL DEFAULT '',

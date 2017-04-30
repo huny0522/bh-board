@@ -18,6 +18,7 @@ require _COMMONDIR.'/BH_Controller.class.php';
 require _COMMONDIR.'/BH_Model.class.php';
 require _COMMONDIR.'/BH_Router.class.php';
 require _COMMONDIR.'/BH_Common.class.php';
+require _COMMONDIR.'/BH_MYFunc.class.php';
 
 if(_DEVELOPERIS === true){
 	if(!file_exists(_DATADIR) || !is_dir(_DATADIR)) @mkdir(_DATADIR, 0757, true);
