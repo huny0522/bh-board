@@ -297,7 +297,7 @@ function SetDBTrimText($txt){
 		}
 		return $txt;
 	}
-	return 'x\''.bin2hex(trim($txt)).'\'';
+	return 'UNHEX(\''.bin2hex(trim($txt)).'\')';
 }
 
 function SetDBText($txt){
@@ -307,7 +307,7 @@ function SetDBText($txt){
 		}
 		return $txt;
 	}
-	return 'x\''.bin2hex($txt).'\'';
+	return 'UNHEX(\''.bin2hex($txt).'\')';
 }
 
 function SetDBQuot($txt){
