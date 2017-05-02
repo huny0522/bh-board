@@ -48,7 +48,7 @@ class BH_DB_Get{
 	public $test = false;
 	public $sort = '';
 	public $group = '';
-	public $cache = false;
+	private $cache = false;
 	private $query = null;
 	private $having = array();
 	private $where = array();
@@ -162,7 +162,8 @@ class BH_DB_GetList{
 	public $sort = '';
 	public $group = '';
 	public $test = false;
-	public $cache = false;
+	private $cache = false;
+	private $cacheData = array();
 
 	private $pointer = -1;
 	private $query = null;
@@ -225,13 +226,19 @@ class BH_DB_GetList{
 
 	public function DrawRows(){
 		if(!$this->RunIs) $this->Run();
-		if($this->cache) return;
+		if($this->cache){
+			$this->data = $this->cacheData;
+			return;
+		}
 		while($row = $this->Get()){
 			$this->data[]= $row;
 		}
 	}
 
 	public function GetRows(){
+		if(!$this->RunIs) $this->Run();
+		if($this->cache) return $this->cacheData;
+
 		$this->DrawRows();
 		return $this->data;
 	}
@@ -281,7 +288,7 @@ class BH_DB_GetList{
 			}
 
 			if(isset(BH_DB_Cache::$sqlData['GetListData'][$sqlFileNm][$sql])){
-				$this->data = BH_DB_Cache::$sqlData['GetListData'][$sqlFileNm][$sql];
+				$this->cacheData = &BH_DB_Cache::$sqlData['GetListData'][$sqlFileNm][$sql];
 				$this->result = true;
 				return;
 			}
@@ -292,10 +299,10 @@ class BH_DB_GetList{
 			// Cache
 			if($this->cache){
 				while($row = mysqli_fetch_assoc($this->query)){
-					$this->data[]= $row;
+					$this->cacheData[]= $row;
 				}
 
-				BH_DB_Cache::$sqlData['GetListData'][$sqlFileNm][$sql] = $this->data;
+				BH_DB_Cache::$sqlData['GetListData'][$sqlFileNm][$sql] = $this->cacheData;
 				$txt = '<?php BH_DB_Cache::$sqlData[\'GetListData\'][\''.$sqlFileNm.'\'] = '.var_export(BH_DB_Cache::$sqlData['GetListData'][$sqlFileNm], true).';';
 				file_put_contents($path['file'], $txt);
 				chmod($path['file'], 0700);
@@ -313,7 +320,7 @@ class BH_DB_GetList{
 		// Cache
 		if($this->cache){
 			$this->pointer++;
-			return isset($this->data[$this->pointer]) ? $this->data[$this->pointer] : false;
+			return isset($this->cacheData[$this->pointer]) ? $this->cacheData[$this->pointer] : false;
 		}else{
 			$res = $this->query ? mysqli_fetch_assoc($this->query) : false;
 			return $res;
@@ -333,7 +340,8 @@ class BH_DB_GetListWithPage{
 	public $pageUrl = '';
 	public $CountKey = '';
 	public $SubCountKey = array();
-	public $cache = false;
+	private $cache = false;
+	private $cacheData = array();
 
 	private $pointer = -1;
 	private $query = null;
@@ -400,13 +408,19 @@ class BH_DB_GetListWithPage{
 
 	public function DrawRows(){
 		if(!$this->RunIs) $this->Run();
-		if($this->cache) return;
+		if($this->cache){
+			$this->data = $this->cacheData;
+			return;
+		}
 		while($row = $this->Get()){
 			$this->data[]= $row;
 		}
 	}
 
 	public function GetRows(){
+		if(!$this->RunIs) $this->Run();
+		if($this->cache) return $this->cacheData;
+
 		$this->DrawRows();
 		return $this->data;
 	}
@@ -473,14 +487,16 @@ class BH_DB_GetListWithPage{
 			$path = BH_DB_Cache::GetCachePath($this->table, $sqlFileNm);
 			$this->cache = $path['result'];
 			if(!isset(BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm][$sql])){
-				if($path['result'] && file_exists($path['file'])) require_once $path['file'];
+				if($path['result'] && file_exists($path['file'])){
+					require_once $path['file'];
+				}
 			}
 
 			if(isset(BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm][$sql])){
-				$this->totalRecord = $pagedata['totalRecord'] = BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm][$sql]['totalRecord'];
-				$this->beginNum = BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm][$sql]['beginNum'];
-				$this->data = BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm][$sql]['data'];
-				$this->countResult = BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm][$sql]['countResult'];
+				$this->totalRecord = $pagedata['totalRecord'] = &BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm][$sql]['totalRecord'];
+				$this->beginNum = &BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm][$sql]['beginNum'];
+				$this->cacheData = &BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm][$sql]['data'];
+				$this->countResult = &BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm][$sql]['countResult'];
 				$pagedata['articleCount'] = $this->articleCount;
 				$pagedata['pageCount'] = $this->pageCount;
 				$pagedata['page'] = $this->page ? $this->page : 1;
@@ -491,7 +507,6 @@ class BH_DB_GetListWithPage{
 				$this->result = true;
 				return;
 			}
-
 		}
 
 		$this->countResult = SqlFetch($this->group ? 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x' : $sql_cnt);
@@ -506,18 +521,16 @@ class BH_DB_GetListWithPage{
 			// Cache
 			if($this->cache){
 				while($row = mysqli_fetch_assoc($this->query)){
-					$this->data[]= $row;
+					$this->cacheData[]= $row;
 				}
 
-				if($this->cache){
-					BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm][$sql]['beginNum'] = $this->beginNum;
-					BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm][$sql]['totalRecord'] = $this->totalRecord;
-					BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm][$sql]['data'] = $this->data;
-					BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm][$sql]['countResult'] = $this->countResult;
-					$txt = '<?php BH_DB_Cache::$sqlData[\'GetListWithPage\'][\''.$sqlFileNm.'\'] = '.var_export(BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm], true).';';
-					file_put_contents($path['file'], $txt);
-					chmod($path['file'], 0700);
-				}
+				BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm][$sql]['beginNum'] = $this->beginNum;
+				BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm][$sql]['totalRecord'] = $this->totalRecord;
+				BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm][$sql]['data'] = $this->cacheData;
+				BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm][$sql]['countResult'] = $this->countResult;
+				$txt = '<?php BH_DB_Cache::$sqlData[\'GetListWithPage\'][\''.$sqlFileNm.'\'] = '.var_export(BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm], true).';';
+				file_put_contents($path['file'], $txt);
+				chmod($path['file'], 0700);
 			}
 
 			$pagedata['articleCount'] = $this->articleCount;
@@ -541,7 +554,7 @@ class BH_DB_GetListWithPage{
 		// Cache
 		if($this->cache){
 			$this->pointer++;
-			return isset($this->data[$this->pointer]) ? $this->data[$this->pointer] : false;
+			return isset($this->cacheData[$this->pointer]) ? $this->cacheData[$this->pointer] : false;
 		}else{
 			$res = $this->query ? mysqli_fetch_assoc($this->query) : false;
 			return $res;
