@@ -77,6 +77,7 @@ class BH_Application{
 
 				$this->CTRL = new $controller();
 				$this->CTRL->Layout = $this->Router->Layout;
+				if(_AJAXIS === true) unset($this->CTRL->Layout);
 				if(method_exists($this->CTRL, '__Init')) $this->CTRL->__Init();
 
 				$this->CTRL->{$action}();
