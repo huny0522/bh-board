@@ -542,7 +542,7 @@ class BoardController extends \BH_Controller{
 		else{
 			if(!isset($_POST['pwd'])) return _WRONG_CONNECTED;
 
-			$pwd = SqlFetch('SELECT pwd FROM '.$this->model->table.' WHERE seq='.$this->model->GetValue('seq'));
+			$pwd = \DB::SQL()->Fetch('SELECT pwd FROM '.$this->model->table.' WHERE seq='.$this->model->GetValue('seq'));
 			if(!_password_verify($_POST['pwd'], $pwd['pwd'])){
 				return '비밀번호가 일치하지 않습니다.';
 			}

@@ -7,7 +7,6 @@ define('_OB_COMP', 'zlib.output_compression');
 define('_POSTIS', $_SERVER['REQUEST_METHOD'] == 'POST');
 define('_AJAXIS', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
 
-require _COMMONDIR.'/db.info.php';
 require _COMMONDIR.'/BH_DB.class.php';
 require _COMMONDIR.'/BH_Application.class.php';
 require _COMMONDIR.'/BH_Controller.class.php';
@@ -50,7 +49,7 @@ else define('_MOBILEIS', false);
 //
 function my_escape_string($str) {
 	if(is_array($str)) return array_map('my_escape_string', $str);
-	else return mysqli_real_escape_string($GLOBALS['_BH_App']->_MainConn, trim($str));
+	else return mysqli_real_escape_string(DB::SQL()->GetConn(), trim($str));
 }
 
 function Redirect($url, $msg=''){
@@ -413,12 +412,12 @@ function JSON($bool, $message = '', $data = array()){
 }
 
 function aes_encrypt($plaintext, $password){
-	$qry = SqlFetch('SELECT HEX(AES_ENCRYPT(%s, %s)) as txt', $plaintext, $password);
+	$qry = \DB::SQL()->Fetch('SELECT HEX(AES_ENCRYPT(%s, %s)) as txt', $plaintext, $password);
 	return $qry['txt'];
 }
 
 function aes_decrypt($ciphertext, $password){
-	$qry = SqlFetch('SELECT AES_DECRYPT(UNHEX(%s), %s) as txt', $ciphertext, $password);
+	$qry = \DB::SQL()->Fetch('SELECT AES_DECRYPT(UNHEX(%s), %s) as txt', $ciphertext, $password);
 	return $qry['txt'];
 }
 
@@ -492,10 +491,6 @@ function StrToSql($args){
 //
 //			SQL
 //
-function SqlConnection($_DBInfo){
-	return mysqli_connect($_DBInfo['hostName'], $_DBInfo['userName'], $_DBInfo['userPassword'], $_DBInfo['dbName']);
-}
-
 function SqlFree($result){
 	if(is_bool($result)) return;
 	mysqli_free_result($result);
@@ -506,9 +501,7 @@ function SqlFree($result){
  * @return bool
  * */
 function SqlTableExists($table){
-	$exists = SqlNumRows("SHOW TABLES LIKE '" . $table . "'");
-	if($exists) return true;
-	else return false;
+	return \DB::SQL()->TableExists($table);
 }
 
 /**
@@ -516,25 +509,13 @@ function SqlTableExists($table){
  * @return bool|mysqli_result
  */
 function SqlQuery($sql){
-	$sql = StrToSql(func_get_args());
-	if(_DEVELOPERIS === true) $res = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql) or die('ERROR SQL : '.$sql);
-	else $res = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql) or die('ERROR');
-	return $res;
+	return \DB::SQL()->Query(func_get_args());
 }
 
 function SqlCCQuery($table, $sql){
 	$args = func_get_args();
 	array_shift($args);
-	if(strpos($sql, '%t') === false) die('ERROR SQL(CC)'.(_DEVELOPERIS === true ? ' : '.$sql : ''));
-	$args[0] = str_replace('%t', $table, $args[0]);
-	$sql = trim(StrToSql($args));
-
-	if(_DEVELOPERIS === true) $res = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql) or die('ERROR SQL : '.$sql);
-	else $res = mysqli_query($GLOBALS['_BH_App']->_Conn, $sql) or die('ERROR SQL');
-
-	if($res && (strtolower(substr($sql, 0, 6)) == 'delete' || strtolower(substr($sql, 0, 6)) == 'update' || strtolower(substr($sql, 0, 6)) == 'insert')) BH_DB_Cache::DelPath($table);
-
-	return $res;
+	return \DB::SQL()->Query($table, $args);
 }
 
 /**
@@ -542,17 +523,7 @@ function SqlCCQuery($table, $sql){
  * @return bool|int
  */
 function SqlNumRows($qry){
-	if(is_string($qry)) $qry = SqlQuery($qry);
-	if($qry === false) return false;
-
-	try{
-		$r = mysqli_num_rows($qry);
-		return $r;
-	}
-	catch(Exception $e){
-		if(_DEVELOPERIS === true) echo 'NUMBER ROWS MESSAGE(DEBUG ON) : <b>'. $e->getMessage().'</b><br>';
-		return false;
-	}
+	return \DB::SQL()->NumRows($qry);
 }
 
 /**
@@ -560,22 +531,7 @@ function SqlNumRows($qry){
  * @return array|bool|null
  */
 function SqlFetch($qry){
-	if(!isset($qry) || $qry === false || empty($qry)){
-		if(_DEVELOPERIS === true) echo 'FETCH ASSOC MESSAGE(DEBUG ON) : <b>query is empty( or null, false).</b><br>';
-		return false;
-	}
-	$string_is = false;
-	if(is_string($qry)){
-		if(func_num_args() > 1) $qry = StrToSql(func_get_args());
-		$qry = SqlQuery($qry);
-		if($qry === false) return false;
-		$string_is = true;
-	}
-
-	$r = mysqli_fetch_assoc($qry);
-	if($string_is) SqlFree($qry);
-
-	return $r;
+	return \DB::SQL()->Fetch(func_get_args());
 }
 
 function SqlPassword($input) {
@@ -655,7 +611,6 @@ class BH_InsertResult{
 }
 
 class BH_ModelData{
-	public $Name;
 	public $Type;
 	public $Required = false;
 	public $DisplayName;
@@ -1048,8 +1003,8 @@ class _ModelFunc{
 		}
 
 		$sql = 'DELETE FROM '.$params['table'].' WHERE '.implode(' AND ', $params['where']);
-		$res->result = SqlQuery($sql);
-		BH_DB_Cache::DelPath($params['table']);
+		$res->result = \DB::SQL()->Query($sql);
+		\BH_DB_Cache::DelPath($params['table']);
 		return $res;
 	}
 

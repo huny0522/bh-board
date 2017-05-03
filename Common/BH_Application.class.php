@@ -23,28 +23,14 @@ class BH_Application{
 	 */
 	public $Router = null;
 
-	public $_Conn = null;
-	public $_MainConn = null;
-
 	public $InstallIs = true;
 	public $CFG = array();
 
 	public function __construct(){
-		$this->_Conn = SqlConnection($GLOBALS['_DBInfo']);
-		$this->_MainConn = $this->_Conn;
-		if(!$this->_Conn){
-			echo('ACCESS_DENIED_DB_CONNECTION');
-			exit;
-		}
-		mysqli_set_charset($this->_Conn,'utf8');
-	}
-
-	public function __destruct(){
-		if($this->_MainConn) mysqli_close($this->_MainConn);
 	}
 
 	public function run(){
-		if(_DEVELOPERIS === true) $this->InstallIs = SqlTableExists(TABLE_MEMBER);
+		if(_DEVELOPERIS === true) $this->InstallIs = \DB::SQL()->TableExists(TABLE_MEMBER);
 
 		$this->Router = new \BH_Router();
 		$this->Router->router();

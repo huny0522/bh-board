@@ -139,10 +139,10 @@ class {$ModelName}Model extends \\BH_Model{
 		$initFuncText = '';
 		if(sizeof($fn_matches) > 1 && $fn_matches[1]) $initFuncText = str_replace(chr(9), '', $fn_matches[1]);
 
-		$qry = SqlQuery('SHOW FULL COLUMNS FROM '.$TableName);
+		$qry = \DB::SQL()->Query('SHOW FULL COLUMNS FROM '.$TableName);
 		$primaryKey = array();
 		//$tData = array();
-		while($row = SqlFetch($qry)){
+		while($row = \DB::SQL()->Fetch($qry)){
 			//$tData[$row['Field']] = $row;
 			$findIs = preg_match('/\$this\-\>InitModelData\(\s*\''.$row['Field'].'\'/is', $initFuncText, $matches);
 			if(!$findIs) $findIs = preg_match('/\$this\-\>data\[\''.$row['Field'].'\'\]\s*=\s*new\s*BH_ModelData/is', $initFuncText);

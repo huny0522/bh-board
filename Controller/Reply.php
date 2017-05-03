@@ -278,7 +278,7 @@ class ReplyController extends \BH_Controller{
 			}
 		}
 		else if(_MEMBERIS !== true || $_SESSION['member']['level'] < _SADMIN_LEVEL){
-			$pwd = SqlFetch('SELECT pwd FROM '.$this->model->table.' WHERE article_seq='.SetDBInt($_POST['article_seq']).' AND seq='.SetDBInt($_POST['seq']));
+			$pwd = \DB::SQL()->Fetch('SELECT pwd FROM '.$this->model->table.' WHERE article_seq='.SetDBInt($_POST['article_seq']).' AND seq='.SetDBInt($_POST['seq']));
 			if(!_password_verify($_POST['pwd'], $pwd['pwd'])){
 				echo json_encode(array('result' => false, 'message' => '비밀번호가 일치하지 않습니다.'));
 				exit;
@@ -339,7 +339,7 @@ class ReplyController extends \BH_Controller{
 			else if($this->model->GetValue('muid') != $_SESSION['member']['muid'] && $_SESSION['member']['level'] < _SADMIN_LEVEL) JSON(false, 'ERROR#102');
 		}
 		else if(_MEMBERIS !== true || $_SESSION['member']['level'] < _SADMIN_LEVEL || !$this->managerIs){
-			$getpwd = SqlFetch('SELECT pwd FROM '.$this->model->table.' WHERE article_seq = '.$article_seq.' AND seq='.$seq);
+			$getpwd = \DB::SQL()->Fetch('SELECT pwd FROM '.$this->model->table.' WHERE article_seq = '.$article_seq.' AND seq='.$seq);
 			if(!_password_verify($_POST['pwd'], $getpwd['pwd'])){
 				echo json_encode(array('result' => false, 'message' => '비밀번호가 일치하지 않습니다.'));
 				exit;

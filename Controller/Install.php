@@ -182,7 +182,7 @@ COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 ";
 		foreach($sql as $s){
-			@SqlQuery($s);
+			@\DB::SQL()->Query($s);
 		}
 
 
@@ -195,7 +195,7 @@ ENGINE=InnoDB
 		$sql2[] = "INSERT INTO `".TABLE_MENU."` (`category`, `sort`, `controller`, `title`, `type`, `enabled`, `parent_enabled`, `bid`) VALUES ('00000', 0, 'Home', 'Home', 'customize', 'y', 'y', '')";
 
 		foreach($sql2 as $s){
-			SqlQuery($s);
+			\DB::SQL()->Query($s);
 		}
 
 		Redirect(_URL.'/');
