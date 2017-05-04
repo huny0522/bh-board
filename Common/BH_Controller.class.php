@@ -15,25 +15,22 @@ abstract class BH_Controller{
 	public $Controller;
 	public $ID;
 	public $TID;
-	public static $IMAGE_EXT = array('jpg','jpeg','png','gif','bmp');
-	public static $POSSIBLE_EXT = array('jpg','jpeg','png','gif','bmp','zip','7z','gz','xz','tar',
-		'xls', 'xlsx', 'ppt', 'doc', 'hwp', 'pdf', 'docx', 'pptx',
-		'avi', 'mov', 'mkv', 'mpg', 'mpeg', 'wmv','asf','asx', 'flv', 'm4v', 'mp4');
+	public $NativeDir;
 
 	private $FollowQuery = array();
 	public $_Value = array();
 
-	/**
-	 * @var BH_Common
-	 */
-	public $_CF;
-
 	public function __construct(){
-		$this->_CF = new \BH_Common();
-		$this->Action = $GLOBALS['_BH_App']->Action;
-		$this->Controller = $GLOBALS['_BH_App']->Controller;
-		$this->ID = $GLOBALS['_BH_App']->ID;
-		$this->TID = $GLOBALS['_BH_App']->TID;
+		$this->_App = \BH_Application::GetInstance();
+		$this->Action = $this->_App->Action;
+		$this->Controller = $this->_App->ControllerName;
+		$this->ID = $this->_App->ID;
+		$this->TID = $this->_App->TID;
+		$this->NativeDir = $this->_App->NativeDir;
+	}
+
+	public function &_CF(){
+		return \BH_Common::GetInstance();
 	}
 
 	abstract public function __Init();
@@ -113,11 +110,11 @@ abstract class BH_Controller{
 	 * @param $Data mixed
 	 */
 	public function _View($Model = NULL, $Data = NULL){
-		$viewAction = $this->Html ? $this->Html : $GLOBALS['_BH_App']->Action;
+		$viewAction = $this->Html ? $this->Html : \BH_Application::GetInstance()->Action;
 		if(!$viewAction) $viewAction = 'Index';
 
 		$html = substr($viewAction, 0, 1) == '/' ? $viewAction :
-			($GLOBALS['_BH_App']->NativeDir ? '/'.$GLOBALS['_BH_App']->NativeDir : '').'/'.$GLOBALS['_BH_App']->Controller.'/'.$viewAction;
+			(\BH_Application::GetInstance()->NativeDir ? '/'.\BH_Application::GetInstance()->NativeDir : '').'/'.\BH_Application::GetInstance()->ControllerName.'/'.$viewAction;
 		if(substr($html, -5) != '.html') $html .= '.html';
 
 		if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR.$html, _HTMLDIR.$html);
@@ -144,11 +141,11 @@ abstract class BH_Controller{
 	}
 
 	public function _GetView($Model = NULL, $Data = NULL){
-		$viewAction = $this->Html ? $this->Html : $GLOBALS['_BH_App']->Action;
+		$viewAction = $this->Html ? $this->Html : \BH_Application::GetInstance()->Action;
 		if(!$viewAction) $viewAction = 'Index';
 
 		$html = substr($viewAction, 0, 1) == '/' ? $viewAction :
-			($GLOBALS['_BH_App']->NativeDir ? '/'.$GLOBALS['_BH_App']->NativeDir : '').'/'.$GLOBALS['_BH_App']->Controller.'/'.(substr($viewAction, -5) == '.html' ? $viewAction : $viewAction.'.html');
+			(\BH_Application::GetInstance()->NativeDir ? '/'.\BH_Application::GetInstance()->NativeDir : '').'/'.\BH_Application::GetInstance()->ControllerName.'/'.(substr($viewAction, -5) == '.html' ? $viewAction : $viewAction.'.html');
 
 		if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true){
 			ReplaceHTMLFile(_SKINDIR.$html, _HTMLDIR.$html);
@@ -223,11 +220,11 @@ abstract class BH_Controller{
 	}
 
 	public function URLAction($Action = ''){
-		return $GLOBALS['_BH_App']->CtrlUrl.'/'.$Action;
+		return \BH_Application::GetInstance()->CtrlUrl.'/'.$Action;
 	}
 
 	public function URLBase($Controller = ''){
-		return $GLOBALS['_BH_App']->BaseDir.'/'.$Controller;
+		return \BH_Application::GetInstance()->BaseDir.'/'.$Controller;
 	}
 }
 

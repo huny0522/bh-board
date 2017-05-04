@@ -8,13 +8,13 @@ if(_BH_ !== true) exit;
 <html>
 <head>
 
-	<title><?p. $this->Title ? $this->Title.' - ' : '' ?><?p. $this->_CF->Config('Default','SiteName') ?></title>
+	<title><?p. $this->Title ? $this->Title.' - ' : '' ?><?p. $this->_CF()->Config('Default','SiteName') ?></title>
 
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
 	<meta name="viewport" content="width=device-width, user-scalable=no">
 
-<?p. $this->CSSPrint() ?>
+	<?p. $this->CSSPrint() ?>
 
 	<!--[if lt IE 9]>
 	<script src="<?p. _SKINURL ?>/js/html5shiv.min.js"></script>
@@ -22,7 +22,7 @@ if(_BH_ !== true) exit;
 	<script src="<?p. _SKINURL ?>/js/selectivizr-min.js"></script>
 	<![endif]-->
 
-<?p. $this->JSPrint() ?>
+	<?p. $this->JSPrint() ?>
 
 </head>
 

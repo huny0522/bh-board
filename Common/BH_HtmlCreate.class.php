@@ -8,7 +8,7 @@ class BH_HtmlCreate
 {
 	public static function CreateController($ControllerName, $ModelName, $TableName){
 		if(_DEVELOPERIS !== true) return;
-		$path = _CONTROLLERDIR.'/'.$GLOBALS['_BH_App']->NativeDir.'/'.$ControllerName.'.php';
+		$path = _CONTROLLERDIR.'/'.\BH_Application::GetInstance()->NativeDir.'/'.$ControllerName.'.php';
 		$modelPath = _MODELDIR.'/'.$ModelName.'.model.php';
 		$text = "<?php
 
@@ -214,19 +214,15 @@ class {$ModelName}Model extends \\BH_Model{
 	 * @param $model : 모델명(모델명이 TestModel 일 경우 Test)
 	 */
 	public static function Create($path, $model){
-		/**
-		 * @var $_BH_App BH_Application
-		 */
-
 		if(_DEVELOPERIS !== true) return;
 		$path = '/'.$path;
-		if($GLOBALS['_BH_App']->NativeDir) $path = '/'.$GLOBALS['_BH_App']->NativeDir.$path;
+		if(\BH_Application::GetInstance()->NativeDir) $path = '/'.\BH_Application::GetInstance()->NativeDir.$path;
 		if(file_exists(_SKINDIR.$path) && is_dir(_SKINDIR.$path)) return;
 
 		$IndexHtml = self::Index($path.'/Index.html', $model);
 		$ViewHtml = self::View($path.'/View.html', $model);
 		$WriteHtml = self::Write($path.'/Write.html', $model);
-		$path = _SKINURL.'/'.($GLOBALS['_BH_App']->NativeDir ? $GLOBALS['_BH_App']->NativeDir.'/' : '').$GLOBALS['_BH_App']->Controller.'/';
+		$path = _SKINURL.'/'.(\BH_Application::GetInstance()->NativeDir ? \BH_Application::GetInstance()->NativeDir.'/' : '').\BH_Application::GetInstance()->ControllerName.'/';
 		echo '<b>'.$path.'Index.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(GetDBText($IndexHtml)).'</textarea>';
 		echo '<br><br>';
 		echo '<b>'.$path.'View.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(GetDBText($ViewHtml)).'</textarea>';

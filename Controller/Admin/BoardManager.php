@@ -15,12 +15,12 @@ class BoardManagerController extends \BH_Controller{
 
 	public function __Init(){
 		$this->_Value['NowMenu'] = '002';
-		$this->_CF->AdminAuth();
+		$this->_CF()->AdminAuth();
 
 		require _DIR.'/Model/BoardManager.model.php';
 		$this->model = new \BoardManagerModel();
 
-		$AdminAuth = explode(',', $this->_CF->GetMember('admin_auth'));
+		$AdminAuth = explode(',', $this->_CF()->GetMember('admin_auth'));
 		$this->_Value['menuAuth'] = (in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL);
 
 		// HTMl 생성
@@ -97,7 +97,7 @@ class BoardManagerController extends \BH_Controller{
 					if($r2){
 						$r3 = $this->model->CreateTableImg(TABLE_FIRST.'bbs_'.$this->model->GetValue('bid').'_images');
 						if($r3){
-							$this->_CF->MenuConnect($this->model->GetValue('bid'), 'board');
+							$this->_CF()->MenuConnect($this->model->GetValue('bid'), 'board');
 						}
 					}
 				}
@@ -117,7 +117,7 @@ class BoardManagerController extends \BH_Controller{
 		else{
 			$res = $this->model->DBUpdate();
 			if($res->result){
-				$this->_CF->MenuConnect($this->model->GetValue('bid'), 'board');
+				$this->_CF()->MenuConnect($this->model->GetValue('bid'), 'board');
 				$url = $this->URLAction('View').'?bid='.$_POST['bid'].$this->GetFollowQuery();
 				Redirect($url, '수정완료');
 			}else{

@@ -7,18 +7,23 @@
 require_once _DIR.'/Model/Member.model.php';
 class MypageController extends \BH_Controller{
 	public function __Init(){
-		$this->_CF->MemberAuth(1);
+		$this->_CF()->MemberAuth(1);
 		$this->Layout = '_Mypage';
 	}
 
 	public function Index(){
+		if($this->_App->ControllerName != 'Mypage'){
+			$_SESSION['MyInfoView'] = false;
+			unset($_SESSION['MyInfoView']);
+		}
+
 		require_once _DIR.'/Model/BoardManager.model.php';
 		$dbGetList = new \BH_DB_GetList(TABLE_BOARD_MNG);
 		$dbGetList->SetKey('bid, subject');
 		$data = array();
 		while($row = $dbGetList->Get()){
 			$controller = 'board/'.$row['bid'];
-			foreach($GLOBALS['_BH_App']->Router->SubMenu as $sub){
+			foreach(\BH_Application::Router()->SubMenu as $sub){
 				foreach($sub as $sub2){
 					if($sub2['type'] == 'board' && $sub2['bid'] == $row['bid']){
 						$controller = $sub2['controller'];

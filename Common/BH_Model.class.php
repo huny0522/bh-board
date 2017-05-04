@@ -19,23 +19,6 @@ abstract class BH_Model{
 
 	abstract public function __Init();
 
-	/**
-	 * 모델데이타의 값을 생성
-	 * @param string $key
-	 * @param int $Type
-	 * @param bool $Required
-	 * @param string $DisplayName
-	 * @param string $HtmlType
-	 */
-	public function InitModelData($key, $Type = ModelType::String, $Required = false, $DisplayName = '', $HtmlType = HTMLType::InputText){
-		$this->data[$key] = new \BH_ModelData();
-		$this->data[$key]->Name = $key;
-		$this->data[$key]->Type = $Type;
-		$this->data[$key]->Required = $Required;
-		$this->data[$key]->DisplayName = $DisplayName;
-		if($HtmlType) $this->data[$key]->HtmlType = $HtmlType;
-	}
-
 	public function GetDisplayName($key){
 		return isset($this->data[$key]->DisplayName) ? $this->data[$key]->DisplayName : NULL;
 	}
@@ -57,7 +40,7 @@ abstract class BH_Model{
 		$ret = array();
 		foreach($this->data as $k=>$v){
 			$this->ValueCheck($k);
-			if($this->data[$k]->ModelErrorMsg) $ret[] =$this->data[$k]->ModelErrorMsg;
+			if($v->ModelErrorMsg) $ret[] =$v->ModelErrorMsg;
 		}
 		return $ret;
 	}

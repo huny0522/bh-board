@@ -36,7 +36,7 @@ class UploadController extends \BH_Controller{
 			$temp = explode('.',$name);
 			$filename_ext = strtolower(array_pop($temp));
 
-			if(($type == 'image' && !in_array($filename_ext, self::$IMAGE_EXT)) || ($type == '' && !in_array($filename_ext, self::$POSSIBLE_EXT))) {
+			if(($type == 'image' && !in_array($filename_ext, \BH_Application::$IMAGE_EXT)) || ($type == '' && !in_array($filename_ext, \BH_Application::$POSSIBLE_EXT))) {
 				echo json_encode(array('result' => false, 'fname'=>$name));
 				exit;
 			}

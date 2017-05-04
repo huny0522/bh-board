@@ -64,14 +64,14 @@ $this->JSAdd('common.js?r='.BH_Common::Config('Default', 'Refresh'), 10);
 			</style>
 			<nav id="tnb">
 				<ul>
-					<?php foreach($this->_CF->MainMenu as $row){ ?>
-						<li<?p. isset($this->_CF->ActiveMenu['category']) && substr($this->_CF->ActiveMenu['category'], 0, strlen($row['category'])) === $row['category'] ? ' class="Active"' : '' ?>>
+					<?php foreach(\BH_Application::Router()->MainMenu as $row){ ?>
+						<li<?p. isset(\BH_Application::Router()->ActiveMenu['category']) && substr(\BH_Application::Router()->ActiveMenu['category'], 0, strlen($row['category'])) === $row['category'] ? ' class="Active"' : '' ?>>
 							<a href="<?p. _URL ?>/<?v. $row['controller'] ?>"><?v. $row['title'] ?></a>
 							<?php
-							if(isset($this->_CF->SubMenu[$row['category']]) && sizeof($this->_CF->SubMenu[$row['category']])){
+							if(isset(\BH_Application::Router()->SubMenu[$row['category']]) && sizeof(\BH_Application::Router()->SubMenu[$row['category']])){
 								echo '<ol>';
-								foreach($this->_CF->SubMenu[$row['category']] as $subMenu){
-									echo '<li'.(isset($this->_CF->ActiveMenu['category']) && substr($this->_CF->ActiveMenu['category'], 0, strlen($subMenu['category'])) === $subMenu['category'] ? ' class="Active"' : '').'><a href="'._URL.'/'.$subMenu['controller'].'">'.GetDBText($subMenu['title']).'</a></li>';
+								foreach(\BH_Application::Router()->SubMenu[$row['category']] as $subMenu){
+									echo '<li'.(isset(\BH_Application::Router()->ActiveMenu['category']) && substr(\BH_Application::Router()->ActiveMenu['category'], 0, strlen($subMenu['category'])) === $subMenu['category'] ? ' class="Active"' : '').'><a href="'._URL.'/'.$subMenu['controller'].'">'.GetDBText($subMenu['title']).'</a></li>';
 								}
 								echo '</ol>';
 							}

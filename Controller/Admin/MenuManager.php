@@ -15,7 +15,7 @@ class MenuManagerController extends \BH_Category{
 
 	public function __Init(){
 		$this->_Value['NowMenu'] = '004';
-		$this->_CF->AdminAuth();
+		$this->_CF()->AdminAuth();
 		$this->Layout = '_Admin';
 		parent::__Init();
 	}

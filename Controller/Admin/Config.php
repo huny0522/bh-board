@@ -9,7 +9,7 @@ class ConfigController extends \BH_Controller{
 
 	public function __Init(){
 		$this->_Value['NowMenu'] = '001001';
-		$this->_CF->AdminAuth();
+		$this->_CF()->AdminAuth();
 
 		// 항상 따라다닐 URL 쿼리 파라미터를 지정
 		$this->SetFollowQuery(array('where', 'keyword','page'));
@@ -27,7 +27,7 @@ class ConfigController extends \BH_Controller{
 		$path = _DATADIR.'/CFG/'.$_POST['Code'].'.php';
 		$txt = '';
 		foreach($_POST as $k => $v){
-			$txt .= '$GLOBALS[\'_BH_App\']->CFG[\''.addslashes($_POST['Code']).'\'][\''.addslashes($k).'\'] = \''.addslashes($v).'\';'.chr(10);
+			$txt .= '\BH_Application::GetInstance()->CFG[\''.addslashes($_POST['Code']).'\'][\''.addslashes($k).'\'] = \''.addslashes($v).'\';'.chr(10);
 		}
 		file_put_contents($path, '<?php'.chr(10).$txt);
 		Redirect($this->URLAction(), '설정되었습니다.');

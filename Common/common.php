@@ -206,7 +206,7 @@ function Download($path, $fname){
 	$temp = explode('/', $path);
 	if(!$fname) $fname = $temp[sizeof($temp)-1];
 
-	if(isset($GLOBALS['_BH_App']) && isset($GLOBALS['_BH_App']->CTRL) && isset($GLOBALS['_BH_App']->CTRL->Layout)) unset($GLOBALS['_BH_App']->CTRL->Layout);
+	if(isset(\BH_Application::CTRL()->Layout)) unset(\BH_Application::CTRL()->Layout);
 
 	ignore_user_abort(true);
 	set_time_limit(0); // disable the time limit for this script

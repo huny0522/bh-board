@@ -14,7 +14,7 @@ class BannerManagerController extends \BH_Controller
 	public $model = null;
 	public function __Init(){
 		$this->_Value['NowMenu'] = '001002';
-		$this->_CF->AdminAuth();
+		$this->_CF()->AdminAuth();
 
 		require _DIR.'/Model/Banner.model.php';
 		$this->model = new \BannerModel();
@@ -61,7 +61,7 @@ class BannerManagerController extends \BH_Controller
 		else{
 			if(isset($_FILES['img'])){
 				require_once _COMMONDIR.'/FileUpload.php';
-				$fres_em = FileUpload($_FILES['img'], self::$POSSIBLE_EXT, '/board/'.date('ym').'/');
+				$fres_em = FileUpload($_FILES['img'], \BH_Application::$POSSIBLE_EXT, '/board/'.date('ym').'/');
 
 				if($fres_em === 'noext'){
 					Redirect('-1', '등록 불가능한 파일입니다.');
@@ -78,7 +78,7 @@ class BannerManagerController extends \BH_Controller
 			}else{
 				$res = $this->model->DBInsert();
 				if($res->result){
-					$this->_CF->ContentImageUpate($this->model->table, array('seq' => $res->id), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
+					$this->_CF()->ContentImageUpate($this->model->table, array('seq' => $res->id), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
 
 					Redirect($this->URLAction().$this->GetFollowQuery());
 				}else{
@@ -97,7 +97,7 @@ class BannerManagerController extends \BH_Controller
 		else{
 			if(isset($_FILES['img'])){
 				require_once _COMMONDIR.'/FileUpload.php';
-				$fres_em = FileUpload($_FILES['img'], self::$POSSIBLE_EXT, '/board/'.date('ym').'/');
+				$fres_em = FileUpload($_FILES['img'], \BH_Application::$POSSIBLE_EXT, '/board/'.date('ym').'/');
 
 				if($fres_em === 'noext'){
 					Redirect('-1', '등록 불가능한 파일입니다.');
@@ -115,7 +115,7 @@ class BannerManagerController extends \BH_Controller
 
 			$res = $this->model->DBUpdate();
 			if($res->result){
-				$this->_CF->ContentImageUpate($this->model->table, array('seq' => to10($this->ID)), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
+				$this->_CF()->ContentImageUpate($this->model->table, array('seq' => to10($this->ID)), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
 				$url = $this->URLAction().$this->GetFollowQuery();
 				Redirect($url, '수정완료');
 			}else{

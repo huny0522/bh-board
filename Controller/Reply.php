@@ -30,7 +30,7 @@ class ReplyController extends \BH_Controller{
 		$this->boardManger = new \BoardManagerModel();
 		$this->boardManger->DBGet($this->TID);
 
-		$mid = $this->_CF->GetMember('mid');
+		$mid = $this->_CF()->GetMember('mid');
 		$manager = explode(',', $this->boardManger->GetValue('manager'));
 		if ($mid !== false && in_array($mid, $manager)) {
 			$this->managerIs = true;
@@ -142,7 +142,7 @@ class ReplyController extends \BH_Controller{
 
 		// 파일 업로드
 		if(isset($_FILES['file'])){
-			$fres_em = FileUpload($_FILES['file'], self::$IMAGE_EXT, '/reply/' . date('ym') . '/');
+			$fres_em = FileUpload($_FILES['file'], \BH_Application::$IMAGE_EXT, '/reply/' . date('ym') . '/');
 
 			if($fres_em === 'noext'){
 				echo json_encode(array('result' => false, 'message' => '등록 불가능한 파일입니다.'));
@@ -158,7 +158,7 @@ class ReplyController extends \BH_Controller{
 
 		// 회원유무
 		if(_MEMBERIS === true){
-			$member = $this->_CF->GetMember();
+			$member = $this->_CF()->GetMember();
 
 			$this->model->SetValue('muid', $_SESSION['member']['muid']);
 			$this->model->SetValue('mlevel', $member['level']);
@@ -287,7 +287,7 @@ class ReplyController extends \BH_Controller{
 
 		// 파일 업로드
 		if(isset($_FILES['file'])){
-			$fres_em = FileUpload($_FILES['file'], self::$IMAGE_EXT, '/board/'.date('ym').'/');
+			$fres_em = FileUpload($_FILES['file'], \BH_Application::$IMAGE_EXT, '/board/'.date('ym').'/');
 
 			if($fres_em === 'noext'){
 				echo json_encode(array('result' => false, 'message' => '등록 불가능한 파일입니다.'));

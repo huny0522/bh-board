@@ -15,7 +15,7 @@ class BH_Router
 	public $Layout = '';
 
 	public function __construct(){
-		if($GLOBALS['_BH_App']->InstallIs) $this->SetMenu();
+		if(\BH_Application::GetInstance()->InstallIs) $this->SetMenu();
 		$this->GetUrl = explode('/', isset($_GET['_bh_url']) ? $_GET['_bh_url'] : '');
 		for($i = 0; $i < 10; $i++){
 			if(!isset($this->GetUrl[$i])) $this->GetUrl[$i] = '';
@@ -23,8 +23,6 @@ class BH_Router
 	}
 
 	public function router(){
-		global $_BH_App;
-
 		if($this->GetUrl[1] == 'MyIp'){
 			echo $_SERVER['REMOTE_ADDR'];
 			exit;
@@ -67,44 +65,45 @@ class BH_Router
 		//----------------------
 		// 메뉴
 		//----------------------
-		$_BH_App->BaseDir = _URL;
-		if($GLOBALS['_BH_App']->InstallIs){
+		\BH_Application::GetInstance()->BaseDir = _URL;
+		\BH_Application::GetInstance()->NativeDir = '';
+		if(\BH_Application::GetInstance()->InstallIs){
 			switch($this->GetUrl[1]){
 				case _ADMINURLNAME: // 관리자
-					$_BH_App->NativeDir = 'Admin';
-					$_BH_App->Controller = $this->GetUrl[2];
-					$_BH_App->Action = $this->GetUrl[3];
-					$_BH_App->ID = $this->GetUrl[4];
-					$_BH_App->BaseDir .= '/'.$this->GetUrl[1];
-					$_BH_App->CtrlUrl = _URL.'/'.$this->GetUrl[1].'/'.$_BH_App->Controller;
+					\BH_Application::GetInstance()->NativeDir = 'Admin';
+					\BH_Application::GetInstance()->ControllerName = $this->GetUrl[2];
+					\BH_Application::GetInstance()->Action = $this->GetUrl[3];
+					\BH_Application::GetInstance()->ID = $this->GetUrl[4];
+					\BH_Application::GetInstance()->BaseDir .= '/'.$this->GetUrl[1];
+					\BH_Application::GetInstance()->CtrlUrl = _URL.'/'.$this->GetUrl[1].'/'.\BH_Application::GetInstance()->ControllerName;
 				break;
 
 				case 'Board': // 게시판
 				case 'Contents': // Contents
 				case 'Reply': // 댓글
-					$_BH_App->Controller = $this->GetUrl[1];
-					$_BH_App->TID = $this->GetUrl[2];
-					$_BH_App->Action = $this->GetUrl[3];
-					$_BH_App->ID = $this->GetUrl[4];
-					$_BH_App->CtrlUrl = _URL.'/'.$_BH_App->Controller.'/'.$_BH_App->TID;
+					\BH_Application::GetInstance()->ControllerName = $this->GetUrl[1];
+					\BH_Application::GetInstance()->TID = $this->GetUrl[2];
+					\BH_Application::GetInstance()->Action = $this->GetUrl[3];
+					\BH_Application::GetInstance()->ID = $this->GetUrl[4];
+					\BH_Application::GetInstance()->CtrlUrl = _URL.'/'.\BH_Application::GetInstance()->ControllerName.'/'.\BH_Application::GetInstance()->TID;
 				break;
 
 				default:
 
 					if(!$this->SetMenuRouter(_URL)){
-						$_BH_App->Controller = $this->GetUrl[1];
-						$_BH_App->Action = $this->GetUrl[2];
-						$_BH_App->ID = $this->GetUrl[3];
-						$_BH_App->CtrlUrl = _URL.'/'.$_BH_App->Controller;
+						\BH_Application::GetInstance()->ControllerName = $this->GetUrl[1];
+						\BH_Application::GetInstance()->Action = $this->GetUrl[2];
+						\BH_Application::GetInstance()->ID = $this->GetUrl[3];
+						\BH_Application::GetInstance()->CtrlUrl = _URL.'/'.\BH_Application::GetInstance()->ControllerName;
 					}
 				break;
 			}
 		}else{
 			if($this->GetUrl[1] == 'Install'){
-				$_BH_App->Controller = $this->GetUrl[1];
-				$_BH_App->Action = $this->GetUrl[2];
-				$_BH_App->ID = $this->GetUrl[3];
-				$_BH_App->CtrlUrl = _URL.'/'.$_BH_App->Controller;
+				\BH_Application::GetInstance()->ControllerName = $this->GetUrl[1];
+				\BH_Application::GetInstance()->Action = $this->GetUrl[2];
+				\BH_Application::GetInstance()->ID = $this->GetUrl[3];
+				\BH_Application::GetInstance()->CtrlUrl = _URL.'/'.\BH_Application::GetInstance()->ControllerName;
 			}else{
 				exit;
 			}
@@ -156,7 +155,6 @@ class BH_Router
 	}
 
 	public function SetMenuRouter($url, $start = 1){
-		global $_BH_App;
 		$cont = $this->GetUrl[$start];
 		if(!$cont) $cont = _DEFAULT_CONTROLLER;
 
@@ -181,19 +179,19 @@ class BH_Router
 
 		if($this->ActiveMenu){
 			if($this->ActiveMenu['type'] == 'board'){
-				$_BH_App->Controller = 'Board';
-				$_BH_App->BaseDir = _URL;
+				\BH_Application::GetInstance()->ControllerName = 'Board';
+				\BH_Application::GetInstance()->BaseDir = _URL;
 			}
 			else if($this->ActiveMenu['type'] == 'content'){
-				$_BH_App->Controller = 'Contents';
-				$_BH_App->BaseDir = _URL;
+				\BH_Application::GetInstance()->ControllerName = 'Contents';
+				\BH_Application::GetInstance()->BaseDir = _URL;
 			}
-			else $_BH_App->Controller = $this->GetUrl[$start];
+			else \BH_Application::GetInstance()->ControllerName = $this->GetUrl[$start];
 
-			$_BH_App->TID = $this->ActiveMenu['bid'];
-			$_BH_App->Action = $this->GetUrl[$start + 1];
-			$_BH_App->ID = $this->GetUrl[$start + 2];
-			$_BH_App->CtrlUrl = $url.'/'.$this->GetUrl[$start];
+			\BH_Application::GetInstance()->TID = $this->ActiveMenu['bid'];
+			\BH_Application::GetInstance()->Action = $this->GetUrl[$start + 1];
+			\BH_Application::GetInstance()->ID = $this->GetUrl[$start + 2];
+			\BH_Application::GetInstance()->CtrlUrl = $url.'/'.$this->GetUrl[$start];
 			return true;
 		}
 		return false;

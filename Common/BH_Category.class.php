@@ -17,7 +17,7 @@ class BH_Category extends \BH_Controller{
 	}
 
 	public function Index(){
-		$this->_View($this->model, $this->model->GetChild());
+		\BH_Application::GetInstance()->_View($this->model, $this->model->GetChild());
 	}
 
 	public function Write(){

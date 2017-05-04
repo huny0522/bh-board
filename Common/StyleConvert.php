@@ -214,12 +214,12 @@ function convCssNode($node, $replaceVar, $group = array()){
 			$f .= implode(',', $s).'{'.$node->data.'}';
 			if(strlen($after)){
 				$temp = $s;
-				foreach($temp as $k => $v) $temp[$k] = trim($v).':after';
+				foreach($temp as $k => &$v) $v = trim($v).':after';
 				$f .= implode(',', $temp).'{'.$after.'}';
 			}
 			if(strlen($before)){
 				$temp = $s;
-				foreach($temp as $k => $v) $temp[$k] = trim($v).':before';
+				foreach($temp as $k => &$v) $v = trim($v).':before';
 				$f .= implode(',', $temp).'{'.$before.'}';
 			}
 			$f .= chr(10);

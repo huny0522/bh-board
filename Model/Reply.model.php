@@ -10,7 +10,7 @@ class ReplyModel extends \BH_Model{
 	public $bid = '';
 	public $boardTable = '';
 	public function __Init(){
-		$this->bid = $GLOBALS['_BH_App']->TID;
+		$this->bid = \BH_Application::GetInstance()->TID;
 		$this->Key= array('article_seq', 'seq');
 		$this->AddExcept('seq');
 		$this->table = TABLE_FIRST.'bbs_'.$this->bid.'_reply';

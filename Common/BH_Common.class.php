@@ -1,24 +1,12 @@
 <?php
 class BH_Common
 {
+	private static $Instance;
 	public $Member;
-	public $MainMenu = array();
-	public $SubMenu = array();
-	public $ActiveMenu = array();
-	public $AdminMenu = array();
+	public $AdminMenu;
 
-	public function __construct(){
-		global $_BH_App;
-
-		if($_BH_App->Controller != 'Mypage'){
-			$_SESSION['MyInfoView'] = false;
-			unset($_SESSION['MyInfoView']);
-		}
-
-		$this->MainMenu = $_BH_App->Router->MainMenu;
-		$this->SubMenu = $_BH_App->Router->SubMenu;
-		$this->ActiveMenu = $_BH_App->Router->ActiveMenu;
-		$this->AdminMenu = array(
+	private function __construct(){
+		if(\BH_Application::GetInstance()->NativeDir == _ADMINURLNAME) $this->AdminMenu = array(
 			'001' => array(
 				'Category' => 'Config',
 				'Name' => '사이트관리'
@@ -54,14 +42,24 @@ class BH_Common
 		);
 	}
 
+	public static function &GetInstance(){
+		if(!isset(self::$Instance)) self::$Instance = new self();
+		return self::$Instance;
+	}
+
+	public static function &This(){
+		if(!isset(self::$Instance)) self::$Instance = new self();
+		return self::$Instance;
+	}
+
 	public function AdminAuth(){
 		if(_MEMBERIS !== true || ($_SESSION['member']['level'] != _SADMIN_LEVEL  && $_SESSION['member']['level'] != _ADMIN_LEVEL)){
 			if(_AJAXIS === true) JSON(false, _NO_AUTH.' 로그인하여 주세요.');
-			else Redirect($GLOBALS['_BH_App']->CTRL->URLBase('Login'), _NO_AUTH.' 로그인하여 주세요.');
+			else Redirect(\BH_Application::CTRL()->URLBase('Login'), _NO_AUTH.' 로그인하여 주세요.');
 		}
 		if($_SESSION['member']['level'] == _ADMIN_LEVEL){
 			$AdminAuth = explode(',', $this->GetMember('admin_auth'));
-			if(!in_array($GLOBALS['_BH_App']->CTRL->_Value['NowMenu'], $AdminAuth)){
+			if(!in_array(\BH_Application::CTRL()->_Value['NowMenu'], $AdminAuth)){
 				if(_AJAXIS === true) JSON(false, _NO_AUTH);
 				else Redirect('-1', _NO_AUTH);
 			}
@@ -71,7 +69,7 @@ class BH_Common
 	public function MemberAuth($level = 1){
 		if(_MEMBERIS !== true){
 			if(_AJAXIS === true) JSON(false, _NO_AUTH.' 로그인하여 주세요.');
-			else Redirect($GLOBALS['_BH_App']->CTRL->URLBase('Login'), _NO_AUTH.' 로그인하여 주세요.');
+			else Redirect(\BH_Application::CTRL()->URLBase('Login'), _NO_AUTH.' 로그인하여 주세요.');
 		}
 		if($_SESSION['member']['level'] < $level){
 			if(_AJAXIS === true) JSON(false, _NO_AUTH);
@@ -102,13 +100,13 @@ class BH_Common
 
 	public static function Config($code, $key){
 		// 설정불러오기
-		if(!isset($GLOBALS['_BH_App']->CFG[$code])){
+		if(!isset(\BH_Application::GetInstance()->CFG[$code])){
 			$path = _DATADIR.'/CFG/'.$code.'.php';
 			if(file_exists($path)){
 				require_once $path;
-			}else $GLOBALS['_BH_App']->CFG[$code] = array();
+			}else \BH_Application::GetInstance()->CFG[$code] = array();
 		}
-		return isset($GLOBALS['_BH_App']->CFG[$code][$key]) ? $GLOBALS['_BH_App']->CFG[$code][$key] : null;
+		return isset(\BH_Application::GetInstance()->CFG[$code][$key]) ? \BH_Application::GetInstance()->CFG[$code][$key] : null;
 	}
 
 	public static function SetConfig($code, $key, $val){
@@ -122,16 +120,16 @@ class BH_Common
 		$dirPath = _DATADIR.'/CFG';
 		if(!file_exists($dirPath) && !is_dir($dirPath)) mkdir($dirPath, 0700, true);
 
-		if(!isset($GLOBALS['_BH_App']->CFG[$code])){
+		if(!isset(\BH_Application::GetInstance()->CFG[$code])){
 			$path = _DATADIR.'/CFG/'.$code.'.php';
 			if(file_exists($path)){
 				require_once $path;
-			}else $GLOBALS['_BH_App']->CFG[$code] = array();
+			}else \BH_Application::GetInstance()->CFG[$code] = array();
 		}
 
-		$GLOBALS['_BH_App']->CFG[$code][$key] = $val;
+		\BH_Application::GetInstance()->CFG[$code][$key] = $val;
 		$path = _DATADIR.'/CFG/'.$code.'.php';
-		$txt = '<?php $GLOBALS[\'_BH_App\']->CFG = '.var_export($GLOBALS['_BH_App']->CFG, true).';';
+		$txt = '<?php \BH_Application::GetInstance()->CFG = '.var_export(\BH_Application::GetInstance()->CFG, true).';';
 		file_put_contents($path, $txt);
 		$res->result = true;
 		return $res;

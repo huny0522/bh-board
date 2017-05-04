@@ -106,15 +106,13 @@ define('_SADMIN_LEVEL',20);
 define('_DEFAULT_CONTROLLER', 'Home');
 define('_DEFAULT_LAYOUT', '_Default');
 
-/**
- * @var BH_Application $_BH_App
- */
 require _COMMONDIR.'/common.php';
 BH_DB_Cache::$DBTableFirst = array(TABLE_FIRST);
 BH_DB_Cache::$ExceptTable = array(TABLE_MEMBER);
 
-$_BH_App = new \BH_Application();
-$_BH_App->run();
+class_alias('BH_Application', 'App');
+class_alias('BH_Common', '_CF');
+\BH_Application::GetInstance()->run();
 
 if(_VIEW_MICROTIME === true && _AJAXIS !== true){
 	$_END_MICROTIME = array_sum(explode(' ',microtime()));

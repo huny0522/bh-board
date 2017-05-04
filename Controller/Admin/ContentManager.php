@@ -15,7 +15,7 @@ class ContentManagerController extends \BH_Controller{
 
 	public function __Init(){
 		$this->_Value['NowMenu'] = '003';
-		$this->_CF->AdminAuth();
+		$this->_CF()->AdminAuth();
 
 		// 항상 따라다닐 URL 쿼리 파라미터를 지정
 		$this->SetFollowQuery(array('where', 'keyword','page'));
@@ -23,7 +23,7 @@ class ContentManagerController extends \BH_Controller{
 		require _DIR.'/Model/Content.model.php';
 		$this->model = new \ContentModel();
 
-		$AdminAuth = explode(',', $this->_CF->GetMember('admin_auth'));
+		$AdminAuth = explode(',', $this->_CF()->GetMember('admin_auth'));
 		$this->_Value['menuAuth'] = (in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL);
 	}
 
@@ -86,7 +86,7 @@ class ContentManagerController extends \BH_Controller{
 			$this->model->SetValue('reg_date',date('Y-m-d H:i:s'));
 			$res = $this->model->DBInsert();
 			if($res->result){
-				$this->_CF->MenuConnect($this->model->GetValue('bid'), 'content');
+				$this->_CF()->MenuConnect($this->model->GetValue('bid'), 'content');
 				Redirect($this->URLAction());
 			}else{
 				Redirect('-1', '등록에 실패했습니다.');
@@ -106,7 +106,7 @@ class ContentManagerController extends \BH_Controller{
 		else{
 			$res = $this->model->DBUpdate();
 			if($res->result){
-				$this->_CF->MenuConnect($this->model->GetValue('bid'), 'content');
+				$this->_CF()->MenuConnect($this->model->GetValue('bid'), 'content');
 				$url = $this->URLAction('View').'?bid='.$_POST['bid'].$this->GetFollowQuery();
 				Redirect($url, '수정완료');
 			}else{

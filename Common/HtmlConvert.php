@@ -28,7 +28,14 @@ function ReplaceHTMLFile($source, $target){
 		'/<\?\s*mvr\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*mvb\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*minp\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-		'/<\?\s*menum\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is'
+		'/<\?\s*menum\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+
+		'/<\?\s*mt\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'/<\?\s*mv\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'/<\?\s*mvr\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'/<\?\s*mvb\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'/<\?\s*minp\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'/<\?\s*menum\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is'
 	);
 
 	$replace = array(
@@ -46,7 +53,14 @@ function ReplaceHTMLFile($source, $target){
 		'<?php echo GetDBRaw($Model->GetValue($1)); ?>',
 		'<?php echo nl2br(GetDBText($Model->GetValue($1))); ?>',
 		'<?php echo $Model->HTMLPrintInput($1); ?>',
-		'<?php echo $Model->HTMLPrintEnum($1); ?>'
+		'<?php echo $Model->HTMLPrintEnum($1); ?>',
+
+		'<?php echo $this->$1->data[$2]->DisplayName; ?>',
+		'<?php echo GetDBText($this->$1->GetValue($2)); ?>',
+		'<?php echo GetDBRaw($this->$1->GetValue($2)); ?>',
+		'<?php echo nl2br(GetDBText($this->$1->GetValue($2))); ?>',
+		'<?php echo $this->$1->HTMLPrintInput($2); ?>',
+		'<?php echo $this->$1->HTMLPrintEnum($2); ?>'
 	);
 
 	$a = explode('/', $target);

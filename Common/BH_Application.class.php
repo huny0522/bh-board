@@ -5,7 +5,14 @@
  */
 
 class BH_Application{
-	public $Controller = '';
+	/** @var  self */
+	private static $Instance;
+	/** @var BH_Controller */
+	private $ControllerInstance = null;
+	/** @var BH_Router */
+	private $RouterInstance = null;
+
+	public $ControllerName = '';
 	public $Action = '';
 	public $ID = '';
 	public $NativeDir = '';
@@ -13,29 +20,41 @@ class BH_Application{
 	public $TID = '';
 	public $CtrlUrl = '';
 
-	/**
-	 * @var BH_Controller
-	 */
-	public $CTRL = null;
-
-	/**
-	 * @var BH_Router
-	 */
-	public $Router = null;
+	public static $IMAGE_EXT = array('jpg','jpeg','png','gif','bmp');
+	public static $POSSIBLE_EXT = array('jpg','jpeg','png','gif','bmp','zip','7z','gz','xz','tar',
+		'xls', 'xlsx', 'ppt', 'doc', 'hwp', 'pdf', 'docx', 'pptx',
+		'avi', 'mov', 'mkv', 'mpg', 'mpeg', 'wmv','asf','asx', 'flv', 'm4v', 'mp4');
 
 	public $InstallIs = true;
 	public $CFG = array();
 
-	public function __construct(){
+	private function __construct(){
+	}
+
+	public static function &GetInstance(){
+		if(!isset(self::$Instance)) self::$Instance = new self();
+		return self::$Instance;
+	}
+
+	public static function &This(){
+		return self::$Instance;
+	}
+
+	public static function &CTRL(){
+		return self::$Instance->ControllerInstance;
+	}
+
+	public static function &Router(){
+		return self::$Instance->RouterInstance;
 	}
 
 	public function run(){
 		if(_DEVELOPERIS === true) $this->InstallIs = \DB::SQL()->TableExists(TABLE_MEMBER);
 
-		$this->Router = new \BH_Router();
-		$this->Router->router();
+		$this->RouterInstance = new \BH_Router();
+		$this->RouterInstance->router();
 
-		if(!$this->Controller) $this->Controller = _DEFAULT_CONTROLLER;
+		if(!$this->ControllerName) $this->ControllerName = _DEFAULT_CONTROLLER;
 		if(!strlen($this->Action)) $this->Action = 'Index';
 		else if(strtolower(substr($this->Action, 0, 4)) == 'post') $this->Action = preg_replace('/^(Post)+(.*)/i', '$2', $this->Action);
 
@@ -46,12 +65,12 @@ class BH_Application{
 			$this->Action = '_DirectView';
 		}
 
-		$path = _DIR.'/Controller/'.($this->NativeDir ? $this->NativeDir.'/' : '').$this->Controller.'.php';
+		$path = _DIR.'/Controller/'.($this->NativeDir ? $this->NativeDir.'/' : '').$this->ControllerName.'.php';
 
 		if(file_exists($path)){
 			require $path;
-			$controller = $this->NativeDir.'\\'.$this->Controller.'Controller';
-			if (!class_exists($controller)) $controller = $this->Controller.'Controller';
+			$controller = $this->NativeDir.'\\'.$this->ControllerName.'Controller';
+			if (!class_exists($controller)) $controller = $this->ControllerName.'Controller';
 			if (!class_exists($controller)){
 				if(_DEVELOPERIS === true) echo '클래스('.$controller.')가 존재하지 않습니다.';
 				exit;
@@ -61,12 +80,12 @@ class BH_Application{
 
 			if(method_exists($controller, $action) && is_callable(array($controller, $action))){
 
-				$this->CTRL = new $controller();
-				$this->CTRL->Layout = $this->Router->Layout;
-				if(_AJAXIS === true) unset($this->CTRL->Layout);
-				if(method_exists($this->CTRL, '__Init')) $this->CTRL->__Init();
+				$this->ControllerInstance = new $controller();
+				$this->ControllerInstance->Layout = $this->RouterInstance->Layout;
+				if(_AJAXIS === true) unset($this->ControllerInstance->Layout);
+				if(method_exists($this->ControllerInstance, '__Init')) $this->ControllerInstance->__Init();
 
-				$this->CTRL->{$action}();
+				$this->ControllerInstance->{$action}();
 			}else{
 				if(_DEVELOPERIS === true) echo '메소드가 존재하지 않습니다.(#2)';
 				else Redirect(_URL.'/');

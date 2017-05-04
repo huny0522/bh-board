@@ -6,7 +6,7 @@
 
 class InstallController extends \BH_Controller{
 	public function __Init(){
-		if($GLOBALS['_BH_App']->InstallIs) exit;
+		if(\BH_Application::GetInstance()->InstallIs) exit;
 	}
 
 	public function Index(){

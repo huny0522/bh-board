@@ -15,7 +15,7 @@ class MemberController extends \BH_Controller{
 
 	public function __Init(){
 		$this->_Value['NowMenu'] = '005';
-		$this->_CF->AdminAuth();
+		$this->_CF()->AdminAuth();
 
 		require _DIR.'/Model/Member.model.php';
 		$this->model = new \MemberModel();
