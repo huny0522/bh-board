@@ -92,8 +92,8 @@ class BH_Application{
 
 			if(method_exists($controller, $action) && is_callable(array($controller, $action))){
 				$this->ControllerInstance = new $controller();
-				$this->ControllerInstance->Layout = $this->RouterInstance->Layout;
-				if(_AJAXIS === true) unset($this->ControllerInstance->Layout);
+				$this->Layout = $this->RouterInstance->Layout;
+				if(_AJAXIS === true) unset($this->Layout);
 				if(method_exists($this->ControllerInstance, '__Init')) $this->ControllerInstance->__Init();
 				$this->ControllerInstance->{$action}();
 			}else{

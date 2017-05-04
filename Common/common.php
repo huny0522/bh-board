@@ -35,10 +35,10 @@ class BH{
 		return \BH_Common::GetInstance();
 	}
 	public static function &CTRL(){
-		return \BH_Application::CTRL();
+		return \BH_Application::GetInstance()->ControllerInstance;
 	}
 	public static function &ROUTER(){
-		return \BH_Application::Router();
+		return \BH_Application::GetInstance()->RouterInstance;
 	}
 	public static function DBGet($table){
 		return new \BH_DB_Get($table);

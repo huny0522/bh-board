@@ -21,7 +21,7 @@ class BH_Category{
 	}
 
 	public function Write(){
-		unset($this->Layout);
+		unset(BH::APP()->Layout);
 		if(!isset($_GET['category']) || $_GET['category'] == '') exit;
 		$data = $this->model->DBGet($_GET['category']);
 		BH::APP()->_View($this->model, $data);
@@ -36,9 +36,7 @@ class BH_Category{
 		if(!$res->result) JSON(false, $res->message);
 		else{
 			$res = $this->model->DBUpdate();
-
 			$dt = $this->model->GetParent($this->model->GetValue('category'));
-
 			$this->model->SetChildEnabled($_POST['category'], $_POST['enabled'] == 'y' && (!$dt || ($dt['enabled'] == 'y' && $dt['parent_enabled'] == 'y')) ? 'y' : 'n');
 			JSON($res->result, $res->message);
 		}
