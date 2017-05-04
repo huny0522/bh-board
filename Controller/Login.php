@@ -4,7 +4,6 @@
  * 16.07.10
  */
 
-require _DIR.'/Model/Member.model.php';
 use \BH_Application as App;
 use \BH as BH;
 class LoginController{
@@ -13,6 +12,7 @@ class LoginController{
 	 */
 	public $model = null;
 	public function __construct(){
+		require _DIR.'/Model/Member.model.php';
 		$this->model = new \MemberModel();
 	}
 
