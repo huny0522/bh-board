@@ -1,4 +1,5 @@
 <?php
+use \BH as BH;
 class BH_Common
 {
 	private static $Instance;
@@ -6,7 +7,7 @@ class BH_Common
 	public $AdminMenu;
 
 	private function __construct(){
-		if(\BH_Application::GetInstance()->NativeDir == _ADMINURLNAME) $this->AdminMenu = array(
+		if(BH::APP()->NativeDir == _ADMINURLNAME) $this->AdminMenu = array(
 			'001' => array(
 				'Category' => 'Config',
 				'Name' => '사이트관리'
@@ -47,19 +48,14 @@ class BH_Common
 		return self::$Instance;
 	}
 
-	public static function &This(){
-		if(!isset(self::$Instance)) self::$Instance = new self();
-		return self::$Instance;
-	}
-
 	public function AdminAuth(){
 		if(_MEMBERIS !== true || ($_SESSION['member']['level'] != _SADMIN_LEVEL  && $_SESSION['member']['level'] != _ADMIN_LEVEL)){
 			if(_AJAXIS === true) JSON(false, _NO_AUTH.' 로그인하여 주세요.');
-			else Redirect(\BH_Application::CTRL()->URLBase('Login'), _NO_AUTH.' 로그인하여 주세요.');
+			else Redirect(BH::CTRL()->URLBase('Login'), _NO_AUTH.' 로그인하여 주세요.');
 		}
 		if($_SESSION['member']['level'] == _ADMIN_LEVEL){
 			$AdminAuth = explode(',', $this->GetMember('admin_auth'));
-			if(!in_array(\BH_Application::CTRL()->_Value['NowMenu'], $AdminAuth)){
+			if(!in_array(BH::CTRL()->_Value['NowMenu'], $AdminAuth)){
 				if(_AJAXIS === true) JSON(false, _NO_AUTH);
 				else Redirect('-1', _NO_AUTH);
 			}
@@ -69,7 +65,7 @@ class BH_Common
 	public function MemberAuth($level = 1){
 		if(_MEMBERIS !== true){
 			if(_AJAXIS === true) JSON(false, _NO_AUTH.' 로그인하여 주세요.');
-			else Redirect(\BH_Application::CTRL()->URLBase('Login'), _NO_AUTH.' 로그인하여 주세요.');
+			else Redirect(BH::CTRL()->URLBase('Login'), _NO_AUTH.' 로그인하여 주세요.');
 		}
 		if($_SESSION['member']['level'] < $level){
 			if(_AJAXIS === true) JSON(false, _NO_AUTH);
@@ -86,7 +82,7 @@ class BH_Common
 		// 원글 가져오기
 		if(_MEMBERIS === true){
 			if(!isset($this->Member) || !$this->Member){
-				$dbGet = new \BH_DB_Get(TABLE_MEMBER);
+				$dbGet = BH::DBGet(TABLE_MEMBER);
 				$dbGet->AddWhere('muid=' . SetDBInt($_SESSION['member']['muid']));
 				$this->Member = $dbGet->Get();
 			}
@@ -100,13 +96,13 @@ class BH_Common
 
 	public static function Config($code, $key){
 		// 설정불러오기
-		if(!isset(\BH_Application::GetInstance()->CFG[$code])){
+		if(!isset(BH::APP()->CFG[$code])){
 			$path = _DATADIR.'/CFG/'.$code.'.php';
 			if(file_exists($path)){
 				require_once $path;
-			}else \BH_Application::GetInstance()->CFG[$code] = array();
+			}else BH::APP()->CFG[$code] = array();
 		}
-		return isset(\BH_Application::GetInstance()->CFG[$code][$key]) ? \BH_Application::GetInstance()->CFG[$code][$key] : null;
+		return isset(BH::APP()->CFG[$code][$key]) ? BH::APP()->CFG[$code][$key] : null;
 	}
 
 	public static function SetConfig($code, $key, $val){
@@ -120,16 +116,16 @@ class BH_Common
 		$dirPath = _DATADIR.'/CFG';
 		if(!file_exists($dirPath) && !is_dir($dirPath)) mkdir($dirPath, 0700, true);
 
-		if(!isset(\BH_Application::GetInstance()->CFG[$code])){
+		if(!isset(BH::APP()->CFG[$code])){
 			$path = _DATADIR.'/CFG/'.$code.'.php';
 			if(file_exists($path)){
 				require_once $path;
-			}else \BH_Application::GetInstance()->CFG[$code] = array();
+			}else BH::APP()->CFG[$code] = array();
 		}
 
-		\BH_Application::GetInstance()->CFG[$code][$key] = $val;
+		BH::APP()->CFG[$code][$key] = $val;
 		$path = _DATADIR.'/CFG/'.$code.'.php';
-		$txt = '<?php \BH_Application::GetInstance()->CFG = '.var_export(\BH_Application::GetInstance()->CFG, true).';';
+		$txt = '<?php BH::APP()->CFG = '.var_export(BH::APP()->CFG, true).';';
 		file_put_contents($path, $txt);
 		$res->result = true;
 		return $res;
@@ -144,14 +140,14 @@ class BH_Common
 		$dbKeyValue = implode('|',$keyValue);
 
 		if($mode == 'modify'){
-			$dbGetList = new \BH_DB_GetList(TABLE_IMAGES);
+			$dbGetList = BH::DBList(TABLE_IMAGES);
 			$dbGetList->AddWhere('tid=%s', $tid);
 			$dbGetList->AddWhere('article_seq = %s', $dbKeyValue);
 			while($img = $dbGetList->Get()){
 				if(strpos($content['contents'], $img['image']) === false){
 					// 파일이 없으면 삭제
 					@unlink(_UPLOAD_DIR.$img['image']);
-					$qry = new \BH_DB_Delete(TABLE_IMAGES);
+					$qry = BH::DBDelete(TABLE_IMAGES);
 					$qry->AddWhere('tid = %s', $tid);
 					$qry->AddWhere('article_seq = %s', $dbKeyValue);
 					$qry->AddWhere('seq = %d', $img['seq']);
@@ -160,7 +156,7 @@ class BH_Common
 			}
 		}
 
-		$dbGet = new \BH_DB_Get(TABLE_IMAGES);
+		$dbGet = BH::DBGet(TABLE_IMAGES);
 		$dbGet->AddWhere('tid = %s', $tid);
 		$dbGet->SetKey('COUNT(*) as cnt');
 		$cnt = $dbGet->Get();
@@ -187,7 +183,7 @@ class BH_Common
 					// 파일이 있으면 등록
 
 					unset($dbInsert);
-					$dbInsert = new \BH_DB_Insert(TABLE_IMAGES);
+					$dbInsert = BH::DBInsert(TABLE_IMAGES);
 					$dbInsert->SetDataStr('tid', $tid);
 					$dbInsert->SetDataStr('article_seq', $dbKeyValue);
 					$dbInsert->SetDataStr('image', $newpath);
@@ -203,7 +199,7 @@ class BH_Common
 			}
 
 			if($newcontent != $content['contents']){
-				$qry = new \BH_DB_Update($tid);
+				$qry = BH::DBUpdate($tid);
 				$qry->SetDataStr($content['name'], $newcontent);
 				foreach($keyValue as $k=>$v){
 					$qry->AddWhere('%1 = %s', $k, $v);
@@ -221,13 +217,13 @@ class BH_Common
 		if(in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL){
 			if(strlen($_POST['select_menu'])){
 				$selectmenu = implode(',', SetDBText(explode(',', $_POST['select_menu'])));
-				$mUpdate = new \BH_DB_Update(TABLE_MENU);
+				$mUpdate = BH::DBUpdate(TABLE_MENU);
 				$mUpdate->AddWhere('category IN ('.$selectmenu.')');
 				$mUpdate->SetData('type', SetDBText($type));
 				$mUpdate->SetData('bid', SetDBText($bid));
 				$mUpdate->Run();
 
-				$mUpdate = new \BH_DB_Update(TABLE_MENU);
+				$mUpdate = BH::DBUpdate(TABLE_MENU);
 				$mUpdate->AddWhere('bid = '.SetDBText($bid));
 				$mUpdate->AddWhere('category NOT IN ('.$selectmenu.')');
 				$mUpdate->AddWhere('type='.SetDBText($type));
@@ -236,7 +232,7 @@ class BH_Common
 				$mUpdate->Run();
 
 			}else{
-				$mUpdate = new \BH_DB_Update(TABLE_MENU);
+				$mUpdate = BH::DBUpdate(TABLE_MENU);
 				$mUpdate->AddWhere('bid = '.SetDBText($bid));
 				$mUpdate->AddWhere('type='.SetDBText($type));
 				$mUpdate->SetData('type', SetDBText('customize'));
@@ -248,7 +244,7 @@ class BH_Common
 
 	public function GetBoardArticle($bid, $category = '', $limit = 10){
 		// 리스트를 불러온다.
-		$dbList = new \BH_DB_GetList(TABLE_FIRST.'bbs_'.$bid);
+		$dbList = BH::DBList(TABLE_FIRST.'bbs_'.$bid);
 		$dbList->AddWhere('delis=\'n\'');
 		$dbList->sort = 'sort1, sort2';
 		$dbList->limit = $limit;
@@ -259,7 +255,7 @@ class BH_Common
 	}
 
 	public function GetBanner($category){
-		$banner = new \BH_DB_GetList(TABLE_BANNER);
+		$banner = BH::DBList(TABLE_BANNER);
 		$banner->AddWhere('begin_date <= \''.date('Y-m-d').'\'');
 		$banner->AddWhere('end_date >= \''.date('Y-m-d').'\'');
 		$banner->AddWhere('enabled = \'y\'');
@@ -280,7 +276,7 @@ class BH_Common
 
 
 	public function GetPopup(){
-		$banner = new \BH_DB_GetList(TABLE_POPUP);
+		$banner = BH::DBList(TABLE_POPUP);
 		$banner->AddWhere('begin_date <= \''.date('Y-m-d').'\'');
 		$banner->AddWhere('end_date >= \''.date('Y-m-d').'\'');
 		$banner->AddWhere('enabled = \'y\'');

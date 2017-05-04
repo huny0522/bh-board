@@ -77,27 +77,27 @@ http://www.bhboard.com
 
 - *\<?fn. '' ?>* : &로 시작하는 항상 따라다니는 쿼리스트링
 
-    변환 후 : *\<?php echo $this->GetFollowQuery(’’, '&'); ?>*
+    변환 후 : *\<?php echo \BH_Application::GetInstance()->GetFollowQuery(’’, '&'); ?>*
     
-    this->SetFollowQuery에서 설정한 값.
+    \BH_Application::GetInstance()->SetFollowQuery에서 설정한 값.
     
     첫번째 인자는 제외값을 지정.
 
 - *\<?fq. '' ?>* : ?로 시작하는 항상 따라다니는 쿼리스트링
 
-    변환 후 : *\<?php echo $this->GetFollowQuery(‘’, '?'); ?>*
+    변환 후 : *\<?php echo \BH_Application::GetInstance()->GetFollowQuery(‘’, '?'); ?>*
     
-    this->SetFollowQuery에서 설정한 값.
+    \BH_Application::GetInstance()->SetFollowQuery에서 설정한 값.
     
     첫번째 인자는 제외값을 지정.
 
 - *\<?a. 'action' ?>* : 액션만 변경한 URL을 출력
 
-    변환 후 : *\<?php echo $this->URLAction('action'); ?>*
+    변환 후 : *\<?php echo \BH_Application::GetInstance()->URLAction('action'); ?>*
 
 - *\<?c. ‘controller’ ?>* : 컨트롤을 변경한 URL을 출력
 
-    변환 후 : *\<?php echo $this->URLBase(‘controller’); ?>*
+    변환 후 : *\<?php echo \BH_Application::GetInstance()->URLBase(‘controller’); ?>*
 
 - *\<?inc. $file ?>* : 파일 인클루드
 

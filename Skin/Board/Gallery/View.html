@@ -34,11 +34,11 @@ GallerySkin
 
 <div class="bottomBtn">
 	<a href="<?a. '' ?><?fq. '' ?>" class="btn1">리스트</a>
-	<?php if($this->GetAuth('Write') && (!$Model->GetValue('muid') || (_MEMBERIS === true && $_SESSION['member']['muid'] == $Model->GetValue('muid') && $Model->GetValue('muid')))){ ?>
+	<?php if($Ctrl->GetAuth('Write') && (!$Model->GetValue('muid') || (_MEMBERIS === true && $_SESSION['member']['muid'] == $Model->GetValue('muid') && $Model->GetValue('muid')))){ ?>
 	<a href="<?a. 'Modify/' ?><?v. $this->ID ?><?fq. '' ?>" class="btn1" id="modifyBtn">수정</a>
 	<a href="#" id="deleteArticle" data-seq="<?v. $this->ID ?>" class="btn1">삭제</a>
 	<?php } ?>
-	<?php if($this->GetAuth('Answer')){ ?>
+	<?php if($Ctrl->GetAuth('Answer')){ ?>
 	<a href="<?a. 'Answer/' ?>?target=<?v. $this->ID ?><?fn. '' ?>" class="btn1" id="AnswerBtn">답변</a>
 	<?php } ?>
 	<a href="#" class="backbtn btn1">뒤로</a>
@@ -92,7 +92,7 @@ GallerySkin
 
 
 
-<?php if($this->boardManger->GetValue('use_reply') == 'y'){ ?>
+<?php if($Ctrl->boardManger->GetValue('use_reply') == 'y'){ ?>
 
 	<form id="replyGetForm" name="replyGetForm" action="<?p. _URL ?>/Reply/<?v. $this->TID ?>" method="post">
 		<input type="hidden" name="page" value="0">

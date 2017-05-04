@@ -5,18 +5,19 @@
  */
 
 require _DIR.'/Model/Member.model.php';
-
-class LoginController extends \BH_Controller{
+use \BH_Application as App;
+use \BH as BH;
+class LoginController{
 	/**
 	 * @var MemberModel
 	 */
 	public $model = null;
-	public function __Init(){
+	public function __construct(){
 		$this->model = new \MemberModel();
 	}
 
 	public function Index(){
-		$this->_View($this->model);
+		BH::APP()->_View($this->model);
 	}
 	public function PostLogin(){
 		$email = trim($_POST['email1'].'@'.$_POST['email2']);
@@ -38,15 +39,15 @@ class LoginController extends \BH_Controller{
 	}
 
 	public function Register(){
-		$this->_View();
+		BH::APP()->_View();
 	}
 
 	public function PostRegister(){
-		$this->Html = 'RegisterForm.html';
+		BH::APP()->Html = 'RegisterForm.html';
 		$this->model->data['nickname']->Required = true;
-		$this->_Value['email1'] = '';
-		$this->_Value['email2'] = '';
-		$this->_View($this->model);
+		App::$_Value['email1'] = '';
+		App::$_Value['email2'] = '';
+		BH::APP()->_View($this->model);
 	}
 
 	public function PostRegisterProcess(){
@@ -54,15 +55,15 @@ class LoginController extends \BH_Controller{
 		$res = $this->Check('email', $_POST['email1'].'@'.$_POST['email2'], false);
 		$res2 = $this->Check('nickname', $_POST['nickname']);
 		if(!$res){
-			$this->_Value['alertMsg'] = '이미 사용중인 이메일입니다.';
+			App::$_Value['alertMsg'] = '이미 사용중인 이메일입니다.';
 			$RegResult = false;
 		}
 		else if(!$res2){
-			$this->_Value['alertMsg'] = '이미 사용중인 닉네임입니다.';
+			App::$_Value['alertMsg'] = '이미 사용중인 닉네임입니다.';
 			$RegResult = false;
 		}
 		else if($_POST['pwd'] != $_POST['chkpwd']){
-			$this->_Value['alertMsg'] = '패스워드가 일치하지 않습니다.';
+			App::$_Value['alertMsg'] = '패스워드가 일치하지 않습니다.';
 			$RegResult = false;
 		}else{
 			$this->model->AddExcept('approve');
@@ -74,21 +75,21 @@ class LoginController extends \BH_Controller{
 			$ErrorMessage = $this->model->GetErrorMessage();
 			if(sizeof($ErrorMessage)){
 				$RegResult = false;
-				$this->_Value['alertMsg'] = $ErrorMessage[0];
+				App::$_Value['alertMsg'] = $ErrorMessage[0];
 			}else{
 				$res = $this->model->DBInsert();
 				if(!$res->result){
 					$RegResult = false;
-					$this->_Value['alertMsg'] = 'ERROR';
+					App::$_Value['alertMsg'] = 'ERROR';
 				}
 			}
 		}
 
 		if(!$RegResult){
-			$this->_Value['email1'] = $_POST['email1'];
-			$this->_Value['email2'] = $_POST['email2'];
-			$this->Html = 'RegisterForm.html';
-			$this->_View($this->model);
+			App::$_Value['email1'] = $_POST['email1'];
+			App::$_Value['email2'] = $_POST['email2'];
+			BH::APP()->Html = 'RegisterForm.html';
+			BH::APP()->_View($this->model);
 		}else{
 			Redirect(_URL.'/', '등록되었습니다.');
 		}
@@ -105,13 +106,13 @@ class LoginController extends \BH_Controller{
 	}
 
 	private function Check($key, $val, $wcheck = true){
-		$dbGet = new \BH_DB_Get($this->model->table);
+		$dbGet = BH::DBGet($this->model->table);
 		$dbGet->SetKey('COUNT(muid) as cnt');
 		$dbGet->AddWhere($key.'='.SetDBText($val));
 		$res = $dbGet->Get();
 
 		if($wcheck){ // 탈퇴회원 체크여부
-			$dbGet = new \BH_DB_Get(TABLE_WITHDRAW_MEMBER);
+			$dbGet = BH::DBGet(TABLE_WITHDRAW_MEMBER);
 			$dbGet->SetKey('COUNT(muid) as cnt');
 			$dbGet->AddWhere($key.'='.SetDBText($val));
 			$res2 = $dbGet->Get();
@@ -127,7 +128,7 @@ class LoginController extends \BH_Controller{
 	}
 
 	private function LoginMidCheck($mid, $pwd){
-		$dbGet = new \BH_DB_Get($this->model->table);
+		$dbGet = BH::DBGet($this->model->table);
 		$dbGet->SetKey(array('muid', 'level', 'pwd'));
 		$dbGet->AddWhere('mid='.SetDBText($mid));
 		//$params->test = true;
@@ -137,7 +138,7 @@ class LoginController extends \BH_Controller{
 	}
 
 	private function LoginEmailCheck($email, $pwd){
-		$dbGet = new \BH_DB_Get();
+		$dbGet = BH::DBGet();
 		$dbGet->table = $this->model->table;
 		$dbGet->SetKey(array('muid', 'level', 'pwd'));
 		$dbGet->AddWhere('email='.SetDBText($email));

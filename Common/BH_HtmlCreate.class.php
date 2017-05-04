@@ -8,11 +8,12 @@ class BH_HtmlCreate
 {
 	public static function CreateController($ControllerName, $ModelName, $TableName){
 		if(_DEVELOPERIS !== true) return;
-		$path = _CONTROLLERDIR.'/'.\BH_Application::GetInstance()->NativeDir.'/'.$ControllerName.'.php';
+		$path = _CONTROLLERDIR.'/'.BH::APP()->NativeDir.'/'.$ControllerName.'.php';
 		$modelPath = _MODELDIR.'/'.$ModelName.'.model.php';
 		$text = "<?php
-
-class {$ControllerName}Controller extends \\BH_Controller{
+use \\BH_Application as App;
+use \\BH as BH;
+class {$ControllerName}Controller{
 	/** @var {$ModelName} */
 	public \$model;
 	public function __Init(){
@@ -22,45 +23,45 @@ class {$ControllerName}Controller extends \\BH_Controller{
 	}
 
 	public function Index(){
-		\$qry = new \\BH_DB_GetListWithPage(\$this->model->table);
+		\$qry = BH::DBListPage(\$this->model->table);
 		\$qry->articleCount = 10;
 		\$qry->page = isset(\$_GET['page']) ? \$_GET['page'] : 0;
-		\$qry->pageUrl = \$this->URLAction().\$this->GetFollowQuery('page');
+		\$qry->pageUrl = BH::APP()->URLAction().BH::APP()->GetFollowQuery('page');
 		\$qry->Run();
 
-		\$this->_View(\$this->model, \$qry);
+		BH::APP()->_View(\$this->model, \$qry);
 	}
 
 	public function View(){
 		\$this->_ModelSet();
-		\$this->_View(\$this->model);
+		BH::APP()->_View(\$this->model);
 	}
 
 	public function Write(){
-		\$this->_View(\$this->model);
+		BH::APP()->_View(\$this->model);
 	}
 
 	public function Modify(){
 		\$this->_ModelSet();
 		\$this->Html = 'Write';
-		\$this->_View(\$this->model);
+		BH::APP()->_View(\$this->model);
 	}
 
 	public function PostWrite(){
 		\$this->model->SetPostValues();
 		\$err = \$this->model->GetErrorMessage();
 		if(sizeof(\$err)){
-			\$this->_Value['error'] = \$err[0];
-			\$this->_View(\$this->model);
+			App::\$_Value['error'] = \$err[0];
+			BH::APP()->_View(\$this->model);
 			return;
 		}
 		\$res = \$this->model->DBInsert();
 		if(!\$res->result) {
-			\$this->_Value['error'] = \$res->message ? \$res->message : 'Query Error';
-			\$this->_View(\$this->model);
+			App::\$_Value['error'] = \$res->message ? \$res->message : 'Query Error';
+			BH::APP()->_View(\$this->model);
 			return;
 		}
-		else Redirect(\$this->URLAction().\$this->GetFollowQuery());
+		else Redirect(BH::APP()->URLAction().BH::APP()->GetFollowQuery());
 	}
 
 	public function PostModify(){
@@ -68,27 +69,27 @@ class {$ControllerName}Controller extends \\BH_Controller{
 		\$this->model->SetPostValues();
 		\$err = \$this->model->GetErrorMessage();
 		if(sizeof(\$err)){
-			\$this->_Value['error'] = \$err[0];
-			\$this->_View(\$this->model);
+			App::\$_Value['error'] = \$err[0];
+			BH::APP()->_View(\$this->model);
 			return;
 		}
 		\$res = \$this->model->DBUpdate();
 		if(!\$res->result) {
-			\$this->_Value['error'] = \$res->message ? \$res->message : 'Query Error';
-			\$this->_View(\$this->model);
+			App::\$_Value['error'] = \$res->message ? \$res->message : 'Query Error';
+			BH::APP()->_View(\$this->model);
 			return;
 		}
-		else Redirect(\$this->URLAction('View/'.\$this->ID).\$this->GetFollowQuery());
+		else Redirect(BH::APP()->URLAction('View/'.\$this->ID).BH::APP()->GetFollowQuery());
 	}
 
 	public function PostDelete(){
 		\$res = \$this->model->DBDelete(\$this->ID);
 
 		if(\$res->result){
-			Redirect(\$this->URLAction('').\$this->GetFollowQuery());
+			Redirect(BH::APP()->URLAction('').BH::APP()->GetFollowQuery());
 		}
 		else{
-			Redirect(\$this->URLAction('View/'.\$this->ID).\$this->GetFollowQuery(), \$res->message ? \$res->message : 'Query Error');
+			Redirect(BH::APP()->URLAction('View/'.\$this->ID).BH::APP()->GetFollowQuery(), \$res->message ? \$res->message : 'Query Error');
 		}
 	}
 
@@ -216,13 +217,13 @@ class {$ModelName}Model extends \\BH_Model{
 	public static function Create($path, $model){
 		if(_DEVELOPERIS !== true) return;
 		$path = '/'.$path;
-		if(\BH_Application::GetInstance()->NativeDir) $path = '/'.\BH_Application::GetInstance()->NativeDir.$path;
+		if(BH::APP()->NativeDir) $path = '/'.BH::APP()->NativeDir.$path;
 		if(file_exists(_SKINDIR.$path) && is_dir(_SKINDIR.$path)) return;
 
 		$IndexHtml = self::Index($path.'/Index.html', $model);
 		$ViewHtml = self::View($path.'/View.html', $model);
 		$WriteHtml = self::Write($path.'/Write.html', $model);
-		$path = _SKINURL.'/'.(\BH_Application::GetInstance()->NativeDir ? \BH_Application::GetInstance()->NativeDir.'/' : '').\BH_Application::GetInstance()->ControllerName.'/';
+		$path = _SKINURL.'/'.(BH::APP()->NativeDir ? BH::APP()->NativeDir.'/' : '').BH::APP()->ControllerName.'/';
 		echo '<b>'.$path.'Index.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(GetDBText($IndexHtml)).'</textarea>';
 		echo '<br><br>';
 		echo '<b>'.$path.'View.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(GetDBText($ViewHtml)).'</textarea>';
@@ -380,7 +381,7 @@ class {$ModelName}Model extends \\BH_Model{
 			//if(!is_dir($path2)) mkdir($path2, 0777, true);
 
 			//키값
-			$html = '<?php if(_BH_ !== true) exit;' . chr(10) . '/**'.chr(10).'* @var $Model '.$classname.chr(10).' */' . chr(10) . '/**'.chr(10).'* @var $Data BH_DB_GetListWithPage'.chr(10).'*/' . chr(10) . '/**'.chr(10).'* @var $this BH_Controller'.chr(10).'*/' . chr(10) . '?>' . chr(10) . chr(10);
+			$html = '<?php if(_BH_ !== true) exit;' . chr(10) . '/**'.chr(10).'* @var $Model '.$classname.chr(10).' */' . chr(10) . '/**'.chr(10).'* @var $Data BH_DB_GetListWithPage'.chr(10).'*/' . chr(10) . '/**'.chr(10).'* @var $this BH_Application'.chr(10).'*/' . chr(10) . '?>' . chr(10) . chr(10);
 			$html .= '<?php if($Data->result && $Data->totalRecord){ ?>'. chr(10);
 			$html .= '<table class="list">'.chr(10);
 			$html .= '<thead>'. chr(10);

@@ -3,8 +3,9 @@
  * Bang Hun.
  * 16.07.10
  */
-
-class BoardController extends \BH_Controller{
+use \BH_Application as App;
+use \BH as BH;
+class BoardController{
 	/**
 	 * @var BoardModel
 	 */
@@ -14,7 +15,7 @@ class BoardController extends \BH_Controller{
 	 */
 	public $boardManger;
 	public $managerIs = false;
-	public function __Init(){
+	public function __construct(){
 
 		$this->BoardSetting();
 
@@ -24,40 +25,40 @@ class BoardController extends \BH_Controller{
 	}
 
 	protected function BoardSetting(){
-		if(!isset($this->TID) || $this->TID == '') Redirect('-1', '잘못된 접근입니다.');
+		if(!isset(BH::APP()->TID) || BH::APP()->TID == '') Redirect('-1', '잘못된 접근입니다.');
 
 		require _DIR.'/Model/BoardManager.model.php';
 		$this->boardManger = new \BoardManagerModel();
-		$this->boardManger->DBGet($this->TID);
-		$this->SetFollowQuery(array('page','searchType','searchKeyword','category'));
+		$this->boardManger->DBGet(BH::APP()->TID);
+		BH::APP()->SetFollowQuery(array('page','searchType','searchKeyword','category'));
 
-		$mid = $this->_CF()->GetMember('mid');
+		$mid = BH::CF()->GetMember('mid');
 		$manager = explode(',', $this->boardManger->GetValue('manager'));
 		if ($mid !== false && in_array($mid, $manager)) {
 			$this->managerIs = true;
 		}
 
-		$this->Html = '/Board/' . $this->Action.'.html';
+		BH::APP()->Html = '/Board/' . BH::APP()->Action.'.html';
 		$layout = $this->boardManger->GetValue('layout');
-		if($layout) $this->Layout = $layout;
+		if($layout) BH::APP()->Layout = $layout;
 
 
-		$this->_Value['categorys'] = array();
+		App::$_Value['categorys'] = array();
 		if(!is_null($this->boardManger->GetValue('category')) && strlen($this->boardManger->GetValue('category'))){
-			$this->_Value['categorys'] = explode(',', $this->boardManger->GetValue('category'));
+			App::$_Value['categorys'] = explode(',', $this->boardManger->GetValue('category'));
 		}
 	}
 
 	public function Index($viewPageIs = false){
-		if(_AJAXIS === true) unset($this->Layout);
+		if(_AJAXIS === true) unset(BH::APP()->Layout);
 
 		$res = $this->GetAuth('List');
 		if(!$res) Redirect('-1', _NO_AUTH);
 
 		// 리스트를 불러온다.
-		$dbList = new \BH_DB_GetListWithPage($this->model->table);
+		$dbList = BH::DBListPage($this->model->table);
 		$dbList->page = isset($_GET['page']) ? $_GET['page'] : 1;
-		$dbList->pageUrl = $this->URLAction('').$this->GetFollowQuery('page');
+		$dbList->pageUrl = BH::APP()->URLAction('').BH::APP()->GetFollowQuery('page');
 		$dbList->articleCount = $this->boardManger->GetValue('article_count');
 		$dbList->AddWhere('delis=\'n\'');
 		$dbList->sort = 'sort1, sort2';
@@ -81,23 +82,23 @@ class BoardController extends \BH_Controller{
 		$dbList->Run();
 
 		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Index.html';
-		if(file_exists(_SKINDIR.$html)) $this->Html = $html;
+		if(file_exists(_SKINDIR.$html)) BH::APP()->Html = $html;
 
-		if($viewPageIs) return $this->_GetView($this->model, $dbList);
-		else $this->_View($this->model, $dbList);
+		if($viewPageIs) return BH::APP()->_GetView($this->model, $dbList);
+		else BH::APP()->_View($this->model, $dbList);
 	}
 
 	public function PostView(){
 		$this->View();
 	}
 	public function View(){
-		if($this->boardManger->GetValue('list_in_view') == 'y') $this->_Value['List'] = $this->Index(true);
+		if($this->boardManger->GetValue('list_in_view') == 'y') App::$_Value['List'] = $this->Index(true);
 
-		if(!isset($this->ID) || !strlen($this->ID)) Redirect('-1');
+		if(!isset(BH::APP()->ID) || !strlen(BH::APP()->ID)) Redirect('-1');
 
-		$seq = to10($this->ID);
+		$seq = to10(BH::APP()->ID);
 
-		if(_AJAXIS === true) unset($this->Layout);
+		if(_AJAXIS === true) unset(BH::APP()->Layout);
 		$viewAuth = $this->GetAuth('View');
 		if(!$viewAuth) Redirect('-1', _NO_AUTH);
 
@@ -117,7 +118,7 @@ class BoardController extends \BH_Controller{
 
 			// first_seq 가 있으면 첫째글을 호출
 			if(strlen($this->model->GetValue('first_seq'))){
-				$dbGet = new \BH_DB_Get($this->model->table);
+				$dbGet = BH::DBGet($this->model->table);
 				$dbGet->AddWhere('seq=' . $this->model->GetValue('first_seq'));
 				$firstDoc = $dbGet->Get();
 			}
@@ -148,7 +149,7 @@ class BoardController extends \BH_Controller{
 
 		$cookieName = $this->model->table.$seq;
 		if(!isset($_COOKIE[$cookieName]) || !$_COOKIE[$cookieName]){
-			$dbUpdate = new \BH_DB_Update($this->model->table);
+			$dbUpdate = BH::DBUpdate($this->model->table);
 			$dbUpdate->SetData('hit', 'hit + 1');
 			$dbUpdate->AddWhere('seq='.$seq);
 			$dbUpdate->Run();
@@ -156,9 +157,9 @@ class BoardController extends \BH_Controller{
 		}
 
 		$html = '/Board/'.$this->boardManger->GetValue('skin').'/View.html';
-		if(file_exists(_SKINDIR.$html)) $this->Html = $html;
+		if(file_exists(_SKINDIR.$html)) BH::APP()->Html = $html;
 
-		$this->_View($this->model, $data);
+		BH::APP()->_View($this->model, $data);
 	}
 
 	public function Write(){
@@ -166,20 +167,20 @@ class BoardController extends \BH_Controller{
 		if(!$res) Redirect('-1', _NO_AUTH);
 
 		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Write.html';
-		if(file_exists(_SKINDIR.$html)) $this->Html = $html;
+		if(file_exists(_SKINDIR.$html)) BH::APP()->Html = $html;
 
-		$this->_View($this->model);
+		BH::APP()->_View($this->model);
 	}
 
 	public function Answer(){
 		$res = $this->GetAuth('Answer');
 		if(!$res) Redirect('-1', _NO_AUTH);
 
-		$this->Html = 'Write';
+		BH::APP()->Html = 'Write';
 		$seq = to10($_GET['target']);
 		if(!strlen($seq)) Redirect('-1');
 
-		$qry = new \BH_DB_Get($this->model->table);
+		$qry = BH::DBGet($this->model->table);
 		$qry->AddWhere('seq = %d', $seq);
 		$data = $qry->Get();
 
@@ -190,7 +191,7 @@ class BoardController extends \BH_Controller{
 		//			}
 		//
 		//			if($_SESSION['member']['level'] < _SADMIN_LEVEL){
-		//				$member = $this->_CF()->GetMember();
+		//				$member = BH::CF()->GetMember();
 		//
 		//				$manager = explode(',', $this->boardManger->data['manager']);
 		//				if(!in_array($member['mid'], $manager)){
@@ -203,21 +204,21 @@ class BoardController extends \BH_Controller{
 		$this->model->SetValue('secret', $data['secret']);
 
 		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Write.html';
-		if(file_exists(_SKINDIR.$html)) $this->Html = $html;
+		if(file_exists(_SKINDIR.$html)) BH::APP()->Html = $html;
 
-		$this->_View($this->model);
+		BH::APP()->_View($this->model);
 	}
 
 	public function Modify(){
-		if(!isset($this->ID) || !strlen($this->ID)){
+		if(!isset(BH::APP()->ID) || !strlen(BH::APP()->ID)){
 			Redirect('-1');
 		}
 
 		$res = $this->GetAuth('Modify');
 		if(!$res) Redirect('-1', _NO_AUTH);
 
-		$this->Html = 'Write';
-		$seq = to10($this->ID);
+		BH::APP()->Html = 'Write';
+		$seq = to10(BH::APP()->ID);
 		$this->model->DBGet($seq);
 
 		// 회원 글 체크
@@ -228,9 +229,9 @@ class BoardController extends \BH_Controller{
 
 
 		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Write.html';
-		if(file_exists(_SKINDIR.$html)) $this->Html = $html;
+		if(file_exists(_SKINDIR.$html)) BH::APP()->Html = $html;
 
-		$this->_View($this->model);
+		BH::APP()->_View($this->model);
 	}
 
 	public function PostModify(){
@@ -243,7 +244,7 @@ class BoardController extends \BH_Controller{
 
 		require_once _COMMONDIR.'/FileUpload.php';
 
-		$seq = to10($this->ID);
+		$seq = to10(BH::APP()->ID);
 
 		$this->model->Need = array('subject', 'content', 'secret');
 		if(_MEMBERIS !== true) $this->model->Need[] = 'mnane';
@@ -251,18 +252,18 @@ class BoardController extends \BH_Controller{
 
 		$this->model->DBGet($seq);
 		$res = $this->model->SetPostValues();
-		if(!$res->result) Redirect($this->URLAction('View/'.$this->ID).$this->GetFollowQuery(), $res->message);
+		if(!$res->result) Redirect(BH::APP()->URLAction('View/'.BH::APP()->ID).BH::APP()->GetFollowQuery(), $res->message);
 
 		// 회원 글 체크
 		if(_MEMBERIS !== true || $_SESSION['member']['level'] != _SADMIN_LEVEL){
 			$res = $this->PasswordCheck();
-			if($res !== true) Redirect($this->URLAction('View/'.$this->ID).$this->GetFollowQuery(), $res);
+			if($res !== true) Redirect(BH::APP()->URLAction('View/'.BH::APP()->ID).BH::APP()->GetFollowQuery(), $res);
 		}
 
 		// 파일 업로드
 		for($n = 1; $n <= 2; $n++){
 			if(!isset($_FILES['file'.$n])) continue;
-			$fres_em = FileUpload($_FILES['file'.$n], \BH_Application::$POSSIBLE_EXT, '/board/'.date('ym').'/');
+			$fres_em = FileUpload($_FILES['file'.$n], App::$POSSIBLE_EXT, '/board/'.date('ym').'/');
 
 			if($fres_em === 'noext') Redirect('-1', '등록 불가능한 파일입니다.');
 			else if(is_array($fres_em)){
@@ -276,14 +277,14 @@ class BoardController extends \BH_Controller{
 		$this->model->SetValue('htmlis', _MOBILEIS === true ? 'n' : 'y');
 
 		$error = $this->model->GetErrorMessage();
-		if(sizeof($error)) Redirect($this->URLAction('View/'.$this->ID).$this->GetFollowQuery(), $error[0]);
+		if(sizeof($error)) Redirect(BH::APP()->URLAction('View/'.BH::APP()->ID).BH::APP()->GetFollowQuery(), $error[0]);
 
 		$res2 = $this->model->DBUpdate();
 		$this->ContentImageUpate($_POST['content'], $seq, 'modify');
 
 
-		if($res2->result) Redirect($this->URLAction('View/'.$this->ID).$this->GetFollowQuery(), '수정되었습니다.');
-		else Redirect($this->URLAction('View/'.$this->ID).$this->GetFollowQuery(), $res2->message ? $res2->message : 'ERROR');
+		if($res2->result) Redirect(BH::APP()->URLAction('View/'.BH::APP()->ID).BH::APP()->GetFollowQuery(), '수정되었습니다.');
+		else Redirect(BH::APP()->URLAction('View/'.BH::APP()->ID).BH::APP()->GetFollowQuery(), $res2->message ? $res2->message : 'ERROR');
 	}
 
 	public function PostAnswer(){
@@ -300,15 +301,15 @@ class BoardController extends \BH_Controller{
 		$first_member_is = 'n';
 
 
-		if($this->Action == 'Answer'){
+		if(BH::APP()->Action == 'Answer'){
 			$auth = $this->GetAuth('Answer');
 			if(!$auth) Redirect('-1', _NO_AUTH);
-			$dbGet = new \BH_DB_Get($this->model->table);
+			$dbGet = BH::DBGet($this->model->table);
 			$dbGet->AddWhere('seq=%d', to10($_POST['target']));
 			$dbGet->SetKey('mname, depth, muid, sort1, sort2', 'seq', 'first_seq', 'first_member_is', 'category');
-			$this->_Value['targetData'] = $dbGet->Get();
-			$first_seq = strlen($this->_Value['targetData']['first_seq']) ? $this->_Value['targetData']['first_seq'] : $this->_Value['targetData']['seq'];
-			$first_member_is = $this->_Value['targetData']['first_member_is'];
+			App::$_Value['targetData'] = $dbGet->Get();
+			$first_seq = strlen(App::$_Value['targetData']['first_seq']) ? App::$_Value['targetData']['first_seq'] : App::$_Value['targetData']['seq'];
+			$first_member_is = App::$_Value['targetData']['first_member_is'];
 		}
 
 		require_once _COMMONDIR.'/FileUpload.php';
@@ -317,13 +318,13 @@ class BoardController extends \BH_Controller{
 
 		$this->model->Need = array('subject', 'content', 'secret');
 		if(_MEMBERIS === true){
-			$member = $this->_CF()->GetMember();
+			$member = BH::CF()->GetMember();
 			$this->model->AddExcept('pwd');
 		}
 
 		$res = $this->model->SetPostValues();
 		if(!$res->result){
-			$this->_Value['error'] = $res->message;
+			App::$_Value['error'] = $res->message;
 			$this->Write();
 			return;
 		}
@@ -331,10 +332,10 @@ class BoardController extends \BH_Controller{
 		// 파일 업로드
 		for($n = 1; $n <= 2; $n++){
 			if(!isset($_FILES['file'.$n])) continue;
-			$fres_em = FileUpload($_FILES['file'.$n], \BH_Application::$POSSIBLE_EXT, '/board/'.date('ym').'/');
+			$fres_em = FileUpload($_FILES['file'.$n], App::$POSSIBLE_EXT, '/board/'.date('ym').'/');
 
 			if($fres_em === 'noext'){
-				$this->_Value['error'] = '등록 불가능한 파일입니다.';
+				App::$_Value['error'] = '등록 불가능한 파일입니다.';
 				$this->Write();
 				return;
 			}
@@ -356,26 +357,26 @@ class BoardController extends \BH_Controller{
 		}
 
 		// 답글쓰기라면 sort 정렬
-		if($this->Action == 'Answer'){
-			$qry = new \BH_DB_Update($this->model->table);
+		if(BH::APP()->Action == 'Answer'){
+			$qry = BH::DBUpdate($this->model->table);
 			$qry->SetData('sort2', 'sort2 + 1');
-			$qry->AddWhere('sort1 = %d', $this->_Value['targetData']['sort1']);
-			$qry->AddWhere('sort2 > %d', $this->_Value['targetData']['sort2']);
+			$qry->AddWhere('sort1 = %d', App::$_Value['targetData']['sort1']);
+			$qry->AddWhere('sort2 > %d', App::$_Value['targetData']['sort2']);
 			$qry->sort = 'sort2 DESC';
 			$qry->Run();
 			if(!$qry->result){
-				$this->_Value['error'] = 'ERROR#201';
+				App::$_Value['error'] = 'ERROR#201';
 				$this->Write();
 				return;
 			}
 			$this->model->SetValue('first_seq', $first_seq);
 			$this->model->SetValue('first_member_is', $first_member_is);
-			$this->model->SetValue('target_mname', $this->_Value['targetData']['mname']);
-			$this->model->SetValue('target_muid', $this->_Value['targetData']['muid'] ? $this->_Value['targetData']['muid'] : 0);
-			$this->model->SetValue('sort1', $this->_Value['targetData']['sort1']);
+			$this->model->SetValue('target_mname', App::$_Value['targetData']['mname']);
+			$this->model->SetValue('target_muid', App::$_Value['targetData']['muid'] ? App::$_Value['targetData']['muid'] : 0);
+			$this->model->SetValue('sort1', App::$_Value['targetData']['sort1']);
 			//echo  $row['sort1'];exit;
-			$this->model->SetValue('sort2', $this->_Value['targetData']['sort2'] + 1);
-			$this->model->SetValue('depth', $this->_Value['targetData']['depth'] + 1);
+			$this->model->SetValue('sort2', App::$_Value['targetData']['sort2'] + 1);
+			$this->model->SetValue('depth', App::$_Value['targetData']['depth'] + 1);
 		}else{
 			$this->model->SetValue('first_member_is', _MEMBERIS === true ? 'y' : 'n');
 			$this->model->SetQueryValue('sort1', '(SELECT IF(COUNT(s.sort1) = 0, 0, MIN(s.sort1))-1 FROM '.$this->model->table.' as s)');
@@ -385,7 +386,7 @@ class BoardController extends \BH_Controller{
 
 		$error = $this->model->GetErrorMessage();
 		if(sizeof($error)){
-			$this->_Value['error'] = $error[0];
+			App::$_Value['error'] = $error[0];
 			$this->Write();
 			return;
 		}
@@ -396,9 +397,9 @@ class BoardController extends \BH_Controller{
 
 		if($result->result){
 			$this->ContentImageUpate($_POST['content'], $res->id);
-			Redirect($this->URLAction(), '등록되었습니다.');
+			Redirect(BH::APP()->URLAction(), '등록되었습니다.');
 		}else{
-			Redirect($this->URLAction('Write').$this->GetFollowQuery(), $result->message ? $result->message : 'ERROR');
+			Redirect(BH::APP()->URLAction('Write').BH::APP()->GetFollowQuery(), $result->message ? $result->message : 'ERROR');
 		}
 	}
 
@@ -408,7 +409,7 @@ class BoardController extends \BH_Controller{
 		$res = $this->GetAuth('Write');
 		if(!$res) Redirect('-1', _NO_AUTH);
 
-		$seq = to10($this->ID);
+		$seq = to10(BH::APP()->ID);
 
 		$this->model->DBGet($seq);
 
@@ -423,7 +424,7 @@ class BoardController extends \BH_Controller{
 		$this->model->SetValue('delis', 'y');
 		$this->model->DBUpdate();
 
-		Redirect($this->URLAction().$this->GetFollowQuery(), '삭제되었습니다.');
+		Redirect(BH::APP()->URLAction().BH::APP()->GetFollowQuery(), '삭제되었습니다.');
 	}
 
 
@@ -457,7 +458,7 @@ class BoardController extends \BH_Controller{
 		$maxImage = _MAX_IMAGE_COUNT;
 
 		if($mode == 'modify'){
-			$dbGetList = new \BH_DB_GetList($this->model->imageTable);
+			$dbGetList = BH::DBList($this->model->imageTable);
 			$dbGetList->AddWhere('article_seq='.$seq);
 			while($img = $dbGetList->Get()){
 				if(strpos($content,$img['image']) === false){
@@ -466,7 +467,7 @@ class BoardController extends \BH_Controller{
 
 					if($img['image'] == $this->model->GetValue('thumnail')) $this->model->SetValue('thumnail', '');
 
-					$qry = new \BH_DB_Delete($this->model->table.'_images');
+					$qry = BH::DBDelete($this->model->table.'_images');
 					$qry->AddWhere('article_seq = '.$img['article_seq']);
 					$qry->AddWhere('seq = '.$img['seq']);
 					$qry->Run();
@@ -474,7 +475,7 @@ class BoardController extends \BH_Controller{
 			}
 		}
 
-		$dbGet = new \BH_DB_Get($this->model->imageTable);
+		$dbGet = BH::DBGet($this->model->imageTable);
 		$dbGet->AddWhere('article_seq='.$seq);
 		$dbGet->SetKey('COUNT(*) as cnt');
 		$cnt = $dbGet->Get();
@@ -501,7 +502,7 @@ class BoardController extends \BH_Controller{
 					// 파일이 있으면 등록
 
 					unset($dbInsert);
-					$dbInsert = new \BH_DB_Insert($this->model->imageTable);
+					$dbInsert = BH::DBInsert($this->model->imageTable);
 					$dbInsert->data['article_seq'] = $seq;
 					$dbInsert->data['image'] = SetDBText($newpath);
 					$dbInsert->data['imagename'] = SetDBText($exp[1]);
@@ -516,13 +517,13 @@ class BoardController extends \BH_Controller{
 
 			if($newcontent != $content){
 				if(!$this->model->GetValue('thumnail')){
-					$dbGet = new \BH_DB_Get($this->model->imageTable);
+					$dbGet = BH::DBGet($this->model->imageTable);
 					$dbGet->AddWhere('article_seq='.$seq);
 					$dbGet->sort = 'seq';
 					$new = $dbGet->Get();
 					$this->model->SetValue('thumnail', $new['image']);
 				}
-				$qry = new \BH_DB_Update($this->model->table);
+				$qry = BH::DBUpdate($this->model->table);
 				$qry->SetDataStr('thumnail', $this->model->GetValue('thumnail'));
 				$qry->SetDataStr('content', $newcontent);
 				$qry->AddWhere('seq = '.$seq);

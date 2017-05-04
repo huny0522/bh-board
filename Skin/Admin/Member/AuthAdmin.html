@@ -12,29 +12,29 @@
 	</div>
 	<form name="AuthForm" id="AuthForm" method="post" action="<?a. $this->Action ?><?fq. '' ?>">
 		<input type="hidden" name="muid" value="<?p. SetDBInt($_GET['muid']) ?>">
-		<?php if(sizeof($this->_CF()->AdminMenu) && isset($this->_CF()->AdminMenu)){ ?>
+		<?php if(sizeof(BH::CF()->AdminMenu) && isset(BH::CF()->AdminMenu)){ ?>
 
 		<ul>
 			<?php
-			foreach($this->_CF()->AdminMenu as $c => $row){
+			foreach(BH::CF()->AdminMenu as $c => $row){
 				if(strlen($c) == 3){
 					?>
 					<li>
 						<p>
 							<input type="checkbox" name="Category[]" id="Category<? p.$c ?>"
-							       value="<? p.$c ?>"<?php if(in_array($c, $this->_Value['auth'])) echo ' checked' ?>>
+							       value="<? p.$c ?>"<?php if(in_array($c, self::$_Value['auth'])) echo ' checked' ?>>
 							<label for="Category<? p.$c ?>">
 								<? v.$row['Name'] ?>
 							</label>
 						</p>
 						<?php
 						$sub = '';
-						foreach($this->_CF()->AdminMenu as $c2 => $row2){
+						foreach(BH::CF()->AdminMenu as $c2 => $row2){
 							if(strlen($c2) == 6 && substr($c2, 0, 3) == $c){
 								$sub .= '<li>'
 									.'<p>'
 									.'<input type="checkbox" name="Category[]" id="Category'. $c2 .'" value="'. $c2 .'"'
-									. ((in_array($c2, $this->_Value['auth'])) ? ' checked' : ''). '>'
+									. ((in_array($c2, self::$_Value['auth'])) ? ' checked' : ''). '>'
 									.'<label for="Category'.$c2 .'">'
 									.$row2['Name']
 									.'</label>'

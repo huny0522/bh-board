@@ -27,7 +27,7 @@
 				<td><?p. $Data->beginNum-- ?></td>
 				<td><?v. $row['category']; ?></td>
 
-				<?php if($this->managerIs || $row['secret'] == 'n' || (_MEMBERIS === true && $_SESSION['member']['level'] == _SADMIN_LEVEL) || ($row['first_member_is'] == 'y' && strlen($row['muid']))){ ?>
+				<?php if($Ctrl->managerIs || $row['secret'] == 'n' || (_MEMBERIS === true && $_SESSION['member']['level'] == _SADMIN_LEVEL) || ($row['first_member_is'] == 'y' && strlen($row['muid']))){ ?>
 					<td><?p. $secretIcon ?><a href="<?a. 'View' ?>/<?p. toBase($row['seq']) ?><?fq. '' ?>"><?v. $row['subject']; ?></a></td>
 				<?php } else { ?>
 					<td><?p. $secretIcon ?><a href="<?a. 'View' ?>/<?p. toBase($row['seq']) ?><?fq. '' ?>" class="passwordView"><?v. $row['subject']; ?></a></td>

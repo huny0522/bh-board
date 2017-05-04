@@ -6,11 +6,11 @@ if(_BH_ !== true) exit;
 ob_start();
 ?>
 <div class="Board">
-	<h2><?v. $this->boardManger->GetValue('subject') ?></h2>
-	<?php if($this->_Value['categorys']){ ?>
+	<h2><?v. $Ctrl->boardManger->GetValue('subject') ?></h2>
+	<?php if(self::$_Value['categorys']){ ?>
 		<ul class="category">
 			<li<?php if(!isset($_GET['category'])) echo ' class="Active"'; ?>><a href="<?a. '' ?>">전체</a></li>
-		<?php foreach($this->_Value['categorys'] as $row){ ?>
+		<?php foreach(self::$_Value['categorys'] as $row){ ?>
 			<li<?php if(isset($_GET['category']) && $row == $_GET['category']) echo ' class="Active"'; ?>><a href="<?a. '' ?>?category=<?v. $row ?>"><?p. $row ?></a></li>
 		<?php } ?>
 		</ul>

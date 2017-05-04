@@ -51,6 +51,7 @@ define('_REMOVE_SPACE', false);
 define('_VIEW_MICROTIME', true);
 define('_USE_DB_CACHE', true);
 define('_USE_OLD_PASSWORD', false);
+define('_SHOW_CREATE_GUIDE', true);
 
 define('_STYLEFILE', '_bhinline.css2');
 
@@ -116,6 +117,5 @@ class_alias('BH_Common', '_CF');
 
 if(_VIEW_MICROTIME === true && _AJAXIS !== true){
 	$_END_MICROTIME = array_sum(explode(' ',microtime()));
-	$_RES_MICROTIME = $_END_MICROTIME - $_BEGIN_MICROTIME;
-	echo chr(10).'<!-- RUNTIME : '.$_RES_MICROTIME.' -->';
+	echo chr(10).'<!-- RUNTIME : '.sprintf('%02.6f', $_END_MICROTIME - $_BEGIN_MICROTIME).' -->';
 }

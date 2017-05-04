@@ -5,20 +5,21 @@
  */
 
 namespace Admin;
-
-class LoginController extends \BH_Controller{
+use \BH_Application as App;
+use \BH as BH;
+class LoginController{
 	public $model;
 
-	public function __Init(){
+	public function __construct(){
 		require _DIR.'/Model/Member.model.php';
 		$this->model = new \MemberModel();
 		$this->model->data['mid']->Required = true;
-		$this->Layout = '_Empty';
+		BH::APP()->Layout = '_Empty';
 	}
 
 	public function Index(){
 		if(_MEMBERIS === true && ($_SESSION['member']['level'] == _SADMIN_LEVEL || $_SESSION['member']['level'] == _ADMIN_LEVEL)) Redirect(_ADMINURL);
-		$this->_View($this->model);
+		BH::APP()->_View($this->model);
 	}
 
 	public function PostLogin(){
@@ -48,7 +49,7 @@ class LoginController extends \BH_Controller{
 
 
 	private function LoginMidCheck($mid, $pwd, $level = 1){
-		$dbGet = new \BH_DB_Get($this->model->table);
+		$dbGet = BH::DBGet($this->model->table);
 		$dbGet->SetKey(array('muid', 'level', 'pwd'));
 		$dbGet->AddWhere('mid='.SetDBText($mid));
 		if(is_array($level)) $dbGet->AddWhere('level IN ('.implode(',', $level).')');
@@ -60,7 +61,7 @@ class LoginController extends \BH_Controller{
 	}
 
 	private function LoginEmailCheck($email, $pwd, $level = 1){
-		$dbGet = new \BH_DB_Get($this->model->table);
+		$dbGet = BH::DBGet($this->model->table);
 		$dbGet->SetKey(array('muid', 'level', 'pwd'));
 		$dbGet->AddWhere('email='.SetDBText($email));
 		$dbGet->AddWhere('level='.$level);

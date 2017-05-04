@@ -1,14 +1,14 @@
 <?php
 if(_BH_ !== true) exit;
 /**
- * @var $this BH_Controller
+ * @var $this BH_Application
  */
 ?>
 <!DOCTYPE html>
 <html>
 <head>
 
-	<title><?p. $this->Title ? $this->Title.' - ' : '' ?><?p. $this->_CF()->Config('Default','SiteName') ?></title>
+	<title><?p. $this->Title ? $this->Title.' - ' : '' ?><?p. BH::CF()->Config('Default','SiteName') ?></title>
 
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=Edge">

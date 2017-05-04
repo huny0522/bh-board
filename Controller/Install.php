@@ -3,10 +3,11 @@
  * Bang Hun.
  * 16.07.10
  */
-
-class InstallController extends \BH_Controller{
-	public function __Init(){
-		if(\BH_Application::GetInstance()->InstallIs) exit;
+use \BH_Application as App;
+use \BH as BH;
+class InstallController{
+	public function __construct(){
+		if(BH::APP()->InstallIs) exit;
 	}
 
 	public function Index(){

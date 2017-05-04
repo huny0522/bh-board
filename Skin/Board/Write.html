@@ -14,9 +14,9 @@
 	<?php } ?>
 
 
-	<?php if(isset($this->_Value['error'])){ ?><p class="alert"><?p. $this->_Value['error'] ?></p><?php } ?>
+	<?php if(isset(self::$_Value['error'])){ ?><p class="alert"><?p. self::$_Value['error'] ?></p><?php } ?>
 	<table class="write">
-		<?php if(_MEMBERIS === true && ($this->managerIs || $_SESSION['member']['level'] == _SADMIN_LEVEL || $_SESSION['member']['level'] == _ADMIN_LEVEL)){ ?>
+		<?php if(_MEMBERIS === true && ($Ctrl->managerIs || $_SESSION['member']['level'] == _SADMIN_LEVEL || $_SESSION['member']['level'] == _ADMIN_LEVEL)){ ?>
 		<tr>
 			<th><?p. $Model->data['notice']->DisplayName ?></th>
 			<td>
@@ -24,13 +24,13 @@
 			</td>
 		</tr>
 		<?php } ?>
-		<?php if(sizeof($this->_Value['categorys'])){ ?>
+		<?php if(sizeof(self::$_Value['categorys'])){ ?>
 		<tr>
 			<th><?p. $Model->data['category']->DisplayName ?></th>
 			<td>
 				<select name="category" required>
 					<option value="">선택</option>
-					<?php foreach($this->_Value['categorys'] as $cate){ ?>
+					<?php foreach(self::$_Value['categorys'] as $cate){ ?>
 						<option<?php if($cate == $Model->GetValue('category')){ ?> selected<?php } ?>><?p. $cate ?></option>
 					<?php } ?>
 				</select>

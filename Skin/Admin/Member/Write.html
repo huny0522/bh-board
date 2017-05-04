@@ -3,7 +3,7 @@
 * @var $Model MemberModel
  */
 /**
-* @var $this BH_Controller
+* @var $this BH_Application
 */
 ?>
 
@@ -11,7 +11,7 @@
 
 <form name="MemberWriteForm" id="MemberWriteForm" method="post" action="<?a. $this->Action ?><?fq. '' ?>">
 	<?php if($this->Action == 'Modify'){ ?>
-		<input type="hidden" name="muid" value="<?p. $this->model->GetValue('muid') ?>">
+		<input type="hidden" name="muid" value="<?p. $Ctrl->model->GetValue('muid') ?>">
 	<?php } ?>
 
 	<table class="write">
@@ -69,7 +69,7 @@
 			<th><?p. $Model->data['level']->DisplayName ?></th>
 			<td>
 				<select name="level">
-					<?p. SelectOption($this->_Value['level'], $Model->GetValue('level')) ?>
+					<?p. SelectOption(self::$_Value['level'], $Model->GetValue('level')) ?>
 				</select>
 			</td>
 		</tr>

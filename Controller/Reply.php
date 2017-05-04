@@ -3,8 +3,9 @@
  * Bang Hun.
  * 16.07.10
  */
-
-class ReplyController extends \BH_Controller{
+use \BH_Application as App;
+use \BH as BH;
+class ReplyController{
 	/**
 	 * @var ReplyModel
 	 */
@@ -14,23 +15,23 @@ class ReplyController extends \BH_Controller{
 	 */
 	public $boardManger;
 	public $managerIs = false;
-	public function __Init(){
+	public function __construct(){
 		if(_POSTIS !== true) exit;
-		$this->_Value['article_seq'] = SetDBInt((string)$_POST['article_seq']);
+		App::$_Value['article_seq'] = SetDBInt((string)$_POST['article_seq']);
 
-		if(!isset($this->TID) || $this->TID == ''){
+		if(!isset(BH::APP()->TID) || BH::APP()->TID == ''){
 			exit;
 		}
-		unset($this->Layout);
+		unset(BH::APP()->Layout);
 
 		require _DIR.'/Model/Reply.model.php';
 		require _DIR.'/Model/BoardManager.model.php';
 
 		$this->model = new \ReplyModel();
 		$this->boardManger = new \BoardManagerModel();
-		$this->boardManger->DBGet($this->TID);
+		$this->boardManger->DBGet(BH::APP()->TID);
 
-		$mid = $this->_CF()->GetMember('mid');
+		$mid = BH::CF()->GetMember('mid');
 		$manager = explode(',', $this->boardManger->GetValue('manager'));
 		if ($mid !== false && in_array($mid, $manager)) {
 			$this->managerIs = true;
@@ -47,12 +48,12 @@ class ReplyController extends \BH_Controller{
 		$myArticleIs = $this->MyArticleCheck();
 
 		// 리스트를 불러온다.
-		$dbList = new \BH_DB_GetListWithPage($this->model->table);
+		$dbList = BH::DBListPage($this->model->table);
 		$dbList->page = isset($_POST['page']) ? $_POST['page'] : 1;
-		//$dbList->pageUrl = $this->URLAction('').$this->GetFollowQuery('page');
+		//$dbList->pageUrl = BH::APP()->URLAction('').BH::APP()->GetFollowQuery('page');
 		$dbList->pageUrl = '#';
 		$dbList->articleCount = isset($this->boardManger) ? $this->boardManger->GetValue('article_count') : 20;
-		$dbList->AddWhere('article_seq='.$this->_Value['article_seq']);
+		$dbList->AddWhere('article_seq='.App::$_Value['article_seq']);
 		$dbList->sort = 'sort1, sort2';
 		if(method_exists($this, 'IndexAddQuery')) $this->IndexAddQuery($dbList);
 		$dbList->DrawRows();
@@ -92,11 +93,11 @@ class ReplyController extends \BH_Controller{
 		}
 
 		if(isset($this->boardManger)){
-			$html = '/'.$this->Controller.'/'.$this->boardManger->GetValue('reply_skin').'/Index.html';
-			if(file_exists(_SKINDIR.$html)) $this->Html = $html;
+			$html = '/'.BH::APP()->ControllerName.'/'.$this->boardManger->GetValue('reply_skin').'/Index.html';
+			if(file_exists(_SKINDIR.$html)) BH::APP()->Html = $html;
 		}
 
-		$this->_View(null, $dbList);
+		BH::APP()->_View(null, $dbList);
 	}
 
 	public function PostWrite($answerIs = false){
@@ -128,7 +129,7 @@ class ReplyController extends \BH_Controller{
 
 		if($answerIs){
 			$target = SetDBInt($_POST['target_seq']);
-			$dbGet = new \BH_DB_Get($this->model->table);
+			$dbGet = BH::DBGet($this->model->table);
 			$dbGet->AddWhere('seq='.$target);
 			$dbGet->SetKey(array('seq', 'first_seq', 'first_member_is', 'secret'));
 			$targetData = $dbGet->Get();
@@ -142,7 +143,7 @@ class ReplyController extends \BH_Controller{
 
 		// 파일 업로드
 		if(isset($_FILES['file'])){
-			$fres_em = FileUpload($_FILES['file'], \BH_Application::$IMAGE_EXT, '/reply/' . date('ym') . '/');
+			$fres_em = FileUpload($_FILES['file'], App::$IMAGE_EXT, '/reply/' . date('ym') . '/');
 
 			if($fres_em === 'noext'){
 				echo json_encode(array('result' => false, 'message' => '등록 불가능한 파일입니다.'));
@@ -158,7 +159,7 @@ class ReplyController extends \BH_Controller{
 
 		// 회원유무
 		if(_MEMBERIS === true){
-			$member = $this->_CF()->GetMember();
+			$member = BH::CF()->GetMember();
 
 			$this->model->SetValue('muid', $_SESSION['member']['muid']);
 			$this->model->SetValue('mlevel', $member['level']);
@@ -167,15 +168,15 @@ class ReplyController extends \BH_Controller{
 
 		// 답글쓰기라면 sort 정렬
 		if($answerIs){
-			$qry = new \BH_DB_Get($this->model->table);
+			$qry = BH::DBGet($this->model->table);
 			$qry->SetKey('mname, depth, muid, sort1, sort2');
-			$qry->AddWhere('article_seq = %d', $this->_Value['article_seq']);
+			$qry->AddWhere('article_seq = %d', App::$_Value['article_seq']);
 			$qry->AddWhere('seq = %d', $target);
 			$row = $qry->Get();
 
-			$qry = new \BH_DB_Update($this->model->table);
+			$qry = BH::DBUpdate($this->model->table);
 			$qry->SetData('sort2', 'sort2 + 1');
-			$qry->AddWhere('article_seq = %d', $this->_Value['article_seq']);
+			$qry->AddWhere('article_seq = %d', App::$_Value['article_seq']);
 			$qry->AddWhere('sort1 = %d', $row['sort1']);
 			$qry->AddWhere('sort2 > %d', $row['sort2']);
 			$qry->sort = 'sort2 DESC';
@@ -193,7 +194,7 @@ class ReplyController extends \BH_Controller{
 			$this->model->SetValue('depth', $row['depth'] + 1);
 		}else{
 			$this->model->SetValue('first_member_is', _MEMBERIS === true ? 'y' : 'n');
-			$this->model->SetQueryValue('sort1', '(SELECT IF(COUNT(s.sort1) = 0, 0, MIN(s.sort1))-1 FROM '.$this->model->table.' as s WHERE s.article_seq='.$this->_Value['article_seq'].')');
+			$this->model->SetQueryValue('sort1', '(SELECT IF(COUNT(s.sort1) = 0, 0, MIN(s.sort1))-1 FROM '.$this->model->table.' as s WHERE s.article_seq='.App::$_Value['article_seq'].')');
 		}
 
 		$error = $this->model->GetErrorMessage();
@@ -225,7 +226,7 @@ class ReplyController extends \BH_Controller{
 		if(!_password_verify($_POST['pwd'], $this->model->GetValue('pwd'))){
 			$same = false;
 			if($this->model->GetValue('first_seq') && $this->model->GetValue('first_member_is') == 'n'){
-				$dbGet = new \BH_DB_Get($this->model->table);
+				$dbGet = BH::DBGet($this->model->table);
 				$dbGet->AddWhere('article_seq = '.SetDBInt($_POST['article_seq']));
 				$dbGet->AddWhere('seq = '.$this->model->GetValue('first_seq'));
 				$dbGet->SetKey('pwd');
@@ -287,7 +288,7 @@ class ReplyController extends \BH_Controller{
 
 		// 파일 업로드
 		if(isset($_FILES['file'])){
-			$fres_em = FileUpload($_FILES['file'], \BH_Application::$IMAGE_EXT, '/board/'.date('ym').'/');
+			$fres_em = FileUpload($_FILES['file'], App::$IMAGE_EXT, '/board/'.date('ym').'/');
 
 			if($fres_em === 'noext'){
 				echo json_encode(array('result' => false, 'message' => '등록 불가능한 파일입니다.'));
@@ -371,8 +372,8 @@ class ReplyController extends \BH_Controller{
 
 		if($this->managerIs || (_MEMBERIS === true && $_SESSION['member']['level'] == _SADMIN_LEVEL)) $myArticleIs = true;
 		else{
-			$dbGet = new \BH_DB_Get($this->model->boardTable);
-			$dbGet->AddWhere('seq='.$this->_Value['article_seq']);
+			$dbGet = BH::DBGet($this->model->boardTable);
+			$dbGet->AddWhere('seq='.App::$_Value['article_seq']);
 			$dbGet->SetKey(array('muid','pwd','secret'));
 			$boardArticle = $dbGet->Get();
 			if(strlen($boardArticle['muid'])){

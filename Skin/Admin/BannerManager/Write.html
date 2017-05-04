@@ -9,14 +9,14 @@
 
 <form name="BannerWriteForm" id="BannerWriteForm" method="post" action="<?a. $this->Action ?><?v. '/'.$this->ID ?><?fq. '' ?>" enctype="multipart/form-data">
 
-	<?php if(isset($this->_Value['error'])){ ?><p class="alert"><?p. $this->_Value['error'] ?></p><?php } ?>
+	<?php if(isset(self::$_Value['error'])){ ?><p class="alert"><?p. self::$_Value['error'] ?></p><?php } ?>
 	<table class="write">
 		<tr>
 			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['category']->DisplayName ?></th>
 			<td>
 				<select id="category_choice">
 					<option value="">선택</option>
-					<?php if(isset($this->_Value['category'])) foreach($this->_Value['category'] as $row){ ?>
+					<?php if(isset(self::$_Value['category'])) foreach(self::$_Value['category'] as $row){ ?>
 						<option<?php if($Model->GetValue('category') == $row) echo ' selected'; ?>><?v. $row ?></option>
 					<?php } ?>
 					<option value="x">추가</option>

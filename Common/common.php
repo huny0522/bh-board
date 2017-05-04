@@ -9,13 +9,12 @@ define('_AJAXIS', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['H
 
 require _COMMONDIR.'/BH_DB.class.php';
 require _COMMONDIR.'/BH_Application.class.php';
-require _COMMONDIR.'/BH_Controller.class.php';
 require _COMMONDIR.'/BH_Model.class.php';
 require _COMMONDIR.'/BH_Router.class.php';
 require _COMMONDIR.'/BH_Common.class.php';
 
 if(_DEVELOPERIS === true){
-	if(!file_exists(_DATADIR) || !is_dir(_DATADIR)) @mkdir(_DATADIR, 0757, true);
+	if(!file_exists(_DATADIR) || !is_dir(_DATADIR)) @mkdir(_DATADIR, 0755, true);
 	require _COMMONDIR.'/HtmlConvert.php';
 	require _COMMONDIR.'/StyleConvert.php';
 	require _COMMONDIR.'/BH_HtmlCreate.class.php';
@@ -26,6 +25,39 @@ if(_CREATE_HTML_ALL === true){
 	ReplaceHTMLAll(_SKINDIR, _HTMLDIR);
 	ReplaceCSS2ALL(_HTMLDIR, _HTMLDIR);
 	ReplaceCSS2ALL(_SKINDIR, _HTMLDIR);
+}
+
+class BH{
+	public static function &APP(){
+		return \BH_Application::GetInstance();
+	}
+	public static function &CF(){
+		return \BH_Common::GetInstance();
+	}
+	public static function &CTRL(){
+		return \BH_Application::CTRL();
+	}
+	public static function &ROUTER(){
+		return \BH_Application::Router();
+	}
+	public static function DBGet($table){
+		return new \BH_DB_Get($table);
+	}
+	public static function DBList($table){
+		return new \BH_DB_GetList($table);
+	}
+	public static function DBListPage($table){
+		return new \BH_DB_GetListWithPage($table);
+	}
+	public static function DBInsert($table){
+		return new \BH_DB_Insert($table);
+	}
+	public static function DBUpdate($table){
+		return new \BH_DB_Update($table);
+	}
+	public static function DBDelete($table){
+		return new \BH_DB_Delete($table);
+	}
 }
 
 define('ENG_NUM', '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
@@ -41,7 +73,6 @@ if(preg_match('/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|c
 	define('_MOBILEIS', true);
 }
 else define('_MOBILEIS', false);
-
 
 // -------------------------------------
 //
@@ -122,9 +153,7 @@ function OptionAreaNumber($num = ''){
 	$numbers[] = array( 'num' => '064', 'loc' => '제주' );
 
 	$str = '';
-	foreach ($numbers as $item){
-		$str .= '<option value="' . $item['num'] . '"' . ($num == $item['num'] ? ' selected="selected"' : '') . '>' . $item['num'] . '(' . $item['loc'] . ')</option>';
-	}
+	foreach ($numbers as $item) $str .= '<option value="' . $item['num'] . '"' . ($num == $item['num'] ? ' selected="selected"' : '') . '>' . $item['num'] . '(' . $item['loc'] . ')</option>';
 	return $str;
 }
 
@@ -136,12 +165,8 @@ function OptionPhoneFirstNumber($find = ''){
 	$numbers[] = '016';
 	$numbers[] = '017';
 	$numbers[] = '019';
-
 	$str = '';
-	foreach ($numbers as $item)
-	{
-		$str .= '<option value="' . $item . '"' . ($find == $item ? ' selected="selected"' : '') . '>' . $item . '</option>';
-	}
+	foreach ($numbers as $item) $str .= '<option value="' . $item . '"' . ($find == $item ? ' selected="selected"' : '') . '>' . $item . '</option>';
 	return $str;
 }
 
@@ -152,9 +177,7 @@ function OptionEmailAddress($find = ''){
 	$addr[] = 'hanmail.net';
 
 	$str = '';
-	foreach ($addr as $item){
-		$str .= '<option value="' . $item . '"' . ($find == $item ? ' selected="selected"' : '') . '>' . $item . '</option>';
-	}
+	foreach ($addr as $item) $str .= '<option value="' . $item . '"' . ($find == $item ? ' selected="selected"' : '') . '>' . $item . '</option>';
 	return $str;
 }
 
@@ -166,19 +189,14 @@ function OptionEmailAddress($find = ''){
 function SelectOption($OptionValues, $SelectValue = ''){
 	$str = '';
 	if(!isset($OptionValues) || !is_array($OptionValues)) return $str;
-	foreach($OptionValues as $k=>$v){
-		$str .= '<option value="' . $k . '"' . (isset($SelectValue) && $SelectValue === (string)$k ? ' selected="selected"' : '') . '>' . $v . '</option>';
-	}
+	foreach($OptionValues as $k=>$v) $str .= '<option value="' . $k . '"' . (isset($SelectValue) && $SelectValue === (string)$k ? ' selected="selected"' : '') . '>' . $v . '</option>';
 	return $str;
 }
 
 // Cut title length
 function StringCut($title, $length, $last = '...'){
-	if(mb_strlen($title,'utf-8') > $length){
-		$result_title = mb_substr($title, 0, $length, 'utf-8').$last;
-	}
+	if(mb_strlen($title,'utf-8') > $length) $result_title = mb_substr($title, 0, $length, 'utf-8').$last;
 	else $result_title = $title;
-
 	Return $result_title;
 }
 
@@ -206,15 +224,14 @@ function Download($path, $fname){
 	$temp = explode('/', $path);
 	if(!$fname) $fname = $temp[sizeof($temp)-1];
 
-	if(isset(\BH_Application::CTRL()->Layout)) unset(\BH_Application::CTRL()->Layout);
+	if(isset(BH::CTRL()->Layout)) unset(BH::CTRL()->Layout);
 
 	ignore_user_abort(true);
 	set_time_limit(0); // disable the time limit for this script
 
 
-	if(strpos($path, '..') !== false){
-		Redirect('-1', '경로오류');
-	}
+	if(strpos($path, '..') !== false) Redirect('-1', '경로오류');
+
 	$dl_file = filter_var($path, FILTER_SANITIZE_URL); // Remove (more) invalid characters
 	$fullPath = _UPLOAD_DIR.$dl_file;
 
@@ -291,9 +308,7 @@ function RemoveScriptTag($str){
 
 function SetDBTrimText($txt){
 	if(is_array($txt)){
-		foreach($txt as $k => &$v){
-			$v = SetDBTrimText($v);
-		}
+		foreach($txt as $k => &$v) $v = SetDBTrimText($v);
 		return $txt;
 	}
 	return 'UNHEX(\''.bin2hex(trim($txt)).'\')';
@@ -301,9 +316,7 @@ function SetDBTrimText($txt){
 
 function SetDBText($txt){
 	if(is_array($txt)){
-		foreach($txt as $k => &$v){
-			$v = SetDBText($v);
-		}
+		foreach($txt as $k => &$v) $v = SetDBText($v);
 		return $txt;
 	}
 	return 'UNHEX(\''.bin2hex($txt).'\')';
@@ -311,9 +324,7 @@ function SetDBText($txt){
 
 function SetDBQuot($txt){
 	if(is_array($txt)){
-		foreach($txt as $k => &$v){
-			$v = SetDBQuot($v);
-		}
+		foreach($txt as $k => &$v) $v = SetDBQuot($v);
 		return $txt;
 	}
 	return chr(39).$txt.chr(39);
@@ -321,9 +332,7 @@ function SetDBQuot($txt){
 
 function SetDBInt($txt){
 	if(is_array($txt)){
-		foreach($txt as $k => &$v){
-			$v = SetDBInt($v);
-		}
+		foreach($txt as $k => &$v) $v = SetDBInt($v);
 		return $txt;
 	}
 
@@ -336,9 +345,7 @@ function SetDBInt($txt){
 
 function SetDBFloat($txt){
 	if(is_array($txt)){
-		foreach($txt as $k => &$v){
-			$v = SetDBFloat($v);
-		}
+		foreach($txt as $k => &$v) $v = SetDBFloat($v);
 		return $txt;
 	}
 
@@ -352,9 +359,7 @@ function SetDBFloat($txt){
 
 function GetDBText($txt){
 	if(is_array($txt)){
-		foreach($txt as $k => &$v){
-			$v = GetDBText($v);
-		}
+		foreach($txt as $k => &$v) $v = GetDBText($v);
 		return $txt;
 	}
 	else return htmlspecialchars(stripslashes($txt));
@@ -362,9 +367,7 @@ function GetDBText($txt){
 
 function GetDBRaw($txt){
 	if(is_array($txt)){
-		foreach($txt as $k => &$v){
-			$v = GetDBRaw($v);
-		}
+		foreach($txt as $k => &$v) $v = GetDBRaw($v);
 		return $txt;
 	}
 	else return RemoveScriptTag(stripslashes($txt));
@@ -400,9 +403,7 @@ function to10($num, $b=62, $base=ENG_NUM) {
 	if(!isset($num) || !strlen($num)) return '';
 	$limit = strlen($num);
 	$res=strpos($base,$num[0]);
-	for($i=1;$i<$limit;$i++) {
-		$res = $b * $res + strpos($base,$num[$i]);
-	}
+	for($i=1;$i<$limit;$i++) $res = $b * $res + strpos($base,$num[$i]);
 	return $res;
 }
 
@@ -424,18 +425,14 @@ function aes_decrypt($ciphertext, $password){
 function delTree($dir) {
 	if(!is_dir($dir)) return false;
 	$files = array_diff(scandir($dir), array('.','..'));
-	foreach ($files as $file) {
-		(is_dir($dir.'/'.$file)) ? delTree($dir.'/'.$file) : unlink($dir.'/'.$file);
-	}
+	foreach ($files as $file) (is_dir($dir.'/'.$file)) ? delTree($dir.'/'.$file) : unlink($dir.'/'.$file);
 	return rmdir($dir);
 }
 
 function findDelTree($dir) {
 	if(!file_exists(_DATADIR.'/temp/') && !is_dir(_DATADIR.'/temp/')) mkdir(_DATADIR.'/temp/', 0755, true);
 	$files = array_diff(scandir(_DATADIR.'/temp/'), array('.','..'));
-	foreach ($files as $file) {
-		if(is_dir(_DATADIR.'/temp/'.$file) && strpos($file, $dir) !== false) delTree(_DATADIR.'/temp/'.$file);
-	}
+	foreach ($files as $file) if(is_dir(_DATADIR.'/temp/'.$file) && strpos($file, $dir) !== false) delTree(_DATADIR.'/temp/'.$file);
 }
 
 function StrToSql($args){
@@ -496,18 +493,10 @@ function SqlFree($result){
 	mysqli_free_result($result);
 }
 
-/**
- * @param string
- * @return bool
- * */
 function SqlTableExists($table){
 	return \DB::SQL()->TableExists($table);
 }
 
-/**
- * @param $sql
- * @return bool|mysqli_result
- */
 function SqlQuery($sql){
 	return \DB::SQL()->Query(func_get_args());
 }
@@ -518,18 +507,10 @@ function SqlCCQuery($table, $sql){
 	return \DB::SQL()->Query($table, $args);
 }
 
-/**
- * @param $qry
- * @return bool|int
- */
 function SqlNumRows($qry){
 	return \DB::SQL()->NumRows($qry);
 }
 
-/**
- * @param $qry
- * @return array|bool|null
- */
 function SqlFetch($qry){
 	return \DB::SQL()->Fetch(func_get_args());
 }
@@ -771,9 +752,7 @@ class _ModelFunc{
 			$HtmlAttribute['minlength'] = '10';
 		}
 
-		foreach($HtmlAttribute as $k => $row){
-			$Attribute .= ' '.$k.'="'.$row.'"';
-		}
+		foreach($HtmlAttribute as $k => $row) $Attribute .= ' '.$k.'="'.$row.'"';
 
 		switch($htmlType){
 			case HTMLType::InputText:
@@ -951,17 +930,12 @@ class _ModelFunc{
 			return $res;
 		}
 		$dbGet = new \BH_DB_Get($table);
-		foreach($modelKey as $k => $v){
-			$dbGet->AddWhere($v.' = '.SetDBTrimText($keys[$k]));
-		}
-
+		foreach($modelKey as $k => $v) $dbGet->AddWhere($v.' = '.SetDBTrimText($keys[$k]));
 		$data = $dbGet->Get();
 
-		if($data !== false){
-			$res->result = $data;
-		}else{
-			$res->result = false;
-		}
+		if($data !== false) $res->result = $data;
+		else $res->result = false;
+
 		return $res;
 	}
 
@@ -992,9 +966,7 @@ class _ModelFunc{
 		}
 		$params['table'] = $Table;
 		$params['where'] = array();
-		foreach($ModelKey as $k => $v){
-			$params['where'][] = $v.' = '.SetDBTrimText($keyData[$k]);
-		}
+		foreach($ModelKey as $k => $v) $params['where'][] = $v.' = '.SetDBTrimText($keyData[$k]);
 
 		if(!sizeof($params['where'])){
 			$res->result = false;

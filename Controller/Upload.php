@@ -4,9 +4,10 @@
  * 16.07.10
  */
 require _COMMONDIR.'/FileUpload.php';
-
-class UploadController extends \BH_Controller{
-	public function __Init(){
+use \BH_Application as App;
+use \BH as BH;
+class UploadController{
+	public function __construct(){
 	}
 
 	// 임시 파일 업로드
@@ -36,7 +37,7 @@ class UploadController extends \BH_Controller{
 			$temp = explode('.',$name);
 			$filename_ext = strtolower(array_pop($temp));
 
-			if(($type == 'image' && !in_array($filename_ext, \BH_Application::$IMAGE_EXT)) || ($type == '' && !in_array($filename_ext, \BH_Application::$POSSIBLE_EXT))) {
+			if(($type == 'image' && !in_array($filename_ext, App::$IMAGE_EXT)) || ($type == '' && !in_array($filename_ext, App::$POSSIBLE_EXT))) {
 				echo json_encode(array('result' => false, 'fname'=>$name));
 				exit;
 			}

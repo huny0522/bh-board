@@ -5,34 +5,35 @@
  */
 
 require _DIR.'/Model/Content.model.php';
-
-class ContentsController extends \BH_Controller{
+use \BH_Application as App;
+use \BH as BH;
+class ContentsController{
 	/**
 	 * @var ContentModel
 	 */
 	public $model = null;
-	public function __Init(){
+	public function __construct(){
 		$this->model = new \ContentModel();
 	}
 
 	public function Index(){
-		$res = $this->model->DBGet($this->TID);
+		$res = $this->model->DBGet(BH::APP()->TID);
 		if(!$res->result){
 			Redirect('-1', 'ERROR');
 		}
-		if($this->model->GetValue('layout')) $this->Layout = $this->model->GetValue('layout');
-		if($this->model->GetValue('html')) $this->Html = $this->model->GetValue('html');
+		if($this->model->GetValue('layout')) BH::APP()->Layout = $this->model->GetValue('layout');
+		if($this->model->GetValue('html')) BH::APP()->Html = $this->model->GetValue('html');
 
 		$cookieName = $this->model->table.$this->model->GetValue('bid');
 		if(!isset($_COOKIE[$cookieName]) || !$_COOKIE[$cookieName]){
-			$dbUpdate = new \BH_DB_Update($this->model->table);
+			$dbUpdate = BH::DBUpdate($this->model->table);
 			$dbUpdate->SetData('hit', 'hit + 1');
 			$dbUpdate->AddWhere('bid='.SetDBText($this->model->GetValue('bid')));
 			$dbUpdate->Run();
 			setcookie($cookieName, 'y');
 		}
 
-		$this->_View();
+		BH::APP()->_View();
 
 	}
 }

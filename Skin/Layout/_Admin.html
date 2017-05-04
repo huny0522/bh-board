@@ -2,7 +2,7 @@
 if(_BH_ !== true) exit;
 ob_start();
 /**
- * @var $this BH_Controller
+ * @var $this BH_Application
  */
 $this->CSSAdd('jquery-ui-1.10.1.css', 10);
 $this->CSSAdd('font-awesome/css/font-awesome.min.css', 10);
@@ -30,15 +30,15 @@ $this->JSAdd('admin.js', 10);
 			<nav id="tnb">
 				<ul>
 					<?php
-					$NM = $this->_Value['NowMenu'];
-					$AdminAuth = explode(',', $this->_CF()->GetMember('admin_auth'));
-					foreach($this->_CF()->AdminMenu as $c => $v){
+					$NM = self::$_Value['NowMenu'];
+					$AdminAuth = explode(',', BH::CF()->GetMember('admin_auth'));
+					foreach(BH::CF()->AdminMenu as $c => $v){
 						if(strlen($c) == 3 && ($_SESSION['member']['level'] == _SADMIN_LEVEL || in_array($c, $AdminAuth))){
 							echo '<li '.(substr($NM,0,3) == $c ? ' class="Active"' : '').'>'
 								.'<span><a href="'. _ADMINURL.'/'.$v['Category'].'">'.$v['Name'].'</a></span>';
 
 							$sub = '';
-							foreach($this->_CF()->AdminMenu as $c2 => $v2){
+							foreach(BH::CF()->AdminMenu as $c2 => $v2){
 								if(strlen($c2) == 6 && substr($c2, 0, 3) == $c && ($_SESSION['member']['level'] == _SADMIN_LEVEL || in_array($c2, $AdminAuth))){
 									$sub .= '<li '.(substr($NM,0,6) == $c2 ? ' class="Active"' : '').'>'
 										.'<span><a href="'. _ADMINURL.'/'.$v2['Category'].'">'.$v2['Name'].'</a></span>';
@@ -61,7 +61,7 @@ $this->JSAdd('admin.js', 10);
 		<div id="footer_wrap"></div>
 	</footer>
 </div>
-<?php if($this->Controller != 'Home'){ ?>
+<?php if($Ctrl->Controller != 'Home'){ ?>
 	<script>
 		$(document).ready(function(){
 			if(common.getCookie('managerSideView') == 'no'){

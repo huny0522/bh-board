@@ -3,7 +3,7 @@
  * @var $Model MemberModel
  */
 /**
- * @var $this BH_Controller
+ * @var $this BH_Application
  */
 ?>
 
@@ -11,12 +11,12 @@
 	<h2>회원정보 입력</h2>
 	<form name="RegisterForm" id="RegisterForm" method="post" action="<?a. $this->Action ?>Process">
 
-		<?php if(isset($this->_Value['alertMsg'])) echo '<p class="alert">'.$this->_Value['alertMsg'].'</p>'; ?>
+		<?php if(isset(self::$_Value['alertMsg'])) echo '<p class="alert">'.self::$_Value['alertMsg'].'</p>'; ?>
 		<table class="write">
 			<tr>
 				<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['email']->DisplayName ?></th>
 				<td class="selectMail">
-					<input type="text" name="email1" value="<?v. $this->_Value['email1'] ?>" required> @ <input type="text" name="email2" value="<?v. $this->_Value['email2'] ?>" required class="emailAddr">
+					<input type="text" name="email1" value="<?v. self::$_Value['email1'] ?>" required> @ <input type="text" name="email2" value="<?v. self::$_Value['email2'] ?>" required class="emailAddr">
 					<select name="selectMail">
 						<option value="">선택하세요.</option>
 						<?p. OptionEmailAddress() ?>
@@ -130,5 +130,5 @@
 			return false;
 		}
 	});
-	<?php if(isset($this->_Value['alertMsg'])){ ?>alert('<?p. $this->_Value['alertMsg'] ?>');<?php } ?>
+	<?php if(isset(self::$_Value['alertMsg'])){ ?>alert('<?p. self::$_Value['alertMsg'] ?>');<?php } ?>
 </script>

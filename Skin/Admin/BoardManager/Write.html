@@ -3,7 +3,7 @@
  * @var $Model BoardManagerModel
  */
 /**
- * @var $this BH_Controller
+ * @var $this BH_Application
  */
 ?>
 
@@ -39,18 +39,18 @@
 				<td colspan="3"><?v. $Model->GetValue('bid') ?></td>
 			</tr>
 		<?php }?>
-		<?php if($this->_Value['menuAuth']){?>
+		<?php if(self::$_Value['menuAuth']){?>
 		<tr>
 			<th>연결메뉴</th>
 			<td colspan="3" class="menuSelectArea">
 				<?php
-				if(isset($this->_Value['selectedMenu']) && sizeof($this->_Value['selectedMenu'])){
-					foreach($this->_Value['selectedMenu'] as $selectedMenu){ ?>
+				if(isset(self::$_Value['selectedMenu']) && sizeof(self::$_Value['selectedMenu'])){
+					foreach(self::$_Value['selectedMenu'] as $selectedMenu){ ?>
 						<div class="menuSelect">
 							<select name="selectmenu[]">
 								<option value="">선택</option>
 								<?php
-								foreach($this->_Value['menu'] as $menu){
+								foreach(self::$_Value['menu'] as $menu){
 									$length = min(strlen($selectedMenu['category']), strlen($menu['category']));
 									$selected = (strlen($selectedMenu['category']) && substr($selectedMenu['category'], 0, $length) == substr($menu['category'], 0, $length)) ? ' selected' : '';
 									?>
@@ -64,7 +64,7 @@
 					<div class="menuSelect">
 						<select name="selectmenu[]">
 							<option value="">선택</option>
-							<?php foreach($this->_Value['menu'] as $menu){ ?>
+							<?php foreach(self::$_Value['menu'] as $menu){ ?>
 								<option value="<? p.$menu['category'] ?>"><? v.$menu['title'] ?></option>
 							<?php } ?>
 						</select>
@@ -214,7 +214,7 @@
 		}
 	});
 
-	<?php if($this->_Value['menuAuth']){?>
+	<?php if(self::$_Value['menuAuth']){?>
 
 	$(document).on('change', '.menuSelect select', function(){
 		removeNext(this);
@@ -222,7 +222,7 @@
 	});
 
 	$(document).ready(function(){
-		<?php if(isset($this->_Value['selectedMenu'])) foreach($this->_Value['selectedMenu'] as $k => $selectedMenu){ ?>
+		<?php if(isset(self::$_Value['selectedMenu'])) foreach(self::$_Value['selectedMenu'] as $k => $selectedMenu){ ?>
 		getSubMenu($('.menuSelect').eq(<?p. $k ?>).find('select'), '<?p. $selectedMenu['category'] ?>');
 		<?php } ?>
 	});

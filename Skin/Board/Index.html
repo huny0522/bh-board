@@ -35,7 +35,7 @@
 				<td><?p. $Data->beginNum-- ?></td>
 				<td class="left">
 					<?v. $row['category'] ? '['.$row['category'].']' : '' ?>
-					<?php if($this->managerIs || $row['secret'] == 'n' || (_MEMBERIS === true && $_SESSION['member']['level'] == _SADMIN_LEVEL) || ($row['first_member_is'] == 'y' && strlen($row['muid']))){ ?>
+					<?php if($Ctrl->managerIs || $row['secret'] == 'n' || (_MEMBERIS === true && $_SESSION['member']['level'] == _SADMIN_LEVEL) || ($row['first_member_is'] == 'y' && strlen($row['muid']))){ ?>
 						<?p. $secretIcon ?><a href="<?a. 'View' ?>/<?p. toBase($row['seq']) ?><?fq. '' ?>"><?v. $row['subject']; ?><?php if($row['reply_cnt']){ ?><span class="ReplyCount">[<?p. $row['reply_cnt'] ?>]</span><?php } ?></a>
 					<?php } else { ?>
 						<?p. $secretIcon ?><a href="<?a. 'View' ?>/<?p. toBase($row['seq']) ?><?fq. '' ?>" class="passwordView"><?v. $row['subject']; ?><?php if($row['reply_cnt']){ ?><span class="ReplyCount">[<?p. $row['reply_cnt'] ?>]</span><?php } ?></a>
@@ -63,7 +63,7 @@
 	<button type="submit" class="mbtn btn2">검색</button>
 </form>
 
-<?php if($this->GetAuth('Write')){ ?><div class="right_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mbtn btn2">글쓰기</a></div><?php } ?>
+<?php if($Ctrl->GetAuth('Write')){ ?><div class="right_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mbtn btn2">글쓰기</a></div><?php } ?>
 
 <div class="paging"><?p. $Data->pageHtml ?></div>
 

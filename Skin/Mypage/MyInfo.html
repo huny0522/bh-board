@@ -3,14 +3,14 @@
 * @var $Model MemberModel
  */
 /**
-* @var $this BH_Controller
+* @var $this BH_Application
 */
 ?>
 
 <h3>회원정보수정</h3>
 
 <form name="MemberWriteForm" id="MemberWriteForm" method="post" action="<?a. $this->Action ?><?fq. '' ?>">
-	<?php if(isset($this->_Value['error'])) echo '<p class="alert">'.$this->_Value['error'].'</p>'; ?>
+	<?php if(isset(self::$_Value['error'])) echo '<p class="alert">'.self::$_Value['error'].'</p>'; ?>
 
 	<table class="write">
 		<tr>

@@ -6,11 +6,11 @@
 * @var $this ReplyController
 */
 ?>
-<?php if($this->GetAuth()){ ?>
+<?php if($Ctrl->GetAuth()){ ?>
 	<h3>댓글 <span>(<?p. $Data->totalRecord ?>)</span></h3>
 	<div id="replyWrite" class="replyWrite">
 		<form id="replyWriteForm" name="replyWriteForm" method="post" action="<?a. 'Write' ?>" autocomplete="off" class="reply_form">
-			<input type="hidden" name="article_seq" value="<?p. $this->_Value['article_seq'] ?>" id="rep_article_seq" />
+			<input type="hidden" name="article_seq" value="<?p. self::$_Value['article_seq'] ?>" id="rep_article_seq" />
 
 			<?php if(_MEMBERIS !== true){ ?>
 				<fieldset class="user">
@@ -52,7 +52,7 @@
 					<span><?p. $row['kdate']; ?></span>
 					<div class="btns">
 						<?php if(!$row['secretIs'] && $row['delis'] != 'y'){ ?>
-							<?php if($this->GetAuth()){ ?>
+							<?php if($Ctrl->GetAuth()){ ?>
 								<a href="#" class="answerBtn">답변</a>
 								<?php if($row['modifyAuth']){ ?> <a href="#" class="modifyBtn<?php if($row['modifyAuthDirect']){ ?> myDoc<?php } ?>">수정</a><?php } ?>
 								<?php if($row['deleteAuth']){ ?> <a href="#" class="deleteBtn<?php if($row['modifyAuthDirect']){ ?> myDoc<?php } ?>">삭제</a><?php } ?>
@@ -85,7 +85,7 @@
 <?php if(_MEMBERIS !== true){ ?>
 	<div id="replyPwdLayer" class="repLayer hidden">
 		<form id="repPwdForm" name="repPwdForm" method="post" action="<?a. 'ViewSecret' ?>">
-			<input type="hidden" name="article_seq" value="<?p. $this->_Value['article_seq'] ?>">
+			<input type="hidden" name="article_seq" value="<?p. self::$_Value['article_seq'] ?>">
 			<input type="hidden" name="seq" value="">
 
 			<fieldset class="pwd">
@@ -103,7 +103,7 @@
 
 <div id="replyDeleteLayer" class="repLayer hidden">
 	<form id="repDeleteForm" name="repDeleteForm" method="post" action="<?a. 'Delete' ?>">
-		<input type="hidden" name="article_seq" value="<?p. $this->_Value['article_seq'] ?>">
+		<input type="hidden" name="article_seq" value="<?p. self::$_Value['article_seq'] ?>">
 		<input type="hidden" name="seq" value="">
 			<fieldset class="pwd">
 				<p>정말 삭제하시겠습니까?<br><span class="pwdinp">삭제하시려면 비밀번호를 입력하여 주세요.</span></p>
@@ -118,7 +118,7 @@
 
 <div id="replyModifyLayer" class="repLayer hidden">
 	<form id="repModifyForm" name="repModifyForm" method="post" action="<?a. 'Modify' ?>">
-		<input type="hidden" name="article_seq" value="<?p. $this->_Value['article_seq'] ?>">
+		<input type="hidden" name="article_seq" value="<?p. self::$_Value['article_seq'] ?>">
 		<input type="hidden" name="seq" value="">
 
 		<fieldset class="text">
@@ -139,7 +139,7 @@
 
 <div id="replyAnswerLayer" class="repLayer hidden">
 	<form id="repAnswerForm" name="repAnswerForm" method="post" action="<?a. 'Answer' ?>">
-		<input type="hidden" name="article_seq" value="<?p. $this->_Value['article_seq'] ?>">
+		<input type="hidden" name="article_seq" value="<?p. self::$_Value['article_seq'] ?>">
 		<input type="hidden" name="seq" value="">
 		<input type="hidden" name="target_seq" value="">
 

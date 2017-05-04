@@ -3,7 +3,7 @@
  * @var $Model BoardManagerModel
  */
 /**
- * @var $this BH_Controller
+ * @var $this BH_Application
  */
 ?>
 
@@ -31,7 +31,7 @@
 	<tr>
 		<th>연결메뉴</th>
 		<td colspan="3">
-			<?php foreach($this->_Value['selectedMenu'] as $k => $row){ ?>
+			<?php foreach(self::$_Value['selectedMenu'] as $k => $row){ ?>
 			<?v. ($k ? ', ' : '').$row['title'] ?>
 			<?php } ?>
 		</td>

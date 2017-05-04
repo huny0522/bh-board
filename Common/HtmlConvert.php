@@ -55,12 +55,12 @@ function ReplaceHTMLFile($source, $target){
 		'<?php echo $Model->HTMLPrintInput($1); ?>',
 		'<?php echo $Model->HTMLPrintEnum($1); ?>',
 
-		'<?php echo $this->$1->data[$2]->DisplayName; ?>',
-		'<?php echo GetDBText($this->$1->GetValue($2)); ?>',
-		'<?php echo GetDBRaw($this->$1->GetValue($2)); ?>',
-		'<?php echo nl2br(GetDBText($this->$1->GetValue($2))); ?>',
-		'<?php echo $this->$1->HTMLPrintInput($2); ?>',
-		'<?php echo $this->$1->HTMLPrintEnum($2); ?>'
+		'<?php echo $Ctrl->$1->data[$2]->DisplayName; ?>',
+		'<?php echo GetDBText($Ctrl->$1->GetValue($2)); ?>',
+		'<?php echo GetDBRaw($Ctrl->$1->GetValue($2)); ?>',
+		'<?php echo nl2br(GetDBText($Ctrl->$1->GetValue($2))); ?>',
+		'<?php echo $Ctrl->$1->HTMLPrintInput($2); ?>',
+		'<?php echo $Ctrl->$1->HTMLPrintEnum($2); ?>'
 	);
 
 	$a = explode('/', $target);

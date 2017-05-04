@@ -1,10 +1,11 @@
 <?php
-
-class HomeController extends \BH_Controller{
-	public function __Init(){
+use \BH_Application as App;
+use \BH as BH;
+class HomeController{
+	public function __construct(){
 	}
 
 	public function Index(){
-		$this->_View();
+		BH::APP()->_View();
 	}
 }

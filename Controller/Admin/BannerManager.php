@@ -5,53 +5,54 @@
  */
 
 namespace Admin;
-
-class BannerManagerController extends \BH_Controller
+use \BH_Application as App;
+use \BH as BH;
+class BannerManagerController
 {
 	/**
 	 * @var BannerModel
 	 */
 	public $model = null;
-	public function __Init(){
-		$this->_Value['NowMenu'] = '001002';
-		$this->_CF()->AdminAuth();
+	public function __construct(){
+		App::$_Value['NowMenu'] = '001002';
+		BH::CF()->AdminAuth();
 
 		require _DIR.'/Model/Banner.model.php';
 		$this->model = new \BannerModel();
 
-		$this->Layout = '_Admin';
+		BH::APP()->Layout = '_Admin';
 
-		$dbGetList = new \BH_DB_GetList($this->model->table);
+		$dbGetList = BH::DBList($this->model->table);
 		$dbGetList->SetKey('DISTINCT category');
 		//$cateParams['test'] = true;
 		while($row = $dbGetList->Get()){
-			$this->_Value['category'][] = $row['category'];
+			App::$_Value['category'][] = $row['category'];
 		}
 	}
 
 	public function Index(){
 		// 리스트를 불러온다.
-		$dbGetList = new \BH_DB_GetListWithPage($this->model->table);
+		$dbGetList = BH::DBListPage($this->model->table);
 		$dbGetList->page = isset($_GET['page']) ? $_GET['page'] : 1;
-		$dbGetList->pageUrl = $this->URLAction().$this->GetFollowQuery('page');
+		$dbGetList->pageUrl = BH::APP()->URLAction().BH::APP()->GetFollowQuery('page');
 		$dbGetList->articleCount = 20;
 		$dbGetList->Run();
 
-		$this->_View($this->model, $dbGetList);
+		BH::APP()->_View($this->model, $dbGetList);
 	}
 
 	public function Write(){
-		$this->_View($this->model);
+		BH::APP()->_View($this->model);
 	}
 
 	public function Modify(){
-		$res = $this->model->DBGet(to10($this->ID));
+		$res = $this->model->DBGet(to10(BH::APP()->ID));
 
 		if(!$res->result){
 			Redirect('-1', $res->message);
 		}
-		$this->Html = 'Write';
-		$this->_View($this->model);
+		BH::APP()->Html = 'Write';
+		BH::APP()->_View($this->model);
 	}
 	public function PostWrite(){
 		$res = $this->model->SetPostValues();
@@ -61,7 +62,7 @@ class BannerManagerController extends \BH_Controller
 		else{
 			if(isset($_FILES['img'])){
 				require_once _COMMONDIR.'/FileUpload.php';
-				$fres_em = FileUpload($_FILES['img'], \BH_Application::$POSSIBLE_EXT, '/board/'.date('ym').'/');
+				$fres_em = FileUpload($_FILES['img'], App::$POSSIBLE_EXT, '/board/'.date('ym').'/');
 
 				if($fres_em === 'noext'){
 					Redirect('-1', '등록 불가능한 파일입니다.');
@@ -73,23 +74,23 @@ class BannerManagerController extends \BH_Controller
 
 			$error = $this->model->GetErrorMessage();
 			if(sizeof($error)){
-				$this->_Value['error'] = $error[0];
-				$this->_View($this->model);
+				App::$_Value['error'] = $error[0];
+				BH::APP()->_View($this->model);
 			}else{
 				$res = $this->model->DBInsert();
 				if($res->result){
-					$this->_CF()->ContentImageUpate($this->model->table, array('seq' => $res->id), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
+					BH::CF()->ContentImageUpate($this->model->table, array('seq' => $res->id), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
 
-					Redirect($this->URLAction().$this->GetFollowQuery());
+					Redirect(BH::APP()->URLAction().BH::APP()->GetFollowQuery());
 				}else{
-					Redirect($this->URLAction().$this->GetFollowQuery(), 'ERROR');
+					Redirect(BH::APP()->URLAction().BH::APP()->GetFollowQuery(), 'ERROR');
 				}
 			}
 		}
 	}
 
 	public function PostModify(){
-		$res = $this->model->DBGet(to10($this->ID));
+		$res = $this->model->DBGet(to10(BH::APP()->ID));
 		$res = $this->model->SetPostValues();
 		if(!$res->result){
 			Redirect('-1',$res->message);
@@ -97,7 +98,7 @@ class BannerManagerController extends \BH_Controller
 		else{
 			if(isset($_FILES['img'])){
 				require_once _COMMONDIR.'/FileUpload.php';
-				$fres_em = FileUpload($_FILES['img'], \BH_Application::$POSSIBLE_EXT, '/board/'.date('ym').'/');
+				$fres_em = FileUpload($_FILES['img'], App::$POSSIBLE_EXT, '/board/'.date('ym').'/');
 
 				if($fres_em === 'noext'){
 					Redirect('-1', '등록 불가능한 파일입니다.');
@@ -110,13 +111,13 @@ class BannerManagerController extends \BH_Controller
 
 			$error = $this->model->GetErrorMessage();
 			if(sizeof($error)){
-				Redirect($this->URLAction().$this->GetFollowQuery(), $error[0]);
+				Redirect(BH::APP()->URLAction().BH::APP()->GetFollowQuery(), $error[0]);
 			}
 
 			$res = $this->model->DBUpdate();
 			if($res->result){
-				$this->_CF()->ContentImageUpate($this->model->table, array('seq' => to10($this->ID)), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
-				$url = $this->URLAction().$this->GetFollowQuery();
+				BH::CF()->ContentImageUpate($this->model->table, array('seq' => to10(BH::APP()->ID)), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
+				$url = BH::APP()->URLAction().BH::APP()->GetFollowQuery();
 				Redirect($url, '수정완료');
 			}else{
 				Redirect('-1', 'ERROR');
@@ -128,7 +129,7 @@ class BannerManagerController extends \BH_Controller
 		if(isset($_POST['seq']) && $_POST['seq'] != ''){
 			$res = $this->model->DBDelete(to10($_POST['seq']));
 			if($res->result){
-				Redirect($this->URLAction().$this->GetFollowQuery(), '삭제되었습니다.');
+				Redirect(BH::APP()->URLAction().BH::APP()->GetFollowQuery(), '삭제되었습니다.');
 			}else{
 				Redirect('-1', $res->message);
 			}
