@@ -22,7 +22,7 @@ class LoginController{
 	}
 
 	public function Index(){
-		App::$Instance->_View($this, $this->model);
+		App::_View($this, $this->model);
 	}
 	public function PostLogin(){
 		$email = trim($_POST['email1'].'@'.$_POST['email2']);
@@ -44,15 +44,15 @@ class LoginController{
 	}
 
 	public function Register(){
-		App::$Instance->_View($this);
+		App::_View($this);
 	}
 
 	public function PostRegister(){
-		App::$Instance->Html = 'RegisterForm.html';
+		App::$Html = 'RegisterForm.html';
 		$this->model->data['nickname']->Required = true;
 		App::$_Value['email1'] = '';
 		App::$_Value['email2'] = '';
-		App::$Instance->_View($this, $this->model);
+		App::_View($this, $this->model);
 	}
 
 	public function PostRegisterProcess(){
@@ -93,8 +93,8 @@ class LoginController{
 		if(!$RegResult){
 			App::$_Value['email1'] = $_POST['email1'];
 			App::$_Value['email2'] = $_POST['email2'];
-			App::$Instance->Html = 'RegisterForm.html';
-			App::$Instance->_View($this, $this->model);
+			App::$Html = 'RegisterForm.html';
+			App::_View($this, $this->model);
 		}else{
 			Redirect(_URL.'/', '등록되었습니다.');
 		}

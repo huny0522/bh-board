@@ -2,13 +2,10 @@
 use \BH_Common as CF;
 use \BH_Application as App;
 
-/**
- * @var $this \BH_Application
- */
 ?>
 <h3>회원탈퇴</h3>
 <div id="WithdrawForm">
-	<form name="WDForm" id="WDForm" method="post" action="<?a. $this->Action ?>">
+	<form name="WDForm" id="WDForm" method="post" action="<?a. App::$Action ?>">
 		<p>탈퇴하시겠습니까? 탈퇴사유를 입력하여 주세요.</p>
 		<ul>
 			<li><input type="radio" name="reason" id="reason1"><label for="reason1">유용한 정보가 없다.</label></li>

@@ -18,14 +18,14 @@ class BH_Category{
 	}
 
 	public function Index(){
-		App::$Instance->_View($this, $this->model, $this->model->GetChild());
+		App::_View($this, $this->model, $this->model->GetChild());
 	}
 
 	public function Write(){
-		unset(App::$Instance->Layout);
+		App::$Layout = null;
 		if(!isset($_GET['category']) || $_GET['category'] == '') exit;
 		$data = $this->model->DBGet($_GET['category']);
-		App::$Instance->_View($this, $this->model, $data);
+		App::_View($this, $this->model, $data);
 	}
 
 	public function PostWrite(){

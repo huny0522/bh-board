@@ -11,11 +11,11 @@ class HomeController{
 		if(_MEMBERIS !== true || ($_SESSION['member']['level'] != _SADMIN_LEVEL  && $_SESSION['member']['level'] != _ADMIN_LEVEL)){
 			Redirect(_ADMINURL.'/Login', _NO_AUTH.' 로그인하여 주세요.');
 		}
-		App::$Instance->Layout = '_Admin';
+		App::$Layout = '_Admin';
 		App::$_Value['NowMenu'] = '';
 	}
 
 	public function Index(){
-		App::$Instance->_View($this);
+		App::_View($this);
 	}
 }

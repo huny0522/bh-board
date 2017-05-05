@@ -4,13 +4,12 @@ use \BH_Application as App;
 
 /**
  * @var $Model \BoardManagerModel
- * @var $this \BH_Application
  */
 ?>
 
 <h2>게시판관리</h2>
 
-<form name="BoardManagerWriteForm" id="BoardManagerWriteForm" method="post" action="<?a. $this->Action ?><?fq. '' ?>">
+<form name="BoardManagerWriteForm" id="BoardManagerWriteForm" method="post" action="<?a. App::$Action ?><?fq. '' ?>">
 	<input type="hidden" name="bid" value="<?v. $Model->GetValue('bid') ?>">
 	<input type="hidden" name="select_menu" value="" id="select_menu">
 	<table class="write">
@@ -23,7 +22,7 @@ use \BH_Application as App;
 				</ul>
 			</td>
 		</tr>
-		<?php if($this->Action == 'Write'){?>
+		<?php if(App::$Action == 'Write'){?>
 			<tr>
 				<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['bid']->DisplayName ?></th>
 				<td colspan="3">
@@ -188,7 +187,7 @@ use \BH_Application as App;
 	</table>
 
 	<div class="bottomBtn">
-		<button type="submit" class="bBtn"><?php echo $this->Action == 'Modify' ? '수정' : '등록'; ?></button>
+		<button type="submit" class="bBtn"><?php echo App::$Action == 'Modify' ? '수정' : '등록'; ?></button>
 		<button type="reset" class="bBtn">취소</button>
 		<a href="#" class="backbtn bBtn">뒤로</a>
 	</div>

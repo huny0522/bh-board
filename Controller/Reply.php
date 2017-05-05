@@ -29,12 +29,12 @@ class ReplyController{
 		if(_POSTIS !== true) exit;
 		App::$_Value['article_seq'] = SetDBInt((string)$_POST['article_seq']);
 
-		if(!isset(App::$Instance->TID) || App::$Instance->TID == ''){
+		if(!isset(App::$TID) || App::$TID == ''){
 			exit;
 		}
-		unset(App::$Instance->Layout);
+		App::$Layout = null;
 
-		$this->boardManger->DBGet(App::$Instance->TID);
+		$this->boardManger->DBGet(App::$TID);
 
 		$mid = CF::Get()->GetMember('mid');
 		$manager = explode(',', $this->boardManger->GetValue('manager'));
@@ -55,7 +55,7 @@ class ReplyController{
 		// 리스트를 불러온다.
 		$dbList = new \BH_DB_GetListWithPage($this->model->table);
 		$dbList->page = isset($_POST['page']) ? $_POST['page'] : 1;
-		//$dbList->pageUrl = App::$Instance->URLAction('').App::$Instance->GetFollowQuery('page');
+		//$dbList->pageUrl = App::URLAction('').App::GetFollowQuery('page');
 		$dbList->pageUrl = '#';
 		$dbList->articleCount = isset($this->boardManger) ? $this->boardManger->GetValue('article_count') : 20;
 		$dbList->AddWhere('article_seq='.App::$_Value['article_seq']);
@@ -98,11 +98,11 @@ class ReplyController{
 		}
 
 		if(isset($this->boardManger)){
-			$html = '/'.App::$Instance->ControllerName.'/'.$this->boardManger->GetValue('reply_skin').'/Index.html';
-			if(file_exists(_SKINDIR.$html)) App::$Instance->Html = $html;
+			$html = '/'.App::$ControllerName.'/'.$this->boardManger->GetValue('reply_skin').'/Index.html';
+			if(file_exists(_SKINDIR.$html)) App::$Html = $html;
 		}
 
-		App::$Instance->_View($this, null, $dbList);
+		App::_View($this, null, $dbList);
 	}
 
 	public function PostWrite($answerIs = false){

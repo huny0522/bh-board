@@ -4,13 +4,12 @@ use \BH_Application as App;
 
 /**
 * @var $Model \MemberModel
- * @var $this \BH_Application
 */
 ?>
 
 <h3>회원정보수정</h3>
 
-<form name="MemberWriteForm" id="MemberWriteForm" method="post" action="<?a. $this->Action ?><?fq. '' ?>">
+<form name="MemberWriteForm" id="MemberWriteForm" method="post" action="<?a. App::$Action ?><?fq. '' ?>">
 	<?php if(isset(self::$_Value['error'])) echo '<p class="alert">'.self::$_Value['error'].'</p>'; ?>
 
 	<table class="write">

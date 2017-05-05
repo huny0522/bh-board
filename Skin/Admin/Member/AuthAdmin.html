@@ -4,14 +4,13 @@ use \BH_Application as App;
 
 /**
  * @var $Model \MemberModel
- * @var $this \BH_Application
  */
 ?>
 <div id="authContents">
 	<div class="opt">
 		<input type="checkbox" id="AllCheck"><label for="AllCheck">전체선택</label>
 	</div>
-	<form name="AuthForm" id="AuthForm" method="post" action="<?a. $this->Action ?><?fq. '' ?>">
+	<form name="AuthForm" id="AuthForm" method="post" action="<?a. App::$Action ?><?fq. '' ?>">
 		<input type="hidden" name="muid" value="<?p. SetDBInt($_GET['muid']) ?>">
 		<?php if(sizeof(App::$RouterInstance->AdminMenu) && isset(App::$RouterInstance->AdminMenu)){ ?>
 

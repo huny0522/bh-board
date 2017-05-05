@@ -4,20 +4,17 @@ use \BH_Common as CF;
 use \BH_Application as App;
 
 ob_start();
-/**
- * @var $this \BH_Application
- */
-$this->CSSAdd('jquery-ui-1.10.1.css', 10);
-$this->CSSAdd('font-awesome/css/font-awesome.min.css', 10);
-$this->CSSAdd('common.css', 10);
-$this->CSSAdd2('admin.css2', 10);
-$this->CSSAdd('nanumgothic.css', 10);
+App::CSSAdd('jquery-ui-1.10.1.css', 10);
+App::CSSAdd('font-awesome/css/font-awesome.min.css', 10);
+App::CSSAdd('common.css', 10);
+App::CSSAdd2('admin.css2', 10);
+App::CSSAdd('nanumgothic.css', 10);
 
-$this->JSAdd('jquery-1.11.3.min.js', 10);
-$this->JSAdd('jquery.form.min.js', 10);
-$this->JSAdd('jquery-ui.min.js', 10);
-$this->JSAdd('common.js', 10);
-$this->JSAdd('admin.js', 10);
+App::JSAdd('jquery-1.11.3.min.js', 10);
+App::JSAdd('jquery.form.min.js', 10);
+App::JSAdd('jquery-ui.min.js', 10);
+App::JSAdd('common.js', 10);
+App::JSAdd('admin.js', 10);
 ?>
 <?inc. '/Layout/_Header.html' ?>
 <div id="wrap"<?php if(isset($_COOKIE['managerSideView']) && $_COOKIE['managerSideView'] == 'no') echo ' class="sideHidden"'; ?>>
@@ -64,7 +61,7 @@ $this->JSAdd('admin.js', 10);
 		<div id="footer_wrap"></div>
 	</footer>
 </div>
-<?php if(App::$Instance->ControllerName != 'Home'){ ?>
+<?php if(App::$ControllerName != 'Home'){ ?>
 	<script>
 		$(document).ready(function(){
 			if(common.getCookie('managerSideView') == 'no'){

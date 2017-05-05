@@ -9,7 +9,7 @@ use \BH_Common as CF;
 class InstallController{
 
 	public function __construct(){
-		if(App::$Instance->InstallIs) exit;
+		if(App::$InstallIs) exit;
 	}
 
 	public function Index(){

@@ -22,12 +22,12 @@ class ContentsController{
 	}
 
 	public function Index(){
-		$res = $this->model->DBGet(App::$Instance->TID);
+		$res = $this->model->DBGet(App::$TID);
 		if(!$res->result){
 			Redirect('-1', 'ERROR');
 		}
-		if($this->model->GetValue('layout')) App::$Instance->Layout = $this->model->GetValue('layout');
-		if($this->model->GetValue('html')) App::$Instance->Html = $this->model->GetValue('html');
+		if($this->model->GetValue('layout')) App::$Layout = $this->model->GetValue('layout');
+		if($this->model->GetValue('html')) App::$Html = $this->model->GetValue('html');
 
 		$cookieName = $this->model->table.$this->model->GetValue('bid');
 		if(!isset($_COOKIE[$cookieName]) || !$_COOKIE[$cookieName]){
@@ -38,7 +38,7 @@ class ContentsController{
 			setcookie($cookieName, 'y');
 		}
 
-		App::$Instance->_View($this);
+		App::_View($this);
 
 	}
 }

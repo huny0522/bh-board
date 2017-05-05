@@ -14,7 +14,7 @@ class BoardModel extends \BH_Model{
 	public function __Init(){
 		$this->Key[] = 'seq';
 		$this->Except = $this->Key;
-		if(!strlen($this->bid)) $this->bid = \App::$Instance->TID;
+		if(!strlen($this->bid)) $this->bid = \App::$TID;
 
 		$this->table = TABLE_FIRST.'bbs_'.$this->bid;
 		$this->imageTable = $this->table.'_images';

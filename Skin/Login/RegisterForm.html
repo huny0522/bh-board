@@ -4,13 +4,12 @@ use \BH_Application as App;
 
 /**
  * @var $Model \MemberModel
- * @var $this \BH_Application
  */
 ?>
 
 <div id="contents" class="registerForm">
 	<h2>회원정보 입력</h2>
-	<form name="RegisterForm" id="RegisterForm" method="post" action="<?a. $this->Action ?>Process">
+	<form name="RegisterForm" id="RegisterForm" method="post" action="<?a. App::$Action ?>Process">
 
 		<?php if(isset(self::$_Value['alertMsg'])) echo '<p class="alert">'.self::$_Value['alertMsg'].'</p>'; ?>
 		<table class="write">

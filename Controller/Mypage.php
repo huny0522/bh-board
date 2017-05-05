@@ -14,7 +14,7 @@ class MypageController{
 
 	public function __init(){
 		CF::Get()->MemberAuth(1);
-		App::$Instance->Layout = '_Mypage';
+		App::$Layout = '_Mypage';
 	}
 
 	public function Index(){
@@ -41,7 +41,7 @@ class MypageController{
 				$data[$row['bid']]['list'][] = $row2;
 			}
 		}
-		App::$Instance->_View($this, null, $data);
+		App::_View($this, null, $data);
 	}
 
 	public function PostPassword(){
@@ -65,14 +65,14 @@ class MypageController{
 
 	public function MyInfo(){
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
-			App::$Instance->Html = 'Password.html';
-			App::$Instance->_View($this);
+			App::$Html = 'Password.html';
+			App::_View($this);
 			return;
 		}
 		$model = new \MemberModel();
 		$model->data['pwd']->Required = false;
 		$model->DBGet($_SESSION['member']['muid']);
-		App::$Instance->_View($this, $model);
+		App::_View($this, $model);
 	}
 
 	public function PostMyInfo(){
@@ -102,20 +102,20 @@ class MypageController{
 
 		if(!isset(App::$_Value['error'])){
 			$model->DBUpdate();
-			Redirect(App::$Instance->URLAction(), '수정되었습니다.');
+			Redirect(App::URLAction(), '수정되었습니다.');
 		}
 		else{
-			App::$Instance->_View($this, $model);
+			App::_View($this, $model);
 		}
 	}
 
 	public function WithDraw(){
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
-			App::$Instance->Html = 'Password.html';
-			App::$Instance->_View($this);
+			App::$Html = 'Password.html';
+			App::_View($this);
 			return;
 		}
-		App::$Instance->_View($this);
+		App::_View($this);
 	}
 	public function PostWithDraw(){
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){

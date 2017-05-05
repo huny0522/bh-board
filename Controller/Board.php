@@ -27,12 +27,12 @@ class BoardController{
 	}
 
 	protected function BoardSetting(){
-		if(!isset(App::$Instance->TID) || App::$Instance->TID == '') Redirect('-1', '잘못된 접근입니다.');
+		if(!isset(App::$TID) || App::$TID == '') Redirect('-1', '잘못된 접근입니다.');
 
 		require _DIR.'/Model/BoardManager.model.php';
 		$this->boardManger = new \BoardManagerModel();
-		$this->boardManger->DBGet(App::$Instance->TID);
-		App::$Instance->SetFollowQuery(array('page','searchType','searchKeyword','category'));
+		$this->boardManger->DBGet(App::$TID);
+		App::SetFollowQuery(array('page','searchType','searchKeyword','category'));
 
 		$mid = CF::Get()->GetMember('mid');
 		$manager = explode(',', $this->boardManger->GetValue('manager'));
@@ -40,9 +40,9 @@ class BoardController{
 			$this->managerIs = true;
 		}
 
-		App::$Instance->Html = '/Board/' . App::$Instance->Action.'.html';
+		App::$Html = '/Board/' . App::$Action.'.html';
 		$layout = $this->boardManger->GetValue('layout');
-		if($layout) App::$Instance->Layout = $layout;
+		if($layout) App::$Layout = $layout;
 
 
 		App::$_Value['categorys'] = array();
@@ -52,7 +52,7 @@ class BoardController{
 	}
 
 	public function Index($viewPageIs = false){
-		if(_AJAXIS === true) unset(App::$Instance->Layout);
+		if(_AJAXIS === true) App::$Layout = null;
 
 		$res = $this->GetAuth('List');
 		if(!$res) Redirect('-1', _NO_AUTH);
@@ -70,7 +70,7 @@ class BoardController{
 		// 리스트를 불러온다.
 		$dbList = new \BH_DB_GetListWithPage($this->model->table);
 		$dbList->page = isset($_GET['page']) ? $_GET['page'] : 1;
-		$dbList->pageUrl = App::$Instance->URLAction('').App::$Instance->GetFollowQuery('page');
+		$dbList->pageUrl = App::URLAction('').App::GetFollowQuery('page');
 		$dbList->articleCount = $this->boardManger->GetValue('article_count');
 		$dbList->AddWhere('delis=\'n\'');
 		$dbList->sort = 'sort1, sort2';
@@ -94,10 +94,10 @@ class BoardController{
 		$dbList->Run();
 
 		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Index.html';
-		if(file_exists(_SKINDIR.$html)) App::$Instance->Html = $html;
+		if(file_exists(_SKINDIR.$html)) App::$Html = $html;
 
-		if($viewPageIs) return App::$Instance->_GetView($this, $this->model, $dbList);
-		else App::$Instance->_View($this, $this->model, $dbList);
+		if($viewPageIs) return App::_GetView($this, $this->model, $dbList);
+		else App::_View($this, $this->model, $dbList);
 	}
 
 	public function PostView(){
@@ -106,11 +106,11 @@ class BoardController{
 	public function View(){
 		if($this->boardManger->GetValue('list_in_view') == 'y') App::$_Value['List'] = $this->Index(true);
 
-		if(!isset(App::$Instance->ID) || !strlen(App::$Instance->ID)) Redirect('-1');
+		if(!isset(App::$ID) || !strlen(App::$ID)) Redirect('-1');
 
-		$seq = to10(App::$Instance->ID);
+		$seq = to10(App::$ID);
 
-		if(_AJAXIS === true) unset(App::$Instance->Layout);
+		if(_AJAXIS === true) App::$Layout = null;
 		$viewAuth = $this->GetAuth('View');
 		if(!$viewAuth) Redirect('-1', _NO_AUTH);
 
@@ -169,9 +169,9 @@ class BoardController{
 		}
 
 		$html = '/Board/'.$this->boardManger->GetValue('skin').'/View.html';
-		if(file_exists(_SKINDIR.$html)) App::$Instance->Html = $html;
+		if(file_exists(_SKINDIR.$html)) App::$Html = $html;
 
-		App::$Instance->_View($this, $this->model, $data);
+		App::_View($this, $this->model, $data);
 	}
 
 	public function Write(){
@@ -179,16 +179,16 @@ class BoardController{
 		if(!$res) Redirect('-1', _NO_AUTH);
 
 		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Write.html';
-		if(file_exists(_SKINDIR.$html)) App::$Instance->Html = $html;
+		if(file_exists(_SKINDIR.$html)) App::$Html = $html;
 
-		App::$Instance->_View($this, $this->model);
+		App::_View($this, $this->model);
 	}
 
 	public function Answer(){
 		$res = $this->GetAuth('Answer');
 		if(!$res) Redirect('-1', _NO_AUTH);
 
-		App::$Instance->Html = 'Write';
+		App::$Html = 'Write';
 		$seq = to10($_GET['target']);
 		if(!strlen($seq)) Redirect('-1');
 
@@ -216,21 +216,21 @@ class BoardController{
 		$this->model->SetValue('secret', $data['secret']);
 
 		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Write.html';
-		if(file_exists(_SKINDIR.$html)) App::$Instance->Html = $html;
+		if(file_exists(_SKINDIR.$html)) App::$Html = $html;
 
-		App::$Instance->_View($this, $this->model);
+		App::_View($this, $this->model);
 	}
 
 	public function Modify(){
-		if(!isset(App::$Instance->ID) || !strlen(App::$Instance->ID)){
+		if(!isset(App::$ID) || !strlen(App::$ID)){
 			Redirect('-1');
 		}
 
 		$res = $this->GetAuth('Modify');
 		if(!$res) Redirect('-1', _NO_AUTH);
 
-		App::$Instance->Html = 'Write';
-		$seq = to10(App::$Instance->ID);
+		App::$Html = 'Write';
+		$seq = to10(App::$ID);
 		$this->model->DBGet($seq);
 
 		// 회원 글 체크
@@ -241,9 +241,9 @@ class BoardController{
 
 
 		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Write.html';
-		if(file_exists(_SKINDIR.$html)) App::$Instance->Html = $html;
+		if(file_exists(_SKINDIR.$html)) App::$Html = $html;
 
-		App::$Instance->_View($this, $this->model);
+		App::_View($this, $this->model);
 	}
 
 	public function PostModify(){
@@ -256,7 +256,7 @@ class BoardController{
 
 		require_once _COMMONDIR.'/FileUpload.php';
 
-		$seq = to10(App::$Instance->ID);
+		$seq = to10(App::$ID);
 
 		$this->model->Need = array('subject', 'content', 'secret');
 		if(_MEMBERIS !== true) $this->model->Need[] = 'mnane';
@@ -264,12 +264,12 @@ class BoardController{
 
 		$this->model->DBGet($seq);
 		$res = $this->model->SetPostValues();
-		if(!$res->result) Redirect(App::$Instance->URLAction('View/'.App::$Instance->ID).App::$Instance->GetFollowQuery(), $res->message);
+		if(!$res->result) Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), $res->message);
 
 		// 회원 글 체크
 		if(_MEMBERIS !== true || $_SESSION['member']['level'] != _SADMIN_LEVEL){
 			$res = $this->PasswordCheck();
-			if($res !== true) Redirect(App::$Instance->URLAction('View/'.App::$Instance->ID).App::$Instance->GetFollowQuery(), $res);
+			if($res !== true) Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), $res);
 		}
 
 		// 파일 업로드
@@ -289,14 +289,14 @@ class BoardController{
 		$this->model->SetValue('htmlis', _MOBILEIS === true ? 'n' : 'y');
 
 		$error = $this->model->GetErrorMessage();
-		if(sizeof($error)) Redirect(App::$Instance->URLAction('View/'.App::$Instance->ID).App::$Instance->GetFollowQuery(), $error[0]);
+		if(sizeof($error)) Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), $error[0]);
 
 		$res2 = $this->model->DBUpdate();
 		$this->ContentImageUpate($_POST['content'], $seq, 'modify');
 
 
-		if($res2->result) Redirect(App::$Instance->URLAction('View/'.App::$Instance->ID).App::$Instance->GetFollowQuery(), '수정되었습니다.');
-		else Redirect(App::$Instance->URLAction('View/'.App::$Instance->ID).App::$Instance->GetFollowQuery(), $res2->message ? $res2->message : 'ERROR');
+		if($res2->result) Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), '수정되었습니다.');
+		else Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), $res2->message ? $res2->message : 'ERROR');
 	}
 
 	public function PostAnswer(){
@@ -313,7 +313,7 @@ class BoardController{
 		$first_member_is = 'n';
 
 
-		if(App::$Instance->Action == 'Answer'){
+		if(App::$Action == 'Answer'){
 			$auth = $this->GetAuth('Answer');
 			if(!$auth) Redirect('-1', _NO_AUTH);
 			$dbGet = new \BH_DB_Get($this->model->table);
@@ -369,7 +369,7 @@ class BoardController{
 		}
 
 		// 답글쓰기라면 sort 정렬
-		if(App::$Instance->Action == 'Answer'){
+		if(App::$Action == 'Answer'){
 			$qry = new \BH_DB_Update($this->model->table);
 			$qry->SetData('sort2', 'sort2 + 1');
 			$qry->AddWhere('sort1 = %d', App::$_Value['targetData']['sort1']);
@@ -409,9 +409,9 @@ class BoardController{
 
 		if($result->result){
 			$this->ContentImageUpate($_POST['content'], $res->id);
-			Redirect(App::$Instance->URLAction(), '등록되었습니다.');
+			Redirect(App::URLAction(), '등록되었습니다.');
 		}else{
-			Redirect(App::$Instance->URLAction('Write').App::$Instance->GetFollowQuery(), $result->message ? $result->message : 'ERROR');
+			Redirect(App::URLAction('Write').App::GetFollowQuery(), $result->message ? $result->message : 'ERROR');
 		}
 	}
 
@@ -421,7 +421,7 @@ class BoardController{
 		$res = $this->GetAuth('Write');
 		if(!$res) Redirect('-1', _NO_AUTH);
 
-		$seq = to10(App::$Instance->ID);
+		$seq = to10(App::$ID);
 
 		$this->model->DBGet($seq);
 
@@ -436,7 +436,7 @@ class BoardController{
 		$this->model->SetValue('delis', 'y');
 		$this->model->DBUpdate();
 
-		Redirect(App::$Instance->URLAction().App::$Instance->GetFollowQuery(), '삭제되었습니다.');
+		Redirect(App::URLAction().App::GetFollowQuery(), '삭제되었습니다.');
 	}
 
 

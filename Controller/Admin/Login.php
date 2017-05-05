@@ -18,12 +18,12 @@ class LoginController{
 	}
 
 	public function __init(){
-		App::$Instance->Layout = '_Empty';
+		App::$Layout = '_Empty';
 	}
 
 	public function Index(){
 		if(_MEMBERIS === true && ($_SESSION['member']['level'] == _SADMIN_LEVEL || $_SESSION['member']['level'] == _ADMIN_LEVEL)) Redirect(_ADMINURL);
-		App::$Instance->_View($this, $this->model);
+		App::_View($this, $this->model);
 	}
 
 	public function PostLogin(){

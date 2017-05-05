@@ -4,14 +4,13 @@ use \BH_Application as App;
 
 /**
  * @var $Model \MemberModel
- * @var $this \BH_Application
 */
 ?>
 
 <h2>회원관리</h2>
 
-<form name="MemberWriteForm" id="MemberWriteForm" method="post" action="<?a. $this->Action ?><?fq. '' ?>">
-	<?php if($this->Action == 'Modify'){ ?>
+<form name="MemberWriteForm" id="MemberWriteForm" method="post" action="<?a. App::$Action ?><?fq. '' ?>">
+	<?php if(App::$Action == 'Modify'){ ?>
 		<input type="hidden" name="muid" value="<?p. $Ctrl->model->GetValue('muid') ?>">
 	<?php } ?>
 
@@ -19,7 +18,7 @@ use \BH_Application as App;
 		<tr>
 			<th><?p. $Model->data['mid']->DisplayName ?></th>
 			<td>
-				<?php if($this->Action == 'Modify'){ ?>
+				<?php if(App::$Action == 'Modify'){ ?>
 					<?v. $Model->GetValue('mid') ?>
 				<?php }else{ ?>
 					<?p. $Model->HTMLPrintInput('mid') ?>
@@ -31,7 +30,7 @@ use \BH_Application as App;
 			</td>
 		</tr>
 		<tr>
-			<th><?php if($this->Action == 'Write'){ ?><i class="requiredBullet" title="필수항목">*</i><?php } ?> <?p. $Model->data['pwd']->DisplayName ?></th>
+			<th><?php if(App::$Action == 'Write'){ ?><i class="requiredBullet" title="필수항목">*</i><?php } ?> <?p. $Model->data['pwd']->DisplayName ?></th>
 			<td>
 				<?p. $Model->HTMLPrintInput('pwd') ?>
 				<ul class="guide">
@@ -115,7 +114,7 @@ use \BH_Application as App;
 	</table>
 
 	<div class="bottomBtn">
-		<button type="submit" class="bBtn"><?php echo $this->Action == 'Modify' ? '수정' : '등록'; ?></button>
+		<button type="submit" class="bBtn"><?php echo App::$Action == 'Modify' ? '수정' : '등록'; ?></button>
 		<button type="reset" class="bBtn">취소</button>
 		<a href="#" class="backbtn bBtn">뒤로</a>
 	</div>

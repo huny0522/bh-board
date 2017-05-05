@@ -28,8 +28,8 @@ class BoardManagerController
 		$AdminAuth = explode(',', CF::Get()->GetMember('admin_auth'));
 		App::$_Value['menuAuth'] = (in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL);
 
-		App::$Instance->SetFollowQuery(array('where', 'keyword','page'));
-		App::$Instance->Layout = '_Admin';
+		App::SetFollowQuery(array('where', 'keyword','page'));
+		App::$Layout = '_Admin';
 	}
 
 	public function Index(){
@@ -37,14 +37,14 @@ class BoardManagerController
 		// 리스트를 불러온다.
 		$dbGetList = new \BH_DB_GetListWithPage($this->model->table.' A LEFT JOIN '.TABLE_MENU.' B ON A.bid = B.bid AND B.type=\'board\'');
 		$dbGetList->page = isset($_GET['page']) ? $_GET['page'] : 1;
-		$dbGetList->pageUrl = App::$Instance->URLAction('').App::$Instance->GetFollowQuery('page');
+		$dbGetList->pageUrl = App::URLAction('').App::GetFollowQuery('page');
 		$dbGetList->articleCount = 20;
 		$dbGetList->group = 'A.bid';
 		$dbGetList->sort = 'A.reg_date DESC';
 		$dbGetList->SetKey('A.*, group_concat(B.title SEPARATOR \', \') as title');
 		$dbGetList->Run();
 
-		App::$Instance->_View($this, $this->model, $dbGetList);
+		App::_View($this, $this->model, $dbGetList);
 	}
 	public function View(){
 		$res = $this->model->DBGet($_GET['bid']);
@@ -58,13 +58,13 @@ class BoardManagerController
 			Redirect('-1', $res->message);
 		}
 
-		App::$Instance->_View($this, $this->model);
+		App::_View($this, $this->model);
 	}
 	public function Write(){
 		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
 		$dbGetList->AddWhere('LENGTH(category) = '._CATEGORY_LENGTH);
 		App::$_Value['menu'] = $dbGetList->GetRows();
-		App::$Instance->_View($this, $this->model);
+		App::_View($this, $this->model);
 	}
 	public function Modify(){
 		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
@@ -80,8 +80,8 @@ class BoardManagerController
 		if(!$res->result){
 			Redirect('-1', $res->message);
 		}
-		App::$Instance->Html = 'Write';
-		App::$Instance->_View($this, $this->model);
+		App::$Html = 'Write';
+		App::_View($this, $this->model);
 	}
 	public function PostWrite(){
 		$res = $this->model->SetPostValues();
@@ -100,10 +100,10 @@ class BoardManagerController
 					}
 				}
 			}
-			Redirect(App::$Instance->URLAction().App::$Instance->GetFollowQuery());
+			Redirect(App::URLAction().App::GetFollowQuery());
 		}
 
-		Redirect(App::$Instance->URLAction().App::$Instance->GetFollowQuery(), 'ERROR');
+		Redirect(App::URLAction().App::GetFollowQuery(), 'ERROR');
 	}
 
 	public function PostModify(){
@@ -116,7 +116,7 @@ class BoardManagerController
 
 		if($res->result){
 			CF::Get()->MenuConnect($this->model->GetValue('bid'), 'board');
-			$url = App::$Instance->URLAction('View').'?bid='.$_POST['bid'].App::$Instance->GetFollowQuery();
+			$url = App::URLAction('View').'?bid='.$_POST['bid'].App::GetFollowQuery();
 			Redirect($url, '수정완료');
 		}
 		Redirect('-1', 'ERROR');
@@ -135,7 +135,7 @@ class BoardManagerController
 				@Sqlquery("DROP TABLE `{$board_nm}_images`");
 				\BH_DB_Cache::DelPath($board_nm.'_images');
 
-				Redirect(App::$Instance->URLAction('').App::$Instance->GetFollowQuery(), '삭제되었습니다.');
+				Redirect(App::URLAction('').App::GetFollowQuery(), '삭제되었습니다.');
 			}else{
 				Redirect('-1', $res->message);
 			}
@@ -144,8 +144,8 @@ class BoardManagerController
 
 	public function GetSubMenu(){
 		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
-		$dbGetList->AddWhere('LENGTH(category) = '.(strlen(App::$Instance->ID) + _CATEGORY_LENGTH));
-		$dbGetList->AddWhere('LEFT(category, '.strlen(App::$Instance->ID).') = '.SetDBText(App::$Instance->ID));
+		$dbGetList->AddWhere('LENGTH(category) = '.(strlen(App::$ID) + _CATEGORY_LENGTH));
+		$dbGetList->AddWhere('LEFT(category, '.strlen(App::$ID).') = '.SetDBText(App::$ID));
 		JSON(true, '', $dbGetList->GetRows());
 
 	}

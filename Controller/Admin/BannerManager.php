@@ -27,32 +27,32 @@ class BannerManagerController
 	public function __init(){
 		App::$_Value['NowMenu'] = '001002';
 		CF::Get()->AdminAuth();
-		App::$Instance->Layout = '_Admin';
+		App::$Layout = '_Admin';
 	}
 
 	public function Index(){
 		// 리스트를 불러온다.
 		$dbGetList = new \BH_DB_GetListWithPage($this->model->table);
 		$dbGetList->page = isset($_GET['page']) ? $_GET['page'] : 1;
-		$dbGetList->pageUrl = App::$Instance->URLAction().App::$Instance->GetFollowQuery('page');
+		$dbGetList->pageUrl = App::URLAction().App::GetFollowQuery('page');
 		$dbGetList->articleCount = 20;
 		$dbGetList->Run();
 
-		App::$Instance->_View($this, $this->model, $dbGetList);
+		App::_View($this, $this->model, $dbGetList);
 	}
 
 	public function Write(){
-		App::$Instance->_View($this, $this->model);
+		App::_View($this, $this->model);
 	}
 
 	public function Modify(){
-		$res = $this->model->DBGet(to10(App::$Instance->ID));
+		$res = $this->model->DBGet(to10(App::$ID));
 
 		if(!$res->result){
 			Redirect('-1', $res->message);
 		}
-		App::$Instance->Html = 'Write';
-		App::$Instance->_View($this, $this->model);
+		App::$Html = 'Write';
+		App::_View($this, $this->model);
 	}
 	public function PostWrite(){
 		$res = $this->model->SetPostValues();
@@ -75,22 +75,22 @@ class BannerManagerController
 			$error = $this->model->GetErrorMessage();
 			if(sizeof($error)){
 				App::$_Value['error'] = $error[0];
-				App::$Instance->_View($this, $this->model);
+				App::_View($this, $this->model);
 			}else{
 				$res = $this->model->DBInsert();
 				if($res->result){
 					CF::Get()->ContentImageUpate($this->model->table, array('seq' => $res->id), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
 
-					Redirect(App::$Instance->URLAction().App::$Instance->GetFollowQuery());
+					Redirect(App::URLAction().App::GetFollowQuery());
 				}else{
-					Redirect(App::$Instance->URLAction().App::$Instance->GetFollowQuery(), 'ERROR');
+					Redirect(App::URLAction().App::GetFollowQuery(), 'ERROR');
 				}
 			}
 		}
 	}
 
 	public function PostModify(){
-		$res = $this->model->DBGet(to10(App::$Instance->ID));
+		$res = $this->model->DBGet(to10(App::$ID));
 		$res = $this->model->SetPostValues();
 		if(!$res->result){
 			Redirect('-1',$res->message);
@@ -111,13 +111,13 @@ class BannerManagerController
 
 			$error = $this->model->GetErrorMessage();
 			if(sizeof($error)){
-				Redirect(App::$Instance->URLAction().App::$Instance->GetFollowQuery(), $error[0]);
+				Redirect(App::URLAction().App::GetFollowQuery(), $error[0]);
 			}
 
 			$res = $this->model->DBUpdate();
 			if($res->result){
-				CF::Get()->ContentImageUpate($this->model->table, array('seq' => to10(App::$Instance->ID)), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
-				$url = App::$Instance->URLAction().App::$Instance->GetFollowQuery();
+				CF::Get()->ContentImageUpate($this->model->table, array('seq' => to10(App::$ID)), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
+				$url = App::URLAction().App::GetFollowQuery();
 				Redirect($url, '수정완료');
 			}else{
 				Redirect('-1', 'ERROR');
@@ -129,7 +129,7 @@ class BannerManagerController
 		if(isset($_POST['seq']) && $_POST['seq'] != ''){
 			$res = $this->model->DBDelete(to10($_POST['seq']));
 			if($res->result){
-				Redirect(App::$Instance->URLAction().App::$Instance->GetFollowQuery(), '삭제되었습니다.');
+				Redirect(App::URLAction().App::GetFollowQuery(), '삭제되었습니다.');
 			}else{
 				Redirect('-1', $res->message);
 			}

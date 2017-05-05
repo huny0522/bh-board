@@ -2,7 +2,7 @@
 use \BH_Application as App;
 class BH_Common
 {
-	public static $Instance;
+	private static $Instance;
 	public $Member;
 
 	public function __construct(){
@@ -59,18 +59,18 @@ class BH_Common
 	}
 
 
-	public static function Config($code, $key){
+	public function Config($code, $key){
 		// 설정불러오기
-		if(!isset(App::$Instance->CFG[$code])){
+		if(!isset(App::$CFG[$code])){
 			$path = _DATADIR.'/CFG/'.$code.'.php';
 			if(file_exists($path)){
 				require_once $path;
-			}else App::$Instance->CFG[$code] = array();
+			}else App::$CFG[$code] = array();
 		}
-		return isset(App::$Instance->CFG[$code][$key]) ? App::$Instance->CFG[$code][$key] : null;
+		return isset(App::$CFG[$code][$key]) ? App::$CFG[$code][$key] : null;
 	}
 
-	public static function SetConfig($code, $key, $val){
+	public function SetConfig($code, $key, $val){
 		$res = new \BH_Result();
 		if(_DEVELOPERIS !== true){
 			$res->result = false;
@@ -81,16 +81,16 @@ class BH_Common
 		$dirPath = _DATADIR.'/CFG';
 		if(!file_exists($dirPath) && !is_dir($dirPath)) mkdir($dirPath, 0700, true);
 
-		if(!isset(App::$Instance->CFG[$code])){
+		if(!isset(App::$CFG[$code])){
 			$path = _DATADIR.'/CFG/'.$code.'.php';
 			if(file_exists($path)){
 				require_once $path;
-			}else App::$Instance->CFG[$code] = array();
+			}else App::$CFG[$code] = array();
 		}
 
-		App::$Instance->CFG[$code][$key] = $val;
+		App::$CFG[$code][$key] = $val;
 		$path = _DATADIR.'/CFG/'.$code.'.php';
-		$txt = '<?php App::$Instance->CFG = '.var_export(App::$Instance->CFG, true).';';
+		$txt = '<?php App::$CFG = '.var_export(App::$CFG, true).';';
 		file_put_contents($path, $txt);
 		$res->result = true;
 		return $res;

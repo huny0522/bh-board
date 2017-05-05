@@ -4,9 +4,8 @@ use \BH_Application as App;
 
 /**
  * @var $Model \BoardModel
- * @var $this \BH_Application
 */
-$this->JSAdd('reply.js', 200);
+App::JSAdd('reply.js', 200);
 ?>
 <div class="BoardView">
 	<header>
@@ -33,18 +32,18 @@ $this->JSAdd('reply.js', 200);
 
 	<div class="bottomBtn">
 		<?php if($Ctrl->GetAuth('Write') && (!strlen($Model->GetValue('muid')) || $Data['modifyAuthDirect'] || $Ctrl->managerIs)){ ?>
-			<a href="<?a. 'Modify/' ?><?v. $this->ID ?><?fq. '' ?>" class="mbtn btn2" <?php if(!$Data['modifyAuthDirect']){ ?>id="modifyBtn"<?php } ?>>수정</a>
-			<a href="#" id="deleteArticle" data-seq="<?v. $this->ID ?>" class="mbtn btn2">삭제</a>
+			<a href="<?a. 'Modify/' ?><?v. App::$ID ?><?fq. '' ?>" class="mbtn btn2" <?php if(!$Data['modifyAuthDirect']){ ?>id="modifyBtn"<?php } ?>>수정</a>
+			<a href="#" id="deleteArticle" data-seq="<?v. App::$ID ?>" class="mbtn btn2">삭제</a>
 		<?php } ?>
 		<?php if($Ctrl->GetAuth('Answer')){ ?>
-			<a href="<?a. 'Answer/' ?>?target=<?v. $this->ID ?><?fn. '' ?>" class="mbtn btn2" id="AnswerBtn">답변</a>
+			<a href="<?a. 'Answer/' ?>?target=<?v. App::$ID ?><?fn. '' ?>" class="mbtn btn2" id="AnswerBtn">답변</a>
 		<?php } ?>
 		<a href="<?a. '' ?><?fq. '' ?>" class="mbtn btn2">리스트</a>
 	</div>
 </div>
 
 <div id="deleteForm" class="hidden boardPassword modalConfirm">
-	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete/' ?><?v. $this->ID ?><?fq. '' ?>">
+	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete/' ?><?v. App::$ID ?><?fq. '' ?>">
 		<p>정말 삭제하시겠습니까?</p>
 		<?php if(!$Model->GetValue('muid')){ ?><input type="password" name="pwd" required="required"><?php } ?>
 		<div class="sPopBtns">
@@ -56,7 +55,7 @@ $this->JSAdd('reply.js', 200);
 
 <?php if(!$Data['modifyAuthDirect']){ ?>
 <div id="modifyForm" class="hidden boardPassword modalConfirm">
-	<form id="modForm" name="modForm" method="post" action="<?a. 'Modify/' ?><?v. $this->ID ?><?fq. '' ?>">
+	<form id="modForm" name="modForm" method="post" action="<?a. 'Modify/' ?><?v. App::$ID ?><?fq. '' ?>">
 		<input type="hidden" name="mode" value="view">
 		<p>수정하시려면 비밀번호를 입력하여 주세요.</p>
 		<input type="password" name="pwd" required="required">
@@ -93,9 +92,9 @@ $this->JSAdd('reply.js', 200);
 <?php if($Ctrl->boardManger->GetValue('use_reply') == 'y'){ ?>
 
 	<div id="Reply"></div>
-	<form id="replyGetForm" name="replyGetForm" action="<?p. _URL ?>/Reply/<?v. $this->TID ?>" method="post">
+	<form id="replyGetForm" name="replyGetForm" action="<?p. _URL ?>/Reply/<?v. App::$TID ?>" method="post">
 		<input type="hidden" name="page" value="0">
-		<input type="hidden" name="article_seq" value="<?p. to10($this->ID) ?>">
+		<input type="hidden" name="article_seq" value="<?p. to10(App::$ID) ?>">
 		<input type="hidden" name="article_pwd" value="<?v. isset($_POST['pwd']) ? $_POST['pwd'] : '' ?>">
 	</form>
 

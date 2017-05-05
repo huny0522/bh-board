@@ -18,7 +18,7 @@ class BH_Router
 	public $AdminMenu = array();
 
 	public function __construct(){
-		if(App::$Instance->InstallIs) $this->SetMenu();
+		if(App::$InstallIs) $this->SetMenu();
 		$this->GetUrl = explode('/', isset($_GET['_bh_url']) ? $_GET['_bh_url'] : '');
 		for($i = 0; $i < 10; $i++) if(!isset($this->GetUrl[$i])) $this->GetUrl[$i] = '';
 	}
@@ -39,8 +39,8 @@ class BH_Router
 
 		if($this->GetUrl[1] == '_Refresh'){
 			if(_DEVELOPERIS === true){
-				$s = BH_Common::Config('Default', 'Refresh');
-				$res = BH_Common::SetConfig('Default', 'Refresh', $s+1);
+				$s = CF::Get()->Config('Default', 'Refresh');
+				$res = CF::Get()->SetConfig('Default', 'Refresh', $s+1);
 
 				if($res->result){
 					if(_REFRESH_HTML_ALL === true){
@@ -62,17 +62,17 @@ class BH_Router
 		//----------------------
 		// 메뉴
 		//----------------------
-		App::$Instance->BaseDir = _URL;
-		App::$Instance->NativeDir = '';
-		if(App::$Instance->InstallIs){
+		App::$BaseDir = _URL;
+		App::$NativeDir = '';
+		if(App::$InstallIs){
 			switch($this->GetUrl[1]){
 				case _ADMINURLNAME: // 관리자
-					App::$Instance->NativeDir = 'Admin';
-					App::$Instance->ControllerName = $this->GetUrl[2];
-					App::$Instance->Action = $this->GetUrl[3];
-					App::$Instance->ID = $this->GetUrl[4];
-					App::$Instance->BaseDir .= '/'.$this->GetUrl[1];
-					App::$Instance->CtrlUrl = _URL.'/'.$this->GetUrl[1].'/'.App::$Instance->ControllerName;
+					App::$NativeDir = 'Admin';
+					App::$ControllerName = $this->GetUrl[2];
+					App::$Action = $this->GetUrl[3];
+					App::$ID = $this->GetUrl[4];
+					App::$BaseDir .= '/'.$this->GetUrl[1];
+					App::$CtrlUrl = _URL.'/'.$this->GetUrl[1].'/'.App::$ControllerName;
 
 					$this->AdminMenu = array(
 						'001' => array(
@@ -113,34 +113,34 @@ class BH_Router
 				case 'Board': // 게시판
 				case 'Contents': // Contents
 				case 'Reply': // 댓글
-				App::$Instance->ControllerName = $this->GetUrl[1];
-				App::$Instance->TID = $this->GetUrl[2];
-				App::$Instance->Action = $this->GetUrl[3];
-				App::$Instance->ID = $this->GetUrl[4];
-				App::$Instance->CtrlUrl = _URL.'/'.App::$Instance->ControllerName.'/'.App::$Instance->TID;
+				App::$ControllerName = $this->GetUrl[1];
+				App::$TID = $this->GetUrl[2];
+				App::$Action = $this->GetUrl[3];
+				App::$ID = $this->GetUrl[4];
+				App::$CtrlUrl = _URL.'/'.App::$ControllerName.'/'.App::$TID;
 				if($this->GetUrl[1] == 'Board') $this->Layout = '_Board';
 				break;
 
 				default:
 					if(!$this->SetMenuRouter(_URL)){
-						App::$Instance->ControllerName = $this->GetUrl[1];
-						App::$Instance->Action = $this->GetUrl[2];
-						App::$Instance->ID = $this->GetUrl[3];
-						App::$Instance->CtrlUrl = _URL.'/'.App::$Instance->ControllerName;
+						App::$ControllerName = $this->GetUrl[1];
+						App::$Action = $this->GetUrl[2];
+						App::$ID = $this->GetUrl[3];
+						App::$CtrlUrl = _URL.'/'.App::$ControllerName;
 					}
 				break;
 			}
 		}else{
 			if($this->GetUrl[1] == 'Install'){
-				App::$Instance->ControllerName = $this->GetUrl[1];
-				App::$Instance->Action = $this->GetUrl[2];
-				App::$Instance->ID = $this->GetUrl[3];
-				App::$Instance->CtrlUrl = _URL.'/'.App::$Instance->ControllerName;
+				App::$ControllerName = $this->GetUrl[1];
+				App::$Action = $this->GetUrl[2];
+				App::$ID = $this->GetUrl[3];
+				App::$CtrlUrl = _URL.'/'.App::$ControllerName;
 			}
 			else exit;
 		}
 
-		if(App::$Instance->ControllerName != 'Mypage'){
+		if(App::$ControllerName != 'Mypage'){
 			$_SESSION['MyInfoView'] = false;
 			unset($_SESSION['MyInfoView']);
 		}
@@ -205,19 +205,19 @@ class BH_Router
 
 		if($this->ActiveMenu){
 			if($this->ActiveMenu['type'] == 'board'){
-				App::$Instance->ControllerName = 'Board';
-				App::$Instance->BaseDir = _URL;
+				App::$ControllerName = 'Board';
+				App::$BaseDir = _URL;
 			}
 			else if($this->ActiveMenu['type'] == 'content'){
-				App::$Instance->ControllerName = 'Contents';
-				App::$Instance->BaseDir = _URL;
+				App::$ControllerName = 'Contents';
+				App::$BaseDir = _URL;
 			}
-			else App::$Instance->ControllerName = $this->GetUrl[$start];
+			else App::$ControllerName = $this->GetUrl[$start];
 
-			App::$Instance->TID = $this->ActiveMenu['bid'];
-			App::$Instance->Action = $this->GetUrl[$start + 1];
-			App::$Instance->ID = $this->GetUrl[$start + 2];
-			App::$Instance->CtrlUrl = $url.'/'.$this->GetUrl[$start];
+			App::$TID = $this->ActiveMenu['bid'];
+			App::$Action = $this->GetUrl[$start + 1];
+			App::$ID = $this->GetUrl[$start + 2];
+			App::$CtrlUrl = $url.'/'.$this->GetUrl[$start];
 			return true;
 		}
 		return false;

@@ -827,7 +827,7 @@ class BH_DB_Insert{
 				$cnt --;
 			}
 			$this->result = $r ? true : false;
-			$this->id = $minseq['seq'];
+			App::$ID = $minseq['seq'];
 		}
 		else{
 			$sql = 'INSERT INTO ' . $this->table . '(' . $names . ') VALUES (' . $values . ')';
@@ -837,7 +837,7 @@ class BH_DB_Insert{
 			}
 
 			$this->result = \DB::SQL()->Query($sql);
-			$this->id = mysqli_insert_id(\DB::SQL()->GetConn());
+			App::$ID = mysqli_insert_id(\DB::SQL()->GetConn());
 		}
 
 		\BH_DB_Cache::DelPath($this->table);

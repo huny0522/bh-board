@@ -4,9 +4,8 @@ use \BH_Application as App;
 
 /**
  * @var $Model \MemberModel
- * @var $this \BH_Application
  */
-$this->Title = '로그인';
+App::$Title = '로그인';
 
 ?>
 <div id="container">
@@ -30,7 +29,7 @@ $this->Title = '로그인';
 				</fieldset>
 				<div id="LoginRemember"><a href="#" id="RemberIDBtn"><i></i>아이디 저장</a></div>
 				<div id="LoginConfirm"><button type="submit" class="bbtn btn2">로그인</button></div>
-				<div id="link"><a href="<?p. _URL ?>/">메인으로</a><a href="<?p. $this->URLAction('Register') ?>" class="regbtn">회원가입</a></div>
+				<div id="link"><a href="<?p. _URL ?>/">메인으로</a><a href="<?p. App::URLAction('Register') ?>" class="regbtn">회원가입</a></div>
 			</form>
 		</div>
 	</div>

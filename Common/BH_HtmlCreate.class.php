@@ -10,7 +10,7 @@ class BH_HtmlCreate
 {
 	public static function CreateController($ControllerName, $ModelName, $TableName){
 		if(_DEVELOPERIS !== true) return;
-		$path = _CONTROLLERDIR.'/'.App::$Instance->NativeDir.'/'.$ControllerName.'.php';
+		$path = _CONTROLLERDIR.'/'.App::$NativeDir.'/'.$ControllerName.'.php';
 		$modelPath = _MODELDIR.'/'.$ModelName.'.model.php';
 		$text = "<?php
 use \\BH_Application as App;
@@ -33,25 +33,25 @@ class {$ControllerName}Controller{
 		\$qry = new \\BH_DB_GetListWithPage(\$this->model->table);
 		\$qry->articleCount = 10;
 		\$qry->page = isset(\$_GET['page']) ? \$_GET['page'] : 0;
-		\$qry->pageUrl = App::\$Instance->URLAction().App::\$Instance->GetFollowQuery('page');
+		\$qry->pageUrl = App::URLAction().App::GetFollowQuery('page');
 		\$qry->Run();
 
-		App::\$Instance->_View(\$this, \$this->model, \$qry);
+		App::_View(\$this, \$this->model, \$qry);
 	}
 
 	public function View(){
 		\$this->_ModelSet();
-		App::\$Instance->_View(\$this, \$this->model);
+		App::_View(\$this, \$this->model);
 	}
 
 	public function Write(){
-		App::\$Instance->_View(\$this, \$this->model);
+		App::_View(\$this, \$this->model);
 	}
 
 	public function Modify(){
 		\$this->_ModelSet();
-		App::\$Instance->Html = 'Write';
-		App::\$Instance->_View(\$this, \$this->model);
+		App::\$Html = 'Write';
+		App::_View(\$this, \$this->model);
 	}
 
 	public function PostWrite(){
@@ -59,16 +59,16 @@ class {$ControllerName}Controller{
 		\$err = \$this->model->GetErrorMessage();
 		if(sizeof(\$err)){
 			App::\$_Value['error'] = \$err[0];
-			App::\$Instance->_View(\$this, \$this->model);
+			App::_View(\$this, \$this->model);
 			return;
 		}
 		\$res = \$this->model->DBInsert();
 		if(!\$res->result) {
 			App::\$_Value['error'] = \$res->message ? \$res->message : 'Query Error';
-			App::\$Instance->_View(\$this, \$this->model);
+			App::_View(\$this, \$this->model);
 			return;
 		}
-		else Redirect(App::\$Instance->URLAction().App::\$Instance->GetFollowQuery());
+		else Redirect(App::URLAction().App::GetFollowQuery());
 	}
 
 	public function PostModify(){
@@ -77,32 +77,32 @@ class {$ControllerName}Controller{
 		\$err = \$this->model->GetErrorMessage();
 		if(sizeof(\$err)){
 			App::\$_Value['error'] = \$err[0];
-			App::\$Instance->_View(\$this, \$this->model);
+			App::_View(\$this, \$this->model);
 			return;
 		}
 		\$res = \$this->model->DBUpdate();
 		if(!\$res->result) {
 			App::\$_Value['error'] = \$res->message ? \$res->message : 'Query Error';
-			App::\$Instance->_View(\$this, \$this->model);
+			App::_View(\$this, \$this->model);
 			return;
 		}
-		else Redirect(App::\$Instance->URLAction('View/'.App::\$Instance->ID).App::\$Instance->GetFollowQuery());
+		else Redirect(App::URLAction('View/'.App::\$ID).App::GetFollowQuery());
 	}
 
 	public function PostDelete(){
-		\$res = \$this->model->DBDelete(App::\$Instance->ID);
+		\$res = \$this->model->DBDelete(App::\$ID);
 
 		if(\$res->result){
-			Redirect(App::\$Instance->URLAction('').App::\$Instance->GetFollowQuery());
+			Redirect(App::URLAction('').App::GetFollowQuery());
 		}
 		else{
-			Redirect(App::\$Instance->URLAction('View/'.App::\$Instance->ID).App::\$Instance->GetFollowQuery(), \$res->message ? \$res->message : 'Query Error');
+			Redirect(App::URLAction('View/'.App::\$ID).App::GetFollowQuery(), \$res->message ? \$res->message : 'Query Error');
 		}
 	}
 
 	private function _ModelSet(){
-		if(!strlen(App::\$Instance->ID)) Redirect(-1, _WRONG_CONNECTED);
-		\$res = \$this->model->DBGet(App::\$Instance->ID);
+		if(!strlen(App::\$ID)) Redirect(-1, _WRONG_CONNECTED);
+		\$res = \$this->model->DBGet(App::\$ID);
 		if(!\$res->result) Redirect(-1, \$res->message ? \$res->message : _NO_ARTICLE);
 	}
 }";
@@ -216,13 +216,13 @@ class {$ModelName}Model extends \\BH_Model{
 	public static function Create($path, $model){
 		if(_DEVELOPERIS !== true) return;
 		$path = '/'.$path;
-		if(App::$Instance->NativeDir) $path = '/'.App::$Instance->NativeDir.$path;
+		if(App::$NativeDir) $path = '/'.App::$NativeDir.$path;
 		if(file_exists(_SKINDIR.$path) && is_dir(_SKINDIR.$path)) return;
 
 		$IndexHtml = self::Index($path.'/Index.html', $model);
 		$ViewHtml = self::View($path.'/View.html', $model);
 		$WriteHtml = self::Write($path.'/Write.html', $model);
-		$path = _SKINURL.'/'.(App::$Instance->NativeDir ? App::$Instance->NativeDir.'/' : '').App::$Instance->ControllerName.'/';
+		$path = _SKINURL.'/'.(App::$NativeDir ? App::$NativeDir.'/' : '').App::$ControllerName.'/';
 		echo '<b>'.$path.'Index.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(GetDBText($IndexHtml)).'</textarea>';
 		echo '<br><br>';
 		echo '<b>'.$path.'View.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(GetDBText($ViewHtml)).'</textarea>';
@@ -252,7 +252,7 @@ class {$ModelName}Model extends \\BH_Model{
 
 			//if(!is_dir($path2)) mkdir($path2, 0777, true);
 
-			$html = '<?php if(_BH_ !== true) exit;' . chr(10) . '/**'.chr(10).'* @var $Model \\'.$classname.chr(10).' */' . chr(10) .'/**'.chr(10).'* @var $this \\BH_Application'.chr(10).'*/' . chr(10) . '?>' . chr(10) . chr(10) . '<table class="view">' . chr(10);
+			$html = '<?php if(_BH_ !== true) exit;' . chr(10) . '/**'.chr(10).'* @var $Model \\'.$classname.chr(10).' */' . chr(10) . '?>' . chr(10) . chr(10) . '<table class="view">' . chr(10);
 			foreach($modelClass->data as $k => $row){
 
 				$html .= '<tr>' . chr(10)
@@ -262,9 +262,9 @@ class {$ModelName}Model extends \\BH_Model{
 				$html .= '</tr>' . chr(10);
 			}
 			$html .= '</table>' . chr(10);
-			$html .= '<div class="bottomBtn"><a href="<?a. \'\' ?><?fq. \'\' ?>" class="bBtn">리스트</a><a href="<?a. \'Modify/\'.$this->ID ?><?fq. \'\' ?>" class="bBtn">수정</a><a href="#" id="deleteArticle" class="bBtn">삭제</a><a href="#" class="backbtn bBtn">뒤로</a></div>' . chr(10);
+			$html .= '<div class="bottomBtn"><a href="<?a. \'\' ?><?fq. \'\' ?>" class="bBtn">리스트</a><a href="<?a. \'Modify/\'.App::$ID ?><?fq. \'\' ?>" class="bBtn">수정</a><a href="#" id="deleteArticle" class="bBtn">삭제</a><a href="#" class="backbtn bBtn">뒤로</a></div>' . chr(10);
 			$html .= '<div id="deleteForm" class="hidden">'. chr(10)
-				. chr(9).'<form id="delForm" name="delForm" method="post" action="<?a. \'Delete/\'.$this->ID ?><?fq. \'\' ?>">'. chr(10);
+				. chr(9).'<form id="delForm" name="delForm" method="post" action="<?a. \'Delete/\'.App::$ID ?><?fq. \'\' ?>">'. chr(10);
 
 			$html .= chr(9). chr(9).'<p>정말 삭제하시겠습니까?</p>'.chr(10)
 				. chr(9). chr(9).'<div class="sPopBtns">' . chr(10)
@@ -305,8 +305,8 @@ class {$ModelName}Model extends \\BH_Model{
 			//if(!is_dir($path2)) mkdir($path2, 0777, true);
 
 
-			$html = '<?php if(_BH_ !== true) exit;' . chr(10) .'/**'.chr(10).'* @var $Model \\'.$classname.chr(10).' */' . chr(10) . '/**'.chr(10).'* @var $this \\BH_Application'.chr(10).'*/' . chr(10) .'?>' . chr(10) . chr(10);
-			$html .= '<form name="'.$model.'WriteForm" id="'.$model.'WriteForm" method="post" action="<?a. $this->Action.\'/\'.$this->ID ?><?fq. \'\' ?>">'. chr(10);
+			$html = '<?php if(_BH_ !== true) exit;' . chr(10) .'/**'.chr(10).'* @var $Model \\'.$classname.chr(10).' */' . chr(10) .'?>' . chr(10) . chr(10);
+			$html .= '<form name="'.$model.'WriteForm" id="'.$model.'WriteForm" method="post" action="<?a. App::$Action.\'/\'.App::$ID ?><?fq. \'\' ?>">'. chr(10);
 
 			$html .= chr(10).'	<table class="write">' . chr(10);
 			foreach($modelClass->data as $k => $row){
@@ -344,7 +344,7 @@ class {$ModelName}Model extends \\BH_Model{
 			}
 			$html .= '	</table>' . chr(10) . chr(10);
 			$html .= '	<div class="bottomBtn">' . chr(10)
-				.'		<button type="submit" class="bBtn"><?php echo $this->Action == \'Modify\' ? \'수정\' : \'등록\'; ?></button>' . chr(10)
+				.'		<button type="submit" class="bBtn"><?php echo App::$Action == \'Modify\' ? \'수정\' : \'등록\'; ?></button>' . chr(10)
 				.'		<button type="reset" class="bBtn">취소</button>' . chr(10)
 				.'		<a href="#" class="backbtn bBtn">뒤로</a>'.chr(10)
 				.'	</div>' . chr(10);
@@ -378,7 +378,7 @@ class {$ModelName}Model extends \\BH_Model{
 			$path2 = implode('/', $a).'/';
 
 			//키값
-			$html = '<?php if(_BH_ !== true) exit;' . chr(10) . '/**'.chr(10).'* @var $Model \\'.$classname.chr(10).' */' . chr(10) . '/**'.chr(10).'* @var $Data \\BH_DB_GetListWithPage'.chr(10).'*/' . chr(10) . '/**'.chr(10).'* @var $this \\BH_Application'.chr(10).'*/' . chr(10) . '?>' . chr(10) . chr(10);
+			$html = '<?php if(_BH_ !== true) exit;' . chr(10) . '/**'.chr(10).'* @var $Model \\'.$classname.chr(10).' */' . chr(10) . '/**'.chr(10).'* @var $Data \\BH_DB_GetListWithPage'.chr(10).'*/' . chr(10) . '?>' . chr(10) . chr(10);
 			$html .= '<?php if($Data->result && $Data->totalRecord){ ?>'. chr(10);
 			$html .= '<table class="list">'.chr(10);
 			$html .= '<thead>'. chr(10);

@@ -4,13 +4,12 @@ use \BH_Application as App;
 
 /**
  * @var $Model \ContentModel
- * @var $this \BH_Application
  */
 ?>
 
 <h2>컨텐츠관리</h2>
 
-<form name="ContentWriteForm" id="ContentWriteForm" method="post" action="<?a. $this->Action ?><?fq. '' ?>">
+<form name="ContentWriteForm" id="ContentWriteForm" method="post" action="<?a. App::$Action ?><?fq. '' ?>">
 	<input type="hidden" name="bid" value="<?v. $Model->GetValue('bid') ?>">
 	<input type="hidden" name="select_menu" value="" id="select_menu">
 
@@ -85,7 +84,7 @@ use \BH_Application as App;
 	</table>
 
 	<div class="bottomBtn">
-		<button type="submit" class="bBtn"><?php echo $this->Action == 'Modify' ? '수정' : '등록'; ?></button>
+		<button type="submit" class="bBtn"><?php echo App::$Action == 'Modify' ? '수정' : '등록'; ?></button>
 		<button type="reset" class="bBtn">취소</button>
 		<a href="#" class="backbtn bBtn">뒤로</a>
 	</div>

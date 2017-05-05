@@ -3,12 +3,11 @@ use \BH_Common as CF;
 use \BH_Application as App;
 
 /**
-* @var $Model \BannerModel
-* @var $this \BH_Application
+ * @var $Model \BannerModel
 */
 ?>
 
-<form name="BannerWriteForm" id="BannerWriteForm" method="post" action="<?a. $this->Action ?><?v. '/'.$this->ID ?><?fq. '' ?>" enctype="multipart/form-data">
+<form name="BannerWriteForm" id="BannerWriteForm" method="post" action="<?a. App::$Action ?><?v. '/'.App::$ID ?><?fq. '' ?>" enctype="multipart/form-data">
 
 	<?php if(isset(self::$_Value['error'])){ ?><p class="alert"><?p. self::$_Value['error'] ?></p><?php } ?>
 	<table class="write">
@@ -97,7 +96,7 @@ use \BH_Application as App;
 	</table>
 
 	<div class="bottomBtn">
-		<button type="submit" class="bBtn"><?php echo $this->Action == 'Modify' ? '수정' : '등록'; ?></button>
+		<button type="submit" class="bBtn"><?php echo App::$Action == 'Modify' ? '수정' : '등록'; ?></button>
 		<button type="reset" class="bBtn">취소</button>
 		<a href="#" id="deleteArticle" data-seq="<?v. $_GET['seq'] ?>" class="bBtn">삭제</a>
 		<a href="#" class="backbtn bBtn">뒤로</a>
@@ -149,10 +148,10 @@ use \BH_Application as App;
 	});
 </script>
 
-<?php if($this->Action == 'Modify'){ ?>
+<?php if(App::$Action == 'Modify'){ ?>
 <div id="deleteForm" class="hidden modalConfirm">
 	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete' ?><?fq. '' ?>">
-		<input type="hidden" name="seq" value="<?v. $this->ID ?>">
+		<input type="hidden" name="seq" value="<?v. App::$ID ?>">
 		<p>정말 삭제하시겠습니까?</p>
 		<div class="sPopBtns">
 			<button type="submit" class="mBtn">삭제하기</button>

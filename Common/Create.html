@@ -7,16 +7,16 @@ if(_BH_ !== true) exit;
 use \BH_Common as CF;
 use \BH_Application as App;
 ?>
-<b>'<?php echo $this->ControllerName ?>'</b>컨트롤러가 존재하지 않습니다. 컨트롤러를 생성하시려면 아래 형식을 제출하세요.<br><br>
+<b>'<?php echo App::$ControllerName ?>'</b>컨트롤러가 존재하지 않습니다. 컨트롤러를 생성하시려면 아래 형식을 제출하세요.<br><br>
 
-<form method="post" action="<?php echo _URL ?>/~Create"><input type="hidden" name="controller_name" value="<?php echo $this->ControllerName ?>">
+<form method="post" action="<?php echo _URL ?>/~Create"><input type="hidden" name="controller_name" value="<?php echo App::$ControllerName ?>">
 
 	<table>
 		<tr>
 			<th>테이블명</th>
 			<td>
-				<input type="hidden" name="sub_dir" value="<?php echo $this->NativeDir ?>">
-				<input type="hidden" name="controller_url" value="<?php echo $this->CtrlUrl ?>">
+				<input type="hidden" name="sub_dir" value="<?php echo App::$NativeDir ?>">
+				<input type="hidden" name="controller_url" value="<?php echo App::$CtrlUrl ?>">
 				<input type="text" name="table_name" value="<?php echo TABLE_FIRST ?>" required="required">
 				ex) <?php echo TABLE_FIRST ?>member<br>
 				<label><input type="checkbox" name="const" value="y"> 상수</label>
