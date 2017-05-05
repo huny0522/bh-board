@@ -8,50 +8,84 @@ use \BH_Application as App;
  * @var $this \BH_Application
  */
 ?>
-<table class="Gallerylist">
-	<thead>
-	<tr>
-		<th>번호</th>
-		<th><?p. $Model->data['category']->DisplayName ?></th>
-		<th><?p. $Model->data['subject']->DisplayName ?></th>
-		<th><?p. $Model->data['mname']->DisplayName ?></th>
-		<th><?p. $Model->data['hit']->DisplayName ?></th>
-		<th><?p. $Model->data['recommend']->DisplayName ?></th>
-		<th><?p. $Model->data['reg_date']->DisplayName ?></th>
-	</tr>
-	</thead>
-	<tbody>
-	<?php if($Data->result && $Data->totalRecord){ ?>
+<?php if($Data->result && $Data->totalRecord){ ?>
+
+	<table class="list">
+		<colgroup>
+			<col style="width:7%;">
+			<col style="">
+			<col style="width:15%;">
+			<col style="width:7%;">
+			<col style="width:7%;">
+			<col style="width:18%;">
+		</colgroup>
+		<thead>
+		<tr>
+			<th>번호</th>
+			<th><?p. $Model->data['subject']->DisplayName ?></th>
+			<th><?p. $Model->data['mname']->DisplayName ?></th>
+			<th><?p. $Model->data['hit']->DisplayName ?></th>
+			<th><?p. $Model->data['recommend']->DisplayName ?></th>
+			<th><?p. $Model->data['reg_date']->DisplayName ?></th>
+		</tr>
+		</thead>
+		<tbody>
+		<?php foreach(App::$_Value['notice'] as $row){ ?>
+			<tr class="notice">
+				<td>공지</td>
+				<td class="left">
+					<?php if($Ctrl->managerIs || $row['secret'] == 'n' || (_MEMBERIS === true && $_SESSION['member']['level'] == _SADMIN_LEVEL) || ($row['first_member_is'] == 'y' && strlen($row['muid']))){ ?>
+						<a href="<?a. 'View' ?>/<?p. toBase($row['seq']) ?><?fq. '' ?>"><?v. $row['subject']; ?><?php if($row['reply_cnt']){ ?><span class="ReplyCount">[<?p. $row['reply_cnt'] ?>]</span><?php } ?></a>
+					<?php } else { ?>
+						<a href="<?a. 'View' ?>/<?p. toBase($row['seq']) ?><?fq. '' ?>" class="passwordView"><?v. $row['subject']; ?><?php if($row['reply_cnt']){ ?><span class="ReplyCount">[<?p. $row['reply_cnt'] ?>]</span><?php } ?></a>
+					<?php } ?>
+				</td>
+				<td><?v. $row['mname']; ?></td>
+				<td><?v. $row['hit']; ?></td>
+				<td><?v. $row['recommend']; ?></td>
+				<td><?v. KrDate($row['reg_date'],'ymd', 24) ?></td>
+			</tr>
+		<?php } ?>
 		<?php
 		while($row = $Data->Get()){
 			$secretIcon = $row['secret'] == 'y' ? '<span class="secretDoc">[비밀글]</span> ' : '';
 			?>
 			<tr>
 				<td><?p. $Data->beginNum-- ?></td>
-				<td><?v. $row['category']; ?></td>
-
-				<?php if($Ctrl->managerIs || $row['secret'] == 'n' || (_MEMBERIS === true && $_SESSION['member']['level'] == _SADMIN_LEVEL) || ($row['first_member_is'] == 'y' && strlen($row['muid']))){ ?>
-					<td><?p. $secretIcon ?><a href="<?a. 'View' ?>/<?p. toBase($row['seq']) ?><?fq. '' ?>"><?v. $row['subject']; ?></a></td>
-				<?php } else { ?>
-					<td><?p. $secretIcon ?><a href="<?a. 'View' ?>/<?p. toBase($row['seq']) ?><?fq. '' ?>" class="passwordView"><?v. $row['subject']; ?></a></td>
-				<?php } ?>
+				<td class="left">
+					<?v. $row['category'] ? '['.$row['category'].']' : '' ?>
+					<?php if($Ctrl->managerIs || $row['secret'] == 'n' || (_MEMBERIS === true && $_SESSION['member']['level'] == _SADMIN_LEVEL) || ($row['first_member_is'] == 'y' && strlen($row['muid']))){ ?>
+						<?p. $secretIcon ?><a href="<?a. 'View' ?>/<?p. toBase($row['seq']) ?><?fq. '' ?>"><?v. $row['subject']; ?><?php if($row['reply_cnt']){ ?><span class="ReplyCount">[<?p. $row['reply_cnt'] ?>]</span><?php } ?></a>
+					<?php } else { ?>
+						<?p. $secretIcon ?><a href="<?a. 'View' ?>/<?p. toBase($row['seq']) ?><?fq. '' ?>" class="passwordView"><?v. $row['subject']; ?><?php if($row['reply_cnt']){ ?><span class="ReplyCount">[<?p. $row['reply_cnt'] ?>]</span><?php } ?></a>
+					<?php } ?>
+				</td>
 
 				<td><?v. $row['mname']; ?></td>
 				<td><?v. $row['hit']; ?></td>
 				<td><?v. $row['recommend']; ?></td>
-				<td><?v. $row['reg_date']; ?></td>
+				<td><?v. KrDate($row['reg_date'],'ymd', 24) ?></td>
 			</tr>
 		<?php } ?>
-	<?php } else{ ?>
-		<tr><td colspan="7" class="nothing">등록된 게시물이 없습니다.</td></tr>
-	<?php } ?>
-	</tbody>
-</table>
+		</tbody>
+	</table>
+<?php } else{ ?>
+	<p class="nothing">등록된 게시물이 없습니다.</p>
+<?php } ?>
 
-<div class="left_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="btn2">글쓰기</a></div>
+<form id="bbsSchForm" name="bbsSchForm" method="get" action="<?a. '' ?>" class="boardSearch leftBoardSearch">
+	<select name="searchType">
+		<?p. SelectOption(array('snc' => '제목+내용', 's' => '제목', 'c' => '내용'), isset($_GET['searchType']) ? $_GET['searchType'] : '') ?>
+	</select>
+	<input type="text" name="searchKeyword" value="<?v. isset($_GET['searchKeyword']) ? $_GET['searchKeyword'] : '' ?>">
+	<button type="submit" class="mbtn btn2">검색</button>
+</form>
+
+<?php if($Ctrl->GetAuth('Write')){ ?><div class="right_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mbtn btn2">글쓰기</a></div><?php } ?>
+
 <div class="paging"><?p. $Data->pageHtml ?></div>
 
-<div id="secretViewForm" class="hidden boardPassword">
+<div id="secretViewForm" class="hidden boardPassword modalConfirm">
 	<form id="viewForm" name="viewForm" method="post" action="">
 		<input type="password" name="pwd" required="required">
 		<span>비밀번호를 입력하여 주세요.</span>

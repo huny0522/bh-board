@@ -12,7 +12,7 @@ class BoardManagerController
 {
 
 	/**
-	 * @var BoardManagerModel
+	 * @var \BoardManagerModel
 	 */
 	public $model = null;
 
@@ -40,6 +40,7 @@ class BoardManagerController
 		$dbGetList->pageUrl = App::$Instance->URLAction('').App::$Instance->GetFollowQuery('page');
 		$dbGetList->articleCount = 20;
 		$dbGetList->group = 'A.bid';
+		$dbGetList->sort = 'A.reg_date DESC';
 		$dbGetList->SetKey('A.*, group_concat(B.title SEPARATOR \', \') as title');
 		$dbGetList->Run();
 
@@ -84,45 +85,41 @@ class BoardManagerController
 	}
 	public function PostWrite(){
 		$res = $this->model->SetPostValues();
-		if(!$res->result){
-			Redirect('-1',$res->message);
-		}
-		else{
-			$res = $this->model->DBInsert();
-			if($res->result){
-				$r1 = $this->model->CreateTableBoard(TABLE_FIRST.'bbs_'.$this->model->GetValue('bid'));
-				if($r1){
-					$r2 = $this->model->CreateTableReply(TABLE_FIRST.'bbs_'.$this->model->GetValue('bid').'_reply');
-					if($r2){
-						$r3 = $this->model->CreateTableImg(TABLE_FIRST.'bbs_'.$this->model->GetValue('bid').'_images');
-						if($r3){
-							CF::Get()->MenuConnect($this->model->GetValue('bid'), 'board');
-						}
+		if(!$res->result) Redirect('-1',$res->message);
+
+		$this->model->SetValue('reg_date', date('Y-m-d H:i:s'));
+		$res = $this->model->DBInsert();
+		if($res->result){
+			$r1 = $this->model->CreateTableBoard(TABLE_FIRST.'bbs_'.$this->model->GetValue('bid'));
+			if($r1){
+				$r2 = $this->model->CreateTableReply(TABLE_FIRST.'bbs_'.$this->model->GetValue('bid').'_reply');
+				if($r2){
+					$r3 = $this->model->CreateTableImg(TABLE_FIRST.'bbs_'.$this->model->GetValue('bid').'_images');
+					if($r3){
+						CF::Get()->MenuConnect($this->model->GetValue('bid'), 'board');
 					}
 				}
-				Redirect(App::$Instance->URLAction().App::$Instance->GetFollowQuery());
-			}else{
-				Redirect(App::$Instance->URLAction().App::$Instance->GetFollowQuery(), 'ERROR');
 			}
+			Redirect(App::$Instance->URLAction().App::$Instance->GetFollowQuery());
 		}
+
+		Redirect(App::$Instance->URLAction().App::$Instance->GetFollowQuery(), 'ERROR');
 	}
 
 	public function PostModify(){
 		$res = $this->model->DBGet($_POST['bid']);
+		if(!$res->result) Redirect('-1',$res->message);
+
 		$res = $this->model->SetPostValues();
-		if(!$res->result){
-			Redirect('-1',$res->message);
+		if(!$res->result) Redirect('-1',$res->message);
+		$res = $this->model->DBUpdate();
+
+		if($res->result){
+			CF::Get()->MenuConnect($this->model->GetValue('bid'), 'board');
+			$url = App::$Instance->URLAction('View').'?bid='.$_POST['bid'].App::$Instance->GetFollowQuery();
+			Redirect($url, '수정완료');
 		}
-		else{
-			$res = $this->model->DBUpdate();
-			if($res->result){
-				CF::Get()->MenuConnect($this->model->GetValue('bid'), 'board');
-				$url = App::$Instance->URLAction('View').'?bid='.$_POST['bid'].App::$Instance->GetFollowQuery();
-				Redirect($url, '수정완료');
-			}else{
-				Redirect('-1', 'ERROR');
-			}
-		}
+		Redirect('-1', 'ERROR');
 	}
 
 	public function PostDelete(){

@@ -8,7 +8,6 @@ use \BH_Application as App;
 */
 $this->JSAdd('reply.js', 200);
 ?>
-GallerySkin
 <div class="BoardView">
 	<header>
 		<div>
@@ -21,49 +20,49 @@ GallerySkin
 			<li class="mname"><b><?p. $Model->data['mname']->DisplayName ?></b> : <?v. $Model->GetValue('mname') ?></li>
 			<li><b><?p. $Model->data['recommend']->DisplayName ?></b> : <?v. $Model->GetValue('recommend') ?></li>
 			<li><b><?p. $Model->data['hit']->DisplayName ?></b> : <?v. $Model->GetValue('hit') ?></li>
-			<li><b><?p. $Model->data['reg_date']->DisplayName ?></b> : <?v. $Model->GetValue('reg_date') ?></li>
+			<li><b><?p. $Model->data['reg_date']->DisplayName ?></b> : <?p. KrDate($Model->GetValue('reg_date')) ?></li>
 		</ul>
 	</header>
 	<div class="contents">
-		<?php if($Model->GetValue('htmlis')){ ?>
+		<?php if($Model->GetValue('htmlis') == 'y'){ ?>
 			<?vr. $Model->GetValue('content') ?>
 		<?php }else{ ?>
 			<?v. $Model->GetValue('content') ?>
 		<?php } ?>
 	</div>
+
+	<div class="bottomBtn">
+		<?php if($Ctrl->GetAuth('Write') && (!strlen($Model->GetValue('muid')) || $Data['modifyAuthDirect'] || $Ctrl->managerIs)){ ?>
+			<a href="<?a. 'Modify/' ?><?v. $this->ID ?><?fq. '' ?>" class="mbtn btn2" <?php if(!$Data['modifyAuthDirect']){ ?>id="modifyBtn"<?php } ?>>수정</a>
+			<a href="#" id="deleteArticle" data-seq="<?v. $this->ID ?>" class="mbtn btn2">삭제</a>
+		<?php } ?>
+		<?php if($Ctrl->GetAuth('Answer')){ ?>
+			<a href="<?a. 'Answer/' ?>?target=<?v. $this->ID ?><?fn. '' ?>" class="mbtn btn2" id="AnswerBtn">답변</a>
+		<?php } ?>
+		<a href="<?a. '' ?><?fq. '' ?>" class="mbtn btn2">리스트</a>
+	</div>
 </div>
 
-<div class="bottomBtn">
-	<a href="<?a. '' ?><?fq. '' ?>" class="btn1">리스트</a>
-	<?php if($Ctrl->GetAuth('Write') && (!$Model->GetValue('muid') || (_MEMBERIS === true && $_SESSION['member']['muid'] == $Model->GetValue('muid') && $Model->GetValue('muid')))){ ?>
-	<a href="<?a. 'Modify/' ?><?v. $this->ID ?><?fq. '' ?>" class="btn1" id="modifyBtn">수정</a>
-	<a href="#" id="deleteArticle" data-seq="<?v. $this->ID ?>" class="btn1">삭제</a>
-	<?php } ?>
-	<?php if($Ctrl->GetAuth('Answer')){ ?>
-	<a href="<?a. 'Answer/' ?>?target=<?v. $this->ID ?><?fn. '' ?>" class="btn1" id="AnswerBtn">답변</a>
-	<?php } ?>
-	<a href="#" class="backbtn btn1">뒤로</a>
-</div>
-
-<div id="deleteForm" class="hidden boardPassword">
+<div id="deleteForm" class="hidden boardPassword modalConfirm">
 	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete/' ?><?v. $this->ID ?><?fq. '' ?>">
 		<p>정말 삭제하시겠습니까?</p>
 		<?php if(!$Model->GetValue('muid')){ ?><input type="password" name="pwd" required="required"><?php } ?>
 		<div class="sPopBtns">
-			<button type="submit" class="btn2">삭제하기</button>
-			<button type="reset" class="btn2">취소</button>
+			<button type="submit" class="sbtn btn2">삭제하기</button>
+			<button type="reset" class="sbtn btn2">취소</button>
 		</div>
 	</form>
 </div>
 
-<?php if(!$Model->GetValue('muid') || (_MEMBERIS === true && $Model->GetValue('muid') == $_SESSION['member']['muid'])){ ?>
-<div id="modifyForm" class="hidden boardPassword">
+<?php if(!$Data['modifyAuthDirect']){ ?>
+<div id="modifyForm" class="hidden boardPassword modalConfirm">
 	<form id="modForm" name="modForm" method="post" action="<?a. 'Modify/' ?><?v. $this->ID ?><?fq. '' ?>">
-		<?php if(!$Model->GetValue('muid')){ ?><input type="password" name="pwd" required="required"><?php } ?>
-		<span>수정하시려면 비밀번호를 입력하여 주세요.</span>
+		<input type="hidden" name="mode" value="view">
+		<p>수정하시려면 비밀번호를 입력하여 주세요.</p>
+		<input type="password" name="pwd" required="required">
 		<div class="sPopBtns">
-			<button type="submit" class="btn2">확인</button>
-			<button type="reset" class="btn2">취소</button>
+			<button type="submit" class="sbtn btn2">확인</button>
+			<button type="reset" class="sbtn btn2">취소</button>
 		</div>
 	</form>
 </div>
@@ -79,12 +78,10 @@ GallerySkin
 	});
 
 	$('#modifyBtn').on('click', function(e){
-		e.preventDefault();
-		<?php if(_MEMBERIS === true && $Model->GetValue('muid') == $_SESSION['member']['muid']){ ?>
-		$('#modForm').submit();
-		<?php } else { ?>
-		$('#modifyForm').show();
-		<?php } ?>
+		if($('#modForm').length){
+			e.preventDefault();
+			$('#modifyForm').show();
+		}
 	});
 	$('#modifyForm button[type=reset]').on('click', function(e){
 		$('#modifyForm').hide();
@@ -95,16 +92,19 @@ GallerySkin
 
 <?php if($Ctrl->boardManger->GetValue('use_reply') == 'y'){ ?>
 
+	<div id="Reply"></div>
 	<form id="replyGetForm" name="replyGetForm" action="<?p. _URL ?>/Reply/<?v. $this->TID ?>" method="post">
 		<input type="hidden" name="page" value="0">
 		<input type="hidden" name="article_seq" value="<?p. to10($this->ID) ?>">
 		<input type="hidden" name="article_pwd" value="<?v. isset($_POST['pwd']) ? $_POST['pwd'] : '' ?>">
 	</form>
 
-	<div id="Reply" data-page="0" data-seq="<?v. $this->ID ?>" data-bid="<?v. $this->TID ?>"></div>
 	<script>
 		$(document).ready(function(){
 			getReplyList();
 		});
 	</script>
+
 <?php } ?>
+
+<?php if(isset(self::$_Value['List'])) echo self::$_Value['List']; ?>

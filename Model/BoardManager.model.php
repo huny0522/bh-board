@@ -104,6 +104,7 @@ class BoardManagerModel extends \BH_Model{
 		$this->data['new_view_day']->MaxValue = 50;
 		$this->data['new_view_day']->DefaultValue = 1;
 
+		$this->data['reg_date'] = new \BH_ModelData(ModelType::Datetime, false, '등록일');
 	}
 
 	public function CreateTableBoard($board_nm){

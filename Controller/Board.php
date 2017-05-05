@@ -57,6 +57,16 @@ class BoardController{
 		$res = $this->GetAuth('List');
 		if(!$res) Redirect('-1', _NO_AUTH);
 
+		// 공지를 불러온다.
+		App::$_Value['notice'] = array();
+		$_GET['searchKeyword'] = isset($_GET['searchKeyword']) ? trim($_GET['searchKeyword']) : '';
+		if((!isset($_GET['page']) || $_GET['page'] < 2) && !strlen($_GET['searchKeyword'])){
+			$qry = new \BH_DB_GetList($this->model->table);
+			$qry->AddWhere('delis=\'n\'');
+			$qry->AddWhere('notice=\'y\'');
+			App::$_Value['notice'] = $qry->GetRows();
+		}
+
 		// 리스트를 불러온다.
 		$dbList = new \BH_DB_GetListWithPage($this->model->table);
 		$dbList->page = isset($_GET['page']) ? $_GET['page'] : 1;

@@ -45,7 +45,7 @@ use \BH_Application as App;
 			</td>
 		</tr>
 
-		<?php if(_MEMBERIS !== true || !strlen($Model->GetValue('muid'))){?>
+		<?php if(_MEMBERIS !== true || ($this->Action == 'Modify' && !strlen($Model->GetValue('muid')))){?>
 			<tr>
 				<th><?p. $Model->data['mname']->DisplayName ?></th>
 				<td>

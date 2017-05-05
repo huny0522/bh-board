@@ -8,28 +8,44 @@ use \BH_Application as App;
  * @var $this \BH_Application
  */
 ?>
+<?php if($Data->result && $Data->totalRecord){ ?>
 
-<table class="list">
-	<colgroup>
-		<col style="width:7%;">
-		<col style="">
-		<col style="width:15%;">
-		<col style="width:7%;">
-		<col style="width:7%;">
-		<col style="width:18%;">
-	</colgroup>
-	<thead>
-	<tr>
-		<th>번호</th>
-		<th><?p. $Model->data['subject']->DisplayName ?></th>
-		<th><?p. $Model->data['mname']->DisplayName ?></th>
-		<th><?p. $Model->data['hit']->DisplayName ?></th>
-		<th><?p. $Model->data['recommend']->DisplayName ?></th>
-		<th><?p. $Model->data['reg_date']->DisplayName ?></th>
-	</tr>
-	</thead>
-	<tbody>
-	<?php if($Data->result && $Data->totalRecord){ ?>
+	<table class="list">
+		<colgroup>
+			<col style="width:7%;">
+			<col style="">
+			<col style="width:15%;">
+			<col style="width:7%;">
+			<col style="width:7%;">
+			<col style="width:18%;">
+		</colgroup>
+		<thead>
+		<tr>
+			<th>번호</th>
+			<th><?p. $Model->data['subject']->DisplayName ?></th>
+			<th><?p. $Model->data['mname']->DisplayName ?></th>
+			<th><?p. $Model->data['hit']->DisplayName ?></th>
+			<th><?p. $Model->data['recommend']->DisplayName ?></th>
+			<th><?p. $Model->data['reg_date']->DisplayName ?></th>
+		</tr>
+		</thead>
+		<tbody>
+		<?php foreach(App::$_Value['notice'] as $row){ ?>
+			<tr class="notice">
+				<td>공지</td>
+				<td class="left">
+					<?php if($Ctrl->managerIs || $row['secret'] == 'n' || (_MEMBERIS === true && $_SESSION['member']['level'] == _SADMIN_LEVEL) || ($row['first_member_is'] == 'y' && strlen($row['muid']))){ ?>
+						<a href="<?a. 'View' ?>/<?p. toBase($row['seq']) ?><?fq. '' ?>"><?v. $row['subject']; ?><?php if($row['reply_cnt']){ ?><span class="ReplyCount">[<?p. $row['reply_cnt'] ?>]</span><?php } ?></a>
+					<?php } else { ?>
+						<a href="<?a. 'View' ?>/<?p. toBase($row['seq']) ?><?fq. '' ?>" class="passwordView"><?v. $row['subject']; ?><?php if($row['reply_cnt']){ ?><span class="ReplyCount">[<?p. $row['reply_cnt'] ?>]</span><?php } ?></a>
+					<?php } ?>
+				</td>
+				<td><?v. $row['mname']; ?></td>
+				<td><?v. $row['hit']; ?></td>
+				<td><?v. $row['recommend']; ?></td>
+				<td><?v. KrDate($row['reg_date'],'ymd', 24) ?></td>
+			</tr>
+		<?php } ?>
 		<?php
 		while($row = $Data->Get()){
 			$secretIcon = $row['secret'] == 'y' ? '<span class="secretDoc">[비밀글]</span> ' : '';
@@ -51,14 +67,13 @@ use \BH_Application as App;
 				<td><?v. KrDate($row['reg_date'],'ymd', 24) ?></td>
 			</tr>
 		<?php } ?>
-	<?php } else{ ?>
-		<tr><td colspan="6" class="nothing">등록된 게시물이 없습니다.</td></tr>
-	<?php } ?>
-	</tbody>
-</table>
+		</tbody>
+	</table>
+<?php } else{ ?>
+	<p class="nothing">등록된 게시물이 없습니다.</p>
+<?php } ?>
 
 <form id="bbsSchForm" name="bbsSchForm" method="get" action="<?a. '' ?>" class="boardSearch leftBoardSearch">
-	<?p. $this->GetFollowQueryInput() ?>
 	<select name="searchType">
 		<?p. SelectOption(array('snc' => '제목+내용', 's' => '제목', 'c' => '내용'), isset($_GET['searchType']) ? $_GET['searchType'] : '') ?>
 	</select>
