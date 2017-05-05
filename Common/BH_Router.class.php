@@ -118,6 +118,7 @@ class BH_Router
 				App::$Instance->Action = $this->GetUrl[3];
 				App::$Instance->ID = $this->GetUrl[4];
 				App::$Instance->CtrlUrl = _URL.'/'.App::$Instance->ControllerName.'/'.App::$Instance->TID;
+				if($this->GetUrl[1] == 'Board') $this->Layout = '_Board';
 				break;
 
 				default:
