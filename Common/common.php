@@ -3,6 +3,9 @@
  * Bang Hun.
  * 16.07.10
  */
+use \BH_Common as CF;
+use \BH_Application as App;
+
 define('_OB_COMP', 'zlib.output_compression');
 define('_POSTIS', $_SERVER['REQUEST_METHOD'] == 'POST');
 define('_AJAXIS', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
@@ -25,39 +28,6 @@ if(_CREATE_HTML_ALL === true){
 	ReplaceHTMLAll(_SKINDIR, _HTMLDIR);
 	ReplaceCSS2ALL(_HTMLDIR, _HTMLDIR);
 	ReplaceCSS2ALL(_SKINDIR, _HTMLDIR);
-}
-
-class BH{
-	public static function &APP(){
-		return \BH_Application::GetInstance();
-	}
-	public static function &CF(){
-		return \BH_Common::GetInstance();
-	}
-	public static function &CTRL(){
-		return \BH_Application::GetInstance()->ControllerInstance;
-	}
-	public static function &ROUTER(){
-		return \BH_Application::GetInstance()->RouterInstance;
-	}
-	public static function DBGet($table){
-		return new \BH_DB_Get($table);
-	}
-	public static function DBList($table){
-		return new \BH_DB_GetList($table);
-	}
-	public static function DBListPage($table){
-		return new \BH_DB_GetListWithPage($table);
-	}
-	public static function DBInsert($table){
-		return new \BH_DB_Insert($table);
-	}
-	public static function DBUpdate($table){
-		return new \BH_DB_Update($table);
-	}
-	public static function DBDelete($table){
-		return new \BH_DB_Delete($table);
-	}
 }
 
 define('ENG_NUM', '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
@@ -224,7 +194,7 @@ function Download($path, $fname){
 	$temp = explode('/', $path);
 	if(!$fname) $fname = $temp[sizeof($temp)-1];
 
-	if(isset(BH::CTRL()->Layout)) unset(BH::CTRL()->Layout);
+	if(isset(App::$ControllerInstance->Layout)) unset(App::$ControllerInstance->Layout);
 
 	ignore_user_abort(true);
 	set_time_limit(0); // disable the time limit for this script
@@ -362,7 +332,7 @@ function GetDBText($txt){
 		foreach($txt as $k => &$v) $v = GetDBText($v);
 		return $txt;
 	}
-	else return htmlspecialchars(stripslashes($txt));
+	else return htmlspecialchars($txt);
 }
 
 function GetDBRaw($txt){
@@ -370,7 +340,7 @@ function GetDBRaw($txt){
 		foreach($txt as $k => &$v) $v = GetDBRaw($v);
 		return $txt;
 	}
-	else return RemoveScriptTag(stripslashes($txt));
+	else return RemoveScriptTag($txt);
 }
 
 function my_bcmod( $x, $y ){

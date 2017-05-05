@@ -1,5 +1,8 @@
 <?php
 if(_BH_ !== true) exit;
+use \BH_Common as CF;
+use \BH_Application as App;
+
 /**
  * @var $this BH_Application
  */
@@ -8,7 +11,7 @@ if(_BH_ !== true) exit;
 <html>
 <head>
 
-	<title><?p. $this->Title ? $this->Title.' - ' : '' ?><?p. BH::CF()->Config('Default','SiteName') ?></title>
+	<title><?p. $this->Title ? $this->Title.' - ' : '' ?><?p. CF::Get()->Config('Default','SiteName') ?></title>
 
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=Edge">

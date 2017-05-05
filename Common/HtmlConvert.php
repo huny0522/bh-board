@@ -3,6 +3,9 @@
  * Bang Hun.
  * 16.07.10
  */
+use \BH_Common as CF;
+use \BH_Application as App;
+
 define('_BHSTYLEBEGIN', '//BH_STYLE:');
 define('_BHSTYLEND', '//BH_STYLE_END');
 $styleData = false;

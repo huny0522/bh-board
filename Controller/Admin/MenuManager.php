@@ -5,8 +5,9 @@
  */
 namespace Admin;
 use \BH_Application as App;
-use \BH as BH;
-require _COMMONDIR.'/BH_Category.class.php';
+use \BH_Common as CF;
+
+require_once _COMMONDIR.'/BH_Category.class.php';
 class MenuManagerController extends \BH_Category{
 
 	/**
@@ -15,14 +16,17 @@ class MenuManagerController extends \BH_Category{
 	public $model;
 
 	public function __construct(){
+	}
+
+	public function __init(){
 		App::$_Value['NowMenu'] = '004';
-		BH::CF()->AdminAuth();
-		BH::APP()->Layout = '_Admin';
-		parent::__construct();
+		CF::Get()->AdminAuth();
+		App::$Instance->Layout = '_Admin';
+		parent::__init();
 	}
 
 	public function PostGetBidList(){
-		$dbGetList = BH::DBList();
+		$dbGetList = new \BH_DB_GetList();
 		if($_POST['type'] == 'board') $dbGetList->table = TABLE_BOARD_MNG;
 		else if($_POST['type'] == 'content') $dbGetList->table = TABLE_CONTENT;
 		else {

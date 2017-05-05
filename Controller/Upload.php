@@ -5,10 +5,9 @@
  */
 require _COMMONDIR.'/FileUpload.php';
 use \BH_Application as App;
-use \BH as BH;
+use \BH_Common as CF;
+
 class UploadController{
-	public function __construct(){
-	}
 
 	// 임시 파일 업로드
 	public function PostImageUpload(){

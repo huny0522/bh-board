@@ -6,46 +6,50 @@
 
 namespace Admin;
 use \BH_Application as App;
-use \BH as BH;
+use \BH_Common as CF;
+
 class PopupManagerController
 {
 	/**
 	 * @var \PopupModel
 	 */
 	public $model = null;
+
 	public function __construct(){
-		App::$_Value['NowMenu'] = '001003';
-		BH::CF()->AdminAuth();
-
-		require _DIR.'/Model/Popup.model.php';
+		require_once _MODELDIR.'/Popup.model.php';
 		$this->model = new \PopupModel();
+	}
 
-		BH::APP()->Layout = '_Admin';
+	public function __init(){
+		App::$_Value['NowMenu'] = '001003';
+		CF::Get()->AdminAuth();
+
+		App::$Instance->Layout = '_Admin';
 	}
 
 	public function Index(){
 		// 리스트를 불러온다.
-		$dbGetList = BH::DBListPage($this->model->table);
+		$dbGetList = new \BH_DB_GetListWithPage($this->model->table);
 		$dbGetList->page = isset($_GET['page']) ? $_GET['page'] : 1;
-		$dbGetList->pageUrl = BH::APP()->URLAction().BH::APP()->GetFollowQuery('page');
+		$dbGetList->pageUrl = App::$Instance->URLAction().App::$Instance->GetFollowQuery('page');
 		$dbGetList->articleCount = 20;
 		$dbGetList->Run();
 
-		BH::APP()->_View($this->model, $dbGetList);
+		App::$Instance->_View($this, $this->model, $dbGetList);
 	}
 
 	public function Write(){
-		BH::APP()->_View($this->model);
+		App::$Instance->_View($this, $this->model);
 	}
 
 	public function Modify(){
-		$res = $this->model->DBGet(to10(BH::APP()->ID));
+		$res = $this->model->DBGet(to10(App::$Instance->ID));
 
 		if(!$res->result){
 			Redirect('-1', $res->message);
 		}
-		BH::APP()->Html = 'Write';
-		BH::APP()->_View($this->model);
+		App::$Instance->Html = 'Write';
+		App::$Instance->_View($this, $this->model);
 	}
 	public function PostWrite(){
 		$res = $this->model->SetPostValues();
@@ -67,22 +71,22 @@ class PopupManagerController
 
 			$error = $this->model->GetErrorMessage();
 			if(sizeof($error)){
-				Redirect(BH::APP()->URLAction().BH::APP()->GetFollowQuery(), $error[0]);
+				Redirect(App::$Instance->URLAction().App::$Instance->GetFollowQuery(), $error[0]);
 			}
 
 			$res = $this->model->DBInsert();
 			if($res->result){
-				BH::CF()->ContentImageUpate($this->model->table, array('seq' => $res->id), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
+				CF::Get()->ContentImageUpate($this->model->table, array('seq' => $res->id), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
 
-				Redirect(BH::APP()->URLAction().BH::APP()->GetFollowQuery());
+				Redirect(App::$Instance->URLAction().App::$Instance->GetFollowQuery());
 			}else{
-				Redirect(BH::APP()->URLAction().BH::APP()->GetFollowQuery(), 'ERROR');
+				Redirect(App::$Instance->URLAction().App::$Instance->GetFollowQuery(), 'ERROR');
 			}
 		}
 	}
 
 	public function PostModify(){
-		$res = $this->model->DBGet(to10(BH::APP()->ID));
+		$res = $this->model->DBGet(to10(App::$Instance->ID));
 		$res = $this->model->SetPostValues();
 		if(!$res->result){
 			Redirect('-1',$res->message);
@@ -103,13 +107,13 @@ class PopupManagerController
 
 			$error = $this->model->GetErrorMessage();
 			if(sizeof($error)){
-				Redirect(BH::APP()->URLAction().BH::APP()->GetFollowQuery(), $error[0]);
+				Redirect(App::$Instance->URLAction().App::$Instance->GetFollowQuery(), $error[0]);
 			}
 
 			$res = $this->model->DBUpdate();
 			if($res->result){
-				BH::CF()->ContentImageUpate($this->model->table, array('seq' => to10(BH::APP()->ID)), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
-				$url = BH::APP()->URLAction().BH::APP()->GetFollowQuery();
+				CF::Get()->ContentImageUpate($this->model->table, array('seq' => to10(App::$Instance->ID)), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
+				$url = App::$Instance->URLAction().App::$Instance->GetFollowQuery();
 				Redirect($url, '수정완료');
 			}else{
 				Redirect('-1', 'ERROR');
@@ -121,7 +125,7 @@ class PopupManagerController
 		if(isset($_POST['seq']) && $_POST['seq'] != ''){
 			$res = $this->model->DBDelete(to10($_POST['seq']));
 			if($res->result){
-				Redirect(BH::APP()->URLAction().BH::APP()->GetFollowQuery(), '삭제되었습니다.');
+				Redirect(App::$Instance->URLAction().App::$Instance->GetFollowQuery(), '삭제되었습니다.');
 			}else{
 				Redirect('-1', $res->message);
 			}

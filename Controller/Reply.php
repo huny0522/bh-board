@@ -4,7 +4,8 @@
  * 16.07.10
  */
 use \BH_Application as App;
-use \BH as BH;
+use \BH_Common as CF;
+
 class ReplyController{
 	/**
 	 * @var ReplyModel
@@ -15,23 +16,27 @@ class ReplyController{
 	 */
 	public $boardManger;
 	public $managerIs = false;
+
 	public function __construct(){
-		if(_POSTIS !== true) exit;
-		App::$_Value['article_seq'] = SetDBInt((string)$_POST['article_seq']);
-
-		if(!isset(BH::APP()->TID) || BH::APP()->TID == ''){
-			exit;
-		}
-		unset(BH::APP()->Layout);
-
 		require _DIR.'/Model/Reply.model.php';
 		require _DIR.'/Model/BoardManager.model.php';
 
 		$this->model = new \ReplyModel();
 		$this->boardManger = new \BoardManagerModel();
-		$this->boardManger->DBGet(BH::APP()->TID);
+	}
 
-		$mid = BH::CF()->GetMember('mid');
+	public function __init(){
+		if(_POSTIS !== true) exit;
+		App::$_Value['article_seq'] = SetDBInt((string)$_POST['article_seq']);
+
+		if(!isset(App::$Instance->TID) || App::$Instance->TID == ''){
+			exit;
+		}
+		unset(App::$Instance->Layout);
+
+		$this->boardManger->DBGet(App::$Instance->TID);
+
+		$mid = CF::Get()->GetMember('mid');
 		$manager = explode(',', $this->boardManger->GetValue('manager'));
 		if ($mid !== false && in_array($mid, $manager)) {
 			$this->managerIs = true;
@@ -48,9 +53,9 @@ class ReplyController{
 		$myArticleIs = $this->MyArticleCheck();
 
 		// 리스트를 불러온다.
-		$dbList = BH::DBListPage($this->model->table);
+		$dbList = new \BH_DB_GetListWithPage($this->model->table);
 		$dbList->page = isset($_POST['page']) ? $_POST['page'] : 1;
-		//$dbList->pageUrl = BH::APP()->URLAction('').BH::APP()->GetFollowQuery('page');
+		//$dbList->pageUrl = App::$Instance->URLAction('').App::$Instance->GetFollowQuery('page');
 		$dbList->pageUrl = '#';
 		$dbList->articleCount = isset($this->boardManger) ? $this->boardManger->GetValue('article_count') : 20;
 		$dbList->AddWhere('article_seq='.App::$_Value['article_seq']);
@@ -93,11 +98,11 @@ class ReplyController{
 		}
 
 		if(isset($this->boardManger)){
-			$html = '/'.BH::APP()->ControllerName.'/'.$this->boardManger->GetValue('reply_skin').'/Index.html';
-			if(file_exists(_SKINDIR.$html)) BH::APP()->Html = $html;
+			$html = '/'.App::$Instance->ControllerName.'/'.$this->boardManger->GetValue('reply_skin').'/Index.html';
+			if(file_exists(_SKINDIR.$html)) App::$Instance->Html = $html;
 		}
 
-		BH::APP()->_View(null, $dbList);
+		App::$Instance->_View($this, null, $dbList);
 	}
 
 	public function PostWrite($answerIs = false){
@@ -129,7 +134,7 @@ class ReplyController{
 
 		if($answerIs){
 			$target = SetDBInt($_POST['target_seq']);
-			$dbGet = BH::DBGet($this->model->table);
+			$dbGet = new \BH_DB_Get($this->model->table);
 			$dbGet->AddWhere('seq='.$target);
 			$dbGet->SetKey(array('seq', 'first_seq', 'first_member_is', 'secret'));
 			$targetData = $dbGet->Get();
@@ -159,7 +164,7 @@ class ReplyController{
 
 		// 회원유무
 		if(_MEMBERIS === true){
-			$member = BH::CF()->GetMember();
+			$member = CF::Get()->GetMember();
 
 			$this->model->SetValue('muid', $_SESSION['member']['muid']);
 			$this->model->SetValue('mlevel', $member['level']);
@@ -168,13 +173,13 @@ class ReplyController{
 
 		// 답글쓰기라면 sort 정렬
 		if($answerIs){
-			$qry = BH::DBGet($this->model->table);
+			$qry = new \BH_DB_Get($this->model->table);
 			$qry->SetKey('mname, depth, muid, sort1, sort2');
 			$qry->AddWhere('article_seq = %d', App::$_Value['article_seq']);
 			$qry->AddWhere('seq = %d', $target);
 			$row = $qry->Get();
 
-			$qry = BH::DBUpdate($this->model->table);
+			$qry = new \BH_DB_Update($this->model->table);
 			$qry->SetData('sort2', 'sort2 + 1');
 			$qry->AddWhere('article_seq = %d', App::$_Value['article_seq']);
 			$qry->AddWhere('sort1 = %d', $row['sort1']);
@@ -226,7 +231,7 @@ class ReplyController{
 		if(!_password_verify($_POST['pwd'], $this->model->GetValue('pwd'))){
 			$same = false;
 			if($this->model->GetValue('first_seq') && $this->model->GetValue('first_member_is') == 'n'){
-				$dbGet = BH::DBGet($this->model->table);
+				$dbGet = new \BH_DB_Get($this->model->table);
 				$dbGet->AddWhere('article_seq = '.SetDBInt($_POST['article_seq']));
 				$dbGet->AddWhere('seq = '.$this->model->GetValue('first_seq'));
 				$dbGet->SetKey('pwd');
@@ -372,7 +377,7 @@ class ReplyController{
 
 		if($this->managerIs || (_MEMBERIS === true && $_SESSION['member']['level'] == _SADMIN_LEVEL)) $myArticleIs = true;
 		else{
-			$dbGet = BH::DBGet($this->model->boardTable);
+			$dbGet = new \BH_DB_Get($this->model->boardTable);
 			$dbGet->AddWhere('seq='.App::$_Value['article_seq']);
 			$dbGet->SetKey(array('muid','pwd','secret'));
 			$boardArticle = $dbGet->Get();

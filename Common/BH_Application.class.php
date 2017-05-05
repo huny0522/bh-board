@@ -5,10 +5,10 @@
  */
 class BH_Application{
 	/** @var  self */
-	private static $Instance;
-	public $ControllerInstance = null;
+	public static $Instance;
+	public static $ControllerInstance = null;
 	/** @var BH_Router */
-	public $RouterInstance = null;
+	public static $RouterInstance = null;
 	private $RunIs = false;
 
 	public $ControllerName = '';
@@ -41,21 +41,13 @@ class BH_Application{
 	private function __construct(){
 	}
 
-	public static function &GetInstance(){
+	public static function &Get(){
 		if(!isset(self::$Instance)) self::$Instance = new self();
 		return self::$Instance;
 	}
 
-	public static function &CTRL(){
-		return self::$Instance->ControllerInstance;
-	}
-
-	public static function &Router(){
-		return self::$Instance->RouterInstance;
-	}
-
-	public function &_CF(){
-		return \BH_Common::GetInstance();
+	public static function &_CF(){
+		return \BH_Common::Get();
 	}
 
 	public function run(){
@@ -63,8 +55,8 @@ class BH_Application{
 		$this->RunIs = true;
 		if(_DEVELOPERIS === true) $this->InstallIs = \DB::SQL()->TableExists(TABLE_MEMBER);
 
-		$this->RouterInstance = new \BH_Router();
-		$this->RouterInstance->router();
+		$this::$RouterInstance = new \BH_Router();
+		$this::$RouterInstance->router();
 
 		if(!$this->ControllerName) $this->ControllerName = _DEFAULT_CONTROLLER;
 		if(!strlen($this->Action)) $this->Action = 'Index';
@@ -91,11 +83,11 @@ class BH_Application{
 			$action = _POSTIS === true ? 'Post'.$this->Action : $this->Action;
 
 			if(method_exists($controller, $action) && is_callable(array($controller, $action))){
-				$this->ControllerInstance = new $controller();
-				$this->Layout = $this->RouterInstance->Layout;
+				$this::$ControllerInstance = new $controller();
+				$this->Layout = $this::$RouterInstance->Layout;
 				if(_AJAXIS === true) unset($this->Layout);
-				if(method_exists($this->ControllerInstance, '__Init')) $this->ControllerInstance->__Init();
-				$this->ControllerInstance->{$action}();
+				if(method_exists($this::$ControllerInstance, '__Init')) $this::$ControllerInstance->__Init();
+				$this::$ControllerInstance->{$action}();
 			}else{
 				if(_DEVELOPERIS === true) echo '메소드가 존재하지 않습니다.(#2)';
 				else Redirect(_URL.'/');
@@ -180,10 +172,9 @@ class BH_Application{
 	 * @param $Model mixed
 	 * @param $Data mixed
 	 */
-	public function _View($Model = NULL, $Data = NULL){
-		$Ctrl = &$this->ControllerInstance;
-		$Router = &$this->RouterInstance;
-		$viewAction = $this->Html ? $this->Html : $this->Action;
+	public function _View(&$Ctrl, $Model = NULL, $Data = NULL){
+		$Router = &$this::$RouterInstance;
+		$viewAction = isset($Ctrl->Html) && strlen($Ctrl->Html) ? $Ctrl->Html : ($this->Html ? $this->Html : $this->Action);
 		if(!$viewAction) $viewAction = 'Index';
 
 		$html = substr($viewAction, 0, 1) == '/' ? $viewAction :
@@ -202,36 +193,25 @@ class BH_Application{
 
 		if(isset($this->Layout)){
 			$layout = '/Layout/'.($this->Layout ? $this->Layout.'.html' :  _DEFAULT_LAYOUT.'.html');
-			if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true){
-				ReplaceHTMLFile(_SKINDIR.$layout, _HTMLDIR.$layout);
-			}
-			if($layout && file_exists(_HTMLDIR.$layout)){
-				require _HTMLDIR.$layout;
-			}
+			if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR.$layout, _HTMLDIR.$layout);
+			if($layout && file_exists(_HTMLDIR.$layout)) require _HTMLDIR.$layout;
 		}
-
 		echo $_BODY;
 	}
 
-	public function _GetView($Model = NULL, $Data = NULL){
-		$Ctrl = &$this->ControllerInstance;
-		$Router = &$this->RouterInstance;
-		$viewAction = $this->Html ? $this->Html : $this->Action;
+	public function _GetView($Ctrl, $Model = NULL, $Data = NULL){
+		$Router = &$this::$RouterInstance;
+		$viewAction = isset($Ctrl->Html) && strlen($Ctrl->Html) ? $Ctrl->Html : ($this->Html ? $this->Html : $this->Action);
 		if(!$viewAction) $viewAction = 'Index';
 
 		$html = substr($viewAction, 0, 1) == '/' ? $viewAction :
 			($this->NativeDir ? '/'.$this->NativeDir : '').'/'.$this->ControllerName.'/'.(substr($viewAction, -5) == '.html' ? $viewAction : $viewAction.'.html');
 
-		if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true){
-			ReplaceHTMLFile(_SKINDIR.$html, _HTMLDIR.$html);
-		}
+		if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR.$html, _HTMLDIR.$html);
 
 		ob_start();
-		if(file_exists(_HTMLDIR.$html)){
-			require _HTMLDIR . $html;
-		}else{
-			echo 'ERROR : NOT EXISTS TEMPLATE : '.$viewAction;
-		}
+		if(file_exists(_HTMLDIR.$html)) require _HTMLDIR . $html;
+		else echo 'ERROR : NOT EXISTS TEMPLATE : '.$viewAction;
 		return ob_get_clean();
 	}
 

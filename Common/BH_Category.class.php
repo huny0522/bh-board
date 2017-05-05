@@ -3,7 +3,8 @@
  * Bang Hun.
  * 16.07.10
  */
-use \BH as BH;
+use \BH_Common as CF;
+use \BH_Application as App;
 class BH_Category{
 	const ROOT_CATEGORY_CODE = '_ROOT';
 
@@ -17,14 +18,14 @@ class BH_Category{
 	}
 
 	public function Index(){
-		BH::APP()->_View($this->model, $this->model->GetChild());
+		App::$Instance->_View($this, $this->model, $this->model->GetChild());
 	}
 
 	public function Write(){
-		unset(BH::APP()->Layout);
+		unset(App::$Instance->Layout);
 		if(!isset($_GET['category']) || $_GET['category'] == '') exit;
 		$data = $this->model->DBGet($_GET['category']);
-		BH::APP()->_View($this->model, $data);
+		App::$Instance->_View($this, $this->model, $data);
 	}
 
 	public function PostWrite(){
@@ -49,7 +50,7 @@ class BH_Category{
 		$res = $this->model->SetPostValues();
 		if(!$res->result) JSON(false, $res->message);
 		else {
-			$dbGet = BH::DBGet($this->model->table);
+			$dbGet = new \BH_DB_Get($this->model->table);
 			if($_POST['parent'] === ''){
 				$dbGet->AddKey('MAX(category) as category');
 				$dbGet->AddWhere('LENGTH(category) = '.$this->model->CategoryLength);
@@ -70,7 +71,7 @@ class BH_Category{
 			}
 			$this->model->SetValue('category', $_POST['parent'].$newCategory);
 
-			$dbGet = BH::DBGet($this->model->table);
+			$dbGet = new \BH_DB_Get($this->model->table);
 			$dbGet->AddWhere('category = '.SetDBText($_POST['parent']));
 			$dbGet->AddKey('parent_enabled');
 			$dbGet->AddKey('enabled');
@@ -143,7 +144,7 @@ class BH_Category{
 	// 메뉴삭제
 	// 하위메뉴까지 삭제
 	public function PostDeleteMenu(){
-		$dbGet = BH::DBGet($this->model->table);
+		$dbGet = new \BH_DB_Get($this->model->table);
 		$dbGet->SetKey(array('category', 'sort'));
 		$dbGet->AddWhere('category = '.SetDBText($_POST['category']));
 		$data = $dbGet->Get();
@@ -151,11 +152,11 @@ class BH_Category{
 		$parent = substr($data['category'], 0, strlen($data['category']) - $this->model->CategoryLength);
 
 		if($data !== false && $data){
-			$qry = BH::DBDelete($this->model->table);
+			$qry = new \BH_DB_Delete($this->model->table);
 			$qry->AddWhere('LEFT(category, %d) = %s', strlen($_POST['category']), $_POST['category']);
 			$res = $qry->Run();
 			if($res){
-				$qry = BH::DBUpdate($this->model->table);
+				$qry = new \BH_DB_Update($this->model->table);
 				$qry->SetData('sort', 'sort - 1');
 				$qry->AddWhere('LEFT(category, %d) = %s', strlen($parent), $parent);
 				$qry->AddWhere('LENGTH(category) = %d', strlen($parent) + $this->model->CategoryLength);

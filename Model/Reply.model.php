@@ -5,12 +5,14 @@
  * 16.07.10
  *
  */
+use \BH_Common as CF;
+use \BH_Application as App;
 
 class ReplyModel extends \BH_Model{
 	public $bid = '';
 	public $boardTable = '';
 	public function __Init(){
-		$this->bid = \BH::APP()->TID;
+		$this->bid = App::$Instance->TID;
 		$this->Key= array('article_seq', 'seq');
 		$this->AddExcept('seq');
 		$this->table = TABLE_FIRST.'bbs_'.$this->bid.'_reply';

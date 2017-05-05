@@ -1,5 +1,8 @@
 <?php
 if(_BH_ !== true) exit;
+use \BH_Common as CF;
+use \BH_Application as App;
+
 ob_start();
 /**
  * @var $this BH_Application
@@ -31,14 +34,14 @@ $this->JSAdd('admin.js', 10);
 				<ul>
 					<?php
 					$NM = self::$_Value['NowMenu'];
-					$AdminAuth = explode(',', BH::CF()->GetMember('admin_auth'));
-					foreach(BH::CF()->AdminMenu as $c => $v){
+					$AdminAuth = explode(',', CF::Get()->GetMember('admin_auth'));
+					foreach(App::$RouterInstance->AdminMenu as $c => $v){
 						if(strlen($c) == 3 && ($_SESSION['member']['level'] == _SADMIN_LEVEL || in_array($c, $AdminAuth))){
 							echo '<li '.(substr($NM,0,3) == $c ? ' class="Active"' : '').'>'
 								.'<span><a href="'. _ADMINURL.'/'.$v['Category'].'">'.$v['Name'].'</a></span>';
 
 							$sub = '';
-							foreach(BH::CF()->AdminMenu as $c2 => $v2){
+							foreach(App::$RouterInstance->AdminMenu as $c2 => $v2){
 								if(strlen($c2) == 6 && substr($c2, 0, 3) == $c && ($_SESSION['member']['level'] == _SADMIN_LEVEL || in_array($c2, $AdminAuth))){
 									$sub .= '<li '.(substr($NM,0,6) == $c2 ? ' class="Active"' : '').'>'
 										.'<span><a href="'. _ADMINURL.'/'.$v2['Category'].'">'.$v2['Name'].'</a></span>';
@@ -61,16 +64,14 @@ $this->JSAdd('admin.js', 10);
 		<div id="footer_wrap"></div>
 	</footer>
 </div>
-<?php if($Ctrl->Controller != 'Home'){ ?>
+<?php if(App::$Instance->ControllerName != 'Home'){ ?>
 	<script>
 		$(document).ready(function(){
 			if(common.getCookie('managerSideView') == 'no'){
 				$('#wrap').addClass('sideHidden');
 			}
 
-			//if($('#tnb ul > li.Active').length && $('#tnb ul > li.Active ol').length){
 			$('#container_wrap').append('<aside id="sideMenu"><a href="#" id="sideClose" title="닫기"><i class="fa fa-angle-left"></i></a><h2>' + ( $('#tnb ul > li.Active').length ? $('#tnb ul > li.Active a').eq(0).text() : '' ) + '</h2><ul>'+( $('#tnb ul > li.Active ol').length ? $('#tnb ul > li.Active ol').html() : '' ) +'</ul></aside>')
-			//}
 
 			$(document).on('click', '#sideClose', function(e){
 				e.preventDefault();

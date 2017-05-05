@@ -3,48 +3,55 @@
  * Bang Hun.
  * 16.07.10
  */
+use \BH_Common as CF;
+use \BH_Application as App;
 
 class BH_HtmlCreate
 {
 	public static function CreateController($ControllerName, $ModelName, $TableName){
 		if(_DEVELOPERIS !== true) return;
-		$path = _CONTROLLERDIR.'/'.BH::APP()->NativeDir.'/'.$ControllerName.'.php';
+		$path = _CONTROLLERDIR.'/'.App::$Instance->NativeDir.'/'.$ControllerName.'.php';
 		$modelPath = _MODELDIR.'/'.$ModelName.'.model.php';
 		$text = "<?php
 use \\BH_Application as App;
-use \\BH as BH;
+use \\BH_Common as CF;
+
 class {$ControllerName}Controller{
-	/** @var {$ModelName} */
+	/** @var \\{$ModelName}Model */
 	public \$model;
+	
+	public function __construct(){
+		require_once _MODELDIR.'/{$ModelName}.model.php';
+		\$this->model = new \\{$ModelName}Model();
+	}
+	
 	public function __Init(){
-		require _MODELDIR.'/{$ModelName}.model.php';
 		if(_DEVELOPERIS === true) \\BH_HtmlCreate::Create('{$ControllerName}', '{$ModelName}');
-		\$this->model = new {$ModelName}Model();
 	}
 
 	public function Index(){
-		\$qry = BH::DBListPage(\$this->model->table);
+		\$qry = new \\BH_DB_GetListWithPage(\$this->model->table);
 		\$qry->articleCount = 10;
 		\$qry->page = isset(\$_GET['page']) ? \$_GET['page'] : 0;
-		\$qry->pageUrl = BH::APP()->URLAction().BH::APP()->GetFollowQuery('page');
+		\$qry->pageUrl = App::\$Instance->URLAction().App::\$Instance->GetFollowQuery('page');
 		\$qry->Run();
 
-		BH::APP()->_View(\$this->model, \$qry);
+		App::\$Instance->_View(\$this, \$this->model, \$qry);
 	}
 
 	public function View(){
 		\$this->_ModelSet();
-		BH::APP()->_View(\$this->model);
+		App::\$Instance->_View(\$this, \$this->model);
 	}
 
 	public function Write(){
-		BH::APP()->_View(\$this->model);
+		App::\$Instance->_View(\$this, \$this->model);
 	}
 
 	public function Modify(){
 		\$this->_ModelSet();
-		\$this->Html = 'Write';
-		BH::APP()->_View(\$this->model);
+		App::\$Instance->Html = 'Write';
+		App::\$Instance->_View(\$this, \$this->model);
 	}
 
 	public function PostWrite(){
@@ -52,16 +59,16 @@ class {$ControllerName}Controller{
 		\$err = \$this->model->GetErrorMessage();
 		if(sizeof(\$err)){
 			App::\$_Value['error'] = \$err[0];
-			BH::APP()->_View(\$this->model);
+			App::\$Instance->_View(\$this, \$this->model);
 			return;
 		}
 		\$res = \$this->model->DBInsert();
 		if(!\$res->result) {
 			App::\$_Value['error'] = \$res->message ? \$res->message : 'Query Error';
-			BH::APP()->_View(\$this->model);
+			App::\$Instance->_View(\$this, \$this->model);
 			return;
 		}
-		else Redirect(BH::APP()->URLAction().BH::APP()->GetFollowQuery());
+		else Redirect(App::\$Instance->URLAction().App::\$Instance->GetFollowQuery());
 	}
 
 	public function PostModify(){
@@ -70,32 +77,32 @@ class {$ControllerName}Controller{
 		\$err = \$this->model->GetErrorMessage();
 		if(sizeof(\$err)){
 			App::\$_Value['error'] = \$err[0];
-			BH::APP()->_View(\$this->model);
+			App::\$Instance->_View(\$this, \$this->model);
 			return;
 		}
 		\$res = \$this->model->DBUpdate();
 		if(!\$res->result) {
 			App::\$_Value['error'] = \$res->message ? \$res->message : 'Query Error';
-			BH::APP()->_View(\$this->model);
+			App::\$Instance->_View(\$this, \$this->model);
 			return;
 		}
-		else Redirect(BH::APP()->URLAction('View/'.\$this->ID).BH::APP()->GetFollowQuery());
+		else Redirect(App::\$Instance->URLAction('View/'.App::\$Instance->ID).App::\$Instance->GetFollowQuery());
 	}
 
 	public function PostDelete(){
-		\$res = \$this->model->DBDelete(\$this->ID);
+		\$res = \$this->model->DBDelete(App::\$Instance->ID);
 
 		if(\$res->result){
-			Redirect(BH::APP()->URLAction('').BH::APP()->GetFollowQuery());
+			Redirect(App::\$Instance->URLAction('').App::\$Instance->GetFollowQuery());
 		}
 		else{
-			Redirect(BH::APP()->URLAction('View/'.\$this->ID).BH::APP()->GetFollowQuery(), \$res->message ? \$res->message : 'Query Error');
+			Redirect(App::\$Instance->URLAction('View/'.App::\$Instance->ID).App::\$Instance->GetFollowQuery(), \$res->message ? \$res->message : 'Query Error');
 		}
 	}
 
 	private function _ModelSet(){
-		if(!strlen(\$this->ID)) Redirect(-1, _WRONG_CONNECTED);
-		\$res = \$this->model->DBGet(\$this->ID);
+		if(!strlen(App::\$Instance->ID)) Redirect(-1, _WRONG_CONNECTED);
+		\$res = \$this->model->DBGet(App::\$Instance->ID);
 		if(!\$res->result) Redirect(-1, \$res->message ? \$res->message : _NO_ARTICLE);
 	}
 }";
@@ -145,8 +152,7 @@ class {$ModelName}Model extends \\BH_Model{
 		//$tData = array();
 		while($row = \DB::SQL()->Fetch($qry)){
 			//$tData[$row['Field']] = $row;
-			$findIs = preg_match('/\$this\-\>InitModelData\(\s*\''.$row['Field'].'\'/is', $initFuncText, $matches);
-			if(!$findIs) $findIs = preg_match('/\$this\-\>data\[\''.$row['Field'].'\'\]\s*=\s*new\s*BH_ModelData/is', $initFuncText);
+			$findIs = preg_match('/\$this\-\>data\[\''.$row['Field'].'\'\]\s*=\s*new\s*BH_ModelData/is', $initFuncText);
 			if(strtolower($row['Key']) == 'pri') $primaryKey[] = "'{$row['Field']}'";
 
 			if(!$findIs){
@@ -184,7 +190,7 @@ class {$ModelName}Model extends \\BH_Model{
 					$htmlType = 'HTMLType::Textarea';
 				}
 
-				$initFuncText .= chr(10).chr(10).'$this->InitModelData(\''.$row['Field'].'\', '.$modelType.', false, \''.($row['Comment'] ? $row['Comment'] : $row['Field']).'\', '.$htmlType.');'.$addOption;
+				$initFuncText .= chr(10).chr(10).'$this->data[\''.$row['Field'].'\'] = new \\BH_ModelData('.$modelType.', false, \''.($row['Comment'] ? $row['Comment'] : $row['Field']).'\', '.$htmlType.');'.$addOption;
 			}
 
 		}
@@ -199,15 +205,8 @@ class {$ModelName}Model extends \\BH_Model{
 		$initFuncText = str_replace(chr(10), chr(10).chr(9).chr(9), $initFuncText);
 		$pattern = '/function\s+__Init\s*\(\s*\)\s*\{\s*(.*?)\s*\}\s*\/\/\s*__Init/is';
 		$res = preg_replace($pattern, 'function __Init(){'.chr(10).chr(9).chr(9).$initFuncText.chr(10).chr(9).'} // __Init', $f);
-		//echo $initFuncText;
 
-
-
-		//file_put_contents($modelPath, $res);
 		return $res;
-		//print_r($tData);
-
-		//echo $initFuncText;
 	}
 
 	/**
@@ -217,13 +216,13 @@ class {$ModelName}Model extends \\BH_Model{
 	public static function Create($path, $model){
 		if(_DEVELOPERIS !== true) return;
 		$path = '/'.$path;
-		if(BH::APP()->NativeDir) $path = '/'.BH::APP()->NativeDir.$path;
+		if(App::$Instance->NativeDir) $path = '/'.App::$Instance->NativeDir.$path;
 		if(file_exists(_SKINDIR.$path) && is_dir(_SKINDIR.$path)) return;
 
 		$IndexHtml = self::Index($path.'/Index.html', $model);
 		$ViewHtml = self::View($path.'/View.html', $model);
 		$WriteHtml = self::Write($path.'/Write.html', $model);
-		$path = _SKINURL.'/'.(BH::APP()->NativeDir ? BH::APP()->NativeDir.'/' : '').BH::APP()->ControllerName.'/';
+		$path = _SKINURL.'/'.(App::$Instance->NativeDir ? App::$Instance->NativeDir.'/' : '').App::$Instance->ControllerName.'/';
 		echo '<b>'.$path.'Index.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(GetDBText($IndexHtml)).'</textarea>';
 		echo '<br><br>';
 		echo '<b>'.$path.'View.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(GetDBText($ViewHtml)).'</textarea>';
@@ -253,7 +252,7 @@ class {$ModelName}Model extends \\BH_Model{
 
 			//if(!is_dir($path2)) mkdir($path2, 0777, true);
 
-			$html = '<?php if(_BH_ !== true) exit;' . chr(10) . '/**'.chr(10).'* @var $Model '.$classname.chr(10).' */' . chr(10) .'/**'.chr(10).'* @var $this BH_Controller'.chr(10).'*/' . chr(10) . '?>' . chr(10) . chr(10) . '<table class="view">' . chr(10);
+			$html = '<?php if(_BH_ !== true) exit;' . chr(10) . '/**'.chr(10).'* @var $Model \\'.$classname.chr(10).' */' . chr(10) .'/**'.chr(10).'* @var $this \\BH_Application'.chr(10).'*/' . chr(10) . '?>' . chr(10) . chr(10) . '<table class="view">' . chr(10);
 			foreach($modelClass->data as $k => $row){
 
 				$html .= '<tr>' . chr(10)
@@ -306,7 +305,7 @@ class {$ModelName}Model extends \\BH_Model{
 			//if(!is_dir($path2)) mkdir($path2, 0777, true);
 
 
-			$html = '<?php if(_BH_ !== true) exit;' . chr(10) .'/**'.chr(10).'* @var $Model '.$classname.chr(10).' */' . chr(10) . '/**'.chr(10).'* @var $this BH_Controller'.chr(10).'*/' . chr(10) .'?>' . chr(10) . chr(10);
+			$html = '<?php if(_BH_ !== true) exit;' . chr(10) .'/**'.chr(10).'* @var $Model \\'.$classname.chr(10).' */' . chr(10) . '/**'.chr(10).'* @var $this \\BH_Application'.chr(10).'*/' . chr(10) .'?>' . chr(10) . chr(10);
 			$html .= '<form name="'.$model.'WriteForm" id="'.$model.'WriteForm" method="post" action="<?a. $this->Action.\'/\'.$this->ID ?><?fq. \'\' ?>">'. chr(10);
 
 			$html .= chr(10).'	<table class="write">' . chr(10);
@@ -378,10 +377,8 @@ class {$ModelName}Model extends \\BH_Model{
 			$filename = array_pop($a);
 			$path2 = implode('/', $a).'/';
 
-			//if(!is_dir($path2)) mkdir($path2, 0777, true);
-
 			//키값
-			$html = '<?php if(_BH_ !== true) exit;' . chr(10) . '/**'.chr(10).'* @var $Model '.$classname.chr(10).' */' . chr(10) . '/**'.chr(10).'* @var $Data BH_DB_GetListWithPage'.chr(10).'*/' . chr(10) . '/**'.chr(10).'* @var $this BH_Application'.chr(10).'*/' . chr(10) . '?>' . chr(10) . chr(10);
+			$html = '<?php if(_BH_ !== true) exit;' . chr(10) . '/**'.chr(10).'* @var $Model \\'.$classname.chr(10).' */' . chr(10) . '/**'.chr(10).'* @var $Data \\BH_DB_GetListWithPage'.chr(10).'*/' . chr(10) . '/**'.chr(10).'* @var $this \\BH_Application'.chr(10).'*/' . chr(10) . '?>' . chr(10) . chr(10);
 			$html .= '<?php if($Data->result && $Data->totalRecord){ ?>'. chr(10);
 			$html .= '<table class="list">'.chr(10);
 			$html .= '<thead>'. chr(10);

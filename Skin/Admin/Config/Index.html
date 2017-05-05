@@ -1,5 +1,8 @@
 <?php
 if(_BH_ !== true) exit;
+use \BH_Common as CF;
+use \BH_Application as App;
+
 /**
  * @var $this \Admin\ConfigController
  */
@@ -16,13 +19,13 @@ if(_BH_ !== true) exit;
 			<tr>
 				<th>회사명</th>
 				<td colspan="3">
-					<input type="text" name="Company" value="<?p. BH::CF()->Config(self::$_Value['Code'], 'Company') ?>">
+					<input type="text" name="Company" value="<?p. CF::Get()->Config(self::$_Value['Code'], 'Company') ?>">
 				</td>
 			</tr>
 			<tr>
 				<th>사이트명</th>
 				<td colspan="3">
-					<input type="text" name="SiteName" value="<?p. BH::CF()->Config(self::$_Value['Code'], 'SiteName') ?>">
+					<input type="text" name="SiteName" value="<?p. CF::Get()->Config(self::$_Value['Code'], 'SiteName') ?>">
 				</td>
 			</tr>
 		</table>
@@ -34,13 +37,13 @@ if(_BH_ !== true) exit;
 			<tr>
 				<th>개인정보보호정책</th>
 				<td colspan="3">
-					<textarea name="Privacy" id="Privacy"><?p. BH::CF()->Config(self::$_Value['Code'], 'Privacy') ?></textarea>
+					<textarea name="Privacy" id="Privacy"><?p. CF::Get()->Config(self::$_Value['Code'], 'Privacy') ?></textarea>
 				</td>
 			</tr>
 			<tr>
 				<th>이용약관</th>
 				<td colspan="3">
-					<textarea name="Terms" id="Terms"><?p. BH::CF()->Config(self::$_Value['Code'], 'Terms') ?></textarea>
+					<textarea name="Terms" id="Terms"><?p. CF::Get()->Config(self::$_Value['Code'], 'Terms') ?></textarea>
 				</td>
 			</tr>
 		</table>
@@ -52,7 +55,7 @@ if(_BH_ !== true) exit;
 			<tr>
 				<th>새로고침숫자</th>
 				<td colspan="3">
-					<input type="text" name="Refresh" id="Refresh" value="<?p. BH::CF()->Config(self::$_Value['Code'], 'Refresh') ?>">
+					<input type="text" name="Refresh" id="Refresh" value="<?p. CF::Get()->Config(self::$_Value['Code'], 'Refresh') ?>">
 				</td>
 			</tr>
 		</table>

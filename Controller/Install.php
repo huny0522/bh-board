@@ -4,10 +4,12 @@
  * 16.07.10
  */
 use \BH_Application as App;
-use \BH as BH;
+use \BH_Common as CF;
+
 class InstallController{
+
 	public function __construct(){
-		if(BH::APP()->InstallIs) exit;
+		if(App::$Instance->InstallIs) exit;
 	}
 
 	public function Index(){

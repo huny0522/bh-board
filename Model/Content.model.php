@@ -1,10 +1,11 @@
 <?php
 /**
- *
  * Bang Hun.
  * 16.07.10
- *
  */
+use \BH_Common as CF;
+use \BH_Application as App;
+
 class ContentModel extends \BH_Model{
 
 	public function __Init(){

@@ -1,11 +1,16 @@
 <?php
 use \BH_Application as App;
-use \BH as BH;
+use \BH_Common as CF;
+
 class HomeController{
+
 	public function __construct(){
 	}
 
+	public function __init(){
+	}
+
 	public function Index(){
-		BH::APP()->_View();
+		App::$Instance->_View($this);
 	}
 }

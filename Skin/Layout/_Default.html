@@ -1,19 +1,22 @@
 <?php
 if(_BH_ !== true) exit;
+use \BH_Common as CF;
+use \BH_Application as App;
+
 ob_start();
 /**
  * @var $this BH_Application
  */
 $this->CSSAdd('jquery-ui-1.10.1.css', 10);
 $this->CSSAdd('common.css', 10);
-$this->CSSAdd('style.css?r='.BH::CF()->Config('Default', 'Refresh'), 10);
-$this->CSSAdd2(_STYLEFILE.'?r='.BH::CF()->Config('Default', 'Refresh'), 10);
-$this->CSSAdd('responsive.css?r='.BH::CF()->Config('Default', 'Refresh'), 10);
+$this->CSSAdd('style.css?r='.CF::Get()->Config('Default', 'Refresh'), 10);
+$this->CSSAdd2(_STYLEFILE.'?r='.CF::Get()->Config('Default', 'Refresh'), 10);
+$this->CSSAdd('responsive.css?r='.CF::Get()->Config('Default', 'Refresh'), 10);
 
 $this->JSAdd('jquery-1.11.3.min.js', 10);
 $this->JSAdd('jquery.form.min.js', 10);
 $this->JSAdd('jquery-ui.min.js', 10);
-$this->JSAdd('common.js?r='.BH::CF()->Config('Default', 'Refresh'), 10);
+$this->JSAdd('common.js?r='.CF::Get()->Config('Default', 'Refresh'), 10);
 ?>
 <?inc. '/Layout/_Header.html' ?>
 <div id="wrap">
@@ -64,14 +67,14 @@ $this->JSAdd('common.js?r='.BH::CF()->Config('Default', 'Refresh'), 10);
 			</style>
 			<nav id="tnb">
 				<ul>
-					<?php foreach($this->RouterInstance->MainMenu as $row){ ?>
-						<li<?p. isset($this->RouterInstance->ActiveMenu['category']) && substr($this->RouterInstance->ActiveMenu['category'], 0, strlen($row['category'])) === $row['category'] ? ' class="Active"' : '' ?>>
+					<?php foreach($this::$RouterInstance->MainMenu as $row){ ?>
+						<li<?p. isset($this::$RouterInstance->ActiveMenu['category']) && substr($this::$RouterInstance->ActiveMenu['category'], 0, strlen($row['category'])) === $row['category'] ? ' class="Active"' : '' ?>>
 							<a href="<?p. _URL ?>/<?v. $row['controller'] ?>"><?v. $row['title'] ?></a>
 							<?php
-							if(isset($this->RouterInstance->SubMenu[$row['category']]) && sizeof($this->RouterInstance->SubMenu[$row['category']])){
+							if(isset($this::$RouterInstance->SubMenu[$row['category']]) && sizeof($this::$RouterInstance->SubMenu[$row['category']])){
 								echo '<ol>';
-								foreach($this->RouterInstance->SubMenu[$row['category']] as $subMenu){
-									echo '<li'.(isset($this->RouterInstance->ActiveMenu['category']) && substr($this->RouterInstance->ActiveMenu['category'], 0, strlen($subMenu['category'])) === $subMenu['category'] ? ' class="Active"' : '').'><a href="'._URL.'/'.$subMenu['controller'].'">'.GetDBText($subMenu['title']).'</a></li>';
+								foreach($this::$RouterInstance->SubMenu[$row['category']] as $subMenu){
+									echo '<li'.(isset($this::$RouterInstance->ActiveMenu['category']) && substr($this::$RouterInstance->ActiveMenu['category'], 0, strlen($subMenu['category'])) === $subMenu['category'] ? ' class="Active"' : '').'><a href="'._URL.'/'.$subMenu['controller'].'">'.GetDBText($subMenu['title']).'</a></li>';
 								}
 								echo '</ol>';
 							}

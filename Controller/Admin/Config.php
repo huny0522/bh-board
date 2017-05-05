@@ -5,32 +5,34 @@
  */
 namespace Admin;
 use \BH_Application as App;
-use \BH as BH;
+use \BH_Common as CF;
+
 class ConfigController{
-
 	public function __construct(){
-		App::$_Value['NowMenu'] = '001001';
-		BH::CF()->AdminAuth();
+	}
 
-		// 항상 따라다닐 URL 쿼리 파라미터를 지정
-		BH::APP()->SetFollowQuery(array('where', 'keyword','page'));
-		BH::APP()->Layout = '_Admin';
+	public function __init(){
+		App::$_Value['NowMenu'] = '001001';
+		CF::Get()->AdminAuth();
+
+		App::$Instance->SetFollowQuery(array('where', 'keyword','page'));
+		App::$Instance->Layout = '_Admin';
 	}
 
 	public function Index(){
 		App::$_Value['NowMenu'] = '001001001';
 		App::$_Value['Code'] = 'Default';
-		BH::APP()->_View();
+		App::$Instance->_View($this);
 	}
 
 	public function PostWrite(){
-		if(!file_exists( _DATADIR.'/CFG') || !is_dir(_DATADIR.'/CFG')) mkdir(_DATADIR.'/CFG', 0757);
+		if(!file_exists( _DATADIR.'/CFG') || !is_dir(_DATADIR.'/CFG')) mkdir(_DATADIR.'/CFG', 0755);
 		$path = _DATADIR.'/CFG/'.$_POST['Code'].'.php';
 		$txt = '';
 		foreach($_POST as $k => $v){
-			$txt .= '\\BH::APP()->CFG[\''.addslashes($_POST['Code']).'\'][\''.addslashes($k).'\'] = \''.addslashes($v).'\';'.chr(10);
+			$txt .= '\BH_Application::$Instance->CFG[\''.addslashes($_POST['Code']).'\'][\''.addslashes($k).'\'] = \''.addslashes($v).'\';'.chr(10);
 		}
 		file_put_contents($path, '<?php'.chr(10).$txt);
-		Redirect(BH::APP()->URLAction(), '설정되었습니다.');
+		Redirect(App::$Instance->URLAction(), '설정되었습니다.');
 	}
 }

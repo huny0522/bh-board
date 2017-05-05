@@ -6,7 +6,8 @@
 
 namespace Admin;
 use \BH_Application as App;
-use \BH as BH;
+use \BH_Common as CF;
+
 class MemberController{
 
 	/**
@@ -15,24 +16,24 @@ class MemberController{
 	public $model = NULL;
 
 	public function __construct(){
-		App::$_Value['NowMenu'] = '005';
-		BH::CF()->AdminAuth();
-
-		require _DIR.'/Model/Member.model.php';
+		require_once _MODELDIR.'/Member.model.php';
 		$this->model = new \MemberModel();
+	}
 
-		// 항상 따라다닐 URL 쿼리 파라미터를 지정
-		BH::APP()->SetFollowQuery(array('SLevel', 'keyword','page'));
-		BH::APP()->Layout = '_Admin';
+	public function __init(){
+		App::$_Value['NowMenu'] = '005';
+		CF::Get()->AdminAuth();
+
+		App::$Instance->SetFollowQuery(array('SLevel', 'keyword','page'));
+		App::$Instance->Layout = '_Admin';
 	}
 
 	public function Index(){
 
 		// 리스트를 불러온다.
-		$dbGetList = BH::DBListPage();
-		$dbGetList->table = $this->model->table;
+		$dbGetList = new \BH_DB_GetListWithPage($this->model->table);
 		$dbGetList->page = isset($_GET['page']) ? $_GET['page'] : 1;
-		$dbGetList->pageUrl = BH::APP()->URLAction('').BH::APP()->GetFollowQuery('page');
+		$dbGetList->pageUrl = App::$Instance->URLAction('').App::$Instance->GetFollowQuery('page');
 		$dbGetList->articleCount = 20;
 		$dbGetList->AddWhere('level < '.$_SESSION['member']['level'].' OR muid = '.$_SESSION['member']['muid']);
 		if(isset($_GET['Keyword']) && strlen(trim($_GET['Keyword']))){
@@ -44,7 +45,7 @@ class MemberController{
 		}
 		$dbGetList->Run();
 
-		BH::APP()->_View($this->model, $dbGetList);
+		App::$Instance->_View($this, $this->model, $dbGetList);
 	}
 
 	public function View(){
@@ -57,13 +58,13 @@ class MemberController{
 			Redirect('-1', $res->message);
 		}
 
-		BH::APP()->_View($this->model);
+		App::$Instance->_View($this, $this->model);
 	}
 	public function Write(){
 		foreach($this->model->data['level']->EnumValues as $k => $v){
 			if($k <= $_SESSION['member']['level']) App::$_Value['level'][$k] = $v;
 		}
-		BH::APP()->_View($this->model);
+		App::$Instance->_View($this, $this->model);
 	}
 	public function Modify(){
 		foreach($this->model->data['level']->EnumValues as $k => $v){
@@ -78,8 +79,8 @@ class MemberController{
 		if(!$res->result){
 			Redirect('-1', $res->message);
 		}
-		BH::APP()->Html = 'Write';
-		BH::APP()->_View($this->model);
+		App::$Instance->Html = 'Write';
+		App::$Instance->_View($this, $this->model);
 	}
 	public function PostWrite(){
 		$res = $this->model->SetPostValues();
@@ -93,9 +94,9 @@ class MemberController{
 			$this->model->SetValue('reg_date', date('Y-m-d H:i:s'));
 			$res = $this->model->DBInsert();
 			if($res->result){
-				Redirect(BH::APP()->URLAction().BH::APP()->GetFollowQuery());
+				Redirect(App::$Instance->URLAction().App::$Instance->GetFollowQuery());
 			}else{
-				Redirect(BH::APP()->URLAction().BH::APP()->GetFollowQuery(), 'ERROR');
+				Redirect(App::$Instance->URLAction().App::$Instance->GetFollowQuery(), 'ERROR');
 			}
 		}
 	}
@@ -119,7 +120,7 @@ class MemberController{
 		else{
 			$res = $this->model->DBUpdate();
 			if($res->result){
-				$url = BH::APP()->URLAction('View').'?muid='.$_POST['muid'].BH::APP()->GetFollowQuery();
+				$url = App::$Instance->URLAction('View').'?muid='.$_POST['muid'].App::$Instance->GetFollowQuery();
 				Redirect($url, '수정완료');
 			}else{
 				Redirect('-1', 'ERROR');
@@ -136,7 +137,7 @@ class MemberController{
 		if(isset($_POST['muid']) && $_POST['muid'] != ''){
 			$res = $this->model->DBDelete($_POST['muid']);
 			if($res->result){
-				Redirect(BH::APP()->URLAction('').BH::APP()->GetFollowQuery(), '삭제되었습니다.');
+				Redirect(App::$Instance->URLAction('').App::$Instance->GetFollowQuery(), '삭제되었습니다.');
 			}else{
 				Redirect('-1', $res->message);
 			}
@@ -144,21 +145,21 @@ class MemberController{
 	}
 
 	public function AuthAdmin(){
-		unset(BH::APP()->Layout);
+		unset(App::$Instance->Layout);
 		if($_SESSION['member']['level'] != _SADMIN_LEVEL) return;
-		$dbGet = BH::DBGet($this->model->table);
+		$dbGet = new \BH_DB_Get($this->model->table);
 		$dbGet->AddWhere('muid='.SetDBInt($_GET['muid']));
 		$dbGet->SetKey(array('level', 'admin_auth'));
 		$res = $dbGet->Get();
 		if(!$res) return;
 		if($res['level'] != _ADMIN_LEVEL) return;
 		App::$_Value['auth'] = explode(',', $res['admin_auth']);
-		BH::APP()->_View();
+		App::$Instance->_View($this);
 	}
 
 	public function PostAuthAdmin(){
 		if($_SESSION['member']['level'] != _SADMIN_LEVEL) JSON(false, _WRONG_CONNECTED);
-		$dbGet = BH::DBGet($this->model->table);
+		$dbGet = new \BH_DB_Get($this->model->table);
 		$dbGet->AddWhere('muid =  %d', $_POST['muid']);
 		$dbGet->SetKey('level');
 		$res = $dbGet->Get();
@@ -172,7 +173,7 @@ class MemberController{
 		if(isset($_POST['Category'])){
 			$adminAuth = implode(',', $_POST['Category']);
 		}
-		$qry = BH::DBUpdate(TABLE_MEMBER);
+		$qry = new \BH_DB_Update(TABLE_MEMBER);
 		$qry->SetDataStr('admin_auth', $adminAuth);
 		$qry->AddWhere('muid = %d', $_POST['muid']);
 		$qry->Run();

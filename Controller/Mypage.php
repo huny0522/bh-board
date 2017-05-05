@@ -4,34 +4,34 @@
  * 16.07.10
  */
 use \BH_Application as App;
-use \BH as BH;
-require_once _DIR.'/Model/Member.model.php';
+use \BH_Common as CF;
+
+require_once _MODELDIR.'/Member.model.php';
 class MypageController{
+
 	public function __construct(){
-		BH::CF()->MemberAuth(1);
-		BH::APP()->Layout = '_Mypage';
+	}
+
+	public function __init(){
+		CF::Get()->MemberAuth(1);
+		App::$Instance->Layout = '_Mypage';
 	}
 
 	public function Index(){
-		if($this->_App->ControllerName != 'Mypage'){
-			$_SESSION['MyInfoView'] = false;
-			unset($_SESSION['MyInfoView']);
-		}
-
-		require_once _DIR.'/Model/BoardManager.model.php';
-		$dbGetList = BH::DBList(TABLE_BOARD_MNG);
+		require_once _MODELDIR.'/BoardManager.model.php';
+		$dbGetList = new \BH_DB_GetList(TABLE_BOARD_MNG);
 		$dbGetList->SetKey('bid, subject');
 		$data = array();
 		while($row = $dbGetList->Get()){
-			$controller = 'board/'.$row['bid'];
-			foreach(BH::ROUTER()->SubMenu as $sub){
+			$controller = 'Board/'.$row['bid'];
+			foreach(App::$RouterInstance->SubMenu as $sub){
 				foreach($sub as $sub2){
 					if($sub2['type'] == 'board' && $sub2['bid'] == $row['bid']){
 						$controller = $sub2['controller'];
 					}
 				}
 			}
-			$boardGetList = BH::DBList(TABLE_FIRST.'bbs_'.$row['bid']);
+			$boardGetList = new \BH_DB_GetList(TABLE_FIRST.'bbs_'.$row['bid']);
 			$boardGetList->AddWhere('muid='.$_SESSION['member']['muid']);
 			$boardGetList->SetKey('seq, subject, mname, reg_date, hit, recommend');
 			$boardGetList->limit = '5';
@@ -41,7 +41,7 @@ class MypageController{
 				$data[$row['bid']]['list'][] = $row2;
 			}
 		}
-		BH::APP()->_View(null, $data);
+		App::$Instance->_View($this, null, $data);
 	}
 
 	public function PostPassword(){
@@ -50,7 +50,7 @@ class MypageController{
 			Redirect('-1', '패스워드를 입력하여 주세요.');
 		}
 
-		$dbGet = BH::DBGet();
+		$dbGet = new \BH_DB_Get();
 		$dbGet->table = $model->table;
 		$dbGet->SetKey(array('muid', 'pwd'));
 		$dbGet->AddWhere('muid='.$_SESSION['member']['muid']);
@@ -65,14 +65,14 @@ class MypageController{
 
 	public function MyInfo(){
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
-			BH::APP()->Html = 'Password.html';
-			BH::APP()->_View();
+			App::$Instance->Html = 'Password.html';
+			App::$Instance->_View($this);
 			return;
 		}
 		$model = new \MemberModel();
 		$model->data['pwd']->Required = false;
 		$model->DBGet($_SESSION['member']['muid']);
-		BH::APP()->_View($model);
+		App::$Instance->_View($this, $model);
 	}
 
 	public function PostMyInfo(){
@@ -102,20 +102,20 @@ class MypageController{
 
 		if(!isset(App::$_Value['error'])){
 			$model->DBUpdate();
-			Redirect(BH::APP()->URLAction(), '수정되었습니다.');
+			Redirect(App::$Instance->URLAction(), '수정되었습니다.');
 		}
 		else{
-			BH::APP()->_View($model);
+			App::$Instance->_View($this, $model);
 		}
 	}
 
 	public function WithDraw(){
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
-			BH::APP()->Html = 'Password.html';
-			BH::APP()->_View();
+			App::$Instance->Html = 'Password.html';
+			App::$Instance->_View($this);
 			return;
 		}
-		BH::APP()->_View();
+		App::$Instance->_View($this);
 	}
 	public function PostWithDraw(){
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
@@ -123,7 +123,7 @@ class MypageController{
 		}
 		$model = new \MemberModel();
 		$model->DBGet($_SESSION['member']['muid']);
-		$dbInsert = BH::DBInsert(TABLE_WITHDRAW_MEMBER);
+		$dbInsert = new \BH_DB_Insert(TABLE_WITHDRAW_MEMBER);
 		$dbInsert->SetData('muid', $model->GetValue('muid'));
 		$dbInsert->SetData('mid', SetDBText($model->GetValue('mid')));
 		$dbInsert->SetData('mname', SetDBText($model->GetValue('mname')));

@@ -1,9 +1,10 @@
 <?php
 if(_BH_ !== true) exit;
-/**
- * @var $this BH_Application
- */
-$popup = BH::CF()->GetPopup();
+use \BH_Common as CF;
+use \BH_Application as App;
+
+/** @var $this BH_Application */
+$popup = CF::Get()->GetPopup();
 ?>
 
 <script>

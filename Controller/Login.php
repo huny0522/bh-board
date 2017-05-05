@@ -5,19 +5,24 @@
  */
 
 use \BH_Application as App;
-use \BH as BH;
+use \BH_Common as CF;
+
 class LoginController{
 	/**
 	 * @var MemberModel
 	 */
 	public $model = null;
+
 	public function __construct(){
+	}
+
+	public function __init(){
 		require _DIR.'/Model/Member.model.php';
 		$this->model = new \MemberModel();
 	}
 
 	public function Index(){
-		BH::APP()->_View($this->model);
+		App::$Instance->_View($this, $this->model);
 	}
 	public function PostLogin(){
 		$email = trim($_POST['email1'].'@'.$_POST['email2']);
@@ -39,15 +44,15 @@ class LoginController{
 	}
 
 	public function Register(){
-		BH::APP()->_View();
+		App::$Instance->_View($this);
 	}
 
 	public function PostRegister(){
-		BH::APP()->Html = 'RegisterForm.html';
+		App::$Instance->Html = 'RegisterForm.html';
 		$this->model->data['nickname']->Required = true;
 		App::$_Value['email1'] = '';
 		App::$_Value['email2'] = '';
-		BH::APP()->_View($this->model);
+		App::$Instance->_View($this, $this->model);
 	}
 
 	public function PostRegisterProcess(){
@@ -88,8 +93,8 @@ class LoginController{
 		if(!$RegResult){
 			App::$_Value['email1'] = $_POST['email1'];
 			App::$_Value['email2'] = $_POST['email2'];
-			BH::APP()->Html = 'RegisterForm.html';
-			BH::APP()->_View($this->model);
+			App::$Instance->Html = 'RegisterForm.html';
+			App::$Instance->_View($this, $this->model);
 		}else{
 			Redirect(_URL.'/', '등록되었습니다.');
 		}
@@ -106,13 +111,13 @@ class LoginController{
 	}
 
 	private function Check($key, $val, $wcheck = true){
-		$dbGet = BH::DBGet($this->model->table);
+		$dbGet = new \BH_DB_Get($this->model->table);
 		$dbGet->SetKey('COUNT(muid) as cnt');
 		$dbGet->AddWhere($key.'='.SetDBText($val));
 		$res = $dbGet->Get();
 
 		if($wcheck){ // 탈퇴회원 체크여부
-			$dbGet = BH::DBGet(TABLE_WITHDRAW_MEMBER);
+			$dbGet = new \BH_DB_Get(TABLE_WITHDRAW_MEMBER);
 			$dbGet->SetKey('COUNT(muid) as cnt');
 			$dbGet->AddWhere($key.'='.SetDBText($val));
 			$res2 = $dbGet->Get();
@@ -128,7 +133,7 @@ class LoginController{
 	}
 
 	private function LoginMidCheck($mid, $pwd){
-		$dbGet = BH::DBGet($this->model->table);
+		$dbGet = new \BH_DB_Get($this->model->table);
 		$dbGet->SetKey(array('muid', 'level', 'pwd'));
 		$dbGet->AddWhere('mid='.SetDBText($mid));
 		//$params->test = true;
@@ -138,7 +143,7 @@ class LoginController{
 	}
 
 	private function LoginEmailCheck($email, $pwd){
-		$dbGet = BH::DBGet();
+		$dbGet = new \BH_DB_Get();
 		$dbGet->table = $this->model->table;
 		$dbGet->SetKey(array('muid', 'level', 'pwd'));
 		$dbGet->AddWhere('email='.SetDBText($email));

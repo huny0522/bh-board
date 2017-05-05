@@ -3,6 +3,9 @@
  * Bang Hun.
  * 16.07.10
  */
+use \BH_Common as CF;
+use \BH_Application as App;
+
 class MenuModel extends \BH_Model{
 
 	public $CategoryLength = _CATEGORY_LENGTH;

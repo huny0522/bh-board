@@ -113,7 +113,7 @@ BH_DB_Cache::$ExceptTable = array(TABLE_MEMBER);
 
 class_alias('BH_Application', 'App');
 class_alias('BH_Common', '_CF');
-\BH_Application::GetInstance()->run();
+\BH_Application::Get()->run();
 
 if(_VIEW_MICROTIME === true && _AJAXIS !== true){
 	$_END_MICROTIME = array_sum(explode(' ',microtime()));

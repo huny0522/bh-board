@@ -5,6 +5,8 @@
  * 16.07.10
  *
  */
+use \BH_Common as CF;
+use \BH_Application as App;
 
 class BoardManagerModel extends \BH_Model{
 

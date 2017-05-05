@@ -5,6 +5,8 @@
  * 16.07.10
  *
  */
+use \BH_Common as CF;
+use \BH_Application as App;
 
 class BoardModel extends \BH_Model{
 	public $imageTable = '';
@@ -12,7 +14,7 @@ class BoardModel extends \BH_Model{
 	public function __Init(){
 		$this->Key[] = 'seq';
 		$this->Except = $this->Key;
-		if(!strlen($this->bid)) $this->bid = \BH::APP()->TID;
+		if(!strlen($this->bid)) $this->bid = \App::$Instance->TID;
 
 		$this->table = TABLE_FIRST.'bbs_'.$this->bid;
 		$this->imageTable = $this->table.'_images';

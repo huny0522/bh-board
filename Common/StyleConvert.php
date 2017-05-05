@@ -1,5 +1,8 @@
 <?php
 if(_BH_ !== true) exit;
+use \BH_Common as CF;
+use \BH_Application as App;
+
 class _BH_Node{
 	public $selector = false;
 	public $data = false;
