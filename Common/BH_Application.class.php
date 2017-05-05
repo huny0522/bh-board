@@ -46,10 +46,6 @@ class BH_Application{
 		return self::$Instance;
 	}
 
-	public static function &_CF(){
-		return \BH_Common::Get();
-	}
-
 	public function run(){
 		if($this->RunIs) return;
 		$this->RunIs = true;
