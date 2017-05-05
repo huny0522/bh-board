@@ -100,9 +100,7 @@ class BH_Application{
 	 */
 	public function SetFollowQuery($ar){
 		if(!is_array($ar)) $ar = func_get_args();
-		foreach($ar as $v){
-			if(isset($_GET[$v]) && !empty($_GET[$v])) $this->FollowQuery[$v] = $_GET[$v];
-		}
+		foreach($ar as $v) if(isset($_GET[$v]) && !empty($_GET[$v])) $this->FollowQuery[$v] = $_GET[$v];
 	}
 
 	/**
@@ -117,21 +115,12 @@ class BH_Application{
 		$fq = $this->FollowQuery;
 		if($ar){
 			if(is_string($ar)) $ar = explode(',', $ar);
-
-			if(is_array($ar) && sizeof($ar)){
-				foreach($ar as $v){
-					unset($fq[trim($v)]);
-				}
-			}
+			if(is_array($ar) && sizeof($ar)) foreach($ar as $v) unset($fq[trim($v)]);
 		}
 
 		$queryparam = '';
 		foreach($fq as $k => $v){
-			if(is_array($v)){
-				foreach($v as $v2){
-					$queryparam .= ($queryparam ? '&' : $begin ).$k.'[]='.$v2;
-				}
-			}
+			if(is_array($v)) foreach($v as $v2) $queryparam .= ($queryparam ? '&' : $begin ).$k.'[]='.$v2;
 			else $queryparam .= ($queryparam ? '&' : $begin ).$k.'='.$v;
 		}
 		return $queryparam;
@@ -147,18 +136,11 @@ class BH_Application{
 		$fq = $this->FollowQuery;
 		if($ar){
 			if(is_string($ar)) $ar = explode(',', $ar);
-
-			if(is_array($ar) && sizeof($ar)){
-				foreach($ar as $v){
-					unset($fq[trim($v)]);
-				}
-			}
+			if(is_array($ar) && sizeof($ar)) foreach($ar as $v) unset($fq[trim($v)]);
 		}
 
 		$queryparam = '';
-		foreach($fq as $k => $v){
-			$queryparam .= '<input type="hidden" name="'.GetDBText($k).'" value="'.GetDBText($v).'">';
-		}
+		foreach($fq as $k => $v) $queryparam .= '<input type="hidden" name="'.GetDBText($k).'" value="'.GetDBText($v).'">';
 		return $queryparam;
 	}
 
