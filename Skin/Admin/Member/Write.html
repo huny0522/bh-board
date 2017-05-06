@@ -9,6 +9,7 @@ use \BH_Application as App;
 
 <h2>회원관리</h2>
 
+<?php if(isset(App::$Data['error']) && strlen(App::$Data['error'])){ ?><p class="alert"><?v. App::$Data['error'] ?></p><?php } ?>
 <form name="MemberWriteForm" id="MemberWriteForm" method="post" action="<?a. App::$Action ?><?fq. '' ?>">
 	<?php if(App::$Action == 'Modify'){ ?>
 		<input type="hidden" name="muid" value="<?p. $Ctrl->model->GetValue('muid') ?>">

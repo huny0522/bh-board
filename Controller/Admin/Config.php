@@ -27,6 +27,10 @@ class ConfigController{
 
 	public function PostWrite(){
 		if(!file_exists( _DATADIR.'/CFG') || !is_dir(_DATADIR.'/CFG')) mkdir(_DATADIR.'/CFG', 0755);
+		foreach($_POST as $k => $v){
+			App::$CFG[$_POST['Code']][$k] = $v;
+		}
+
 		$path = _DATADIR.'/CFG/'.$_POST['Code'].'.php';
 		$txt = '<?php \BH_Application::$CFG = '.var_export(App::$CFG, true).';';
 		file_put_contents($path, $txt);

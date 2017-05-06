@@ -76,29 +76,45 @@ class MemberController{
 			Redirect('-1', _WRONG_CONNECTED);
 		}
 
-		if(!$res->result){
-			Redirect('-1', $res->message);
-		}
+		if(!$res->result) Redirect('-1', $res->message);
+
 		App::$Html = 'Write';
 		App::View($this, $this->model);
 	}
 	public function PostWrite(){
 		$res = $this->model->SetPostValues();
 		if(!$res->result){
-			Redirect('-1',$res->message);
+			App::$Data['error'] = $res->message ? $res->message : 'ERROR';
+			App::View($this, $this->model);
+			return;
 		}
-		else{
-			if($this->model->GetValue('level') >= $_SESSION['member']['level']){
-				Redirect('-1', '해당 레벨로 등록이 불가능합니다.');
-			}
-			$this->model->SetValue('reg_date', date('Y-m-d H:i:s'));
-			$res = $this->model->DBInsert();
-			if($res->result){
-				Redirect(App::URLAction().App::GetFollowQuery());
-			}else{
-				Redirect(App::URLAction().App::GetFollowQuery(), 'ERROR');
-			}
+
+		$row = \DB::SQL()->Fetch('SELECT COUNT(*) as cnt FROM %1 WHERE mid=%s', $this->model->table, $_POST['mid']);
+		if($row['cnt']){
+			App::$Data['error'] = '중복되는 아이디가 존재합니다.';
+			App::View($this, $this->model);
+			return;
 		}
+		$row = \DB::SQL()->Fetch('SELECT COUNT(*) as cnt FROM %1 WHERE nickname=%s', $this->model->table, $_POST['nickname']);
+		if($row['cnt']){
+			App::$Data['error'] = '중복되는 닉네임이 존재합니다.';
+			App::View($this, $this->model);
+			return;
+		}
+		$row = \DB::SQL()->Fetch('SELECT COUNT(*) as cnt FROM %1 WHERE email=%s', $this->model->table, $_POST['email']);
+		if($row['cnt']){
+			App::$Data['error'] = '중복되는 이메일이 존재합니다.';
+			App::View($this, $this->model);
+			return;
+		}
+
+		if($this->model->GetValue('level') >= $_SESSION['member']['level']) Redirect('-1', '해당 레벨로 등록이 불가능합니다.');
+
+		$this->model->SetValue('reg_date', date('Y-m-d H:i:s'));
+		$res = $this->model->DBInsert();
+		if($res->result) Redirect(App::URLAction().App::GetFollowQuery());
+		else Redirect(App::URLAction().App::GetFollowQuery(), 'ERROR');
+
 	}
 
 	public function PostModify(){
