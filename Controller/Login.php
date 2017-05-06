@@ -22,7 +22,7 @@ class LoginController{
 	}
 
 	public function Index(){
-		App::_View($this, $this->model);
+		App::View($this, $this->model);
 	}
 	public function PostLogin(){
 		$email = trim($_POST['email1'].'@'.$_POST['email2']);
@@ -44,15 +44,15 @@ class LoginController{
 	}
 
 	public function Register(){
-		App::_View($this);
+		App::View($this);
 	}
 
 	public function PostRegister(){
 		App::$Html = 'RegisterForm.html';
 		$this->model->data['nickname']->Required = true;
-		App::$_Value['email1'] = '';
-		App::$_Value['email2'] = '';
-		App::_View($this, $this->model);
+		App::$Data['email1'] = '';
+		App::$Data['email2'] = '';
+		App::View($this, $this->model);
 	}
 
 	public function PostRegisterProcess(){
@@ -60,15 +60,15 @@ class LoginController{
 		$res = $this->Check('email', $_POST['email1'].'@'.$_POST['email2'], false);
 		$res2 = $this->Check('nickname', $_POST['nickname']);
 		if(!$res){
-			App::$_Value['alertMsg'] = '이미 사용중인 이메일입니다.';
+			App::$Data['alertMsg'] = '이미 사용중인 이메일입니다.';
 			$RegResult = false;
 		}
 		else if(!$res2){
-			App::$_Value['alertMsg'] = '이미 사용중인 닉네임입니다.';
+			App::$Data['alertMsg'] = '이미 사용중인 닉네임입니다.';
 			$RegResult = false;
 		}
 		else if($_POST['pwd'] != $_POST['chkpwd']){
-			App::$_Value['alertMsg'] = '패스워드가 일치하지 않습니다.';
+			App::$Data['alertMsg'] = '패스워드가 일치하지 않습니다.';
 			$RegResult = false;
 		}else{
 			$this->model->AddExcept('approve');
@@ -80,21 +80,21 @@ class LoginController{
 			$ErrorMessage = $this->model->GetErrorMessage();
 			if(sizeof($ErrorMessage)){
 				$RegResult = false;
-				App::$_Value['alertMsg'] = $ErrorMessage[0];
+				App::$Data['alertMsg'] = $ErrorMessage[0];
 			}else{
 				$res = $this->model->DBInsert();
 				if(!$res->result){
 					$RegResult = false;
-					App::$_Value['alertMsg'] = 'ERROR';
+					App::$Data['alertMsg'] = 'ERROR';
 				}
 			}
 		}
 
 		if(!$RegResult){
-			App::$_Value['email1'] = $_POST['email1'];
-			App::$_Value['email2'] = $_POST['email2'];
+			App::$Data['email1'] = $_POST['email1'];
+			App::$Data['email2'] = $_POST['email2'];
 			App::$Html = 'RegisterForm.html';
-			App::_View($this, $this->model);
+			App::View($this, $this->model);
 		}else{
 			Redirect(_URL.'/', '등록되었습니다.');
 		}

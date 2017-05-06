@@ -287,7 +287,7 @@ http://www.bhboard.com
 - public $TID : BH_Application 클래스의 변수와 동일
 - public $Layout : 스킨 레이아웃 지정 변수.
 - public $Html : 스킨 html 지정 변수.
-- public $_Value : html에 사용을 위한 변수.
+- public $Data : html에 사용을 위한 변수.
 - public $_CF : BH_Common 클래스
 - function __Init() : BH_Controller를 상속한 클래스에서 생성자용으로 사용.
 - function SetFollowQuery(array $ar) : 항상 따라다니는 URL쿼리파라미터의 키를 설정.

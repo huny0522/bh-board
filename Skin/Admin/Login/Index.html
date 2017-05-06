@@ -15,9 +15,9 @@ App::CSSAdd2('admin.css2');
 			<form id="LoginFrm" name="LoginFrm" action="<?a. 'Login' ?>" method="post">
 				<fieldset>
 					<?p. $Model->HTMLPrintLabel('mid') ?>
-					<span><?p. $Model->HTMLPrintInput('mid') ?></span>
+					<span><?minp('mid') ?></span>
 					<?p. $Model->HTMLPrintLabel('pwd') ?>
-					<span><?p. $Model->HTMLPrintInput('pwd') ?></span>
+					<span><?minp('pwd') ?></span>
 				</fieldset>
 				<div id="LoginConfirm"><button type="submit" class="bBtn">로그인</button></div>
 				<div id="LoginRemember"><a href="#" id="RemberIDBtn"><i></i>아이디 저장</a></div>

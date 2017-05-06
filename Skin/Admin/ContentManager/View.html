@@ -11,47 +11,47 @@ use \BH_Application as App;
 
 <table class="view">
 <tr>
-	<th><?p. $Model->data['subject']->DisplayName ?></th>
+	<th><?mt('subject')?></th>
 	<td>
-		<?v. $Model->GetValue('subject') ?>
+		<?mv('subject') ?>
 	</td>
 </tr>
 <tr>
-	<th><?p. $Model->data['bid']->DisplayName ?></th>
+	<th><?mt('bid')?></th>
 	<td>
-		<?v. $Model->GetValue('bid') ?>
+		<?mv('bid') ?>
 	</td>
 </tr>
 	<tr>
 		<th>연결메뉴</th>
 		<td>
-			<?php foreach(self::$_Value['selectedMenu'] as $k => $row){ ?>
+			<?php foreach(App::$Data['selectedMenu'] as $k => $row){ ?>
 				<?v. ($k ? ', ' : '').$row['title'] ?>
 			<?php } ?>
 		</td>
 	</tr>
 <tr>
-	<th><?p. $Model->data['html']->DisplayName ?></th>
+	<th><?mt('html')?></th>
 	<td>
-		<?v. $Model->GetValue('html') ?>
+		<?mv('html') ?>
 	</td>
 </tr>
 <tr>
-	<th><?p. $Model->data['layout']->DisplayName ?></th>
+	<th><?mt('layout')?></th>
 	<td>
-		<?v. $Model->GetValue('layout') ?>
+		<?mv('layout') ?>
 	</td>
 </tr>
 <tr>
-	<th><?p. $Model->data['hit']->DisplayName ?></th>
+	<th><?mt('hit')?></th>
 	<td>
-		<?v. $Model->GetValue('hit') ?>
+		<?mv('hit') ?>
 	</td>
 </tr>
 <tr>
-	<th><?p. $Model->data['recommend']->DisplayName ?></th>
+	<th><?mt('recommend')?></th>
 	<td>
-		<?v. $Model->GetValue('recommend') ?>
+		<?mv('recommend') ?>
 	</td>
 </tr>
 </table>

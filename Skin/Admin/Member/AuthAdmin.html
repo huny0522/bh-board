@@ -22,7 +22,7 @@ use \BH_Application as App;
 					<li>
 						<p>
 							<input type="checkbox" name="Category[]" id="Category<? p.$c ?>"
-							       value="<? p.$c ?>"<?php if(in_array($c, self::$_Value['auth'])) echo ' checked' ?>>
+							       value="<? p.$c ?>"<?php if(in_array($c, App::$Data['auth'])) echo ' checked' ?>>
 							<label for="Category<? p.$c ?>">
 								<? v.$row['Name'] ?>
 							</label>
@@ -34,7 +34,7 @@ use \BH_Application as App;
 								$sub .= '<li>'
 									.'<p>'
 									.'<input type="checkbox" name="Category[]" id="Category'. $c2 .'" value="'. $c2 .'"'
-									. ((in_array($c2, self::$_Value['auth'])) ? ' checked' : ''). '>'
+									. ((in_array($c2, App::$Data['auth'])) ? ' checked' : ''). '>'
 									.'<label for="Category'.$c2 .'">'
 									.$row2['Name']
 									.'</label>'

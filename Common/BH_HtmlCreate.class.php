@@ -36,36 +36,36 @@ class {$ControllerName}Controller{
 		\$qry->pageUrl = App::URLAction().App::GetFollowQuery('page');
 		\$qry->Run();
 
-		App::_View(\$this, \$this->model, \$qry);
+		App::View(\$this, \$this->model, \$qry);
 	}
 
 	public function View(){
 		\$this->_ModelSet();
-		App::_View(\$this, \$this->model);
+		App::View(\$this, \$this->model);
 	}
 
 	public function Write(){
-		App::_View(\$this, \$this->model);
+		App::View(\$this, \$this->model);
 	}
 
 	public function Modify(){
 		\$this->_ModelSet();
 		App::\$Html = 'Write';
-		App::_View(\$this, \$this->model);
+		App::View(\$this, \$this->model);
 	}
 
 	public function PostWrite(){
 		\$this->model->SetPostValues();
 		\$err = \$this->model->GetErrorMessage();
 		if(sizeof(\$err)){
-			App::\$_Value['error'] = \$err[0];
-			App::_View(\$this, \$this->model);
+			App::\$Data['error'] = \$err[0];
+			App::View(\$this, \$this->model);
 			return;
 		}
 		\$res = \$this->model->DBInsert();
 		if(!\$res->result) {
-			App::\$_Value['error'] = \$res->message ? \$res->message : 'Query Error';
-			App::_View(\$this, \$this->model);
+			App::\$Data['error'] = \$res->message ? \$res->message : 'Query Error';
+			App::View(\$this, \$this->model);
 			return;
 		}
 		else Redirect(App::URLAction().App::GetFollowQuery());
@@ -76,14 +76,14 @@ class {$ControllerName}Controller{
 		\$this->model->SetPostValues();
 		\$err = \$this->model->GetErrorMessage();
 		if(sizeof(\$err)){
-			App::\$_Value['error'] = \$err[0];
-			App::_View(\$this, \$this->model);
+			App::\$Data['error'] = \$err[0];
+			App::View(\$this, \$this->model);
 			return;
 		}
 		\$res = \$this->model->DBUpdate();
 		if(!\$res->result) {
-			App::\$_Value['error'] = \$res->message ? \$res->message : 'Query Error';
-			App::_View(\$this, \$this->model);
+			App::\$Data['error'] = \$res->message ? \$res->message : 'Query Error';
+			App::View(\$this, \$this->model);
 			return;
 		}
 		else Redirect(App::URLAction('View/'.App::\$ID).App::GetFollowQuery());

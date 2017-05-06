@@ -53,7 +53,7 @@ class BannerModel extends \BH_Model{
 
 		$this->data['mlevel'] = new \BH_ModelData(ModelType::Enum, true, '회원레벨');
 		$this->data['mlevel']->HtmlType = HTMLType::Select;
-		$this->data['mlevel']->EnumValues = $GLOBALS['_LevelArray'];
+		$this->data['mlevel']->EnumValues = App::$Data['LevelArray'];
 		$this->data['mlevel']->DefaultValue = '0';
 
 		$this->data['sort'] = new \BH_ModelData(ModelType::Int, true, '정렬');

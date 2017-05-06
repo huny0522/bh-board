@@ -30,7 +30,7 @@ App::JSAdd('admin.js', 10);
 			<nav id="tnb">
 				<ul>
 					<?php
-					$NM = self::$_Value['NowMenu'];
+					$NM = App::$Data['NowMenu'];
 					$AdminAuth = explode(',', CF::Get()->GetMember('admin_auth'));
 					foreach(App::$RouterInstance->AdminMenu as $c => $v){
 						if(strlen($c) == 3 && ($_SESSION['member']['level'] == _SADMIN_LEVEL || in_array($c, $AdminAuth))){

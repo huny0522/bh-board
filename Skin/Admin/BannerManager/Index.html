@@ -12,12 +12,12 @@ use \BH_Application as App;
 <thead>
 <tr>
 	<th>번호</th>
-	<th><?p. $Model->data['category']->DisplayName ?></th>
-	<th><?p. $Model->data['img']->DisplayName ?></th>
-	<th><?p. $Model->data['subject']->DisplayName ?></th>
+	<th><?mt('category')?></th>
+	<th><?mt('img')?></th>
+	<th><?mt('subject')?></th>
 	<th>기간</th>
-	<th><?p. $Model->data['enabled']->DisplayName ?></th>
-	<th><?p. $Model->data['sort']->DisplayName ?></th>
+	<th><?mt('enabled')?></th>
+	<th><?mt('sort')?></th>
 	<th></th>
 </tr>
 </thead>
@@ -30,7 +30,7 @@ use \BH_Application as App;
 	<td><img src="<?v. _UPLOAD_URL.$row['img']; ?>" alt=""></td>
 	<td><?v. $row['subject']; ?></td>
 	<td><?v. $row['begin_date']; ?> ~ <?v. $row['end_date']; ?></td>
-	<td><?p. $Model->HTMLPrintEnum('enabled', $row['enabled']) ?></td>
+	<td><?menum('enabled', $row['enabled']) ?></td>
 	<td><?v. $row['sort']; ?></td>
 	<td><a href="<?a. 'Modify' ?>/<?p. toBase($row['seq']) ?><?fn. '' ?>">수정</a></td>
 </tr>

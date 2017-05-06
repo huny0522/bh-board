@@ -21,7 +21,7 @@ class PopupManagerController
 	}
 
 	public function __init(){
-		App::$_Value['NowMenu'] = '001003';
+		App::$Data['NowMenu'] = '001003';
 		CF::Get()->AdminAuth();
 
 		App::$Layout = '_Admin';
@@ -35,11 +35,11 @@ class PopupManagerController
 		$dbGetList->articleCount = 20;
 		$dbGetList->Run();
 
-		App::_View($this, $this->model, $dbGetList);
+		App::View($this, $this->model, $dbGetList);
 	}
 
 	public function Write(){
-		App::_View($this, $this->model);
+		App::View($this, $this->model);
 	}
 
 	public function Modify(){
@@ -49,7 +49,7 @@ class PopupManagerController
 			Redirect('-1', $res->message);
 		}
 		App::$Html = 'Write';
-		App::_View($this, $this->model);
+		App::View($this, $this->model);
 	}
 	public function PostWrite(){
 		$res = $this->model->SetPostValues();

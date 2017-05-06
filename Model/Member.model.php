@@ -41,7 +41,7 @@ class MemberModel extends \BH_Model{
 
 		$this->data['level'] = new \BH_ModelData(ModelType::Int, true, '회원등급');
 		$this->data['level']->HtmlType = HTMLType::Select;
-		$this->data['level']->EnumValues = $GLOBALS['_LevelArray'];
+		$this->data['level']->EnumValues = App::$Data['LevelArray'];
 
 		$this->data['address1'] = new \BH_ModelData(ModelType::String, false, '주소');
 		$this->data['address1']->HtmlType = HTMLType::InputText;

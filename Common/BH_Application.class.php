@@ -35,7 +35,7 @@ class BH_Application{
 	private static $JS = array();
 	private static $FollowQuery = array();
 
-	public static $_Value = array();
+	public static $Data = array();
 
 	private function __construct(){
 	}
@@ -148,7 +148,7 @@ class BH_Application{
 	 * @param $Data mixed
 	 */
 
-	public static function _View(&$Ctrl, $Model = NULL, $Data = NULL){
+	public static function View(&$Ctrl, $Model = NULL, $Data = NULL){
 		$viewAction = isset($Ctrl->Html) && strlen($Ctrl->Html) ? $Ctrl->Html : (self::$Html ? self::$Html : self::$Action);
 		if(!$viewAction) $viewAction = 'Index';
 
@@ -174,7 +174,7 @@ class BH_Application{
 		echo $_BODY;
 	}
 
-	public static function _GetView(&$Ctrl, $Model = NULL, $Data = NULL){
+	public static function GetView(&$Ctrl, $Model = NULL, $Data = NULL){
 		$viewAction = isset($Ctrl->Html) && strlen($Ctrl->Html) ? $Ctrl->Html : (self::$Html ? self::$Html : self::$Action);
 		if(!$viewAction) $viewAction = 'Index';
 

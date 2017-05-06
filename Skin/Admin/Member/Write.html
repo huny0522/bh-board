@@ -16,12 +16,12 @@ use \BH_Application as App;
 
 	<table class="write">
 		<tr>
-			<th><?p. $Model->data['mid']->DisplayName ?></th>
+			<th><?mt('mid')?></th>
 			<td>
 				<?php if(App::$Action == 'Modify'){ ?>
-					<?v. $Model->GetValue('mid') ?>
+					<?mv('mid') ?>
 				<?php }else{ ?>
-					<?p. $Model->HTMLPrintInput('mid') ?>
+					<?minp('mid') ?>
 					<ul class="guide">
 						<li>4자 이상, 16자 이하로 입력하여주세요.</li>
 						<li>영문만 입력하여 주세요.</li>
@@ -30,84 +30,84 @@ use \BH_Application as App;
 			</td>
 		</tr>
 		<tr>
-			<th><?php if(App::$Action == 'Write'){ ?><i class="requiredBullet" title="필수항목">*</i><?php } ?> <?p. $Model->data['pwd']->DisplayName ?></th>
+			<th><?php if(App::$Action == 'Write'){ ?><i class="requiredBullet" title="필수항목">*</i><?php } ?> <?mt('pwd')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('pwd') ?>
+				<?minp('pwd') ?>
 				<ul class="guide">
 					<li>8자 이상, 16자 이하로 입력하여주세요.</li>
 				</ul>
 			</td>
 		</tr>
 		<tr>
-			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['mname']->DisplayName ?></th>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('mname')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('mname') ?>
+				<?minp('mname') ?>
 				<ul class="guide">
 					<li>20자 이하로 입력하여주세요.</li>
 				</ul>
 			</td>
 		</tr>
 		<tr>
-			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['email']->DisplayName ?></th>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('email')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('email') ?>
+				<?minp('email') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><?p. $Model->data['cname']->DisplayName ?></th>
+			<th><?mt('cname')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('cname') ?>
+				<?minp('cname') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><?p. $Model->data['nickname']->DisplayName ?></th>
+			<th><?mt('nickname')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('nickname') ?>
+				<?minp('nickname') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><?p. $Model->data['level']->DisplayName ?></th>
+			<th><?mt('level')?></th>
 			<td>
 				<select name="level">
-					<?p. SelectOption(self::$_Value['level'], $Model->GetValue('level')) ?>
+					<?p. SelectOption(App::$Data['level'], $Model->GetValue('level')) ?>
 				</select>
 			</td>
 		</tr>
 		<tr>
-			<th><?p. $Model->data['address1']->DisplayName ?></th>
+			<th><?mt('address1')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('address1') ?>
+				<?minp('address1') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><?p. $Model->data['address2']->DisplayName ?></th>
+			<th><?mt('address2')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('address2') ?>
+				<?minp('address2') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><?p. $Model->data['zipcode']->DisplayName ?></th>
+			<th><?mt('zipcode')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('zipcode') ?>
+				<?minp('zipcode') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><?p. $Model->data['tel']->DisplayName ?></th>
+			<th><?mt('tel')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('tel') ?>
+				<?minp('tel') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><?p. $Model->data['phone']->DisplayName ?></th>
+			<th><?mt('phone')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('phone') ?>
+				<?minp('phone') ?>
 			</td>
 		</tr>
 <?php if(0 && $Model->GetValue('level') < 20){ ?>
 		<tr>
-			<th><?p. $Model->data['approve']->DisplayName ?></th>
+			<th><?mt('approve')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('approve') ?>
+				<?minp('approve') ?>
 			</td>
 		</tr>
 <?php } ?>

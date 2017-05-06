@@ -21,15 +21,15 @@ use \BH_Application as App;
 		<thead>
 		<tr>
 			<th>번호</th>
-			<th><?p. $Model->data['subject']->DisplayName ?></th>
-			<th><?p. $Model->data['mname']->DisplayName ?></th>
-			<th><?p. $Model->data['hit']->DisplayName ?></th>
-			<th><?p. $Model->data['recommend']->DisplayName ?></th>
-			<th><?p. $Model->data['reg_date']->DisplayName ?></th>
+			<th><?mt('subject')?></th>
+			<th><?mt('mname')?></th>
+			<th><?mt('hit')?></th>
+			<th><?mt('recommend')?></th>
+			<th><?mt('reg_date')?></th>
 		</tr>
 		</thead>
 		<tbody>
-		<?php foreach(App::$_Value['notice'] as $row){ ?>
+		<?php foreach(App::$Data['notice'] as $row){ ?>
 			<tr class="notice">
 				<td>공지</td>
 				<td class="left">

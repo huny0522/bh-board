@@ -11,78 +11,78 @@ use \BH_Application as App;
 
 <table class="view">
 <tr>
-	<th><?p. $Model->data['mid']->DisplayName ?></th>
+	<th><?mt('mid')?></th>
 	<td>
-		<?v. $Model->GetValue('mid') ?>
+		<?mv('mid') ?>
 	</td>
 </tr>
 <tr>
-	<th><?p. $Model->data['mname']->DisplayName ?></th>
+	<th><?mt('mname')?></th>
 	<td>
-		<?v. $Model->GetValue('mname') ?>
+		<?mv('mname') ?>
 	</td>
 </tr>
 <tr>
-	<th><?p. $Model->data['email']->DisplayName ?></th>
+	<th><?mt('email')?></th>
 	<td>
-		<?v. $Model->GetValue('email') ?>
+		<?mv('email') ?>
 	</td>
 </tr>
 <tr>
-	<th><?p. $Model->data['cname']->DisplayName ?></th>
+	<th><?mt('cname')?></th>
 	<td>
-		<?v. $Model->GetValue('cname') ?>
+		<?mv('cname') ?>
 	</td>
 </tr>
 <tr>
-	<th><?p. $Model->data['nickname']->DisplayName ?></th>
+	<th><?mt('nickname')?></th>
 	<td>
-		<?v. $Model->GetValue('nickname') ?>
+		<?mv('nickname') ?>
 	</td>
 </tr>
 <tr>
-	<th><?p. $Model->data['level']->DisplayName ?></th>
-	<td><?p. $Model->HTMLPrintEnum('level', $Model->GetValue('level')) ?></td>
+	<th><?mt('level')?></th>
+	<td><?menum('level') ?></td>
 </tr>
 <tr>
-	<th><?p. $Model->data['address1']->DisplayName ?></th>
+	<th><?mt('address1')?></th>
 	<td>
-		<?v. $Model->GetValue('address1') ?>
+		<?mv('address1') ?>
 	</td>
 </tr>
 <tr>
-	<th><?p. $Model->data['address2']->DisplayName ?></th>
+	<th><?mt('address2')?></th>
 	<td>
-		<?v. $Model->GetValue('address2') ?>
+		<?mv('address2') ?>
 	</td>
 </tr>
 <tr>
-	<th><?p. $Model->data['zipcode']->DisplayName ?></th>
+	<th><?mt('zipcode')?></th>
 	<td>
-		<?v. $Model->GetValue('zipcode') ?>
+		<?mv('zipcode') ?>
 	</td>
 </tr>
 <tr>
-	<th><?p. $Model->data['tel']->DisplayName ?></th>
+	<th><?mt('tel')?></th>
 	<td>
-		<?v. $Model->GetValue('tel') ?>
+		<?mv('tel') ?>
 	</td>
 </tr>
 <tr>
-	<th><?p. $Model->data['phone']->DisplayName ?></th>
+	<th><?mt('phone')?></th>
 	<td>
-		<?v. $Model->GetValue('phone') ?>
+		<?mv('phone') ?>
 	</td>
 </tr>
 <tr>
-	<th><?p. $Model->data['reg_date']->DisplayName ?></th>
+	<th><?mt('reg_date')?></th>
 	<td>
-		<?v. $Model->GetValue('reg_date') ?>
+		<?mv('reg_date') ?>
 	</td>
 </tr>
 <tr>
-	<th><?p. $Model->data['approve']->DisplayName ?></th>
-	<td><?p. $Model->HTMLPrintEnum('approve', $Model->GetValue('approve')) ?></td>
+	<th><?mt('approve')?></th>
+	<td><?menum('approve') ?></td>
 </tr>
 </table>
 <div class="bottomBtn"><a href="<?a. '' ?><?fq. '' ?>" class="bBtn">리스트</a><a href="<?a. 'Modify' ?>?muid=<?v. $_GET['muid'] ?><?fn. '' ?>" class="bBtn">수정</a><a href="#" id="deleteArticle" data-muid="<?v. $_GET['muid'] ?>" class="bBtn">삭제</a><a href="#" class="backbtn bBtn">뒤로</a></div>

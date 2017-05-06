@@ -21,11 +21,11 @@ class BannerManagerController
 
 		$dbGetList = new \BH_DB_GetList($this->model->table);
 		$dbGetList->SetKey('DISTINCT category');
-		while($row = $dbGetList->Get()) App::$_Value['category'][] = $row['category'];
+		while($row = $dbGetList->Get()) App::$Data['category'][] = $row['category'];
 	}
 
 	public function __init(){
-		App::$_Value['NowMenu'] = '001002';
+		App::$Data['NowMenu'] = '001002';
 		CF::Get()->AdminAuth();
 		App::$Layout = '_Admin';
 	}
@@ -38,11 +38,11 @@ class BannerManagerController
 		$dbGetList->articleCount = 20;
 		$dbGetList->Run();
 
-		App::_View($this, $this->model, $dbGetList);
+		App::View($this, $this->model, $dbGetList);
 	}
 
 	public function Write(){
-		App::_View($this, $this->model);
+		App::View($this, $this->model);
 	}
 
 	public function Modify(){
@@ -52,7 +52,7 @@ class BannerManagerController
 			Redirect('-1', $res->message);
 		}
 		App::$Html = 'Write';
-		App::_View($this, $this->model);
+		App::View($this, $this->model);
 	}
 	public function PostWrite(){
 		$res = $this->model->SetPostValues();
@@ -74,8 +74,8 @@ class BannerManagerController
 
 			$error = $this->model->GetErrorMessage();
 			if(sizeof($error)){
-				App::$_Value['error'] = $error[0];
-				App::_View($this, $this->model);
+				App::$Data['error'] = $error[0];
+				App::View($this, $this->model);
 			}else{
 				$res = $this->model->DBInsert();
 				if($res->result){

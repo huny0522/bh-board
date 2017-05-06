@@ -21,7 +21,7 @@ class MemberController{
 	}
 
 	public function __init(){
-		App::$_Value['NowMenu'] = '005';
+		App::$Data['NowMenu'] = '005';
 		CF::Get()->AdminAuth();
 
 		App::SetFollowQuery(array('SLevel', 'keyword','page'));
@@ -45,7 +45,7 @@ class MemberController{
 		}
 		$dbGetList->Run();
 
-		App::_View($this, $this->model, $dbGetList);
+		App::View($this, $this->model, $dbGetList);
 	}
 
 	public function View(){
@@ -58,17 +58,17 @@ class MemberController{
 			Redirect('-1', $res->message);
 		}
 
-		App::_View($this, $this->model);
+		App::View($this, $this->model);
 	}
 	public function Write(){
 		foreach($this->model->data['level']->EnumValues as $k => $v){
-			if($k <= $_SESSION['member']['level']) App::$_Value['level'][$k] = $v;
+			if($k <= $_SESSION['member']['level']) App::$Data['level'][$k] = $v;
 		}
-		App::_View($this, $this->model);
+		App::View($this, $this->model);
 	}
 	public function Modify(){
 		foreach($this->model->data['level']->EnumValues as $k => $v){
-			if($k <= $_SESSION['member']['level']) App::$_Value['level'][$k] = $v;
+			if($k <= $_SESSION['member']['level']) App::$Data['level'][$k] = $v;
 		}
 		$this->model->data['pwd']->Required = false;
 		$res = $this->model->DBGet($_GET['muid']);
@@ -80,7 +80,7 @@ class MemberController{
 			Redirect('-1', $res->message);
 		}
 		App::$Html = 'Write';
-		App::_View($this, $this->model);
+		App::View($this, $this->model);
 	}
 	public function PostWrite(){
 		$res = $this->model->SetPostValues();
@@ -153,8 +153,8 @@ class MemberController{
 		$res = $dbGet->Get();
 		if(!$res) return;
 		if($res['level'] != _ADMIN_LEVEL) return;
-		App::$_Value['auth'] = explode(',', $res['admin_auth']);
-		App::_View($this);
+		App::$Data['auth'] = explode(',', $res['admin_auth']);
+		App::View($this);
 	}
 
 	public function PostAuthAdmin(){

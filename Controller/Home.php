@@ -11,6 +11,6 @@ class HomeController{
 	}
 
 	public function Index(){
-		App::_View($this);
+		App::View($this);
 	}
 }

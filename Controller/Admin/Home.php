@@ -12,10 +12,10 @@ class HomeController{
 			Redirect(_ADMINURL.'/Login', _NO_AUTH.' 로그인하여 주세요.');
 		}
 		App::$Layout = '_Admin';
-		App::$_Value['NowMenu'] = '';
+		App::$Data['NowMenu'] = '';
 	}
 
 	public function Index(){
-		App::_View($this);
+		App::View($this);
 	}
 }

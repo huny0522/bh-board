@@ -26,14 +26,14 @@ use \BH_Application as App;
 <thead>
 <tr>
 	<th>번호</th>
-	<th><?p. $Model->data['subject']->DisplayName ?></th>
-	<th><?p. $Model->data['bid']->DisplayName ?></th>
-	<th><?p. $Model->data['auth_list_level']->DisplayName ?></th>
-	<th><?p. $Model->data['auth_write_level']->DisplayName ?></th>
-	<th><?p. $Model->data['auth_view_level']->DisplayName ?></th>
-	<th><?p. $Model->data['auth_reply_level']->DisplayName ?></th>
-	<th><?p. $Model->data['auth_answer_level']->DisplayName ?></th>
-	<th><?p. $Model->data['use_reply']->DisplayName ?></th>
+	<th><?mt('subject')?></th>
+	<th><?mt('bid')?></th>
+	<th><?mt('auth_list_level')?></th>
+	<th><?mt('auth_write_level')?></th>
+	<th><?mt('auth_view_level')?></th>
+	<th><?mt('auth_reply_level')?></th>
+	<th><?mt('auth_answer_level')?></th>
+	<th><?mt('use_reply')?></th>
 	<th>연결메뉴</th>
 </tr>
 </thead>
@@ -44,12 +44,12 @@ use \BH_Application as App;
 	<td><?p. $Data->beginNum-- ?></td>
 	<td><a href="<?a. 'View' ?>?bid=<?p. $row['bid'] ?><?fn. '' ?>"><?v. $row['subject']; ?></a></td>
 	<td><?v. $row['bid']; ?></td>
-	<td><?p. $Model->HTMLPrintEnum('auth_list_level', $row['auth_list_level']) ?></td>
-	<td><?p. $Model->HTMLPrintEnum('auth_write_level', $row['auth_write_level']) ?></td>
-	<td><?p. $Model->HTMLPrintEnum('auth_view_level', $row['auth_view_level']) ?></td>
-	<td><?p. $Model->HTMLPrintEnum('auth_reply_level', $row['auth_reply_level']) ?></td>
-	<td><?p. $Model->HTMLPrintEnum('auth_answer_level', $row['auth_answer_level']) ?></td>
-	<td><?p. $Model->HTMLPrintEnum('use_reply', $row['use_reply']) ?></td>
+	<td><?menum('auth_list_level', $row['auth_list_level']) ?></td>
+	<td><?menum('auth_write_level', $row['auth_write_level']) ?></td>
+	<td><?menum('auth_view_level', $row['auth_view_level']) ?></td>
+	<td><?menum('auth_reply_level', $row['auth_reply_level']) ?></td>
+	<td><?menum('auth_answer_level', $row['auth_answer_level']) ?></td>
+	<td><?menum('use_reply', $row['use_reply']) ?></td>
 	<td><?v. $row['title'] ?></td>
 </tr>
 <?php } ?>

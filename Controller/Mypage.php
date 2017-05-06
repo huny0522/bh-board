@@ -41,7 +41,7 @@ class MypageController{
 				$data[$row['bid']]['list'][] = $row2;
 			}
 		}
-		App::_View($this, null, $data);
+		App::View($this, null, $data);
 	}
 
 	public function PostPassword(){
@@ -66,13 +66,13 @@ class MypageController{
 	public function MyInfo(){
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
 			App::$Html = 'Password.html';
-			App::_View($this);
+			App::View($this);
 			return;
 		}
 		$model = new \MemberModel();
 		$model->data['pwd']->Required = false;
 		$model->DBGet($_SESSION['member']['muid']);
-		App::_View($this, $model);
+		App::View($this, $model);
 	}
 
 	public function PostMyInfo(){
@@ -87,7 +87,7 @@ class MypageController{
 		$model->SetPostValues();
 		if(isset($_POST['pwd']) && strlen($_POST['pwd'])){
 			if(isset($_POST['pwdchk']) && strlen($_POST['pwd'])){
-				App::$_Value['error'] = '비밀번호가 일치하지 않습니다.';
+				App::$Data['error'] = '비밀번호가 일치하지 않습니다.';
 			}else{
 				Redirect('-1', _WRONG_CONNECTED);
 			}
@@ -97,25 +97,25 @@ class MypageController{
 
 		$error = $model->GetErrorMessage();
 		if(sizeof($error)){
-			App::$_Value['error'] = $error[0];
+			App::$Data['error'] = $error[0];
 		}
 
-		if(!isset(App::$_Value['error'])){
+		if(!isset(App::$Data['error'])){
 			$model->DBUpdate();
 			Redirect(App::URLAction(), '수정되었습니다.');
 		}
 		else{
-			App::_View($this, $model);
+			App::View($this, $model);
 		}
 	}
 
 	public function WithDraw(){
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
 			App::$Html = 'Password.html';
-			App::_View($this);
+			App::View($this);
 			return;
 		}
-		App::_View($this);
+		App::View($this);
 	}
 	public function PostWithDraw(){
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){

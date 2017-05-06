@@ -38,7 +38,7 @@ class ContentsController{
 			setcookie($cookieName, 'y');
 		}
 
-		App::_View($this);
+		App::View($this);
 
 	}
 }

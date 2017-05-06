@@ -8,36 +8,36 @@ use \BH_Application as App;
 ?>
 
 <form name="MenuWriteForm" id="MenuWriteForm" method="post" action="<?a. App::$Action ?><?fq. '' ?>">
-	<input type="hidden" name="category" value="<?p. $Model->GetValue('category') ?>">
+	<input type="hidden" name="category" value="<?mv('category') ?>">
 	<table class="write">
 		<tr>
-			<th><?p. $Model->data['controller']->DisplayName ?></th>
+			<th><?mt('controller')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('controller') ?>
+				<?minp('controller') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['title']->DisplayName ?></th>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('title')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('title') ?>
+				<?minp('title') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['type']->DisplayName ?></th>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('type')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('type') ?>
+				<?minp('type') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><?p. $Model->data['enabled']->DisplayName ?></th>
+			<th><?mt('enabled')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('enabled') ?>
+				<?minp('enabled') ?>
 			</td>
 		</tr>
 		<tr class="bid">
-			<th><?p. $Model->data['bid']->DisplayName ?></th>
+			<th><?mt('bid')?></th>
 			<td>
-				<select id="bid" name="bid" data-default="<?p. $Model->GetValue('bid') ?>"></select>
+				<select id="bid" name="bid" data-default="<?mv('bid') ?>"></select>
 			</td>
 		</tr>
 	</table>

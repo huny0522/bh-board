@@ -52,7 +52,10 @@ function FileUpload($files, $possible_ext = null, $path = '/data/'){
 	if($files['name']){
 		$ext = explode('.', $files['name']);
 		$ext = $ext[sizeof($ext)-1];
-		if(in_array($ext, $GLOBALS['noext'])){
+		if(in_array($ext, App::$Data['noext'])){
+			return 'noext';
+		}
+		else if(!in_array($ext, App::$POSSIBLE_EXT)){
 			return 'noext';
 		}
 		else if($possible_ext && !in_array($ext, $possible_ext)){

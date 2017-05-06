@@ -42,13 +42,13 @@ use \BH_Application as App;
 <thead>
 <tr>
 	<th>번호</th>
-	<th><?p. $Model->data['mid']->DisplayName ?></th>
-	<th><?p. $Model->data['mname']->DisplayName ?></th>
-	<th><?p. $Model->data['nickname']->DisplayName ?></th>
-	<th><?p. $Model->data['level']->DisplayName ?></th>
-	<th><?p. $Model->data['phone']->DisplayName ?></th>
-	<th><?p. $Model->data['reg_date']->DisplayName ?></th>
-	<th><?p. $Model->data['approve']->DisplayName ?></th>
+	<th><?mt('mid')?></th>
+	<th><?mt('mname')?></th>
+	<th><?mt('nickname')?></th>
+	<th><?mt('level')?></th>
+	<th><?mt('phone')?></th>
+	<th><?mt('reg_date')?></th>
+	<th><?mt('approve')?></th>
 	<th>관리</th>
 </tr>
 </thead>
@@ -60,10 +60,10 @@ use \BH_Application as App;
 	<td><a href="<?a. 'View' ?>?muid=<?p. $row['muid'] ?><?fn. '' ?>"><?v. $row['mid']; ?></a></td>
 	<td><a href="<?a. 'View' ?>?muid=<?p. $row['muid'] ?><?fn. '' ?>"><?v. $row['mname']; ?></a></td>
 	<td><?v. $row['nickname']; ?></td>
-	<td><?p. $Model->HTMLPrintEnum('level', $row['level']) ?></td>
+	<td><?menum('level', $row['level']) ?></td>
 	<td><?v. $row['phone']; ?></td>
 	<td><?p. substr($row['reg_date'],0,10); ?></td>
-	<td><?p. $Model->HTMLPrintEnum('approve', $row['approve']) ?></td>
+	<td><?menum('approve', $row['approve']) ?></td>
 	<td><?php if($row['level'] == _ADMIN_LEVEL && $_SESSION['member']['level'] == _SADMIN_LEVEL){ ?><a href="<?a. 'AuthAdmin' ?>?muid=<?p. $row['muid'] ?>" class="adminAuthBtn sBtn">관리자권한관리</a><?php } ?></td>
 </tr>
 <?php } ?>

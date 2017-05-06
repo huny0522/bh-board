@@ -23,7 +23,7 @@ class LoginController{
 
 	public function Index(){
 		if(_MEMBERIS === true && ($_SESSION['member']['level'] == _SADMIN_LEVEL || $_SESSION['member']['level'] == _ADMIN_LEVEL)) Redirect(_ADMINURL);
-		App::_View($this, $this->model);
+		App::View($this, $this->model);
 	}
 
 	public function PostLogin(){

@@ -27,7 +27,7 @@ class ReplyController{
 
 	public function __init(){
 		if(_POSTIS !== true) exit;
-		App::$_Value['article_seq'] = SetDBInt((string)$_POST['article_seq']);
+		App::$Data['article_seq'] = SetDBInt((string)$_POST['article_seq']);
 
 		if(!isset(App::$TID) || App::$TID == ''){
 			exit;
@@ -58,7 +58,7 @@ class ReplyController{
 		//$dbList->pageUrl = App::URLAction('').App::GetFollowQuery('page');
 		$dbList->pageUrl = '#';
 		$dbList->articleCount = isset($this->boardManger) ? $this->boardManger->GetValue('article_count') : 20;
-		$dbList->AddWhere('article_seq='.App::$_Value['article_seq']);
+		$dbList->AddWhere('article_seq='.App::$Data['article_seq']);
 		$dbList->sort = 'sort1, sort2';
 		if(method_exists($this, 'IndexAddQuery')) $this->IndexAddQuery($dbList);
 		$dbList->DrawRows();
@@ -102,7 +102,7 @@ class ReplyController{
 			if(file_exists(_SKINDIR.$html)) App::$Html = $html;
 		}
 
-		App::_View($this, null, $dbList);
+		App::View($this, null, $dbList);
 	}
 
 	public function PostWrite($answerIs = false){
@@ -175,13 +175,13 @@ class ReplyController{
 		if($answerIs){
 			$qry = new \BH_DB_Get($this->model->table);
 			$qry->SetKey('mname, depth, muid, sort1, sort2');
-			$qry->AddWhere('article_seq = %d', App::$_Value['article_seq']);
+			$qry->AddWhere('article_seq = %d', App::$Data['article_seq']);
 			$qry->AddWhere('seq = %d', $target);
 			$row = $qry->Get();
 
 			$qry = new \BH_DB_Update($this->model->table);
 			$qry->SetData('sort2', 'sort2 + 1');
-			$qry->AddWhere('article_seq = %d', App::$_Value['article_seq']);
+			$qry->AddWhere('article_seq = %d', App::$Data['article_seq']);
 			$qry->AddWhere('sort1 = %d', $row['sort1']);
 			$qry->AddWhere('sort2 > %d', $row['sort2']);
 			$qry->sort = 'sort2 DESC';
@@ -199,7 +199,7 @@ class ReplyController{
 			$this->model->SetValue('depth', $row['depth'] + 1);
 		}else{
 			$this->model->SetValue('first_member_is', _MEMBERIS === true ? 'y' : 'n');
-			$this->model->SetQueryValue('sort1', '(SELECT IF(COUNT(s.sort1) = 0, 0, MIN(s.sort1))-1 FROM '.$this->model->table.' as s WHERE s.article_seq='.App::$_Value['article_seq'].')');
+			$this->model->SetQueryValue('sort1', '(SELECT IF(COUNT(s.sort1) = 0, 0, MIN(s.sort1))-1 FROM '.$this->model->table.' as s WHERE s.article_seq='.App::$Data['article_seq'].')');
 		}
 
 		$error = $this->model->GetErrorMessage();
@@ -378,7 +378,7 @@ class ReplyController{
 		if($this->managerIs || (_MEMBERIS === true && $_SESSION['member']['level'] == _SADMIN_LEVEL)) $myArticleIs = true;
 		else{
 			$dbGet = new \BH_DB_Get($this->model->boardTable);
-			$dbGet->AddWhere('seq='.App::$_Value['article_seq']);
+			$dbGet->AddWhere('seq='.App::$Data['article_seq']);
 			$dbGet->SetKey(array('muid','pwd','secret'));
 			$boardArticle = $dbGet->Get();
 			if(strlen($boardArticle['muid'])){

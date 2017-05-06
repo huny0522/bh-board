@@ -11,22 +11,22 @@ App::JSAdd('reply.js', 200);
 	<header>
 		<div>
 			<?php if($Model->GetValue('category')){ ?>
-				<b>[<?v. $Model->GetValue('category') ?>]</b>
+				<b>[<?mv('category') ?>]</b>
 			<?php } ?>
-			<?v. $Model->GetValue('subject') ?>
+			<?mv('subject') ?>
 		</div>
 		<ul>
-			<li class="mname"><b><?p. $Model->data['mname']->DisplayName ?></b> : <?v. $Model->GetValue('mname') ?></li>
-			<li><b><?p. $Model->data['recommend']->DisplayName ?></b> : <?v. $Model->GetValue('recommend') ?></li>
-			<li><b><?p. $Model->data['hit']->DisplayName ?></b> : <?v. $Model->GetValue('hit') ?></li>
-			<li><b><?p. $Model->data['reg_date']->DisplayName ?></b> : <?p. KrDate($Model->GetValue('reg_date')) ?></li>
+			<li class="mname"><b><?mt('mname')?></b> : <?mv('mname') ?></li>
+			<li><b><?mt('recommend')?></b> : <?mv('recommend') ?></li>
+			<li><b><?mt('hit')?></b> : <?mv('hit') ?></li>
+			<li><b><?mt('reg_date')?></b> : <?p. KrDate($Model->GetValue('reg_date')) ?></li>
 		</ul>
 	</header>
 	<div class="contents">
 		<?php if($Model->GetValue('htmlis') == 'y'){ ?>
-			<?vr. $Model->GetValue('content') ?>
+			<?mvr('content') ?>
 		<?php }else{ ?>
-			<?v. $Model->GetValue('content') ?>
+			<?mv('content') ?>
 		<?php } ?>
 	</div>
 
@@ -106,4 +106,4 @@ App::JSAdd('reply.js', 200);
 
 <?php } ?>
 
-<?php if(isset(self::$_Value['List'])) echo self::$_Value['List']; ?>
+<?php if(isset(App::$Data['List'])) echo App::$Data['List']; ?>

@@ -19,7 +19,7 @@ class MenuManagerController extends \BH_Category{
 	}
 
 	public function __init(){
-		App::$_Value['NowMenu'] = '004';
+		App::$Data['NowMenu'] = '004';
 		CF::Get()->AdminAuth();
 		App::$Layout = '_Admin';
 		parent::__init();

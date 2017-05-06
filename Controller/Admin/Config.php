@@ -12,7 +12,7 @@ class ConfigController{
 	}
 
 	public function __init(){
-		App::$_Value['NowMenu'] = '001001';
+		App::$Data['NowMenu'] = '001001';
 		CF::Get()->AdminAuth();
 
 		App::SetFollowQuery(array('where', 'keyword','page'));
@@ -20,19 +20,16 @@ class ConfigController{
 	}
 
 	public function Index(){
-		App::$_Value['NowMenu'] = '001001001';
-		App::$_Value['Code'] = 'Default';
-		App::_View($this);
+		App::$Data['NowMenu'] = '001001001';
+		App::$Data['Code'] = 'Default';
+		App::View($this);
 	}
 
 	public function PostWrite(){
 		if(!file_exists( _DATADIR.'/CFG') || !is_dir(_DATADIR.'/CFG')) mkdir(_DATADIR.'/CFG', 0755);
 		$path = _DATADIR.'/CFG/'.$_POST['Code'].'.php';
-		$txt = '';
-		foreach($_POST as $k => $v){
-			$txt .= '\App::$CFG[\''.addslashes($_POST['Code']).'\'][\''.addslashes($k).'\'] = \''.addslashes($v).'\';'.chr(10);
-		}
-		file_put_contents($path, '<?php'.chr(10).$txt);
+		$txt = '<?php \BH_Application::$CFG = '.var_export(App::$CFG, true).';';
+		file_put_contents($path, $txt);
 		Redirect(App::URLAction(), '설정되었습니다.');
 	}
 }

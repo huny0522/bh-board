@@ -7,10 +7,10 @@ ob_start();
 ?>
 <div class="Board">
 	<h2><?v. $Ctrl->boardManger->GetValue('subject') ?></h2>
-	<?php if(self::$_Value['categorys']){ ?>
+	<?php if(App::$Data['categorys']){ ?>
 		<ul class="category">
 			<li<?php if(!isset($_GET['category'])) echo ' class="Active"'; ?>><a href="<?a. '' ?>">전체</a></li>
-		<?php foreach(self::$_Value['categorys'] as $row){ ?>
+		<?php foreach(App::$Data['categorys'] as $row){ ?>
 			<li<?php if(isset($_GET['category']) && $row == $_GET['category']) echo ' class="Active"'; ?>><a href="<?a. '' ?>?category=<?v. $row ?>"><?p. $row ?></a></li>
 		<?php } ?>
 		</ul>

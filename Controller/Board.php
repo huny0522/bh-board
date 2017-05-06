@@ -45,9 +45,9 @@ class BoardController{
 		if($layout) App::$Layout = $layout;
 
 
-		App::$_Value['categorys'] = array();
+		App::$Data['categorys'] = array();
 		if(!is_null($this->boardManger->GetValue('category')) && strlen($this->boardManger->GetValue('category'))){
-			App::$_Value['categorys'] = explode(',', $this->boardManger->GetValue('category'));
+			App::$Data['categorys'] = explode(',', $this->boardManger->GetValue('category'));
 		}
 	}
 
@@ -58,13 +58,13 @@ class BoardController{
 		if(!$res) Redirect('-1', _NO_AUTH);
 
 		// 공지를 불러온다.
-		App::$_Value['notice'] = array();
+		App::$Data['notice'] = array();
 		$_GET['searchKeyword'] = isset($_GET['searchKeyword']) ? trim($_GET['searchKeyword']) : '';
 		if((!isset($_GET['page']) || $_GET['page'] < 2) && !strlen($_GET['searchKeyword'])){
 			$qry = new \BH_DB_GetList($this->model->table);
 			$qry->AddWhere('delis=\'n\'');
 			$qry->AddWhere('notice=\'y\'');
-			App::$_Value['notice'] = $qry->GetRows();
+			App::$Data['notice'] = $qry->GetRows();
 		}
 
 		// 리스트를 불러온다.
@@ -96,8 +96,8 @@ class BoardController{
 		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Index.html';
 		if(file_exists(_SKINDIR.$html)) App::$Html = $html;
 
-		if($viewPageIs) return App::_GetView($this, $this->model, $dbList);
-		else App::_View($this, $this->model, $dbList);
+		if($viewPageIs) return App::GetView($this, $this->model, $dbList);
+		else App::View($this, $this->model, $dbList);
 	}
 
 	public function PostView(){
@@ -105,7 +105,7 @@ class BoardController{
 	}
 
 	public function View(){
-		if($this->boardManger->GetValue('list_in_view') == 'y') App::$_Value['List'] = $this->Index(true);
+		if($this->boardManger->GetValue('list_in_view') == 'y') App::$Data['List'] = $this->Index(true);
 
 		if(!isset(App::$ID) || !strlen(App::$ID)) Redirect('-1');
 
@@ -172,7 +172,7 @@ class BoardController{
 		$html = '/Board/'.$this->boardManger->GetValue('skin').'/View.html';
 		if(file_exists(_SKINDIR.$html)) App::$Html = $html;
 
-		App::_View($this, $this->model, $data);
+		App::View($this, $this->model, $data);
 	}
 
 	public function Write(){
@@ -182,7 +182,7 @@ class BoardController{
 		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Write.html';
 		if(file_exists(_SKINDIR.$html)) App::$Html = $html;
 
-		App::_View($this, $this->model);
+		App::View($this, $this->model);
 	}
 
 	public function Answer(){
@@ -219,7 +219,7 @@ class BoardController{
 		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Write.html';
 		if(file_exists(_SKINDIR.$html)) App::$Html = $html;
 
-		App::_View($this, $this->model);
+		App::View($this, $this->model);
 	}
 
 	public function Modify(){
@@ -244,7 +244,7 @@ class BoardController{
 		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Write.html';
 		if(file_exists(_SKINDIR.$html)) App::$Html = $html;
 
-		App::_View($this, $this->model);
+		App::View($this, $this->model);
 	}
 
 	public function PostModify(){
@@ -320,9 +320,9 @@ class BoardController{
 			$dbGet = new \BH_DB_Get($this->model->table);
 			$dbGet->AddWhere('seq=%d', to10($_POST['target']));
 			$dbGet->SetKey('mname, depth, muid, sort1, sort2', 'seq', 'first_seq', 'first_member_is', 'category');
-			App::$_Value['targetData'] = $dbGet->Get();
-			$first_seq = strlen(App::$_Value['targetData']['first_seq']) ? App::$_Value['targetData']['first_seq'] : App::$_Value['targetData']['seq'];
-			$first_member_is = App::$_Value['targetData']['first_member_is'];
+			App::$Data['targetData'] = $dbGet->Get();
+			$first_seq = strlen(App::$Data['targetData']['first_seq']) ? App::$Data['targetData']['first_seq'] : App::$Data['targetData']['seq'];
+			$first_member_is = App::$Data['targetData']['first_member_is'];
 		}
 
 		require_once _COMMONDIR.'/FileUpload.php';
@@ -337,7 +337,7 @@ class BoardController{
 
 		$res = $this->model->SetPostValues();
 		if(!$res->result){
-			App::$_Value['error'] = $res->message;
+			App::$Data['error'] = $res->message;
 			$this->Write();
 			return;
 		}
@@ -348,7 +348,7 @@ class BoardController{
 			$fres_em = FileUpload($_FILES['file'.$n], App::$POSSIBLE_EXT, '/board/'.date('ym').'/');
 
 			if($fres_em === 'noext'){
-				App::$_Value['error'] = '등록 불가능한 파일입니다.';
+				App::$Data['error'] = '등록 불가능한 파일입니다.';
 				$this->Write();
 				return;
 			}
@@ -373,23 +373,23 @@ class BoardController{
 		if(App::$Action == 'Answer'){
 			$qry = new \BH_DB_Update($this->model->table);
 			$qry->SetData('sort2', 'sort2 + 1');
-			$qry->AddWhere('sort1 = %d', App::$_Value['targetData']['sort1']);
-			$qry->AddWhere('sort2 > %d', App::$_Value['targetData']['sort2']);
+			$qry->AddWhere('sort1 = %d', App::$Data['targetData']['sort1']);
+			$qry->AddWhere('sort2 > %d', App::$Data['targetData']['sort2']);
 			$qry->sort = 'sort2 DESC';
 			$qry->Run();
 			if(!$qry->result){
-				App::$_Value['error'] = 'ERROR#201';
+				App::$Data['error'] = 'ERROR#201';
 				$this->Write();
 				return;
 			}
 			$this->model->SetValue('first_seq', $first_seq);
 			$this->model->SetValue('first_member_is', $first_member_is);
-			$this->model->SetValue('target_mname', App::$_Value['targetData']['mname']);
-			$this->model->SetValue('target_muid', App::$_Value['targetData']['muid'] ? App::$_Value['targetData']['muid'] : 0);
-			$this->model->SetValue('sort1', App::$_Value['targetData']['sort1']);
+			$this->model->SetValue('target_mname', App::$Data['targetData']['mname']);
+			$this->model->SetValue('target_muid', App::$Data['targetData']['muid'] ? App::$Data['targetData']['muid'] : 0);
+			$this->model->SetValue('sort1', App::$Data['targetData']['sort1']);
 			//echo  $row['sort1'];exit;
-			$this->model->SetValue('sort2', App::$_Value['targetData']['sort2'] + 1);
-			$this->model->SetValue('depth', App::$_Value['targetData']['depth'] + 1);
+			$this->model->SetValue('sort2', App::$Data['targetData']['sort2'] + 1);
+			$this->model->SetValue('depth', App::$Data['targetData']['depth'] + 1);
 		}else{
 			$this->model->SetValue('first_member_is', _MEMBERIS === true ? 'y' : 'n');
 			$this->model->SetQueryValue('sort1', '(SELECT IF(COUNT(s.sort1) = 0, 0, MIN(s.sort1))-1 FROM '.$this->model->table.' as s)');
@@ -399,7 +399,7 @@ class BoardController{
 
 		$error = $this->model->GetErrorMessage();
 		if(sizeof($error)){
-			App::$_Value['error'] = $error[0];
+			App::$Data['error'] = $error[0];
 			$this->Write();
 			return;
 		}

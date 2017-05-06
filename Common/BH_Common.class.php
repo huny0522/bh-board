@@ -20,7 +20,7 @@ class BH_Common
 		}
 		if($_SESSION['member']['level'] == _ADMIN_LEVEL){
 			$AdminAuth = explode(',', $this->GetMember('admin_auth'));
-			if(!in_array(App::$_Value['NowMenu'], $AdminAuth)){
+			if(!in_array(App::$Data['NowMenu'], $AdminAuth)){
 				if(_AJAXIS === true) JSON(false, _NO_AUTH);
 				else Redirect('-1', _NO_AUTH);
 			}
@@ -42,8 +42,7 @@ class BH_Common
 	 * @param string $key
 	 * @return array|bool|null
 	 */
-	public function GetMember($key = '')
-	{
+	public function GetMember($key = ''){
 		// 원글 가져오기
 		if(_MEMBERIS === true){
 			if(!isset($this->Member) || !$this->Member){
@@ -90,7 +89,7 @@ class BH_Common
 
 		App::$CFG[$code][$key] = $val;
 		$path = _DATADIR.'/CFG/'.$code.'.php';
-		$txt = '<?php App::$CFG = '.var_export(App::$CFG, true).';';
+		$txt = '<?php \BH_Application::$CFG = '.var_export(App::$CFG, true).';';
 		file_put_contents($path, $txt);
 		$res->result = true;
 		return $res;

@@ -5,6 +5,7 @@
  */
 use \BH_Common as CF;
 use \BH_Application as App;
+use \DB as DB;
 
 define('_OB_COMP', 'zlib.output_compression');
 define('_POSTIS', $_SERVER['REQUEST_METHOD'] == 'POST');
@@ -383,12 +384,12 @@ function JSON($bool, $message = '', $data = array()){
 }
 
 function aes_encrypt($plaintext, $password){
-	$qry = \DB::SQL()->Fetch('SELECT HEX(AES_ENCRYPT(%s, %s)) as txt', $plaintext, $password);
+	$qry = DB::SQL()->Fetch('SELECT HEX(AES_ENCRYPT(%s, %s)) as txt', $plaintext, $password);
 	return $qry['txt'];
 }
 
 function aes_decrypt($ciphertext, $password){
-	$qry = \DB::SQL()->Fetch('SELECT AES_DECRYPT(UNHEX(%s), %s) as txt', $ciphertext, $password);
+	$qry = DB::SQL()->Fetch('SELECT AES_DECRYPT(UNHEX(%s), %s) as txt', $ciphertext, $password);
 	return $qry['txt'];
 }
 
@@ -464,25 +465,25 @@ function SqlFree($result){
 }
 
 function SqlTableExists($table){
-	return \DB::SQL()->TableExists($table);
+	return DB::SQL()->TableExists($table);
 }
 
 function SqlQuery($sql){
-	return \DB::SQL()->Query(func_get_args());
+	return DB::SQL()->Query(func_get_args());
 }
 
 function SqlCCQuery($table, $sql){
 	$args = func_get_args();
 	array_shift($args);
-	return \DB::SQL()->Query($table, $args);
+	return DB::SQL()->Query($table, $args);
 }
 
 function SqlNumRows($qry){
-	return \DB::SQL()->NumRows($qry);
+	return DB::SQL()->NumRows($qry);
 }
 
 function SqlFetch($qry){
-	return \DB::SQL()->Fetch(func_get_args());
+	return DB::SQL()->Fetch(func_get_args());
 }
 
 function SqlPassword($input) {
@@ -945,7 +946,7 @@ class _ModelFunc{
 		}
 
 		$sql = 'DELETE FROM '.$params['table'].' WHERE '.implode(' AND ', $params['where']);
-		$res->result = \DB::SQL()->Query($sql);
+		$res->result = DB::SQL()->Query($sql);
 		\BH_DB_Cache::DelPath($params['table']);
 		return $res;
 	}

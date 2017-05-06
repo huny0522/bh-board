@@ -10,19 +10,19 @@ use \BH_Application as App;
 <h3>회원정보수정</h3>
 
 <form name="MemberWriteForm" id="MemberWriteForm" method="post" action="<?a. App::$Action ?><?fq. '' ?>">
-	<?php if(isset(self::$_Value['error'])) echo '<p class="alert">'.self::$_Value['error'].'</p>'; ?>
+	<?php if(isset(App::$Data['error'])) echo '<p class="alert">'.App::$Data['error'].'</p>'; ?>
 
 	<table class="write">
 		<tr>
-			<th><?p. $Model->data['mid']->DisplayName ?></th>
+			<th><?mt('mid')?></th>
 			<td>
-				<?v. $Model->GetValue('mid') ?>
+				<?mv('mid') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><?p. $Model->data['pwd']->DisplayName ?></th>
+			<th><?mt('pwd')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('pwd') ?>
+				<?minp('pwd') ?>
 				<ul class="guide">
 					<li>수정하시려면 입력하여 주세요.</li>
 					<li>8자 이상, 16자 이하로 입력하여주세요.</li>
@@ -30,57 +30,57 @@ use \BH_Application as App;
 			</td>
 		</tr>
 		<tr>
-			<th><?p. $Model->data['pwd']->DisplayName ?>확인</th>
+			<th><?mt('pwd')?>확인</th>
 			<td>
 				<input type="password" name="pwdchk" data-same="pwd">
 			</td>
 		</tr>
 		<tr>
-			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['email']->DisplayName ?></th>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('email')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('email') ?>
+				<?minp('email') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><?p. $Model->data['nickname']->DisplayName ?></th>
+			<th><?mt('nickname')?></th>
 			<td>
-				<?v. $Model->GetValue('nickname') ?>
+				<?mv('nickname') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><?p. $Model->data['address1']->DisplayName ?></th>
+			<th><?mt('address1')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('address1') ?>
+				<?minp('address1') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><?p. $Model->data['address2']->DisplayName ?></th>
+			<th><?mt('address2')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('address2') ?>
+				<?minp('address2') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><?p. $Model->data['zipcode']->DisplayName ?></th>
+			<th><?mt('zipcode')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('zipcode') ?>
+				<?minp('zipcode') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><?p. $Model->data['tel']->DisplayName ?></th>
+			<th><?mt('tel')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('tel') ?>
+				<?minp('tel') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><?p. $Model->data['phone']->DisplayName ?></th>
+			<th><?mt('phone')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('phone') ?>
+				<?minp('phone') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><?p. $Model->data['reg_date']->DisplayName ?></th>
+			<th><?mt('reg_date')?></th>
 			<td>
-				<?p. $Model->GetValue('reg_date') ?>
+				<?mv('reg_date') ?>
 			</td>
 		</tr>
 	</table>

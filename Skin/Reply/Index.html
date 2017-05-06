@@ -10,7 +10,7 @@ use \BH_Application as App;
 	<h3>댓글 <span>(<?p. $Data->totalRecord ?>)</span></h3>
 	<div id="replyWrite" class="replyWrite">
 		<form id="replyWriteForm" name="replyWriteForm" method="post" action="<?a. 'Write' ?>" autocomplete="off" class="reply_form">
-			<input type="hidden" name="article_seq" value="<?p. self::$_Value['article_seq'] ?>" id="rep_article_seq" />
+			<input type="hidden" name="article_seq" value="<?p. App::$Data['article_seq'] ?>" id="rep_article_seq" />
 
 			<?php if(_MEMBERIS !== true){ ?>
 				<fieldset class="user">
@@ -85,7 +85,7 @@ use \BH_Application as App;
 <?php if(_MEMBERIS !== true){ ?>
 	<div id="replyPwdLayer" class="repLayer hidden">
 		<form id="repPwdForm" name="repPwdForm" method="post" action="<?a. 'ViewSecret' ?>">
-			<input type="hidden" name="article_seq" value="<?p. self::$_Value['article_seq'] ?>">
+			<input type="hidden" name="article_seq" value="<?p. App::$Data['article_seq'] ?>">
 			<input type="hidden" name="seq" value="">
 
 			<fieldset class="pwd">
@@ -103,7 +103,7 @@ use \BH_Application as App;
 
 <div id="replyDeleteLayer" class="repLayer hidden">
 	<form id="repDeleteForm" name="repDeleteForm" method="post" action="<?a. 'Delete' ?>">
-		<input type="hidden" name="article_seq" value="<?p. self::$_Value['article_seq'] ?>">
+		<input type="hidden" name="article_seq" value="<?p. App::$Data['article_seq'] ?>">
 		<input type="hidden" name="seq" value="">
 			<fieldset class="pwd">
 				<p>정말 삭제하시겠습니까?<br><span class="pwdinp">삭제하시려면 비밀번호를 입력하여 주세요.</span></p>
@@ -118,7 +118,7 @@ use \BH_Application as App;
 
 <div id="replyModifyLayer" class="repLayer hidden">
 	<form id="repModifyForm" name="repModifyForm" method="post" action="<?a. 'Modify' ?>">
-		<input type="hidden" name="article_seq" value="<?p. self::$_Value['article_seq'] ?>">
+		<input type="hidden" name="article_seq" value="<?p. App::$Data['article_seq'] ?>">
 		<input type="hidden" name="seq" value="">
 
 		<fieldset class="text">
@@ -139,7 +139,7 @@ use \BH_Application as App;
 
 <div id="replyAnswerLayer" class="repLayer hidden">
 	<form id="repAnswerForm" name="repAnswerForm" method="post" action="<?a. 'Answer' ?>">
-		<input type="hidden" name="article_seq" value="<?p. self::$_Value['article_seq'] ?>">
+		<input type="hidden" name="article_seq" value="<?p. App::$Data['article_seq'] ?>">
 		<input type="hidden" name="seq" value="">
 		<input type="hidden" name="target_seq" value="">
 

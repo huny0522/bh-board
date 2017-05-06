@@ -9,19 +9,19 @@ use \BH_Application as App;
 
 <form name="BannerWriteForm" id="BannerWriteForm" method="post" action="<?a. App::$Action ?><?v. '/'.App::$ID ?><?fq. '' ?>" enctype="multipart/form-data">
 
-	<?php if(isset(self::$_Value['error'])){ ?><p class="alert"><?p. self::$_Value['error'] ?></p><?php } ?>
+	<?php if(isset(App::$Data['error'])){ ?><p class="alert"><?p. App::$Data['error'] ?></p><?php } ?>
 	<table class="write">
 		<tr>
-			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['category']->DisplayName ?></th>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('category')?></th>
 			<td>
 				<select id="category_choice">
 					<option value="">선택</option>
-					<?php if(isset(self::$_Value['category'])) foreach(self::$_Value['category'] as $row){ ?>
+					<?php if(isset(App::$Data['category'])) foreach(App::$Data['category'] as $row){ ?>
 						<option<?php if($Model->GetValue('category') == $row) echo ' selected'; ?>><?v. $row ?></option>
 					<?php } ?>
 					<option value="x">추가</option>
 				</select>
-				<span class="hidden" id="category_real"><input type="text" name="category" value="<?v. $Model->GetValue('category') ?>" id="category"></span>
+				<span class="hidden" id="category_real"><input type="text" name="category" value="<?mv('category') ?>" id="category"></span>
 
 				<ul class="guide">
 					<li>20자 이하로 입력하여주세요.</li>
@@ -29,68 +29,68 @@ use \BH_Application as App;
 			</td>
 		</tr>
 		<tr>
-			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['subject']->DisplayName ?></th>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('subject')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('subject') ?>
+				<?minp('subject') ?>
 				<ul class="guide">
 					<li>50자 이하로 입력하여주세요.</li>
 				</ul>
 			</td>
 		</tr>
 		<tr>
-			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['begin_date']->DisplayName ?></th>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('begin_date')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('begin_date') ?>
+				<?minp('begin_date') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['end_date']->DisplayName ?></th>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('end_date')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('end_date') ?>
+				<?minp('end_date') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['type']->DisplayName ?></th>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('type')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('type') ?>
+				<?minp('type') ?>
 			</td>
 		</tr>
 		<tr id="typeFieldI">
-			<th><?p. $Model->data['img']->DisplayName ?></th>
+			<th><?mt('img')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('img') ?>
+				<?minp('img') ?>
 				<div>
 					<?p. $Model->HTMLPrintLabel('link_url') ?>
-					<span><?p. $Model->HTMLPrintInput('link_url') ?></span>
+					<span><?minp('link_url') ?></span>
 				</div>
 				<div>
 					<?p. $Model->HTMLPrintLabel('new_window') ?>
-					<span><?p. $Model->HTMLPrintInput('new_window') ?></span>
+					<span><?minp('new_window') ?></span>
 				</div>
 			</td>
 		</tr>
 		<tr id="typeFieldC">
-			<th><?p. $Model->data['contents']->DisplayName ?></th>
+			<th><?mt('contents')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('contents') ?>
+				<?minp('contents') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['enabled']->DisplayName ?></th>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('enabled')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('enabled') ?>
+				<?minp('enabled') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['mlevel']->DisplayName ?></th>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('mlevel')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('mlevel') ?>
+				<?minp('mlevel') ?>
 			</td>
 		</tr>
 		<tr>
-			<th><i class="requiredBullet" title="필수항목">*</i> <?p. $Model->data['sort']->DisplayName ?></th>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('sort')?></th>
 			<td>
-				<?p. $Model->HTMLPrintInput('sort') ?> <span class="guide">* 숫자가 높을수록 먼저 노출됩니다.</span>
+				<?minp('sort') ?> <span class="guide">* 숫자가 높을수록 먼저 노출됩니다.</span>
 			</td>
 		</tr>
 	</table>
@@ -105,7 +105,7 @@ use \BH_Application as App;
 
 <script>
 	$(document).ready(function(){
-		typeView('<?p. $Model->GetValue('type') ?>');
+		typeView('<?mv('type') ?>');
 	})
 
 	var contentsViewIs = false;

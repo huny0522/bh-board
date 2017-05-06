@@ -21,7 +21,7 @@ class ContentManagerController{
 	}
 
 	public function __init(){
-		App::$_Value['NowMenu'] = '003';
+		App::$Data['NowMenu'] = '003';
 		CF::Get()->AdminAuth();
 
 		// 항상 따라다닐 URL 쿼리 파라미터를 지정
@@ -29,7 +29,7 @@ class ContentManagerController{
 		App::$Layout = '_Admin';
 
 		$AdminAuth = explode(',', CF::Get()->GetMember('admin_auth'));
-		App::$_Value['menuAuth'] = (in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL);
+		App::$Data['menuAuth'] = (in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL);
 	}
 
 	public function Index(){
@@ -43,7 +43,7 @@ class ContentManagerController{
 		$dbGetList->SetKey('A.*, group_concat(B.title SEPARATOR \', \') as title');
 		$dbGetList->Run();
 
-		App::_View($this, $this->model, $dbGetList);
+		App::View($this, $this->model, $dbGetList);
 	}
 	public function View(){
 		$res = $this->model->DBGet($_GET['bid']);
@@ -51,36 +51,36 @@ class ContentManagerController{
 		$dbGet = new \BH_DB_GetList(TABLE_MENU);
 		$dbGet->AddWhere('type=\'content\'');
 		$dbGet->AddWhere('bid='.SetDBText($this->model->GetValue('bid')));
-		App::$_Value['selectedMenu'] = $dbGet->GetRows();
+		App::$Data['selectedMenu'] = $dbGet->GetRows();
 
 		if(!$res->result){
 			Redirect('-1', $res->message);
 		}
 
-		App::_View($this, $this->model);
+		App::View($this, $this->model);
 	}
 	public function Write(){
 		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
 		$dbGetList->AddWhere('LENGTH(category) = '._CATEGORY_LENGTH);
-		App::$_Value['menu'] = $dbGetList->GetRows();
-		App::_View($this, $this->model);
+		App::$Data['menu'] = $dbGetList->GetRows();
+		App::View($this, $this->model);
 	}
 	public function Modify(){
 		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
 		$dbGetList->AddWhere('LENGTH(category) = '._CATEGORY_LENGTH);
-		App::$_Value['menu'] = $dbGetList->GetRows();
+		App::$Data['menu'] = $dbGetList->GetRows();
 
 		$res = $this->model->DBGet($_GET['bid']);
 		$dbGet = new \BH_DB_GetList(TABLE_MENU);
 		$dbGet->AddWhere('type=\'content\'');
 		$dbGet->AddWhere('bid='.SetDBText($this->model->GetValue('bid')));
-		App::$_Value['selectedMenu'] = $dbGet->GetRows();
+		App::$Data['selectedMenu'] = $dbGet->GetRows();
 
 		if(!$res->result){
 			Redirect('-1', $res->message);
 		}
 		App::$Html = 'Write';
-		App::_View($this, $this->model);
+		App::View($this, $this->model);
 	}
 	public function PostWrite(){
 		$res = $this->model->SetPostValues();
