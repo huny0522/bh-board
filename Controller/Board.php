@@ -103,6 +103,7 @@ class BoardController{
 	public function PostView(){
 		$this->View();
 	}
+
 	public function View(){
 		if($this->boardManger->GetValue('list_in_view') == 'y') App::$_Value['List'] = $this->Index(true);
 

@@ -99,7 +99,7 @@ class ContentManagerController{
 		}
 	}
 	public function PostModify(){
-		$res = $this->model->DBGet($_GET['bid']);
+		$res = $this->model->DBGet($_POST['bid']);
 		if(!$res->result){
 			Redirect('-1',$res->message);
 		}
