@@ -25,7 +25,7 @@ class BH_Model{
 	 * @param string $ModelName
 	 * @return mixed
 	 */
-	public static function GetModelExtends($ModelName){
+	public static function &GetModelExtends($ModelName){
 		$model = $ModelName.'Model';
 		require_once _MODELDIR.'/'.$ModelName.'.model.php';
 		if(class_exists($model)) return $model::Get();
@@ -39,7 +39,7 @@ class BH_Model{
 	 * 모델 생성
 	 * @return mixed
 	 */
-	public static function Get(){
+	public static function &Get(){
 		static $Instance;
 		if(isset($Instance)) return $Instance;
 
