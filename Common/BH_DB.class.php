@@ -884,7 +884,7 @@ class BH_DB_Update{
 		else{
 			$res->result = false;
 			$res->message = _DEVELOPERIS === true ? 'WHERE 구문이 없습니다.' : 'ERROR #101';
-			return;
+			return $res;
 		}
 
 		$sql = 'UPDATE ' . $this->table . ' SET ' . $set . $where;
