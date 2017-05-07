@@ -18,8 +18,7 @@ class BoardController{
 	public $managerIs = false;
 
 	public function __construct(){
-		require _DIR.'/Model/Board.model.php';
-		$this->model = new \BoardModel();
+		$this->model = \BH_Model::GetModelExtends('Board');
 	}
 
 	public function __init(){
@@ -29,8 +28,7 @@ class BoardController{
 	protected function BoardSetting(){
 		if(!isset(App::$TID) || App::$TID == '') Redirect('-1', '잘못된 접근입니다.');
 
-		require _DIR.'/Model/BoardManager.model.php';
-		$this->boardManger = new \BoardManagerModel();
+		$this->boardManger = \BH_Model::GetModelExtends('BoardManager');
 		$this->boardManger->DBGet(App::$TID);
 		App::SetFollowQuery(array('page','searchType','searchKeyword','category'));
 

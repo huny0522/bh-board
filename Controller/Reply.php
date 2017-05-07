@@ -18,11 +18,8 @@ class ReplyController{
 	public $managerIs = false;
 
 	public function __construct(){
-		require _DIR.'/Model/Reply.model.php';
-		require _DIR.'/Model/BoardManager.model.php';
-
-		$this->model = new \ReplyModel();
-		$this->boardManger = new \BoardManagerModel();
+		$this->model = \BH_Model::GetModelExtends('Reply');
+		$this->boardManger = \BH_Model::GetModelExtends('BoardManager');
 	}
 
 	public function __init(){

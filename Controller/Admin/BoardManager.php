@@ -17,8 +17,7 @@ class BoardManagerController
 	public $model = null;
 
 	public function __construct(){
-		require_once _MODELDIR.'/BoardManager.model.php';
-		$this->model = new \BoardManagerModel();
+		$this->model = \BH_Model::GetModelExtends('BoardManager');
 	}
 
 	public function __init(){

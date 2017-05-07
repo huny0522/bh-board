@@ -17,8 +17,7 @@ class LoginController{
 	}
 
 	public function __init(){
-		require _DIR.'/Model/Member.model.php';
-		$this->model = new \MemberModel();
+		$this->model = \BH_Model::GetModelExtends('Member');
 	}
 
 	public function Index(){

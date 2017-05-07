@@ -12,8 +12,7 @@ class LoginController{
 	public $model;
 
 	public function __construct(){
-		require_once _MODELDIR.'/Member.model.php';
-		$this->model = new \MemberModel();
+		$this->model = \BH_Model::GetModelExtends('Member');
 		$this->model->data['mid']->Required = true;
 	}
 

@@ -13,8 +13,7 @@ class BH_Category{
 	public $Name;
 
 	public function __Init(){
-		require_once _DIR.'/Model/Menu.model.php';
-		$this->model = new \MenuModel();
+		$this->model = \BH_Model::GetModelExtends('Menu');
 	}
 
 	public function Index(){

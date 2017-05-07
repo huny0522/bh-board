@@ -6,7 +6,6 @@
 use \BH_Application as App;
 use \BH_Common as CF;
 
-require_once _MODELDIR.'/Member.model.php';
 class MypageController{
 
 	public function __construct(){
@@ -18,7 +17,6 @@ class MypageController{
 	}
 
 	public function Index(){
-		require_once _MODELDIR.'/BoardManager.model.php';
 		$dbGetList = new \BH_DB_GetList(TABLE_BOARD_MNG);
 		$dbGetList->SetKey('bid, subject');
 		$data = array();
@@ -45,7 +43,7 @@ class MypageController{
 	}
 
 	public function PostPassword(){
-		$model = new \MemberModel();
+		$model = \BH_Model::GetModelExtends('Member');
 		if(!isset($_POST['pwd']) || strlen($_POST['pwd']) < 1){
 			Redirect('-1', '패스워드를 입력하여 주세요.');
 		}
@@ -69,7 +67,7 @@ class MypageController{
 			App::View($this);
 			return;
 		}
-		$model = new \MemberModel();
+		$model = \BH_Model::GetModelExtends('Member');
 		$model->data['pwd']->Required = false;
 		$model->DBGet($_SESSION['member']['muid']);
 		App::View($this, $model);
@@ -80,7 +78,7 @@ class MypageController{
 			Redirect(_URL.'/', _WRONG_CONNECTED);
 		}
 
-		$model = new \MemberModel();
+		$model = \BH_Model::GetModelExtends('Member');
 		$model->DBGet($_SESSION['member']['muid']);
 		$model->AddExcept(array('level','approve'));
 		$model->data['pwd']->Required = false;
@@ -121,7 +119,7 @@ class MypageController{
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
 			Redirect(_URL.'/', _WRONG_CONNECTED);
 		}
-		$model = new \MemberModel();
+		$model = \BH_Model::GetModelExtends('Member');
 		$model->DBGet($_SESSION['member']['muid']);
 		$dbInsert = new \BH_DB_Insert(TABLE_WITHDRAW_MEMBER);
 		$dbInsert->SetData('muid', $model->GetValue('muid'));

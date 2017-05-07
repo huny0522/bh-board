@@ -6,7 +6,7 @@
 use \BH_Common as CF;
 use \BH_Application as App;
 
-abstract class BH_Model{
+class BH_Model{
 	/**
 	 * @var BH_ModelData[]
 	 */
@@ -16,11 +16,37 @@ abstract class BH_Model{
 	public $Except = array();
 	public $Need = array();
 
-	public function __construct(){
-		$this->__Init();
+	private function __construct(){
+		if(method_exists($this, '__Init')) $this->__Init();
 	}
 
-	abstract public function __Init();
+	/**
+	 * 확장한 모델을 생성
+	 * @param string $ModelName
+	 * @return mixed
+	 */
+	public static function GetModelExtends($ModelName){
+		$model = $ModelName.'Model';
+		require_once _MODELDIR.'/'.$ModelName.'.model.php';
+		if(class_exists($model)) return $model::Get();
+
+		if(_DEVELOPERIS === true) echo $ModelName.'-Model is not exists';
+		else echo 'ERROR';
+		exit;
+	}
+
+	/**
+	 * 모델 생성
+	 * @return mixed
+	 */
+	public static function Get(){
+		static $Instance;
+		if(isset($Instance)) return $Instance;
+
+		$class = get_called_class();
+		$Instance = new $class();
+		return $Instance;
+	}
 
 	public function GetDisplayName($key){
 		return isset($this->data[$key]->DisplayName) ? $this->data[$key]->DisplayName : NULL;

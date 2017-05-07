@@ -16,8 +16,7 @@ class MemberController{
 	public $model = NULL;
 
 	public function __construct(){
-		require_once _MODELDIR.'/Member.model.php';
-		$this->model = new \MemberModel();
+		$this->model = \BH_Model::GetModelExtends('Member');
 	}
 
 	public function __init(){

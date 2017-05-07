@@ -14,8 +14,7 @@ class ContentsController{
 	public $model = null;
 
 	public function __construct(){
-		require _DIR.'/Model/Content.model.php';
-		$this->model = new \ContentModel();
+		$this->model = \BH_Model::GetModelExtends('Content');
 	}
 
 	public function __init(){

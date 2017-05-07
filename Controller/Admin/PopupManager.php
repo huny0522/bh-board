@@ -16,8 +16,7 @@ class PopupManagerController
 	public $model = null;
 
 	public function __construct(){
-		require_once _MODELDIR.'/Popup.model.php';
-		$this->model = new \PopupModel();
+		$this->model = \BH_Model::GetModelExtends('Popup');
 	}
 
 	public function __init(){
