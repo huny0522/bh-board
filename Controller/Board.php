@@ -376,8 +376,8 @@ class BoardController{
 			$qry->AddWhere('sort1 = %d', App::$Data['targetData']['sort1']);
 			$qry->AddWhere('sort2 > %d', App::$Data['targetData']['sort2']);
 			$qry->sort = 'sort2 DESC';
-			$qry->Run();
-			if(!$qry->result){
+			$res = $qry->Run();
+			if(!$res->result){
 				App::$Data['error'] = 'ERROR#201';
 				$this->Write();
 				return;

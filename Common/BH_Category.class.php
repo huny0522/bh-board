@@ -116,8 +116,8 @@ class BH_Category{
 				$qry->AddWhere('sort >= %d', $sort);
 				$qry->AddWhere('sort < %d', $this->model->GetValue('sort'));
 				$qry->AddWhere($parentWhere);
-				$qry->Run();
-				$res = $qry->result;
+				$result = $qry->Run();
+				$res = $result->result;
 			}
 			else if($sort > $this->model->GetValue('sort')){
 				$qry = new \BH_DB_Update($this->model->table);
@@ -125,8 +125,8 @@ class BH_Category{
 				$qry->AddWhere('sort <= %d', $sort);
 				$qry->AddWhere('sort > %d', $this->model->GetValue('sort'));
 				$qry->AddWhere($parentWhere);
-				$qry->Run();
-				$res = $qry->result;
+				$result = $qry->Run();
+				$res = $result->result;
 			}
 
 			if($res){
@@ -134,8 +134,8 @@ class BH_Category{
 				$qry->SetDataNum('sort', $sort);
 				$qry->AddWhere('category = %s', $_POST['category']);
 				$qry->AddWhere($parentWhere);
-				$qry->Run();
-				$res = $qry->result;
+				$result = $qry->Run();
+				$res = $result->result;
 			}
 			JSON($res);
 		}else JSON(true, '', $data);
@@ -161,8 +161,8 @@ class BH_Category{
 				$qry->AddWhere('LEFT(category, %d) = %s', strlen($parent), $parent);
 				$qry->AddWhere('LENGTH(category) = %d', strlen($parent) + $this->model->CategoryLength);
 				$qry->AddWhere('sort > %d', $data['sort']);
-				$qry->Run();
-				$res = $qry->result;
+				$result = $qry->Run();
+				$res = $result->result;
 			}
 			JSON($res);
 		}

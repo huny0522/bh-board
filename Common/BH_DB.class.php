@@ -739,10 +739,6 @@ class BH_DB_Insert{
 	private $MultiNames = '';
 	private $MultiValues = array();
 
-	public $result = false;
-	public $id;
-	public $message = '';
-
 	public function  __construct($table = ''){
 		$this->table = $table;
 	}
@@ -795,8 +791,8 @@ class BH_DB_Insert{
 		$this->result = \DB::SQL()->Query($sql);
 	}
 
-
 	public function Run(){
+		$res = new \BH_InsertResult();
 		$temp = '';
 		$names = '';
 		$values = '';
@@ -826,8 +822,8 @@ class BH_DB_Insert{
 				$r = \DB::SQL()->Query($sql);
 				$cnt --;
 			}
-			$this->result = $r ? true : false;
-			$this->id = $minseq['seq'];
+			$res->result = $r ? true : false;
+			$res->id = $minseq['seq'];
 		}
 		else{
 			$sql = 'INSERT INTO ' . $this->table . '(' . $names . ') VALUES (' . $values . ')';
@@ -836,11 +832,12 @@ class BH_DB_Insert{
 				exit;
 			}
 
-			$this->result = \DB::SQL()->Query($sql);
-			$this->id = mysqli_insert_id(\DB::SQL()->GetConn());
+			$res->result = \DB::SQL()->Query($sql);
+			$res->id = mysqli_insert_id(\DB::SQL()->GetConn());
 		}
 
-		\BH_DB_Cache::DelPath($this->table);
+		if($res->result) \BH_DB_Cache::DelPath($this->table);
+		return $res;
 	}
 }
 
@@ -849,9 +846,7 @@ class BH_DB_Update{
 	public $where = array();
 	public $data = array();
 	public $test = false;
-	public $result = false;
 	public $sort = '';
-	public $message = '';
 
 	public function  __construct($table = ''){
 		$this->table = $table;
@@ -875,6 +870,7 @@ class BH_DB_Update{
 	}
 
 	function Run(){
+		$res = new \BH_Result();
 		$temp = '';
 		$set = '';
 		foreach($this->data as $k => $v){
@@ -886,7 +882,8 @@ class BH_DB_Update{
 			$where = ' WHERE ' . implode(' AND ', $this->where);
 		}
 		else{
-			$this->result = false;
+			$res->result = false;
+			$res->message = _DEVELOPERIS === true ? 'WHERE 구문이 없습니다.' : 'ERROR #101';
 			return;
 		}
 
@@ -896,10 +893,10 @@ class BH_DB_Update{
 			echo $sql;
 			exit;
 		}
-		\BH_DB_Cache::DelPath($this->table);
-		$this->result = \DB::SQL()->Query($sql);
+		$res->result = \DB::SQL()->Query($sql);
+		if($res->result) \BH_DB_Cache::DelPath($this->table);
+		return $res;
 	}
-
 }
 
 class BH_DB_Delete{

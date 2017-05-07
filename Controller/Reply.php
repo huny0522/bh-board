@@ -185,8 +185,8 @@ class ReplyController{
 			$qry->AddWhere('sort1 = %d', $row['sort1']);
 			$qry->AddWhere('sort2 > %d', $row['sort2']);
 			$qry->sort = 'sort2 DESC';
-			$qry->Run();
-			if(!$qry->result){
+			$res = $qry->Run();
+			if(!$res->result){
 				echo json_encode(array('result' => false, 'message' => 'ERROR#201'));
 				exit;
 			}

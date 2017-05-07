@@ -464,28 +464,6 @@ function SqlFree($result){
 	mysqli_free_result($result);
 }
 
-function SqlTableExists($table){
-	return DB::SQL()->TableExists($table);
-}
-
-function SqlQuery($sql){
-	return DB::SQL()->Query(func_get_args());
-}
-
-function SqlCCQuery($table, $sql){
-	$args = func_get_args();
-	array_shift($args);
-	return DB::SQL()->Query($table, $args);
-}
-
-function SqlNumRows($qry){
-	return DB::SQL()->NumRows($qry);
-}
-
-function SqlFetch($qry){
-	return DB::SQL()->Fetch(func_get_args());
-}
-
 function SqlPassword($input) {
 	$pass = strtoupper(sha1(sha1($input, true)));
 	return $pass;
@@ -818,10 +796,7 @@ class _ModelFunc{
 		}
 		if(!$dbInsert->decrement) $dbInsert->UnsetWhere();
 		if(_DEVELOPERIS === true) $dbInsert->test = $test;
-		$dbInsert->Run();
-		$result->id = $dbInsert->id;
-		$result->message = $dbInsert->message;
-		$result->result = $dbInsert->result;
+		$result = $dbInsert->Run();
 		return $result;
 	}
 
@@ -873,9 +848,7 @@ class _ModelFunc{
 		}
 
 		if(_DEVELOPERIS === true) $dbUpdate->test = $test;
-		$dbUpdate->Run();
-		$result->result = $dbUpdate->result;
-		$result->message = $dbUpdate->message;
+		$result = $dbUpdate->Run();
 		return $result;
 	}
 

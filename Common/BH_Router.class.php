@@ -18,7 +18,6 @@ class BH_Router
 	public $AdminMenu = array();
 
 	public function __construct(){
-		if(App::$InstallIs) $this->SetMenu();
 		$this->GetUrl = explode('/', isset($_GET['_bh_url']) ? $_GET['_bh_url'] : '');
 		for($i = 0; $i < 10; $i++) if(!isset($this->GetUrl[$i])) $this->GetUrl[$i] = '';
 	}
@@ -122,6 +121,7 @@ class BH_Router
 				break;
 
 				default:
+					$this->SetMenu();
 					if(!$this->SetMenuRouter(_URL)){
 						App::$ControllerName = $this->GetUrl[1];
 						App::$Action = $this->GetUrl[2];
