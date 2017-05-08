@@ -16,7 +16,7 @@ class ContentManagerController{
 	public $model;
 
 	public function __construct(){
-		$this->model = \BH_Model::GetModelExtends('Content');
+		$this->model = App::GetModel('Content');
 	}
 
 	public function __init(){

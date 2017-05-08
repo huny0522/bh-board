@@ -16,23 +16,8 @@ class BH_Model{
 	public $Except = array();
 	public $Need = array();
 
-	private function __construct(){
+	protected function __construct(){
 		if(method_exists($this, '__Init')) $this->__Init();
-	}
-
-	/**
-	 * 확장한 모델을 생성
-	 * @param string $ModelName
-	 * @return mixed
-	 */
-	public static function &GetModelExtends($ModelName){
-		$model = $ModelName.'Model';
-		require_once _MODELDIR.'/'.$ModelName.'.model.php';
-		if(class_exists($model)) return $model::Get();
-
-		if(_DEVELOPERIS === true) echo $ModelName.'-Model is not exists';
-		else echo 'ERROR';
-		exit;
 	}
 
 	/**

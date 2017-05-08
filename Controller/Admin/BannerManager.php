@@ -16,7 +16,7 @@ class BannerManagerController
 	public $model = null;
 
 	public function __construct(){
-		$this->model = \BH_Model::GetModelExtends('Banner');
+		$this->model = App::GetModel('Banner');
 
 		$dbGetList = new \BH_DB_GetList($this->model->table);
 		$dbGetList->SetKey('DISTINCT category');

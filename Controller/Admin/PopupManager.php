@@ -16,7 +16,7 @@ class PopupManagerController
 	public $model = null;
 
 	public function __construct(){
-		$this->model = \BH_Model::GetModelExtends('Popup');
+		$this->model = App::GetModel('Popup');
 	}
 
 	public function __init(){

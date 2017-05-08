@@ -17,7 +17,7 @@ class BoardManagerController
 	public $model = null;
 
 	public function __construct(){
-		$this->model = \BH_Model::GetModelExtends('BoardManager');
+		$this->model = App::GetModel('BoardManager');
 	}
 
 	public function __init(){

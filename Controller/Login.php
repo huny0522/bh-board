@@ -17,7 +17,7 @@ class LoginController{
 	}
 
 	public function __init(){
-		$this->model = \BH_Model::GetModelExtends('Member');
+		$this->model = App::GetModel('Member');
 	}
 
 	public function Index(){

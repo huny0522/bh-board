@@ -18,8 +18,8 @@ class ReplyController{
 	public $managerIs = false;
 
 	public function __construct(){
-		$this->model = \BH_Model::GetModelExtends('Reply');
-		$this->boardManger = \BH_Model::GetModelExtends('BoardManager');
+		$this->model = App::GetModel('Reply');
+		$this->boardManger = App::GetModel('BoardManager');
 	}
 
 	public function __init(){

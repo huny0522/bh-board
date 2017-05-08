@@ -13,7 +13,7 @@ class BH_Category{
 	public $Name;
 
 	public function __Init(){
-		$this->model = \BH_Model::GetModelExtends('Menu');
+		$this->model = App::GetModel('Menu');
 	}
 
 	public function Index(){

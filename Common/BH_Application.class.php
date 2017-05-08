@@ -255,4 +255,19 @@ class BH_Application{
 	public static function URLBase($Controller = ''){
 		return self::$BaseDir.'/'.$Controller;
 	}
+
+	/**
+	 * 모델 생성
+	 * @param string $ModelName
+	 * @return mixed
+	 */
+	public static function &GetModel($ModelName){
+		$model = $ModelName.'Model';
+		require_once _MODELDIR.'/'.$ModelName.'.model.php';
+		if(class_exists($model)) return $model::Get();
+
+		if(_DEVELOPERIS === true) echo $ModelName.'-Model is not exists';
+		else echo 'ERROR';
+		exit;
+	}
 }

@@ -43,7 +43,7 @@ class MypageController{
 	}
 
 	public function PostPassword(){
-		$model = \BH_Model::GetModelExtends('Member');
+		$model = App::GetModel('Member');
 		if(!isset($_POST['pwd']) || strlen($_POST['pwd']) < 1){
 			Redirect('-1', '패스워드를 입력하여 주세요.');
 		}
@@ -67,7 +67,7 @@ class MypageController{
 			App::View($this);
 			return;
 		}
-		$model = \BH_Model::GetModelExtends('Member');
+		$model = App::GetModel('Member');
 		$model->data['pwd']->Required = false;
 		$model->DBGet($_SESSION['member']['muid']);
 		App::View($this, $model);
@@ -78,7 +78,7 @@ class MypageController{
 			Redirect(_URL.'/', _WRONG_CONNECTED);
 		}
 
-		$model = \BH_Model::GetModelExtends('Member');
+		$model = App::GetModel('Member');
 		$model->DBGet($_SESSION['member']['muid']);
 		$model->AddExcept(array('level','approve'));
 		$model->data['pwd']->Required = false;
@@ -119,7 +119,7 @@ class MypageController{
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
 			Redirect(_URL.'/', _WRONG_CONNECTED);
 		}
-		$model = \BH_Model::GetModelExtends('Member');
+		$model = App::GetModel('Member');
 		$model->DBGet($_SESSION['member']['muid']);
 		$dbInsert = new \BH_DB_Insert(TABLE_WITHDRAW_MEMBER);
 		$dbInsert->SetData('muid', $model->GetValue('muid'));

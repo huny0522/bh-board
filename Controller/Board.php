@@ -18,7 +18,7 @@ class BoardController{
 	public $managerIs = false;
 
 	public function __construct(){
-		$this->model = \BH_Model::GetModelExtends('Board');
+		$this->model = App::GetModel('Board');
 	}
 
 	public function __init(){
@@ -28,7 +28,7 @@ class BoardController{
 	protected function BoardSetting(){
 		if(!isset(App::$TID) || App::$TID == '') Redirect('-1', '잘못된 접근입니다.');
 
-		$this->boardManger = \BH_Model::GetModelExtends('BoardManager');
+		$this->boardManger = App::GetModel('BoardManager');
 		$this->boardManger->DBGet(App::$TID);
 		App::SetFollowQuery(array('page','searchType','searchKeyword','category'));
 

@@ -12,7 +12,7 @@ class LoginController{
 	public $model;
 
 	public function __construct(){
-		$this->model = \BH_Model::GetModelExtends('Member');
+		$this->model = App::GetModel('Member');
 		$this->model->data['mid']->Required = true;
 	}
 
