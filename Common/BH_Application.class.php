@@ -4,8 +4,6 @@
  * 16.07.10
  */
 class BH_Application{
-	/** @var  self */
-	private static $Instance;
 	public static $ControllerInstance = null;
 	/** @var BH_Router */
 	public static $RouterInstance = null;
@@ -40,12 +38,7 @@ class BH_Application{
 	private function __construct(){
 	}
 
-	public static function &Get(){
-		if(!isset(self::$Instance)) self::$Instance = new self();
-		return self::$Instance;
-	}
-
-	public function run(){
+	public static function run(){
 		if(_DEVELOPERIS === true) self::$InstallIs = \DB::SQL()->TableExists(TABLE_MEMBER);
 
 		self::$RouterInstance = new \BH_Router();
