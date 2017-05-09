@@ -344,6 +344,10 @@ function GetDBRaw($txt){
 	else return RemoveScriptTag($txt);
 }
 
+function v($txt){return GetDBText($txt);}
+function vr($txt){return GetDBRaw($txt);}
+function vb($txt){return nl2br(GetDBText($txt));}
+
 function my_bcmod( $x, $y ){
 	$take = 5;
 	$mod = '';

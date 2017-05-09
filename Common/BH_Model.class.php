@@ -220,7 +220,7 @@ class BH_Model{
 	 * @param  $keys string
 	 */
 	public function DBGet($keys){
-		$keyData = func_get_args();
+		$keyData = is_array($keys) ? $keys : func_get_args();
 
 		$res = _ModelFunc::DBGet($keyData, $this->Key, $this->table);
 		if($res->result === false) return $res;
