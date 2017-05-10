@@ -22,9 +22,9 @@ class BoardManagerController
 
 	public function __init(){
 		App::$Data['NowMenu'] = '002';
-		CF::Get()->AdminAuth();
+		CF::AdminAuth();
 
-		$AdminAuth = explode(',', CF::Get()->GetMember('admin_auth'));
+		$AdminAuth = explode(',', CF::GetMember('admin_auth'));
 		App::$Data['menuAuth'] = (in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL);
 
 		App::SetFollowQuery(array('where', 'keyword','page'));
@@ -95,7 +95,7 @@ class BoardManagerController
 				if($r2){
 					$r3 = $this->model->CreateTableImg(TABLE_FIRST.'bbs_'.$this->model->GetValue('bid').'_images');
 					if($r3){
-						CF::Get()->MenuConnect($this->model->GetValue('bid'), 'board');
+						CF::MenuConnect($this->model->GetValue('bid'), 'board');
 					}
 				}
 			}
@@ -114,7 +114,7 @@ class BoardManagerController
 		$res = $this->model->DBUpdate();
 
 		if($res->result){
-			CF::Get()->MenuConnect($this->model->GetValue('bid'), 'board');
+			CF::MenuConnect($this->model->GetValue('bid'), 'board');
 			$url = App::URLAction('View').'?bid='.$_POST['bid'].App::GetFollowQuery();
 			Redirect($url, '수정완료');
 		}

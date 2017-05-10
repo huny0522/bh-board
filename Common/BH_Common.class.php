@@ -2,24 +2,18 @@
 use \BH_Application as App;
 class BH_Common
 {
-	private static $Instance;
-	public $Member;
+	public static $Member;
 
-	public function __construct(){
+	private function __construct(){
 	}
 
-	public static function &Get(){
-		if(!isset(self::$Instance)) self::$Instance = new self();
-		return self::$Instance;
-	}
-
-	public function AdminAuth(){
+	public static function AdminAuth(){
 		if(_MEMBERIS !== true || ($_SESSION['member']['level'] != _SADMIN_LEVEL  && $_SESSION['member']['level'] != _ADMIN_LEVEL)){
 			if(_AJAXIS === true) JSON(false, _NO_AUTH.' 로그인하여 주세요.');
 			else Redirect(App::$ControllerInstance->URLBase('Login'), _NO_AUTH.' 로그인하여 주세요.');
 		}
 		if($_SESSION['member']['level'] == _ADMIN_LEVEL){
-			$AdminAuth = explode(',', $this->GetMember('admin_auth'));
+			$AdminAuth = explode(',', self::GetMember('admin_auth'));
 			if(!in_array(App::$Data['NowMenu'], $AdminAuth)){
 				if(_AJAXIS === true) JSON(false, _NO_AUTH);
 				else Redirect('-1', _NO_AUTH);
@@ -27,7 +21,7 @@ class BH_Common
 		}
 	}
 
-	public function MemberAuth($level = 1){
+	public static function MemberAuth($level = 1){
 		if(_MEMBERIS !== true){
 			if(_AJAXIS === true) JSON(false, _NO_AUTH.' 로그인하여 주세요.');
 			else Redirect(App::$ControllerInstance->URLBase('Login'), _NO_AUTH.' 로그인하여 주세요.');
@@ -42,23 +36,23 @@ class BH_Common
 	 * @param string $key
 	 * @return array|bool|null
 	 */
-	public function GetMember($key = ''){
+	public static function GetMember($key = ''){
 		// 원글 가져오기
 		if(_MEMBERIS === true){
-			if(!isset($this->Member) || !$this->Member){
+			if(!isset(self::$Member) || !self::$Member){
 				$dbGet = new \BH_DB_Get(TABLE_MEMBER);
 				$dbGet->AddWhere('muid=' . SetDBInt($_SESSION['member']['muid']));
-				$this->Member = $dbGet->Get();
+				self::$Member = $dbGet->Get();
 			}
-			if($key) return $this->Member[$key];
-			return $this->Member;
+			if($key) return self::$Member[$key];
+			return self::$Member;
 		}else{
 			return false;
 		}
 	}
 
 
-	public function Config($code, $key){
+	public static function Config($code, $key){
 		// 설정불러오기
 		if(!isset(App::$CFG[$code])){
 			$path = _DATADIR.'/CFG/'.$code.'.php';
@@ -69,7 +63,7 @@ class BH_Common
 		return isset(App::$CFG[$code][$key]) ? App::$CFG[$code][$key] : null;
 	}
 
-	public function SetConfig($code, $key, $val){
+	public static function SetConfig($code, $key, $val){
 		$res = new \BH_Result();
 		if(_DEVELOPERIS !== true){
 			$res->result = false;
@@ -98,7 +92,7 @@ class BH_Common
 	/**
 	 * 이미지 등록
 	 */
-	public function ContentImageUpate($tid, $keyValue, $content, $mode = 'write'){
+	public static function ContentImageUpate($tid, $keyValue, $content, $mode = 'write'){
 		$newcontent = $content['contents'];
 		$maxImage = _MAX_IMAGE_COUNT;
 		$dbKeyValue = implode('|',$keyValue);
@@ -176,8 +170,8 @@ class BH_Common
 		return true;
 	}
 
-	public function MenuConnect($bid, $type){
-		$AdminAuth = explode(',', $this->GetMember('admin_auth'));
+	public static function MenuConnect($bid, $type){
+		$AdminAuth = explode(',', self::GetMember('admin_auth'));
 		if(in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL){
 			if(strlen($_POST['select_menu'])){
 				$selectmenu = implode(',', SetDBText(explode(',', $_POST['select_menu'])));
@@ -206,7 +200,7 @@ class BH_Common
 		}
 	}
 
-	public function GetBoardArticle($bid, $category = '', $limit = 10){
+	public static function GetBoardArticle($bid, $category = '', $limit = 10){
 		// 리스트를 불러온다.
 		$dbList = new \BH_DB_GetList(TABLE_FIRST.'bbs_'.$bid);
 		$dbList->AddWhere('delis=\'n\'');
@@ -218,7 +212,7 @@ class BH_Common
 		return $dbList;
 	}
 
-	public function GetBanner($category){
+	public static function GetBanner($category){
 		$banner = new \BH_DB_GetList(TABLE_BANNER);
 		$banner->AddWhere('begin_date <= \''.date('Y-m-d').'\'');
 		$banner->AddWhere('end_date >= \''.date('Y-m-d').'\'');
@@ -239,7 +233,7 @@ class BH_Common
 	}
 
 
-	public function GetPopup(){
+	public static function GetPopup(){
 		$banner = new \BH_DB_GetList(TABLE_POPUP);
 		$banner->AddWhere('begin_date <= \''.date('Y-m-d').'\'');
 		$banner->AddWhere('end_date >= \''.date('Y-m-d').'\'');

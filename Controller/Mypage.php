@@ -12,7 +12,7 @@ class MypageController{
 	}
 
 	public function __init(){
-		CF::Get()->MemberAuth(1);
+		CF::MemberAuth(1);
 		App::$Layout = '_Mypage';
 	}
 

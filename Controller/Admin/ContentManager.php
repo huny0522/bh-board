@@ -21,13 +21,13 @@ class ContentManagerController{
 
 	public function __init(){
 		App::$Data['NowMenu'] = '003';
-		CF::Get()->AdminAuth();
+		CF::AdminAuth();
 
 		// 항상 따라다닐 URL 쿼리 파라미터를 지정
 		App::SetFollowQuery(array('where', 'keyword','page'));
 		App::$Layout = '_Admin';
 
-		$AdminAuth = explode(',', CF::Get()->GetMember('admin_auth'));
+		$AdminAuth = explode(',', CF::GetMember('admin_auth'));
 		App::$Data['menuAuth'] = (in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL);
 	}
 
@@ -90,7 +90,7 @@ class ContentManagerController{
 			$this->model->SetValue('reg_date',date('Y-m-d H:i:s'));
 			$res = $this->model->DBInsert();
 			if($res->result){
-				CF::Get()->MenuConnect($this->model->GetValue('bid'), 'content');
+				CF::MenuConnect($this->model->GetValue('bid'), 'content');
 				Redirect(App::URLAction());
 			}else{
 				Redirect('-1', '등록에 실패했습니다.');
@@ -110,7 +110,7 @@ class ContentManagerController{
 		else{
 			$res = $this->model->DBUpdate();
 			if($res->result){
-				CF::Get()->MenuConnect($this->model->GetValue('bid'), 'content');
+				CF::MenuConnect($this->model->GetValue('bid'), 'content');
 				$url = App::URLAction('View').'?bid='.$_POST['bid'].App::GetFollowQuery();
 				Redirect($url, '수정완료');
 			}else{

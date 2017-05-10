@@ -13,7 +13,7 @@ class ConfigController{
 
 	public function __init(){
 		App::$Data['NowMenu'] = '001001';
-		CF::Get()->AdminAuth();
+		CF::AdminAuth();
 
 		App::SetFollowQuery(array('where', 'keyword','page'));
 		App::$Layout = '_Admin';

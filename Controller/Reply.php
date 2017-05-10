@@ -33,7 +33,7 @@ class ReplyController{
 
 		$this->boardManger->DBGet(App::$TID);
 
-		$mid = CF::Get()->GetMember('mid');
+		$mid = CF::GetMember('mid');
 		$manager = explode(',', $this->boardManger->GetValue('manager'));
 		if ($mid !== false && in_array($mid, $manager)) {
 			$this->managerIs = true;
@@ -161,7 +161,7 @@ class ReplyController{
 
 		// 회원유무
 		if(_MEMBERIS === true){
-			$member = CF::Get()->GetMember();
+			$member = CF::GetMember();
 
 			$this->model->SetValue('muid', $_SESSION['member']['muid']);
 			$this->model->SetValue('mlevel', $member['level']);

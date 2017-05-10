@@ -21,7 +21,7 @@ class MemberController{
 
 	public function __init(){
 		App::$Data['NowMenu'] = '005';
-		CF::Get()->AdminAuth();
+		CF::AdminAuth();
 
 		App::SetFollowQuery(array('SLevel', 'keyword','page'));
 		App::$Layout = '_Admin';

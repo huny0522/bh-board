@@ -32,7 +32,7 @@ class BoardController{
 		$this->boardManger->DBGet(App::$TID);
 		App::SetFollowQuery(array('page','searchType','searchKeyword','category'));
 
-		$mid = CF::Get()->GetMember('mid');
+		$mid = CF::GetMember('mid');
 		$manager = explode(',', $this->boardManger->GetValue('manager'));
 		if ($mid !== false && in_array($mid, $manager)) {
 			$this->managerIs = true;
@@ -202,7 +202,7 @@ class BoardController{
 		//			}
 		//
 		//			if($_SESSION['member']['level'] < _SADMIN_LEVEL){
-		//				$member = CF::Get()->GetMember();
+		//				$member = CF::GetMember();
 		//
 		//				$manager = explode(',', $this->boardManger->data['manager']);
 		//				if(!in_array($member['mid'], $manager)){
@@ -329,7 +329,7 @@ class BoardController{
 
 		$this->model->Need = array('subject', 'content', 'secret');
 		if(_MEMBERIS === true){
-			$member = CF::Get()->GetMember();
+			$member = CF::GetMember();
 			$this->model->AddExcept('pwd');
 		}
 

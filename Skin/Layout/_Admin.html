@@ -31,7 +31,7 @@ App::JSAdd('admin.js', 10);
 				<ul>
 					<?php
 					$NM = App::$Data['NowMenu'];
-					$AdminAuth = explode(',', CF::Get()->GetMember('admin_auth'));
+					$AdminAuth = explode(',', CF::GetMember('admin_auth'));
 					foreach(App::$RouterInstance->AdminMenu as $c => $v){
 						if(strlen($c) == 3 && ($_SESSION['member']['level'] == _SADMIN_LEVEL || in_array($c, $AdminAuth))){
 							echo '<li '.(substr($NM,0,3) == $c ? ' class="Active"' : '').'>'

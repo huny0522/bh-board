@@ -38,8 +38,8 @@ class BH_Router
 
 		if($this->GetUrl[1] == '_Refresh'){
 			if(_DEVELOPERIS === true){
-				$s = CF::Get()->Config('Default', 'Refresh');
-				$res = CF::Get()->SetConfig('Default', 'Refresh', $s+1);
+				$s = CF::Config('Default', 'Refresh');
+				$res = CF::SetConfig('Default', 'Refresh', $s+1);
 
 				if($res->result){
 					if(_REFRESH_HTML_ALL === true){

@@ -21,7 +21,7 @@ class PopupManagerController
 
 	public function __init(){
 		App::$Data['NowMenu'] = '001003';
-		CF::Get()->AdminAuth();
+		CF::AdminAuth();
 
 		App::$Layout = '_Admin';
 	}
@@ -75,7 +75,7 @@ class PopupManagerController
 
 			$res = $this->model->DBInsert();
 			if($res->result){
-				CF::Get()->ContentImageUpate($this->model->table, array('seq' => $res->id), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
+				CF::ContentImageUpate($this->model->table, array('seq' => $res->id), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
 
 				Redirect(App::URLAction().App::GetFollowQuery());
 			}else{
@@ -111,7 +111,7 @@ class PopupManagerController
 
 			$res = $this->model->DBUpdate();
 			if($res->result){
-				CF::Get()->ContentImageUpate($this->model->table, array('seq' => to10(App::$ID)), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
+				CF::ContentImageUpate($this->model->table, array('seq' => to10(App::$ID)), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
 				$url = App::URLAction().App::GetFollowQuery();
 				Redirect($url, '수정완료');
 			}else{
