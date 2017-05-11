@@ -22,6 +22,9 @@ class DB{
 	public static function &SQL($connName = 'MY'){
 		self::$ConnName = $connName;
 		if (!isset(self::$Instance)){
+			self::$Instance = new self();
+		}
+		if(!isset(self::$Conn[self::$ConnName])){
 			switch(self::$ConnName){
 				default:
 					require _COMMONDIR.'/db.info.php';
@@ -32,9 +35,7 @@ class DB{
 						exit;
 					}
 					mysqli_set_charset(self::$Conn[self::$ConnName],'utf8');
-
 			}
-			self::$Instance = new self();
 		}
 		return self::$Instance;
 	}

@@ -123,7 +123,6 @@ CSS 작성 편의 기능.
 
 ### SQL 클래스 (Common/BH_DB.class.php)
 - DB::SQL() : 인스턴스 반환
-- DB::SQL()->Connection : 배열인자[ hostName, userName,userPassword, dbName ]
 - DB::SQL()->Free
 - DB::SQL()->TableExists
 - DB::SQL()->Query
