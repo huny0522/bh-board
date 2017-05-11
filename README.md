@@ -1,10 +1,9 @@
 # BH BOARD 소개
-http://www.bhboard.com
+	http://www.bhboard.com
 
-	MVC형태를 띄우면서 최대한 PHP의 속도를 내기 위해 만든 개인 프로젝트입니다.
-	클래스 안에서도 외부의 함수들을 많이 포함하고 있습니다.
-	약간의 수고로 List, View, Write(Modify) 타입의 간단한 예제 html파일을 생성할 수 있습니다.
-	기능은 언제든 추가될 예정이며, 부족한 부분의 많은 의견과 지적, 도움을 받고 싶습니다.
+APM용 MVC
+모델, 컨트롤러, CRUD 페이지 생성 가이드.
+CSS 작성 편의 기능.
     
 
 ## DB정보입력
@@ -122,14 +121,15 @@ http://www.bhboard.com
 
 ## 라이브러리 함수
 
-### SQL 함수 (Lib/common.php)
-- SqlConnection : 배열인자[ hostName, userName,userPassword, dbName ]
-- SqlFree
-- SqlTableExists
-- SqlQuery
-- SqlCCQuery
-- SqlNumRows
-- SqlFetch : 인자로 쿼리 결과값이나 sql문자열 입력.
+### SQL 클래스 (Common/BH_DB.class.php)
+- DB::SQL() : 인스턴스 반환
+- DB::SQL()->Connection : 배열인자[ hostName, userName,userPassword, dbName ]
+- DB::SQL()->Free
+- DB::SQL()->TableExists
+- DB::SQL()->Query
+- DB::SQL()->CCQuery
+- DB::SQL()->NumRows
+- DB::SQL()->Fetch : 인자로 쿼리 결과값이나 sql문자열 입력.
 
 ### 기능함수 (Lib/common.php)
 - my_escape_string : mysqli_real_escape_string
@@ -248,12 +248,14 @@ http://www.bhboard.com
 - public $decrement : 역순으로 들어갈 키.
 - public $MAXInt : 역순으로 들어갈 키값의 최고값.
 - public $test : true 설정 시 쿼리문을 출력.
-- (결과값) public $result : 결과 성공여부.
-- (결과값) public $id : 삽입된 primary key의 키값.
-- (결과값) public $message : 에러시의 메시지.
 - function SetData($key, $value) : insert구문에 삽입할 키와 값을 추가.
 - function AddWhere($str) : 역순으로 들어갈 키를 위해 ‘where’ 구문을 만듭니다. 여러 번 호출하여 ‘and’ 로 묶어줍니다.
 - function Run() : mysqli_query를 실행.
+	- BH_InsertResult 클래스 반환
+		- $result : 성공여부 bool값.
+		- $id : 삽입된 primary key의 키값.
+		- $message : 에러시의 메시지.
+
 - function MultiAdd() : insert 구문의 다중 삽입 추가.
 - function MultiRun() : 다중 삽입 된 구문을 실행.
 
@@ -263,42 +265,38 @@ http://www.bhboard.com
 
 - public $table : 테이블명.
 - public $test : true 설정 시 쿼리문을 출력.
-- (결과값) public $result : 결과 성공여부.
-- (결과값) public $message : 에러시의 메시지.
 - function SetData($key, $value) : update구문에 삽입할 키와 값을 추가.
 - function AddWhere($str) : ‘where’ 구문을 만듭니다. 여러 번 호출하여 ‘and’ 로 묶어줍니다.
 - function Run() : mysqli_query를 실행.
+	- BH_Result 클래스 반환
+		- $result : 성공여부 bool값.
+		- $message : 에러시의 메시지.
 
 ## 주요 클래스
-### BH_Application 클래스
-- public $Controller : 불러올 컨트롤러를 위한 값.
-- public $Action : 불러올 컨트롤러의 메쏘드를 위한 값.
-- public $ID : 메쏘드에서 사용할 키값.
-- public $NativeDir : 컨트롤러파일이나 스킨파일의 서브디렉토리.
-- public $BaseUrl : 컨트롤러 이전의 서브디렉토리를 포함한 URL.
-- public $CtrlUrl : 컨트롤러의 URL.
-- public $TID : 게시판이나 컨텐츠, 댓글의 키.
+### BH_Application 클래스(static)
+- $ControllerInstance : 컨트롤러 인스턴스.
+- $RouterInstance : 라우터 인스턴스.
+- $ControllerName : 컨트롤러명.
+- $Action : 불러올 컨트롤러의 메쏘드를 위한 값.
+- $ID : 메쏘드에서 사용할 키값.
+- $NativeDir : 컨트롤러파일이나 스킨파일의 서브디렉토리.
+- $BaseUrl : 컨트롤러 이전의 서브디렉토리를 포함한 URL.
+- $CtrlUrl : 컨트롤러의 URL.
+- $TID : 게시판이나 컨텐츠, 댓글의 키.
+- $Layout : 스킨 레이아웃 지정 변수.
+- $Html : 스킨 html 지정 변수.
+- $Data : html View에서 사용을 위한 변수.
 - function run() : 실행.
-
-### BH_Controller 클래스
-- public $Controller : BH_Application 클래스의 변수와 동일
-- public $Action : BH_Application 클래스의 변수와 동일
-- public $ID : BH_Application 클래스의 변수와 동일
-- public $TID : BH_Application 클래스의 변수와 동일
-- public $Layout : 스킨 레이아웃 지정 변수.
-- public $Html : 스킨 html 지정 변수.
-- public $Data : html에 사용을 위한 변수.
-- public $_CF : BH_Common 클래스
-- function __Init() : BH_Controller를 상속한 클래스에서 생성자용으로 사용.
 - function SetFollowQuery(array $ar) : 항상 따라다니는 URL쿼리파라미터의 키를 설정.
 - function GetFollowQuery($ar, $begin=’?’) : 항상 따라다니는 URL을 문자열로 반환.
     1. 첫번째 인자 : SetFollowQuery에서 설정한 키 중 제외할 키. 배열이나 콤마(,)로 구분하는 문자열.
     2. 두번째 인자 : 반환할 문자열의 앞에 나올 문자.
 - function GetFollowQueryInput($ar) : 항상 따라다니는 URL을 input태그로 반환.
-- function _View($model, $Data) : html을 출력.
-    1. 첫번째 인자 : html에서 사용할 모델 클래스.
-    2. 두번째 인자 : html에서 사용할 데이터.
-- function _GetView($model, $Data) : 레이아웃을 제외한 html을 문자열로 반환.
+- function View($Ctrl, $model, $Data) : html을 출력.
+    1. 첫번째 인자 : 컨트롤러.
+    2. 두번째 인자 : html에서 사용할 모델 클래스.
+    3. 세번째 인자 : html에서 사용할 데이터.
+- function GetView($Ctrl, $model, $Data) : 레이아웃을 제외한 html을 문자열로 반환.
 - function JSAdd($js, $idx = 100) : script 경로 추가. 두번째 인자가 작을수록 먼저 출력.
 - function JSPrint() : script구문 출력.
 - function CSSAdd($css, $idx = 100) : 스타일시트 경로 추가. 두번째 인자가 작을수록 먼저 출력.
@@ -306,12 +304,11 @@ http://www.bhboard.com
 - function URLAction($action) : 현재 컨트롤러에 $Action 값을 변경 후의 URL 반환.
 - function URLBase($controller) : 현재 서브디렉토리에 $Controller 값을 변경 후 URL 반환.
 
-### BH_Common
+### BH_Common(static)
     공통적으로 사용할 임의의 함수를 위한 클래스.
 
 ### BH_ModelData
     모델의 데이터    
-- public $Name : 데이터베이스의 키.
 - public $Type : 값의 형식.
 - public $Required = false : 필수 입력 여부.
 - public $DisplayName : 출력표시이름.
