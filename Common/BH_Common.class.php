@@ -10,7 +10,7 @@ class BH_Common
 	public static function AdminAuth(){
 		if(_MEMBERIS !== true || ($_SESSION['member']['level'] != _SADMIN_LEVEL  && $_SESSION['member']['level'] != _ADMIN_LEVEL)){
 			if(_AJAXIS === true) JSON(false, _NO_AUTH.' 로그인하여 주세요.');
-			else Redirect(App::$ControllerInstance->URLBase('Login'), _NO_AUTH.' 로그인하여 주세요.');
+			else Redirect(App::URLBase('Login'), _NO_AUTH.' 로그인하여 주세요.');
 		}
 		if($_SESSION['member']['level'] == _ADMIN_LEVEL){
 			$AdminAuth = explode(',', self::GetMember('admin_auth'));
@@ -21,10 +21,15 @@ class BH_Common
 		}
 	}
 
+	public static function GetAdminIs(){
+		if(_MEMBERIS === true && ($_SESSION['member']['level'] == _SADMIN_LEVEL  || $_SESSION['member']['level'] == _ADMIN_LEVEL)) return true;
+		return false;
+	}
+
 	public static function MemberAuth($level = 1){
 		if(_MEMBERIS !== true){
 			if(_AJAXIS === true) JSON(false, _NO_AUTH.' 로그인하여 주세요.');
-			else Redirect(App::$ControllerInstance->URLBase('Login'), _NO_AUTH.' 로그인하여 주세요.');
+			else Redirect(App::URLBase('Login'), _NO_AUTH.' 로그인하여 주세요.');
 		}
 		if($_SESSION['member']['level'] < $level){
 			if(_AJAXIS === true) JSON(false, _NO_AUTH);
@@ -42,6 +47,7 @@ class BH_Common
 			if(!isset(self::$Member) || !self::$Member){
 				$dbGet = new \BH_DB_Get(TABLE_MEMBER);
 				$dbGet->AddWhere('muid=' . SetDBInt($_SESSION['member']['muid']));
+				$dbGet->SetKey('*', 'NULL as pwd');
 				self::$Member = $dbGet->Get();
 			}
 			if($key) return self::$Member[$key];
@@ -204,6 +210,11 @@ class BH_Common
 		// 리스트를 불러온다.
 		$dbList = new \BH_DB_GetList(TABLE_FIRST.'bbs_'.$bid);
 		$dbList->AddWhere('delis=\'n\'');
+		$n = func_num_args();
+		if($n > 3){
+			$args = func_get_args();
+			for($i = 3; $i < $n; $i++) $dbList->AddWhere($args[$i]);
+		}
 		$dbList->sort = 'sort1, sort2';
 		$dbList->limit = $limit;
 		if(strlen($category)){
@@ -220,6 +231,7 @@ class BH_Common
 		$banner->AddWhere('category = '.SetDBText($category));
 		$mlevel = _MEMBERIS === true ? $_SESSION['member']['level'] : 0;
 		$banner->AddWhere('mlevel <= '.$mlevel);
+		$banner->sort = 'sort DESC, seq ASC';
 
 		$data = array();
 		while($row = $banner->Get()){
@@ -232,7 +244,6 @@ class BH_Common
 		return $data;
 	}
 
-
 	public static function GetPopup(){
 		$banner = new \BH_DB_GetList(TABLE_POPUP);
 		$banner->AddWhere('begin_date <= \''.date('Y-m-d').'\'');
@@ -240,6 +251,7 @@ class BH_Common
 		$banner->AddWhere('enabled = \'y\'');
 		$mlevel = _MEMBERIS === true ? $_SESSION['member']['level'] : 0;
 		$banner->AddWhere('mlevel <= '.$mlevel);
+		$banner->sort = 'sort DESC, seq ASC';
 
 		$data = array();
 		while($row = $banner->Get()){
@@ -254,5 +266,32 @@ class BH_Common
 			$data[] = array('html' => $html, 'seq' => $row['seq'], 'width' => $row['width'], 'height' => $row['height']);
 		}
 		return $data;
+	}
+
+	public static function _CategoryGetChild($table, $parent, $length){
+		$dbGet = new \BH_DB_GetList($table);
+		$dbGet->AddWhere('LEFT(category, '.strlen($parent).') = '.SetDBText($parent));
+		$dbGet->AddWhere('LENGTH(category) = '.(strlen($parent) + $length));
+		$dbGet->sort = 'sort';
+		return $dbGet->GetRows();
+	}
+
+	public static function _CategorySetChildEnable($table, $parent, $enabled){
+		if(is_null($parent)) return;
+
+		$dbUpdate = new \BH_DB_Update($table);
+		$dbUpdate->AddWhere('LEFT(category, '.strlen($parent).') = '.SetDBText($parent));
+		$dbUpdate->data['parent_enabled'] = SetDBText($enabled);
+		$dbUpdate->Run();
+	}
+
+	public static function _CategoryGetParent($table, $category, $length){
+		if(is_null($category)) return false;
+		$parent = substr($category, 0, strlen($category) - $length);
+		if(!$parent) return false;
+
+		$dbGet = new \BH_DB_Get($table);
+		$dbGet->AddWhere('category='.SetDBText($parent));
+		return $dbGet->Get();
 	}
 }

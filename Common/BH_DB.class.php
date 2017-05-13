@@ -10,7 +10,7 @@ class DB{
 	 */
 	private static $Instance;
 	private static $Conn = array();
-	private static $ConnName = 'MY';
+	private static $ConnName = '';
 	private function __construct(){
 	}
 
@@ -26,20 +26,18 @@ class DB{
 			self::$Instance = new self();
 		}
 		if(!isset(self::$Conn[self::$ConnName])){
-			switch(self::$ConnName){
-				case self::DefaultConnName:
-					require _COMMONDIR.'/db.info.php';
-					/** @var array $_DBInfo */
-					self::$Conn[self::$ConnName] = mysqli_connect($_DBInfo['hostName'], $_DBInfo['userName'], $_DBInfo['userPassword'], $_DBInfo['dbName']);
-					if(!self::$Conn[self::$ConnName]){
-						echo('ACCESS_DENIED_DB_CONNECTION');
-						exit;
-					}
-					mysqli_set_charset(self::$Conn[self::$ConnName],'utf8');
-				break;
-				default:
-					echo('NOT_DEFINE_DB');
+			if(self::$ConnName == self::DefaultConnName){
+				require _COMMONDIR.'/db.info.php';
+				/** @var array $_DBInfo */
+				self::$Conn[self::$ConnName] = mysqli_connect($_DBInfo['hostName'], $_DBInfo['userName'], $_DBInfo['userPassword'], $_DBInfo['dbName']);
+				if(!self::$Conn[self::$ConnName]){
+					echo('ACCESS_DENIED_DB_CONNECTION');
 					exit;
+				}
+				mysqli_set_charset(self::$Conn[self::$ConnName],'utf8');
+			}else{
+				echo('NOT_DEFINE_DB');
+				exit;
 			}
 		}
 		return self::$Instance;
@@ -92,7 +90,7 @@ class DB{
 		if(_DEVELOPERIS === true) $res = mysqli_query(self::$Conn[self::$ConnName], $sql) or die('ERROR SQL : '.$sql);
 		else $res = mysqli_query(self::$Conn[self::$ConnName], $sql) or die('ERROR SQL');
 
-		if($res && (strtolower(substr($sql, 0, 6)) == 'delete' || strtolower(substr($sql, 0, 6)) == 'update' || strtolower(substr($sql, 0, 6)) == 'insert')) \BH_DB_Cache::DelPath($table);
+		if($res && (strtolower(substr($sql, 0, 6)) == 'delete' || strtolower(substr($sql, 0, 6)) == 'update' || strtolower(substr($sql, 0, 6)) == 'insert')) \BH_DB_Cache::DelPath(self::$ConnName, $table);
 
 		return $res;
 	}
@@ -154,7 +152,7 @@ class BH_DB_Cache{
 	public static $DBTableFirst = array();
 	public static $ExceptTable = array();
 	public static $sqlData = array();
-	public static function GetCachePath($table, $fileNm){
+	public static function GetCachePath($ConnName, $table, $fileNm){
 		$table = trim($table);
 		$folder = '';
 		if($table){
@@ -172,7 +170,7 @@ class BH_DB_Cache{
 			exit;
 		}
 
-		$path = _DATADIR.'/temp/+'.$folder;
+		$path = _DATADIR.'/temp/'.$ConnName.'/+'.$folder;
 		$file = $path.'/'.$fileNm.'.php';
 		foreach(self::$ExceptTable as $v){
 			if(strpos($table, $v) !== false) return array('result' => false, 'file' => $file);
@@ -181,11 +179,11 @@ class BH_DB_Cache{
 		return array('result' => true, 'file' => $file);
 	}
 
-	public static function DelPath($table){
+	public static function DelPath($ConnName, $table){
 		$tx = explode(' ', $table);
 		foreach($tx as $v){
 			$v = trim($v);
-			if(strlen($v)) findDelTree('+'.$v.'+');
+			if(strlen($v)) findDelTree($ConnName, '+'.$v.'+');
 		}
 	}
 }
@@ -224,7 +222,7 @@ class BH_DB_Get{
 
 	public function &AddTable($str){
 		$w = StrToSql(func_get_args());
-		if($w !== false) $this->where .= $w;
+		if($w !== false) $this->table .= $w;
 		return $this;
 	}
 
@@ -309,7 +307,7 @@ class BH_DB_Get{
 		$sqlFileNm = hash('sha1', $sql);
 		// Cache
 		if($this->cache){
-			$path = \BH_DB_Cache::GetCachePath($this->table, $sqlFileNm);
+			$path = \BH_DB_Cache::GetCachePath($this->connName, $this->table, $sqlFileNm);
 			$this->cache = $path['result'];
 			if(!isset(\BH_DB_Cache::$sqlData['GetData'][$sqlFileNm][$sql])){
 				if($path['result'] && file_exists($path['file'])) require_once $path['file'];
@@ -385,7 +383,7 @@ class BH_DB_GetList{
 
 	public function &AddTable($str){
 		$w = StrToSql(func_get_args());
-		if($w !== false) $this->where .= $w;
+		if($w !== false) $this->table .= $w;
 		return $this;
 	}
 
@@ -505,7 +503,7 @@ class BH_DB_GetList{
 
 		// Cache
 		if($this->cache){
-			$path = \BH_DB_Cache::GetCachePath($this->table, $sqlFileNm);
+			$path = \BH_DB_Cache::GetCachePath($this->connName, $this->table, $sqlFileNm);
 			$this->cache = $path['result'];
 			if(!isset(\BH_DB_Cache::$sqlData['GetListData'][$sqlFileNm][$sql])){
 				if($path['result'] && file_exists($path['file'])) require_once $path['file'];
@@ -611,7 +609,7 @@ class BH_DB_GetListWithPage{
 
 	public function &AddTable($str){
 		$w = StrToSql(func_get_args());
-		if($w !== false) $this->where .= $w;
+		if($w !== false) $this->table .= $w;
 		return $this;
 	}
 
@@ -781,7 +779,7 @@ class BH_DB_GetListWithPage{
 
 		// Cache
 		if($this->cache){
-			$path = \BH_DB_Cache::GetCachePath($this->table, $sqlFileNm);
+			$path = \BH_DB_Cache::GetCachePath($this->connName, $this->table, $sqlFileNm);
 			$this->cache = $path['result'];
 			if(!isset(\BH_DB_Cache::$sqlData['GetListWithPage'][$sqlFileNm][$sql])){
 				if($path['result'] && file_exists($path['file'])) require_once $path['file'];
@@ -968,7 +966,7 @@ class BH_DB_Insert{
 
 	public function &AddTable($str){
 		$w = StrToSql(func_get_args());
-		if($w !== false) $this->where .= $w;
+		if($w !== false) $this->table .= $w;
 		return $this;
 	}
 
@@ -1029,7 +1027,7 @@ class BH_DB_Insert{
 			echo $sql;exit;
 		}
 		$res->result = \DB::SQL($this->connName)->Query($sql);
-		if($res->result) \BH_DB_Cache::DelPath($this->table);
+		if($res->result) \BH_DB_Cache::DelPath($this->connName, $this->table);
 		return $res;
 	}
 
@@ -1078,7 +1076,7 @@ class BH_DB_Insert{
 			$res->id = mysqli_insert_id(\DB::SQL($this->connName)->GetConn());
 		}
 
-		if($res->result) \BH_DB_Cache::DelPath($this->table);
+		if($res->result) \BH_DB_Cache::DelPath($this->connName, $this->table);
 		return $res;
 	}
 
@@ -1113,7 +1111,7 @@ class BH_DB_Update{
 
 	public function &AddTable($str){
 		$w = StrToSql(func_get_args());
-		if($w !== false) $this->where .= $w;
+		if($w !== false) $this->table .= $w;
 		return $this;
 	}
 
@@ -1163,7 +1161,7 @@ class BH_DB_Update{
 			exit;
 		}
 		$res->result = \DB::SQL($this->connName)->Query($sql);
-		if($res->result) \BH_DB_Cache::DelPath($this->table);
+		if($res->result) \BH_DB_Cache::DelPath($this->connName, $this->table);
 		return $res;
 	}
 
@@ -1196,7 +1194,7 @@ class BH_DB_Delete{
 	
 	public function &AddTable($str){
 		$w = StrToSql(func_get_args());
-		if($w !== false) $this->where .= $w;
+		if($w !== false) $this->table .= $w;
 		return $this;
 	}
 
@@ -1217,7 +1215,7 @@ class BH_DB_Delete{
 		}
 
 		$res = \DB::SQL($this->connName)->Query($sql);
-		if($res) \BH_DB_Cache::DelPath($this->table);
+		if($res) \BH_DB_Cache::DelPath($this->connName, $this->table);
 		return $res;
 	}
 

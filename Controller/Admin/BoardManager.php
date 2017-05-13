@@ -128,11 +128,11 @@ class BoardManagerController
 				$board_nm = TABLE_FIRST.'bbs_'.$_POST['bid'];
 
 				@\DB::SQL()->Query("DROP TABLE `{$board_nm}`");
-				\BH_DB_Cache::DelPath($board_nm);
+				\BH_DB_Cache::DelPath(\DB::DefaultConnName, $board_nm);
 				@\DB::SQL()->Query("DROP TABLE `{$board_nm}_reply`");
-				\BH_DB_Cache::DelPath($board_nm.'_reply');
+				\BH_DB_Cache::DelPath(\DB::DefaultConnName, $board_nm.'_reply');
 				@\DB::SQL()->Query("DROP TABLE `{$board_nm}_images`");
-				\BH_DB_Cache::DelPath($board_nm.'_images');
+				\BH_DB_Cache::DelPath(\DB::DefaultConnName, $board_nm.'_images');
 
 				Redirect(App::URLAction('').App::GetFollowQuery(), '삭제되었습니다.');
 			}else{

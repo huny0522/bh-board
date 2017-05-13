@@ -106,11 +106,14 @@ define('_DEFAULT_CONTROLLER', 'Home');
 define('_DEFAULT_LAYOUT', '_Default');
 
 require _COMMONDIR.'/common.php';
+
 BH_DB_Cache::$DBTableFirst = array(TABLE_FIRST);
 BH_DB_Cache::$ExceptTable = array(TABLE_MEMBER);
 
 App::$Data['LevelArray'] = array(0 => '비회원', 1 => '일반회원', 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 15 => '매니저', 18 => '관리자', 20 => '최고관리자');
 App::$Data['noext'] = array('php','htm','html','cfg','inc','phtml', 'php5', 'asp', 'jsp');
+
+require _COMMONDIR.'/MyLib.php';
 
 App::run();
 

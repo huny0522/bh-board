@@ -47,14 +47,14 @@ class MenuModel extends \BH_Model{
 
 	// 자식레벨 가져오기
 	public function GetChild($parent = ''){
-		return _CategoryGetChild($this->table, $parent, $this->CategoryLength);
+		return CF::_CategoryGetChild($this->table, $parent, $this->CategoryLength);
 	}
 
 	public function SetChildEnabled($parent = NULL, $enabled = false){
-		_CategorySetChildEnable($this->table, $parent, $enabled);
+		CF::_CategorySetChildEnable($this->table, $parent, $enabled);
 	}
 
 	public function GetParent($category = NULL){
-		return _CategoryGetParent($this->table, $category, $this->CategoryLength);
+		return CF::_CategoryGetParent($this->table, $category, $this->CategoryLength);
 	}
 }
