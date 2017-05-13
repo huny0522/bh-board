@@ -4,6 +4,7 @@
  * 16.07.10
  */
 class DB{
+	const DefaultConnName = 'MY';
 	/**
 	 * @var self
 	 */
@@ -19,14 +20,14 @@ class DB{
 		}
 	}
 
-	public static function &SQL($connName = 'MY'){
+	public static function &SQL($connName = self::DefaultConnName){
 		self::$ConnName = $connName;
 		if (!isset(self::$Instance)){
 			self::$Instance = new self();
 		}
 		if(!isset(self::$Conn[self::$ConnName])){
 			switch(self::$ConnName){
-				default:
+				case self::DefaultConnName:
 					require _COMMONDIR.'/db.info.php';
 					/** @var array $_DBInfo */
 					self::$Conn[self::$ConnName] = mysqli_connect($_DBInfo['hostName'], $_DBInfo['userName'], $_DBInfo['userPassword'], $_DBInfo['dbName']);
@@ -35,6 +36,10 @@ class DB{
 						exit;
 					}
 					mysqli_set_charset(self::$Conn[self::$ConnName],'utf8');
+				break;
+				default:
+					echo('NOT_DEFINE_DB');
+					exit;
 			}
 		}
 		return self::$Instance;
@@ -110,8 +115,38 @@ class DB{
 		return $r;
 	}
 
-	public function &GetConn(){
+	public static function &GetConn(){
 		return self::$Conn[self::$ConnName];
+	}
+
+	public static function &GetQryObj($table, $cache = _USE_DB_CACHE){
+		$instance = new \BH_DB_Get($table, $cache);
+		return $instance;
+	}
+
+	public static function &GetListQryObj($table, $cache = _USE_DB_CACHE){
+		$instance = new \BH_DB_GetList($table, $cache);
+		return $instance;
+	}
+
+	public static function &GetListPageQryObj($table, $cache = _USE_DB_CACHE){
+		$instance = new \BH_DB_GetListWithPage($table, $cache);
+		return $instance;
+	}
+
+	public static function &UpdateQryObj($table){
+		$instance = new \BH_DB_Update($table);
+		return $instance;
+	}
+
+	public static function &InsertQryObj($table){
+		$instance = new \BH_DB_Insert($table);
+		return $instance;
+	}
+
+	public static function &DeleteQryObj($table){
+		$instance = new \BH_DB_Delete($table);
+		return $instance;
 	}
 }
 
@@ -165,27 +200,47 @@ class BH_DB_Get{
 	private $having = array();
 	private $where = array();
 	private $key = array();
+	private $connName = '';
 
 	public function  __construct($table = '', $cache = _USE_DB_CACHE){
 		$this->table = $table;
 		$this->cache = $cache;
+		$this->connName = \DB::DefaultConnName;
 	}
 
 	public function __destruct(){
-		if($this->query) SqlFree($this->query);
+		if($this->query) \DB::Sql($this->connName)->Free($this->query);
 	}
 
-	public function AddWhere($str){
+	public static function Init($table = '', $cache = _USE_DB_CACHE){
+		$instance = new self($table, $cache);
+		return $instance;
+	}
+
+	public function &SetConnName($str){
+		$this->connName = $str;
+		return $this;
+	}
+
+	public function &AddTable($str){
+		$w = StrToSql(func_get_args());
+		if($w !== false) $this->where .= $w;
+		return $this;
+	}
+
+	public function &AddWhere($str){
 		$w = StrToSql(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
+		return $this;
 	}
 
-	public function AddHaving($str){
+	public function &AddHaving($str){
 		$w = StrToSql(func_get_args());
 		if($w !== false) $this->having[] = '('.$w.')';
+		return $this;
 	}
 
-	public function SetKey($str){
+	public function &SetKey($str){
 		$args = func_get_args();
 		foreach($args as $k => $keys){
 			if(is_string($keys)){
@@ -201,9 +256,10 @@ class BH_DB_Get{
 				else $this->key = $keys;
 			}
 		}
+		return $this;
 	}
 
-	public function AddKey($str){
+	public function &AddKey($str){
 		$args = func_get_args();
 		foreach($args as $keys){
 			if(is_string($keys)) $this->key[] = $keys;
@@ -213,6 +269,17 @@ class BH_DB_Get{
 				}
 			}
 		}
+		return $this;
+	}
+
+	public function &SetGroup($str){
+		$this->group = $str;
+		return $this;
+	}
+
+	public function &SetSort($str){
+		$this->sort = $str;
+		return $this;
 	}
 
 	function Get(){
@@ -232,7 +299,8 @@ class BH_DB_Get{
 		if($this->group) $sql .= ' GROUP BY ' . $this->group;
 		$sql .= $having;
 		if($this->sort) $sql .= ' ORDER BY ' . $this->sort;
-		if($this->test){
+		$sql .= ' LIMIT 1';
+		if($this->test && _DEVELOPERIS === true){
 			echo $sql;
 			exit;
 		}
@@ -250,7 +318,7 @@ class BH_DB_Get{
 			if(isset(\BH_DB_Cache::$sqlData['GetData'][$sqlFileNm][$sql])) return \BH_DB_Cache::$sqlData['GetData'][$sqlFileNm][$sql];
 		}
 
-		$this->query = \DB::SQL()->Query($sql);
+		$this->query = \DB::SQL($this->connName)->Query($sql);
 		if($this->query){
 			$row = mysqli_fetch_assoc($this->query);
 			if($row){
@@ -261,10 +329,17 @@ class BH_DB_Get{
 					file_put_contents($path['file'], $txt);
 					chmod($path['file'], 0700);
 				}
+				\DB::SQL($this->connName)->Free($this->query);
+				$this->query = null;
 				return $row;
 			}
 		}
 		return false;
+	}
+
+	public function &SetTest($bool = false){
+		$this->test = $bool;
+		return $this;
 	}
 }
 
@@ -282,6 +357,7 @@ class BH_DB_GetList{
 	private $having = array();
 	private $where = array();
 	private $key = array();
+	private $connName = '';
 
 	public $result = false;
 	public $data = array();
@@ -290,23 +366,42 @@ class BH_DB_GetList{
 	public function  __construct($table = '', $cache = _USE_DB_CACHE){
 		$this->table = $table;
 		$this->cache = $cache;
+		$this->connName = \DB::DefaultConnName;
 	}
 
 	public function __destruct(){
-		if($this->query) SqlFree($this->query);
+		if($this->query) \DB::Sql($this->connName)->Free($this->query);
 	}
 
-	public function AddWhere($str){
+	public static function Init($table = '', $cache = _USE_DB_CACHE){
+		$instance = new self($table, $cache);
+		return $instance;
+	}
+
+	public function &SetConnName($str){
+		$this->connName = $str;
+		return $this;
+	}
+
+	public function &AddTable($str){
+		$w = StrToSql(func_get_args());
+		if($w !== false) $this->where .= $w;
+		return $this;
+	}
+
+	public function &AddWhere($str){
 		$w = StrToSql(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
+		return $this;
 	}
 
-	public function AddHaving($str){
+	public function &AddHaving($str){
 		$w = StrToSql(func_get_args());
 		if($w !== false) $this->having[] = '('.$w.')';
+		return $this;
 	}
 
-	public function SetKey($str){
+	public function &SetKey($str){
 		$args = func_get_args();
 		foreach($args as $k => $keys){
 			if(is_string($keys)){
@@ -322,9 +417,10 @@ class BH_DB_GetList{
 				else $this->key = $keys;
 			}
 		}
+		return $this;
 	}
 
-	public function AddKey($str){
+	public function &AddKey($str){
 		$args = func_get_args();
 		foreach($args as $keys){
 			if(is_string($keys)) $this->key[] = $keys;
@@ -334,6 +430,7 @@ class BH_DB_GetList{
 				}
 			}
 		}
+		return $this;
 	}
 
 	public function DrawRows(){
@@ -355,7 +452,22 @@ class BH_DB_GetList{
 		return $this->data;
 	}
 
-	function Run(){
+	public function &SetGroup($str){
+		$this->group = $str;
+		return $this;
+	}
+
+	public function &SetSort($str){
+		$this->sort = $str;
+		return $this;
+	}
+
+	public function &SetLimit($str){
+		$this->limit = $str;
+		return $this;
+	}
+
+	function &Run(){
 		$this->RunIs = true;
 
 		$where = '';
@@ -383,7 +495,7 @@ class BH_DB_GetList{
 		if($this->sort) $sql .= ' ORDER BY ' . $this->sort;
 		if($this->limit) $sql .= ' LIMIT ' . $this->limit;
 
-		if($this->test){
+		if($this->test && _DEVELOPERIS === true){
 			echo $sql;
 			exit;
 		}
@@ -402,11 +514,11 @@ class BH_DB_GetList{
 			if(isset(\BH_DB_Cache::$sqlData['GetListData'][$sqlFileNm][$sql])){
 				$this->cacheData = &\BH_DB_Cache::$sqlData['GetListData'][$sqlFileNm][$sql];
 				$this->result = true;
-				return;
+				return $this;
 			}
 		}
 
-		$this->query = \DB::SQL()->Query($sql);
+		$this->query = \DB::SQL($this->connName)->Query($sql);
 		if($this->query){
 			// Cache
 			if($this->cache){
@@ -424,6 +536,7 @@ class BH_DB_GetList{
 		else{
 			$this->result = false;
 		}
+		return $this;
 	}
 
 	public function Get(){
@@ -437,6 +550,11 @@ class BH_DB_GetList{
 			$res = $this->query ? mysqli_fetch_assoc($this->query) : false;
 			return $res;
 		}
+	}
+
+	public function &SetTest($bool = false){
+		$this->test = $bool;
+		return $this;
 	}
 }
 
@@ -461,6 +579,7 @@ class BH_DB_GetListWithPage{
 	private $having = array();
 	private $key = array();
 	private $RunIs = false;
+	private $connName = '';
 
 	// Result
 	public $result = false;
@@ -473,22 +592,41 @@ class BH_DB_GetListWithPage{
 	public function  __construct($table = '', $cache = _USE_DB_CACHE){
 		$this->table = $table;
 		$this->cache = $cache;
+		$this->connName = \DB::DefaultConnName;
 	}
 
 	public function __destruct(){
-		if($this->query) SqlFree($this->query);
+		if($this->query) \DB::Sql($this->connName)->Free($this->query);
 	}
 
-	public function AddWhere($str){
+	public static function Init($table = '', $cache = _USE_DB_CACHE){
+		$instance = new self($table, $cache);
+		return $instance;
+	}
+
+	public function &SetConnName($str){
+		$this->connName = $str;
+		return $this;
+	}
+
+	public function &AddTable($str){
+		$w = StrToSql(func_get_args());
+		if($w !== false) $this->where .= $w;
+		return $this;
+	}
+
+	public function &AddWhere($str){
 		$w = StrToSql(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
+		return $this;
 	}
 
-	public function AddHaving($str){
+	public function &AddHaving($str){
 		$this->having[] = $str;
+		return $this;
 	}
 
-	public function SetKey($str){
+	public function &SetKey($str){
 		$args = func_get_args();
 		foreach($args as $k => $keys){
 			if(is_string($keys)){
@@ -504,9 +642,10 @@ class BH_DB_GetListWithPage{
 				else $this->key = $keys;
 			}
 		}
+		return $this;
 	}
 
-	public function AddKey($str){
+	public function &AddKey($str){
 		$args = func_get_args();
 		foreach($args as $keys){
 			if(is_string($keys)) $this->key[] = $keys;
@@ -516,6 +655,52 @@ class BH_DB_GetListWithPage{
 				}
 			}
 		}
+		return $this;
+	}
+
+	public function &SetGroup($str){
+		$this->group = $str;
+		return $this;
+	}
+
+	public function &SetSort($str){
+		$this->sort = $str;
+		return $this;
+	}
+
+	public function &SetLimit($str){
+		$this->limit = $str;
+		return $this;
+	}
+
+	public function &SetPage($str){
+		$this->page = $str;
+		return $this;
+	}
+
+	public function &SetPageUrl($str){
+		$this->pageUrl = $str;
+		return $this;
+	}
+
+	public function &SetPageCount($str){
+		$this->pageCount = (int)$str;
+		return $this;
+	}
+
+	public function &SetArticleCOunt($str){
+		$this->articleCount = (int)$str;
+		return $this;
+	}
+
+	public function &SetSubCountKey($str){
+		$this->SubCountKey = $str;
+		return $this;
+	}
+
+	public function &SetCountKey($str){
+		$this->CountKey = $str;
+		return $this;
 	}
 
 	public function DrawRows(){
@@ -537,7 +722,7 @@ class BH_DB_GetListWithPage{
 		return $this->data;
 	}
 
-	public function Run(){
+	public function &Run(){
 		$this->RunIs = true;
 		if($this->page < 1) $this->page = 1;
 		$nowPage = $this->page - 1;
@@ -586,7 +771,7 @@ class BH_DB_GetListWithPage{
 		else if($this->articleCount)
 			$sql .= ' LIMIT '.$beginPage.', ' . $this->articleCount;
 
-		if($this->test){
+		if($this->test && _DEVELOPERIS === true){
 			echo $sql;
 			exit;
 		}
@@ -615,18 +800,18 @@ class BH_DB_GetListWithPage{
 				$this->pageHtml = $this->SqlGetPage($pagedata);
 
 				$this->result = true;
-				return;
+				return $this;
 			}
 		}
 
-		$this->countResult = \DB::SQL()->Fetch($this->group ? 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x' : $sql_cnt);
+		$this->countResult = \DB::SQL($this->connName)->Fetch($this->group ? 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x' : $sql_cnt);
 		$totalRecord = $this->countResult['cnt']; //total값 구함
-		//SqlFree($result_cnt);
+		//\DB::Sql($this->connName)->Free($result_cnt);
 
 		$this->totalRecord = $totalRecord;
 		$this->beginNum = $totalRecord - ($nowPage * $this->articleCount);
 
-		$this->query = \DB::SQL()->Query($sql);
+		$this->query = \DB::SQL($this->connName)->Query($sql);
 		if($this->query){
 			// Cache
 			if($this->cache){
@@ -656,6 +841,27 @@ class BH_DB_GetListWithPage{
 		else{
 			$this->result = false;
 		}
+		return $this;
+	}
+
+	public function GetCountResult(){
+		if(!$this->RunIs) $this->Run();
+		return $this->countResult;
+	}
+
+	public function GetTotalRecord(){
+		if(!$this->RunIs) $this->Run();
+		return $this->totalRecord;
+	}
+
+	public function GetBeginNum(){
+		if(!$this->RunIs) $this->Run();
+		return $this->beginNum;
+	}
+
+	public function GetPageHtml(){
+		if(!$this->RunIs) $this->Run();
+		return $this->pageHtml;
 	}
 
 	public function Get(){
@@ -728,6 +934,10 @@ class BH_DB_GetListWithPage{
 		return '<div class="paging">'.$pageHTML.'</div>';
 	}
 
+	public function &SetTest($bool = false){
+		$this->test = $bool;
+		return $this;
+	}
 }
 
 class BH_DB_Insert{
@@ -739,33 +949,60 @@ class BH_DB_Insert{
 	private $where = array();
 	private $MultiNames = '';
 	private $MultiValues = array();
+	private $connName = '';
 
 	public function  __construct($table = ''){
 		$this->table = $table;
+		$this->connName = \DB::DefaultConnName;
+	}
+
+	public static function Init($table = ''){
+		$instance = new self($table);
+		return $instance;
+	}
+
+	public function &SetConnName($str){
+		$this->connName = $str;
+		return $this;
+	}
+
+	public function &AddTable($str){
+		$w = StrToSql(func_get_args());
+		if($w !== false) $this->where .= $w;
+		return $this;
+	}
+
+	public function &SetDecrementKey($str){
+		$this->decrement = $str;
+		return $this;
 	}
 
 	public function SetData($key, $val){
 		$this->data[$key] = $val;
 	}
 
-	public function SetDataStr($key, $val){
+	public function &SetDataStr($key, $val){
 		$this->data[$key] = SetDBText($val);
+		return $this;
 	}
 
-	public function SetDataNum($key, $val){
+	public function &SetDataNum($key, $val){
 		$this->data[$key] = SetDBFloat($val);
+		return $this;
 	}
 
-	public function AddWhere($str){
+	public function &AddWhere($str){
 		$w = StrToSql(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
+		return $this;
 	}
 
-	public function UnsetWhere(){
+	public function &UnsetWhere(){
 		unset($this->where);
+		return $this;
 	}
 
-	public function MultiAdd(){
+	public function &MultiAdd(){
 		$temp = '';
 		$names = '';
 		$values = '';
@@ -776,20 +1013,24 @@ class BH_DB_Insert{
 		}
 		if(!$this->MultiNames) $this->MultiNames = $names;
 		$this->MultiValues[]= '('.$values.')';
+		return $this;
 	}
 
 	public function MultiRun(){
+		$res = new \BH_Result();
 		if(!sizeof($this->data)){
-			$this->result = false;
-			$this->message = '등록할 자료가 없습니다.';
+			$res->result = false;
+			$res->message = '등록할 자료가 없습니다.';
 			return;
 		}
 
 		$sql = 'INSERT INTO ' . $this->table . '(' . $this->MultiNames . ') VALUES '.implode(',', $this->MultiValues);
-		if($this->test){
+		if($this->test && _DEVELOPERIS === true){
 			echo $sql;exit;
 		}
-		$this->result = \DB::SQL()->Query($sql);
+		$res->result = \DB::SQL($this->connName)->Query($sql);
+		if($res->result) \BH_DB_Cache::DelPath($this->table);
+		return $res;
 	}
 
 	public function Run(){
@@ -806,21 +1047,21 @@ class BH_DB_Insert{
 			$r = false;
 			$cnt = 5;
 			while(!$r && $cnt > 0){
-				$minseq = \DB::SQL()->Fetch('SELECT MIN(`'.$this->decrement.'`) as seq FROM `'.$this->table.'`'
+				$minseq = \DB::SQL($this->connName)->Fetch('SELECT MIN(`'.$this->decrement.'`) as seq FROM `'.$this->table.'`'
 					. ($this->where ? ' WHERE ' . implode(' AND ', $this->where) : ''));
 				if(!$minseq){
-					$this->result = false;
+					$res->result = false;
 					return;
 				}
 				if(!strlen($minseq['seq'])) $minseq['seq'] = $this->MAXInt;
 
 				$minseq['seq'] --;
 				$sql = 'INSERT INTO ' . $this->table . '(' . $names . ', `' . $this->decrement . '`) VALUES (' . $values . ',' . $minseq['seq'] . ')';
-				if($this->test){
+				if($this->test && _DEVELOPERIS === true){
 					echo $sql;
 					exit;
 				}
-				$r = \DB::SQL()->Query($sql);
+				$r = \DB::SQL($this->connName)->Query($sql);
 				$cnt --;
 			}
 			$res->result = $r ? true : false;
@@ -828,17 +1069,22 @@ class BH_DB_Insert{
 		}
 		else{
 			$sql = 'INSERT INTO ' . $this->table . '(' . $names . ') VALUES (' . $values . ')';
-			if($this->test){
+			if($this->test && _DEVELOPERIS === true){
 				echo $sql;
 				exit;
 			}
 
-			$res->result = \DB::SQL()->Query($sql);
-			$res->id = mysqli_insert_id(\DB::SQL()->GetConn());
+			$res->result = \DB::SQL($this->connName)->Query($sql);
+			$res->id = mysqli_insert_id(\DB::SQL($this->connName)->GetConn());
 		}
 
 		if($res->result) \BH_DB_Cache::DelPath($this->table);
 		return $res;
+	}
+
+	public function &SetTest($bool = false){
+		$this->test = $bool;
+		return $this;
 	}
 }
 
@@ -848,26 +1094,48 @@ class BH_DB_Update{
 	public $data = array();
 	public $test = false;
 	public $sort = '';
+	private $connName = '';
 
 	public function  __construct($table = ''){
 		$this->table = $table;
+		$this->connName = \DB::DefaultConnName;
 	}
 
-	public function SetData($key, $val){
+	public static function Init($table = ''){
+		$instance = new self($table);
+		return $instance;
+	}
+
+	public function &SetConnName($str){
+		$this->connName = $str;
+		return $this;
+	}
+
+	public function &AddTable($str){
+		$w = StrToSql(func_get_args());
+		if($w !== false) $this->where .= $w;
+		return $this;
+	}
+
+	public function &SetData($key, $val){
 		$this->data[$key] = $val;
+		return $this;
 	}
 
-	public function SetDataStr($key, $val){
+	public function &SetDataStr($key, $val){
 		$this->data[$key] = SetDBText($val);
+		return $this;
 	}
 
-	public function SetDataNum($key, $val){
+	public function &SetDataNum($key, $val){
 		$this->data[$key] = SetDBFloat($val);
+		return $this;
 	}
 
-	public function AddWhere($str){
+	public function &AddWhere($str){
 		$w = StrToSql(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
+		return $this;
 	}
 
 	function Run(){
@@ -890,27 +1158,52 @@ class BH_DB_Update{
 
 		$sql = 'UPDATE ' . $this->table . ' SET ' . $set . $where;
 		if($this->sort) $sql .= ' ORDER BY ' . $this->sort;
-		if($this->test){
+		if($this->test && _DEVELOPERIS === true){
 			echo $sql;
 			exit;
 		}
-		$res->result = \DB::SQL()->Query($sql);
+		$res->result = \DB::SQL($this->connName)->Query($sql);
 		if($res->result) \BH_DB_Cache::DelPath($this->table);
 		return $res;
+	}
+
+	public function &SetTest($bool = false){
+		$this->test = $bool;
+		return $this;
 	}
 }
 
 class BH_DB_Delete{
 	public $table = '';
+	public $test = false;
 	private $where = array();
+	private $connName = '';
+
+	public static function Init($table = ''){
+		$instance = new self($table);
+		return $instance;
+	}
 
 	public function  __construct($table = ''){
 		$this->table = $table;
+		$this->connName = \DB::DefaultConnName;
 	}
 
-	public function AddWhere($str){
+	public function &SetConnName($str){
+		$this->connName = $str;
+		return $this;
+	}
+	
+	public function &AddTable($str){
+		$w = StrToSql(func_get_args());
+		if($w !== false) $this->where .= $w;
+		return $this;
+	}
+
+	public function &AddWhere($str){
 		$w = StrToSql(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
+		return $this;
 	}
 
 	function Run(){
@@ -918,7 +1211,18 @@ class BH_DB_Delete{
 		if(isset($this->where) && is_array($this->where) && sizeof($this->where)) $where = ' WHERE ' . implode(' AND ', $this->where);
 
 		$sql = 'DELETE FROM '.$this->table.' '.$where;
-		\BH_DB_Cache::DelPath($this->table);
-		return \DB::SQL()->Query($sql);
+		if($this->test && _DEVELOPERIS === true){
+			echo $sql;
+			exit;
+		}
+
+		$res = \DB::SQL($this->connName)->Query($sql);
+		if($res) \BH_DB_Cache::DelPath($this->table);
+		return $res;
+	}
+
+	public function &SetTest($bool = false){
+		$this->test = $bool;
+		return $this;
 	}
 }
