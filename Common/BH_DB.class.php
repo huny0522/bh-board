@@ -948,6 +948,7 @@ class BH_DB_Insert{
 	private $MultiNames = '';
 	private $MultiValues = array();
 	private $connName = '';
+	private $duplicateData = array();
 
 	public function  __construct($table = ''){
 		$this->table = $table;
@@ -957,6 +958,21 @@ class BH_DB_Insert{
 	public static function Init($table = ''){
 		$instance = new self($table);
 		return $instance;
+	}
+
+	public function &SetOnDuplicateData($key, $val){
+		$this->duplicateData[$key] = $val;
+		return $this;
+	}
+
+	public function &SetOnDuplicateDataStr($key, $val){
+		$this->duplicateData[$key] = SetDBText($val);
+		return $this;
+	}
+
+	public function &SetOnDuplicateDataNum($key, $val){
+		$this->duplicateData[$key] = SetDBFloat($val);
+		return $this;
 	}
 
 	public function &SetConnName($str){
@@ -975,8 +991,9 @@ class BH_DB_Insert{
 		return $this;
 	}
 
-	public function SetData($key, $val){
+	public function &SetData($key, $val){
 		$this->data[$key] = $val;
+		return $this;
 	}
 
 	public function &SetDataStr($key, $val){
@@ -1041,6 +1058,13 @@ class BH_DB_Insert{
 			$values .= $temp . $v;
 			$temp = ',';
 		}
+
+		if(sizeof($this->duplicateData)){
+			$set = array();
+			foreach($this->data as $k => $v) $set[]= '`' . $k . '` = ' . $v;
+			$duplicateSql = 'ON DUPLICATE KEY UPDATE '.implode(', ', $set);
+		}
+
 		if($this->decrement){
 			$r = false;
 			$cnt = 5;
@@ -1059,14 +1083,14 @@ class BH_DB_Insert{
 					echo $sql;
 					exit;
 				}
-				$r = \DB::SQL($this->connName)->Query($sql);
+				$r = \DB::SQL($this->connName)->Query($sql.(isset($duplicateSql) ? ' '.$duplicateSql : ''));
 				$cnt --;
 			}
 			$res->result = $r ? true : false;
 			$res->id = $minseq['seq'];
 		}
 		else{
-			$sql = 'INSERT INTO ' . $this->table . '(' . $names . ') VALUES (' . $values . ')';
+			$sql = 'INSERT INTO ' . $this->table . '(' . $names . ') VALUES (' . $values . ')'.(isset($duplicateSql) ? ' '.$duplicateSql : '');
 			if($this->test && _DEVELOPERIS === true){
 				echo $sql;
 				exit;
@@ -1191,7 +1215,7 @@ class BH_DB_Delete{
 		$this->connName = $str;
 		return $this;
 	}
-	
+
 	public function &AddTable($str){
 		$w = StrToSql(func_get_args());
 		if($w !== false) $this->table .= $w;
