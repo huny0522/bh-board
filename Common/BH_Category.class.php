@@ -24,7 +24,7 @@ class BH_Category{
 		App::$Layout = null;
 		if(!isset($_GET['category']) || $_GET['category'] == '') exit;
 		$data = $this->model->DBGet($_GET['category']);
-		App::View($this, $this->model, $data);
+		JSON(true, '', App::GetView($this, $this->model, $data));
 	}
 
 	public function PostWrite(){

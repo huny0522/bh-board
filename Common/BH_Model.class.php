@@ -278,12 +278,8 @@ class BH_Model{
 	 */
 	public function DBGet($keys){
 		$keyData = is_array($keys) ? $keys : func_get_args();
+		$res = _ModelFunc::DBGet($this->ConnName, $keyData, $this->Key, $this->table, $this->data);
 
-		$res = _ModelFunc::DBGet($this->ConnName, $keyData, $this->Key, $this->table);
-		if($res->result === false) return $res;
-
-		$this->SetDBValues($res->result);
-		$res->result = true;
 		return $res;
 	}
 
@@ -400,7 +396,7 @@ class _ModelFunc{
 		return true;
 	}
 
-	public static function HTMLPrintInput($Name, $data, $HtmlAttribute = false){
+	public static function HTMLPrintInput($Name, &$data, $HtmlAttribute = false){
 		$htmlType = strtolower($data->HtmlType);
 		$Attribute = '';
 		$val = isset($data->Value) ? $data->Value : $data->DefaultValue;
@@ -456,8 +452,7 @@ class _ModelFunc{
 					foreach($data->EnumValues as $k=>$v){
 						$checked = isset($val) && $k == $val ? ' checked="checked"' : '';
 
-						$ret .= '<input type="'.$htmlType.'" name="'.$Name.'" id="MD_'.$Name.'_'.$i.'" value="'.$k.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.$checked.'>';
-						$ret .= '<label for="MD_'.$Name.'_'.$i.'">'.$v.'</label>';
+						$ret .= '<label for="MD_'.$Name.'_'.$i.'" class="'.$htmlType.'"><input type="'.$htmlType.'" name="'.$Name.'" id="MD_'.$Name.'_'.$i.'" value="'.$k.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.$checked.'> <span>'.$v.'</span></label>';
 						$i++;
 					}
 				}
@@ -479,7 +474,7 @@ class _ModelFunc{
 		return '';
 	}
 
-	public static function DBInsert($ConnName, $Table, $Data, $Except, $Key, $Need, $test = false){
+	public static function DBInsert($ConnName, $Table, &$Data, $Except, $Key, $Need, $test = false){
 		$dbInsert = new \BH_DB_Insert($Table);
 		$dbInsert->SetConnName($ConnName);
 		$result = new \BH_InsertResult();
@@ -535,7 +530,7 @@ class _ModelFunc{
 		return $result;
 	}
 
-	public static function DBUpdate($ConnName, $Table, $Data, $Except, $Key, $Need, $test = false){
+	public static function DBUpdate($ConnName, $Table, &$Data, $Except, $Key, $Need, $test = false){
 		$result = new \BH_Result();
 
 		$dbUpdate = new \BH_DB_Update($Table);
@@ -588,7 +583,7 @@ class _ModelFunc{
 		return $result;
 	}
 
-	public static function DBGet($ConnName, $keys, $modelKey, $table){
+	public static function DBGet($ConnName, $keys, $modelKey, $table, &$Data){
 		$res = new \BH_Result();
 
 		if(!isset($modelKey) || !is_array($modelKey)){
@@ -614,7 +609,10 @@ class _ModelFunc{
 		foreach($modelKey as $k => $v) $dbGet->AddWhere($v.' = '.SetDBTrimText($keys[$k]));
 		$data = $dbGet->Get();
 
-		if($data !== false) $res->result = $data;
+		if($data !== false){
+			foreach($data as $k=>$v) if(isset($Data[$k])) $Data[$k]->Value = $v;
+			$res->result = true;
+		}
 		else $res->result = false;
 
 		return $res;

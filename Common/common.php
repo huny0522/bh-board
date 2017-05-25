@@ -20,12 +20,22 @@ class BH_InsertResult{
 define('_OB_COMP', 'zlib.output_compression');
 define('_POSTIS', $_SERVER['REQUEST_METHOD'] == 'POST');
 define('_AJAXIS', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
+define('_JSONIS', strpos(strtolower($_SERVER['HTTP_ACCEPT']), 'application/json') !== false);
 
 require _COMMONDIR.'/BH_DB.class.php';
 require _COMMONDIR.'/BH_Application.class.php';
 require _COMMONDIR.'/BH_Model.class.php';
 require _COMMONDIR.'/BH_Router.class.php';
 require _COMMONDIR.'/BH_Common.class.php';
+
+App::$SettingData['LevelArray'] = array(0 => '비회원', 1 => '일반회원', 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 15 => '매니저', 18 => '관리자', 20 => '최고관리자');
+App::$SettingData['noext'] = array('php','htm','html','cfg','inc','phtml', 'php5', 'asp', 'jsp');
+App::$SettingData['IMAGE_EXT'] = array('jpg','jpeg','png','gif','bmp');
+App::$SettingData['POSSIBLE_EXT'] = array('jpg','jpeg','png','gif','bmp','zip','7z','gz','xz','tar',
+	'xls', 'xlsx', 'ppt', 'doc', 'hwp', 'pdf', 'docx', 'pptx',
+	'avi', 'mov', 'mkv', 'mpg', 'mpeg', 'wmv','asf','asx', 'flv', 'm4v', 'mp4');
+BH_DB_Cache::$DBTableFirst = array(TABLE_FIRST);
+BH_DB_Cache::$ExceptTable = array(TABLE_MEMBER);
 
 if(_DEVELOPERIS === true){
 	if(!file_exists(_DATADIR) || !is_dir(_DATADIR)) @mkdir(_DATADIR, 0755, true);
@@ -65,7 +75,7 @@ function my_escape_string($str) {
 }
 
 function Redirect($url, $msg=''){
-	if(_AJAXIS === true) JSON($url != '-1', $msg);
+	if(_JSONIS === true) JSON($url != '-1', $msg);
 
 	echo '<script>';
 	if($msg) echo 'alert(\''.$msg.'\');';
@@ -506,3 +516,5 @@ function modifyFileTime($file){
 	}
 	return false;
 }
+
+require _COMMONDIR.'/MyLib.php';

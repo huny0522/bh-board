@@ -274,7 +274,7 @@ class BoardController{
 		// 파일 업로드
 		for($n = 1; $n <= 2; $n++){
 			if(!isset($_FILES['file'.$n])) continue;
-			$fres_em = FileUpload($_FILES['file'.$n], App::$POSSIBLE_EXT, '/board/'.date('ym').'/');
+			$fres_em = FileUpload($_FILES['file'.$n], App::$SettingData['POSSIBLE_EXT'], '/board/'.date('ym').'/');
 
 			if($fres_em === 'noext') Redirect('-1', '등록 불가능한 파일입니다.');
 			else if(is_array($fres_em)){
@@ -343,7 +343,7 @@ class BoardController{
 		// 파일 업로드
 		for($n = 1; $n <= 2; $n++){
 			if(!isset($_FILES['file'.$n])) continue;
-			$fres_em = FileUpload($_FILES['file'.$n], App::$POSSIBLE_EXT, '/board/'.date('ym').'/');
+			$fres_em = FileUpload($_FILES['file'.$n], App::$SettingData['POSSIBLE_EXT'], '/board/'.date('ym').'/');
 
 			if($fres_em === 'noext'){
 				App::$Data['error'] = '등록 불가능한 파일입니다.';

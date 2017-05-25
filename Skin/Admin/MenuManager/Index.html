@@ -39,7 +39,7 @@ App::JSAdd('BHCategory.js');
 				});
 			},
 			titleClick : function(id){
-				common.getHtml('<?a. 'Write' ?>', {'category' : id}, function(data){
+				common.get('<?a. 'Write' ?>', {'category' : id}, function(data){
 					$('#BHMenuConfig').html(data);
 				});
 			},

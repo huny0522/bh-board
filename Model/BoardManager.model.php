@@ -54,27 +54,27 @@ class BoardManagerModel extends \BH_Model{
 
 		$this->data['auth_list_level'] = new \BH_ModelData(ModelType::Int, false, '목록보기권한');
 		$this->data['auth_list_level']->HtmlType = HTMLType::Select;
-		$this->data['auth_list_level']->EnumValues = App::$Data['LevelArray'];
+		$this->data['auth_list_level']->EnumValues = App::$SettingData['LevelArray'];
 		$this->data['auth_list_level']->DefaultValue = 0;
 
 		$this->data['auth_write_level'] = new \BH_ModelData(ModelType::Int, false, '쓰기권한');
 		$this->data['auth_write_level']->HtmlType = HTMLType::Select;
-		$this->data['auth_write_level']->EnumValues = App::$Data['LevelArray'];
+		$this->data['auth_write_level']->EnumValues = App::$SettingData['LevelArray'];
 		$this->data['auth_write_level']->DefaultValue = 0;
 
 		$this->data['auth_view_level'] = new \BH_ModelData(ModelType::Int, false, '보기권한');
 		$this->data['auth_view_level']->HtmlType = HTMLType::Select;
-		$this->data['auth_view_level']->EnumValues = App::$Data['LevelArray'];
+		$this->data['auth_view_level']->EnumValues = App::$SettingData['LevelArray'];
 		$this->data['auth_view_level']->DefaultValue = 0;
 
 		$this->data['auth_reply_level'] = new \BH_ModelData(ModelType::String, false, '댓글쓰기권한');
 		$this->data['auth_reply_level']->HtmlType = HTMLType::Select;
-		$this->data['auth_reply_level']->EnumValues = App::$Data['LevelArray'];
+		$this->data['auth_reply_level']->EnumValues = App::$SettingData['LevelArray'];
 		$this->data['auth_reply_level']->DefaultValue = 0;
 
 		$this->data['auth_answer_level'] = new \BH_ModelData(ModelType::String, false, '답변쓰기권한');
 		$this->data['auth_answer_level']->HtmlType = HTMLType::Select;
-		$this->data['auth_answer_level']->EnumValues = App::$Data['LevelArray'];
+		$this->data['auth_answer_level']->EnumValues = App::$SettingData['LevelArray'];
 		$this->data['auth_answer_level']->DefaultValue = 0;
 
 		$this->data['use_reply'] = new \BH_ModelData(ModelType::Enum, false, '댓글사용여부');

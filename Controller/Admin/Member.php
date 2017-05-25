@@ -169,7 +169,7 @@ class MemberController{
 		if(!$res) return;
 		if($res['level'] != _ADMIN_LEVEL) return;
 		App::$Data['auth'] = explode(',', $res['admin_auth']);
-		App::View($this);
+		JSON(true, '', App::GetView($this));
 	}
 
 	public function PostAuthAdmin(){

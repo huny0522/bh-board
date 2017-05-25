@@ -61,30 +61,26 @@ function Common($) {
 	/**
 	 * 폼 ajax 전송
 	 */
-	this._formajax = function (formObj, datatype, success_func, fail_func) {
+	this.ajaxForm = function (formObj, success_func, fail_func) {
 		common.loading_cnt++;
 		common.loading();
 		setTimeout(function () {
 			$(formObj).ajaxSubmit({
-				dataType: datatype,
+				dataType: 'json',
 				async : true,
 				success: function (response, textStatus, xhr, form) {
 					common.loading_cnt--;
 					common.loading_end();
-					if (datatype == 'html'){
-						if(typeof success_func!= 'undefined') success_func(response);
-					}
-					else{
-						if(typeof response.message != 'undefined' && response.message != null && response.message.length) alert(response.message);
-						if(typeof response.result != 'undefined' && response.result != null){
-							if(response.result === true){
-								if(typeof success_func != 'undefined') success_func(response.data);
-							}else{
-								if(typeof fail_func != 'undefined') fail_func(response);
-							}
+
+					if(typeof response.message != 'undefined' && response.message != null && response.message.length) alert(response.message);
+					if(typeof response.result != 'undefined' && response.result != null){
+						if(response.result === true){
+							if(typeof success_func != 'undefined') success_func(response.data);
 						}else{
-							if(typeof success_func != 'undefined') success_func(response);
+							if(typeof fail_func != 'undefined') fail_func(response.data);
 						}
+					}else{
+						if(typeof success_func != 'undefined') success_func(response);
 					}
 				},
 				error: function (xhr, textStatus, errorThrown) {
@@ -100,14 +96,6 @@ function Common($) {
 		}, 50);
 	};
 
-	this.ajaxForm = function(formObj,success_func, fail_func){
-		this._formajax(formObj, 'json', success_func, fail_func);
-	};
-
-	this.ajaxFormHtml = function(formObj,success_func, fail_func){
-		this._formajax(formObj, 'html', success_func, fail_func);
-	};
-
 	/**
 	 * ajax
 	 * @param ur 전송할 URL
@@ -118,11 +106,10 @@ function Common($) {
 			common.loading();
 		}
 
-		var datatype = typeof opt.dataType != 'undefined' ? opt.dataType : 'json';
 		setTimeout(function () {
 			$.ajax({
 				type: (typeof opt.type != 'undefined' ? opt.type : 'post')
-				, dataType: datatype
+				, dataType: 'json'
 				, url: ur
 				, data: dt
 				, async: true
@@ -132,21 +119,15 @@ function Common($) {
 						common.loading_end();
 					}
 
-					if (datatype == 'html'){
-						if(typeof success_func!= 'undefined') success_func(response);
-					}
-					else {
-						if (typeof response.message != 'undefined' && response.message != null && response.message.length) alert(response.message);
-						if(typeof response.result != 'undefined' && response.result != null){
-							if(response.result === true){
-								if (typeof success_func!= 'undefined') success_func(response.data);
-
-							}else{
-								if (typeof fail_func != 'undefined') fail_func(response);
-							}
+					if (typeof response.message != 'undefined' && response.message != null && response.message.length) alert(response.message);
+					if(typeof response.result != 'undefined' && response.result != null){
+						if(response.result === true){
+							if (typeof success_func!= 'undefined') success_func(response.data);
 						}else{
-							if (typeof success_func!= 'undefined') success_func(response);
+							if (typeof fail_func != 'undefined') fail_func(response.data);
 						}
+					}else{
+						if (typeof success_func!= 'undefined') success_func(response);
 					}
 				}
 				, error: function (jqXHR, textStatus, errorThrown) {
@@ -164,28 +145,14 @@ function Common($) {
 	 * ajax post
 	 */
 	this.post = function (ur, dt, success_func, fail_func) {
-		this._ajax(ur, dt, {type : 'post', dataType : 'json'}, success_func, fail_func);
+		this._ajax(ur, dt, {type : 'post'}, success_func, fail_func);
 	};
 
 	/**
 	 * ajax get
 	 */
 	this.get = function (ur, dt, success_func, fail_func) {
-		this._ajax(ur, dt, {type : 'get', dataType : 'json'}, success_func, fail_func);
-	};
-
-	/**
-	 * ajax post, get HTML
-	 */
-	this.postHtml = function (ur, dt, success_func, fail_func) {
-		this._ajax(ur, dt, {type : 'post', dataType : 'html'}, success_func, fail_func);
-	};
-
-	/**
-	 * ajax get, get HTML
-	 */
-	this.getHtml = function (ur, dt, success_func, fail_func) {
-		this._ajax(ur, dt, {type : 'get', dataType : 'html'}, success_func, fail_func);
+		this._ajax(ur, dt, {type : 'get'}, success_func, fail_func);
 	};
 
 	/**
@@ -200,32 +167,15 @@ function Common($) {
 	};
 
 	this._ajaxModal = function (type, ur, dt, title, modal_id, w, h) {
-		if (dt.loadingDisble !== true) {
-			common.loading_cnt++;
-			common.loading();
-		}
-		setTimeout(function () {
-			$.ajax({
-				type: type
-				, url: ur
-				, data: dt
-				, async: true
-				, success: function (data, textStatus, jqXHR) {
-					if (dt.loadingDisble !== true) {
-						common.loading_cnt--;
-						common.loading_end();
-					}
-					common.createModal(title, modal_id, data, w, h);
-				}
-				, error: function (jqXHR, textStatus, errorThrown) {
-					if (dt.loadingDisble !== true) {
-						common.loading_cnt--;
-						common.loading_end();
-					}
-					alert(common.data_trans_error);
-				}
+		if(type == 'get'){
+			this.get(ur, dt, function(data){
+				common.createModal(title, modal_id, data, w, h);
 			});
-		}, 50);
+		}else{
+			this.post(ur, dt, function(data){
+				common.createModal(title, modal_id, data, w, h);
+			});
+		}
 	};
 
 	this.removeModal = function (obj) {
@@ -905,10 +855,10 @@ $(window).resize(function () {
 $(document).ready(function () {
 	common.img_align();
 
-	$(document).on('click', '.tap_menu a', function (e) {
+	$(document).on('click', '.tapMenu a', function (e) {
 		e.preventDefault();
-		var container = $(this).closest('.tap_container');
-		var li = container.find('.tap_menu li');
+		var container = $(this).closest('.tapContainer');
+		var li = container.find('.tapMenu li');
 		var idx = li.index($(this).parent());
 		li.eq(idx).addClass('on').siblings().removeClass('on');
 		container.find('section').eq(idx).addClass('on').siblings('section').removeClass('on');

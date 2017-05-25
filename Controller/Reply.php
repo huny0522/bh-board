@@ -99,7 +99,7 @@ class ReplyController{
 			if(file_exists(_SKINDIR.$html)) App::$Html = $html;
 		}
 
-		App::View($this, null, $dbList);
+		JSON(true, '', App::GetView($this, null, $dbList));
 	}
 
 	public function PostWrite($answerIs = false){
@@ -145,7 +145,7 @@ class ReplyController{
 
 		// 파일 업로드
 		if(isset($_FILES['file'])){
-			$fres_em = FileUpload($_FILES['file'], App::$IMAGE_EXT, '/reply/' . date('ym') . '/');
+			$fres_em = FileUpload($_FILES['file'], App::$SettingData['IMAGE_EXT'], '/reply/' . date('ym') . '/');
 
 			if($fres_em === 'noext'){
 				echo json_encode(array('result' => false, 'message' => '등록 불가능한 파일입니다.'));
@@ -290,7 +290,7 @@ class ReplyController{
 
 		// 파일 업로드
 		if(isset($_FILES['file'])){
-			$fres_em = FileUpload($_FILES['file'], App::$IMAGE_EXT, '/board/'.date('ym').'/');
+			$fres_em = FileUpload($_FILES['file'], App::$SettingData['IMAGE_EXT'], '/board/'.date('ym').'/');
 
 			if($fres_em === 'noext'){
 				echo json_encode(array('result' => false, 'message' => '등록 불가능한 파일입니다.'));

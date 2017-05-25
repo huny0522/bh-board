@@ -16,11 +16,6 @@ class BH_Application{
 	public static $TID = '';
 	public static $CtrlUrl = '';
 
-	public static $IMAGE_EXT = array('jpg','jpeg','png','gif','bmp');
-	public static $POSSIBLE_EXT = array('jpg','jpeg','png','gif','bmp','zip','7z','gz','xz','tar',
-		'xls', 'xlsx', 'ppt', 'doc', 'hwp', 'pdf', 'docx', 'pptx',
-		'avi', 'mov', 'mkv', 'mpg', 'mpeg', 'wmv','asf','asx', 'flv', 'm4v', 'mp4');
-
 	public static $InstallIs = true;
 	public static $CFG = array();
 
@@ -33,6 +28,7 @@ class BH_Application{
 	private static $JS = array();
 	private static $FollowQuery = array();
 
+	public static $SettingData = array();
 	public static $Data = array();
 
 	private function __construct(){

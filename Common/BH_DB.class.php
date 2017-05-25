@@ -11,7 +11,9 @@ class DB{
 	private static $Instance;
 	private static $Conn = array();
 	private static $ConnName = '';
+	private static $ConnectionInfo = array();
 	private function __construct(){
+		require _COMMONDIR.'/db.info.php';
 	}
 
 	public function __destruct(){
@@ -26,16 +28,16 @@ class DB{
 			self::$Instance = new self();
 		}
 		if(!isset(self::$Conn[self::$ConnName])){
-			if(self::$ConnName == self::DefaultConnName){
-				require _COMMONDIR.'/db.info.php';
+			if(isset(self::$ConnectionInfo[self::$ConnName])){
 				/** @var array $_DBInfo */
-				self::$Conn[self::$ConnName] = mysqli_connect($_DBInfo['hostName'], $_DBInfo['userName'], $_DBInfo['userPassword'], $_DBInfo['dbName']);
+				self::$Conn[self::$ConnName] = mysqli_connect(self::$ConnectionInfo[self::$ConnName]['hostName'], self::$ConnectionInfo[self::$ConnName]['userName'], self::$ConnectionInfo[self::$ConnName]['userPassword'], self::$ConnectionInfo[self::$ConnName]['dbName']);
 				if(!self::$Conn[self::$ConnName]){
 					echo('ACCESS_DENIED_DB_CONNECTION');
 					exit;
 				}
 				mysqli_set_charset(self::$Conn[self::$ConnName],'utf8');
-			}else{
+			}
+			else{
 				echo('NOT_DEFINE_DB');
 				exit;
 			}

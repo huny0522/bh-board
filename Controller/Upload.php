@@ -35,13 +35,13 @@ class UploadController{
 
 			$temp = explode('.',$name);
 			$filename_ext = strtolower(array_pop($temp));
-			if(in_array($filename_ext, App::$Data['noext'])){
+			if(in_array($filename_ext, App::$SettingData['noext'])){
 				return 'noext';
 			}
-			else if(!in_array($filename_ext, App::$POSSIBLE_EXT)){
+			else if(!in_array($filename_ext, App::$SettingData['POSSIBLE_EXT'])){
 				return 'noext';
 			}
-			if(($type == 'image' && !in_array($filename_ext, App::$IMAGE_EXT)) || ($type == '' && !in_array($filename_ext, App::$POSSIBLE_EXT))) {
+			if(($type == 'image' && !in_array($filename_ext, App::$SettingData['IMAGE_EXT'])) || ($type == '' && !in_array($filename_ext, App::$SettingData['POSSIBLE_EXT']))) {
 				echo json_encode(array('result' => false, 'fname'=>$name));
 				exit;
 			}

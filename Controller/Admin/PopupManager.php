@@ -58,7 +58,7 @@ class PopupManagerController
 		else{
 			if(isset($_FILES['img'])){
 				require_once _COMMONDIR.'/FileUpload.php';
-				$fres_em = FileUpload($_FILES['img'], App::$POSSIBLE_EXT, '/board/'.date('ym').'/');
+				$fres_em = FileUpload($_FILES['img'], App::$SettingData['POSSIBLE_EXT'], '/board/'.date('ym').'/');
 
 				if($fres_em === 'noext'){
 					Redirect('-1', '등록 불가능한 파일입니다.');
@@ -93,7 +93,7 @@ class PopupManagerController
 		else{
 			if(isset($_FILES['img'])){
 				require_once _COMMONDIR.'/FileUpload.php';
-				$fres_em = FileUpload($_FILES['img'], App::$POSSIBLE_EXT, '/board/'.date('ym').'/');
+				$fres_em = FileUpload($_FILES['img'], App::$SettingData['POSSIBLE_EXT'], '/board/'.date('ym').'/');
 
 				if($fres_em === 'noext'){
 					Redirect('-1', '등록 불가능한 파일입니다.');

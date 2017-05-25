@@ -15,7 +15,7 @@ $(document).on('submit', '.replyWrite form', function(e){
 // Get List
 
 function getReplyList(){
-	common.ajaxFormHtml('#replyGetForm', function(data){
+	common.ajaxForm('#replyGetForm', function(data){
 		$('#Reply').html(data);
 	});
 }
