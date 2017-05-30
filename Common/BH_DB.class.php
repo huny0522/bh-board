@@ -17,16 +17,13 @@ class DB{
 	}
 
 	public function __destruct(){
-		foreach(self::$Conn as $k => $v){
-			mysqli_close($v);
-		}
+		foreach(self::$Conn as $k => $v) mysqli_close($v);
 	}
 
 	public static function &SQL($connName = self::DefaultConnName){
 		self::$ConnName = $connName;
-		if (!isset(self::$Instance)){
-			self::$Instance = new self();
-		}
+		if (!isset(self::$Instance)) self::$Instance = new self();
+
 		if(!isset(self::$Conn[self::$ConnName])){
 			if(isset(self::$ConnectionInfo[self::$ConnName])){
 				/** @var array $_DBInfo */
@@ -37,10 +34,7 @@ class DB{
 				}
 				mysqli_set_charset(self::$Conn[self::$ConnName],'utf8');
 			}
-			else{
-				echo('NOT_DEFINE_DB');
-				exit;
-			}
+			else{ echo('NOT_DEFINE_DB'); exit; }
 		}
 		return self::$Instance;
 	}
@@ -70,11 +64,10 @@ class DB{
 		mysqli_free_result($qry);
 	}
 
-	public function Query($str){
+	public function Query($str, $dieIs = true){
 		$sql = StrToSql(is_array($str) ? $str : func_get_args());
-		//echo $sql;
-		if(_DEVELOPERIS === true) $res = mysqli_query(self::$Conn[self::$ConnName], $sql) or die('ERROR SQL : '.$sql);
-		else $res = mysqli_query(self::$Conn[self::$ConnName], $sql) or die('ERROR');
+		if(_DEVELOPERIS === true) $res = mysqli_query(self::$Conn[self::$ConnName], $sql) or ($dieIs ? die('ERROR SQL : '.$sql) : false);
+		else $res = mysqli_query(self::$Conn[self::$ConnName], $sql) or ($dieIs ? die('ERROR') : false);
 		return $res;
 	}
 
@@ -195,12 +188,13 @@ class BH_DB_Get{
 	public $test = false;
 	public $sort = '';
 	public $group = '';
-	private $cache = false;
-	private $query = null;
-	private $having = array();
-	private $where = array();
-	private $key = array();
-	private $connName = '';
+
+	protected $cache = false;
+	protected $query = null;
+	protected $having = array();
+	protected $where = array();
+	protected $key = array();
+	protected $connName = '';
 
 	public function  __construct($table = '', $cache = _USE_DB_CACHE){
 		$this->table = $table;
@@ -213,7 +207,8 @@ class BH_DB_Get{
 	}
 
 	public static function Init($table = '', $cache = _USE_DB_CACHE){
-		$instance = new self($table, $cache);
+		$class = get_called_class();
+		$instance = new $class($table, $cache);
 		return $instance;
 	}
 
@@ -224,7 +219,7 @@ class BH_DB_Get{
 
 	public function &AddTable($str){
 		$w = StrToSql(func_get_args());
-		if($w !== false) $this->table .= $w;
+		if($w !== false) $this->table .= ' '.$w;
 		return $this;
 	}
 
@@ -248,11 +243,7 @@ class BH_DB_Get{
 				else $this->key = array($keys);
 			}
 			else if(is_array($keys)){
-				if($k){
-					foreach($keys as $row){
-						$this->key[] = $row;
-					}
-				}
+				if($k){ foreach($keys as $row) $this->key[] = $row; }
 				else $this->key = $keys;
 			}
 		}
@@ -263,11 +254,7 @@ class BH_DB_Get{
 		$args = func_get_args();
 		foreach($args as $keys){
 			if(is_string($keys)) $this->key[] = $keys;
-			else if(is_array($keys)){
-				foreach($keys as $row){
-					$this->key[] = $row;
-				}
-			}
+			else if(is_array($keys)){ foreach($keys as $row) $this->key[] = $row;}
 		}
 		return $this;
 	}
@@ -282,28 +269,22 @@ class BH_DB_Get{
 		return $this;
 	}
 
-	function Get(){
+	public function Get(){
 		$where = '';
 		if(isset($this->where) && is_array($this->where) && sizeof($this->where)) $where = ' WHERE ' . implode(' AND ', $this->where);
 		$having = '';
 		if(isset($this->having) && is_array($this->having) && sizeof($this->having)) $having = ' HAVING ' . implode(' AND ', $this->having);
 
-		if(isset($this->key) && is_array($this->key) && sizeof($this->key)){
-			$key = implode(',', $this->key);
-		}
-		else{
-			$key = '*';
-		}
+		if(isset($this->key) && is_array($this->key) && sizeof($this->key)) $key = implode(',', $this->key);
+		else $key = '*';
+
 
 		$sql = 'SELECT '.$key.' FROM '.$this->table.' '.$where;
 		if($this->group) $sql .= ' GROUP BY ' . $this->group;
 		$sql .= $having;
 		if($this->sort) $sql .= ' ORDER BY ' . $this->sort;
 		$sql .= ' LIMIT 1';
-		if($this->test && _DEVELOPERIS === true){
-			echo $sql;
-			exit;
-		}
+		if($this->test && _DEVELOPERIS === true){ echo $sql; exit; }
 
 		$sql = trim($sql);
 		$sqlFileNm = hash('sha1', $sql);
@@ -311,10 +292,7 @@ class BH_DB_Get{
 		if($this->cache){
 			$path = \BH_DB_Cache::GetCachePath($this->connName, $this->table, $sqlFileNm);
 			$this->cache = $path['result'];
-			if(!isset(\BH_DB_Cache::$sqlData['GetData'][$sqlFileNm][$sql])){
-				if($path['result'] && file_exists($path['file'])) require_once $path['file'];
-			}
-
+			if(!isset(\BH_DB_Cache::$sqlData['GetData'][$sqlFileNm][$sql]) && $path['result'] && file_exists($path['file'])) require_once $path['file'];
 			if(isset(\BH_DB_Cache::$sqlData['GetData'][$sqlFileNm][$sql])) return \BH_DB_Cache::$sqlData['GetData'][$sqlFileNm][$sql];
 		}
 
@@ -343,95 +321,14 @@ class BH_DB_Get{
 	}
 }
 
-class BH_DB_GetList{
-	public $table = '';
+class BH_DB_GetList extends BH_DB_Get{
 	public $limit = '';
-	public $sort = '';
-	public $group = '';
-	public $test = false;
-	private $cache = false;
-	private $cacheData = array();
-
-	private $pointer = -1;
-	private $query = null;
-	private $having = array();
-	private $where = array();
-	private $key = array();
-	private $connName = '';
+	protected $cacheData = array();
+	protected $pointer = -1;
 
 	public $result = false;
 	public $data = array();
 	private $RunIs = false;
-
-	public function  __construct($table = '', $cache = _USE_DB_CACHE){
-		$this->table = $table;
-		$this->cache = $cache;
-		$this->connName = \DB::DefaultConnName;
-	}
-
-	public function __destruct(){
-		if($this->query) \DB::Sql($this->connName)->Free($this->query);
-	}
-
-	public static function Init($table = '', $cache = _USE_DB_CACHE){
-		$instance = new self($table, $cache);
-		return $instance;
-	}
-
-	public function &SetConnName($str){
-		$this->connName = $str;
-		return $this;
-	}
-
-	public function &AddTable($str){
-		$w = StrToSql(func_get_args());
-		if($w !== false) $this->table .= $w;
-		return $this;
-	}
-
-	public function &AddWhere($str){
-		$w = StrToSql(func_get_args());
-		if($w !== false) $this->where[] = '('.$w.')';
-		return $this;
-	}
-
-	public function &AddHaving($str){
-		$w = StrToSql(func_get_args());
-		if($w !== false) $this->having[] = '('.$w.')';
-		return $this;
-	}
-
-	public function &SetKey($str){
-		$args = func_get_args();
-		foreach($args as $k => $keys){
-			if(is_string($keys)){
-				if($k) $this->key[] = $keys;
-				else $this->key = array($keys);
-			}
-			else if(is_array($keys)){
-				if($k){
-					foreach($keys as $row){
-						$this->key[] = $row;
-					}
-				}
-				else $this->key = $keys;
-			}
-		}
-		return $this;
-	}
-
-	public function &AddKey($str){
-		$args = func_get_args();
-		foreach($args as $keys){
-			if(is_string($keys)) $this->key[] = $keys;
-			else if(is_array($keys)){
-				foreach($keys as $row){
-					$this->key[] = $row;
-				}
-			}
-		}
-		return $this;
-	}
 
 	public function DrawRows(){
 		if(!$this->RunIs) $this->Run();
@@ -450,16 +347,6 @@ class BH_DB_GetList{
 
 		$this->DrawRows();
 		return $this->data;
-	}
-
-	public function &SetGroup($str){
-		$this->group = $str;
-		return $this;
-	}
-
-	public function &SetSort($str){
-		$this->sort = $str;
-		return $this;
 	}
 
 	public function &SetLimit($str){
@@ -551,35 +438,19 @@ class BH_DB_GetList{
 			return $res;
 		}
 	}
-
-	public function &SetTest($bool = false){
-		$this->test = $bool;
-		return $this;
-	}
 }
 
-class BH_DB_GetListWithPage{
-	public $table = '';
+class BH_DB_GetListWithPage extends BH_DB_Get{
 	public $articleCount = 10;
 	public $limit = '';
-	public $sort = '';
-	public $group = '';
-	public $test = false;
 	public $page = 1;
 	public $pageCount = 10;
 	public $pageUrl = '';
 	public $CountKey = '';
 	public $SubCountKey = array();
-	private $cache = false;
 	private $cacheData = array();
-
 	private $pointer = -1;
-	private $query = null;
-	private $where = array();
-	private $having = array();
-	private $key = array();
 	private $RunIs = false;
-	private $connName = '';
 
 	// Result
 	public $result = false;
@@ -588,85 +459,6 @@ class BH_DB_GetListWithPage{
 	public $totalRecord = '';
 	public $beginNum = '';
 	public $pageHtml = '';
-
-	public function  __construct($table = '', $cache = _USE_DB_CACHE){
-		$this->table = $table;
-		$this->cache = $cache;
-		$this->connName = \DB::DefaultConnName;
-	}
-
-	public function __destruct(){
-		if($this->query) \DB::Sql($this->connName)->Free($this->query);
-	}
-
-	public static function Init($table = '', $cache = _USE_DB_CACHE){
-		$instance = new self($table, $cache);
-		return $instance;
-	}
-
-	public function &SetConnName($str){
-		$this->connName = $str;
-		return $this;
-	}
-
-	public function &AddTable($str){
-		$w = StrToSql(func_get_args());
-		if($w !== false) $this->table .= $w;
-		return $this;
-	}
-
-	public function &AddWhere($str){
-		$w = StrToSql(func_get_args());
-		if($w !== false) $this->where[] = '('.$w.')';
-		return $this;
-	}
-
-	public function &AddHaving($str){
-		$this->having[] = $str;
-		return $this;
-	}
-
-	public function &SetKey($str){
-		$args = func_get_args();
-		foreach($args as $k => $keys){
-			if(is_string($keys)){
-				if($k) $this->key[] = $keys;
-				else $this->key = array($keys);
-			}
-			else if(is_array($keys)){
-				if($k){
-					foreach($keys as $row){
-						$this->key[] = $row;
-					}
-				}
-				else $this->key = $keys;
-			}
-		}
-		return $this;
-	}
-
-	public function &AddKey($str){
-		$args = func_get_args();
-		foreach($args as $keys){
-			if(is_string($keys)) $this->key[] = $keys;
-			else if(is_array($keys)){
-				foreach($keys as $row){
-					$this->key[] = $row;
-				}
-			}
-		}
-		return $this;
-	}
-
-	public function &SetGroup($str){
-		$this->group = $str;
-		return $this;
-	}
-
-	public function &SetSort($str){
-		$this->sort = $str;
-		return $this;
-	}
 
 	public function &SetLimit($str){
 		$this->limit = $str;
@@ -693,8 +485,8 @@ class BH_DB_GetListWithPage{
 		return $this;
 	}
 
-	public function &SetSubCountKey($str){
-		$this->SubCountKey = $str;
+	public function &SetSubCountKey($asName, $str){
+		$this->SubCountKey[$asName]= $str;
 		return $this;
 	}
 
@@ -932,11 +724,6 @@ class BH_DB_GetListWithPage{
 		$pageHTML .= ' <'.$tag.' class="last" href="' . $pageParams['pageUrl'] . $linkfirst. $pageAll . '" data-page="' . $pageAll . '">' . $pageParams['img']['last'] . '</'.$tag.'> ';
 
 		return '<div class="paging">'.$pageHTML.'</div>';
-	}
-
-	public function &SetTest($bool = false){
-		$this->test = $bool;
-		return $this;
 	}
 }
 
