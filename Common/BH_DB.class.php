@@ -151,7 +151,8 @@ class BH_DB_Cache{
 		$table = trim($table);
 		$folder = '';
 		if($table){
-			$tx = explode(' ', trim($table));
+			$tx = array_unique(explode(' ', trim($table)));
+			sort($tx);
 			foreach($tx as $v){
 				foreach(self::$DBTableFirst as $v2){
 					if(substr($v, 0, strlen($v2)) == $v2) $folder .= urlencode($v).'+';
@@ -480,7 +481,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		return $this;
 	}
 
-	public function &SetArticleCOunt($str){
+	public function &SetArticleCount($str){
 		$this->articleCount = (int)$str;
 		return $this;
 	}

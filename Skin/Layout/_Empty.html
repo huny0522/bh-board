@@ -6,8 +6,10 @@ use \BH_Application as App;
 ob_start();
 
 App::CSSAdd('jquery-ui-1.10.1.css', 10);
-App::CSSAdd('common.css', 10);
-App::CSSAdd('style.css', 10);
+App::CSSAdd('font-awesome/css/font-awesome.min.css', 10);
+App::CSSAdd('nanumgothic.css', 10);
+App::CSSAdd('common.css2?r='.CF::Config('Default', 'Refresh'), 10);
+App::CSSAdd('style.css2?r='.CF::Config('Default', 'Refresh'), 10);
 
 App::JSAdd('jquery-1.11.3.min.js', 10);
 App::JSAdd('jquery.form.min.js', 10);

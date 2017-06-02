@@ -12,11 +12,11 @@ use \BH_Application as App;
 	</div>
 	<form name="AuthForm" id="AuthForm" method="post" action="<?a. App::$Action ?><?fq. '' ?>">
 		<input type="hidden" name="muid" value="<?p. SetDBInt($_GET['muid']) ?>">
-		<?php if(sizeof(App::$RouterInstance->AdminMenu) && isset(App::$RouterInstance->AdminMenu)){ ?>
+		<?php if(sizeof(App::$SettingData['AdminMenu']) && isset(App::$SettingData['AdminMenu'])){ ?>
 
 		<ul>
 			<?php
-			foreach(App::$RouterInstance->AdminMenu as $c => $row){
+			foreach(App::$SettingData['AdminMenu'] as $c => $row){
 				if(strlen($c) == 3){
 					?>
 					<li>
@@ -29,7 +29,7 @@ use \BH_Application as App;
 						</p>
 						<?php
 						$sub = '';
-						foreach(App::$RouterInstance->AdminMenu as $c2 => $row2){
+						foreach(App::$SettingData['AdminMenu'] as $c2 => $row2){
 							if(strlen($c2) == 6 && substr($c2, 0, 3) == $c){
 								$sub .= '<li>'
 									.'<p>'

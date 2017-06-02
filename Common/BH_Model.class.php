@@ -23,9 +23,13 @@ class HTMLType{
 	const InputPassword = 'password';
 	const InputRadio = 'radio';
 	const InputCheckbox = 'checkbox';
+	const InputEmail = 'email';
+	const InputTel = 'tel';
 	const InputFile = 'file';
 	const Select = 'select';
 	const Textarea = 'textarea';
+	const InputDate = 'date';
+	const InputDatePicker = 'datepicker';
 }
 
 class BH_ModelData{
@@ -321,23 +325,21 @@ class _ModelFunc{
 	public static function CheckType($key, &$data){
 		switch($data->Type){
 			case ModelType::Int:
-				$val = preg_replace('/[^Z0-9\-]/','',$data->Value);
+				$val = preg_replace('/[^0-9\-]/','',$data->Value);
 				if($val != $data->Value){
 					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 숫자만 입력 가능합니다.';
 					return false;
 				}
-				return true;
 			break;
 			case ModelType::Float:
-				$val = preg_replace('/[^Z0-9\.\-]/','',$data->Value);
+				$val = preg_replace('/[^0-9\.\-]/','',$data->Value);
 				if($val != $data->Value){
 					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 숫자만 입력 가능합니다.';
 					return false;
 				}
 			break;
 			case ModelType::Enum:
-				if(isset($data->EnumValues) && is_array($data->EnumValues) && isset($data->EnumValues[$data->Value])) return true;
-				else{
+				if(!(isset($data->EnumValues) && is_array($data->EnumValues) && isset($data->EnumValues[$data->Value]))){
 					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목에 값이 필요합니다.';
 					return false;
 				}
@@ -348,14 +350,12 @@ class _ModelFunc{
 					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문만 입력가능합니다.';
 					return false;
 				}
-				return true;
 			break;
 			case ModelType::EngNum:
 				if ( !ctype_alnum($data->Value) ){
 					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문과 숫자만 입력가능합니다.';
 					return false;
 				}
-				return true;
 			break;
 			case ModelType::EngSpecial:
 				$val = preg_replace('/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>\'\"\?\-=\+_\:\;\[\]\{\}\/]/','',$data->Value);
@@ -363,7 +363,21 @@ class _ModelFunc{
 					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문과 숫자, 특수문자만 입력가능합니다.';
 					return false;
 				}
-				return true;
+		}
+		switch($data->HtmlType){
+			case HTMLType::InputEmail:
+				if (!filter_var($data->Value, FILTER_VALIDATE_EMAIL)) {
+					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 형식이 올바르지 않습니다.';
+					return false;
+				}
+			break;
+			case HTMLType::InputTel:
+				$val = preg_replace('/[^0-9\-\*\#]/','',$data->Value);
+				if($val != $data->Value){
+					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 형식이 올바르지 않습니다.';
+					return false;
+				}
+			break;
 		}
 		return true;
 	}
@@ -417,16 +431,22 @@ class _ModelFunc{
 
 		if($data->Required) $Attribute .= ' required="required"';
 
+		// ModelType
 		if($data->Type == ModelType::Int) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'numberonly';
+		else if($data->Type == ModelType::EngNum) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engnumonly';
+		else if($data->Type == ModelType::Eng) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engonly';
+		else if($data->Type == ModelType::EngSpecial) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engspecialonly';
 
-		if($data->Type == ModelType::EngNum) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engnumonly';
-
-		if($data->Type == ModelType::Eng) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engonly';
-
-		if($data->Type == ModelType::EngSpecial) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engspecialonly';
-
-		if($data->Type == ModelType::Date || $data->Type == ModelType::Datetime){
+		// HTMLType
+		if($data->HtmlType == HTMLType::InputEmail) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'email';
+		else if($data->HtmlType == HTMLType::InputTel) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'tel';
+		else if($data->HtmlType == HTMLType::InputDate){
 			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'date';
+			$HtmlAttribute['maxlength'] = '10';
+			$HtmlAttribute['minlength'] = '10';
+		}
+		else if($data->HtmlType == HTMLType::InputDatePicker){
+			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'datePicker';
 			$HtmlAttribute['maxlength'] = '10';
 			$HtmlAttribute['minlength'] = '10';
 		}
@@ -436,7 +456,15 @@ class _ModelFunc{
 		switch($htmlType){
 			case HTMLType::InputText:
 			case HTMLType::InputPassword:
+			case HTMLType::InputEmail:
+			case HTMLType::InputTel:
 				return '<input type="'.$htmlType.'" name="'.$Name.'" id="MD_'.$Name.'" '.(isset($val) && $htmlType != HTMLType::InputPassword ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+			break;
+			case HTMLType::InputDatePicker:
+				return '<input type="text" name="'.$Name.'" id="MD_'.$Name.'" '.(isset($val) ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+			break;
+			case HTMLType::InputDate:
+				return '<span class="dateInput"><input type="text" name="'.$Name.'" id="MD_'.$Name.'" '.(isset($val) ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'></span>';
 			break;
 			case HTMLType::InputFile:
 				return '<input type="'.$htmlType.'" name="'.$Name.'" id="MD_'.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
@@ -479,6 +507,7 @@ class _ModelFunc{
 		$dbInsert->SetConnName($ConnName);
 		$result = new \BH_InsertResult();
 
+		/** @var  $Data \BH_ModelData[] */
 		foreach($Data as $k=>$v){
 			if(!isset($v->Value) && in_array($k, $Need)){
 				$result->result = false;
@@ -490,6 +519,8 @@ class _ModelFunc{
 			if((!in_array($k, $Except) && (!sizeof($Need) || in_array($k, $Need)))){
 				if(isset($v->Value)){
 					if(in_array($k, $Key) && $v->AutoDecrement === true) continue;
+
+					if(!$v->ValueIsQuery && $v->HtmlType == HTMLType::InputTel) $v->Value = preg_replace('/[^0-9]/','',$v->Value);
 
 					if($v->ValueIsQuery) $dbInsert->data[$k] = $v->Value;
 					else if($v->Type == ModelType::Int){
@@ -546,6 +577,8 @@ class _ModelFunc{
 			if(!in_array($k, $Except) && (!sizeof($Need) || in_array($k, $Need)) && !in_array($k, $Key)){
 				if(isset($v->Value)){
 					if(in_array($k, $Key) && $v->AutoDecrement === true) continue;
+
+					if(!$v->ValueIsQuery && $v->HtmlType == HTMLType::InputTel) $v->Value = preg_replace('/[^0-9]/','',$v->Value);
 
 					if($v->ValueIsQuery) $dbUpdate->data[$k] = $v->Value;
 					else if($v->Type == ModelType::Int){

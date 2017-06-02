@@ -7,7 +7,7 @@ use \BH_Application as App;
  */
 ?>
 <?php if($Ctrl->GetAuth()){ ?>
-	<h3>댓글 <span>(<?p. $Data->totalRecord ?>)</span></h3>
+	<h3>댓글 <span>(<?p. $Ctrl->boardModel->GetValue('reply_cnt') ?>)</span></h3>
 	<div id="replyWrite" class="replyWrite">
 		<form id="replyWriteForm" name="replyWriteForm" method="post" action="<?a. 'Write' ?>" autocomplete="off" class="reply_form">
 			<input type="hidden" name="article_seq" value="<?p. App::$Data['article_seq'] ?>" id="rep_article_seq" />
@@ -94,8 +94,8 @@ use \BH_Application as App;
 			</fieldset>
 
 			<div>
-				<button type="submit" class="sbtn btn2">확인</button>
-				<button type="reset" class="sbtn">취소</button>
+				<button type="submit" class="sBtn btn2">확인</button>
+				<button type="reset" class="sBtn">취소</button>
 			</div>
 		</form>
 	</div>
@@ -110,8 +110,8 @@ use \BH_Application as App;
 				<span class="pwdinp"><input type="password" name="pwd" required></span>
 			</fieldset>
 		<div class="btn">
-			<button type="submit" class="sbtn btn2">확인</button>
-			<button type="reset" class="sbtn">취소</button>
+			<button type="submit" class="sBtn btn2">확인</button>
+			<button type="reset" class="sBtn">취소</button>
 		</div>
 	</form>
 </div>
@@ -131,8 +131,8 @@ use \BH_Application as App;
 		</fieldset>
 
 		<div class="btn">
-			<span><button type="submit" class="sbtn btn2">등록</button></span>
-			<span><button type="reset" class="sbtn">취소</button></span>
+			<span><button type="submit" class="sBtn btn2">등록</button></span>
+			<span><button type="reset" class="sBtn">취소</button></span>
 		</div>
 	</form>
 </div>
@@ -168,8 +168,8 @@ use \BH_Application as App;
 		</fieldset>
 
 		<div class="btn">
-			<span><button type="submit" class="sbtn btn2">등록</button></span>
-			<span><button type="reset" class="sbtn btn">취소</button></span>
+			<span><button type="submit" class="sBtn btn2">등록</button></span>
+			<span><button type="reset" class="sBtn btn">취소</button></span>
 		</div>
 	</form>
 </div>

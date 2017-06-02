@@ -1,5 +1,6 @@
 <?php
 use \BH_Application as App;
+use \DB as DB;
 class BH_Common
 {
 	public static $Member;
@@ -57,7 +58,6 @@ class BH_Common
 		}
 	}
 
-
 	public static function Config($code, $key){
 		// 설정불러오기
 		if(!isset(App::$CFG[$code])){
@@ -95,9 +95,7 @@ class BH_Common
 		return $res;
 	}
 
-	/**
-	 * 이미지 등록
-	 */
+	// 이미지 등록
 	public static function ContentImageUpate($tid, $keyValue, $content, $mode = 'write'){
 		$newcontent = $content['contents'];
 		$maxImage = _MAX_IMAGE_COUNT;
@@ -176,6 +174,7 @@ class BH_Common
 		return true;
 	}
 
+	// 메뉴 카테고리와 컨텐츠를 연결
 	public static function MenuConnect($bid, $type){
 		$AdminAuth = explode(',', self::GetMember('admin_auth'));
 		if(in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL){
@@ -206,6 +205,7 @@ class BH_Common
 		}
 	}
 
+	// 게시물 가져오기
 	public static function GetBoardArticle($bid, $category = '', $limit = 10){
 		// 리스트를 불러온다.
 		$dbList = new \BH_DB_GetList(TABLE_FIRST.'bbs_'.$bid);
@@ -223,6 +223,7 @@ class BH_Common
 		return $dbList;
 	}
 
+	// 배너 가져오기
 	public static function GetBanner($category){
 		$banner = new \BH_DB_GetList(TABLE_BANNER);
 		$banner->AddWhere('begin_date <= \''.date('Y-m-d').'\'');
@@ -244,6 +245,7 @@ class BH_Common
 		return $data;
 	}
 
+	// 팝업 가져오기
 	public static function GetPopup(){
 		$banner = new \BH_DB_GetList(TABLE_POPUP);
 		$banner->AddWhere('begin_date <= \''.date('Y-m-d').'\'');
@@ -268,6 +270,11 @@ class BH_Common
 		return $data;
 	}
 
+	/* -------------------------------------------------
+	 *
+	 *       Category
+	 *
+	------------------------------------------------- */
 	public static function _CategoryGetChild($table, $parent, $length){
 		$dbGet = new \BH_DB_GetList($table);
 		$dbGet->AddWhere('LEFT(category, '.strlen($parent).') = '.SetDBText($parent));
@@ -294,4 +301,91 @@ class BH_Common
 		$dbGet->AddWhere('category='.SetDBText($parent));
 		return $dbGet->Get();
 	}
+
+	/* -------------------------------------------------
+	 *
+	 *       Menu
+	 *
+	------------------------------------------------- */
+
+	// App::$SettingData['MainMenu'], App::$SettingData['SubMenu'] 에 메인메뉴, 서브메뉴를 셋팅
+	public static function _SetMenu($Title = 'Home'){
+		if(isset(App::$SettingData['MainMenu']) && sizeof(App::$SettingData['MainMenu'])) return;
+		$Menu = self::_GetRootMenu($Title);
+		if($Menu){
+			App::$SettingData['RootC'] = $Menu['category'];
+			$menu = self::_GetSubMenu(App::$SettingData['RootC']);
+			foreach($menu as $row){
+				if(strlen($row['category']) == strlen(App::$SettingData['RootC']) + _CATEGORY_LENGTH) App::$SettingData['MainMenu'][] = $row;
+				else App::$SettingData['SubMenu'][substr($row['category'], 0, strlen($row['category']) - _CATEGORY_LENGTH)][] = $row;
+			}
+		}
+	}
+
+	public static function _GetRootMenu($title = ''){
+		$dbGet = DB::GetQryObj(TABLE_MENU)
+			->AddWhere('LENGTH(category) = '._CATEGORY_LENGTH)
+			->AddWhere('enabled = \'y\'')
+			->AddWhere('parent_enabled = \'y\'');
+		if($title) $dbGet->AddWhere('controller='.SetDBText($title));
+		return $dbGet->Get();
+	}
+
+	public static function _GetSubMenu($key){
+		$dbGetList = DB::GetListQryObj(TABLE_MENU)
+			->AddWhere('LEFT(category,'.strlen($key).') ='. SetDBText($key))
+			->AddWhere('LENGTH(category) IN (%s)', array(strlen($key) + _CATEGORY_LENGTH, strlen($key) + _CATEGORY_LENGTH + _CATEGORY_LENGTH))
+			->AddWhere('enabled = \'y\'')
+			->AddWhere('parent_enabled = \'y\'')
+			->SetSort('sort');
+		$menu = array();
+		while($row = $dbGetList->Get()) $menu[$row['category']] = $row;
+		return $menu;
+	}
+
+	// 접근가능 메뉴인지 체크하고 라우팅함
+	public static function _SetMenuRouter($url, $start = 1){
+		if(!isset(App::$SettingData['RootC']) || !App::$SettingData['RootC']) return false;
+		$cont = App::$SettingData['GetUrl'][$start];
+		if(!$cont) $cont = _DEFAULT_CONTROLLER;
+
+		$qry = DB::GetListQryObj(TABLE_MENU)
+			->AddWhere('controller = %s', $cont)
+			->AddWhere('LEFT(category, %d) = %s', strlen(App::$SettingData['RootC']), App::$SettingData['RootC'])
+			->SetSort('LENGTH(category) DESC');
+
+		$cnt = 0;
+		while($row = $qry->Get()){
+			if($row['parent_enabled'] == 'y' && $row['enabled'] == 'y'){
+				App::$SettingData['ActiveMenu'] = $row;
+				break;
+			}
+			$cnt ++;
+		}
+
+		if(!isset(App::$SettingData['ActiveMenu']) && $cnt){
+			if(_DEVELOPERIS === true) Redirect(-1, '접근이 불가능한 메뉴입니다.');
+			Redirect(-1);
+		}
+
+		if(isset(App::$SettingData['ActiveMenu'])){
+			if(App::$SettingData['ActiveMenu']['type'] == 'board'){
+				App::$ControllerName = 'Board';
+				App::$NativeDir = _URL;
+			}
+			else if(App::$SettingData['ActiveMenu']['type'] == 'content'){
+				App::$ControllerName = 'Contents';
+				App::$NativeDir = _URL;
+			}
+			else App::$ControllerName = App::$SettingData['GetUrl'][$start];
+
+			App::$TID = App::$SettingData['ActiveMenu']['bid'];
+			App::$Action = App::$SettingData['GetUrl'][$start + 1];
+			App::$ID = App::$SettingData['GetUrl'][$start + 2];
+			App::$CtrlUrl = $url.'/'.App::$SettingData['GetUrl'][$start];
+			return true;
+		}
+		return false;
+	}
+
 }

@@ -77,10 +77,10 @@ use \BH_Application as App;
 		<?p. SelectOption(array('snc' => '제목+내용', 's' => '제목', 'c' => '내용'), isset($_GET['searchType']) ? $_GET['searchType'] : '') ?>
 	</select>
 	<input type="text" name="searchKeyword" value="<?v. isset($_GET['searchKeyword']) ? $_GET['searchKeyword'] : '' ?>">
-	<button type="submit" class="mbtn btn2">검색</button>
+	<button type="submit" class="mBtn btn2">검색</button>
 </form>
 
-<?php if($Ctrl->GetAuth('Write')){ ?><div class="right_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mbtn btn2">글쓰기</a></div><?php } ?>
+<?php if($Ctrl->GetAuth('Write')){ ?><div class="right_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn btn2">글쓰기</a></div><?php } ?>
 
 <div class="paging"><?p. $Data->pageHtml ?></div>
 

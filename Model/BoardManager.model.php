@@ -15,91 +15,73 @@ class BoardManagerModel extends \BH_Model{
 		$this->table = TABLE_BOARD_MNG;
 
 		$this->data['subject'] = new \BH_ModelData(ModelType::String, true, '제목');
-		$this->data['subject']->HtmlType = HTMLType::InputText;
 		$this->data['subject']->MaxLength = 128;
 
 		$this->data['bid'] = new \BH_ModelData(ModelType::EngNum, true, '게시판아이디');
-		$this->data['bid']->HtmlType = HTMLType::InputText;
 		$this->data['bid']->MinLength = '1';
 		$this->data['bid']->MaxLength = '20';
 
 		$this->data['manager'] = new \BH_ModelData(ModelType::String, false, '게시판관리자');
-		$this->data['manager']->HtmlType = HTMLType::InputText;
 
 		$this->data['skin'] = new \BH_ModelData(ModelType::EngNum, false, '스킨');
-		$this->data['skin']->HtmlType = HTMLType::InputText;
 		$this->data['skin']->MinLength = '1';
 		$this->data['skin']->MaxLength = '20';
 
 		$this->data['reply_skin'] = new \BH_ModelData(ModelType::EngNum, false, '댓글스킨');
-		$this->data['reply_skin']->HtmlType = HTMLType::InputText;
 		$this->data['reply_skin']->MinLength = '1';
 		$this->data['reply_skin']->MaxLength = '20';
 
 		$this->data['category'] = new \BH_ModelData(ModelType::String, false, '분류');
-		$this->data['category']->HtmlType = HTMLType::InputText;
 		$this->data['category']->MaxLength = 256;
 
 		$this->data['article_count'] = new \BH_ModelData(ModelType::Int, false, '게시물수');
-		$this->data['article_count']->HtmlType = HTMLType::InputText;
 		$this->data['article_count']->MinValue = 1;
 		$this->data['article_count']->MaxValue = 100;
 		$this->data['article_count']->DefaultValue = 10;
 
 		$this->data['reply_count'] = new \BH_ModelData(ModelType::Int, false, '댓글게시물수');
-		$this->data['reply_count']->HtmlType = HTMLType::InputText;
 		$this->data['reply_count']->MinValue = 1;
 		$this->data['reply_count']->MaxValue = 100;
 		$this->data['reply_count']->DefaultValue = 10;
 
-		$this->data['auth_list_level'] = new \BH_ModelData(ModelType::Int, false, '목록보기권한');
-		$this->data['auth_list_level']->HtmlType = HTMLType::Select;
+		$this->data['auth_list_level'] = new \BH_ModelData(ModelType::Int, false, '목록보기권한', HTMLType::Select);
 		$this->data['auth_list_level']->EnumValues = App::$SettingData['LevelArray'];
 		$this->data['auth_list_level']->DefaultValue = 0;
 
-		$this->data['auth_write_level'] = new \BH_ModelData(ModelType::Int, false, '쓰기권한');
-		$this->data['auth_write_level']->HtmlType = HTMLType::Select;
+		$this->data['auth_write_level'] = new \BH_ModelData(ModelType::Int, false, '쓰기권한', HTMLType::Select);
 		$this->data['auth_write_level']->EnumValues = App::$SettingData['LevelArray'];
 		$this->data['auth_write_level']->DefaultValue = 0;
 
-		$this->data['auth_view_level'] = new \BH_ModelData(ModelType::Int, false, '보기권한');
-		$this->data['auth_view_level']->HtmlType = HTMLType::Select;
+		$this->data['auth_view_level'] = new \BH_ModelData(ModelType::Int, false, '보기권한', HTMLType::Select);
 		$this->data['auth_view_level']->EnumValues = App::$SettingData['LevelArray'];
 		$this->data['auth_view_level']->DefaultValue = 0;
 
-		$this->data['auth_reply_level'] = new \BH_ModelData(ModelType::String, false, '댓글쓰기권한');
-		$this->data['auth_reply_level']->HtmlType = HTMLType::Select;
+		$this->data['auth_reply_level'] = new \BH_ModelData(ModelType::String, false, '댓글쓰기권한', HTMLType::Select);
 		$this->data['auth_reply_level']->EnumValues = App::$SettingData['LevelArray'];
 		$this->data['auth_reply_level']->DefaultValue = 0;
 
-		$this->data['auth_answer_level'] = new \BH_ModelData(ModelType::String, false, '답변쓰기권한');
-		$this->data['auth_answer_level']->HtmlType = HTMLType::Select;
+		$this->data['auth_answer_level'] = new \BH_ModelData(ModelType::String, false, '답변쓰기권한', HTMLType::Select);
 		$this->data['auth_answer_level']->EnumValues = App::$SettingData['LevelArray'];
 		$this->data['auth_answer_level']->DefaultValue = 0;
 
-		$this->data['use_reply'] = new \BH_ModelData(ModelType::Enum, false, '댓글사용여부');
-		$this->data['use_reply']->HtmlType = HTMLType::InputRadio;
+		$this->data['use_reply'] = new \BH_ModelData(ModelType::Enum, false, '댓글사용여부', HTMLType::InputRadio);
 		$this->data['use_reply']->EnumValues = array('y'=>'사용','n'=>'사용안함');
 		$this->data['use_reply']->DefaultValue = 'y';
 
-		$this->data['list_in_view'] = new \BH_ModelData(ModelType::Enum, false, '상세페이지에 리스트표시');
-		$this->data['list_in_view']->HtmlType = HTMLType::InputRadio;
+		$this->data['list_in_view'] = new \BH_ModelData(ModelType::Enum, false, '상세페이지에 리스트표시', HTMLType::InputRadio);
 		$this->data['list_in_view']->EnumValues = array('y'=>'사용','n'=>'사용안함');
 		$this->data['list_in_view']->DefaultValue = 'y';
 
-		$this->data['man_to_man'] = new \BH_ModelData(ModelType::Enum, false, '1:1게시판 사용여부');
-		$this->data['man_to_man']->HtmlType = HTMLType::InputRadio;
+		$this->data['man_to_man'] = new \BH_ModelData(ModelType::Enum, false, '1:1게시판 사용여부', HTMLType::InputRadio);
 		$this->data['man_to_man']->EnumValues = array('y'=>'사용','n'=>'사용안함');
 		$this->data['man_to_man']->DefaultValue = 'n';
 
 		$this->data['layout'] = new \BH_ModelData(ModelType::EngSpecial, false, '레이아웃');
-		$this->data['layout']->HtmlType = HTMLType::InputText;
 		$this->data['layout']->MinLength = 1;
 		$this->data['layout']->MaxLength = 50;
 
 
 		$this->data['new_view_day'] = new \BH_ModelData(ModelType::Int, false, '새글표시기간');
-		$this->data['new_view_day']->HtmlType = HTMLType::InputText;
 		$this->data['new_view_day']->MinValue = 1;
 		$this->data['new_view_day']->MaxValue = 50;
 		$this->data['new_view_day']->DefaultValue = 1;

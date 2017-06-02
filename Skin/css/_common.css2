@@ -1,3 +1,4 @@
+@charset "utf-8";
 /*
  BH_STYLE: 문장으로 시작해서 //BH_STYLE_END 로 끝나는 문장은 자동 생성된 문장이므로 변경하지 마시기 바랍니다.
  */
@@ -26,3 +27,5 @@ $tac{text-align:center;}
 $tar{text-align:right;}
 $fll{float:left;}
 $flr{float:right;}
+$fz font-size;
+$fw font-weight;

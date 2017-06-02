@@ -6,9 +6,9 @@ use \BH_Application as App;
 ob_start();
 App::CSSAdd('jquery-ui-1.10.1.css', 10);
 App::CSSAdd('font-awesome/css/font-awesome.min.css', 10);
-App::CSSAdd('common.css', 10);
-App::CSSAdd2('admin.css2', 10);
 App::CSSAdd('nanumgothic.css', 10);
+App::CSSAdd('common.css2?r='.CF::Config('Default', 'Refresh'), 10);
+App::CSSAdd('admin.css2?r='.CF::Config('Default', 'Refresh'), 10);
 
 App::JSAdd('jquery-1.11.3.min.js', 10);
 App::JSAdd('jquery.form.min.js', 10);
@@ -32,13 +32,13 @@ App::JSAdd('admin.js', 10);
 					<?php
 					$NM = App::$Data['NowMenu'];
 					$AdminAuth = explode(',', CF::GetMember('admin_auth'));
-					foreach(App::$RouterInstance->AdminMenu as $c => $v){
+					foreach(App::$SettingData['AdminMenu'] as $c => $v){
 						if(strlen($c) == 3 && ($_SESSION['member']['level'] == _SADMIN_LEVEL || in_array($c, $AdminAuth))){
 							echo '<li '.(substr($NM,0,3) == $c ? ' class="Active"' : '').'>'
 								.'<span><a href="'. _ADMINURL.'/'.$v['Category'].'">'.$v['Name'].'</a></span>';
 
 							$sub = '';
-							foreach(App::$RouterInstance->AdminMenu as $c2 => $v2){
+							foreach(App::$SettingData['AdminMenu'] as $c2 => $v2){
 								if(strlen($c2) == 6 && substr($c2, 0, 3) == $c && ($_SESSION['member']['level'] == _SADMIN_LEVEL || in_array($c2, $AdminAuth))){
 									$sub .= '<li '.(substr($NM,0,6) == $c2 ? ' class="Active"' : '').'>'
 										.'<span><a href="'. _ADMINURL.'/'.$v2['Category'].'">'.$v2['Name'].'</a></span>';

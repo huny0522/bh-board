@@ -5,10 +5,11 @@ use \BH_Application as App;
 
 ob_start();
 App::CSSAdd('jquery-ui-1.10.1.css', 10);
-App::CSSAdd('common.css', 10);
-App::CSSAdd('style.css?r='.CF::Config('Default', 'Refresh'), 10);
-App::CSSAdd2(_STYLEFILE.'?r='.CF::Config('Default', 'Refresh'), 10);
-App::CSSAdd('responsive.css?r='.CF::Config('Default', 'Refresh'), 10);
+App::CSSAdd('font-awesome/css/font-awesome.min.css', 10);
+App::CSSAdd('nanumgothic.css', 10);
+App::CSSAdd('common.css2?r='.CF::Config('Default', 'Refresh'), 10);
+App::CSSAdd('style.css2?r='.CF::Config('Default', 'Refresh'), 10);
+App::CSSAdd(_STYLEFILE.'?r='.CF::Config('Default', 'Refresh'), 10);
 
 App::JSAdd('jquery-1.11.3.min.js', 10);
 App::JSAdd('jquery.form.min.js', 10);
@@ -64,14 +65,14 @@ App::JSAdd('common.js?r='.CF::Config('Default', 'Refresh'), 10);
 			</style>
 			<nav id="tnb">
 				<ul>
-					<?php foreach(App::$RouterInstance->MainMenu as $row){ ?>
-						<li<?p. isset(App::$RouterInstance->ActiveMenu['category']) && substr(App::$RouterInstance->ActiveMenu['category'], 0, strlen($row['category'])) === $row['category'] ? ' class="Active"' : '' ?>>
+					<?php foreach(App::$SettingData['MainMenu'] as $row){ ?>
+						<li<?p. isset(App::$SettingData['AdminMenu']['category']) && substr(App::$SettingData['AdminMenu']['category'], 0, strlen($row['category'])) === $row['category'] ? ' class="Active"' : '' ?>>
 							<a href="<?p. _URL ?>/<?v. $row['controller'] ?>"><?v. $row['title'] ?></a>
 							<?php
-							if(isset(App::$RouterInstance->SubMenu[$row['category']]) && sizeof(App::$RouterInstance->SubMenu[$row['category']])){
+							if(isset(App::$SettingData['SubMenu'][$row['category']]) && sizeof(App::$SettingData['SubMenu'][$row['category']])){
 								echo '<ol>';
-								foreach(App::$RouterInstance->SubMenu[$row['category']] as $subMenu){
-									echo '<li'.(isset(App::$RouterInstance->ActiveMenu['category']) && substr(App::$RouterInstance->ActiveMenu['category'], 0, strlen($subMenu['category'])) === $subMenu['category'] ? ' class="Active"' : '').'><a href="'._URL.'/'.$subMenu['controller'].'">'.GetDBText($subMenu['title']).'</a></li>';
+								foreach(App::$SettingData['SubMenu'][$row['category']] as $subMenu){
+									echo '<li'.(isset(App::$SettingData['AdminMenu']['category']) && substr(App::$SettingData['AdminMenu']['category'], 0, strlen($subMenu['category'])) === $subMenu['category'] ? ' class="Active"' : '').'><a href="'._URL.'/'.$subMenu['controller'].'">'.GetDBText($subMenu['title']).'</a></li>';
 								}
 								echo '</ol>';
 							}

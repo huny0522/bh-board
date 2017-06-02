@@ -11,18 +11,17 @@ class BH_HtmlCreate
 	public static function CreateController($ControllerName, $ModelName, $TableName){
 		if(_DEVELOPERIS !== true) return;
 		$path = _CONTROLLERDIR.'/'.App::$NativeDir.'/'.$ControllerName.'.php';
-		$modelPath = _MODELDIR.'/'.$ModelName.'.model.php';
 		$text = "<?php
 use \\BH_Application as App;
 use \\BH_Common as CF;
+use \\DB as DB;
 
 class {$ControllerName}Controller{
 	/** @var \\{$ModelName}Model */
 	public \$model;
 	
 	public function __construct(){
-		require_once _MODELDIR.'/{$ModelName}.model.php';
-		\$this->model = new \\{$ModelName}Model();
+		\$this->model = App::GetModel('{$ModelName}');
 	}
 	
 	public function __Init(){
@@ -30,11 +29,11 @@ class {$ControllerName}Controller{
 	}
 
 	public function Index(){
-		\$qry = new \\BH_DB_GetListWithPage(\$this->model->table);
-		\$qry->articleCount = 10;
-		\$qry->page = isset(\$_GET['page']) ? \$_GET['page'] : 0;
-		\$qry->pageUrl = App::URLAction().App::GetFollowQuery('page');
-		\$qry->Run();
+		\$qry = DB::GetListPageQryObj(\$this->model->table)
+			->SetArticleCount(10)
+			->SetPage(isset(\$_GET['page']) ? \$_GET['page'] : 0);
+			->SetPageUrl(App::URLAction().App::GetFollowQuery('page'))
+			->Run();
 
 		App::View(\$this, \$this->model, \$qry);
 	}
@@ -115,6 +114,9 @@ class {$ControllerName}Controller{
 
 class {$ModelName}Model extends \\BH_Model{
 
+	/** @var \BH_ModelData[] */
+	public \$data = array();
+
 	public function __Init(){
 		\$this->table = {$TableName};
 	}// __Init
@@ -157,7 +159,7 @@ class {$ModelName}Model extends \\BH_Model{
 
 			if(!$findIs){
 				$modelType = 'ModelType::String';
-				$htmlType = 'HTMLType::InputText';
+				$htmlType = '';
 				$addOption = '';
 				$row['Type'] = strtolower($row['Type']);
 				if(strpos($row['Type'], 'int(') !== false){
@@ -166,13 +168,15 @@ class {$ModelName}Model extends \\BH_Model{
 				}
 				else if(strpos($row['Type'], 'date') !== false){
 					$modelType = 'ModelType::Date';
+					$htmlType = ', HTMLType::InputDatePicker';
 				}
 				else if(strpos($row['Type'], 'datetime') !== false){
 					$modelType = 'ModelType::Datetime';
+					$htmlType = ', HTMLType::InputDatePicker';
 				}
 				else if(strpos($row['Type'], 'enum(') !== false){
 					$modelType = 'ModelType::Enum';
-					$htmlType = 'HTMLType::Select';
+					$htmlType = ', HTMLType::Select';
 					preg_match('/\((.*?)\)/', $row['Type'], $matches);
 					$enum = explode(',', $matches[1]);
 					$enum_t = array();
@@ -187,10 +191,10 @@ class {$ModelName}Model extends \\BH_Model{
 					$addOption .= chr(10).'$this->data[\''.$row['Field'].'\']->MaxLength = \''.$matches[1].'\';';
 				}
 				else if(strpos($row['Type'], 'text') !== false){
-					$htmlType = 'HTMLType::Textarea';
+					$htmlType = ', HTMLType::Textarea';
 				}
 
-				$initFuncText .= chr(10).chr(10).'$this->data[\''.$row['Field'].'\'] = new \\BH_ModelData('.$modelType.', false, \''.($row['Comment'] ? $row['Comment'] : $row['Field']).'\', '.$htmlType.');'.$addOption;
+				$initFuncText .= chr(10).chr(10).'$this->data[\''.$row['Field'].'\'] = new \\BH_ModelData('.$modelType.', false, \''.($row['Comment'] ? $row['Comment'] : $row['Field']).'\''.$htmlType.');'.$addOption;
 			}
 
 		}
@@ -240,10 +244,9 @@ class {$ModelName}Model extends \\BH_Model{
 	public static function View($path, $model){
 		if(_DEVELOPERIS !== true) return;
 
-		require_once _DIR . '/Model/' . $model . '.model.php';
 		$classname = $model . 'Model';
 		/** @var Model $modelClass */
-		$modelClass = new $classname();
+		$modelClass = App::GetModel($model);
 		if(!file_exists(_SKINDIR . $path)){
 
 			$a = explode('/', _SKINDIR .$path);
@@ -292,10 +295,9 @@ class {$ModelName}Model extends \\BH_Model{
 	public static function Write($path, $model){
 		if(_DEVELOPERIS !== true) return;
 
-		require_once _DIR . '/Model/' . $model . '.model.php';
 		$classname = $model . 'Model';
 		/** @var Model $modelClass */
-		$modelClass = new $classname();
+		$modelClass = App::GetModel($model);
 		if(!file_exists(_SKINDIR . $path)){
 
 			$a = explode('/', _SKINDIR .$path);
@@ -367,10 +369,9 @@ class {$ModelName}Model extends \\BH_Model{
 	public static function Index($path, $model){
 		if(_DEVELOPERIS !== true) return;
 
-		require_once _DIR . '/Model/' . $model . '.model.php';
 		$classname = $model . 'Model';
 		/** @var BH_Model $modelClass */
-		$modelClass = new $classname();
+		$modelClass = App::GetModel($model);
 		if(!file_exists(_SKINDIR . $path)){
 
 			$a = explode('/', _SKINDIR .$path);

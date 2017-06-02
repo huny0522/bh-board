@@ -25,7 +25,6 @@ define('_JSONIS', strpos(strtolower($_SERVER['HTTP_ACCEPT']), 'application/json'
 require _COMMONDIR.'/BH_DB.class.php';
 require _COMMONDIR.'/BH_Application.class.php';
 require _COMMONDIR.'/BH_Model.class.php';
-require _COMMONDIR.'/BH_Router.class.php';
 require _COMMONDIR.'/BH_Common.class.php';
 
 App::$SettingData['LevelArray'] = array(0 => '비회원', 1 => '일반회원', 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 15 => '매니저', 18 => '관리자', 20 => '최고관리자');
@@ -225,6 +224,7 @@ function Download($path, $fname){
 
 	$dl_file = filter_var($path, FILTER_SANITIZE_URL); // Remove (more) invalid characters
 	$fullPath = _UPLOAD_DIR.$dl_file;
+	if(!file_exists($fullPath)) Redirect(-1, '파일이 존재하지 않습니다.');
 
 	if ($fd = fopen ($fullPath, "r")) {
 		$fsize = filesize($fullPath);
@@ -321,17 +321,61 @@ function SetDBQuot($txt){
 	return chr(39).$txt.chr(39);
 }
 
+function ValidateInt($txt){
+	$res = new \BH_Result();
+	$res->result = true;
+	if(is_array($txt)){
+		foreach($txt as $v){
+			$r = ValidateInt($v);
+			if(!$r->result) $res = $r;
+		}
+		return $res;
+	}
+
+	$val = (int)$txt;
+	if(!strlen($txt)){
+		$res->result = false;
+		$res->message = '숫자값이 비어있습니다.';
+	}
+	else if((string)$val != (string)$txt){
+		$res->result = false;
+		$res->message = '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.';
+	}
+	return $res;
+}
+
 function SetDBInt($txt){
 	if(is_array($txt)){
 		foreach($txt as $k => &$v) $v = SetDBInt($v);
 		return $txt;
 	}
-
+	$val = (int)$txt;
 	if(!strlen($txt)) Redirect('-1', '숫자값이 비어있습니다.');
-
-	if(!is_numeric($txt)) Redirect('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
-
+	if((string)$val != (string)$txt) Redirect('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
 	return $txt;
+}
+
+function ValidateFloat($txt){
+	$res = new \BH_Result();
+	$res->result = true;
+	if(is_array($txt)){
+		foreach($txt as $v){
+			$r = ValidateFloat($v);
+			if(!$r->result) $res = $r;
+		}
+		return $res;
+	}
+
+	$val = (float)$txt;
+	if(!strlen($txt)){
+		$res->result = false;
+		$res->message = '숫자값이 비어있습니다.';
+	}
+	else if((string)$val != (string)$txt){
+		$res->result = false;
+		$res->message = '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.';
+	}
+	return $res;
 }
 
 function SetDBFloat($txt){
@@ -432,6 +476,8 @@ function findDelTree($ConnName, $dir) {
 }
 
 function StrToSql($args){
+	$validateOk = new \BH_Result();
+	$validateOk->result = true;
 	if(!is_array($args)) $args = func_get_args();
 
 	$n = sizeof($args);
@@ -447,19 +493,24 @@ function StrToSql($args){
 				$t = $w[$p+1];
 				switch($t){
 					case 's':
+						// $t = is_array($args[$i]) ? implode(',', SetDBText($args[$i])) : SetDBText($args[$i]);
 						$t = is_array($args[$i]) ? implode(',', SetDBText($args[$i])) : SetDBText($args[$i]);
 						$w = substr_replace($w, $t, $p, 2);
 						$p += strlen($t);
 						$find = true;
 					break;
 					case 'f':
-						$t = is_array($args[$i]) ? implode(',', SetDBFloat($args[$i])) : SetDBFloat($args[$i]);
+						$res = ValidateFloat($args[$i]);
+						if(!$res->result) $validateOk = $res;
+						$t = is_array($args[$i]) ? implode(',', $args[$i]) : $args[$i];
 						$w = substr_replace($w, $t, $p, 2);
 						$p += strlen($t);
 						$find = true;
 					break;
 					case 'd':
-						$t = is_array($args[$i]) ? implode(',', SetDBInt($args[$i])) : SetDBInt($args[$i]);
+						$res = ValidateInt($args[$i]);
+						if(!$res->result) $validateOk = $res;
+						$t = is_array($args[$i]) ? implode(',', $args[$i]) : $args[$i];
 						$w = substr_replace($w, $t, $p, 2);
 						$p += strlen($t);
 						$find = true;
@@ -476,7 +527,9 @@ function StrToSql($args){
 				}
 			}
 		}
-		return str_replace(array('%\s', '%\f', '%\d', '%\1', '%\t'), array('%s', '%f', '%d', '%1', '%t'), $w);
+		$w = str_replace(array('%\s', '%\f', '%\d', '%\1', '%\t'), array('%s', '%f', '%d', '%1', '%t'), $w);
+		if($validateOk->result) return $w;
+		else Redirect(-1, $validateOk->message.(_DEVELOPERIS === true ? '['.$w.']' : ''));
 	}
 }
 

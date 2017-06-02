@@ -263,12 +263,17 @@ class BoardController{
 
 		$this->model->DBGet($seq);
 		$res = $this->model->SetPostValues();
-		if(!$res->result) Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), $res->message);
-
+		if(!$res->result){
+			if(_AJAXIS === true) JSON(false, $res->message);
+			else Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), $res->message);
+		}
 		// 회원 글 체크
 		if(_MEMBERIS !== true || $_SESSION['member']['level'] != _SADMIN_LEVEL){
 			$res = $this->PasswordCheck();
-			if($res !== true) Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), $res);
+			if($res !== true){
+				if(_AJAXIS === true) JSON(false, $res);
+				Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), $res);
+			}
 		}
 
 		// 파일 업로드
@@ -288,14 +293,23 @@ class BoardController{
 		$this->model->SetValue('htmlis', _MOBILEIS === true ? 'n' : 'y');
 
 		$error = $this->model->GetErrorMessage();
-		if(sizeof($error)) Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), $error[0]);
+		if(sizeof($error)){
+			if(_AJAXIS === true) JSON(false, $error[0]);
+			else Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), $error[0]);
+		}
 
 		$res2 = $this->model->DBUpdate();
 		$this->ContentImageUpate($_POST['content'], $seq, 'modify');
 
 
-		if($res2->result) Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), '수정되었습니다.');
-		else Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), $res2->message ? $res2->message : 'ERROR');
+		if($res2->result){
+			if(_AJAXIS === true) JSON(false, '수정되었습니다.');
+			else Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), '수정되었습니다.');
+		}
+		else{
+			if(_AJAXIS === true) JSON(false, $res2->message ? $res2->message : 'ERROR');
+			else Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), $res2->message ? $res2->message : 'ERROR');
+		}
 	}
 
 	public function PostAnswer(){
@@ -410,7 +424,8 @@ class BoardController{
 			$this->ContentImageUpate($_POST['content'], $res->id);
 			Redirect(App::URLAction(), '등록되었습니다.');
 		}else{
-			Redirect(App::URLAction('Write').App::GetFollowQuery(), $result->message ? $result->message : 'ERROR');
+			if(_AJAXIS === true) JSON(false, $result->message ? $result->message : 'ERROR');
+			else Redirect(App::URLAction('Write').App::GetFollowQuery(), $result->message ? $result->message : 'ERROR');
 		}
 	}
 

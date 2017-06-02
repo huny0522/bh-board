@@ -13,21 +13,17 @@ class ContentModel extends \BH_Model{
 		$this->table = TABLE_CONTENT;
 
 		$this->data['subject'] = new \BH_ModelData(ModelType::String, true, '제목');
-		$this->data['subject']->HtmlType = HTMLType::InputText;
 		$this->data['subject']->MaxLength = 128;
 
 		$this->data['bid'] = new \BH_ModelData(ModelType::EngNum, true, '아이디');
-		$this->data['bid']->HtmlType = HTMLType::InputText;
 		$this->data['bid']->MinLength = '1';
 		$this->data['bid']->MaxLength = '20';
 
 		$this->data['html'] = new \BH_ModelData(ModelType::String, true, '컨텐츠파일');
-		$this->data['html']->HtmlType = HTMLType::InputText;
 		$this->data['html']->MinLength = '1';
 		$this->data['html']->MaxLength = '20';
 
 		$this->data['layout'] = new \BH_ModelData(ModelType::String, false, '레이아웃');
-		$this->data['layout']->HtmlType = HTMLType::InputText;
 		$this->data['layout']->MinLength = '1';
 		$this->data['layout']->MaxLength = '50';
 

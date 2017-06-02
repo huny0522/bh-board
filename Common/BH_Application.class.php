@@ -20,7 +20,7 @@ class BH_Application{
 	public static $CFG = array();
 
 	// BH_Controller
-	public static $Layout = '';
+	public static $Layout = null;
 	public static $Html;
 	public static $Title;
 
@@ -37,8 +37,71 @@ class BH_Application{
 	public static function run(){
 		if(_DEVELOPERIS === true) self::$InstallIs = \DB::SQL()->TableExists(TABLE_MEMBER);
 
-		self::$RouterInstance = new \BH_Router();
-		self::$RouterInstance->router();
+		self::$SettingData['MainMenu'] = array();
+		self::$SettingData['SubMenu'] = array();
+
+		// ----------------------
+		//
+		//    라우팅 초기화
+		//
+		self::$SettingData['GetUrl'] = explode('/', isset($_GET['_bh_url']) ? $_GET['_bh_url'] : '');
+		for($i = 0; $i < 10; $i++) if(!isset(self::$SettingData['GetUrl'][$i])) self::$SettingData['GetUrl'][$i] = '';
+
+		if(self::$SettingData['GetUrl'][1] == 'MyIp'){
+			echo $_SERVER['REMOTE_ADDR'];
+			exit;
+		}
+
+		if(self::$SettingData['GetUrl'][1] == '~Create'){
+			if(_DEVELOPERIS === true && _POSTIS === true){
+				if(!isset($_POST['const']) || $_POST['const'] != 'y') $_POST['table_name'] = "'{$_POST['table_name']}'";
+				BH_HtmlCreate::CreateController($_POST['controller_name'], $_POST['model_name'], $_POST['table_name']);
+			}
+			exit;
+		}
+
+		if(self::$SettingData['GetUrl'][1] == '_Refresh'){
+			if(_DEVELOPERIS === true){
+				$s = \BH_Common::Config('Default', 'Refresh');
+				$res = \BH_Common::SetConfig('Default', 'Refresh', $s+1);
+
+				if($res->result){
+					if(_REFRESH_HTML_ALL === true){
+						delTree(_HTMLDIR);
+						ReplaceHTMLAll(_SKINDIR, _HTMLDIR);
+						ReplaceCSS2ALL(_HTMLDIR, _HTMLDIR);
+						ReplaceCSS2ALL(_SKINDIR, _HTMLDIR);
+					}
+					if(_REFRESH_DB_CACHE_ALL === true) delTree(_DATADIR.'/temp');
+					Redirect($_GET['r_url']);
+				}
+				else Redirect(-1, $res->message);
+			}
+			exit;
+		}
+
+		if(!isset(self::$SettingData['GetUrl'][1]) || !strlen(self::$SettingData['GetUrl'][1])) self::$SettingData['GetUrl'][1] = _DEFAULT_CONTROLLER;
+
+
+		self::$BaseDir = _URL;
+		self::$NativeDir = '';
+
+		if(!self::$InstallIs){
+			if(self::$SettingData['GetUrl'][1] == 'Install'){
+				self::$ControllerName = self::$SettingData['GetUrl'][1];
+				self::$Action = self::$SettingData['GetUrl'][2];
+				self::$ID = self::$SettingData['GetUrl'][3];
+				self::$CtrlUrl = _URL.'/'.self::$ControllerName;
+			}
+			else exit;
+		}
+		else require _COMMONDIR.'/BH_Router.php';
+
+		//
+		//    라우팅 초기화
+		//
+		// ----------------------
+
 
 		if(!self::$ControllerName) self::$ControllerName = _DEFAULT_CONTROLLER;
 		if(!strlen(self::$Action)) self::$Action = 'Index';
@@ -66,8 +129,6 @@ class BH_Application{
 
 			if(method_exists($controller, $action) && is_callable(array($controller, $action))){
 				self::$ControllerInstance = new $controller();
-				self::$Layout = self::$RouterInstance->Layout;
-				if(_AJAXIS === true) self::$Layout = null;
 				if(method_exists(self::$ControllerInstance, '__Init')) self::$ControllerInstance->__Init();
 				self::$ControllerInstance->{$action}();
 			}else{
@@ -135,9 +196,11 @@ class BH_Application{
 	 * layout : /Layout 디렉토리에서 self::$Layout 의 파일을 찾아 레이아웃을 생성
 	 * @param $Model mixed
 	 * @param $Data mixed
+	 * @param $opt array
+	 * @return string
 	 */
 
-	public static function View(&$Ctrl, $Model = NULL, $Data = NULL){
+	public static function View(&$Ctrl, $Model = NULL, $Data = NULL, $opt = array()){
 		$viewAction = isset($Ctrl->Html) && strlen($Ctrl->Html) ? $Ctrl->Html : (self::$Html ? self::$Html : self::$Action);
 		if(!$viewAction) $viewAction = 'Index';
 
@@ -155,27 +218,27 @@ class BH_Application{
 		}
 		$_BODY = ob_get_clean();
 
-		if(!is_null(self::$Layout)){
-			$layout = '/Layout/'.(self::$Layout ? self::$Layout.'.html' :  _DEFAULT_LAYOUT.'.html');
+		if((!isset($opt['DisableLayout']) || !$opt['DisableLayout']) && !is_null(self::$Layout)){
+			$layoutChoose = isset($opt['Layout']) ? $opt['Layout'] : self::$Layout;
+			$layout = '/Layout/'.($layoutChoose ? $layoutChoose.'.html' :  _DEFAULT_LAYOUT.'.html');
 			if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR.$layout, _HTMLDIR.$layout);
 			if($layout && file_exists(_HTMLDIR.$layout)) require _HTMLDIR.$layout;
 		}
-		echo $_BODY;
+		if(isset($opt['GetBody']) && $opt['GetBody']) return $_BODY;
+		else echo $_BODY;
+		return '';
+	}
+
+	public static function OnlyView(&$Ctrl, $Model = NULL, $Data = NULL){
+		return self::View($Ctrl, $Model, $Data, array('DisableLayout' => true));
+	}
+
+	public static function GetOnlyView(&$Ctrl, $Model = NULL, $Data = NULL){
+		return self::View($Ctrl, $Model, $Data, array('DisableLayout' => true, 'GetBody' => true));
 	}
 
 	public static function GetView(&$Ctrl, $Model = NULL, $Data = NULL){
-		$viewAction = isset($Ctrl->Html) && strlen($Ctrl->Html) ? $Ctrl->Html : (self::$Html ? self::$Html : self::$Action);
-		if(!$viewAction) $viewAction = 'Index';
-
-		$html = substr($viewAction, 0, 1) == '/' ? $viewAction :
-			(self::$NativeDir ? '/'.self::$NativeDir : '').'/'.self::$ControllerName.'/'.(substr($viewAction, -5) == '.html' ? $viewAction : $viewAction.'.html');
-
-		if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR.$html, _HTMLDIR.$html);
-
-		ob_start();
-		if(file_exists(_HTMLDIR.$html)) require _HTMLDIR . $html;
-		else echo 'ERROR : NOT EXISTS TEMPLATE : '.$viewAction;
-		return ob_get_clean();
+		return self::View($Ctrl, $Model, $Data, array('GetBody' => true));
 	}
 
 	public static function JSPrint(){
@@ -211,10 +274,6 @@ class BH_Application{
 	}
 
 	public static function CSSAdd($css, $idx = 100){
-		self::$CSS[$idx][] = $css;
-	}
-
-	public static function CSSAdd2($css, $idx = 100){
 		if(strpos($css, '?') !== false){
 			$ex1 = explode('?', $css);
 			$queryParam = '?'.array_pop($ex1);
@@ -222,7 +281,11 @@ class BH_Application{
 		}else $queryParam = '';
 
 		$ex = explode('.', $css);
-		array_pop($ex);
+		$ext = array_pop($ex);
+		if($ext == 'css'){
+			self::$CSS[$idx][] = $css;
+			return;
+		}
 		$convCss = implode('.', $ex).'.css';
 		$target = _HTMLURL.'/css'.($convCss[0] == '/' ? $convCss : '/'.$convCss);
 

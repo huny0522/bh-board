@@ -33,26 +33,22 @@ class ReplyModel extends \BH_Model{
 		$this->data['target_muid'] = new \BH_ModelData(ModelType::String, false, '');
 		$this->data['target_mname'] = new \BH_ModelData(ModelType::String, false, '');
 		$this->data['reg_date'] = new \BH_ModelData(ModelType::Datetime, false, '등록일');
-		$this->data['delis'] = new \BH_ModelData(ModelType::String, false, '삭제여부');
 		$this->data['file'] = new \BH_ModelData(ModelType::String, false, 'FILE');
+		$this->data['delis'] = new \BH_ModelData(ModelType::String, false, '삭제여부');
 		$this->data['delis']->DefaultValue = 'n';
 
-		$this->data['secret'] = new \BH_ModelData(ModelType::String, false, '비밀글');
-		$this->data['secret']->HtmlType = HTMLType::InputRadio;
+		$this->data['secret'] = new \BH_ModelData(ModelType::String, false, '비밀글', HTMLType::InputRadio);
 		$this->data['secret']->EnumValues = array('y'=>'사용','n'=>'사용안함');
 		$this->data['secret']->DefaultValue = 'n';
 
 		$this->data['mname'] = new \BH_ModelData(ModelType::String, false, '이름');
-		$this->data['mname']->HtmlType = HTMLType::InputText;
 		$this->data['mname']->MaxLength = 32;
 
-		$this->data['pwd'] = new \BH_ModelData(ModelType::Password, false, '패스워드');
-		$this->data['pwd']->HtmlType = HTMLType::InputPassword;
+		$this->data['pwd'] = new \BH_ModelData(ModelType::Password, false, '패스워드', HTMLType::InputPassword);
 		$this->data['pwd']->MaxLength = 8;
 		$this->data['pwd']->MaxLength = 16;
 
-		$this->data['comment'] = new \BH_ModelData(ModelType::String, false, '내용');
-		$this->data['comment']->HtmlType = HTMLType::Textarea;
+		$this->data['comment'] = new \BH_ModelData(ModelType::String, false, '내용', HTMLType::Textarea);
 	}
 
 

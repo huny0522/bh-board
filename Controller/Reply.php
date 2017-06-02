@@ -7,18 +7,17 @@ use \BH_Application as App;
 use \BH_Common as CF;
 
 class ReplyController{
-	/**
-	 * @var ReplyModel
-	 */
+	/** @var ReplyModel */
 	public $model;
-	/**
-	 * @var BoardManagerModel
-	 */
+	/** @var BoardModel */
+	public $boardModel;
+	/** @var BoardManagerModel */
 	public $boardManger;
 	public $managerIs = false;
 
 	public function __construct(){
 		$this->model = App::GetModel('Reply');
+		$this->boardModel = App::GetModel('Board');
 		$this->boardManger = App::GetModel('BoardManager');
 	}
 
@@ -35,7 +34,7 @@ class ReplyController{
 
 		$mid = CF::GetMember('mid');
 		$manager = explode(',', $this->boardManger->GetValue('manager'));
-		if ($mid !== false && in_array($mid, $manager)) {
+		if ($mid !== false && strlen($mid) && in_array($mid, $manager)) {
 			$this->managerIs = true;
 		}
 	}
@@ -47,6 +46,7 @@ class ReplyController{
 
 		if(isset($this->boardManger) && $this->boardManger->GetValue('use_reply') == 'n') return;
 
+		$this->boardModel->DBGet(App::$Data['article_seq']);
 		$myArticleIs = $this->MyArticleCheck();
 
 		// 리스트를 불러온다.
@@ -132,6 +132,7 @@ class ReplyController{
 		if($answerIs){
 			$target = SetDBInt($_POST['target_seq']);
 			$dbGet = new \BH_DB_Get($this->model->table);
+			$dbGet->AddWhere('article_seq='.$_POST['article_seq']);
 			$dbGet->AddWhere('seq='.$target);
 			$dbGet->SetKey(array('seq', 'first_seq', 'first_member_is', 'secret'));
 			$targetData = $dbGet->Get();
@@ -371,16 +372,9 @@ class ReplyController{
 
 	protected function MyArticleCheck(){
 		$myArticleIs = false;
-
 		if($this->managerIs || (_MEMBERIS === true && $_SESSION['member']['level'] == _SADMIN_LEVEL)) $myArticleIs = true;
-		else{
-			$dbGet = new \BH_DB_Get($this->model->boardTable);
-			$dbGet->AddWhere('seq='.App::$Data['article_seq']);
-			$dbGet->SetKey(array('muid','pwd','secret'));
-			$boardArticle = $dbGet->Get();
-			if(strlen($boardArticle['muid'])){
-				$myArticleIs = (_MEMBERIS === true && $boardArticle['muid'] == $_SESSION['member']['muid']);
-			}
+		else if(strlen($this->boardModel->GetValue('muid'))){
+			$myArticleIs = (_MEMBERIS === true && $this->boardModel->GetValue('muid') == $_SESSION['member']['muid']);
 		}
 		return $myArticleIs;
 	}

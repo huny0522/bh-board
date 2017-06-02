@@ -1,16 +1,155 @@
 function Common($) {
 	var _this = this;
 
-	this.data_trans_error = '데이타 전송오류';
-	this.loading_cnt = 0;
+	this.ie8 = false;
+	this.ie9 = false;
+	this.alertNumber = 0;
 
-	this.bodyOverflow = '';
+	this.Init = function(){
+		this.ie8 = this.getInternetExplorerVersion() == 8 ? true : false;
+		this.ie9 = this.getInternetExplorerVersion() == 9 ? true : false;
+
+		$(window).resize(function () {
+			_this.img_align();
+		});
+
+		$(document).ready(function () {
+			_this.SetSelectBox();
+
+			_this.img_align();
+
+			$(document).on('click', '.tabMenu a', function (e) {
+				e.preventDefault();
+				var container = $(this).closest('.tabContainer');
+				var li = container.find('.tabMenu li');
+				var idx = li.index($(this).parent());
+				li.eq(idx).addClass('on').siblings().removeClass('on');
+				container.find('section').eq(idx).addClass('on').siblings('section').removeClass('on');
+			});
+		});
+
+		$(document).on('click', '.backbtn, .hback a, a.hback', function (e) {
+			e.preventDefault();
+			history.back();
+		});
+
+		/* -------------------------------------------
+		 *
+		 *   Input Value Check
+		 *
+		 ------------------------------------------- */
+		$(document).on('keyup', 'input.numberonly', function() {
+			var val = this.value.replace(/[^0-9]/gi,'');
+			if(this.value != val) this.value = val;
+		});
+
+		$(document).on('keyup', 'input.engonly', function() {
+			var val = this.value.replace(/[^a-zA-Z]/gi,'');
+			if(this.value != val) this.value = val;
+		});
+
+		$(document).on('keyup', 'input.engnumonly', function() {
+			var val = this.value.replace(/[^a-zA-Z0-9]/gi,'');
+			if(this.value != val) this.value = val;
+		});
+
+		$(document).on('keyup', 'input.tel', function() {
+			var val = this.value.replace(/[^0-9\-\*\#]/gi,'');
+			if(this.value != val) this.value = val;
+		});
+
+		$(document).on('keyup', 'input.engspecialonly', function() {
+			var val = this.value.replace(/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>'\"\?\-=\+_\:\;\[\]\{\}\/]/gi,'');
+			if(this.value != val) this.value = val;
+		});
+
+		/* -------------------------------------------
+		 *
+		 *   Modal
+		 *
+		 ------------------------------------------- */
+		$(document).on('click', '.modal_layer', function (e) {
+			_this.removeModal(this);
+		});
+
+		$(document).on('click', '.modal_wrap', function (e) {
+			e.stopPropagation();
+		});
+
+		$(document).on('click', '.modal_layer .cancel, .modal_layer .close', function (e) {
+			e.preventDefault();
+			_this.removeModal($(this).closest('.modal_layer'));
+		});
+
+		this.EventLink();
+
+	}; // Init
+
+	/* -----------------------------------------------------------------------------------------
+	 *
+	 *       .event 와 메소드 연결
+	 *       ex) <a href="#" class="event" e-click="common.test">Test</a>
+	 *       속성 : e-click, e-submit, e-mousedown, e-mouseup, e-transition-end
+	 *
+	 ----------------------------------------------------------------------------------------- */
+	this.EventLink = function(){
+		// .event 의 data-action 속성의 값과 이름이 일치하는 함수를 연결
+		$(document).on('click', '.event', function(e){
+			if(this.hasAttribute('e-click')){
+				e.preventDefault();
+				_this._EventFunction(this, e, $(this).attr('e-click'));
+			}
+		});
+
+		$(document).on('submit', '.event', function(e){
+			if(this.hasAttribute('e-submit')){
+				_this._EventFunction(this, e, $(this).attr('e-submit'));
+			}
+		});
+
+		$(document).on('mousedown', '.event', function(e){
+			if(this.hasAttribute('e-mousedown')){
+				_this._EventFunction(this, e, $(this).attr('e-mousedown'));
+			}
+		});
+
+		$(document).on('mouseup', '.event', function(e){
+			if(this.hasAttribute('e-mouseup')){
+				_this._EventFunction(this, e, $(this).attr('e-mouseup'));
+			}
+		});
+
+		$(document).on('transitionend webkittransitionend otransitionend mstransitionend', '.event', function(){
+			if(this.hasAttribute('e-transition-end')) _this._EventFunction(this, $(this).attr('e-transition-end'));
+		});
+	};
+
+	this._EventFunction = function(element, e, data){
+		var temp = data.split('.');
+		var obj = null;
+		for(var i=0, max = temp.length; i < max; i ++){
+			if(obj == null){
+				if(typeof(window[temp[i]]) != 'function' && typeof(window[temp[i]]) != 'object') return;
+				obj = window[temp[i]];
+			}
+			else{
+				if(typeof(obj[temp[i]]) != 'function' && typeof(obj[temp[i]]) != 'object') return;
+				obj = obj[temp[i]];
+			}
+		}
+		if(typeof(obj) == 'function') obj.call(element, e);
+	};
 
 	this.preload = function (imgs) {
 		$(imgs).each(function () {
 			$('<img/>')[0].src = this;
 		});
 	};
+
+	this.val = function(v){
+		if(typeof v != 'undefined') return v;
+		return '';
+	}
 
 	this.getInternetExplorerVersion = function () {
 		var rv = -1;
@@ -23,16 +162,13 @@ function Common($) {
 		return rv;
 	};
 
-	this.ie8 = this.getInternetExplorerVersion() == 8 ? true : false;
-	this.ie9 = this.getInternetExplorerVersion() == 9 ? true : false;
-
 	this.loading = function () {
-		if ($('#loading_layer').length) return;
-		$('body').append('<div id="loading_layer"></div>');
+		$('body').append('<div class="loading_layer"><div class="loading_layer_wrap"><div class="animation"></div><p>Loading...</p></div></div>');
+		if(typeof this.loadingAnimation == 'function') this.loadingAnimation($('.loading_layer .animation').last());
 	};
 
 	this.loading_end = function () {
-		if (!common.loading_cnt) $('#loading_layer').remove();
+		$('.loading_layer').eq(0).remove();
 	};
 
 	this.setComma = function (nStr) {
@@ -62,38 +198,35 @@ function Common($) {
 	 * 폼 ajax 전송
 	 */
 	this.ajaxForm = function (formObj, success_func, fail_func) {
-		common.loading_cnt++;
-		common.loading();
-		setTimeout(function () {
-			$(formObj).ajaxSubmit({
-				dataType: 'json',
-				async : true,
-				success: function (response, textStatus, xhr, form) {
-					common.loading_cnt--;
-					common.loading_end();
+		_this.loading();
 
-					if(typeof response.message != 'undefined' && response.message != null && response.message.length) alert(response.message);
-					if(typeof response.result != 'undefined' && response.result != null){
-						if(response.result === true){
-							if(typeof success_func != 'undefined') success_func(response.data);
-						}else{
-							if(typeof fail_func != 'undefined') fail_func(response.data);
-						}
+		$(formObj).ajaxSubmit({
+			dataType: 'json',
+			async : true,
+			success: function (response, textStatus, xhr, form) {
+				_this.loading_end();
+
+				if(typeof response.message != 'undefined' && response.message != null && response.message.length) alert(response.message);
+				if(typeof response.result != 'undefined' && response.result != null){
+					if(response.result === true){
+						if(typeof success_func != 'undefined') success_func(response.data);
 					}else{
-						if(typeof success_func != 'undefined') success_func(response);
+						if(typeof fail_func != 'undefined') fail_func(response.data);
 					}
-				},
-				error: function (xhr, textStatus, errorThrown) {
-					common.loading_cnt--;
-					common.loading_end();
-					alert(textStatus);
-				},
-				uploadProgress: function (event, position, total, percentComplete) {
-					// uploadProgress
+				}else{
+					if(typeof success_func != 'undefined') success_func(response);
 				}
+			},
+			error: function (xhr, textStatus, errorThrown) {
+				_this.loading_end();
+				alert(textStatus);
+			},
+			uploadProgress: function (event, position, total, percentComplete) {
+				// uploadProgress
+			}
 
-			});
-		}, 50);
+		});
+
 	};
 
 	/**
@@ -101,50 +234,46 @@ function Common($) {
 	 * @param ur 전송할 URL
 	 */
 	this._ajax = function (ur, dt, opt, success_func, fail_func) {
-		if (dt.loadingDisble !== true) {
-			common.loading_cnt++;
-			common.loading();
+		var le = false;
+		if (typeof(dt.loadingEnable) != 'undefined'){
+			le = dt.loadingEnable;
+			if(dt.loadingEnable == true) _this.loading();
+			delete dt.loadingEnable;
 		}
 
-		setTimeout(function () {
-			$.ajax({
-				type: (typeof opt.type != 'undefined' ? opt.type : 'post')
-				, dataType: 'json'
-				, url: ur
-				, data: dt
-				, async: true
-				, success: function (response, textStatus, jqXHR) {
-					if (dt.loadingDisble !== true) {
-						common.loading_cnt--;
-						common.loading_end();
-					}
 
-					if (typeof response.message != 'undefined' && response.message != null && response.message.length) alert(response.message);
-					if(typeof response.result != 'undefined' && response.result != null){
-						if(response.result === true){
-							if (typeof success_func!= 'undefined') success_func(response.data);
-						}else{
-							if (typeof fail_func != 'undefined') fail_func(response.data);
-						}
+		$.ajax({
+			type: (typeof opt.type != 'undefined' ? opt.type : 'post')
+			, dataType: 'json'
+			, url: ur
+			, data: dt
+			, async: true
+			, success: function (response, textStatus, jqXHR) {
+				if (le === true) _this.loading_end();
+
+				if (typeof response.message != 'undefined' && response.message != null && response.message.length) alert(response.message);
+				if(typeof response.result != 'undefined' && response.result != null){
+					if(response.result === true){
+						if (typeof success_func!= 'undefined') success_func(response.data);
 					}else{
-						if (typeof success_func!= 'undefined') success_func(response);
+						if (typeof fail_func != 'undefined') fail_func(response.data);
 					}
+				}else{
+					if (typeof success_func!= 'undefined') success_func(response);
 				}
-				, error: function (jqXHR, textStatus, errorThrown) {
-					if (dt.loadingDisble !== true) {
-						common.loading_cnt--;
-						common.loading_end();
-					}
-					alert(textStatus);
-				}
-			});
-		}, 50);
+			}
+			, error: function (jqXHR, textStatus, errorThrown) {
+				if (le === true) _this.loading_end();
+				alert(textStatus);
+			}
+		});
 	};
 
 	/**
 	 * ajax post
 	 */
 	this.post = function (ur, dt, success_func, fail_func) {
+		dt.loadingEnable = false;
 		this._ajax(ur, dt, {type : 'post'}, success_func, fail_func);
 	};
 
@@ -152,6 +281,20 @@ function Common($) {
 	 * ajax get
 	 */
 	this.get = function (ur, dt, success_func, fail_func) {
+		dt.loadingEnable = false;
+		this._ajax(ur, dt, {type : 'get'}, success_func, fail_func);
+	};
+
+	this.postWithLoading = function (ur, dt, success_func, fail_func) {
+		dt.loadingEnable = true;
+		this._ajax(ur, dt, {type : 'post'}, success_func, fail_func);
+	};
+
+	/**
+	 * ajax get
+	 */
+	this.getWithLoading = function (ur, dt, success_func, fail_func) {
+		dt.loadingEnable = true;
 		this._ajax(ur, dt, {type : 'get'}, success_func, fail_func);
 	};
 
@@ -167,13 +310,14 @@ function Common($) {
 	};
 
 	this._ajaxModal = function (type, ur, dt, title, modal_id, w, h) {
+		dt.loadingEnable = true;
 		if(type == 'get'){
 			this.get(ur, dt, function(data){
-				common.createModal(title, modal_id, data, w, h);
+				_this.createModal(title, modal_id, data, w, h);
 			});
 		}else{
 			this.post(ur, dt, function(data){
-				common.createModal(title, modal_id, data, w, h);
+				_this.createModal(title, modal_id, data, w, h);
 			});
 		}
 	};
@@ -184,7 +328,7 @@ function Common($) {
 
 		if(modal.attr('data-close-type') == 'hidden') modal.hide();
 		else modal.remove();
-		$('body').css('overflow-y', _this.bodyOverflow);
+		$('body').css('overflow-y', $('body')[0].hasAttribute('data-ovy') ? $('body').attr('data-ovy') : 'auto');
 	};
 
 	this.createModal = function (title, modal_id, data, w, h) {
@@ -200,15 +344,15 @@ function Common($) {
 			'width': w + 'px'
 			, 'height': h + 'px'
 		});
-		if (common.ie8) {
-			$('#' + modal_id).append('<div style="position:absolute; top:0; left:0; z-index:1; width:100%; height:100%; filter:alpha(opacity:\'70\'); background:black;" class="background"></div>');
+		if (_this.ie8) {
+			$('#' + modal_id).append('<div style="position:absolute; top:0; left:0; z-index:1; width:100%; height:100%; filter:alpha(opacity:70); background:black;" class="background"></div>');
 		}
 		$('#' + modal_id).css("display", "block");
 		var box = $('#' + modal_id).children('.modal_wrap');
 		box.css({
 			'margin': '-' + (box.outerHeight() / 2) + 'px' + ' 0 0 -' + (box.outerWidth() / 2) + 'px'
 		});
-		_this.bodyOverflow = $('body').css('overflow-y');
+		if(!$('body')[0].hasAttribute('data-ovy')) $('body').attr('data-ovy', $('body').css('overflow-y'));
 		$('body').css('overflow-y', 'hidden');
 	};
 
@@ -262,17 +406,17 @@ function Common($) {
 	this.img_align_reset = function(obj){
 		if(obj.get(0).tagName == 'IMG') obj = obj.parent();
 		obj.attr('data-load','');
-		common.img_align();
+		_this.img_align();
 	};
 
 	this.popPostCode = function (callback) {
 		if (typeof daum == "undefined") {
 
 			jQuery.getScript("http://dmaps.daum.net/map_js_init/postcode.v2.js").done(function (script, textStatus) {
-				common.popDaumPostCode(callback);
+				_this.popDaumPostCode(callback);
 			});
 		} else {
-			common.popDaumPostCode(callback);
+			_this.popDaumPostCode(callback);
 		}
 	};
 
@@ -363,7 +507,7 @@ function Common($) {
 
 	this.safe_tags_replace = function(str) {
 		if(!str || str == '') return '';
-		return str.replace(/[&<>]/g, common.replaceTag);
+		return str.replace(/[&<>]/g, _this.replaceTag);
 	};
 
 	this.valCHeck = function(form){
@@ -395,6 +539,26 @@ function Common($) {
 						var val = this.value.replace(/[^a-zA-Z]/gi,'');
 						if(val != this.value){
 							alert($(this).attr('data-displayname') + ' 항목은 영문만 입력하여 주세요.');
+							$(this).focus();
+							ret = false;
+							return false;
+						}
+					}
+
+					if($(this).hasClass('email')){
+						var v = $.trim(this.value);
+						if(v != '' && !_this.validateEmail(this.value)){
+							alert($(this).attr('data-displayname') + ' 항목 형식이 올바르지 않습니다.');
+							$(this).focus();
+							ret = false;
+							return false;
+						}
+					}
+
+					if($(this).hasClass('tel')){
+						var val = this.value.replace(/[^0-9\-\*\#]/gi,'');
+						if(val != this.value){
+							alert($(this).attr('data-displayname') + ' 항목 형식이 올바르지 않습니다.');
 							$(this).focus();
 							ret = false;
 							return false;
@@ -490,12 +654,12 @@ function Common($) {
 	};
 
 	this.todayPopupClose = function(seq) {
-		common.setCookie('todayClosePopup' + seq, 'y', 1);
+		_this.setCookie('todayClosePopup' + seq, 'y', 1);
 		jQuery('#BH_Popup' + seq).hide();
 	};
 
 	this.popup = function(target, seq, top, left, width, height, data) {
-		var ck = common.getCookie('todayClosePopup' + seq);
+		var ck = _this.getCookie('todayClosePopup' + seq);
 		if (ck == 'y') return;
 		//return;
 		var html = '';
@@ -509,86 +673,222 @@ function Common($) {
 		$(target).append(html);
 	};
 
-	// =================================================================
-	//
-	//      파일업로드
-	//
+	this.validateEmail = function(email) {
+		email = $.trim(email);
+		var re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+		return re.test(email);
+	};
+
+	/* -------------------------------------------
+	 *
+	 *   파일업로드
+	 *
+	 *   파일 업로드 영역 : .fileUploadArea
+	 *   파일 업로드 file type input : input.fileUploadInput
+	 *   파일 업로드 미리보기 : .fileUploadImage
+	 *
+	 ------------------------------------------- */
 	this.imageFileForm = function(){
-		if($('#goodsImgFrm').length) return;
-		var frm = '<form id="goodsImgFrm" method="post" action="/Upload/ImageUpload/" enctype="multipart/form-data" style="display:block; width:0; height:0; opacity:0; overflow:hidden;">' +
-			'<input type="file" name="Filedata" value="" data-sname="" id="goodsImgInp" style="display:block; width:0; height:0; opacity:0;" />' +
+		if($('#_uploadImgFrm').length) return;
+		var frm = '<form id="_uploadImgFrm" method="post" action="/Upload/ImageUpload/" enctype="multipart/form-data" style="display:block; width:0; height:0; opacity:0; overflow:hidden;">' +
+			'<input type="file" name="Filedata" value="" data-sname="" id="_uploadImgInp" style="display:block; width:0; height:0; opacity:0;" />' +
 			'</form>';
 		$('body').append(frm);
 
 		$(document).on('click','button.fileUploadBtn',function(e){
 			e.preventDefault();
-			$('#goodsImgFrm').data({
+			$('#_uploadImgFrm').data({
 				obj : $(this).closest('.fileUploadArea').find('input.fileUploadInput')[0]
 			});
-			$('#goodsImgInp').click();
+			$('#_uploadImgInp').click();
 		});
-		$(document).on('change', '#goodsImgInp', function(e){
+		$(document).on('change', '#_uploadImgInp', function(e){
 			e.preventDefault();
-			$('#goodsImgFrm').submit();
+			$('#_uploadImgFrm').submit();
 		});
 
-		$(document).on('submit','#goodsImgFrm',function(e){
+		$(document).on('submit','#_uploadImgFrm',function(e){
 			e.preventDefault();
-			common.ajaxForm(this, function(result){
-				$('#goodsImgFrm')[0].reset();
-				var obj = $('#goodsImgFrm').data().obj;
+			_this.ajaxForm(this, function(result){
+				$('#_uploadImgFrm')[0].reset();
+				var obj = $('#_uploadImgFrm').data().obj;
 				$(obj).val(result.path);
 				var img = $(obj).closest('.fileUploadArea').find('.fileUploadImage');
 				if(img.length) img.html('<img src="' + result.uploadDir + result.path + '">');
 			});
 		});
 	};
+
+	// ==============================================================
+	//
+	//    Message Modal
+	//
+
+	this.MessageModalInit = function(){
+		window.alert = function(msg) {
+			_this.MessageModal(msg);
+		};
+
+		$(document).on('click', '.MessageModal footer a', function(e){
+			e.preventDefault();
+			var obj = $(this).data();
+			if(typeof(obj.onclick) == 'function') obj.onclick(this);
+			_this.CloseMsgModal(this);
+		});
+	};
+
+	this.MessageModal = function(message, buttons, title){
+		this.alertNumber++;
+		if(typeof(title) == 'undefined') title = '알림';
+		if(typeof(buttons) == 'undefined'){
+			buttons = [{'text' : '확인'}];
+		}
+
+		var btns = '';
+		for(var i = 0; i < buttons.length; i++){
+			btns += '<a href="#">' + buttons[i].text + '</a>';
+		}
+
+		var html = '<div class="MessageModal" id="MessageModal' + this.alertNumber + '">' +
+			'<div class="MessageModalWrap">' +
+			'<header>' + title + '</header>' +
+			'<div class="text">' + message + '</div>' +
+			'<footer>' + btns + '</footer>' +
+			'</div></div>';
+
+		$('body').append(html);
+		if(buttons.length == 1){
+			$('.MessageModal footer a').last().focus();
+		}
+
+		for(var i = 0; i < buttons.length; i++){
+			var func = buttons[i].onclick;
+			$('#MessageModal' + this.alertNumber + ' footer a').eq(i).data({'onclick' : func});
+		}
+
+		_this.MoveMessageModal('#MessageModal' + _this.alertNumber);
+		for(var i = 1; i < 11; i++){
+			setTimeout(function(){
+				_this.MoveMessageModal('#MessageModal' + _this.alertNumber);
+			}, i*100);
+		}
+	};
+
+	this.MoveMessageModal = function(obj){
+		var MessageModalWrap = $(obj).find('.MessageModalWrap');
+		MessageModalWrap.css({
+			'margin-top' : '-' + (MessageModalWrap.outerHeight() / 2) + 'px',
+			'margin-left' : '-' + (MessageModalWrap.outerWidth() / 2) + 'px'
+		});
+	}
+
+	this.CloseMsgModal = function(obj){
+		$(obj).closest('.MessageModal').remove();
+	};
+
+	// ==============================================================
+	//
+	//    For Custom Select Tag
+	//
+
+	this.SetSelectBox = function(){
+		$('.selectBox select').each(function(){
+			var selectTxtE = $(this).closest('.selectBox').find('.selected');
+			var val = $(this).children('option:selected').text();
+			if(!selectTxtE.length){
+				$(this).before('<span class="selected"></span>');
+				$(this).prev().text(val);
+			}
+			else selectTxtE.text(val);
+		});
+
+		$(document).off('change', '.selectBox select');
+		$(document).on('change', '.selectBox select', function(e){
+			var val = $(this).children('option:selected').text();
+			$(this).closest('.selectBox').find('.selected').text(val);
+		});
+	};
+
+	this.Init();
+
 };
 
 var common = new Common(jQuery);
 
 /* -------------------------------------------
  *
- *   Input Value Check
+ *   Input Date
+ *   .dateInput .date
  *
  ------------------------------------------- */
-$(document).on('keyup', 'input.numberonly', function() {
-	var val = this.value.replace(/[^0-9]/gi,'');
-	if(this.value != val) this.value = val;
+function dateInputAll(){
+	$('.dateInput .date, .dateInput .mdate').each(function(){
+		dateInput(this);
+	});
+}
+
+function dateInput(obj, e){
+	if(!$(obj).siblings('.before').length) $(obj).before('<div class="before"></div>');
+	var val = $(obj).val();
+	var len = val.length;
+	if(typeof(e) != 'undefined' && e.keyCode == 8){
+		if(len == 4){
+			e.preventDefault();
+			val = val.substring(0, 3);
+			len = 3;
+			$(obj).val(val);
+		}
+		else if(len == 7){
+			e.preventDefault();
+			val = val.substring(0, 6);
+			len = 6;
+			$(obj).val(val);
+		}
+	}else{
+		var n2 = $(obj).val().replace(/[^0-9]/gi, '');
+		var n3 = n2;
+
+		if(n2.length >= 5 && parseInt(n2.substring(4,5)) > 1){
+			n3 = n2.substring(0, 4) + '1' + n2.substring(5, n2.length);
+		}
+
+		if(n2.length >= 7 && parseInt(n2.substring(6,7)) > 3){
+			n3 = n2.substring(0, 6) + '3' + n2.substring(7, n2.length);
+		}
+
+		if(n2.length >= 6 && parseInt(n2.substring(4,6)) > 12){
+			n3 = n2.substring(0,5);
+		}
+
+		if(n2.length >=8 && parseInt(n2.substring(6,8)) > 31){
+			n3 = n2.substring(0,7);
+		}
+
+		if(n3.length >= 6){
+			n3 = n3.substring(0, 4) + '-' + n3.substring(4, 6) + '-' + n3.substring(6, n2.length);
+		}else if(n3.length >= 4){
+			n3 = n3.substring(0, 4) + '-' + n3.substring(4, n2.length);
+		}
+
+		if(n3 != val){
+			$(obj).val(n3);
+			len = n3.length;
+		}
+	}
+
+	if(len > 10) len = 10;
+	var txt = '0000-00-00';
+	var newTxt = '';
+	for(var i = 0; i < 10; i++){
+		if(i < len) newTxt += '<span>' + txt[i] + '</span>';
+		else newTxt += txt[i];
+	}
+	$(obj).siblings('.before').html(newTxt);
+}
+$(document).on('keyup', '.dateInput input.date, .dateInput input.mdate', function(e){
+	dateInput(this, e);
 });
 
-$(document).on('keyup', 'input.engonly', function() {
-	var val = this.value.replace(/[^a-zA-Z]/gi,'');
-	if(this.value != val) this.value = val;
-});
-
-$(document).on('keyup', 'input.engnumonly', function() {
-	var val = this.value.replace(/[^a-zA-Z0-9]/gi,'');
-	if(this.value != val) this.value = val;
-});
-
-$(document).on('keyup', 'input.engspecialonly', function() {
-	var val = this.value.replace(/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>'\"\?\-=\+_\:\;\[\]\{\}\/]/gi,'');
-	if(this.value != val) this.value = val;
-});
-
-/* -------------------------------------------
- *
- *   Modal
- *
- ------------------------------------------- */
-$(document).on('click', '.modal_layer', function (e) {
-	common.removeModal(this);
-});
-
-$(document).on('click', '.modal_wrap', function (e) {
-	e.stopPropagation();
-});
-
-$(document).on('click', '.modal_layer .cancel, .modal_layer .close', function (e) {
-	e.preventDefault();
-	common.removeModal($(this).closest('.modal_layer'));
-});
 
 /* -------------------------------------------
  *
@@ -603,7 +903,27 @@ $(window).load(function () {
 	});
 });
 
+var swiperJsIs = false;
 function swiper_init(obj, opt) {
+	if(typeof(Swiper) == 'undefined'){
+		if(!swiperJsIs){
+			swiperJsIs = true;
+			$('<link/>', {
+				rel: 'stylesheet',
+				type: 'text/css',
+				href: '/Skin/css/idangerous.swiper.css'
+			}).appendTo('head');
+
+			$.getScript('/Skin/js/idangerous.swiper.js', function(){
+				swiper_init(obj, opt);
+			});
+			return;
+		}
+		setTimeout(function(){
+			swiper_init(obj, opt);
+		}, 300);
+		return;
+	}
 	var def_opt = {
 		slidesPerView: '1',
 		spaceBetween: 0,
@@ -681,9 +1001,10 @@ function datepicker(selector) {
 }
 
 $(document).ready(function () {
-	$('input.date').not('.nopicker').each(function(){
+	$('input.datePicker').not('.nopicker').each(function(){
 		datepicker(this);
 	});
+	dateInputAll();
 });
 
 
@@ -800,7 +1121,7 @@ $(document).on('click', '.checkAllArea input.checkItem', function(){
 /* -------------------------------------------
  *
  *   Image Preview
- *   file입력창 바로 전에 클래스 filePreviewImg 가 있으면 이미지 미리보기
+ *   file입력창 바로 전에 클래스 UploadImagePreview 가 있으면 이미지 미리보기
  *   ie10+
  *
  ------------------------------------------- */
@@ -841,31 +1162,4 @@ $(document).ready(function () {
 			}
 		});
 	}
-});
-
-/* -------------------------------------------
- *
- *   Other
- *
- ------------------------------------------- */
-$(window).resize(function () {
-	common.img_align();
-});
-
-$(document).ready(function () {
-	common.img_align();
-
-	$(document).on('click', '.tapMenu a', function (e) {
-		e.preventDefault();
-		var container = $(this).closest('.tapContainer');
-		var li = container.find('.tapMenu li');
-		var idx = li.index($(this).parent());
-		li.eq(idx).addClass('on').siblings().removeClass('on');
-		container.find('section').eq(idx).addClass('on').siblings('section').removeClass('on');
-	});
-});
-
-$(document).on('click', '.backbtn, .hback a, a.hback', function (e) {
-	e.preventDefault();
-	history.back();
 });

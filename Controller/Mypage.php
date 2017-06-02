@@ -22,7 +22,7 @@ class MypageController{
 		$data = array();
 		while($row = $dbGetList->Get()){
 			$controller = 'Board/'.$row['bid'];
-			foreach(App::$RouterInstance->SubMenu as $sub){
+			foreach(App::$SettingData['SubMenu'] as $sub){
 				foreach($sub as $sub2){
 					if($sub2['type'] == 'board' && $sub2['bid'] == $row['bid']){
 						$controller = $sub2['controller'];
