@@ -18,9 +18,9 @@ App::JSAdd('common.js', 10);
 ?>
 <?inc. '/Layout/_Header.html' ?>
 
-<?p. $_BODY ?>
+<?p. App::$BodyHtml ?>
 
 <?p. _REFRESH_BTN ?>
 <?inc. '/Layout/_Footer.html' ?>
 <?php
-$_BODY = ob_get_clean();
+App::$BodyHtml = ob_get_clean();

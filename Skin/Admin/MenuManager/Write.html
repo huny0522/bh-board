@@ -67,7 +67,7 @@ use \BH_Application as App;
 			alert('변경되었습니다.');
 			var enabled = $('#MenuWriteForm input[name=enabled]:checked').val() == 'y';
 			var category = $('#MenuWriteForm input[name=category]').val();
-			$('#BHMenu'+category+' > a.title b').text($('#MenuWriteForm input[name=title]').val());
+			$('#BHMenu'+category+' > a.title b').html($('#MenuWriteForm input[name=title]').val());
 			if(enabled) $('#BHMenu'+category+' > a.folder').removeClass('disabled');
 			else $('#BHMenu'+category+' > a.folder').addClass('disabled');
 		});

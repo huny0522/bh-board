@@ -31,6 +31,8 @@ class BH_Application{
 	public static $SettingData = array();
 	public static $Data = array();
 
+	public static $BodyHtml = '';
+
 	private function __construct(){
 	}
 
@@ -39,7 +41,6 @@ class BH_Application{
 
 		self::$SettingData['MainMenu'] = array();
 		self::$SettingData['SubMenu'] = array();
-
 		// ----------------------
 		//
 		//    라우팅 초기화
@@ -196,11 +197,11 @@ class BH_Application{
 	 * layout : /Layout 디렉토리에서 self::$Layout 의 파일을 찾아 레이아웃을 생성
 	 * @param $Model mixed
 	 * @param $Data mixed
-	 * @param $opt array
+	 * @param $DisableLayout bool
 	 * @return string
 	 */
 
-	public static function View(&$Ctrl, $Model = NULL, $Data = NULL, $opt = array()){
+	private static function SetViewHtml(&$Ctrl, &$Model, &$Data, $DisableLayout = false){
 		$viewAction = isset($Ctrl->Html) && strlen($Ctrl->Html) ? $Ctrl->Html : (self::$Html ? self::$Html : self::$Action);
 		if(!$viewAction) $viewAction = 'Index';
 
@@ -216,29 +217,47 @@ class BH_Application{
 			if(_DEVELOPERIS !== true) echo 'ERROR : NOT EXISTS TEMPLATE';
 			else echo 'ERROR : NOT EXISTS TEMPLATE : '._HTMLDIR.$html;
 		}
-		$_BODY = ob_get_clean();
+		self::$BodyHtml = ob_get_clean();
 
-		if((!isset($opt['DisableLayout']) || !$opt['DisableLayout']) && !is_null(self::$Layout)){
-			$layoutChoose = isset($opt['Layout']) ? $opt['Layout'] : self::$Layout;
-			$layout = '/Layout/'.($layoutChoose ? $layoutChoose.'.html' :  _DEFAULT_LAYOUT.'.html');
+		if(!$DisableLayout && !is_null(self::$Layout)){
+			$layoutChoose = isset($opt['Layout']) && strlen($opt['Layout']) ? $opt['Layout'] : self::$Layout;
+			$layout = '/Layout/'.($layoutChoose ? $layoutChoose :  _DEFAULT_LAYOUT);
+			if(substr($layout, -5) != '.html') $layout .= '.html';
 			if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR.$layout, _HTMLDIR.$layout);
 			if($layout && file_exists(_HTMLDIR.$layout)) require _HTMLDIR.$layout;
 		}
-		if(isset($opt['GetBody']) && $opt['GetBody']) return $_BODY;
-		else echo $_BODY;
-		return '';
+	}
+
+	public static function View(&$Ctrl, $Model = NULL, $Data = NULL){
+		self::SetViewHtml($Ctrl, $Model, $Data);
+		echo self::$BodyHtml;
 	}
 
 	public static function OnlyView(&$Ctrl, $Model = NULL, $Data = NULL){
-		return self::View($Ctrl, $Model, $Data, array('DisableLayout' => true));
+		self::SetViewHtml($Ctrl, $Model, $Data, true);
+		echo self::$BodyHtml;
 	}
 
-	public static function GetOnlyView(&$Ctrl, $Model = NULL, $Data = NULL){
-		return self::View($Ctrl, $Model, $Data, array('DisableLayout' => true, 'GetBody' => true));
+	public static function PrintView(&$Ctrl, $Model = NULL, $Data = NULL){
+		self::SetViewHtml($Ctrl, $Model, $Data);
+		if(_JSONIS === true) JSON(true, '', self::$BodyHtml);
+		else echo self::$BodyHtml;
 	}
 
-	public static function GetView(&$Ctrl, $Model = NULL, $Data = NULL){
-		return self::View($Ctrl, $Model, $Data, array('GetBody' => true));
+	public static function PrintOnlyView(&$Ctrl, $Model = NULL, $Data = NULL){
+		self::SetViewHtml($Ctrl, $Model, $Data, true);
+		if(_JSONIS === true) JSON(true, '', self::$BodyHtml);
+		else echo self::$BodyHtml;
+	}
+
+	public static function &GetView(&$Ctrl, $Model = NULL, $Data = NULL){
+		self::SetViewHtml($Ctrl, $Model, $Data);
+		return self::$BodyHtml;
+	}
+
+	public static function &GetOnlyView(&$Ctrl, $Model = NULL, $Data = NULL){
+		self::SetViewHtml($Ctrl, $Model, $Data, true);
+		return self::$BodyHtml;
 	}
 
 	public static function JSPrint(){

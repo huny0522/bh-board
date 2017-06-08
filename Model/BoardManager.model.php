@@ -10,6 +10,9 @@ use \BH_Application as App;
 
 class BoardManagerModel extends \BH_Model{
 
+	/** @var  \BH_ModelData[] */
+	public $data;
+
 	public function __Init(){
 		$this->Key[] = 'bid';
 		$this->table = TABLE_BOARD_MNG;
@@ -44,7 +47,7 @@ class BoardManagerModel extends \BH_Model{
 		$this->data['reply_count']->MaxValue = 100;
 		$this->data['reply_count']->DefaultValue = 10;
 
-		$this->data['auth_list_level'] = new \BH_ModelData(ModelType::Int, false, '목록보기권한', HTMLType::Select);
+		$this->data['auth_list_level'] = new \BH_ModelData(ModelType::Int, false, '목록권한', HTMLType::Select);
 		$this->data['auth_list_level']->EnumValues = App::$SettingData['LevelArray'];
 		$this->data['auth_list_level']->DefaultValue = 0;
 
@@ -64,7 +67,7 @@ class BoardManagerModel extends \BH_Model{
 		$this->data['auth_answer_level']->EnumValues = App::$SettingData['LevelArray'];
 		$this->data['auth_answer_level']->DefaultValue = 0;
 
-		$this->data['use_reply'] = new \BH_ModelData(ModelType::Enum, false, '댓글사용여부', HTMLType::InputRadio);
+		$this->data['use_reply'] = new \BH_ModelData(ModelType::Enum, false, '댓글사용', HTMLType::InputRadio);
 		$this->data['use_reply']->EnumValues = array('y'=>'사용','n'=>'사용안함');
 		$this->data['use_reply']->DefaultValue = 'y';
 
@@ -85,6 +88,10 @@ class BoardManagerModel extends \BH_Model{
 		$this->data['new_view_day']->MinValue = 1;
 		$this->data['new_view_day']->MaxValue = 50;
 		$this->data['new_view_day']->DefaultValue = 1;
+
+		$this->data['attach_type'] = new \BH_ModelData(ModelType::Enum, false, '업로드 가능파일', HTMLType::InputRadio);
+		$this->data['attach_type']->EnumValues = array('normal' => '기본','image' => '이미지');
+		$this->data['attach_type']->DefaultValue = 'normal';
 
 		$this->data['reg_date'] = new \BH_ModelData(ModelType::Datetime, false, '등록일');
 	}

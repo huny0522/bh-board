@@ -60,9 +60,7 @@ class PopupManagerController
 				require_once _COMMONDIR.'/FileUpload.php';
 				$fres_em = FileUpload($_FILES['img'], App::$SettingData['POSSIBLE_EXT'], '/board/'.date('ym').'/');
 
-				if($fres_em === 'noext'){
-					Redirect('-1', '등록 불가능한 파일입니다.');
-				}
+				if(is_string($fres_em)) Redirect('-1', $fres_em);
 				else if(is_array($fres_em)){
 					$this->model->SetValue('img', $fres_em['file']);
 				}
@@ -95,9 +93,7 @@ class PopupManagerController
 				require_once _COMMONDIR.'/FileUpload.php';
 				$fres_em = FileUpload($_FILES['img'], App::$SettingData['POSSIBLE_EXT'], '/board/'.date('ym').'/');
 
-				if($fres_em === 'noext'){
-					Redirect('-1', '등록 불가능한 파일입니다.');
-				}
+				if(is_string($fres_em)) Redirect('-1', $fres_em);
 				else if(is_array($fres_em)){
 					if($this->model->GetValue('img')) @unlink(_UPLOAD_DIR.$this->model->GetValue('img'));
 					$this->model->SetValue('img', $fres_em['file']);

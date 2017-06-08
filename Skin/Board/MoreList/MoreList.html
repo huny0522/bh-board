@@ -1,0 +1,45 @@
+<?php if(_BH_ !== true) exit;
+use \BH_Common as CF;
+use \BH_Application as App;
+
+/**
+ * @var $Ctrl \BoardController
+ * @var $Model \BoardModel
+ * @var $Data \BH_DB_GetListWithPage
+ */
+?>
+
+<?php
+foreach(App::$Data['notice'] as $row){
+	$secretIcon = $row['secret'] == 'y' ? '<span class="secretDoc">[비밀글]</span> ' : '';
+	?>
+	<tr class="notice">
+		<td class="left">
+			<a href="<?p. $row['viewUrl'] ?>"<?php if(!$row['possibleView']){ ?> class="passwordView"<?php } ?>>
+				[공지] <?v. $row['subject'] ?> <?p. $row['replyCount']; ?> <?p. $secretIcon ?>
+			</a>
+		</td>
+		<td><?v. $row['mname']; ?></td>
+		<td><?v. $row['hit']; ?></td>
+		<td><?v. $row['recommend']; ?></td>
+		<td><?v. KrDate($row['reg_date'],'ymd', 24) ?></td>
+	</tr>
+<?php } ?>
+<?php
+foreach($Data->data as $row){
+	$secretIcon = $row['secret'] == 'y' ? '<span class="secretDoc">[비밀글]</span> ' : '';
+	?>
+	<tr id="article_<?v. $Ctrl->bid.'_'.toBase($row['seq']) ?>" data-seq="<?p. $row['seq'] ?>">
+		<td class="left">
+			<?v. $row['category'] ? '['.$row['category'].']' : '' ?>
+			<a href="<?p. $row['viewUrl'] ?>"<?php if(!$row['possibleView']){ ?> class="passwordView"<?php } ?>>
+				<?v. $row['subject'] ?> <?p. $row['replyCount']; ?> <?p. $secretIcon ?>
+			</a>
+		</td>
+
+		<td><?v. $row['mname']; ?></td>
+		<td><?v. $row['hit']; ?></td>
+		<td><?v. $row['recommend']; ?></td>
+		<td><?v. KrDate($row['reg_date'],'ymd', 24) ?></td>
+	</tr>
+<?php } ?>

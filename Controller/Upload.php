@@ -18,11 +18,6 @@ class UploadController{
 		$this->FileUpload();
 	}
 
-	public function PostDelete(){
-		@unlink(_UPLOAD_DIR.$_POST['filePath']);
-		echo json_encode(array('result' => true));
-	}
-
 	private function FileUpload($type = ''){
 		DeleteOldTempFiles(_UPLOAD_DIR.'/temp/', strtotime('-6 hours'));
 		if(strpos('../', $_FILES['Filedata']['name']) !== false) Redirect('-1');
@@ -35,35 +30,27 @@ class UploadController{
 
 			$temp = explode('.',$name);
 			$filename_ext = strtolower(array_pop($temp));
-			if(in_array($filename_ext, App::$SettingData['noext'])){
-				return 'noext';
-			}
-			else if(!in_array($filename_ext, App::$SettingData['POSSIBLE_EXT'])){
-				return 'noext';
-			}
-			if(($type == 'image' && !in_array($filename_ext, App::$SettingData['IMAGE_EXT'])) || ($type == '' && !in_array($filename_ext, App::$SettingData['POSSIBLE_EXT']))) {
-				echo json_encode(array('result' => false, 'fname'=>$name));
-				exit;
-			}
-			else {
-				$path = '/temp/';
-				$uploadDir = _UPLOAD_DIR.$path;
-				if(!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+			if(!in_array($filename_ext, App::$SettingData['POSSIBLE_EXT']) || in_array($filename_ext, App::$SettingData['noext'])) JSON(false, _MSG_IMPOSSIBLE_FILE);
+			if(($type == 'image' && !in_array($filename_ext, App::$SettingData['IMAGE_EXT'])) || ($type == '' && !in_array($filename_ext, App::$SettingData['POSSIBLE_EXT']))) JSON(false, _MSG_IMPOSSIBLE_FILE);
+			$path = '/temp/';
+			$uploadDir = _UPLOAD_DIR.$path;
+			if(!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
-				$newFileName = RandomFileName().'.'.$filename_ext;
+			$newFileName = RandomFileName().'.'.$filename_ext;
 
 
-				if($type == 'image' && $filename_ext != 'gif') Thumbnail($tmp_name, $uploadDir.$newFileName, _MAX_IMAGE_WIDTH);
-				else @move_uploaded_file($tmp_name, $uploadDir.$newFileName);
+			if($type == 'image' && $filename_ext != 'gif') Thumbnail($tmp_name, $uploadDir.$newFileName, _MAX_IMAGE_WIDTH);
+			else @move_uploaded_file($tmp_name, $uploadDir.$newFileName);
 
-				$data['uploadDir'] = _UPLOAD_URL;
-				$data['path'] = $path.$newFileName;
-				$data['fname'] = $_FILES['Filedata']['name'];
-				echo json_encode(array('result' => true, 'data' => $data));
-				exit;
-			}
+			$data['uploadDir'] = _UPLOAD_URL;
+			$data['path'] = $path.$newFileName;
+			$data['fname'] = $_FILES['Filedata']['name'];
+			JSON(true, '', $data);
 		}
 		// FAILED
-		else echo json_encode(array('result' => false));
+		else{
+			if($_FILES['Filedata']['error'] ===  UPLOAD_ERR_INI_SIZE) JSON(false, _MSG_FILE_TOO_BIG);
+			JSON(false, 'File Upload Error');
+		}
 	}
 }

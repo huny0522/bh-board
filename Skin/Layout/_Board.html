@@ -16,9 +16,9 @@ ob_start();
 		</ul>
 	<?php } ?>
 
-	<?p. $_BODY ?>
+	<?p. App::$BodyHtml ?>
 </div>
 <?php
-$_BODY = ob_get_clean();
+App::$BodyHtml = ob_get_clean();
 ?>
 <?inc. '/Layout/_Default.html' ?>

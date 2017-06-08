@@ -8,6 +8,9 @@ use \BH_Application as App;
  * @var $Ctrl \BoardController
  */
 ?>
+<h2><?p. $Ctrl->boardManger->GetValue('subject') ?> 게시물관리</h2>
+<div class="right_btn"><a href="<?c. 'BoardManager' ?>" class="sBtn">게시판 관리로 이동</a></div>
+
 <?php if($Data->result && $Data->totalRecord){ ?>
 
 	<table class="list">
@@ -18,6 +21,7 @@ use \BH_Application as App;
 			<col style="width:7%;">
 			<col style="width:7%;">
 			<col style="width:18%;">
+			<col style="width:10%;">
 		</colgroup>
 		<thead>
 		<tr>
@@ -27,6 +31,7 @@ use \BH_Application as App;
 			<th><?mt('hit')?></th>
 			<th><?mt('recommend')?></th>
 			<th><?mt('reg_date')?></th>
+			<th>삭제</th>
 		</tr>
 		</thead>
 		<tbody>
@@ -45,6 +50,15 @@ use \BH_Application as App;
 				<td><?v. $row['hit']; ?></td>
 				<td><?v. $row['recommend']; ?></td>
 				<td><?v. KrDate($row['reg_date'],'ymd', 24) ?></td>
+				<td>
+					<?php if($row['delis'] != 'y'){ ?>
+						<a href="<?a. 'Delete/'.toBase($row['seq']) ?><?fq. '' ?>" class="deleteArticle">삭제</a>
+					<?php }else{ ?>
+						<a href="<?a. 'Undelete/'.toBase($row['seq']) ?><?fq. '' ?>" class="unDeleteArticle">삭제복구</a>
+						<a href="<?a. 'Remove/'.toBase($row['seq']) ?><?fq. '' ?>" class="removeArticle">완전삭제</a>
+					<?php } ?>
+				</td>
+
 			</tr>
 		<?php } ?>
 		<?php
@@ -54,6 +68,7 @@ use \BH_Application as App;
 			<tr>
 				<td><?p. $Data->beginNum-- ?></td>
 				<td class="left">
+					<?php if($row['delis'] == 'y'){ ?><span class="alert">[삭제됨]</span><?php } ?>
 					<a href="<?p. $row['viewUrl'] ?>"<?php if(!$row['possibleView']){ ?> class="passwordView"<?php } ?>>
 						<?v. $row['subject'] ?> <?p. $row['replyCount'] ?> <?p. $secretIcon ?>
 					</a>
@@ -63,6 +78,14 @@ use \BH_Application as App;
 				<td><?v. $row['hit']; ?></td>
 				<td><?v. $row['recommend']; ?></td>
 				<td><?v. KrDate($row['reg_date'],'ymd', 24) ?></td>
+				<td>
+					<?php if($row['delis'] != 'y'){ ?>
+						<a href="<?a. 'Delete/'.toBase($row['seq']) ?><?fq. '' ?>" class="deleteArticle">삭제</a>
+					<?php }else{ ?>
+						<a href="<?a. 'Undelete/'.toBase($row['seq']) ?><?fq. '' ?>" class="unDeleteArticle">복구</a> |
+						<a href="<?a. 'Remove/'.toBase($row['seq']) ?><?fq. '' ?>" class="removeArticle">완전삭제</a>
+					<?php } ?>
+				</td>
 			</tr>
 		<?php } ?>
 		</tbody>
@@ -94,7 +117,46 @@ use \BH_Application as App;
 	</form>
 </div>
 
+<div id="removeForm" class="hidden boardPassword modalConfirm">
+	<form id="remForm" name="remForm" method="post" action="">
+		<p>정말 완전히 삭제하시겠습니까?</p>
+		<div class="sPopBtns">
+			<button type="submit" class="sBtn btn2">완전삭제</button>
+			<button type="reset" class="sBtn btn2">취소</button>
+		</div>
+	</form>
+</div>
+
+
+<div id="deleteForm" class="hidden boardPassword modalConfirm">
+	<form id="delForm" name="delForm" method="post" action="">
+		<p>정말 삭제하시겠습니까?</p>
+		<div class="sPopBtns">
+			<button type="submit" class="sBtn btn2">삭제하기</button>
+			<button type="reset" class="sBtn btn2">취소</button>
+		</div>
+	</form>
+</div>
+
 <script>
+	$('a.deleteArticle').on('click', function(e){
+		e.preventDefault();
+		$('#delForm').attr('action', this.href);
+		$('#deleteForm').show();
+	});
+	$('#deleteForm button[type=reset]').on('click', function(e){
+		$('#deleteForm').hide();
+	});
+
+	$('a.removeArticle').on('click', function(e){
+		e.preventDefault();
+		$('#remForm').attr('action', this.href);
+		$('#removeForm').show();
+	});
+	$('#removeForm button[type=reset]').on('click', function(e){
+		$('#removeForm').hide();
+	});
+
 	$('.passwordView').on('click', function(e){
 		e.preventDefault();
 		$('#viewForm').attr('action', this.href);

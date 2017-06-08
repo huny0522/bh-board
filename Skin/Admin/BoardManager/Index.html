@@ -3,61 +3,64 @@ use \BH_Common as CF;
 use \BH_Application as App;
 
 /**
-* @var $Model \BoardManagerModel
-* @var $Data \BH_DB_GetListWithPage
-*/
+ * @var $Model \BoardManagerModel
+ * @var $Data \BH_DB_GetListWithPage
+ */
 ?>
 
 <h2>게시판관리</h2>
 
-<table class="list">
-	<colgroup>
-		<col style="width:5%;">
-		<col style="width:15%;">
-		<col style="">
-		<col style="">
-		<col style="">
-		<col style="">
-		<col style="">
-		<col style="">
-		<col style="">
-		<col style="width:15%;">
-	</colgroup>
-<thead>
-<tr>
-	<th>번호</th>
-	<th><?mt('subject')?></th>
-	<th><?mt('bid')?></th>
-	<th><?mt('auth_list_level')?></th>
-	<th><?mt('auth_write_level')?></th>
-	<th><?mt('auth_view_level')?></th>
-	<th><?mt('auth_reply_level')?></th>
-	<th><?mt('auth_answer_level')?></th>
-	<th><?mt('use_reply')?></th>
-	<th>연결메뉴</th>
-</tr>
-</thead>
-<tbody>
 <?php if($Data->result && $Data->totalRecord){ ?>
-<?php while($row = $Data->Get()){?>
-<tr>
-	<td><?p. $Data->beginNum-- ?></td>
-	<td><a href="<?a. 'View' ?>?bid=<?p. $row['bid'] ?><?fn. '' ?>"><?v. $row['subject']; ?></a></td>
-	<td><?v. $row['bid']; ?></td>
-	<td><?menum('auth_list_level', $row['auth_list_level']) ?></td>
-	<td><?menum('auth_write_level', $row['auth_write_level']) ?></td>
-	<td><?menum('auth_view_level', $row['auth_view_level']) ?></td>
-	<td><?menum('auth_reply_level', $row['auth_reply_level']) ?></td>
-	<td><?menum('auth_answer_level', $row['auth_answer_level']) ?></td>
-	<td><?menum('use_reply', $row['use_reply']) ?></td>
-	<td><?v. $row['title'] ?></td>
-</tr>
-<?php } ?>
+	<table class="list">
+		<colgroup>
+			<col style="width:5%;">
+			<col style="width:15%;">
+			<col style="">
+			<col style="">
+			<col style="">
+			<col style="">
+			<col style="">
+			<col style="">
+			<col style="">
+			<col style="width:15%;">
+			<col style="">
+		</colgroup>
+		<thead>
+		<tr>
+			<th>번호</th>
+			<th><?mt('subject')?></th>
+			<th><?mt('bid')?></th>
+			<th><?mt('auth_list_level')?></th>
+			<th><?mt('auth_write_level')?></th>
+			<th><?mt('auth_view_level')?></th>
+			<th><?mt('auth_reply_level')?></th>
+			<th><?mt('auth_answer_level')?></th>
+			<th><?mt('use_reply')?></th>
+			<th>연결메뉴</th>
+			<th></th>
+		</tr>
+		</thead>
+		<tbody>
+		<?php while($row = $Data->Get()){?>
+			<tr>
+				<td><?p. $Data->beginNum-- ?></td>
+				<td><?v. $row['subject']; ?></td>
+				<td><?v. $row['bid']; ?></td>
+				<td><?menum('auth_list_level', $row['auth_list_level']) ?></td>
+				<td><?menum('auth_write_level', $row['auth_write_level']) ?></td>
+				<td><?menum('auth_view_level', $row['auth_view_level']) ?></td>
+				<td><?menum('auth_reply_level', $row['auth_reply_level']) ?></td>
+				<td><?menum('auth_answer_level', $row['auth_answer_level']) ?></td>
+				<td><?menum('use_reply', $row['use_reply']) ?></td>
+				<td><?v. $row['title'] ?></td>
+				<td><a href="<?a. 'View' ?>?bid=<?p. $row['bid'] ?><?fn. '' ?>">관리</a> | <a href="<?c. 'Board/'.$row['bid'] ?>">보기</a></td>
+			</tr>
+		<?php } ?>
+		</tbody>
+	</table>
 <?php } else{ ?>
-<tr><td colspan="10" class="nothing">등록된 게시물이 없습니다.</td></tr>
+	<p class="nothing">등록된 게시판이 없습니다.</p>
 <?php } ?>
-</tbody>
-</table>
 
 <div class="left_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn">게시판생성</a></div>
 <div class="paging"><?p. $Data->pageHtml ?></div>

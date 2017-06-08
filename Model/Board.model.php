@@ -39,7 +39,8 @@ class BoardModel extends \BH_Model{
 		$this->data['hit'] = new \BH_ModelData(ModelType::Int, false, '조회수');
 		$this->data['recommend'] = new \BH_ModelData(ModelType::Int, false, '추천수');
 		$this->data['reply_cnt'] = new \BH_ModelData(ModelType::Int, false, '댓글수');
-		$this->data['delis'] = new \BH_ModelData(ModelType::String, false, '삭제여부');
+		$this->data['delis'] = new \BH_ModelData(ModelType::String, false, '삭제여부', HTMLType::InputRadio);
+		$this->data['delis']->EnumValues = array('n'=>'미삭제', 'y'=>'삭제');
 		$this->data['delis']->DefaultValue = 'n';
 		$this->data['htmlis'] = new \BH_ModelData(ModelType::String, false, 'HTML 여부');
 		$this->data['htmlis']->DefaultValue = 'n';

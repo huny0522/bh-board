@@ -4,38 +4,41 @@ use \BH_Application as App;
 
 /**
  * @var $Model \BoardModel
-*/
+ */
 ?>
+<h2><?p. $Ctrl->boardManger->GetValue('subject') ?> 게시물관리</h2>
+<div class="right_btn"><a href="<?c. 'BoardManager' ?>" class="sBtn">게시판 관리로 이동</a></div>
 
 <form name="BoardWriteForm" id="BoardWriteForm" method="post" action="<?a. App::$Action ?>/<?php if(App::$Action == 'Modify') echo App::$ID; ?><?fq. '' ?>" enctype="multipart/form-data">
+	<input type="hidden" name="htmlis" value="y">
 	<?php if(App::$Action == 'Answer'){ ?>
-	<input type="hidden" name="mode" value="answer">
-	<input type="hidden" name="target" value="<?p. $_GET['target'] ?>">
+		<input type="hidden" name="mode" value="answer">
+		<input type="hidden" name="target" value="<?p. $_GET['target'] ?>">
 	<?php } ?>
 
 
 	<?php if(isset(App::$Data['error'])){ ?><p class="alert"><?p. App::$Data['error'] ?></p><?php } ?>
 	<table class="write">
 		<?php if(_MEMBERIS === true && ($Ctrl->managerIs || $_SESSION['member']['level'] == _SADMIN_LEVEL || $_SESSION['member']['level'] == _ADMIN_LEVEL)){ ?>
-		<tr>
-			<th><?mt('notice')?></th>
-			<td>
-				<?minp('notice') ?>
-			</td>
-		</tr>
+			<tr>
+				<th><?mt('notice')?></th>
+				<td>
+					<?minp('notice') ?>
+				</td>
+			</tr>
 		<?php } ?>
 		<?php if(sizeof(App::$Data['categorys'])){ ?>
-		<tr>
-			<th><?mt('category')?></th>
-			<td>
-				<select name="category" required>
-					<option value="">선택</option>
-					<?php foreach(App::$Data['categorys'] as $cate){ ?>
-						<option<?php if($cate == $Model->GetValue('category')){ ?> selected<?php } ?>><?p. $cate ?></option>
-					<?php } ?>
-				</select>
-			</td>
-		</tr>
+			<tr>
+				<th><?mt('category')?></th>
+				<td>
+					<select name="category" required>
+						<option value="">선택</option>
+						<?php foreach(App::$Data['categorys'] as $cate){ ?>
+							<option<?php if($cate == $Model->GetValue('category')){ ?> selected<?php } ?>><?p. $cate ?></option>
+						<?php } ?>
+					</select>
+				</td>
+			</tr>
 		<?php } ?>
 		<tr>
 			<th><?mt('secret')?></th>
@@ -63,21 +66,21 @@ use \BH_Application as App;
 			</tr>
 			<?php
 			if(App::$Action != 'Modify'){
-			?>
-			<tr>
-				<th>비밀번호 확인</th>
-				<td>
-					<input type="password" name="pwdchk" value="" required="required" data-same="pwd" data-display="비밀번호 확인">
-				</td>
-			</tr>
-			<?php
+				?>
+				<tr>
+					<th>비밀번호 확인</th>
+					<td>
+						<input type="password" name="pwdchk" value="" required="required" data-same="pwd" data-display="비밀번호 확인">
+					</td>
+				</tr>
+				<?php
 			}
 			?>
 		<?php } ?>
 		<tr>
 			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('subject')?></th>
 			<td>
-				<?minp('subject') ?>
+				<?minp('subject', array('class' => 'w100p')) ?>
 				<ul class="guide">
 					<li>128자 이하로 입력하여주세요.</li>
 				</ul>
@@ -94,6 +97,12 @@ use \BH_Application as App;
 			<th><?mt('file1')?></th>
 			<td>
 				<?minp('file1') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?mt('delis')?></th>
+			<td>
+				<?minp('delis') ?>
 			</td>
 		</tr>
 	</table>

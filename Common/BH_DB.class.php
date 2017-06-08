@@ -950,6 +950,11 @@ class BH_DB_Update{
 		return $this;
 	}
 
+	public function &SetSort($str){
+		$this->sort = $str;
+		return $this;
+	}
+
 	function Run(){
 		$res = new \BH_Result();
 		$temp = '';

@@ -51,25 +51,19 @@ function FileUploadArray($files, $possible_ext = null, $path = '/data/'){
 function FileUpload($files, $possible_ext = null, $path = '/data/'){
 	if($files['name']){
 		$ext = explode('.', $files['name']);
-		$ext = $ext[sizeof($ext)-1];
-		if(in_array($ext, App::$SettingData['noext'])){
-			return 'noext';
-		}
-		else if(!in_array($ext, App::$SettingData['POSSIBLE_EXT'])){
-			return 'noext';
-		}
-		else if($possible_ext && !in_array($ext, $possible_ext)){
-			return 'noext';
-		}
+		$ext = strtolower($ext[sizeof($ext)-1]);
 
-		if(!is_dir(_UPLOAD_DIR.$path)){
-			@mkdir(_UPLOAD_DIR.$path, 0777, true);
-		}
+		if(in_array($ext, App::$SettingData['noext'])) return _MSG_IMPOSSIBLE_FILE;
+		else if(!in_array($ext, App::$SettingData['POSSIBLE_EXT'])) return _MSG_IMPOSSIBLE_FILE;
+		else if($possible_ext && !in_array($ext, $possible_ext)) return _MSG_IMPOSSIBLE_FILE;
+
+		if($files['error'] ===  UPLOAD_ERR_INI_SIZE) return _MSG_FILE_TOO_BIG;
+		if($files['error'] !==  UPLOAD_ERR_OK) return _MSG_UPLOAD_ERROR;
+
+		if(!is_dir(_UPLOAD_DIR.$path)) @mkdir(_UPLOAD_DIR.$path, 0777, true);
 
 		$newFileName = '';
-		while($newFileName == '' || file_exists(_UPLOAD_DIR.$path.$newFileName.'.'.$ext)){
-			$newFileName = RandomFileName();
-		}
+		while($newFileName == '' || file_exists(_UPLOAD_DIR.$path.$newFileName.'.'.$ext)) $newFileName = RandomFileName();
 
 
 		copy($files['tmp_name'], _UPLOAD_DIR.$path.$newFileName.'.'.$ext);
@@ -78,9 +72,8 @@ function FileUpload($files, $possible_ext = null, $path = '/data/'){
 		$res['ext'] = $ext;
 		$res['file'] = $path.$newFileName.'.'.$ext;
 		return $res;
-	}else{
-		return false;
 	}
+	else return false;
 }
 
 function Thumbnail($source, $thumb, $width, $height = 0){

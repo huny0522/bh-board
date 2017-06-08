@@ -25,8 +25,21 @@ class ContentsController{
 		if(!$res->result){
 			Redirect('-1', 'ERROR');
 		}
-		if($this->model->GetValue('layout')) App::$Layout = $this->model->GetValue('layout');
-		if($this->model->GetValue('html')) App::$Html = $this->model->GetValue('html');
+
+		$layout = $this->model->GetValue('layout');
+		if($layout){
+			$layoutPath = App::$NativeDir.'/'.$layout;
+			if(file_exists(_SKINDIR.'/Layout/'.$layoutPath.'.html')) $layout = $layoutPath;
+			App::$Layout = $layout;
+		}
+
+		$html = $this->model->GetValue('html');
+		if($html){
+			if(substr($html, -5) != '.html') $html .= '.html';
+			$htmlPath = App::$NativeDir.'/'.$html;
+			if(file_exists(_SKINDIR.'/Contents/'.$htmlPath)) $html = $htmlPath;
+			App::$Html = '/Contents/'.$html;
+		}
 
 		$cookieName = $this->model->table.$this->model->GetValue('bid');
 		if(!isset($_COOKIE[$cookieName]) || !$_COOKIE[$cookieName]){
@@ -36,6 +49,8 @@ class ContentsController{
 			$dbUpdate->Run();
 			setcookie($cookieName, 'y');
 		}
+
+		if(_JSONIS === true) JSON(true, '', App::GetView($this));
 
 		App::View($this);
 

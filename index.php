@@ -69,14 +69,23 @@ define('_NO_IMG', '');
 //			Site Common
 //
 // -------------------------------------
-define('_SECRET_ARTICLE', '비밀글입니다.');
-define('_DELETED_ARTICLE', '삭제된 게시물입니다.');
-define('_DELETED_REPLY', '삭제된 댓글입니다.');
-define('_WRONG_CONNECTED', '잘못된 접근입니다.');
-define('_NO_ARTICLE', '존재하지 않는 게시물입니다.');
-define('_PAYMENT_WAIT', '입금대기중');
-define('_PAYMENT_FIN', '입금완료');
-define('_NO_AUTH', '권한이 없습니다.');
+define('_MSG_SECRET_ARTICLE', '비밀글입니다.');
+define('_MSG_DELETED_ARTICLE', '삭제된 게시물입니다.');
+define('_MSG_DELETED_REPLY', '삭제된 댓글입니다.');
+define('_MSG_WRONG_CONNECTED', '잘못된 접근입니다.');
+define('_MSG_NO_ARTICLE', '존재하지 않는 게시물입니다.');
+define('_MSG_PAYMENT_WAIT', '입금대기중');
+define('_MSG_PAYMENT_FIN', '입금완료');
+define('_MSG_NO_AUTH', '권한이 없습니다.');
+define('_MSG_NEED_LOGIN', '로그인해주시기 바랍니다.');
+define('_MSG_COMPLETE_MODIFY', '수정되었습니다.');
+define('_MSG_COMPLETE_REGISTER', '등록되었습니다.');
+define('_MSG_COMPLETE_DELETE', '삭제되었습니다.');
+define('_MSG_WRONG_PASSWORD', '비밀번호가 일치하지 않습니다.');
+
+define('_MSG_IMPOSSIBLE_FILE', '등록 불가능한 파일입니다.');
+define('_MSG_FILE_TOO_BIG', '업로드한 파일이 제한용량보다 큽니다.('.ini_get('upload_max_filesize').')');
+define('_MSG_UPLOAD_ERROR', '파일 등록 오류');
 
 // -------------------------------------
 //

@@ -38,12 +38,21 @@ App::JSAdd('admin.js', 10);
 								.'<span><a href="'. _ADMINURL.'/'.$v['Category'].'">'.$v['Name'].'</a></span>';
 
 							$sub = '';
+
 							foreach(App::$SettingData['AdminMenu'] as $c2 => $v2){
 								if(strlen($c2) == 6 && substr($c2, 0, 3) == $c && ($_SESSION['member']['level'] == _SADMIN_LEVEL || in_array($c2, $AdminAuth))){
 									$sub .= '<li '.(substr($NM,0,6) == $c2 ? ' class="Active"' : '').'>'
 										.'<span><a href="'. _ADMINURL.'/'.$v2['Category'].'">'.$v2['Name'].'</a></span>';
 								}
 							}
+
+							if(substr($v['Category'], 0, 12) == 'BoardManager' || substr($v['Category'], 0, 5) == 'Board'){
+								foreach(DB::GetListQryObj(TABLE_BOARD_MNG)->SetKey('bid', 'subject')->GetRows() as $k => $row){
+									$sub .= '<li '.($row['bid'] == App::$TID ? ' class="Active"' : '').'>'
+										.'<span><a href="'. _ADMINURL.'/Board/'.$row['bid'].'">'.$row['subject'].'</a></span>';
+								}
+							}
+
 							if($sub) echo '<ol>'.$sub.'</ol>';
 						}
 					}
@@ -54,7 +63,7 @@ App::JSAdd('admin.js', 10);
 	</header>
 	<div id="container">
 		<div id="container_wrap">
-			<?p. $_BODY ?>
+			<?p. App::$BodyHtml ?>
 		</div>
 	</div>
 	<footer id="footer">
@@ -104,5 +113,5 @@ App::JSAdd('admin.js', 10);
 <?p. _REFRESH_BTN ?>
 <?inc. '/Layout/_Footer.html' ?>
 <?php
-$_BODY = ob_get_clean();
+App::$BodyHtml = ob_get_clean();
 ?>

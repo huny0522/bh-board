@@ -1,3 +1,16 @@
+this.getInternetExplorerVersion = function () {
+	var rv = -1;
+	if (navigator.appName == 'Microsoft Internet Explorer') {
+		var ua = navigator.userAgent;
+		var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+		if (re.exec(ua) != null)
+			rv = parseFloat(RegExp.$1);
+	}
+	return rv;
+};
+
+var transitionEnd = 'transitionend webkittransitionend otransitionend mstransitionend';
+
 function Common($) {
 	var _this = this;
 
@@ -6,8 +19,13 @@ function Common($) {
 	this.alertNumber = 0;
 
 	this.Init = function(){
-		this.ie8 = this.getInternetExplorerVersion() == 8 ? true : false;
-		this.ie9 = this.getInternetExplorerVersion() == 9 ? true : false;
+		var ieVer = getInternetExplorerVersion();
+		this.ie8 = ieVer == 8 ? true : false;
+		this.ie9 = ieVer == 9 ? true : false;
+
+		if(ieVer < 9 && ieVer != -1){
+			document.write('현재 사용하시고 계시는 브라우저의 버전은 지원하지 않습니다.');
+		}
 
 		$(window).resize(function () {
 			_this.img_align();
@@ -38,9 +56,16 @@ function Common($) {
 		 *   Input Value Check
 		 *
 		 ------------------------------------------- */
-		$(document).on('keyup', 'input.numberonly', function() {
+		$(document).on('keyup', 'input.numberonly input.numberOnly', function() {
+			if($(this).hasClass('commaNumber')) return;
 			var val = this.value.replace(/[^0-9]/gi,'');
 			if(this.value != val) this.value = val;
+		});
+
+		$(document).on('keyup click focusout focus', 'input.commaNumber input.commanumber', function() {
+			var val = this.value.replace(/[^0-9]/gi,'');
+			this.value = '';
+			this.value = common.setComma(parseInt(val == '' ? '0' : val));
 		});
 
 		$(document).on('keyup', 'input.engonly', function() {
@@ -89,56 +114,156 @@ function Common($) {
 	 *
 	 *       .event 와 메소드 연결
 	 *       ex) <a href="#" class="event" e-click="common.test">Test</a>
-	 *       속성 : e-click, e-submit, e-mousedown, e-mouseup, e-transition-end
+	 *       속성 : e-click, e-submit, e-mousedown, e-mouseup, e-transition-end(e-animate-end),
+	 *          e-touch, e-touch-start(e-mouse-down), e-touch-move(e-mouse-move), e-touch-end(e-mouse-up)
 	 *
 	 ----------------------------------------------------------------------------------------- */
 	this.EventLink = function(){
-		// .event 의 data-action 속성의 값과 이름이 일치하는 함수를 연결
-		$(document).on('click', '.event', function(e){
-			if(this.hasAttribute('e-click')){
-				e.preventDefault();
-				_this._EventFunction(this, e, $(this).attr('e-click'));
+		function EventCheck(){
+			// .event 의 data-action 속성의 값과 이름이 일치하는 함수를 연결
+			if(this.hasAttribute('e-touch') || this.hasAttribute('e-touch-visible') || this.hasAttribute('e-click')){
+				if(this.tagName == 'A' || this.tagName == 'BUTTON' || this.tagName == 'INPUT'){
+					$(this).on('click', function(e){
+						e.preventDefault();
+					});
+				}
+				if(this.hasAttribute('e-click')) $(this).on('click', GetEventFunction($(this).attr('e-click')));
 			}
-		});
 
-		$(document).on('submit', '.event', function(e){
 			if(this.hasAttribute('e-submit')){
-				_this._EventFunction(this, e, $(this).attr('e-submit'));
+				$(this).on('submit', function(e){
+					e.preventDefault();
+				});
+				if(this.hasAttribute('e-submit')) $(this).on('submit', GetEventFunction($(this).attr('e-submit')));
 			}
+
+			if(this.hasAttribute('e-transition-end')) $(this).on(transitionEnd, GetEventFunction($(this).attr('e-transition-end')));
+			else if(this.hasAttribute('e-animate-end')) $(this).on(transitionEnd, GetEventFunction($(this).attr('e-animate-end')));
+
+			if(this.hasAttribute('e-change')) $(this).on('change', GetEventFunction($(this).attr('e-change')));
+
+			// Touch Start Events
+			if(this.hasAttribute('e-touch') || this.hasAttribute('e-touch-visible') || this.hasAttribute('e-mouse-down') || this.hasAttribute('e-touch-start') || this.hasAttribute('e-drag')){
+				$(this).on('touchstart mousedown', function(e){
+					if(typeof($('body').data) == 'undefined' || typeof($('body').data('touchObject')) == 'undefined' || $('body').data('touchObject') == null){
+						$('body').data('touchObject', [this]);
+					}
+					else{
+						var objs = $('body').data('touchObject');
+						objs.push(this);
+						$('body').data('touchObject', objs);
+					}
+					$(this).data('touchStart', e.type == 'mousedown' ? {
+						'pageX': e.pageX,
+						'pageY': e.pageY
+					} : e.originalEvent.touches[0]);
+					$(this).data('touchEnd', null);
+					$(this).data('visibleTouchIs',
+						(this.hasAttribute('e-touch-visible') && this == document.elementFromPoint($(this).data('touchStart').pageX, $(this).data('touchStart').pageY))
+					);
+				});
+			}
+			if(this.hasAttribute('e-touch-start')) $(this).on('touchstart mousedown', GetEventFunction($(this).attr('e-touch-start')));
+			else if(this.hasAttribute('e-mouse-down')) $(this).on('touchstart mousedown', GetEventFunction($(this).attr('e-mouse-down')));
+
+			// Touch Move Events
+			if(this.hasAttribute('e-touch-move')) $(this).on('e_move', GetEventFunction($(this).attr('e-touch-move')));
+			else if(this.hasAttribute('e-mouse-move')) $(this).on('e_move', GetEventFunction($(this).attr('e-mouse-move')));
+
+			if(this.hasAttribute('e-drag')) $(this).on('e_drag', GetEventFunction($(this).attr('e-drag')));
+
+			// Touch End Events
+			if(this.hasAttribute('e-touch')) $(this).on('e_touch', GetEventFunction($(this).attr('e-touch')));
+
+			if(this.hasAttribute('e-touch-visible')) $(this).on('e_touch_visible', GetEventFunction($(this).attr('e-touch-visible')));
+
+			if(this.hasAttribute('e-touch-end')) $(this).on('e_touch_end', GetEventFunction($(this).attr('e-touch-end')));
+			else if(this.hasAttribute('e-mouse-up')) $(this).on('e_mouse_up', GetEventFunction($(this).attr('e-mouse-up')));
+
+			if(this.hasAttribute('e-drag-end')) $(this).on('e_drag_end', GetEventFunction($(this).attr('e-drag-end')));
+		};
+
+		function GetEventFunction(data){
+			var temp = data.split('.');
+			var obj = null;
+			for(var i=0, max = temp.length; i < max; i ++){
+				if(obj == null){
+					if(typeof(window[temp[i]]) != 'function' && typeof(window[temp[i]]) != 'object') return;
+					obj = window[temp[i]];
+				}
+				else{
+					if(typeof(obj[temp[i]]) != 'function' && typeof(obj[temp[i]]) != 'object') return;
+					obj = obj[temp[i]];
+				}
+			}
+			if(typeof(obj) == 'function') return obj;
+			return null;
+		};
+
+
+		$(document).ready(function(e){
+			$('.event').each(function(){
+				EventCheck.call(this);
+			});
 		});
 
-		$(document).on('mousedown', '.event', function(e){
-			if(this.hasAttribute('e-mousedown')){
-				_this._EventFunction(this, e, $(this).attr('e-mousedown'));
-			}
+		$(document).on('DOMNodeInserted', 'body', function(e){
+			if($(this).hasClass('event')) EventCheck.call(this);
+			$(e.target).find('.event').each(function(){
+				EventCheck.call(this);
+			});
 		});
 
-		$(document).on('mouseup', '.event', function(e){
-			if(this.hasAttribute('e-mouseup')){
-				_this._EventFunction(this, e, $(this).attr('e-mouseup'));
-			}
+		$(document).on('touchmove mousemove', 'body', function(e){
+			var body = $(this);
+			if(typeof(body.data) == 'undefined' || typeof(body.data('touchObject')) == 'undefined' || body.data('touchObject') == null) return;
+			var touchObject = body.data('touchObject');
+			if(typeof($(touchObject).data) == 'undefined' || typeof($(touchObject).data('touchStart')) == 'undefined' || $(touchObject).data('touchStart') == null) return;
+			$.each(touchObject, function(idx, obj){
+				$(obj).data('touchEnd', e.type == 'mousemove' ? {
+					'pageX': e.pageX,
+					'pageY': e.pageY
+				} : e.originalEvent.touches[0]);
+				if(obj.hasAttribute('e-touch-move')) $(obj).trigger('e_move', e);
+				else if(obj.hasAttribute('e-mouse-move')) $(obj).trigger('e_move', e);
+				if(obj.hasAttribute('e-drag')) $(obj).trigger('e_drag', e);
+			});
 		});
 
-		$(document).on('transitionend webkittransitionend otransitionend mstransitionend', '.event', function(){
-			if(this.hasAttribute('e-transition-end')) _this._EventFunction(this, $(this).attr('e-transition-end'));
+		$(document).on('touchend mouseup', 'body', function(e){
+			var body = $(this);
+			if(typeof(body.data) == 'undefined' || typeof(body.data('touchObject')) == 'undefined' || body.data('touchObject') == null) return;
+			var touchObject = body.data('touchObject');
+			if(!$(touchObject).length || typeof($(touchObject).data) == 'undefined' || typeof($(touchObject).data('touchStart')) == 'undefined' || $(touchObject).data('touchStart') == null) return;
+
+			$.each(touchObject, function(idx, obj){
+				if($(obj).data('touchEnd') == null) $(obj).data('touchEnd', $(obj).data('touchStart'));
+				var elementFromPoint = $(document.elementFromPoint($(obj).data('touchEnd').pageX, $(obj).data('touchEnd').pageY))[0];
+
+				if(obj.hasAttribute('e-touch') && (obj == elementFromPoint || $(elementFromPoint).closest(obj).length)){
+					var x = $(obj).data('touchEnd').pageX - $(obj).data('touchStart').pageX;
+					var y = $(obj).data('touchEnd').pageY - $(obj).data('touchStart').pageY;
+					if(Math.abs(x) < 5 && Math.abs(y) < 5) $(obj).trigger('e_touch', e);
+				}
+
+				if(obj.hasAttribute('e-touch-visible') && typeof($(obj).data('visibleTouchIs')) != 'undefined' && $(obj).data('visibleTouchIs') && obj == document.elementFromPoint($(obj).data('touchEnd').pageX, $(obj).data('touchEnd').pageY)){
+					var x = $(obj).data('touchEnd').pageX - $(obj).data('touchStart').pageX;
+					var y = $(obj).data('touchEnd').pageY - $(obj).data('touchStart').pageY;
+					if(Math.abs(x) < 5 && Math.abs(y) < 5) $(obj).trigger('e_touch_visible', e);
+				}
+
+				if(obj.hasAttribute('e-touch-end')) $(obj).trigger('e_touch_end', e);
+				else if(obj.hasAttribute('e-mouse-up')) $(obj).trigger('e_mouse_up', e);
+
+				if(obj.hasAttribute('e-drag-end')) $(obj).trigger('e_drag_end', e);
+
+				$(obj).data('touchStart', null);
+				$(obj).data('touchEnd', null);
+			});
+			body.data('touchObject', null);
 		});
 	};
 
-	this._EventFunction = function(element, e, data){
-		var temp = data.split('.');
-		var obj = null;
-		for(var i=0, max = temp.length; i < max; i ++){
-			if(obj == null){
-				if(typeof(window[temp[i]]) != 'function' && typeof(window[temp[i]]) != 'object') return;
-				obj = window[temp[i]];
-			}
-			else{
-				if(typeof(obj[temp[i]]) != 'function' && typeof(obj[temp[i]]) != 'object') return;
-				obj = obj[temp[i]];
-			}
-		}
-		if(typeof(obj) == 'function') obj.call(element, e);
-	};
 
 	this.preload = function (imgs) {
 		$(imgs).each(function () {
@@ -150,17 +275,6 @@ function Common($) {
 		if(typeof v != 'undefined') return v;
 		return '';
 	}
-
-	this.getInternetExplorerVersion = function () {
-		var rv = -1;
-		if (navigator.appName == 'Microsoft Internet Explorer') {
-			var ua = navigator.userAgent;
-			var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-			if (re.exec(ua) != null)
-				rv = parseFloat(RegExp.$1);
-		}
-		return rv;
-	};
 
 	this.loading = function () {
 		$('body').append('<div class="loading_layer"><div class="loading_layer_wrap"><div class="animation"></div><p>Loading...</p></div></div>');
@@ -684,8 +798,9 @@ function Common($) {
 	 *   파일업로드
 	 *
 	 *   파일 업로드 영역 : .fileUploadArea
-	 *   파일 업로드 file type input : input.fileUploadInput
+	 *   파일 업로드 file hidden type input : input.fileUploadInput
 	 *   파일 업로드 미리보기 : .fileUploadImage
+	 *   파일 업로드 버튼 : .fileUploadBtn
 	 *
 	 ------------------------------------------- */
 	this.imageFileForm = function(){
@@ -695,7 +810,7 @@ function Common($) {
 			'</form>';
 		$('body').append(frm);
 
-		$(document).on('click','button.fileUploadBtn',function(e){
+		$(document).on('click','.fileUploadArea button.fileUploadBtn',function(e){
 			e.preventDefault();
 			$('#_uploadImgFrm').data({
 				obj : $(this).closest('.fileUploadArea').find('input.fileUploadInput')[0]
@@ -724,16 +839,24 @@ function Common($) {
 	//    Message Modal
 	//
 
+	this.MessageModalUse = false;
+
 	this.MessageModalInit = function(){
+		this.MessageModalUse = true;
 		window.alert = function(msg) {
 			_this.MessageModal(msg);
 		};
 
+		$(document).on('mousedown touch', '.MessageModal footer a', function(e){
+			_this.activeElement = $('*:focus');
+		});
+
 		$(document).on('click', '.MessageModal footer a', function(e){
 			e.preventDefault();
 			var obj = $(this).data();
-			if(typeof(obj.onclick) == 'function') obj.onclick(this);
-			_this.CloseMsgModal(this);
+			if(typeof(obj.onclick) == 'function') obj.onclick.call(this);
+			_this.CloseMsgModal.call(this);
+			$(_this.activeElement).focus();
 		});
 	};
 
@@ -782,8 +905,8 @@ function Common($) {
 		});
 	}
 
-	this.CloseMsgModal = function(obj){
-		$(obj).closest('.MessageModal').remove();
+	this.CloseMsgModal = function(){
+		$(this).closest('.MessageModal').remove();
 	};
 
 	// ==============================================================
@@ -825,6 +948,12 @@ function dateInputAll(){
 	$('.dateInput .date, .dateInput .mdate').each(function(){
 		dateInput(this);
 	});
+}
+
+function FormReset(obj){
+	obj.reset();
+	common.SetSelectBox();
+	dateInputAll();
 }
 
 function dateInput(obj, e){
@@ -885,7 +1014,7 @@ function dateInput(obj, e){
 	}
 	$(obj).siblings('.before').html(newTxt);
 }
-$(document).on('keyup', '.dateInput input.date, .dateInput input.mdate', function(e){
+$(document).on('keyup mousedown change focus focusout', '.dateInput input.date, .dateInput input.mdate', function(e){
 	dateInput(this, e);
 });
 
@@ -1163,3 +1292,50 @@ $(document).ready(function () {
 		});
 	}
 });
+
+/* -----------------------------------------------------
+ *
+ *    translate3d
+ *    ie use top, left
+ *
+ ----------------------------------------------------- */
+
+(function($) {
+	$.ieIs = navigator.appName == 'Microsoft Internet Explorer';
+	$.fn.translate3d = function(before, after, duration, complete) {
+		if(typeof before.z == 'undefined') before.z = 0;
+		if(typeof before.css == 'undefined') before.css = {};
+		if(typeof after.z == 'undefined') after.z = 0;
+		if(typeof after.css == 'undefined') after.css = {};
+		if($.ieIs){
+			before.css.top = before.y;
+			before.css.left = before.x;
+			after.css.top = after.y;
+			after.css.left = after.x;
+			before.css['transition'] = 0;
+			before.css.display = 'block';
+			$(this).css(before.css);
+			$(this).animate(after.css, duration, complete);
+		}
+		else{
+			$(this).off(transitionEnd);
+			var beforeTranslate = 'translate3d(' + before.x + ', ' + before.y + ', ' + before.z + ')';
+			var afterTranslate = 'translate3d(' + after.x + ', ' + after.y + ', ' + after.z + ')';
+			before.css.transition = 0;
+			before.css['-webkit-transform'] = beforeTranslate;
+			before.css['-ms-transform'] = beforeTranslate;
+			before.css.transform = beforeTranslate;
+			before.css.display = 'block';
+			$(this).css(before.css);
+
+			$(this).css('width');
+			if(typeof(complete) == 'function') $(this).on(transitionEnd, complete);
+			after.css.transition = duration + 'ms';
+			after.css['-webkit-transform'] = afterTranslate;
+			after.css['-ms-transform'] = afterTranslate;
+			after.css.transform = afterTranslate;
+			$(this).css(after.css);
+
+		}
+	};
+})(jQuery);

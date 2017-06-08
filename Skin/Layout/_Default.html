@@ -86,7 +86,7 @@ App::JSAdd('common.js?r='.CF::Config('Default', 'Refresh'), 10);
 
 	<div id="container">
 		<div id="container_wrap">
-			<?p. $_BODY ?>
+			<?p. App::$BodyHtml ?>
 		</div>
 	</div>
 
@@ -123,4 +123,4 @@ App::JSAdd('common.js?r='.CF::Config('Default', 'Refresh'), 10);
 <?p. _REFRESH_BTN ?>
 <?inc. '/Layout/_Footer.html' ?>
 <?php
-$_BODY = ob_get_clean();
+App::$BodyHtml = ob_get_clean();

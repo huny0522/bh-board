@@ -50,7 +50,7 @@ class MemberController{
 	public function View(){
 		$res = $this->model->DBGet($_GET['muid']);
 		if($this->model->GetValue('level') > $_SESSION['member']['level'] || ($_SESSION['member']['muid'] != $this->model->GetValue('muid') && $this->model->GetValue('level') == $_SESSION['member']['level'])){
-			Redirect('-1', _WRONG_CONNECTED);
+			Redirect('-1', _MSG_WRONG_CONNECTED);
 		}
 
 		if(!$res->result){
@@ -72,7 +72,7 @@ class MemberController{
 		$this->model->data['pwd']->Required = false;
 		$res = $this->model->DBGet($_GET['muid']);
 		if($this->model->GetValue('level') > $_SESSION['member']['level'] || ($_SESSION['member']['muid'] != $this->model->GetValue('muid') && $this->model->GetValue('level') == $_SESSION['member']['level'])){
-			Redirect('-1', _WRONG_CONNECTED);
+			Redirect('-1', _MSG_WRONG_CONNECTED);
 		}
 
 		if(!$res->result) Redirect('-1', $res->message);
@@ -121,7 +121,7 @@ class MemberController{
 
 		$res = $this->model->DBGet($_POST['muid']);
 		if($this->model->GetValue('level') > $_SESSION['member']['level'] || ($_SESSION['member']['muid'] != $this->model->GetValue('muid') && $this->model->GetValue('level') == $_SESSION['member']['level'])){
-			Redirect('-1', _WRONG_CONNECTED);
+			Redirect('-1', _MSG_WRONG_CONNECTED);
 		}
 
 		$res = $this->model->SetPostValues();
@@ -173,7 +173,7 @@ class MemberController{
 	}
 
 	public function PostAuthAdmin(){
-		if($_SESSION['member']['level'] != _SADMIN_LEVEL) JSON(false, _WRONG_CONNECTED);
+		if($_SESSION['member']['level'] != _SADMIN_LEVEL) JSON(false, _MSG_WRONG_CONNECTED);
 		$dbGet = new \BH_DB_Get($this->model->table);
 		$dbGet->AddWhere('muid =  %d', $_POST['muid']);
 		$dbGet->SetKey('level');

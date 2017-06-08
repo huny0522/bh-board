@@ -1,0 +1,113 @@
+<?php if(_BH_ !== true) exit;
+use \BH_Common as CF;
+use \BH_Application as App;
+
+/**
+ * @var $Ctrl \BoardController
+ * @var $Model \BoardModel
+ * @var $Data \BH_DB_GetListWithPage
+ */
+?>
+<div id="bhBoardList">
+	<form id="bbsSchForm" name="bbsSchForm" method="get" action="<?a. 'MoreList' ?>" class="boardSearch leftBoardSearch">
+		<input type="hidden" name="lastSeq" value="<?v. isset($_GET['lastSeq']) ? $_GET['lastSeq'] : '' ?>" class="lastSeq">
+		<input type="hidden" name="searchKeyword" value="">
+		<select name="searchType">
+			<?p. SelectOption(array('snc' => '제목+내용', 's' => '제목', 'c' => '내용'), isset($_GET['searchType']) ? $_GET['searchType'] : '') ?>
+		</select>
+		<input type="text" name="searchInput" value="">
+		<button type="submit" class="mBtn btn2">검색</button>
+	</form>
+
+	<?php if($Ctrl->GetAuth('Write')){ ?><div class="right_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn btn2">글쓰기</a></div><?php } ?>
+
+	<table class="list">
+		<colgroup>
+			<col style="">
+			<col style="width:15%;">
+			<col style="width:7%;">
+			<col style="width:7%;">
+			<col style="width:18%;">
+		</colgroup>
+		<thead>
+		<tr>
+			<th><?mt('subject')?></th>
+			<th><?mt('mname')?></th>
+			<th><?mt('hit')?></th>
+			<th><?mt('recommend')?></th>
+			<th><?mt('reg_date')?></th>
+		</tr>
+		</thead>
+		<tbody></tbody>
+	</table>
+
+	<div class="moreViewBtn"><a href="#" id="moreViewBtn">더보기</a></div>
+
+	<?php if($Ctrl->GetAuth('Write')){ ?><div class="right_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn btn2">글쓰기</a></div><?php } ?>
+
+</div>
+
+
+<div id="secretViewForm" class="hidden boardPassword modalConfirm">
+	<form id="viewForm" name="viewForm" method="post" action="">
+		<input type="password" name="pwd" required="required">
+		<span>비밀번호를 입력하여 주세요.</span>
+		<div class="sPopBtns">
+			<button type="submit" class="btn2">확인</button>
+			<button type="reset" class="btn2">취소</button>
+		</div>
+	</form>
+</div>
+
+<script>
+	if(typeof(MoreList) != 'function'){
+		function MoreList(){
+			common.ajaxForm('#bbsSchForm', function(data){
+				var boardList = $('#bhBoardList table.list tbody');
+				if(data.lastIs) $('#bhBoardList .moreViewBtn').hide();
+				else $('#bhBoardList .moreViewBtn').show();
+				if($.trim(data.list) == ''){
+					if($.trim(boardList.text()) == '') boardList.html('<p class="nothing">검색된 글이 없습니다.</p>');
+					return;
+				}
+				boardList.append(data.list);
+			});
+		}
+	}
+
+	$('#bbsSchForm').on('submit', function(e){
+		e.preventDefault();
+		$('#bhBoardList table.list tbody').html('');
+		$(this).find('input[name=searchKeyword]').val($(this).find('input[name=searchInput]').val());
+		$(this).find('input[name=lastSeq]').val('');
+		MoreList();
+	});
+
+	$('#moreViewBtn').on('click', function(e){
+		e.preventDefault();
+		$('#bhBoardList .lastSeq').val($('#bhBoardList table.list tbody tr').last().attr('data-seq'));
+		MoreList();
+	});
+
+	MoreList();
+
+	$('#bhBoardList').on('click', '.passwordView', function(e){
+		e.preventDefault();
+		$('#viewForm').attr('action', this.href);
+		$('#secretViewForm').show();
+	});
+
+	$('#secretViewForm button[type=reset]').on('click', function(e){
+		$('#viewForm')[0].reset();
+		$('#secretViewForm').hide();
+	});
+
+	$('#viewForm').on('submit', function(e){
+		e.preventDefault();
+		common.ajaxForm(this, function(data){
+			appJS.createSubPage(this, true, data);
+			$('#viewForm')[0].reset();
+			$('#secretViewForm').hide();
+		});
+	});
+</script>

@@ -1,0 +1,110 @@
+<?php if(_BH_ !== true) exit;
+use \BH_Common as CF;
+use \BH_Application as App;
+
+/**
+ * @var $Ctrl \BoardController
+ * @var $Model \BoardModel
+*/
+App::JSAdd('reply.js', 200);
+?>
+<div class="BoardView">
+	<header>
+		<div>
+			<?php if($Model->GetValue('category')){ ?>
+				<b>[<?mv('category') ?>]</b>
+			<?php } ?>
+			<?mv('subject') ?>
+		</div>
+		<ul>
+			<li class="mname"><b><?mt('mname')?></b> : <?mv('mname') ?></li>
+			<li><b><?mt('recommend')?></b> : <?mv('recommend') ?></li>
+			<li><b><?mt('hit')?></b> : <?mv('hit') ?></li>
+			<li><b><?mt('reg_date')?></b> : <?p. KrDate($Model->GetValue('reg_date')) ?></li>
+		</ul>
+	</header>
+	<div class="contents">
+		<?php if($Model->GetValue('htmlis') == 'y'){ ?>
+			<?mvr('content') ?>
+		<?php }else{ ?>
+			<?mv('content') ?>
+		<?php } ?>
+	</div>
+
+	<div class="bottomBtn">
+		<?php if($Ctrl->GetAuth('Write') && (!strlen($Model->GetValue('muid')) || $Data['modifyAuthDirect'] || $Ctrl->managerIs)){ ?>
+			<a href="<?a. 'Modify/' ?><?v. App::$ID ?><?fq. '' ?>" class="mBtn btn2" <?php if(!$Data['modifyAuthDirect']){ ?>id="modifyBtn"<?php } ?>>수정</a>
+			<a href="#" id="deleteArticle" data-seq="<?v. App::$ID ?>" class="mBtn btn2">삭제</a>
+		<?php } ?>
+		<?php if($Ctrl->GetAuth('Answer')){ ?>
+			<a href="<?a. 'Answer/' ?>?target=<?v. App::$ID ?><?fn. '' ?>" class="mBtn btn2" id="AnswerBtn">답변</a>
+		<?php } ?>
+		<a href="<?a. '' ?><?fq. '' ?>" class="mBtn btn2">리스트</a>
+	</div>
+</div>
+
+<div id="deleteForm" class="hidden boardPassword modalConfirm">
+	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete/' ?><?v. App::$ID ?><?fq. '' ?>">
+		<p>정말 삭제하시겠습니까?</p>
+		<?php if(!$Model->GetValue('muid')){ ?><input type="password" name="pwd" required="required"><?php } ?>
+		<div class="sPopBtns">
+			<button type="submit" class="sBtn btn2">삭제하기</button>
+			<button type="reset" class="sBtn btn2">취소</button>
+		</div>
+	</form>
+</div>
+
+<?php if(!$Data['modifyAuthDirect']){ ?>
+<div id="modifyForm" class="hidden boardPassword modalConfirm">
+	<form id="modForm" name="modForm" method="post" action="<?a. 'Modify/' ?><?v. App::$ID ?><?fq. '' ?>">
+		<input type="hidden" name="mode" value="view">
+		<p>수정하시려면 비밀번호를 입력하여 주세요.</p>
+		<input type="password" name="pwd" required="required">
+		<div class="sPopBtns">
+			<button type="submit" class="sBtn btn2">확인</button>
+			<button type="reset" class="sBtn btn2">취소</button>
+		</div>
+	</form>
+</div>
+<?php } ?>
+
+<script>
+	$('#deleteArticle').on('click', function(e){
+		e.preventDefault();
+		$('#deleteForm').show();
+	});
+	$('#deleteForm button[type=reset]').on('click', function(e){
+		$('#deleteForm').hide();
+	});
+
+	$('#modifyBtn').on('click', function(e){
+		if($('#modForm').length){
+			e.preventDefault();
+			$('#modifyForm').show();
+		}
+	});
+	$('#modifyForm button[type=reset]').on('click', function(e){
+		$('#modifyForm').hide();
+	});
+</script>
+
+
+
+<?php if($Ctrl->boardManger->GetValue('use_reply') == 'y'){ ?>
+
+	<div id="Reply"></div>
+	<form id="replyGetForm" name="replyGetForm" action="<?p. _URL ?>/Reply/<?v. App::$TID ?>" method="post">
+		<input type="hidden" name="page" value="0">
+		<input type="hidden" name="article_seq" value="<?p. to10(App::$ID) ?>">
+		<input type="hidden" name="article_pwd" value="<?v. isset($_POST['pwd']) ? $_POST['pwd'] : '' ?>">
+	</form>
+
+	<script>
+		$(document).ready(function(){
+			getReplyList();
+		});
+	</script>
+
+<?php } ?>
+
+<?php if(isset(App::$Data['List'])) echo App::$Data['List']; ?>

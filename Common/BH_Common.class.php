@@ -10,14 +10,14 @@ class BH_Common
 
 	public static function AdminAuth(){
 		if(_MEMBERIS !== true || ($_SESSION['member']['level'] != _SADMIN_LEVEL  && $_SESSION['member']['level'] != _ADMIN_LEVEL)){
-			if(_AJAXIS === true) JSON(false, _NO_AUTH.' 로그인하여 주세요.');
-			else Redirect(App::URLBase('Login'), _NO_AUTH.' 로그인하여 주세요.');
+			if(_AJAXIS === true) JSON(false, _MSG_NO_AUTH.' 로그인하여 주세요.');
+			else Redirect(App::URLBase('Login'), _MSG_NO_AUTH.' 로그인하여 주세요.');
 		}
 		if($_SESSION['member']['level'] == _ADMIN_LEVEL){
 			$AdminAuth = explode(',', self::GetMember('admin_auth'));
 			if(!in_array(App::$Data['NowMenu'], $AdminAuth)){
-				if(_AJAXIS === true) JSON(false, _NO_AUTH);
-				else Redirect('-1', _NO_AUTH);
+				if(_AJAXIS === true) JSON(false, _MSG_NO_AUTH);
+				else Redirect('-1', _MSG_NO_AUTH);
 			}
 		}
 	}
@@ -29,12 +29,12 @@ class BH_Common
 
 	public static function MemberAuth($level = 1){
 		if(_MEMBERIS !== true){
-			if(_AJAXIS === true) JSON(false, _NO_AUTH.' 로그인하여 주세요.');
-			else Redirect(App::URLBase('Login'), _NO_AUTH.' 로그인하여 주세요.');
+			if(_AJAXIS === true) JSON(false, _MSG_NO_AUTH.' 로그인하여 주세요.');
+			else Redirect(App::URLBase('Login'), _MSG_NO_AUTH.' 로그인하여 주세요.');
 		}
 		if($_SESSION['member']['level'] < $level){
-			if(_AJAXIS === true) JSON(false, _NO_AUTH);
-			else Redirect('-1', _NO_AUTH);
+			if(_AJAXIS === true) JSON(false, _MSG_NO_AUTH);
+			else Redirect('-1', _MSG_NO_AUTH);
 		}
 	}
 
@@ -73,7 +73,7 @@ class BH_Common
 		$res = new \BH_Result();
 		if(_DEVELOPERIS !== true){
 			$res->result = false;
-			$res->message = _WRONG_CONNECTED;
+			$res->message = _MSG_WRONG_CONNECTED;
 			return;
 		}
 
@@ -369,14 +369,8 @@ class BH_Common
 		}
 
 		if(isset(App::$SettingData['ActiveMenu'])){
-			if(App::$SettingData['ActiveMenu']['type'] == 'board'){
-				App::$ControllerName = 'Board';
-				App::$NativeDir = _URL;
-			}
-			else if(App::$SettingData['ActiveMenu']['type'] == 'content'){
-				App::$ControllerName = 'Contents';
-				App::$NativeDir = _URL;
-			}
+			if(App::$SettingData['ActiveMenu']['type'] == 'board') App::$ControllerName = 'Board';
+			else if(App::$SettingData['ActiveMenu']['type'] == 'content') App::$ControllerName = 'Contents';
 			else App::$ControllerName = App::$SettingData['GetUrl'][$start];
 
 			App::$TID = App::$SettingData['ActiveMenu']['bid'];

@@ -40,40 +40,40 @@ use \BH_Application as App;
 			</tr>
 		<?php }?>
 		<?php if(App::$Data['menuAuth']){?>
-		<tr>
-			<th>연결메뉴</th>
-			<td colspan="3" class="menuSelectArea">
-				<?php
-				if(isset(App::$Data['selectedMenu']) && sizeof(App::$Data['selectedMenu'])){
-					foreach(App::$Data['selectedMenu'] as $selectedMenu){ ?>
+			<tr>
+				<th>연결메뉴</th>
+				<td colspan="3" class="menuSelectArea">
+					<?php
+					if(isset(App::$Data['selectedMenu']) && sizeof(App::$Data['selectedMenu'])){
+						foreach(App::$Data['selectedMenu'] as $selectedMenu){ ?>
+							<div class="menuSelect">
+								<select name="selectmenu[]">
+									<option value="">선택</option>
+									<?php
+									foreach(App::$Data['menu'] as $menu){
+										$length = min(strlen($selectedMenu['category']), strlen($menu['category']));
+										$selected = (strlen($selectedMenu['category']) && substr($selectedMenu['category'], 0, $length) == substr($menu['category'], 0, $length)) ? ' selected' : '';
+										?>
+										<option<? p.$selected ?> value="<? p.$menu['category'] ?>"><? v.$menu['title'] ?></option>
+									<?php } ?>
+								</select>
+								<a href="#" class="menuSelectRemoveBtn sBtn">삭제</a>
+							</div>
+						<?php }
+					}else{?>
 						<div class="menuSelect">
 							<select name="selectmenu[]">
 								<option value="">선택</option>
-								<?php
-								foreach(App::$Data['menu'] as $menu){
-									$length = min(strlen($selectedMenu['category']), strlen($menu['category']));
-									$selected = (strlen($selectedMenu['category']) && substr($selectedMenu['category'], 0, $length) == substr($menu['category'], 0, $length)) ? ' selected' : '';
-									?>
-									<option<? p.$selected ?> value="<? p.$menu['category'] ?>"><? v.$menu['title'] ?></option>
+								<?php foreach(App::$Data['menu'] as $menu){ ?>
+									<option value="<? p.$menu['category'] ?>"><? v.$menu['title'] ?></option>
 								<?php } ?>
 							</select>
 							<a href="#" class="menuSelectRemoveBtn sBtn">삭제</a>
 						</div>
-					<?php }
-				}else{?>
-					<div class="menuSelect">
-						<select name="selectmenu[]">
-							<option value="">선택</option>
-							<?php foreach(App::$Data['menu'] as $menu){ ?>
-								<option value="<? p.$menu['category'] ?>"><? v.$menu['title'] ?></option>
-							<?php } ?>
-						</select>
-						<a href="#" class="menuSelectRemoveBtn sBtn">삭제</a>
-					</div>
-				<?php } ?>
-				<a href="#" class="menuSelectAddBtn sBtn">추가</a>
-			</td>
-		</tr>
+					<?php } ?>
+					<a href="#" class="menuSelectAddBtn sBtn">추가</a>
+				</td>
+			</tr>
 		<?php } ?>
 		<tr>
 			<th><?mt('manager')?></th>
@@ -164,6 +164,12 @@ use \BH_Application as App;
 			<th><?mt('man_to_man')?></th>
 			<td>
 				<?minp('man_to_man') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?mt('attach_type')?></th>
+			<td colspan="3">
+				<?minp('attach_type') ?>
 			</td>
 		</tr>
 		<tr>

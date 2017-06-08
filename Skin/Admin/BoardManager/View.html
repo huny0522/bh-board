@@ -32,7 +32,7 @@ use \BH_Application as App;
 		<th>연결메뉴</th>
 		<td colspan="3">
 			<?php foreach(App::$Data['selectedMenu'] as $k => $row){ ?>
-			<?v. ($k ? ', ' : '').$row['title'] ?>
+				<?v. ($k ? ', ' : '').$row['title'] ?>
 			<?php } ?>
 		</td>
 	</tr>
@@ -93,6 +93,12 @@ use \BH_Application as App;
 		<td><?menum('list_in_view') ?></td>
 		<th><?mt('man_to_man')?></th>
 		<td><?menum('man_to_man') ?></td>
+	</tr>
+	<tr>
+		<th><?mt('attach_type')?></th>
+		<td colspan="3">
+			<?menum('attach_type') ?>
+		</td>
 	</tr>
 	<tr>
 		<th><?mt('layout')?></th>

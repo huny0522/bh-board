@@ -31,6 +31,7 @@ class MypageController{
 			}
 			$boardGetList = new \BH_DB_GetList(TABLE_FIRST.'bbs_'.$row['bid']);
 			$boardGetList->AddWhere('muid='.$_SESSION['member']['muid']);
+			$boardGetList->AddWhere('delis=\'n\'');
 			$boardGetList->SetKey('seq, subject, mname, reg_date, hit, recommend');
 			$boardGetList->limit = '5';
 			$data[$row['bid']]['controller'] = $controller;
@@ -75,7 +76,7 @@ class MypageController{
 
 	public function PostMyInfo(){
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
-			Redirect(_URL.'/', _WRONG_CONNECTED);
+			Redirect(_URL.'/', _MSG_WRONG_CONNECTED);
 		}
 
 		$model = App::GetModel('Member');
@@ -87,7 +88,7 @@ class MypageController{
 			if(isset($_POST['pwdchk']) && strlen($_POST['pwd'])){
 				App::$Data['error'] = '비밀번호가 일치하지 않습니다.';
 			}else{
-				Redirect('-1', _WRONG_CONNECTED);
+				Redirect('-1', _MSG_WRONG_CONNECTED);
 			}
 		}else{
 			$model->AddExcept('pwd');
@@ -117,7 +118,7 @@ class MypageController{
 	}
 	public function PostWithDraw(){
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
-			Redirect(_URL.'/', _WRONG_CONNECTED);
+			Redirect(_URL.'/', _MSG_WRONG_CONNECTED);
 		}
 		$model = App::GetModel('Member');
 		$model->DBGet($_SESSION['member']['muid']);

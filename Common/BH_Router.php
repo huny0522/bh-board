@@ -9,11 +9,21 @@ use \BH_Application as App;
 switch(App::$SettingData['GetUrl'][1]){
 	case _ADMINURLNAME: // 관리자
 		App::$NativeDir = 'Admin';
-		App::$ControllerName = App::$SettingData['GetUrl'][2];
-		App::$Action = App::$SettingData['GetUrl'][3];
-		App::$ID = App::$SettingData['GetUrl'][4];
 		App::$BaseDir .= '/'.App::$SettingData['GetUrl'][1];
-		App::$CtrlUrl = _URL.'/'.App::$SettingData['GetUrl'][1].'/'.App::$ControllerName;
+
+		if(App::$SettingData['GetUrl'][2] == 'Board'){
+			App::$ControllerName = App::$SettingData['GetUrl'][2];
+			App::$TID = App::$SettingData['GetUrl'][3];
+			App::$Action = App::$SettingData['GetUrl'][4];
+			App::$ID = App::$SettingData['GetUrl'][5];
+			App::$CtrlUrl = _URL.App::$BaseDir.'/'.App::$ControllerName.'/'.App::$TID;
+			App::$Data['NowMenu'] = '002';
+		}else{
+			App::$ControllerName = App::$SettingData['GetUrl'][2];
+			App::$Action = App::$SettingData['GetUrl'][3];
+			App::$ID = App::$SettingData['GetUrl'][4];
+			App::$CtrlUrl = _URL.App::$BaseDir.'/'.App::$ControllerName;
+		}
 
 		App::$SettingData['AdminMenu'] = array(
 			'001' => array(
@@ -33,6 +43,10 @@ switch(App::$SettingData['GetUrl'][1]){
 				'Name' => '팝업관리'
 			),
 			'002' => array(
+				'Category' => 'BoardManager',
+				'Name' => '게시판관리'
+			),
+			'002001' => array(
 				'Category' => 'BoardManager',
 				'Name' => '게시판관리'
 			),

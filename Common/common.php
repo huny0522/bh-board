@@ -32,7 +32,7 @@ App::$SettingData['noext'] = array('php','htm','html','cfg','inc','phtml', 'php5
 App::$SettingData['IMAGE_EXT'] = array('jpg','jpeg','png','gif','bmp');
 App::$SettingData['POSSIBLE_EXT'] = array('jpg','jpeg','png','gif','bmp','zip','7z','gz','xz','tar',
 	'xls', 'xlsx', 'ppt', 'doc', 'hwp', 'pdf', 'docx', 'pptx',
-	'avi', 'mov', 'mkv', 'mpg', 'mpeg', 'wmv','asf','asx', 'flv', 'm4v', 'mp4');
+	'avi', 'mov', 'mkv', 'mpg', 'mpeg', 'wmv','asf','asx', 'flv', 'm4v', 'mp4', 'mp3');
 BH_DB_Cache::$DBTableFirst = array(TABLE_FIRST);
 BH_DB_Cache::$ExceptTable = array(TABLE_MEMBER);
 
@@ -73,8 +73,8 @@ function my_escape_string($str) {
 	else return mysqli_real_escape_string(DB::SQL()->GetConn(), trim($str));
 }
 
-function Redirect($url, $msg=''){
-	if(_JSONIS === true) JSON($url != '-1', $msg);
+function Redirect($url, $msg='', $data = '', $exitIs = true){
+	if(_JSONIS === true) JSON($url != '-1', $msg, $data);
 
 	echo '<script>';
 	if($msg) echo 'alert(\''.$msg.'\');';
@@ -84,7 +84,7 @@ function Redirect($url, $msg=''){
 		echo 'location.replace(\''.$url.'\');';
 	}
 	echo '</script>';
-	exit;
+	if($exitIs) exit;
 }
 
 function PhoneNumber($num){
@@ -294,7 +294,7 @@ function ToInt($s){if(!$s)return 0; return ($s[0] == '-' ? $s[0] : '').preg_repl
 function ToFloat($s){if(!$s)return 0; return ($s[0] == '-' ? $s[0] : '').preg_replace('/[^0-9\.]/','',$s);}
 
 function RemoveScriptTag($str){
-	return preg_replace(array('/\<\/*\s*(script|form|input|select|button|textarea)(.*?)\>/is', '/\<(.*?)(\s+on.*?)\>/is'), array('', '<$1>'), $str);
+	return preg_replace(array('/\<\/*\s*(script|form|input|select|button|textarea)(.*?)\>/is', '/\<(.*?)(\s+(on|e-).*?)\>/is'), array('', '<$1>'), $str);
 }
 
 function SetDBTrimText($txt){
@@ -446,9 +446,9 @@ function to10($num, $b=62, $base=ENG_NUM) {
 	return $res;
 }
 
-function JSON($bool, $message = '', $data = array()){
+function JSON($bool, $message = '', $data = array(), $exitIs = true){
 	echo json_encode(array('result' => $bool, 'message' => $message, 'data' => $data));
-	exit;
+	if($exitIs) exit;
 }
 
 function aes_encrypt($plaintext, $password){

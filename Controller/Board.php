@@ -5,6 +5,7 @@
  */
 use \BH_Application as App;
 use \BH_Common as CF;
+use \DB as DB;
 
 class BoardController{
 	/**
@@ -16,21 +17,49 @@ class BoardController{
 	 */
 	public $boardManger;
 	public $managerIs = false;
+	public $MoreListIs = false;
+	public $GetListIs = false;
+	public $Path = '';
+	public $AdminPathIs = false;
+	public $bid = '';
+
+	/** @param \BH_DB_GetListWithPage $qry */
+	protected function _GetListQuery(&$qry){}
+	/** @param \BH_DB_GetList $qry */
+	protected function _MoreListQuery(&$qry){}
+	/** @param array $data */
+	protected function _ViewEnd($data){}
+	protected function _WriteEnd(){}
+	protected function _AnswerEnd(){}
+	protected function _ModifyEnd(){}
+	protected function _PostModifyUpdateBefore(){}
+	protected function _PostModifyUpdateAfter(){}
+	protected function _PostWriteInsertBefore(){}
+	protected function _PostWriteInsertAfter($insertId){}
+	protected function _CommonQry(&$qry, $opt = null){}
 
 	public function __construct(){
+		if(App::$SettingData['GetUrl'][1] == _ADMINURLNAME){
+			if(CF::GetAdminIs()) $this->AdminPathIs = true;
+			else{
+				if(_JSONIS === true) JSON(false, _MSG_WRONG_CONNECTED);
+				Redirect(App::URLBase('Login'), _MSG_WRONG_CONNECTED);
+			}
+		}
 		$this->model = App::GetModel('Board');
+		$this->boardManger = App::GetModel('BoardManager');
 	}
 
 	public function __init(){
-		$this->BoardSetting();
+		$this->bid = App::$TID;
+		$this->boardManger->DBGet($this->bid);
+		$this->_BoardSetting();
 	}
 
-	protected function BoardSetting(){
-		if(!isset(App::$TID) || App::$TID == '') Redirect('-1', '잘못된 접근입니다.');
+	protected function _BoardSetting(){
+		if(!isset($this->bid) || $this->bid == '') Redirect('-1', '잘못된 접근입니다.');
 
-		$this->boardManger = App::GetModel('BoardManager');
-		$this->boardManger->DBGet(App::$TID);
-		App::SetFollowQuery(array('page','searchType','searchKeyword','category'));
+		App::SetFollowQuery(array('page','searchType','searchKeyword','category','lastSeq'));
 
 		$mid = CF::GetMember('mid');
 		$manager = explode(',', $this->boardManger->GetValue('manager'));
@@ -38,10 +67,40 @@ class BoardController{
 			$this->managerIs = true;
 		}
 
-		App::$Html = '/Board/' . App::$Action.'.html';
-		$layout = $this->boardManger->GetValue('layout');
-		if($layout) App::$Layout = $layout;
+		$action = App::$Action;
+		if($action == 'Answer' || $action == 'Modify') $action = 'Write';
+		if($action == '_DirectView') $action = 'View';
+		$this->Path = '/Board/'.App::$NativeDir.'/'.$this->boardManger->GetValue('skin').'/';
+		if(file_exists(_SKINDIR.$this->Path.$action.'.html')) App::$Html = $this->Path.$action.'.html';
+		else{
+			$this->Path = '/Board/'.$this->boardManger->GetValue('skin').'/';
+			if(file_exists(_SKINDIR.$this->Path.$action.'.html')) App::$Html = $this->Path.$action.'.html';
+			else{
+				$this->Path = '/Board/';
+				App::$Html = '/Board/' . $action.'.html';
+			}
+		}
 
+		if(file_exists(_SKINDIR.$this->Path.'MoreList.html')) $this->MoreListIs = true;
+		else if(file_exists(_SKINDIR.$this->Path.'GetList.html')) $this->GetListIs = true;
+
+		$layout = $this->boardManger->GetValue('layout');
+
+		// 관리자
+		if($this->AdminPathIs){
+			$this->Path = '/Board/Admin/';
+			App::$Html = '/Board/Admin/' . $action.'.html';
+			App::$Layout = '_Admin';
+			$this->MoreListIs = false;
+			$this->GetListIs = false;
+			$this->boardManger->SetValue('article_count', 20);
+		}
+		else if($layout){
+			if(substr($layout, -5) != '.html') $layout .= '.html';
+			$layoutPath = App::$NativeDir.'/'.$layout;
+			if(file_exists(_SKINDIR.'/Layout/'.$layoutPath)) $layout = $layoutPath;
+			App::$Layout = $layout;
+		}
 
 		App::$Data['categorys'] = array();
 		if(!is_null($this->boardManger->GetValue('category')) && strlen($this->boardManger->GetValue('category'))){
@@ -49,53 +108,155 @@ class BoardController{
 		}
 	}
 
-	public function Index($viewPageIs = false){
-		if(_AJAXIS === true) App::$Layout = null;
-
+	public function Index(){
 		$res = $this->GetAuth('List');
-		if(!$res) Redirect('-1', _NO_AUTH);
+		if(!$res){
+			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			Redirect('-1', _MSG_NO_AUTH);
+		}
+		if($this->GetListIs || $this->MoreListIs){
+			if(_JSONIS === true) JSON(true, '', App::GetView($this, $this->model));
+			else  App::View($this, $this->model);
+			return;
+		}
+		$this->GetList();
+	}
+
+	public function GetList($viewPageIs = false){
+		$res = $this->GetAuth('List');
+		if(!$res){
+			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			Redirect('-1', _MSG_NO_AUTH);
+		}
 
 		// 공지를 불러온다.
 		App::$Data['notice'] = array();
 		$_GET['searchKeyword'] = isset($_GET['searchKeyword']) ? trim($_GET['searchKeyword']) : '';
 		if((!isset($_GET['page']) || $_GET['page'] < 2) && !strlen($_GET['searchKeyword'])){
-			$qry = new \BH_DB_GetList($this->model->table);
-			$qry->AddWhere('delis=\'n\'');
-			$qry->AddWhere('notice=\'y\'');
+			$qry = DB::GetListQryObj($this->model->table.' A')
+				->AddWhere('A.delis=\'n\'')
+				->AddWhere('A.notice=\'y\'');
+			$this->_CommonQry($qry);
 			App::$Data['notice'] = $qry->GetRows();
+			$this->_RowSet(App::$Data['notice']);
 		}
 
 		// 리스트를 불러온다.
-		$dbList = new \BH_DB_GetListWithPage($this->model->table);
-		$dbList->page = isset($_GET['page']) ? $_GET['page'] : 1;
-		$dbList->pageUrl = App::URLAction('').App::GetFollowQuery('page');
-		$dbList->articleCount = $this->boardManger->GetValue('article_count');
-		$dbList->AddWhere('delis=\'n\'');
-		$dbList->sort = 'sort1, sort2';
+		$dbList = DB::GetListPageQryObj($this->model->table.' A')
+			->SetSort('A.sort1, A.sort2')
+			->SetPage(isset($_GET['page']) ? $_GET['page'] : 1)
+			->SetPageUrl(App::URLAction('').App::GetFollowQuery('page'))
+			->SetArticleCount($this->boardManger->GetValue('article_count'));
+		$this->_CommonQry($dbList);
+
+		if(!$this->AdminPathIs) $dbList->AddWhere('A.delis=\'n\'');
 
 		if(isset($_GET['category']) && strlen($_GET['category'])) $dbList->AddWhere('category = '.SetDBText($_GET['category']));
 
 		if(isset($_GET['searchType']) && strlen($_GET['searchType']) && isset($_GET['searchKeyword']) && strlen($_GET['searchKeyword'])){
 			switch($_GET['searchType']){
 				case 's':
-					$dbList->AddWhere('subject LIKE %s', '%'.$_GET['searchKeyword'].'%');
+					$dbList->AddWhere('A.subject LIKE %s', '%'.$_GET['searchKeyword'].'%');
 				break;
 				case 'c':
-					$dbList->AddWhere('content LIKE %s', '%'.$_GET['searchKeyword'].'%');
+					$dbList->AddWhere('A.content LIKE %s', '%'.$_GET['searchKeyword'].'%');
 				break;
 				case 'snc':
-					$dbList->AddWhere('subject LIKE %s OR content LIKE %s', '%'.$_GET['searchKeyword'].'%', '%'.$_GET['searchKeyword'].'%');
+					$dbList->AddWhere('A.subject LIKE %s OR A.content LIKE %s', '%'.$_GET['searchKeyword'].'%', '%'.$_GET['searchKeyword'].'%');
 				break;
 			}
 		}
-		//$dbList->test = true;
-		$dbList->Run();
 
-		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Index.html';
-		if(file_exists(_SKINDIR.$html)) App::$Html = $html;
+		$this->_GetListQuery($dbList); // Reserved
+		$dbList->DrawRows();
+		$this->_RowSet($dbList->data);
 
-		if($viewPageIs) return App::GetView($this, $this->model, $dbList);
-		else App::View($this, $this->model, $dbList);
+		App::$Html = $this->Path.'Index.html';
+
+		if($viewPageIs) return App::GetOnlyView($this, $this->model, $dbList);
+		else if(_JSONIS === true) JSON(true, '', App::GetView($this, $this->model, $dbList));
+		else  App::View($this, $this->model, $dbList);
+	}
+
+	public function MoreList(){
+		$res = $this->GetAuth('List');
+		if(!$res){
+			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			Redirect('-1', _MSG_NO_AUTH);
+		}
+
+		// 공지를 불러온다.
+		App::$Data['notice'] = array();
+		$_GET['searchKeyword'] = isset($_GET['searchKeyword']) ? trim($_GET['searchKeyword']) : '';
+		if((!isset($_GET['seq']) || !strlen($_GET['seq'])) && (!isset($_GET['lastSeq']) || !strlen($_GET['lastSeq'])) && !strlen($_GET['searchKeyword'])){
+			$qry = DB::GetListQryObj($this->model->table.' A')
+				->AddWhere('A.delis=\'n\'')
+				->AddWhere('A.notice=\'y\'');
+			$this->_CommonQry($qry);
+			App::$Data['notice'] = $qry->GetRows();
+			$this->_RowSet(App::$Data['notice']);
+		}
+
+		// 리스트를 불러온다.
+		$dbList = DB::GetListQryObj($this->model->table.' A')
+			->SetLimit($this->boardManger->GetValue('article_count'))
+			->SetSort('A.sort1, A.sort2');
+		$this->_CommonQry($dbList);
+		if(!$this->AdminPathIs) $dbList->AddWhere('A.delis=\'n\'');
+
+		if(isset($_GET['seq']) && strlen($_GET['seq'])){
+			$seq = to10($_GET['seq']);
+			$dbList->AddWhere('A.seq = %d', $seq);
+		}
+		else{
+			if(isset($_GET['lastSeq']) && strlen($_GET['lastSeq'])){
+				$qry = DB::GetQryObj($this->model->table.' A')
+					->AddWhere('A.seq = %d', $_GET['lastSeq'])
+					->SetKey('A.sort1, A.sort2');
+				$this->_CommonQry($qry);
+				$last = $qry->Get();
+
+				if($last) $dbList->AddWhere('A.sort1 > %d OR (A.sort1 = %d AND A.sort2 > %d)', $last['sort1'], $last['sort1'], $last['sort2']);
+				else $dbList->AddWhere('A.seq > %d', $_GET['lastSeq']);
+			}
+
+			if(isset($_GET['category']) && strlen($_GET['category'])) $dbList->AddWhere('A.category = '.SetDBText($_GET['category']));
+
+			if(isset($_GET['searchType']) && strlen($_GET['searchType']) && isset($_GET['searchKeyword']) && strlen($_GET['searchKeyword'])){
+				switch($_GET['searchType']){
+					case 's':
+						$dbList->AddWhere('A.subject LIKE %s', '%'.$_GET['searchKeyword'].'%');
+					break;
+					case 'c':
+						$dbList->AddWhere('A.content LIKE %s', '%'.$_GET['searchKeyword'].'%');
+					break;
+					case 'snc':
+						$dbList->AddWhere('A.subject LIKE %s OR A.content LIKE %s', '%'.$_GET['searchKeyword'].'%', '%'.$_GET['searchKeyword'].'%');
+					break;
+				}
+			}
+		}
+
+		$this->_MoreListQuery($dbList);  // Reserved
+		$dbList->DrawRows();
+		$this->_RowSet($dbList->data);
+
+		$lastSeq = '';
+		$lastIs = false;
+		if(sizeof($dbList->data)) $lastSeq = end($dbList->data)['seq'];
+		if(sizeof($dbList->data) < $this->boardManger->GetValue('article_count')) $lastIs = true;
+
+		if(_JSONIS === true) JSON(true, '', array('list' => App::GetOnlyView($this, $this->model, $dbList), 'lastSeq' => $lastSeq, 'lastIs' => $lastIs));
+		else App::View($this, $this->model, array('list' => $dbList, 'lastSeq' => $lastSeq));
+	}
+
+	public function _RowSet(&$data){
+		foreach($data as &$row){
+			if($this->managerIs || CF::GetAdminIs() || $row['secret'] == 'n' || ($row['first_member_is'] == 'y' && strlen($row['muid']))) $row['possibleView'] = true;
+			else $row['possibleView'] = false;
+			$row['viewUrl'] = App::URLAction('View/').toBase($row['seq']).App::GetFollowQuery();
+			$row['replyCount'] = $row['reply_cnt'] ? '<span class="ReplyCount">['.$row['reply_cnt'].']</span>' : '';
+		}
 	}
 
 	public function PostView(){
@@ -103,121 +264,113 @@ class BoardController{
 	}
 
 	public function View(){
-		if($this->boardManger->GetValue('list_in_view') == 'y') App::$Data['List'] = $this->Index(true);
+		if($this->boardManger->GetValue('list_in_view') == 'y' && !$this->MoreListIs) App::$Data['List'] = $this->GetList(true);
+		App::$Html = $this->Path.'View.html';
 
 		if(!isset(App::$ID) || !strlen(App::$ID)) Redirect('-1');
 
 		$seq = to10(App::$ID);
 
-		if(_AJAXIS === true) App::$Layout = null;
 		$viewAuth = $this->GetAuth('View');
-		if(!$viewAuth) Redirect('-1', _NO_AUTH);
+		if(!$viewAuth){
+			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			Redirect('-1', _MSG_NO_AUTH);
+		}
 
-		$this->model->DBGet($seq);
+		$this->_GetBoardData($seq);
+		if(!$this->AdminPathIs && $this->model->GetValue('delis') == 'y') Redirect('-1', _MSG_WRONG_CONNECTED);
 
 		$data['answerAuth'] = $this->GetAuth('Answer');
 
 		// 비밀번호없이 수정권한
 		$data['modifyAuthDirect'] = false;
-		if($this->GetAuth('Write') && _MEMBERIS === true && ($this->model->GetValue('muid') == $_SESSION['member']['muid'] || $_SESSION['member']['level'] == _SADMIN_LEVEL )){
+		if($this->GetAuth('Write') && _MEMBERIS === true && ($this->model->GetValue('muid') == $_SESSION['member']['muid'] || CF::GetAdminIs() )){
 			$data['modifyAuthDirect'] = true;
 		}
 
 		// 비밀글일경우 권한 : 관리자 또는 게시판 매니저, 글쓴이
-		if($this->model->GetValue('secret') == 'y'){
+		if(!CF::GetAdminIs() && $this->model->GetValue('secret') == 'y'){
 			$viewAuth = false;
 
 			// first_seq 가 있으면 첫째글을 호출
 			if(strlen($this->model->GetValue('first_seq'))){
-				$dbGet = new \BH_DB_Get($this->model->table);
-				$dbGet->AddWhere('seq=' . $this->model->GetValue('first_seq'));
-				$firstDoc = $dbGet->Get();
+				$qry = DB::GetQryObj($this->model->table)
+					->AddWhere('seq=' . $this->model->GetValue('first_seq'));
+				$this->_CommonQry($qry);
+				$firstDoc = $qry->Get();
+
 			}
 
 			if(_MEMBERIS === true){
-				// 관리자, 매니저 권한
-				if($_SESSION['member']['level'] == _SADMIN_LEVEL || $this->managerIs){
-					$viewAuth = true;
-				}
 				// 자신의 글 권한
-				else if($this->model->GetValue('muid') == $_SESSION['member']['muid'] || (isset($firstDoc) && $this->model->GetValue('first_member_is') == 'y' && $firstDoc['muid'] == $_SESSION['member']['muid'])){
+				if($this->model->GetValue('muid') == $_SESSION['member']['muid'] || (isset($firstDoc) && $this->model->GetValue('first_member_is') == 'y' && $firstDoc['muid'] == $_SESSION['member']['muid'])){
 					$viewAuth = true;
 				}
 			}
 
 			// 원글이나 현재 글이 비회원글일 경우 비밀번호를 체크
 			if(!$viewAuth && (!$this->model->GetValue('muid') || $this->model->GetValue('first_member_is') == 'n')){
-				if(_POSTIS !==	true) Redirect('-1', _WRONG_CONNECTED);
+				if(_POSTIS !==	true || !isset($_POST['pwd'])) Redirect('-1', _MSG_WRONG_CONNECTED);
 
 				if(_password_verify($_POST['pwd'], $this->model->GetValue('pwd')) || (isset($firstDoc) && _password_verify($_POST['pwd'], $firstDoc['pwd']))){
 					$viewAuth = true;
 				}
-				else Redirect('-1', '비밀번호가 일치하지 않습니다.');
+				else Redirect('-1', _MSG_WRONG_PASSWORD);
 			}
 
-			if(!$viewAuth) Redirect('-1', _NO_AUTH);
+			if(!$viewAuth) Redirect('-1', _MSG_NO_AUTH);
 		}
 
 		$cookieName = $this->model->table.$seq;
 		if(!isset($_COOKIE[$cookieName]) || !$_COOKIE[$cookieName]){
-			$dbUpdate = new \BH_DB_Update($this->model->table);
-			$dbUpdate->SetData('hit', 'hit + 1');
-			$dbUpdate->AddWhere('seq='.$seq);
+			$dbUpdate = DB::UpdateQryObj($this->model->table)
+				->SetData('hit', 'hit + 1')
+				->AddWhere('seq='.$seq);
+			$this->_CommonQry($dbUpdate);
 			$dbUpdate->Run();
+
 			setcookie($cookieName, 'y');
 		}
+		$this->_ViewEnd($data);  // Reserved
 
-		$html = '/Board/'.$this->boardManger->GetValue('skin').'/View.html';
-		if(file_exists(_SKINDIR.$html)) App::$Html = $html;
-
-		App::View($this, $this->model, $data);
+		if(_JSONIS === true) JSON(true, '', App::GetView($this, $this->model, $data));
+		else App::View($this, $this->model, $data);
 	}
 
 	public function Write(){
 		$res = $this->GetAuth('Write');
-		if(!$res) Redirect('-1', _NO_AUTH);
+		if(!$res){
+			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			Redirect('-1', _MSG_NO_AUTH);
+		}
 
-		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Write.html';
-		if(file_exists(_SKINDIR.$html)) App::$Html = $html;
-
-		App::View($this, $this->model);
+		$this->_WriteEnd();  // Reserved
+		if(_JSONIS === true) JSON(true, '', App::GetView($this, $this->model));
+		else App::View($this, $this->model);
 	}
 
 	public function Answer(){
 		$res = $this->GetAuth('Answer');
-		if(!$res) Redirect('-1', _NO_AUTH);
-
-		App::$Html = 'Write';
+		if(!$res){
+			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			Redirect('-1', _MSG_NO_AUTH);
+		}
 		$seq = to10($_GET['target']);
 		if(!strlen($seq)) Redirect('-1');
 
-		$qry = new \BH_DB_Get($this->model->table);
-		$qry->AddWhere('seq = %d', $seq);
+		$qry = DB::GetQryObj($this->model->table)
+			->AddWhere('seq = %d', $seq);
+		$this->_CommonQry($qry);
 		$data = $qry->Get();
-
-		//		// 비밀글일경우 답변 권한 : 관리자 또는 게시판 매니저
-		//		if($data['secret'] == 'y'){
-		//			if(_MEMBERIS !== true){
-		//				Redirect('-1', _NO_AUTH);
-		//			}
-		//
-		//			if($_SESSION['member']['level'] < _SADMIN_LEVEL){
-		//				$member = CF::GetMember();
-		//
-		//				$manager = explode(',', $this->boardManger->data['manager']);
-		//				if(!in_array($member['mid'], $manager)){
-		//					Redirect('-1', _NO_AUTH);
-		//				}
-		//			}
-		//		}
+		if(!$this->AdminPathIs && $data['delis'] == 'y') Redirect('-1', _MSG_WRONG_CONNECTED);
 
 		$this->model->SetValue('subject', strpos('[답변]', $data['subject']) === false ? '[답변] '.$data['subject'] : $data['subject']);
 		$this->model->SetValue('secret', $data['secret']);
 
-		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Write.html';
-		if(file_exists(_SKINDIR.$html)) App::$Html = $html;
+		$this->_AnswerEnd();  // Reserved
 
-		App::View($this, $this->model);
+		if(_JSONIS === true) JSON(true, '', App::GetView($this, $this->model));
+		else App::View($this, $this->model);
 	}
 
 	public function Modify(){
@@ -226,23 +379,25 @@ class BoardController{
 		}
 
 		$res = $this->GetAuth('Modify');
-		if(!$res) Redirect('-1', _NO_AUTH);
+		if(!$res){
+			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			Redirect('-1', _MSG_NO_AUTH);
+		}
 
-		App::$Html = 'Write';
 		$seq = to10(App::$ID);
-		$this->model->DBGet($seq);
+		$this->_GetBoardData($seq);
+		if(!$this->AdminPathIs && $this->model->GetValue('delis') == 'y') Redirect('-1', _MSG_WRONG_CONNECTED);
 
 		// 회원 글 체크
-		if(_MEMBERIS !== true || $_SESSION['member']['level'] != _SADMIN_LEVEL){
-			$res = $this->PasswordCheck();
+		if(_MEMBERIS !== true || !CF::GetAdminIs()){
+			$res = $this->_PasswordCheck();
 			if($res !== true) Redirect('-1', $res);
 		}
 
+		$this->_ModifyEnd();  // Reserved
 
-		$html = '/Board/'.$this->boardManger->GetValue('skin').'/Write.html';
-		if(file_exists(_SKINDIR.$html)) App::$Html = $html;
-
-		App::View($this, $this->model);
+		if(_JSONIS === true) JSON(true, '', App::GetView($this, $this->model));
+		else App::View($this, $this->model);
 	}
 
 	public function PostModify(){
@@ -251,37 +406,56 @@ class BoardController{
 			return;
 		}
 		$res = $this->GetAuth('Modify');
-		if(!$res) Redirect('-1', _NO_AUTH);
+		if(!$res){
+			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			Redirect('-1', _MSG_NO_AUTH);
+		}
 
 		require_once _COMMONDIR.'/FileUpload.php';
 
 		$seq = to10(App::$ID);
 
+		if(!$this->AdminPathIs) $this->model->AddExcept('delis');
+
 		$this->model->Need = array('subject', 'content', 'secret');
 		if(_MEMBERIS !== true) $this->model->Need[] = 'mnane';
 		else $this->model->AddExcept('pwd');
 
-		$this->model->DBGet($seq);
+		$this->_GetBoardData($seq);
+		if(!$this->AdminPathIs && $this->model->GetValue('delis') == 'y') Redirect('-1', _MSG_WRONG_CONNECTED);
 		$res = $this->model->SetPostValues();
 		if(!$res->result){
+			$res->message ? $res->message : 'ERROR#101';
 			if(_AJAXIS === true) JSON(false, $res->message);
-			else Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), $res->message);
+			App::$Data['error'] = $res->message;
+			App::View($this, $this->model);
+			return;
 		}
 		// 회원 글 체크
-		if(_MEMBERIS !== true || $_SESSION['member']['level'] != _SADMIN_LEVEL){
-			$res = $this->PasswordCheck();
+		if(_MEMBERIS !== true || !CF::GetAdminIs()){
+			$res = $this->_PasswordCheck();
 			if($res !== true){
 				if(_AJAXIS === true) JSON(false, $res);
-				Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), $res);
+				App::$Data['error'] = $res;
+				App::View($this, $this->model);
+				return;
 			}
 		}
 
 		// 파일 업로드
 		for($n = 1; $n <= 2; $n++){
 			if(!isset($_FILES['file'.$n])) continue;
-			$fres_em = FileUpload($_FILES['file'.$n], App::$SettingData['POSSIBLE_EXT'], '/board/'.date('ym').'/');
 
-			if($fres_em === 'noext') Redirect('-1', '등록 불가능한 파일입니다.');
+			if($this->boardManger->GetValue('attach_type') == 'image') $POSSIBLE_EXT = App::$SettingData['IMAGE_EXT'];
+			else $POSSIBLE_EXT = App::$SettingData['POSSIBLE_EXT'];
+			$fres_em = FileUpload($_FILES['file'.$n], $POSSIBLE_EXT, '/board/'.$this->bid.'/'.date('ym').'/');
+
+			if(is_string($fres_em)){
+				if(_JSONIS === true) JSON(false, $fres_em);
+				App::$Data['error'] = $fres_em;
+				App::View($this, $this->model);
+				return;
+			}
 			else if(is_array($fres_em)){
 				if($this->model->GetValue('file'.$n)) @unlink (_UPLOAD_DIR.$this->model->GetValue('file'.$n));
 				$this->model->SetValue('file'.$n, $fres_em['file']);
@@ -290,25 +464,32 @@ class BoardController{
 		}
 
 		// 기본 데이타
-		$this->model->SetValue('htmlis', _MOBILEIS === true ? 'n' : 'y');
+		$this->model->SetValue('htmlis', isset($_POST['htmlis']) && $_POST['htmlis'] == 'y' ? 'y' : 'n');
+
+		$this->_PostModifyUpdateBefore();  // Reserved
 
 		$error = $this->model->GetErrorMessage();
 		if(sizeof($error)){
 			if(_AJAXIS === true) JSON(false, $error[0]);
-			else Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), $error[0]);
+			App::$Data['error'] = $error[0];
+			App::View($this, $this->model);
+			return;
 		}
 
 		$res2 = $this->model->DBUpdate();
-		$this->ContentImageUpate($_POST['content'], $seq, 'modify');
+		$this->_ContentImageUpate($_POST['content'], $seq, 'modify');
 
 
 		if($res2->result){
-			if(_AJAXIS === true) JSON(false, '수정되었습니다.');
-			else Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), '수정되었습니다.');
+			$this->_PostModifyUpdateAfter();  // Reserved
+			if(_AJAXIS === true) JSON(true, '',_MSG_COMPLETE_MODIFY);
+			else Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), _MSG_COMPLETE_MODIFY);
 		}
 		else{
-			if(_AJAXIS === true) JSON(false, $res2->message ? $res2->message : 'ERROR');
-			else Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), $res2->message ? $res2->message : 'ERROR');
+			if(_AJAXIS === true) JSON(false, $res2->message ? $res2->message : 'ERROR#102');
+			App::$Data['error'] = $res2->message ? $res2->message : 'ERROR#102';
+			App::View($this, $this->model);
+			return;
 		}
 	}
 
@@ -317,10 +498,13 @@ class BoardController{
 	}
 
 	public function PostWrite(){
-		if(_POSTIS !== true) Redirect('-1', _WRONG_CONNECTED);
+		if(_POSTIS !== true) Redirect('-1', _MSG_WRONG_CONNECTED);
 
 		$res = $this->GetAuth('Write');
-		if(!$res) Redirect('-1', _NO_AUTH);
+		if(!$res){
+			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			Redirect('-1', _MSG_NO_AUTH);
+		}
 
 		$first_seq = '';
 		$first_member_is = 'n';
@@ -328,11 +512,17 @@ class BoardController{
 
 		if(App::$Action == 'Answer'){
 			$auth = $this->GetAuth('Answer');
-			if(!$auth) Redirect('-1', _NO_AUTH);
-			$dbGet = new \BH_DB_Get($this->model->table);
-			$dbGet->AddWhere('seq=%d', to10($_POST['target']));
-			$dbGet->SetKey('mname, depth, muid, sort1, sort2', 'seq', 'first_seq', 'first_member_is', 'category');
-			App::$Data['targetData'] = $dbGet->Get();
+			if(!$res){
+				if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+				Redirect('-1', _MSG_NO_AUTH);
+			}
+
+			$qry = DB::GetQryObj($this->model->table)
+				->AddWhere('seq=%d', to10($_POST['target']))
+				->SetKey('mname, depth, muid, sort1, sort2', 'seq', 'first_seq', 'first_member_is', 'category', 'delis');
+			$this->_CommonQry($qry);
+			App::$Data['targetData'] = $qry->Get();
+			if(!$this->AdminPathIs && App::$Data['targetData']['delis'] == 'y') Redirect('-1', _MSG_WRONG_CONNECTED);
 			$first_seq = strlen(App::$Data['targetData']['first_seq']) ? App::$Data['targetData']['first_seq'] : App::$Data['targetData']['seq'];
 			$first_member_is = App::$Data['targetData']['first_member_is'];
 		}
@@ -341,6 +531,7 @@ class BoardController{
 
 		$result = new \BH_Result();
 
+		if(!$this->AdminPathIs) $this->model->AddExcept('delis');
 		$this->model->Need = array('subject', 'content', 'secret');
 		if(_MEMBERIS === true){
 			$member = CF::GetMember();
@@ -348,20 +539,27 @@ class BoardController{
 		}
 
 		$res = $this->model->SetPostValues();
+
 		if(!$res->result){
+			$res->message ? $res->message : 'ERROR#101';
+			if(_JSONIS === true) JSON(false, $res->message);
 			App::$Data['error'] = $res->message;
-			$this->Write();
+			$this->{App::$Action}();
 			return;
 		}
 
 		// 파일 업로드
 		for($n = 1; $n <= 2; $n++){
 			if(!isset($_FILES['file'.$n])) continue;
-			$fres_em = FileUpload($_FILES['file'.$n], App::$SettingData['POSSIBLE_EXT'], '/board/'.date('ym').'/');
 
-			if($fres_em === 'noext'){
-				App::$Data['error'] = '등록 불가능한 파일입니다.';
-				$this->Write();
+			if($this->boardManger->GetValue('attach_type') == 'image') $POSSIBLE_EXT = App::$SettingData['IMAGE_EXT'];
+			else $POSSIBLE_EXT = App::$SettingData['POSSIBLE_EXT'];
+			$fres_em = FileUpload($_FILES['file'.$n], $POSSIBLE_EXT, '/board/'.$this->bid.'/'.date('ym').'/');
+
+			if(is_string($fres_em)){
+				if(_JSONIS === true) JSON(false, $fres_em);
+				App::$Data['error'] = $fres_em;
+				App::View($this, $this->model);
 				return;
 			}
 			else if(is_array($fres_em)){
@@ -372,26 +570,29 @@ class BoardController{
 
 		// 기본 데이타
 		$this->model->SetValue('reg_date', date('Y-m-d H:i:s'));
-		$this->model->SetValue('htmlis', _MOBILEIS === true ? 'n' : 'y');
+		$this->model->SetValue('htmlis', isset($_POST['htmlis']) && $_POST['htmlis'] == 'y' ? 'y' : 'n');
 
 		// 회원유무
 		if(_MEMBERIS === true){
 			$this->model->SetValue('muid', $_SESSION['member']['muid']);
 			$this->model->SetValue('mlevel', $member['level']);
-			$this->model->SetValue('mname', $member['nickname']);
+			$this->model->SetValue('mname', $member['nickname'] ? $member['nickname'] : ($member['mname'] ? $member['mname'] : $member['mid']));
 		}
 
 		// 답글쓰기라면 sort 정렬
 		if(App::$Action == 'Answer'){
-			$qry = new \BH_DB_Update($this->model->table);
-			$qry->SetData('sort2', 'sort2 + 1');
-			$qry->AddWhere('sort1 = %d', App::$Data['targetData']['sort1']);
-			$qry->AddWhere('sort2 > %d', App::$Data['targetData']['sort2']);
-			$qry->sort = 'sort2 DESC';
+			$qry = DB::UpdateQryObj($this->model->table)
+				->SetData('sort2', 'sort2 + 1')
+				->AddWhere('sort1 = %d', App::$Data['targetData']['sort1'])
+				->AddWhere('sort2 > %d', App::$Data['targetData']['sort2'])
+				->SetSort('sort2 DESC');
+			$this->_CommonQry($qry);
 			$res = $qry->Run();
+
 			if(!$res->result){
+				if(_JSONIS === true) JSON(false, 'ERROR#201');
 				App::$Data['error'] = 'ERROR#201';
-				$this->Write();
+				$this->{App::$Action}();
 				return;
 			}
 			$this->model->SetValue('first_seq', $first_seq);
@@ -399,20 +600,20 @@ class BoardController{
 			$this->model->SetValue('target_mname', App::$Data['targetData']['mname']);
 			$this->model->SetValue('target_muid', App::$Data['targetData']['muid'] ? App::$Data['targetData']['muid'] : 0);
 			$this->model->SetValue('sort1', App::$Data['targetData']['sort1']);
-			//echo  $row['sort1'];exit;
 			$this->model->SetValue('sort2', App::$Data['targetData']['sort2'] + 1);
 			$this->model->SetValue('depth', App::$Data['targetData']['depth'] + 1);
 		}else{
 			$this->model->SetValue('first_member_is', _MEMBERIS === true ? 'y' : 'n');
 			$this->model->SetQueryValue('sort1', '(SELECT IF(COUNT(s.sort1) = 0, 0, MIN(s.sort1))-1 FROM '.$this->model->table.' as s)');
 		}
-		// print_r($this->model->data);
-		// exit;
+
+		$this->_PostWriteInsertBefore();  // Reserved
 
 		$error = $this->model->GetErrorMessage();
 		if(sizeof($error)){
+			if(_JSONIS === true) JSON(false, $error[0]);
 			App::$Data['error'] = $error[0];
-			$this->Write();
+			$this->{App::$Action}();
 			return;
 		}
 
@@ -421,27 +622,34 @@ class BoardController{
 		$result->message = $res->message;
 
 		if($result->result){
-			$this->ContentImageUpate($_POST['content'], $res->id);
-			Redirect(App::URLAction(), '등록되었습니다.');
+			$this->_ContentImageUpate($_POST['content'], $res->id);
+			$this->_PostWriteInsertAfter($res->id);  // Reserved
+			if(_AJAXIS === true) JSON(true, '', '등록되었습니다.');
+			else Redirect(App::URLAction(), '등록되었습니다.');
 		}else{
 			if(_AJAXIS === true) JSON(false, $result->message ? $result->message : 'ERROR');
-			else Redirect(App::URLAction('Write').App::GetFollowQuery(), $result->message ? $result->message : 'ERROR');
+			App::$Data['error'] = $result->message ? $result->message : 'ERROR';
+			$this->{App::$Action}();
+			return;
 		}
 	}
 
 	public function PostDelete(){
-		if(_POSTIS !== true) Redirect('-1', _WRONG_CONNECTED);
+		if(_POSTIS !== true) Redirect('-1', _MSG_WRONG_CONNECTED);
 
 		$res = $this->GetAuth('Write');
-		if(!$res) Redirect('-1', _NO_AUTH);
+		if(!$res){
+			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			Redirect('-1', _MSG_NO_AUTH);
+		}
 
 		$seq = to10(App::$ID);
 
-		$this->model->DBGet($seq);
+		$this->_GetBoardData($seq);
 
 		// 회원 글 체크
-		if(_MEMBERIS !== true || $_SESSION['member']['level'] != _SADMIN_LEVEL || !$this->managerIs){
-			$res = $this->PasswordCheck();
+		if(_MEMBERIS !== true || (!CF::GetAdminIs() && !$this->managerIs)){
+			$res = $this->_PasswordCheck();
 			if($res !== true){
 				Redirect('-1', $res);
 			}
@@ -450,13 +658,73 @@ class BoardController{
 		$this->model->SetValue('delis', 'y');
 		$this->model->DBUpdate();
 
-		Redirect(App::URLAction().App::GetFollowQuery(), '삭제되었습니다.');
+		if(_AJAXIS === true) JSON(true, '', '삭제되었습니다.');
+		else Redirect(App::URLAction($this->AdminPathIs ? 'View/'.App::$ID : '').App::GetFollowQuery(), '삭제되었습니다.');
 	}
 
+	public function Undelete(){
+		if(!$this->AdminPathIs) Redirect('-1', _MSG_WRONG_CONNECTED);
+
+		$seq = to10(App::$ID);
+
+		$this->_GetBoardData($seq);
+		$this->model->SetValue('delis', 'n');
+		$this->model->DBUpdate();
+
+		if(_AJAXIS === true) JSON(true, '', '복구되었습니다.');
+		else Redirect(App::URLAction($this->AdminPathIs ? 'View/'.App::$ID : '').App::GetFollowQuery(), '복구되었습니다.');
+	}
+
+	public function Download(){
+		$seq = to10(App::$ID);
+		$this->_GetBoardData($seq);
+		Download($this->model->GetValue('file1'), $this->model->GetValue('filenm1'));
+	}
+
+	public function PostRemove(){
+		$seq = to10(App::$ID);
+		if(!$this->AdminPathIs) Redirect(-1, _MSG_WRONG_CONNECTED);
+		$qry = DB::GetQryObj($this->model->table)
+			->AddWhere('seq = %d', $seq);
+		$this->_CommonQry($qry);
+		$row = $qry->Get();
+
+		$dbGetList = DB::GetListQryObj($this->model->imageTable)
+			->AddWhere('article_seq='.$seq);
+		$this->_CommonQry($dbGetList);
+		while($img = $dbGetList->Get()){
+			if(file_exists(_UPLOAD_DIR.$img['image'])) @unlink(_UPLOAD_DIR.$img['image']);
+			$qry = DB::DeleteQryObj($this->model->table.'_images')
+				->AddWhere('article_seq = '.$img['article_seq'])
+				->AddWhere('seq = '.$img['seq']);
+			$this->_CommonQry($qry);
+			$qry->Run();
+		}
+
+		$dbGetList = DB::GetListQryObj($this->model->table.'_reply')
+			->AddWhere('article_seq='.$seq);
+		$this->_CommonQry($dbGetList);
+		while($rep = $dbGetList->Get()){
+			if(file_exists(_UPLOAD_DIR.$rep['file'])) @unlink(_UPLOAD_DIR.$rep['file']);
+			DB::DeleteQryObj($this->model->table.'_reply')
+				->AddWhere('article_seq = '.$rep['article_seq'])
+				->AddWhere('seq = '.$rep['seq'])
+				->Run();
+		}
+
+		if(file_exists(_UPLOAD_DIR.$row['file1'])) @unlink(_UPLOAD_DIR.$row['file1']);
+		if(file_exists(_UPLOAD_DIR.$row['file2'])) @unlink(_UPLOAD_DIR.$row['file2']);
+		$qry = DB::DeleteQryObj($this->model->table)
+			->AddWhere('seq = '.$row['seq']);
+		$this->_CommonQry($qry);
+		$qry->Run();
+		Redirect(App::URLAction().App::GetFollowQuery());
+	}
 
 	public function GetAuth($mode){
-		$memberLevel = _MEMBERIS === true ? $_SESSION['member']['level'] : 0;
+		if(CF::GetAdminIs()) return true;
 		if($this->managerIs) return true;
+		$memberLevel = _MEMBERIS === true ? $_SESSION['member']['level'] : 0;
 		switch($mode){
 			case 'Write':
 			case 'Modify':
@@ -479,13 +747,14 @@ class BoardController{
 	/**
 	 * 이미지 등록
 	 */
-	protected function ContentImageUpate($content, $seq, $mode = 'write'){
+	protected function _ContentImageUpate($content, $seq, $mode = 'write'){
 		$newcontent = $content;
 		$maxImage = _MAX_IMAGE_COUNT;
 
 		if($mode == 'modify'){
-			$dbGetList = new \BH_DB_GetList($this->model->imageTable);
-			$dbGetList->AddWhere('article_seq='.$seq);
+			$dbGetList = DB::GetListQryObj($this->model->imageTable)
+				->AddWhere('article_seq='.$seq);
+			$this->_CommonQry($dbGetList);
 			while($img = $dbGetList->Get()){
 				if(strpos($content,$img['image']) === false){
 					// 파일이 없으면 삭제
@@ -493,18 +762,20 @@ class BoardController{
 
 					if($img['image'] == $this->model->GetValue('thumnail')) $this->model->SetValue('thumnail', '');
 
-					$qry = new \BH_DB_Delete($this->model->table.'_images');
-					$qry->AddWhere('article_seq = '.$img['article_seq']);
-					$qry->AddWhere('seq = '.$img['seq']);
+					$qry = DB::DeleteQryObj($this->model->table.'_images')
+						->AddWhere('article_seq = '.$img['article_seq'])
+						->AddWhere('seq = '.$img['seq']);
+					$this->_CommonQry($qry);
 					$qry->Run();
 				}
 			}
 		}
 
-		$dbGet = new \BH_DB_Get($this->model->imageTable);
-		$dbGet->AddWhere('article_seq='.$seq);
-		$dbGet->SetKey('COUNT(*) as cnt');
-		$cnt = $dbGet->Get();
+		$qry = DB::GetQryObj($this->model->imageTable)
+			->AddWhere('article_seq='.$seq)
+			->SetKey('COUNT(*) as cnt');
+		$this->_CommonQry($qry);
+		$cnt = $qry->Get();
 		$imageCount = $cnt['cnt'];
 
 		if(isset($_POST['addimg']) && is_array($_POST['addimg'])){
@@ -518,8 +789,8 @@ class BoardController{
 						continue;
 					}
 
-					$newpath = str_replace('/temp/', '/image/'.$ym.'/', $exp[0]);
-					$uploadDir = _UPLOAD_DIR.'/image/'.$ym;
+					$newpath = str_replace('/temp/', '/boardimage/'.$this->bid.'/'.$ym.'/', $exp[0]);
+					$uploadDir = _UPLOAD_DIR.'/boardimage/'.$this->bid.'/'.$ym;
 					if(!is_dir($uploadDir)){
 						mkdir($uploadDir, 0777, true);
 					}
@@ -528,13 +799,14 @@ class BoardController{
 					// 파일이 있으면 등록
 
 					unset($dbInsert);
-					$dbInsert = new \BH_DB_Insert($this->model->imageTable);
-					$dbInsert->data['article_seq'] = $seq;
-					$dbInsert->data['image'] = SetDBText($newpath);
-					$dbInsert->data['imagename'] = SetDBText($exp[1]);
-					$dbInsert->decrement = 'seq';
-					$dbInsert->AddWhere('article_seq = %d', $seq);
-					//$params['test'] = true;
+					// 여기 수정
+					$dbInsert = DB::InsertQryObj($this->model->imageTable)
+						->SetDataNum('article_seq', $seq)
+						->SetDataStr('image', $newpath)
+						->SetDataStr('imagename', $exp[1])
+						->SetDecrementKey('seq')
+						->AddWhere('article_seq = %d', $seq);
+					$this->_CommonQry($dbInsert, 'ImageInsert');
 					$dbInsert->Run();
 					$imageCount++;
 				}
@@ -543,16 +815,18 @@ class BoardController{
 
 			if($newcontent != $content){
 				if(!$this->model->GetValue('thumnail')){
-					$dbGet = new \BH_DB_Get($this->model->imageTable);
-					$dbGet->AddWhere('article_seq='.$seq);
-					$dbGet->sort = 'seq';
-					$new = $dbGet->Get();
+					$qry = DB::GetQryObj($this->model->imageTable)
+						->AddWhere('article_seq='.$seq)
+						->SetSort('seq');
+					$this->_CommonQry($qry);
+					$new = $qry->Get();
 					$this->model->SetValue('thumnail', $new['image']);
 				}
-				$qry = new \BH_DB_Update($this->model->table);
-				$qry->SetDataStr('thumnail', $this->model->GetValue('thumnail'));
-				$qry->SetDataStr('content', $newcontent);
-				$qry->AddWhere('seq = '.$seq);
+				$qry =DB::UpdateQryObj($this->model->table)
+					->SetDataStr('thumnail', $this->model->GetValue('thumnail'))
+					->SetDataStr('content', $newcontent)
+					->AddWhere('seq = '.$seq);
+				$this->_CommonQry($qry);
 				$qry->Run();
 			}
 		}
@@ -561,20 +835,27 @@ class BoardController{
 		return true;
 	}
 
-	protected function PasswordCheck(){
+	protected function _PasswordCheck(){
 		if($this->model->GetValue('muid')){
 			if(_MEMBERIS !== true) return 'ERROR#101';
 			else if($this->model->GetValue('muid') != $_SESSION['member']['muid']) return 'ERROR#102';
 		}
 		else{
-			if(!isset($_POST['pwd'])) return _WRONG_CONNECTED;
+			if(!isset($_POST['pwd'])) return _MSG_WRONG_CONNECTED;
 
-			$pwd = \DB::SQL()->Fetch('SELECT pwd FROM '.$this->model->table.' WHERE seq='.$this->model->GetValue('seq'));
+			$qry = DB::GetQryObj($this->model->table)->AddWhere('seq = %d', $this->model->GetValue('seq'))->SetKey('pwd');
+			$this->_CommonQry($qry);
+			$pwd = $qry->Get();
 			if(!_password_verify($_POST['pwd'], $pwd['pwd'])){
-				return '비밀번호가 일치하지 않습니다.';
+				return _MSG_WRONG_PASSWORD;
 			}
 		}
 		return true;
+	}
+
+	protected function _GetBoardData($id){
+		$args = func_get_args();
+		$this->model->DBGet($args);
 	}
 
 	public function _DirectView(){
