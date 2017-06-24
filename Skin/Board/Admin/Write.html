@@ -46,37 +46,6 @@ use \BH_Application as App;
 				<?minp('secret') ?>
 			</td>
 		</tr>
-
-		<?php if(_MEMBERIS !== true || (App::$Action == 'Modify' && !strlen($Model->GetValue('muid')))){?>
-			<tr>
-				<th><?mt('mname')?></th>
-				<td>
-					<?minp('mname') ?>
-				</td>
-			</tr>
-
-			<tr>
-				<th><?mt('pwd')?></th>
-				<td>
-					<?minp('pwd', array('value' =>(App::$Action == 'Modify' ? $_POST['pwd'] : ''))) ?>
-					<ul class="guide">
-						<li>16자 이하로 입력하여주세요.</li>
-					</ul>
-				</td>
-			</tr>
-			<?php
-			if(App::$Action != 'Modify'){
-				?>
-				<tr>
-					<th>비밀번호 확인</th>
-					<td>
-						<input type="password" name="pwdchk" value="" required="required" data-same="pwd" data-display="비밀번호 확인">
-					</td>
-				</tr>
-				<?php
-			}
-			?>
-		<?php } ?>
 		<tr>
 			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('subject')?></th>
 			<td>
@@ -122,7 +91,7 @@ use \BH_Application as App;
 	$(document).on('submit', '#BoardWriteForm', function(e){
 		<?php if(_MOBILEIS !== true){ ?>SE2_update('MD_content');<?php } ?>
 
-		var res = common.valCHeck(this);
+		var res = $(this).validCheck();
 		if(!res){
 			e.preventDefault();
 			return false;

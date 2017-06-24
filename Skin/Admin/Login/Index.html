@@ -42,7 +42,7 @@ App::CSSAdd('admin.css2');
 		});
 
 		$(document).on('submit', '#LoginFrm', function(e){
-			var res = common.valCHeck(this);
+			var res = $(this).validCheck();
 			if(!res) e.preventDefault();
 
 			var mid = $('input[name=mid]');

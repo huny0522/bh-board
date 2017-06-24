@@ -59,7 +59,7 @@ use \BH_Application as App;
 
 	$('#MenuWriteForm').on('submit', function(e){
 		e.preventDefault();
-		var res = common.valCHeck(this);
+		var res = $(this).validCheck();
 		if(!res){
 			return false;
 		}

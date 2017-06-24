@@ -353,7 +353,7 @@ class {$ModelName}Model extends \\BH_Model{
 			$html .= '</form>' . chr(10). chr(10);
 			$html .= chr(60).'script>' . chr(10)
 				. '	$(document).on(\'submit\', \'#'.$model.'WriteForm\', function(e){' . chr(10)
-				. '		var res = common.valCHeck(this);' . chr(10)
+				. '		var res = $(this).validCheck();' . chr(10)
 				. '		if(!res){' . chr(10)
 				. '			e.preventDefault(); ' . chr(10)
 				. '			return false; ' . chr(10)

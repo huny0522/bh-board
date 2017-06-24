@@ -114,7 +114,7 @@ use \BH_Application as App;
 	})
 
 	$(document).on('submit', '#RegisterForm', function(e){
-		var res = common.valCHeck(this);
+		var res = $(this).validCheck();
 		if(!res){
 			e.preventDefault();
 			return false;

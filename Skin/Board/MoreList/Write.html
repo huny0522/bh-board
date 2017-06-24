@@ -116,7 +116,7 @@ use \BH_Application as App;
 	$(document).on('submit', '#BoardWriteForm', function(e){
 		<?php if(_MOBILEIS !== true){ ?>SE2_update('MD_content');<?php } ?>
 
-		var res = common.valCHeck(this);
+		var res = $(this).validCheck();
 		if(!res){
 			e.preventDefault();
 			return false;

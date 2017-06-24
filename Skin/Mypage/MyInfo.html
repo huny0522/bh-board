@@ -94,7 +94,7 @@ use \BH_Application as App;
 
 <script>
 	$(document).on('submit', '#MemberWriteForm', function(e){
-		var res = common.valCHeck(this);
+		var res = $(this).validCheck();
 		if(!res){
 			e.preventDefault(); 
 			return false; 

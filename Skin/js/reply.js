@@ -3,7 +3,7 @@
 
 $(document).on('submit', '.replyWrite form', function(e){
 	e.preventDefault();
-	common.valCHeck(this);
+	$(this).validCheck();
 
     common.ajaxForm(this, function(data){
 		$('#replyGetForm input[name=page]').val(1);

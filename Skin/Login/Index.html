@@ -49,7 +49,7 @@ App::$Title = '로그인';
 		});
 
 		$(document).on('submit', '#LoginFrm', function(e){
-			var res = common.valCHeck(this);
+			var res = $(this).validCheck();
 			if(!res) e.preventDefault();
 
 			var email1 = $('input[name=email1]');
