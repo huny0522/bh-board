@@ -3,7 +3,7 @@
  * Bang Hun.
  * 16.07.10
  */
-use \BH_Common as CF;
+use \BH_Common as CM;
 use \BH_Application as App;
 
 /** @param array $params 설명

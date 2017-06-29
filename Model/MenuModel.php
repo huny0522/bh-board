@@ -3,7 +3,8 @@
  * Bang Hun.
  * 16.07.10
  */
-use \BH_Common as CF;
+
+use \BH_Common as CM;
 use \BH_Application as App;
 
 class MenuModel extends \BH_Model{
@@ -41,14 +42,14 @@ class MenuModel extends \BH_Model{
 
 	// 자식레벨 가져오기
 	public function GetChild($parent = ''){
-		return CF::_CategoryGetChild($this->table, $parent, $this->CategoryLength);
+		return CM::_CategoryGetChild($this->table, $parent, $this->CategoryLength);
 	}
 
 	public function SetChildEnabled($parent = NULL, $enabled = false){
-		CF::_CategorySetChildEnable($this->table, $parent, $enabled);
+		CM::_CategorySetChildEnable($this->table, $parent, $enabled);
 	}
 
 	public function GetParent($category = NULL){
-		return CF::_CategoryGetParent($this->table, $category, $this->CategoryLength);
+		return CM::_CategoryGetParent($this->table, $category, $this->CategoryLength);
 	}
 }

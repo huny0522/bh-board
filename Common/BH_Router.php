@@ -3,7 +3,7 @@
  * Bang Hun.
  * 16.07.10
  */
-use \BH_Common as CF;
+use \BH_Common as CM;
 use \BH_Application as App;
 
 switch(App::$SettingData['GetUrl'][1]){
@@ -80,8 +80,8 @@ switch(App::$SettingData['GetUrl'][1]){
 	break;
 
 	default:
-		CF::_SetMenu();
-		if(!CF::_SetMenuRouter(_URL)){
+		CM::_SetMenu();
+		if(!CM::_SetMenuRouter(_URL)){
 			App::$ControllerName = App::$SettingData['GetUrl'][1];
 			App::$Action = App::$SettingData['GetUrl'][2];
 			App::$ID = App::$SettingData['GetUrl'][3];

@@ -3,10 +3,14 @@
  * Bang Hun.
  * 16.07.10
  */
-use \BH_Application as App;
-use \BH_Common as CF;
 
-class InstallController{
+namespace BH\Controller;
+
+use \BH_Application as App;
+use \BH_Common as CM;
+use \DB as DB;
+
+class Install{
 
 	public function __construct(){
 		if(App::$InstallIs) exit;
@@ -202,7 +206,7 @@ ENGINE=InnoDB
 			\DB::SQL()->Query($s);
 		}
 
-		Redirect(_URL.'/');
+		URLReplace(_URL.'/');
 	}
 }
 

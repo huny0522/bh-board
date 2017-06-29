@@ -3,17 +3,20 @@
  * Bang Hun.
  * 16.07.10
  */
+
+namespace BH\Controller;
+
 use \BH_Application as App;
-use \BH_Common as CF;
+use \BH_Common as CM;
 use \DB as DB;
 
-class BoardController{
+class Board{
 	/**
-	 * @var BoardModel
+	 * @var \BoardModel
 	 */
 	public $model;
 	/**
-	 * @var BoardManagerModel
+	 * @var \BoardManagerModel
 	 */
 	public $boardManger;
 	public $managerIs = false;
@@ -40,14 +43,14 @@ class BoardController{
 
 	public function __construct(){
 		if(App::$SettingData['GetUrl'][1] == _ADMINURLNAME){
-			if(CF::GetAdminIs()) $this->AdminPathIs = true;
+			if(CM::GetAdminIs()) $this->AdminPathIs = true;
 			else{
 				if(_JSONIS === true) JSON(false, _MSG_WRONG_CONNECTED);
-				Redirect(App::URLBase('Login'), _MSG_WRONG_CONNECTED);
+				URLReplace(App::URLBase('Login'), _MSG_WRONG_CONNECTED);
 			}
 		}
-		$this->model = App::GetModel('Board');
-		$this->boardManger = App::GetModel('BoardManager');
+		$this->model = App::InitModel('Board');
+		$this->boardManger = App::InitModel('BoardManager');
 	}
 
 	public function __init(){
@@ -57,13 +60,13 @@ class BoardController{
 	}
 
 	protected function _BoardSetting(){
-		if(!isset($this->bid) || $this->bid == '') Redirect('-1', '잘못된 접근입니다.');
+		if(!isset($this->bid) || $this->bid == '') URLReplace('-1', '잘못된 접근입니다.');
 
 		App::SetFollowQuery(array('page','searchType','searchKeyword','category','lastSeq'));
 
-		$mid = CF::GetMember('mid');
+		$mid = CM::GetMember('mid');
 		$manager = explode(',', $this->boardManger->GetValue('manager'));
-		if ($mid !== false && in_array($mid, $manager)) {
+		if ($mid != '' && $mid !== false && in_array($mid, $manager)) {
 			$this->managerIs = true;
 		}
 
@@ -111,8 +114,8 @@ class BoardController{
 	public function Index(){
 		$res = $this->GetAuth('List');
 		if(!$res){
-			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
-			Redirect('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			URLReplace('-1', _MSG_NO_AUTH);
 		}
 		if($this->GetListIs || $this->MoreListIs){
 			if(_JSONIS === true) JSON(true, '', App::GetView($this, $this->model));
@@ -125,8 +128,8 @@ class BoardController{
 	public function GetList($viewPageIs = false){
 		$res = $this->GetAuth('List');
 		if(!$res){
-			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
-			Redirect('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
 		// 공지를 불러온다.
@@ -151,7 +154,7 @@ class BoardController{
 
 		if(!$this->AdminPathIs) $dbList->AddWhere('A.delis=\'n\'');
 
-		if(isset($_GET['category']) && strlen($_GET['category'])) $dbList->AddWhere('category = '.SetDBText($_GET['category']));
+		if(isset($_GET['category']) && strlen($_GET['category'])) $dbList->AddWhere('category = %s', $_GET['category']);
 
 		if(isset($_GET['searchType']) && strlen($_GET['searchType']) && isset($_GET['searchKeyword']) && strlen($_GET['searchKeyword'])){
 			switch($_GET['searchType']){
@@ -181,8 +184,8 @@ class BoardController{
 	public function MoreList(){
 		$res = $this->GetAuth('List');
 		if(!$res){
-			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
-			Redirect('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
 		// 공지를 불러온다.
@@ -220,7 +223,7 @@ class BoardController{
 				else $dbList->AddWhere('A.seq > %d', $_GET['lastSeq']);
 			}
 
-			if(isset($_GET['category']) && strlen($_GET['category'])) $dbList->AddWhere('A.category = '.SetDBText($_GET['category']));
+			if(isset($_GET['category']) && strlen($_GET['category'])) $dbList->AddWhere('A.category = %s', $_GET['category']);
 
 			if(isset($_GET['searchType']) && strlen($_GET['searchType']) && isset($_GET['searchKeyword']) && strlen($_GET['searchKeyword'])){
 				switch($_GET['searchType']){
@@ -252,7 +255,7 @@ class BoardController{
 
 	public function _RowSet(&$data){
 		foreach($data as &$row){
-			if($this->managerIs || CF::GetAdminIs() || $row['secret'] == 'n' || ($row['first_member_is'] == 'y' && strlen($row['muid']))) $row['possibleView'] = true;
+			if($this->managerIs || CM::GetAdminIs() || $row['secret'] == 'n' || ($row['first_member_is'] == 'y' && strlen($row['muid']))) $row['possibleView'] = true;
 			else $row['possibleView'] = false;
 			$row['viewUrl'] = App::URLAction('View/').toBase($row['seq']).App::GetFollowQuery();
 			$row['replyCount'] = $row['reply_cnt'] ? '<span class="ReplyCount">['.$row['reply_cnt'].']</span>' : '';
@@ -267,29 +270,29 @@ class BoardController{
 		if($this->boardManger->GetValue('list_in_view') == 'y' && !$this->MoreListIs) App::$Data['List'] = $this->GetList(true);
 		App::$Html = $this->Path.'View.html';
 
-		if(!isset(App::$ID) || !strlen(App::$ID)) Redirect('-1');
+		if(!isset(App::$ID) || !strlen(App::$ID)) URLReplace('-1');
 
 		$seq = to10(App::$ID);
 
 		$viewAuth = $this->GetAuth('View');
 		if(!$viewAuth){
-			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
-			Redirect('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
 		$this->_GetBoardData($seq);
-		if(!$this->AdminPathIs && $this->model->GetValue('delis') == 'y') Redirect('-1', _MSG_WRONG_CONNECTED);
+		if(!$this->AdminPathIs && $this->model->GetValue('delis') == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
 
 		$data['answerAuth'] = $this->GetAuth('Answer');
 
 		// 비밀번호없이 수정권한
 		$data['modifyAuthDirect'] = false;
-		if($this->GetAuth('Write') && _MEMBERIS === true && ($this->model->GetValue('muid') == $_SESSION['member']['muid'] || CF::GetAdminIs() )){
+		if($this->GetAuth('Write') && _MEMBERIS === true && ($this->model->GetValue('muid') == $_SESSION['member']['muid'] || CM::GetAdminIs() )){
 			$data['modifyAuthDirect'] = true;
 		}
 
 		// 비밀글일경우 권한 : 관리자 또는 게시판 매니저, 글쓴이
-		if(!CF::GetAdminIs() && $this->model->GetValue('secret') == 'y'){
+		if(!CM::GetAdminIs() && $this->model->GetValue('secret') == 'y'){
 			$viewAuth = false;
 
 			// first_seq 가 있으면 첫째글을 호출
@@ -310,15 +313,15 @@ class BoardController{
 
 			// 원글이나 현재 글이 비회원글일 경우 비밀번호를 체크
 			if(!$viewAuth && (!$this->model->GetValue('muid') || $this->model->GetValue('first_member_is') == 'n')){
-				if(_POSTIS !==	true || !isset($_POST['pwd'])) Redirect('-1', _MSG_WRONG_CONNECTED);
+				if(_POSTIS !==	true || !isset($_POST['pwd'])) URLReplace('-1', _MSG_WRONG_CONNECTED);
 
 				if(_password_verify($_POST['pwd'], $this->model->GetValue('pwd')) || (isset($firstDoc) && _password_verify($_POST['pwd'], $firstDoc['pwd']))){
 					$viewAuth = true;
 				}
-				else Redirect('-1', _MSG_WRONG_PASSWORD);
+				else URLReplace('-1', _MSG_WRONG_PASSWORD);
 			}
 
-			if(!$viewAuth) Redirect('-1', _MSG_NO_AUTH);
+			if(!$viewAuth) URLReplace('-1', _MSG_NO_AUTH);
 		}
 
 		$cookieName = $this->model->table.$seq;
@@ -340,8 +343,8 @@ class BoardController{
 	public function Write(){
 		$res = $this->GetAuth('Write');
 		if(!$res){
-			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
-			Redirect('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
 		$this->_WriteEnd();  // Reserved
@@ -352,17 +355,17 @@ class BoardController{
 	public function Answer(){
 		$res = $this->GetAuth('Answer');
 		if(!$res){
-			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
-			Redirect('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			URLReplace('-1', _MSG_NO_AUTH);
 		}
 		$seq = to10($_GET['target']);
-		if(!strlen($seq)) Redirect('-1');
+		if(!strlen($seq)) URLReplace('-1');
 
 		$qry = DB::GetQryObj($this->model->table)
 			->AddWhere('seq = %d', $seq);
 		$this->_CommonQry($qry);
 		$data = $qry->Get();
-		if(!$this->AdminPathIs && $data['delis'] == 'y') Redirect('-1', _MSG_WRONG_CONNECTED);
+		if(!$this->AdminPathIs && $data['delis'] == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
 
 		$this->model->SetValue('subject', strpos('[답변]', $data['subject']) === false ? '[답변] '.$data['subject'] : $data['subject']);
 		$this->model->SetValue('secret', $data['secret']);
@@ -375,23 +378,23 @@ class BoardController{
 
 	public function Modify(){
 		if(!isset(App::$ID) || !strlen(App::$ID)){
-			Redirect('-1');
+			URLReplace('-1');
 		}
 
 		$res = $this->GetAuth('Modify');
 		if(!$res){
-			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
-			Redirect('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
 		$seq = to10(App::$ID);
 		$this->_GetBoardData($seq);
-		if(!$this->AdminPathIs && $this->model->GetValue('delis') == 'y') Redirect('-1', _MSG_WRONG_CONNECTED);
+		if(!$this->AdminPathIs && $this->model->GetValue('delis') == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
 
 		// 회원 글 체크
-		if(_MEMBERIS !== true || !CF::GetAdminIs()){
+		if(_MEMBERIS !== true || !CM::GetAdminIs()){
 			$res = $this->_PasswordCheck();
-			if($res !== true) Redirect('-1', $res);
+			if($res !== true) URLReplace('-1', $res);
 		}
 
 		$this->_ModifyEnd();  // Reserved
@@ -407,8 +410,8 @@ class BoardController{
 		}
 		$res = $this->GetAuth('Modify');
 		if(!$res){
-			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
-			Redirect('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
 		require_once _COMMONDIR.'/FileUpload.php';
@@ -422,7 +425,7 @@ class BoardController{
 		else $this->model->AddExcept('pwd');
 
 		$this->_GetBoardData($seq);
-		if(!$this->AdminPathIs && $this->model->GetValue('delis') == 'y') Redirect('-1', _MSG_WRONG_CONNECTED);
+		if(!$this->AdminPathIs && $this->model->GetValue('delis') == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
 		$res = $this->model->SetPostValues();
 		if(!$res->result){
 			$res->message ? $res->message : 'ERROR#101';
@@ -432,7 +435,7 @@ class BoardController{
 			return;
 		}
 		// 회원 글 체크
-		if(_MEMBERIS !== true || !CF::GetAdminIs()){
+		if(_MEMBERIS !== true || !CM::GetAdminIs()){
 			$res = $this->_PasswordCheck();
 			if($res !== true){
 				if(_AJAXIS === true) JSON(false, $res);
@@ -483,7 +486,7 @@ class BoardController{
 		if($res2->result){
 			$this->_PostModifyUpdateAfter();  // Reserved
 			if(_AJAXIS === true) JSON(true, '',_MSG_COMPLETE_MODIFY);
-			else Redirect(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), _MSG_COMPLETE_MODIFY);
+			else URLReplace(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), _MSG_COMPLETE_MODIFY);
 		}
 		else{
 			if(_AJAXIS === true) JSON(false, $res2->message ? $res2->message : 'ERROR#102');
@@ -498,12 +501,12 @@ class BoardController{
 	}
 
 	public function PostWrite(){
-		if(_POSTIS !== true) Redirect('-1', _MSG_WRONG_CONNECTED);
+		if(_POSTIS !== true) URLReplace('-1', _MSG_WRONG_CONNECTED);
 
 		$res = $this->GetAuth('Write');
 		if(!$res){
-			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
-			Redirect('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
 		$first_seq = '';
@@ -513,8 +516,8 @@ class BoardController{
 		if(App::$Action == 'Answer'){
 			$auth = $this->GetAuth('Answer');
 			if(!$res){
-				if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
-				Redirect('-1', _MSG_NO_AUTH);
+				if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+				URLReplace('-1', _MSG_NO_AUTH);
 			}
 
 			$qry = DB::GetQryObj($this->model->table)
@@ -522,7 +525,7 @@ class BoardController{
 				->SetKey('mname, depth, muid, sort1, sort2', 'seq', 'first_seq', 'first_member_is', 'category', 'delis');
 			$this->_CommonQry($qry);
 			App::$Data['targetData'] = $qry->Get();
-			if(!$this->AdminPathIs && App::$Data['targetData']['delis'] == 'y') Redirect('-1', _MSG_WRONG_CONNECTED);
+			if(!$this->AdminPathIs && App::$Data['targetData']['delis'] == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
 			$first_seq = strlen(App::$Data['targetData']['first_seq']) ? App::$Data['targetData']['first_seq'] : App::$Data['targetData']['seq'];
 			$first_member_is = App::$Data['targetData']['first_member_is'];
 		}
@@ -534,7 +537,7 @@ class BoardController{
 		if(!$this->AdminPathIs) $this->model->AddExcept('delis');
 		$this->model->Need = array('subject', 'content', 'secret');
 		if(_MEMBERIS === true){
-			$member = CF::GetMember();
+			$member = CM::GetMember();
 			$this->model->AddExcept('pwd');
 		}
 
@@ -625,7 +628,7 @@ class BoardController{
 			$this->_ContentImageUpate($_POST['content'], $res->id);
 			$this->_PostWriteInsertAfter($res->id);  // Reserved
 			if(_AJAXIS === true) JSON(true, '', '등록되었습니다.');
-			else Redirect(App::URLAction(), '등록되었습니다.');
+			else URLReplace(App::URLAction(), '등록되었습니다.');
 		}else{
 			if(_AJAXIS === true) JSON(false, $result->message ? $result->message : 'ERROR');
 			App::$Data['error'] = $result->message ? $result->message : 'ERROR';
@@ -635,12 +638,12 @@ class BoardController{
 	}
 
 	public function PostDelete(){
-		if(_POSTIS !== true) Redirect('-1', _MSG_WRONG_CONNECTED);
+		if(_POSTIS !== true) URLReplace('-1', _MSG_WRONG_CONNECTED);
 
 		$res = $this->GetAuth('Write');
 		if(!$res){
-			if(_MEMBERIS !== true) Redirect(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
-			Redirect('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
 		$seq = to10(App::$ID);
@@ -648,10 +651,10 @@ class BoardController{
 		$this->_GetBoardData($seq);
 
 		// 회원 글 체크
-		if(_MEMBERIS !== true || (!CF::GetAdminIs() && !$this->managerIs)){
+		if(_MEMBERIS !== true || (!CM::GetAdminIs() && !$this->managerIs)){
 			$res = $this->_PasswordCheck();
 			if($res !== true){
-				Redirect('-1', $res);
+				URLReplace('-1', $res);
 			}
 		}
 
@@ -659,11 +662,11 @@ class BoardController{
 		$this->model->DBUpdate();
 
 		if(_AJAXIS === true) JSON(true, '', '삭제되었습니다.');
-		else Redirect(App::URLAction($this->AdminPathIs ? 'View/'.App::$ID : '').App::GetFollowQuery(), '삭제되었습니다.');
+		else URLReplace(App::URLAction($this->AdminPathIs ? 'View/'.App::$ID : '').App::GetFollowQuery(), '삭제되었습니다.');
 	}
 
 	public function Undelete(){
-		if(!$this->AdminPathIs) Redirect('-1', _MSG_WRONG_CONNECTED);
+		if(!$this->AdminPathIs) URLReplace('-1', _MSG_WRONG_CONNECTED);
 
 		$seq = to10(App::$ID);
 
@@ -672,18 +675,18 @@ class BoardController{
 		$this->model->DBUpdate();
 
 		if(_AJAXIS === true) JSON(true, '', '복구되었습니다.');
-		else Redirect(App::URLAction($this->AdminPathIs ? 'View/'.App::$ID : '').App::GetFollowQuery(), '복구되었습니다.');
+		else URLReplace(App::URLAction($this->AdminPathIs ? 'View/'.App::$ID : '').App::GetFollowQuery(), '복구되었습니다.');
 	}
 
 	public function Download(){
 		$seq = to10(App::$ID);
 		$this->_GetBoardData($seq);
-		Download($this->model->GetValue('file1'), $this->model->GetValue('filenm1'));
+		Download(_UPLOAD_DIR.$this->model->GetValue('file1'), $this->model->GetValue('filenm1'));
 	}
 
 	public function PostRemove(){
 		$seq = to10(App::$ID);
-		if(!$this->AdminPathIs) Redirect(-1, _MSG_WRONG_CONNECTED);
+		if(!$this->AdminPathIs) URLReplace(-1, _MSG_WRONG_CONNECTED);
 		$qry = DB::GetQryObj($this->model->table)
 			->AddWhere('seq = %d', $seq);
 		$this->_CommonQry($qry);
@@ -718,11 +721,11 @@ class BoardController{
 			->AddWhere('seq = '.$row['seq']);
 		$this->_CommonQry($qry);
 		$qry->Run();
-		Redirect(App::URLAction().App::GetFollowQuery());
+		URLReplace(App::URLAction().App::GetFollowQuery());
 	}
 
 	public function GetAuth($mode){
-		if(CF::GetAdminIs()) return true;
+		if(CM::GetAdminIs()) return true;
 		if($this->managerIs) return true;
 		$memberLevel = _MEMBERIS === true ? $_SESSION['member']['level'] : 0;
 		switch($mode){

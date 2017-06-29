@@ -1,5 +1,5 @@
 <?php if(_BH_ !== true) exit;
-use \BH_Common as CF;
+use \BH_Common as CM;
 use \BH_Application as App;
 
 /**
@@ -82,6 +82,6 @@ use \BH_Application as App;
 	});
 	$(document).on('click', 'a.adminAuthBtn', function(e){
 		e.preventDefault();
-		common.getModal(this.href, {}, '권한관리', null, 800, 600);
+		JCM.getModal(this.href, {}, '권한관리', null, 800, 600);
 	})
 </script>

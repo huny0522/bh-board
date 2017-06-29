@@ -4,11 +4,13 @@
  * 16.07.10
  */
 
-namespace Admin;
-use \BH_Application as App;
-use \BH_Common as CF;
+namespace BH\Controller\Admin;
 
-class BoardManagerController
+use \BH_Application as App;
+use \BH_Common as CM;
+use \DB as DB;
+
+class BoardManager
 {
 
 	/**
@@ -17,14 +19,14 @@ class BoardManagerController
 	public $model = null;
 
 	public function __construct(){
-		$this->model = App::GetModel('BoardManager');
+		$this->model = App::InitModel('BoardManager');
 	}
 
 	public function __init(){
 		App::$Data['NowMenu'] = '002';
-		CF::AdminAuth();
+		CM::AdminAuth();
 
-		$AdminAuth = explode(',', CF::GetMember('admin_auth'));
+		$AdminAuth = explode(',', CM::GetMember('admin_auth'));
 		App::$Data['menuAuth'] = (in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL);
 
 		App::SetFollowQuery(array('where', 'keyword','page'));
@@ -50,11 +52,11 @@ class BoardManagerController
 
 		$dbGet = new \BH_DB_GetList(TABLE_MENU);
 		$dbGet->AddWhere('type=\'board\'');
-		$dbGet->AddWhere('bid='.SetDBText($this->model->GetValue('bid')));
+		$dbGet->AddWhere('bid = %s', $this->model->GetValue('bid'));
 		App::$Data['selectedMenu'] = $dbGet->GetRows();
 
 		if(!$res->result){
-			Redirect('-1', $res->message);
+			URLReplace('-1', $res->message);
 		}
 
 		App::View($this, $this->model);
@@ -73,18 +75,18 @@ class BoardManagerController
 		$res = $this->model->DBGet($_GET['bid']);
 		$dbGet = new \BH_DB_GetList(TABLE_MENU);
 		$dbGet->AddWhere('type=\'board\'');
-		$dbGet->AddWhere('bid='.SetDBText($this->model->GetValue('bid')));
+		$dbGet->AddWhere('bid = %s', $this->model->GetValue('bid'));
 		App::$Data['selectedMenu'] = $dbGet->GetRows();
 
 		if(!$res->result){
-			Redirect('-1', $res->message);
+			URLReplace('-1', $res->message);
 		}
 		App::$Html = 'Write';
 		App::View($this, $this->model);
 	}
 	public function PostWrite(){
 		$res = $this->model->SetPostValues();
-		if(!$res->result) Redirect('-1',$res->message);
+		if(!$res->result) URLReplace('-1',$res->message);
 
 		$this->model->SetValue('reg_date', date('Y-m-d H:i:s'));
 		$res = $this->model->DBInsert();
@@ -95,30 +97,30 @@ class BoardManagerController
 				if($r2){
 					$r3 = $this->model->CreateTableImg(TABLE_FIRST.'bbs_'.$this->model->GetValue('bid').'_images');
 					if($r3){
-						CF::MenuConnect($this->model->GetValue('bid'), 'board');
+						CM::MenuConnect($this->model->GetValue('bid'), 'board');
 					}
 				}
 			}
-			Redirect(App::URLAction().App::GetFollowQuery());
+			URLReplace(App::URLAction().App::GetFollowQuery());
 		}
 
-		Redirect(App::URLAction().App::GetFollowQuery(), 'ERROR');
+		URLReplace(App::URLAction().App::GetFollowQuery(), 'ERROR');
 	}
 
 	public function PostModify(){
 		$res = $this->model->DBGet($_POST['bid']);
-		if(!$res->result) Redirect('-1',$res->message);
+		if(!$res->result) URLReplace('-1',$res->message);
 
 		$res = $this->model->SetPostValues();
-		if(!$res->result) Redirect('-1',$res->message);
+		if(!$res->result) URLReplace('-1',$res->message);
 		$res = $this->model->DBUpdate();
 
 		if($res->result){
-			CF::MenuConnect($this->model->GetValue('bid'), 'board');
+			CM::MenuConnect($this->model->GetValue('bid'), 'board');
 			$url = App::URLAction('View').'?bid='.$_POST['bid'].App::GetFollowQuery();
-			Redirect($url, '수정완료');
+			URLReplace($url, '수정완료');
 		}
-		Redirect('-1', 'ERROR');
+		URLReplace('-1', 'ERROR');
 	}
 
 	public function PostDelete(){
@@ -128,23 +130,20 @@ class BoardManagerController
 				$board_nm = TABLE_FIRST.'bbs_'.$_POST['bid'];
 
 				@\DB::SQL()->Query("DROP TABLE `{$board_nm}`");
-				\BH_DB_Cache::DelPath(\DB::DefaultConnName, $board_nm);
 				@\DB::SQL()->Query("DROP TABLE `{$board_nm}_reply`");
-				\BH_DB_Cache::DelPath(\DB::DefaultConnName, $board_nm.'_reply');
 				@\DB::SQL()->Query("DROP TABLE `{$board_nm}_images`");
-				\BH_DB_Cache::DelPath(\DB::DefaultConnName, $board_nm.'_images');
 
-				Redirect(App::URLAction('').App::GetFollowQuery(), '삭제되었습니다.');
+				URLReplace(App::URLAction('').App::GetFollowQuery(), '삭제되었습니다.');
 			}else{
-				Redirect('-1', $res->message);
+				URLReplace('-1', $res->message);
 			}
 		}
 	}
 
 	public function GetSubMenu(){
 		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
-		$dbGetList->AddWhere('LENGTH(category) = '.(strlen(App::$ID) + _CATEGORY_LENGTH));
-		$dbGetList->AddWhere('LEFT(category, '.strlen(App::$ID).') = '.SetDBText(App::$ID));
+		$dbGetList->AddWhere('LENGTH(category) = %d', (strlen(App::$ID) + _CATEGORY_LENGTH));
+		$dbGetList->AddWhere('LEFT(category, %d) = %s', strlen(App::$ID), App::$ID);
 		JSON(true, '', $dbGetList->GetRows());
 
 	}

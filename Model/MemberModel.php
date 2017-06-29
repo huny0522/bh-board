@@ -3,7 +3,8 @@
  * Bang Hun.
  * 16.07.10
  */
-use \BH_Common as CF;
+
+use \BH_Common as CM;
 use \BH_Application as App;
 
 class MemberModel extends \BH_Model{
@@ -24,7 +25,7 @@ class MemberModel extends \BH_Model{
 		$this->data['mid']->MinLength = '4';
 		$this->data['mid']->MaxLength = '16';
 
-		$this->data['pwd'] = new \BH_ModelData(ModelType::Password, true, '패스워드', HTMLType::InputPassword);
+		$this->data['pwd'] = new \BH_ModelData(ModelType::String, true, '패스워드', HTMLType::InputPassword);
 		$this->data['pwd']->MinLength = '8';
 		$this->data['pwd']->MaxLength = '16';
 

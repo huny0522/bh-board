@@ -3,7 +3,7 @@
  * Bang Hun.
  * 16.07.10
  */
-use \BH_Common as CF;
+use \BH_Common as CM;
 use \BH_Application as App;
 class BH_Category{
 	const ROOT_CATEGORY_CODE = '_ROOT';
@@ -13,7 +13,7 @@ class BH_Category{
 	public $Name;
 
 	public function __Init(){
-		$this->model = App::GetModel('Menu');
+		$this->model = App::InitModel('Menu');
 	}
 
 	public function Index(){
@@ -52,11 +52,11 @@ class BH_Category{
 			$dbGet = new \BH_DB_Get($this->model->table);
 			if($_POST['parent'] === ''){
 				$dbGet->AddKey('MAX(category) as category');
-				$dbGet->AddWhere('LENGTH(category) = '.$this->model->CategoryLength);
+				$dbGet->AddWhere('LENGTH(category) = %s', $this->model->CategoryLength);
 			}else{
 				$dbGet->AddKey('MAX(category) as category');
-				$dbGet->AddWhere('LEFT(category, '.strlen($_POST['parent']).') = '.SetDBText($_POST['parent']));
-				$dbGet->AddWhere('LENGTH(category) = '.(strlen($_POST['parent']) + $this->model->CategoryLength));
+				$dbGet->AddWhere('LEFT(category, %d) = %s', strlen($_POST['parent']), $_POST['parent']);
+				$dbGet->AddWhere('LENGTH(category) = %d', strlen($_POST['parent']) + $this->model->CategoryLength);
 			}
 			$ct = $dbGet->Get();
 			if(!strlen($ct['category'])) $newCategory = sprintf('%0'.$this->model->CategoryLength.'d', 0);
@@ -71,7 +71,7 @@ class BH_Category{
 			$this->model->SetValue('category', $_POST['parent'].$newCategory);
 
 			$dbGet = new \BH_DB_Get($this->model->table);
-			$dbGet->AddWhere('category = '.SetDBText($_POST['parent']));
+			$dbGet->AddWhere('category = %s', $_POST['parent']);
 			$dbGet->AddKey('parent_enabled');
 			$dbGet->AddKey('enabled');
 			$parent = $dbGet->Get();
@@ -145,7 +145,7 @@ class BH_Category{
 	public function PostDeleteMenu(){
 		$dbGet = new \BH_DB_Get($this->model->table);
 		$dbGet->SetKey(array('category', 'sort'));
-		$dbGet->AddWhere('category = '.SetDBText($_POST['category']));
+		$dbGet->AddWhere('category = %s', $_POST['category']);
 		$data = $dbGet->Get();
 
 		$parent = substr($data['category'], 0, strlen($data['category']) - $this->model->CategoryLength);

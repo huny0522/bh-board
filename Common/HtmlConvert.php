@@ -3,7 +3,7 @@
  * Bang Hun.
  * 16.07.10
  */
-use \BH_Common as CF;
+use \BH_Common as CM;
 use \BH_Application as App;
 
 define('_BHSTYLEBEGIN', '//BH_STYLE:');
@@ -17,15 +17,26 @@ function ReplaceHTMLFile($source, $target){
 	if(file_exists($target) && !$modifyIs) return;
 
 	$patterns = array(
-		'/<\?\s*[p|e][\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'/<\?\s*v[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'/<\?\s*vr[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'/<\?\s*vb[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'/<\?\s*fn[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'/<\?\s*fq[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'/<\?\s*a[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'/<\?\s*c[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'/<\?\s*inc[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'/<\?\s*if\((.*?)\)\s*[p|e]\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'/<\?\s*if\((.*?)\)\s*v\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'/<\?\s*if\((.*?)\)\s*vr\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'/<\?\s*if\((.*?)\)\s*vb\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+
+		'/<\?\s*if[p|e]\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'/<\?\s*ifv\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'/<\?\s*ifvr\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'/<\?\s*ifvb\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+
+		'/<\?\s*[p|e]\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'/<\?\s*v\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'/<\?\s*vr\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'/<\?\s*vb\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+
+		'/<\?\s*fn\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'/<\?\s*fq\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'/<\?\s*a\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'/<\?\s*c\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'/<\?\s*inc\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
 		'/<\?\s*mt\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*mv\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*mvr\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
@@ -38,18 +49,30 @@ function ReplaceHTMLFile($source, $target){
 		'/<\?\s*mvr\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*mvb\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*minp\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-		'/<\?\s*menum\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is'
+		'/<\?\s*menum\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'/<img\s*\!\s*(.*?)\s*src=\"(.*?)\"(.*?)>/is',
 	);
 
 	$replace = array(
+		'<?php if($1) echo $2; ?>',
+		'<?php if($1) echo GetDBText($2); ?>',
+		'<?php if($1) echo GetDBRaw($2); ?>',
+		'<?php if($1) echo nl2br(GetDBText($2)); ?>',
+
+		'<?php if(isset($1)) echo $1; ?>',
+		'<?php if(isset($1)) echo GetDBText($1); ?>',
+		'<?php if(isset($1)) echo GetDBRaw($1); ?>',
+		'<?php if(isset($1)) echo nl2br(GetDBText($1)); ?>',
+
 		'<?php echo $1; ?>',
 		'<?php echo GetDBText($1); ?>',
 		'<?php echo GetDBRaw($1); ?>',
 		'<?php echo nl2br(GetDBText($1)); ?>',
-		'<?php echo App::GetFollowQuery($1, \'&\'); ?>',
-		'<?php echo App::GetFollowQuery($1, \'?\'); ?>',
-		'<?php echo App::URLAction($1); ?>',
-		'<?php echo App::URLBase($1); ?>',
+
+		'<?php echo \BH_Application::GetFollowQuery($1, \'&\'); ?>',
+		'<?php echo \BH_Application::GetFollowQuery($1, \'?\'); ?>',
+		'<?php echo \BH_Application::URLAction($1); ?>',
+		'<?php echo \BH_Application::URLBase($1); ?>',
 		'<?php if(_DEVELOPERIS === true) ReplaceHTMLFile(_SKINDIR.$1, _HTMLDIR.$1); require _HTMLDIR.$1; ?>',
 		'<?php echo $Model->data[$1]->DisplayName; ?>',
 		'<?php echo GetDBText($Model->GetValue($1)); ?>',
@@ -63,7 +86,8 @@ function ReplaceHTMLFile($source, $target){
 		'<?php echo GetDBRaw($Ctrl->$1->GetValue($2)); ?>',
 		'<?php echo nl2br(GetDBText($Ctrl->$1->GetValue($2))); ?>',
 		'<?php echo $Ctrl->$1->HTMLPrintInput($2); ?>',
-		'<?php echo $Ctrl->$1->HTMLPrintEnum($2); ?>'
+		'<?php echo $Ctrl->$1->HTMLPrintEnum($2); ?>',
+		'<img $1 src="'._DOMAIN._URL.'$2" $3>',
 	);
 
 	$a = explode('/', $target);

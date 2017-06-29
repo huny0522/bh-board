@@ -4,24 +4,26 @@
  * 16.07.10
  */
 
-namespace Admin;
-use \BH_Application as App;
-use \BH_Common as CF;
+namespace BH\Controller\Admin;
 
-class MemberController{
+use \BH_Application as App;
+use \BH_Common as CM;
+use \DB as DB;
+
+class Member{
 
 	/**
-	 * @var MemberModel
+	 * @var \MemberModel
 	 */
 	public $model = NULL;
 
 	public function __construct(){
-		$this->model = App::GetModel('Member');
+		$this->model = App::InitModel('Member');
 	}
 
 	public function __init(){
 		App::$Data['NowMenu'] = '005';
-		CF::AdminAuth();
+		CM::AdminAuth();
 
 		App::SetFollowQuery(array('SLevel', 'keyword','page'));
 		App::$Layout = '_Admin';
@@ -50,11 +52,11 @@ class MemberController{
 	public function View(){
 		$res = $this->model->DBGet($_GET['muid']);
 		if($this->model->GetValue('level') > $_SESSION['member']['level'] || ($_SESSION['member']['muid'] != $this->model->GetValue('muid') && $this->model->GetValue('level') == $_SESSION['member']['level'])){
-			Redirect('-1', _MSG_WRONG_CONNECTED);
+			URLReplace('-1', _MSG_WRONG_CONNECTED);
 		}
 
 		if(!$res->result){
-			Redirect('-1', $res->message);
+			URLReplace('-1', $res->message);
 		}
 
 		App::View($this, $this->model);
@@ -72,10 +74,10 @@ class MemberController{
 		$this->model->data['pwd']->Required = false;
 		$res = $this->model->DBGet($_GET['muid']);
 		if($this->model->GetValue('level') > $_SESSION['member']['level'] || ($_SESSION['member']['muid'] != $this->model->GetValue('muid') && $this->model->GetValue('level') == $_SESSION['member']['level'])){
-			Redirect('-1', _MSG_WRONG_CONNECTED);
+			URLReplace('-1', _MSG_WRONG_CONNECTED);
 		}
 
-		if(!$res->result) Redirect('-1', $res->message);
+		if(!$res->result) URLReplace('-1', $res->message);
 
 		App::$Html = 'Write';
 		App::View($this, $this->model);
@@ -107,12 +109,12 @@ class MemberController{
 			return;
 		}
 
-		if($this->model->GetValue('level') >= $_SESSION['member']['level']) Redirect('-1', '해당 레벨로 등록이 불가능합니다.');
+		if($this->model->GetValue('level') >= $_SESSION['member']['level']) URLReplace('-1', '해당 레벨로 등록이 불가능합니다.');
 
 		$this->model->SetValue('reg_date', date('Y-m-d H:i:s'));
 		$res = $this->model->DBInsert();
-		if($res->result) Redirect(App::URLAction().App::GetFollowQuery());
-		else Redirect(App::URLAction().App::GetFollowQuery(), 'ERROR');
+		if($res->result) URLReplace(App::URLAction().App::GetFollowQuery());
+		else URLReplace(App::URLAction().App::GetFollowQuery(), 'ERROR');
 
 	}
 
@@ -121,24 +123,24 @@ class MemberController{
 
 		$res = $this->model->DBGet($_POST['muid']);
 		if($this->model->GetValue('level') > $_SESSION['member']['level'] || ($_SESSION['member']['muid'] != $this->model->GetValue('muid') && $this->model->GetValue('level') == $_SESSION['member']['level'])){
-			Redirect('-1', _MSG_WRONG_CONNECTED);
+			URLReplace('-1', _MSG_WRONG_CONNECTED);
 		}
 
 		$res = $this->model->SetPostValues();
 		if($this->model->GetValue('level') >= $_SESSION['member']['level'] && $this->model->GetValue('muid') != $_SESSION['member']['muid']){
-			Redirect('-1', '해당 레벨로 등록이 불가능합니다.');
+			URLReplace('-1', '해당 레벨로 등록이 불가능합니다.');
 		}
 
 		if(!$res->result){
-			Redirect('-1',$res->message);
+			URLReplace('-1',$res->message);
 		}
 		else{
 			$res = $this->model->DBUpdate();
 			if($res->result){
 				$url = App::URLAction('View').'?muid='.$_POST['muid'].App::GetFollowQuery();
-				Redirect($url, '수정완료');
+				URLReplace($url, '수정완료');
 			}else{
-				Redirect('-1', 'ERROR');
+				URLReplace('-1', $res->message ? $res->message : 'ERROR');
 			}
 		}
 	}
@@ -147,14 +149,14 @@ class MemberController{
 		$this->model->DBGet($_POST['muid']);
 
 		if($this->model->GetValue('level') >= $_SESSION['member']['level']){
-			Redirect('-1', '관리자는 삭제가 불가능합니다.');
+			URLReplace('-1', '관리자는 삭제가 불가능합니다.');
 		}
 		if(isset($_POST['muid']) && $_POST['muid'] != ''){
 			$res = $this->model->DBDelete($_POST['muid']);
 			if($res->result){
-				Redirect(App::URLAction('').App::GetFollowQuery(), '삭제되었습니다.');
+				URLReplace(App::URLAction('').App::GetFollowQuery(), '삭제되었습니다.');
 			}else{
-				Redirect('-1', $res->message);
+				URLReplace('-1', $res->message);
 			}
 		}
 	}

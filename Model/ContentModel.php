@@ -3,7 +3,8 @@
  * Bang Hun.
  * 16.07.10
  */
-use \BH_Common as CF;
+
+use \BH_Common as CM;
 use \BH_Application as App;
 
 class ContentModel extends \BH_Model{
@@ -15,7 +16,7 @@ class ContentModel extends \BH_Model{
 		$this->data['subject'] = new \BH_ModelData(ModelType::String, true, '제목');
 		$this->data['subject']->MaxLength = 128;
 
-		$this->data['bid'] = new \BH_ModelData(ModelType::EngNum, true, '아이디');
+		$this->data['bid'] = new \BH_ModelData(ModelType::String, true, '아이디', HTMLType::InputEngNum);
 		$this->data['bid']->MinLength = '1';
 		$this->data['bid']->MaxLength = '20';
 

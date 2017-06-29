@@ -5,7 +5,7 @@ $(document).on('submit', '.replyWrite form', function(e){
 	e.preventDefault();
 	$(this).validCheck();
 
-    common.ajaxForm(this, function(data){
+    JCM.ajaxForm(this, function(data){
 		$('#replyGetForm input[name=page]').val(1);
 		getReplyList();
 	});
@@ -15,7 +15,7 @@ $(document).on('submit', '.replyWrite form', function(e){
 // Get List
 
 function getReplyList(){
-	common.ajaxForm('#replyGetForm', function(data){
+	JCM.ajaxForm('#replyGetForm', function(data){
 		$('#Reply').html(data);
 	});
 }
@@ -48,7 +48,7 @@ $(document).on('click', '#replyListContents a.pwdView', function(e){
 $(document).on('submit', '#repPwdForm', function(e){
 	e.preventDefault();
 	var seq = $('#repPwdForm input[name=seq]').val();
-	common.ajaxForm(this, function(data){
+	JCM.ajaxForm(this, function(data){
 		var btns = '<a href="#" class="answerBtn">답변</a><a href="#" class="modifyBtn">수정</a><a href="#" class="deleteBtn">삭제</a>';
 		$('#repArticle'+seq+' .commentText').html(data);
 		$('#repArticle'+seq+' .btns').html(btns);
@@ -78,7 +78,7 @@ $(document).on('click', '#replyListContents a.deleteBtn', function(e){
 
 $(document).on('submit', '#repDeleteForm', function(e){
 	e.preventDefault();
-	common.ajaxForm(this, function(data){
+	JCM.ajaxForm(this, function(data){
 		getReplyList();
 	});
 });
@@ -105,7 +105,7 @@ $(document).on('click', '#replyListContents a.modifyBtn', function(e){
 
 $(document).on('submit', '#repModifyForm', function(e){
 	e.preventDefault();
-	common.ajaxForm(this, function(data){
+	JCM.ajaxForm(this, function(data){
 		getReplyList();
 	});
 });
@@ -132,7 +132,7 @@ $(document).on('click', '#replyListContents a.answerBtn', function(e){
 
 $(document).on('submit', '#repAnswerForm', function(e){
 	e.preventDefault();
-	common.ajaxForm(this, function(data){
+	JCM.ajaxForm(this, function(data){
 		getReplyList();
 	});
 });

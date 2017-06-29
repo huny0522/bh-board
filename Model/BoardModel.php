@@ -5,7 +5,8 @@
  * 16.07.10
  *
  */
-use \BH_Common as CF;
+
+use \BH_Common as CM;
 use \BH_Application as App;
 
 class BoardModel extends \BH_Model{
@@ -20,7 +21,7 @@ class BoardModel extends \BH_Model{
 		$this->imageTable = $this->table.'_images';
 
 		if(!\DB::SQL()->TableExists($this->table)){
-			Redirect(_URL.'/', '존재하지 않는 게시판입니다.');
+			URLReplace(_URL.'/', '존재하지 않는 게시판입니다.');
 		}
 
 		$this->data['seq'] = new \BH_ModelData(ModelType::Int, false, '');
@@ -61,7 +62,7 @@ class BoardModel extends \BH_Model{
 		$this->data['mname'] = new \BH_ModelData(ModelType::String, true, '이름');
 		$this->data['mname']->MaxLength = 32;
 
-		$this->data['pwd'] = new \BH_ModelData(ModelType::Password, true, '패스워드', HTMLType::InputPassword);
+		$this->data['pwd'] = new \BH_ModelData(ModelType::String, true, '패스워드', HTMLType::InputPassword);
 		$this->data['pwd']->MinLength = 6;
 		$this->data['pwd']->MaxLength = 16;
 

@@ -5,7 +5,8 @@
  * 16.07.10
  *
  */
-use \BH_Common as CF;
+
+use \BH_Common as CM;
 use \BH_Application as App;
 
 class ReplyModel extends \BH_Model{
@@ -44,7 +45,7 @@ class ReplyModel extends \BH_Model{
 		$this->data['mname'] = new \BH_ModelData(ModelType::String, false, '이름');
 		$this->data['mname']->MaxLength = 32;
 
-		$this->data['pwd'] = new \BH_ModelData(ModelType::Password, false, '패스워드', HTMLType::InputPassword);
+		$this->data['pwd'] = new \BH_ModelData(ModelType::String, false, '패스워드', HTMLType::InputPassword);
 		$this->data['pwd']->MaxLength = 8;
 		$this->data['pwd']->MaxLength = 16;
 

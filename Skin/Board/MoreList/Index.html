@@ -1,9 +1,9 @@
 <?php if(_BH_ !== true) exit;
-use \BH_Common as CF;
+use \BH_Common as CM;
 use \BH_Application as App;
 
 /**
- * @var $Ctrl \BoardController
+ * @var $Ctrl \BH\Controller\Board
  * @var $Model \BoardModel
  * @var $Data \BH_DB_GetListWithPage
  */
@@ -62,7 +62,7 @@ use \BH_Application as App;
 <script>
 	if(typeof(MoreList) != 'function'){
 		function MoreList(){
-			common.ajaxForm('#bbsSchForm', function(data){
+			JCM.ajaxForm('#bbsSchForm', function(data){
 				var boardList = $('#bhBoardList table.list tbody');
 				if(data.lastIs) $('#bhBoardList .moreViewBtn').hide();
 				else $('#bhBoardList .moreViewBtn').show();
@@ -104,7 +104,7 @@ use \BH_Application as App;
 
 	$('#viewForm').on('submit', function(e){
 		e.preventDefault();
-		common.ajaxForm(this, function(data){
+		JCM.ajaxForm(this, function(data){
 			appJS.createSubPage(this, true, data);
 			$('#viewForm')[0].reset();
 			$('#secretViewForm').hide();

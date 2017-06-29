@@ -11,76 +11,8 @@ function getInternetExplorerVersion() {
 
 var transitionEnd = 'transitionend webkittransitionend otransitionend mstransitionend';
 
-$(document).ready(function () {
-	$('input.datePicker').not('.nopicker').each(function(){
-		datepicker.call(this);
-	});
-	DateInputAll();
-
-	_SelectBox.SetAll();
-	_ImageAlign.alignAll();
-
-	$('.UploadImagePreview img.preview').each(function () {
-		var obj = $(this);
-		this.onerror = function () {
-			obj.parent().hide();
-		};
-		this.oncomplete = function () {
-			obj.parent().show();
-		};
-		this.src = obj.attr('src') == '' ? '#' : obj.attr('src');
-	});
-
-	if ($('.selectMail select[name=selectMail]').length) {
-		$(document).on('change', '.selectMail select[name=selectMail]', function (e) {
-			var inp = $(this).closest('.selectMail').find('input.emailAddr');
-			if ($(this).val() == 'x') {
-				inp.val('');
-			} else if ($(this).val() != '') {
-				inp.val($(this).val());
-			}
-		});
-	}
-
-	$(document).on('click', '.tabMenu a', function (e) {
-		e.preventDefault();
-		var container = $(this).closest('.tabContainer');
-		var li = container.find('.tabMenu li');
-		var idx = li.index($(this).parent());
-		li.eq(idx).addClass('on').siblings().removeClass('on');
-		container.find('section').eq(idx).addClass('on').siblings('section').removeClass('on');
-	});
-});
-
 $(window).resize(function () {
 	_ImageAlign.alignAll();
-});
-
-$(document).on('DOMNodeInserted', 'body', function(e){
-	if($(e.target).hasClass('event')) _EventLink.EventCheck.call(e.target);
-	$(e.target).find('.event').each(function(){
-		_EventLink.EventCheck.call(this);
-	});
-
-	if($(e.target).hasClass('imgAlign')) _ImageAlign.align.call(e.target);
-	$(e.target).find('.imgAlign').each(function(){
-		_ImageAlign.align.call(this);
-	});
-
-	if($(e.target).hasClass('selectBox')) _SelectBox.Set.call($(e.target).find('select'));
-	$(e.target).find('.selectBox select').each(function(){
-		_SelectBox.Set.call(this);
-	});
-
-	if($(e.target).hasClass('dateInput') && $(e.target).find('input.date').length) DateInput.call($(e.target).find('input.date'));
-	$(e.target).find('.dateInput input.date').each(function(){
-		DateInput.call(this);
-	});
-
-	if(e.target.tagName === 'INPUT' && $(e.target).hasClass('datePicker') && !$(e.target).hasClass('nopicker')) datepicker.call($(e.target));
-	$(e.target).find('input.datePicker').not('.nopicker').each(function(){
-		datepicker.call(this);
-	});
 });
 
 function Common($) {
@@ -88,7 +20,6 @@ function Common($) {
 
 	this.ie8 = false;
 	this.ie9 = false;
-	this.alertNumber = 0;
 
 	this.Init = function(){
 		var ieVer = getInternetExplorerVersion();
@@ -228,7 +159,7 @@ function Common($) {
 		html += '<div class="BH_Popup" id="BH_Popup' + seq + '" style="top:' + top + 'px; left:' + left + 'px;">'
 			+ '<div class="BH_PopupContent" style="width:'+ width + 'px; height:'+ height + 'px;">' + data + '</div>'
 			+ '<div class="BH_PopupBtns">'
-			+ '<span class="BH_PopupTodayClose"><a onclick="common.todayPopupClose(' + seq + ');">오늘하루 이창 열지 않기</a></span>'
+			+ '<span class="BH_PopupTodayClose"><a onclick="JCM.todayPopupClose(' + seq + ');">오늘하루 이창 열지 않기</a></span>'
 			+ '<span class="BH_PopupClose"><a onclick="jQuery(this).closest(\'.BH_Popup\').hide();">닫기</a></span>'
 			+ '</div>'
 			+ '</div>';
@@ -255,7 +186,7 @@ function Common($) {
 			success: function (response, textStatus, xhr, form) {
 				_this.loading_end();
 
-				if(typeof response.message != 'undefined' && response.message != null && response.message.length) alert(response.message);
+				if(typeof response.message != 'undefined' && response.message != null && response.message.length) CMAlert(response.message);
 				if(typeof response.result != 'undefined' && response.result != null){
 					if(response.result === true){
 						if(typeof success_func != 'undefined') success_func(response.data);
@@ -268,7 +199,7 @@ function Common($) {
 			},
 			error: function (xhr, textStatus, errorThrown) {
 				_this.loading_end();
-				alert(textStatus);
+				CMAlert(textStatus);
 			},
 			uploadProgress: function (event, position, total, percentComplete) {
 				// uploadProgress
@@ -296,7 +227,7 @@ function Common($) {
 			, success: function (response, textStatus, jqXHR) {
 				if (le === true) _this.loading_end();
 
-				if (typeof response.message != 'undefined' && response.message != null && response.message.length) alert(response.message);
+				if (typeof response.message != 'undefined' && response.message != null && response.message.length) CMAlert(response.message);
 				if(typeof response.result != 'undefined' && response.result != null){
 					if(response.result === true){
 						if (typeof success_func!= 'undefined') success_func(response.data);
@@ -309,7 +240,7 @@ function Common($) {
 			}
 			, error: function (jqXHR, textStatus, errorThrown) {
 				if (le === true) _this.loading_end();
-				alert(textStatus);
+				CMAlert(textStatus);
 			}
 		});
 	};
@@ -359,7 +290,7 @@ function Common($) {
 		if (!w) w = 400;
 		if (!h) h = 300;
 		var html = '<div id="' + modal_id + '" class="modal_layer"><div class="modal_wrap">';
-		if (title && title != '') html += '<div class="modal_header"><h1 class="modal_title">' + title + '</h1><p class="close_modal_btn"><i class="fa fa-close" title="닫기" onclick="common.removeModal(\'#' + modal_id + '\')"></i></p></div>';
+		if (title && title != '') html += '<div class="modal_header"><h1 class="modal_title">' + title + '</h1><p class="close_modal_btn"><i class="fa fa-close" title="닫기" onclick="JCM.removeModal(\'#' + modal_id + '\')"></i></p></div>';
 		html += '<div class="modal_contents">' + data + '</div>';
 		html += '</div></div>';
 		$('body').append(html);
@@ -510,14 +441,26 @@ function Common($) {
  *   Message Modal
  *
  ----------------------------------------------------- */
+window.CMAlert = function(message, callback){
+	alert(message);
+	if(typeof(callback) == 'function') callback();
+};
+
+window.CMConfirm = function(message, yesCallback, noCallback){
+	if(confirm(message)){
+		if(typeof(yesCallback) == 'function') yesCallback();
+	}
+	else{
+		if(typeof(noCallback) == 'function') noCallback();
+	}
+};
+
 function MessageModal($){
 	var _this = this;
 	this.activeElement = null;
+	this.alertNumber = 0;
 
 	this.Init = function(){
-		window.alert = function(msg) {
-			_this.Create(msg);
-		};
 
 		$(document).on('mousedown touch', '.MessageModal footer a', function(e){
 			_this.activeElement = $('*:focus');
@@ -582,12 +525,31 @@ function MessageModal($){
 	};
 
 	this.Init();
+
+	window.CMAlert = function(msg, callback){
+		if(typeof callback == 'function')
+			_this.Create(msg, [{text : '확인', onclick : function(obj){
+				callback();
+			}}]);
+		else _this.Create(msg);
+	};
+
+	window.CMConfirm = function(message, yesCallback, noCallback, title){
+		if(typeof title == 'undefined') title = '알림';
+		_this.Create(message, [
+			{text : '확인', onclick : function(obj){
+				if(typeof yesCallback == 'function') yesCallback();
+			}},
+			{text : '취소', onclick : function(obj){
+				if(typeof noCallback == 'function') noCallback();
+			}},
+		], title);
+	};
 }
 
 /* -----------------------------------------------------
  *
- *    .event 와 메소드 연결
- *    ex) <a href="#" class="event" e-click="common.test">Test</a>
+ *    ex) <a href="#" e-click="JCM.test">Test</a>
  *    속성 : e-click, e-submit, e-mousedown, e-mouseup,
  *    e-transition-end(e-animate-end), e-touch, e-touch-start(e-mouse-down),
  *    e-touch-move(e-mouse-move), e-touch-end(e-mouse-up)
@@ -595,12 +557,90 @@ function MessageModal($){
  ----------------------------------------------------- */
 function EventLink($){
 	var _this = this;
+
+	this.GetEventFunction = function(data){
+		var temp = data.split('.');
+		var obj = window;
+		for(var i=0, max = temp.length; i < max; i ++){
+			if(typeof(obj[temp[i]]) != 'function' && typeof(obj[temp[i]]) != 'object') return;
+			obj = obj[temp[i]];
+		}
+		if(typeof(obj) == 'function') return obj;
+		return null;
+	};
+
+	this.TouchStartElement = function(e){
+		e.stopPropagation();
+		var body = $('body');
+
+		if(typeof(body.data) == 'undefined' || typeof(body.data('touchObject')) == 'undefined' || body.data('touchObject') == null){
+			body.data('touchObject', [this]);
+		}
+		else{
+			var objs = body.data('touchObject');
+			for(var i=0, max = objs.length; i < max; i++){
+				if(objs[i] === this) return;
+			}
+			objs.push(this);
+			body.data('touchObject', objs);
+		}
+		$(this).data('touchStart', e.type == 'mousedown' ? {
+			'pageX': e.pageX,
+			'pageY': e.pageY
+		} : e.originalEvent.touches[0]);
+		$(this).data('touchEnd', null);
+		$(this).data('visibleTouchIs', this == document.elementFromPoint($(this).data('touchStart').pageX, $(this).data('touchStart').pageY) );
+	};
+
 	this.Init = function(){
-		$(document).ready(function(e){
-			$('.event').each(function(){
-				_this.EventCheck.call(this);
+		$.fn.touch = function(func){
+			// touchStart
+			this.addEventListener('touchstart', function(e){
+				_this.TouchStartElement.call(this, e);
 			});
-		});
+
+			this.addEventListener('mousedown', function(e){
+				_this.TouchStartElement.call(this, e);
+			});
+
+			// touchEnd
+			this.addEventListener('e_touch', function(e){
+				func.call(this, e);
+			});
+		};
+
+		$.fn.touchVisible = function(func){
+			// touchStart
+			this.addEventListener('touchstart', function(e){
+				_this.TouchStartElement.call(this, e);
+			});
+			this.addEventListener('mousedown', function(e){
+				_this.TouchStartElement.call(this, e);
+			});
+			// touchMove
+			// touchEnd
+			this.addEventListener('e_touch_visible', function(e){
+				func.call(this, e);
+			});
+		};
+
+		$.fn.drag = function(dragFunc, dragEndFunc){
+			// touchStart
+			this.addEventListener('touchstart', function(e){
+				_this.TouchStartElement.call(this, e);
+			});
+			this.addEventListener('mousedown', function(e){
+				_this.TouchStartElement.call(this, e);
+			});
+			// touchMove
+			this.addEventListener('e_drag', function(e){
+				dragFunc.call(this, e);
+			});
+			// touchEnd
+			this.addEventListener('e_drag_end', function(e){
+				dragEndFunc.call(this, e);
+			});
+		};
 
 		$(document).on('touchmove mousemove', 'body', function(e){
 			var body = $(this);
@@ -608,13 +648,12 @@ function EventLink($){
 			var touchObject = body.data('touchObject');
 			if(typeof($(touchObject).data) == 'undefined' || typeof($(touchObject).data('touchStart')) == 'undefined' || $(touchObject).data('touchStart') == null) return;
 			$.each(touchObject, function(idx, obj){
-				$(obj).data('touchEnd', e.type == 'mousemove' ? {
+				var jObj = $(obj);
+				jObj.data('touchEnd', e.type == 'mousemove' ? {
 					'pageX': e.pageX,
 					'pageY': e.pageY
 				} : e.originalEvent.touches[0]);
-				if(obj.hasAttribute('e-touch-move')) $(obj).trigger('e_move', e);
-				else if(obj.hasAttribute('e-mouse-move')) $(obj).trigger('e_move', e);
-				if(obj.hasAttribute('e-drag')) $(obj).trigger('e_drag', e);
+				jObj.trigger('e_drag', e);
 			});
 		});
 
@@ -625,113 +664,36 @@ function EventLink($){
 			if(!$(touchObject).length || typeof($(touchObject).data) == 'undefined' || typeof($(touchObject).data('touchStart')) == 'undefined' || $(touchObject).data('touchStart') == null) return;
 
 			$.each(touchObject, function(idx, obj){
-				if($(obj).data('touchEnd') == null) $(obj).data('touchEnd', $(obj).data('touchStart'));
-				var elementFromPoint = $(document.elementFromPoint($(obj).data('touchEnd').pageX, $(obj).data('touchEnd').pageY))[0];
+				var jObj = $(obj);
+				if(typeof(jObj.data) == 'undefined' || typeof(jObj.data('touchStart')) == 'undefined' || jObj.data('touchStart') == null) return;
+				var data = jObj.data;
+				var touchStart = data('touchStart');
+				if(typeof(data('touchEnd')) == 'undefined' || data('touchEnd') == null) data('touchEnd', touchStart);
+				var touchEnd = body.data('touchEnd');
 
-				if(obj.hasAttribute('e-touch') && (obj == elementFromPoint || $(elementFromPoint).closest(obj).length)){
-					var x = $(obj).data('touchEnd').pageX - $(obj).data('touchStart').pageX;
-					var y = $(obj).data('touchEnd').pageY - $(obj).data('touchStart').pageY;
-					if(Math.abs(x) < 5 && Math.abs(y) < 5) $(obj).trigger('e_touch', e);
+				var elementFromPoint = $(document.elementFromPoint(touchEnd.pageX, touchEnd.pageY))[0];
+
+				if(obj == elementFromPoint || $(elementFromPoint).closest(obj).length){
+					var x = touchEnd.pageX - touchStart.pageX;
+					var y = touchEnd.pageY - touchStart.pageY;
+					if(Math.abs(x) < 5 && Math.abs(y) < 5) jObj.trigger('e_touch', e);
 				}
 
-				if(obj.hasAttribute('e-touch-visible') && typeof($(obj).data('visibleTouchIs')) != 'undefined' && $(obj).data('visibleTouchIs') && obj == document.elementFromPoint($(obj).data('touchEnd').pageX, $(obj).data('touchEnd').pageY)){
-					var x = $(obj).data('touchEnd').pageX - $(obj).data('touchStart').pageX;
-					var y = $(obj).data('touchEnd').pageY - $(obj).data('touchStart').pageY;
-					if(Math.abs(x) < 5 && Math.abs(y) < 5) $(obj).trigger('e_touch_visible', e);
+				if(data('visibleTouchIs') && obj == document.elementFromPoint(touchEnd.pageX, touchEnd.pageY)){
+					var x = touchEnd.pageX - touchStart.pageX;
+					var y = touchEnd.pageY - touchStart.pageY;
+					if(Math.abs(x) < 5 && Math.abs(y) < 5) jObj.trigger('e_touch_visible', e);
 				}
 
-				if(obj.hasAttribute('e-touch-end')) $(obj).trigger('e_touch_end', e);
-				else if(obj.hasAttribute('e-mouse-up')) $(obj).trigger('e_mouse_up', e);
+				jObj.trigger('e_touch_end', e);
 
-				if(obj.hasAttribute('e-drag-end')) $(obj).trigger('e_drag_end', e);
+				jObj.trigger('e_drag_end', e);
 
-				$(obj).data('touchStart', null);
-				$(obj).data('touchEnd', null);
+				data('touchStart', null);
+				data('touchEnd', null);
 			});
 			body.data('touchObject', null);
 		});
-	};
-
-	this.EventCheck = function(){
-
-		function GetEventFunction(data){
-			var temp = data.split('.');
-			var obj = null;
-			for(var i=0, max = temp.length; i < max; i ++){
-				if(obj == null){
-					if(typeof(window[temp[i]]) != 'function' && typeof(window[temp[i]]) != 'object') return;
-					obj = window[temp[i]];
-				}
-				else{
-					if(typeof(obj[temp[i]]) != 'function' && typeof(obj[temp[i]]) != 'object') return;
-					obj = obj[temp[i]];
-				}
-			}
-			if(typeof(obj) == 'function') return obj;
-			return null;
-		};
-
-		// .event 의 data-action 속성의 값과 이름이 일치하는 함수를 연결
-		if(this.hasAttribute('e-touch') || this.hasAttribute('e-touch-visible') || this.hasAttribute('e-click')){
-			if(this.tagName == 'A' || this.tagName == 'BUTTON' || this.tagName == 'INPUT'){
-				$(this).on('click', function(e){
-					e.preventDefault();
-				});
-			}
-			if(this.hasAttribute('e-click')) $(this).on('click', GetEventFunction($(this).attr('e-click')));
-		}
-
-		if(this.hasAttribute('e-submit')){
-			$(this).on('submit', function(e){
-				e.preventDefault();
-			});
-			if(this.hasAttribute('e-submit')) $(this).on('submit', GetEventFunction($(this).attr('e-submit')));
-		}
-
-		if(this.hasAttribute('e-transition-end')) $(this).on(transitionEnd, GetEventFunction($(this).attr('e-transition-end')));
-		else if(this.hasAttribute('e-animate-end')) $(this).on(transitionEnd, GetEventFunction($(this).attr('e-animate-end')));
-
-		if(this.hasAttribute('e-change')) $(this).on('change', GetEventFunction($(this).attr('e-change')));
-
-		// Touch Start Events
-		if(this.hasAttribute('e-touch') || this.hasAttribute('e-touch-visible') || this.hasAttribute('e-mouse-down') || this.hasAttribute('e-touch-start') || this.hasAttribute('e-drag')){
-			$(this).on('touchstart mousedown', function(e){
-				if(typeof($('body').data) == 'undefined' || typeof($('body').data('touchObject')) == 'undefined' || $('body').data('touchObject') == null){
-					$('body').data('touchObject', [this]);
-				}
-				else{
-					var objs = $('body').data('touchObject');
-					objs.push(this);
-					$('body').data('touchObject', objs);
-				}
-				$(this).data('touchStart', e.type == 'mousedown' ? {
-					'pageX': e.pageX,
-					'pageY': e.pageY
-				} : e.originalEvent.touches[0]);
-				$(this).data('touchEnd', null);
-				$(this).data('visibleTouchIs',
-					(this.hasAttribute('e-touch-visible') && this == document.elementFromPoint($(this).data('touchStart').pageX, $(this).data('touchStart').pageY))
-				);
-			});
-		}
-		if(this.hasAttribute('e-touch-start')) $(this).on('touchstart mousedown', GetEventFunction($(this).attr('e-touch-start')));
-		else if(this.hasAttribute('e-mouse-down')) $(this).on('touchstart mousedown', GetEventFunction($(this).attr('e-mouse-down')));
-
-		// Touch Move Events
-		if(this.hasAttribute('e-touch-move')) $(this).on('e_move', GetEventFunction($(this).attr('e-touch-move')));
-		else if(this.hasAttribute('e-mouse-move')) $(this).on('e_move', GetEventFunction($(this).attr('e-mouse-move')));
-
-		if(this.hasAttribute('e-drag')) $(this).on('e_drag', GetEventFunction($(this).attr('e-drag')));
-
-		// Touch End Events
-		if(this.hasAttribute('e-touch')) $(this).on('e_touch', GetEventFunction($(this).attr('e-touch')));
-
-		if(this.hasAttribute('e-touch-visible')) $(this).on('e_touch_visible', GetEventFunction($(this).attr('e-touch-visible')));
-
-		if(this.hasAttribute('e-touch-end')) $(this).on('e_touch_end', GetEventFunction($(this).attr('e-touch-end')));
-		else if(this.hasAttribute('e-mouse-up')) $(this).on('e_mouse_up', GetEventFunction($(this).attr('e-mouse-up')));
-
-		if(this.hasAttribute('e-drag-end')) $(this).on('e_drag_end', GetEventFunction($(this).attr('e-drag-end')));
 	};
 
 	this.Init();
@@ -906,7 +868,7 @@ var _SelectBox = new SelectBox(jQuery);
 			$(this).off('transitionend webkittransitionend mstransitionend');
 			var beforeTranslate = 'translate3d(' + before.x + ', ' + before.y + ', ' + before.z + ')';
 			var afterTranslate = 'translate3d(' + after.x + ', ' + after.y + ', ' + after.z + ')';
-			before.css.transition = 0;
+			before.css.transition = '0s';
 			before.css['-webkit-transform'] = beforeTranslate;
 			before.css['-ms-transform'] = beforeTranslate;
 			before.css.transform = beforeTranslate;
@@ -939,15 +901,19 @@ var _SelectBox = new SelectBox(jQuery);
 				if (this.hasAttribute('required')) {
 					if ($(this).attr('type') == 'checkbox' || $(this).attr('type') == 'radio') {
 						if (!f.find('input[name=' + $(this).attr('name') + ']:checked').length) {
-							alert($(this).attr('data-displayname') + ' 항목을 선택하여 주세요.');
-							$(this).focus();
+							var obj = this;
+							CMAlert($(this).attr('data-displayname') + ' 항목을 선택하여 주세요.', function(){
+								$(obj).focus();
+							});
 							ret = false;
 							return false;
 						}
 					}
 					else if ($.trim($(this).val()) == '') {
-						alert($(this).attr('data-displayname') + ' 항목을 입력하여 주세요.');
-						$(this).focus();
+						var obj = this;
+						CMAlert($(this).attr('data-displayname') + ' 항목을 입력하여 주세요.', function(){
+							$(obj).focus();
+						});
 						ret = false;
 						return false;
 					}
@@ -957,8 +923,10 @@ var _SelectBox = new SelectBox(jQuery);
 					if($(this).hasClass('engonly')){
 						var val = this.value.replace(/[^a-zA-Z]/gi,'');
 						if(val != this.value){
-							alert($(this).attr('data-displayname') + ' 항목은 영문만 입력하여 주세요.');
-							$(this).focus();
+							var obj = this;
+							CMAlert($(this).attr('data-displayname') + ' 항목은 영문만 입력하여 주세요.', function(){
+								$(obj).focus();
+							});
 							ret = false;
 							return false;
 						}
@@ -966,9 +934,11 @@ var _SelectBox = new SelectBox(jQuery);
 
 					if($(this).hasClass('email')){
 						var v = $.trim(this.value);
-						if(v != '' && !common.validateEmail(this.value)){
-							alert($(this).attr('data-displayname') + ' 항목 형식이 올바르지 않습니다.');
-							$(this).focus();
+						if(v != '' && !JCM.validateEmail(this.value)){
+							var obj = this;
+							CMAlert($(this).attr('data-displayname') + ' 항목 형식이 올바르지 않습니다.!', function(){
+								$(obj).focus();
+							});
 							ret = false;
 							return false;
 						}
@@ -977,8 +947,10 @@ var _SelectBox = new SelectBox(jQuery);
 					if($(this).hasClass('tel')){
 						var val = this.value.replace(/[^0-9\-\*\#]/gi,'');
 						if(val != this.value){
-							alert($(this).attr('data-displayname') + ' 항목 형식이 올바르지 않습니다.');
-							$(this).focus();
+							var obj = this;
+							CMAlert($(this).attr('data-displayname') + ' 항목 형식이 올바르지 않습니다.', function(){
+								$(obj).focus();
+							});
 							ret = false;
 							return false;
 						}
@@ -987,8 +959,10 @@ var _SelectBox = new SelectBox(jQuery);
 					if($(this).hasClass('engnumonly')){
 						var val = this.value.replace(/[^a-zA-Z0-9]/gi,'');
 						if(val != this.value){
-							alert($(this).attr('data-displayname') + ' 항목은 영문 또는 숫자만 입력하여 주세요.');
-							$(this).focus();
+							var obj = this;
+							CMAlert($(this).attr('data-displayname') + ' 항목은 영문 또는 숫자만 입력하여 주세요.', function(){
+								$(obj).focus();
+							});
 							ret = false;
 							return false;
 						}
@@ -997,8 +971,22 @@ var _SelectBox = new SelectBox(jQuery);
 					if($(this).hasClass('numberonly')){
 						var val = this.value.replace(/[^0-9]/gi,'');
 						if(val != this.value){
-							alert($(this).attr('data-displayname') + ' 항목은 숫자만 입력하여 주세요.');
-							$(this).focus();
+							var obj = this;
+							CMAlert($(this).attr('data-displayname') + ' 항목은 숫자만 입력하여 주세요.', function(){
+								$(obj).focus();
+							});
+							ret = false;
+							return false;
+						}
+					}
+
+					if($(this).hasClass('numberformat')){
+						var val = this.value.replace(/[^0-9\,]/gi,'');
+						if(val != this.value){
+							var obj = this;
+							CMAlert($(this).attr('data-displayname') + ' 항목은 숫자만 입력하여 주세요.', function(){
+								$(obj).focus();
+							});
 							ret = false;
 							return false;
 						}
@@ -1007,8 +995,10 @@ var _SelectBox = new SelectBox(jQuery);
 					if($(this).hasClass('engspecialonly')) {
 						var val = this.value.replace(/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>'\"\?\-=\+_\:\;\[\]\{\}\/]/gi,'');
 						if(val != this.value){
-							alert($(this).attr('data-displayname') + ' 항목은 영문 및 숫자, 특수문자만 입력하여 주세요.');
-							$(this).focus();
+							var obj = this;
+							CMAlert($(this).attr('data-displayname') + ' 항목은 영문 및 숫자, 특수문자만 입력하여 주세요.', function(){
+								$(obj).focus();
+							});
 							ret = false;
 							return false;
 						}
@@ -1017,8 +1007,10 @@ var _SelectBox = new SelectBox(jQuery);
 					if(this.hasAttribute('data-minlength')){
 						var len = parseInt($(this).attr('data-minlength'));
 						if($(this).val().length < len){
-							alert($(this).attr('data-displayname') + ' 항목은 ' + len + '자 이상으로 입력하여 주세요.');
-							$(this).focus();
+							var obj = this;
+							CMAlert($(this).attr('data-displayname') + ' 항목은 ' + len + '자 이상으로 입력하여 주세요.', function(){
+								$(obj).focus();
+							});
 							ret = false;
 							return false;
 						}
@@ -1026,8 +1018,10 @@ var _SelectBox = new SelectBox(jQuery);
 					if(this.hasAttribute('data-maxlength')){
 						var len = parseInt($(this).attr('data-maxlength'));
 						if($(this).val().length > len){
-							alert($(this).attr('data-displayname') + ' 항목은 ' + len + '자 이하로 입력하여 주세요.');
-							$(this).focus();
+							var obj = this;
+							CMAlert($(this).attr('data-displayname') + ' 항목은 ' + len + '자 이하로 입력하여 주세요.', function(){
+								$(obj).focus();
+							});
 							ret = false;
 							return false;
 						}
@@ -1036,8 +1030,10 @@ var _SelectBox = new SelectBox(jQuery);
 					if($(this).hasClass('numberonly') && this.hasAttribute('data-minvalue')){
 						var min = parseInt($(this).attr('data-minvalue'));
 						if(parseInt($(this).val()) < min){
-							alert($(this).attr('data-displayname') + ' 항목의 최소값은 ' + min + '입니다.');
-							$(this).focus();
+							var obj = this;
+							CMAlert($(this).attr('data-displayname') + ' 항목의 최소값은 ' + min + '입니다.', function(){
+								$(obj).focus();
+							});
 							ret = false;
 							return false;
 						}
@@ -1046,8 +1042,10 @@ var _SelectBox = new SelectBox(jQuery);
 					if($(this).hasClass('numberonly') && this.hasAttribute('data-maxvalue')){
 						var max = parseInt($(this).attr('data-maxvalue'));
 						if(parseInt($(this).val()) > max){
-							alert($(this).attr('data-displayname') + ' 항목의 최대값은 ' + max + '입니다.');
-							$(this).focus();
+							var obj = this;
+							CMAlert($(this).attr('data-displayname') + ' 항목의 최대값은 ' + max + '입니다.', function(){
+								$(obj).focus();
+							});
 							ret = false;
 							return false;
 						}
@@ -1057,8 +1055,9 @@ var _SelectBox = new SelectBox(jQuery);
 						var target = $(this).closest('form').find('input[name=' + $(this).attr('data-same') + ']');
 						if(target.length){
 							if($(this).val() != target.val()){
-								alert(target.attr('data-displayname') + ' 값이 일치하지 않습니다.');
-								target.focus();
+								CMAlert(target.attr('data-displayname') + ' 값이 일치하지 않습니다.', function(){
+									target.focus();
+								});
 								ret = false;
 								return false;
 							}
@@ -1073,7 +1072,7 @@ var _SelectBox = new SelectBox(jQuery);
 	};
 })(jQuery);
 
-var common = new Common(jQuery);
+var JCM = new Common(jQuery);
 
 /* -----------------------------------------------------
  *
@@ -1155,11 +1154,13 @@ $(document).on('keyup mousedown change focus focusout', '.dateInput input.date',
  *   Swiper
  *
  ------------------------------------------- */
-$(window).load(function () {
-	$('.swiper-container').each(function () {
-		if ($(this).attr('data-auto-init') == '0') return;
-		var opt = {};
-		SwiperInit($(this), opt);
+$(function () {
+	$(document).ready(function(){
+		$('.swiper-container').each(function () {
+			if ($(this).attr('data-auto-init') == '0') return;
+			var opt = {};
+			SwiperInit($(this), opt);
+		});
 	});
 });
 
@@ -1189,7 +1190,7 @@ function SwiperInit(obj, opt) {
 		spaceBetween: 0,
 		paginationClickable: true,
 		calculateHeight: true,
-		DOMAnimation: (common.ie8 || common.ie9) ? false : true
+		DOMAnimation: (JCM.ie8 || JCM.ie9) ? false : true
 	};
 
 	if(obj.attr('data-complete') == 'y'){
@@ -1312,7 +1313,7 @@ function SE2_paste(id, defaultfolder, hiddenimage){
 				bUseModeChanger : true,			// 모드 탭(Editor | HTML | TEXT) 사용 여부 (true:사용/ false:사용하지 않음)
 				//aAdditionalFontList : aAdditionalFontSet,		// 추가 글꼴 목록
 				fOnBeforeUnload : function(){
-					//alert("완료!");
+					//CMAlert("완료!");
 				}
 			}, //boolean
 			fOnAppLoad : function(){
@@ -1339,7 +1340,7 @@ $(document).on('change', '#fileupinp', function(e){
 
 $(document).on('submit','#fileupfrm',function(e){
 	e.preventDefault();
-	common.ajaxForm(this, function(result){
+	JCM.ajaxForm(this, function(result){
 		var hinp = '<input type="hidden" name="addimg[]" value="'+result.path+'|'+result.fname+'">';
 		$('.se2_add_img div').append(hinp);
 		$('#fileupfrm')[0].reset();
@@ -1378,7 +1379,7 @@ $(document).on('click', '.checkAllArea input.checkItem', function(){
  *
  ------------------------------------------- */
 $(document).on('change', '.UploadImagePreview input[type=file]', function () {
-	if (common.ie8 || common.ie9) return;
+	if (JCM.ie8 || JCM.ie9) return;
 
 	var img = $(this).closest('.UploadImagePreview').find('img.preview');
 	if (img.length) {
@@ -1398,15 +1399,8 @@ $(document).on('change', '.UploadImagePreview input[type=file]', function () {
  *
  ------------------------------------------- */
 $(document).on('keyup', 'input.numberonly input.numberOnly', function() {
-	if($(this).hasClass('commaNumber')) return;
 	var val = this.value.replace(/[^0-9]/gi,'');
 	if(this.value != val) this.value = val;
-});
-
-$(document).on('keyup click focusout focus', 'input.commaNumber input.commanumber', function() {
-	var val = this.value.replace(/[^0-9]/gi,'');
-	this.value = '';
-	this.value = common.setComma(parseInt(val == '' ? '0' : val));
 });
 
 $(document).on('keyup', 'input.engonly', function() {
@@ -1429,8 +1423,74 @@ $(document).on('keyup', 'input.engspecialonly', function() {
 	if(this.value != val) this.value = val;
 });
 
+$(document).on('keyup click change focus', 'input.numberformat', function(){
+	if(this.value == '') return;
+	var val = JCM.setComma(parseInt(this.value.replace(/[^0-9]/gi,'')));
+	this.value = '';
+	this.value = val;
+});
+
 $(document).on('click', '.backbtn, .hback a, a.hback', function (e) {
 	e.preventDefault();
 	history.back();
+});
+
+$(function(){
+
+	$('input.datePicker').not('.nopicker').each(function(){
+		datepicker.call(this);
+	});
+	DateInputAll();
+
+	_SelectBox.SetAll();
+	_ImageAlign.alignAll();
+
+	$('.UploadImagePreview img.preview').each(function () {
+		var obj = $(this);
+		this.onerror = function () {
+			obj.parent().hide();
+		};
+		this.oncomplete = function () {
+			obj.parent().show();
+		};
+		this.src = obj.attr('src') == '' ? '#' : obj.attr('src');
+	});
+
+	if ($('.selectMail select[name=selectMail]').length) {
+		$(document).on('change', '.selectMail select[name=selectMail]', function (e) {
+			var inp = $(this).closest('.selectMail').find('input.emailAddr');
+			if ($(this).val() == 'x') {
+				inp.val('');
+			} else if ($(this).val() != '') {
+				inp.val($(this).val());
+			}
+		});
+	}
+
+	$(document).on('click', '.tabMenu a', function (e) {
+		e.preventDefault();
+		var container = $(this).closest('.tabContainer');
+		var li = container.find('.tabMenu li');
+		var idx = li.index($(this).parent());
+		li.eq(idx).addClass('on').siblings().removeClass('on');
+		container.find('section').eq(idx).addClass('on').siblings('section').removeClass('on');
+	});
+
+	document.body.addEventListener('DOMNodeInserted', DomInserted);
+	document.body.addEventListener('DomNodeInsertedIntoDocument', DomInserted);
+
+	function DomInserted(e){
+		if($(e.target).hasClass('imgAlign')) _ImageAlign.align.call(e.target);
+
+		if($(e.target).hasClass('selectBox')) _SelectBox.Set.call($(e.target).find('select'));
+
+		if(e.target.tagName === 'INPUT' && $(e.target).hasClass('datePicker') && !$(e.target).hasClass('nopicker')) datepicker.call(e.target);
+
+		$(e.target).find('.imgAlign, .selectBox, input.datePicker').each(function(){
+			if($(this).hasClass('imgAlign'))_ImageAlign.align.call(this);
+			if($(this).hasClass('selectBox')) _SelectBox.Set.call($(this).find('select'));
+			if($(this).hasClass('datePicker') && !$(this).hasClass('nopicker')) datepicker.call(this);;
+		});
+	}
 });
 

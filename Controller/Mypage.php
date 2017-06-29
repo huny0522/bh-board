@@ -3,16 +3,20 @@
  * Bang Hun.
  * 16.07.10
  */
-use \BH_Application as App;
-use \BH_Common as CF;
 
-class MypageController{
+namespace BH\Controller;
+
+use \BH_Application as App;
+use \BH_Common as CM;
+use \DB as DB;
+
+class Mypage{
 
 	public function __construct(){
 	}
 
 	public function __init(){
-		CF::MemberAuth(1);
+		CM::MemberAuth(1);
 		App::$Layout = '_Mypage';
 	}
 
@@ -44,9 +48,9 @@ class MypageController{
 	}
 
 	public function PostPassword(){
-		$model = App::GetModel('Member');
+		$model = App::InitModel('Member');
 		if(!isset($_POST['pwd']) || strlen($_POST['pwd']) < 1){
-			Redirect('-1', '패스워드를 입력하여 주세요.');
+			URLReplace('-1', '패스워드를 입력하여 주세요.');
 		}
 
 		$dbGet = new \BH_DB_Get();
@@ -55,10 +59,10 @@ class MypageController{
 		$dbGet->AddWhere('muid='.$_SESSION['member']['muid']);
 		$res = $dbGet->Get();
 		if(!$res || !_password_verify($_POST['pwd'], $res['pwd'])){
-			Redirect('-1', '비밀번호가 일치하지 않습니다.');
+			URLReplace('-1', '비밀번호가 일치하지 않습니다.');
 		}else{
 			$_SESSION['MyInfoView'] = true;
-			Redirect($_POST['url']);
+			URLReplace($_POST['url']);
 		}
 	}
 
@@ -68,7 +72,7 @@ class MypageController{
 			App::View($this);
 			return;
 		}
-		$model = App::GetModel('Member');
+		$model = App::InitModel('Member');
 		$model->data['pwd']->Required = false;
 		$model->DBGet($_SESSION['member']['muid']);
 		App::View($this, $model);
@@ -76,10 +80,10 @@ class MypageController{
 
 	public function PostMyInfo(){
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
-			Redirect(_URL.'/', _MSG_WRONG_CONNECTED);
+			URLReplace(_URL.'/', _MSG_WRONG_CONNECTED);
 		}
 
-		$model = App::GetModel('Member');
+		$model = App::InitModel('Member');
 		$model->DBGet($_SESSION['member']['muid']);
 		$model->AddExcept(array('level','approve'));
 		$model->data['pwd']->Required = false;
@@ -88,7 +92,7 @@ class MypageController{
 			if(isset($_POST['pwdchk']) && strlen($_POST['pwd'])){
 				App::$Data['error'] = '비밀번호가 일치하지 않습니다.';
 			}else{
-				Redirect('-1', _MSG_WRONG_CONNECTED);
+				URLReplace('-1', _MSG_WRONG_CONNECTED);
 			}
 		}else{
 			$model->AddExcept('pwd');
@@ -101,7 +105,7 @@ class MypageController{
 
 		if(!isset(App::$Data['error'])){
 			$model->DBUpdate();
-			Redirect(App::URLAction(), '수정되었습니다.');
+			URLReplace(App::URLAction(), '수정되었습니다.');
 		}
 		else{
 			App::View($this, $model);
@@ -118,25 +122,25 @@ class MypageController{
 	}
 	public function PostWithDraw(){
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
-			Redirect(_URL.'/', _MSG_WRONG_CONNECTED);
+			URLReplace(_URL.'/', _MSG_WRONG_CONNECTED);
 		}
-		$model = App::GetModel('Member');
+		$model = App::InitModel('Member');
 		$model->DBGet($_SESSION['member']['muid']);
 		$dbInsert = new \BH_DB_Insert(TABLE_WITHDRAW_MEMBER);
 		$dbInsert->SetData('muid', $model->GetValue('muid'));
-		$dbInsert->SetData('mid', SetDBText($model->GetValue('mid')));
-		$dbInsert->SetData('mname', SetDBText($model->GetValue('mname')));
-		$dbInsert->SetData('cname', SetDBText($model->GetValue('cname')));
-		$dbInsert->SetData('nickname', SetDBText($model->GetValue('nickname')));
-		$dbInsert->SetData('level', SetDBText($model->GetValue('level')));
-		$dbInsert->SetData('email', SetDBText($model->GetValue('email')));
-		$dbInsert->SetData('reg_date', SetDBText($model->GetValue('reg_date')));
-		$dbInsert->SetData('reason', SetDBText($_POST['withdraw_reason']));
+		$dbInsert->SetDataStr('mid', $model->GetValue('mid'));
+		$dbInsert->SetDataStr('mname', $model->GetValue('mname'));
+		$dbInsert->SetDataStr('cname', $model->GetValue('cname'));
+		$dbInsert->SetDataStr('nickname', $model->GetValue('nickname'));
+		$dbInsert->SetDataStr('level', $model->GetValue('level'));
+		$dbInsert->SetDataStr('email', $model->GetValue('email'));
+		$dbInsert->SetDataStr('reg_date', $model->GetValue('reg_date'));
+		$dbInsert->SetDataStr('reason', $_POST['withdraw_reason']);
 		$dbInsert->SetData('w_date', 'NOW()');
 		$dbInsert->Run();
 		$model->DBDelete($_SESSION['member']['muid']);
 		unset($_SESSION['member']);
 		session_destroy();
-		Redirect(_URL.'/', '탈퇴되었습니다. 이용해 주셔서 감사합니다.');
+		URLReplace(_URL.'/', '탈퇴되었습니다. 이용해 주셔서 감사합니다.');
 	}
 }

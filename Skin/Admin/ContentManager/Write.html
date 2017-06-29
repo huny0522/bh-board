@@ -1,5 +1,5 @@
 <?php if(_BH_ !== true) exit;
-use \BH_Common as CF;
+use \BH_Common as CM;
 use \BH_Application as App;
 
 /**
@@ -132,7 +132,7 @@ use \BH_Application as App;
 	function getSubMenu(obj, nowCategory){
 		if($(obj).val() == '') return;
 		if(typeof nowCategory == 'undefined') nowCategory = '';
-		common.get('<?a. 'GetSubMenu' ?>/' + $(obj).val(), {}, function(data){
+		JCM.get('<?a. 'GetSubMenu' ?>/' + $(obj).val(), {}, function(data){
 			if(data.length){
 				var html = '<select>' +
 					'<option value="">선택</option>';

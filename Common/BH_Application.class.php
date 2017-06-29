@@ -24,19 +24,34 @@ class BH_Application{
 	public static $Html;
 	public static $Title;
 
-	private static $CSS = array();
-	private static $JS = array();
-	private static $FollowQuery = array();
+	public static $CSS = array();
+	public static $JS = array();
+	public static $FollowQuery = array();
 
 	public static $SettingData = array();
 	public static $Data = array();
 
 	public static $BodyHtml = '';
 
+	public static $ExtendMethod = array();
+
 	private function __construct(){
 	}
 
+
+	public static function AutoLoad($class) {
+		if(substr($class, -5) === 'Model') $file = _MODELDIR.'/'.$class.'.php';
+		else $file = _DIR.'/'.str_replace('\\', '/', substr($class,0, 3) === 'BH\\' ? substr($class, 3) : $class).'.php';
+		require $file;
+	}
+
 	public static function run(){
+		self::$SettingData['URLFirst'] = '';
+		spl_autoload_register(array('BH_Application', 'AutoLoad'));
+
+		$composerFile = _DIR.'/vendor/autoload.php';
+		if(file_exists($composerFile)) require $composerFile;
+
 		if(_DEVELOPERIS === true) self::$InstallIs = \DB::SQL()->TableExists(TABLE_MEMBER);
 
 		self::$SettingData['MainMenu'] = array();
@@ -73,10 +88,14 @@ class BH_Application{
 						ReplaceCSS2ALL(_HTMLDIR, _HTMLDIR);
 						ReplaceCSS2ALL(_SKINDIR, _HTMLDIR);
 					}
-					if(_REFRESH_DB_CACHE_ALL === true) delTree(_DATADIR.'/temp');
-					Redirect($_GET['r_url']);
+
+					if(isset(self::$ExtendMethod['refreshExtend'])){
+						$RefreshExtend = self::$ExtendMethod['refreshExtend'];
+						$RefreshExtend();
+					}
+					URLReplace($_GET['r_url']);
 				}
-				else Redirect(-1, $res->message);
+				else URLReplace(-1, $res->message);
 			}
 			exit;
 		}
@@ -119,8 +138,7 @@ class BH_Application{
 
 		if(file_exists($path)){
 			require $path;
-			$controller = self::$NativeDir.'\\'.self::$ControllerName.'Controller';
-			if (!class_exists($controller)) $controller = self::$ControllerName.'Controller';
+			$controller = '\\BH\\Controller\\'.(self::$NativeDir ? self::$NativeDir.'\\' : '').self::$ControllerName;
 			if (!class_exists($controller)){
 				if(_DEVELOPERIS === true) echo '클래스('.$controller.')가 존재하지 않습니다.';
 				exit;
@@ -134,11 +152,11 @@ class BH_Application{
 				self::$ControllerInstance->{$action}();
 			}else{
 				if(_DEVELOPERIS === true) echo '메소드가 존재하지 않습니다.(#2)';
-				else Redirect(_URL.'/');
+				else URLReplace(_URL.'/');
 			}
 		}else{
 			if(_DEVELOPERIS === true && _SHOW_CREATE_GUIDE === true) require _COMMONDIR.'/Create.html';
-			else Redirect(_URL.'/');
+			else URLReplace(_URL.'/');
 		}
 	}
 
@@ -225,6 +243,11 @@ class BH_Application{
 			if(substr($layout, -5) != '.html') $layout .= '.html';
 			if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR.$layout, _HTMLDIR.$layout);
 			if($layout && file_exists(_HTMLDIR.$layout)) require _HTMLDIR.$layout;
+		}
+
+		if(isset(self::$ExtendMethod['AfterSetView'])){
+			$AfterSetView = self::$ExtendMethod['AfterSetView'];
+			$AfterSetView();
 		}
 	}
 
@@ -320,11 +343,11 @@ class BH_Application{
 	}
 
 	public static function URLAction($Action = ''){
-		return self::$CtrlUrl.'/'.$Action;
+		return self::$SettingData['URLFirst'].self::$CtrlUrl.'/'.$Action;
 	}
 
 	public static function URLBase($Controller = ''){
-		return self::$BaseDir.'/'.$Controller;
+		return self::$SettingData['URLFirst'].self::$BaseDir.'/'.$Controller;
 	}
 
 	/**
@@ -332,10 +355,12 @@ class BH_Application{
 	 * @param string $ModelName
 	 * @return mixed
 	 */
-	public static function &GetModel($ModelName){
+	public static function &InitModel($ModelName){
 		$model = $ModelName.'Model';
-		require_once _MODELDIR.'/'.$ModelName.'.model.php';
-		if(class_exists($model)) return $model::Get();
+		if(class_exists($model)){
+			$newModel = new $model();
+			return $newModel;
+		}
 
 		if(_DEVELOPERIS === true) echo $ModelName.'-Model is not exists';
 		else echo 'ERROR';

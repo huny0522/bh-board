@@ -5,7 +5,8 @@
  * 16.07.10
  *
  */
-use \BH_Common as CF;
+
+use \BH_Common as CM;
 use \BH_Application as App;
 
 class BoardManagerModel extends \BH_Model{
@@ -20,17 +21,17 @@ class BoardManagerModel extends \BH_Model{
 		$this->data['subject'] = new \BH_ModelData(ModelType::String, true, '제목');
 		$this->data['subject']->MaxLength = 128;
 
-		$this->data['bid'] = new \BH_ModelData(ModelType::EngNum, true, '게시판아이디');
+		$this->data['bid'] = new \BH_ModelData(ModelType::String, true, '게시판아이디', HTMLType::InputEngNum);
 		$this->data['bid']->MinLength = '1';
 		$this->data['bid']->MaxLength = '20';
 
 		$this->data['manager'] = new \BH_ModelData(ModelType::String, false, '게시판관리자');
 
-		$this->data['skin'] = new \BH_ModelData(ModelType::EngNum, false, '스킨');
+		$this->data['skin'] = new \BH_ModelData(ModelType::String, false, '스킨', HTMLType::InputEngNum);
 		$this->data['skin']->MinLength = '1';
 		$this->data['skin']->MaxLength = '20';
 
-		$this->data['reply_skin'] = new \BH_ModelData(ModelType::EngNum, false, '댓글스킨');
+		$this->data['reply_skin'] = new \BH_ModelData(ModelType::String, false, '댓글스킨', HTMLType::InputEngNum);
 		$this->data['reply_skin']->MinLength = '1';
 		$this->data['reply_skin']->MaxLength = '20';
 
@@ -79,7 +80,7 @@ class BoardManagerModel extends \BH_Model{
 		$this->data['man_to_man']->EnumValues = array('y'=>'사용','n'=>'사용안함');
 		$this->data['man_to_man']->DefaultValue = 'n';
 
-		$this->data['layout'] = new \BH_ModelData(ModelType::EngSpecial, false, '레이아웃');
+		$this->data['layout'] = new \BH_ModelData(ModelType::String, false, '레이아웃',HTMLType::InputEngSpecial);
 		$this->data['layout']->MinLength = 1;
 		$this->data['layout']->MaxLength = 50;
 

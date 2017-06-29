@@ -4,11 +4,13 @@
  * 16.07.10
  */
 
-namespace Admin;
-use \BH_Application as App;
-use \BH_Common as CF;
+namespace BH\Controller\Admin;
 
-class ContentManagerController{
+use \BH_Application as App;
+use \BH_Common as CM;
+use \DB as DB;
+
+class ContentManager{
 
 	/**
 	 * @var \ContentModel;
@@ -16,18 +18,18 @@ class ContentManagerController{
 	public $model;
 
 	public function __construct(){
-		$this->model = App::GetModel('Content');
+		$this->model = App::InitModel('Content');
 	}
 
 	public function __init(){
 		App::$Data['NowMenu'] = '003';
-		CF::AdminAuth();
+		CM::AdminAuth();
 
 		// 항상 따라다닐 URL 쿼리 파라미터를 지정
 		App::SetFollowQuery(array('where', 'keyword','page'));
 		App::$Layout = '_Admin';
 
-		$AdminAuth = explode(',', CF::GetMember('admin_auth'));
+		$AdminAuth = explode(',', CM::GetMember('admin_auth'));
 		App::$Data['menuAuth'] = (in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL);
 	}
 
@@ -49,11 +51,11 @@ class ContentManagerController{
 
 		$dbGet = new \BH_DB_GetList(TABLE_MENU);
 		$dbGet->AddWhere('type=\'content\'');
-		$dbGet->AddWhere('bid='.SetDBText($this->model->GetValue('bid')));
+		$dbGet->AddWhere('bid = %s', $this->model->GetValue('bid'));
 		App::$Data['selectedMenu'] = $dbGet->GetRows();
 
 		if(!$res->result){
-			Redirect('-1', $res->message);
+			URLReplace('-1', $res->message);
 		}
 
 		App::View($this, $this->model);
@@ -72,11 +74,11 @@ class ContentManagerController{
 		$res = $this->model->DBGet($_GET['bid']);
 		$dbGet = new \BH_DB_GetList(TABLE_MENU);
 		$dbGet->AddWhere('type=\'content\'');
-		$dbGet->AddWhere('bid='.SetDBText($this->model->GetValue('bid')));
+		$dbGet->AddWhere('bid = %s', $this->model->GetValue('bid'));
 		App::$Data['selectedMenu'] = $dbGet->GetRows();
 
 		if(!$res->result){
-			Redirect('-1', $res->message);
+			URLReplace('-1', $res->message);
 		}
 		App::$Html = 'Write';
 		App::View($this, $this->model);
@@ -84,51 +86,51 @@ class ContentManagerController{
 	public function PostWrite(){
 		$res = $this->model->SetPostValues();
 		if(!$res->result){
-			Redirect('-1',$res->message);
+			URLReplace('-1',$res->message);
 		}
 		else{
 			$this->model->SetValue('reg_date',date('Y-m-d H:i:s'));
 			$res = $this->model->DBInsert();
 			if($res->result){
-				CF::MenuConnect($this->model->GetValue('bid'), 'content');
-				Redirect(App::URLAction());
+				CM::MenuConnect($this->model->GetValue('bid'), 'content');
+				URLReplace(App::URLAction());
 			}else{
-				Redirect('-1', '등록에 실패했습니다.');
+				URLReplace('-1', '등록에 실패했습니다.');
 			}
 		}
 	}
 	public function PostModify(){
 		$res = $this->model->DBGet($_POST['bid']);
 		if(!$res->result){
-			Redirect('-1',$res->message);
+			URLReplace('-1',$res->message);
 		}
 
 		$res = $this->model->SetPostValues();
 		if(!$res->result){
-			Redirect('-1',$res->message);
+			URLReplace('-1',$res->message);
 		}
 		else{
 			$res = $this->model->DBUpdate();
 			if($res->result){
-				CF::MenuConnect($this->model->GetValue('bid'), 'content');
+				CM::MenuConnect($this->model->GetValue('bid'), 'content');
 				$url = App::URLAction('View').'?bid='.$_POST['bid'].App::GetFollowQuery();
-				Redirect($url, '수정완료');
+				URLReplace($url, '수정완료');
 			}else{
-				Redirect('-1', '수정에 실패했습니다.');
+				URLReplace('-1', '수정에 실패했습니다.');
 			}
 		}
 	}
 
 	public function GetSubMenu(){
 		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
-		$dbGetList->AddWhere('LENGTH(category) = '.(strlen(App::$ID) + _CATEGORY_LENGTH));
-		$dbGetList->AddWhere('LEFT(category, '.strlen(App::$ID).') = '.SetDBText(App::$ID));
+		$dbGetList->AddWhere('LENGTH(category) = %d', strlen(App::$ID) + _CATEGORY_LENGTH);
+		$dbGetList->AddWhere('LEFT(category, %d) = %s', strlen(App::$ID), App::$ID);
 		JSON(true, '', $dbGetList->GetRows());
 	}
 
 	public function PostDelete(){
 		$res = $this->model->DBDelete($_POST['bid']);
-		if($res->result) Redirect(App::URLAction('').App::GetFollowQuery());
-		else Redirect('-1', '삭제에 실패했습니다.');
+		if($res->result) URLReplace(App::URLAction('').App::GetFollowQuery());
+		else URLReplace('-1', '삭제에 실패했습니다.');
 	}
 }

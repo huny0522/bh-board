@@ -4,23 +4,29 @@
  * 16.07.10
  */
 
-namespace BH;
+//namespace BH;
 
 class DB{
 	const DefaultConnName = 'MY';
+	const BIND_NAME = ':BH_PARAMETER';
 	/**
 	 * @var self
 	 */
 	private static $Instance;
+
+	/** @var \PDO[] */
 	private static $Conn = array();
 	private static $ConnName = '';
 	private static $ConnectionInfo = array();
+
+	public static $bindNum = 0;
+
 	private function __construct(){
 		require _COMMONDIR.'/db.info.php';
 	}
 
 	public function __destruct(){
-		foreach(self::$Conn as $k => $v) mysqli_close($v);
+		foreach(self::$Conn as $k => &$v) $v = null;
 	}
 
 	public static function &SQL($connName = self::DefaultConnName){
@@ -29,17 +35,24 @@ class DB{
 
 		if(!isset(self::$Conn[self::$ConnName])){
 			if(isset(self::$ConnectionInfo[self::$ConnName])){
-				/** @var array $_DBInfo */
-				self::$Conn[self::$ConnName] = mysqli_connect(self::$ConnectionInfo[self::$ConnName]['hostName'], self::$ConnectionInfo[self::$ConnName]['userName'], self::$ConnectionInfo[self::$ConnName]['userPassword'], self::$ConnectionInfo[self::$ConnName]['dbName']);
-				if(!self::$Conn[self::$ConnName]){
-					echo('ACCESS_DENIED_DB_CONNECTION');
+				try {
+					self::$Conn[self::$ConnName] = new PDO('mysql:host='.self::$ConnectionInfo[self::$ConnName]['hostName'].';dbname='.self::$ConnectionInfo[self::$ConnName]['dbName'], self::$ConnectionInfo[self::$ConnName]['userName'], self::$ConnectionInfo[self::$ConnName]['userPassword']);
+				}
+				catch(PDOException $e) {
+					echo $e->getMessage();
 					exit;
 				}
-				mysqli_set_charset(self::$Conn[self::$ConnName],'utf8');
+
+				self::$Conn[self::$ConnName]->exec("set names utf8");
 			}
 			else{ echo('NOT_DEFINE_DB'); exit; }
 		}
 		return self::$Instance;
+	}
+
+	public static function &PDO($connName = self::DefaultConnName){
+		self::SQL($connName);
+		return self::$Conn[self::$ConnName];
 	}
 
 	public function TableExists($table){
@@ -52,26 +65,24 @@ class DB{
 		if(is_string($qry)) $qry = self::Query($qry);
 		if($qry === false) return false;
 
-		try{
-			$r = mysqli_num_rows($qry);
-			return $r;
-		}
-		catch(Exception $e){
-			if(_DEVELOPERIS === true) echo 'NUMBER ROWS MESSAGE(DEBUG ON) : <b>'. $e->getMessage().'</b><br>';
-			return false;
-		}
+		return $qry->rowCount();
 	}
 
 	public function Free($qry){
 		if(is_bool($qry)) return;
-		mysqli_free_result($qry);
+		$qry->closeCursor();
 	}
 
 	public function Query($str, $dieIs = true){
-		$sql = StrToSql(is_array($str) ? $str : func_get_args());
-		if(_DEVELOPERIS === true) $res = mysqli_query(self::$Conn[self::$ConnName], $sql) or ($dieIs ? die('ERROR SQL : '.$sql) : false);
-		else $res = mysqli_query(self::$Conn[self::$ConnName], $sql) or ($dieIs ? die('ERROR') : false);
-		return $res;
+		$res = self::StrToPDO(is_array($str) ? $str : func_get_args());
+
+		$qry = self::$Conn[self::$ConnName]->prepare($res[0]);
+		foreach($res[1] as $k => $v){
+			$qry->bindParam($k, $v[0], $v[1]);
+		}
+		if(_DEVELOPERIS === true) $qry->execute() or ($dieIs ? die('ERROR SQL : '.$res[0]) : false);
+		else $qry->execute() or ($dieIs ? die('ERROR') : false);
+		return $qry;
 	}
 
 	public function CCQuery($table, $str){
@@ -83,12 +94,16 @@ class DB{
 
 		if(strpos($args[0], '%t') === false) die('ERROR SQL(CC)'.(_DEVELOPERIS === true ? ' : '.$args[0] : ''));
 		$args[0] = str_replace('%t', $table, $args[0]);
-		$sql = trim(StrToSql($args));
+		$res = self::StrToPDO($args);
 
-		if(_DEVELOPERIS === true) $res = mysqli_query(self::$Conn[self::$ConnName], $sql) or die('ERROR SQL : '.$sql);
-		else $res = mysqli_query(self::$Conn[self::$ConnName], $sql) or die('ERROR SQL');
+		$qry = self::$Conn[self::$ConnName]->prepare($res[0]);
+		foreach($res[1] as $k => $v){
+			$qry->bindParam($k, $v[0], $v[1]);
+		}
 
-		return $res;
+		if(_DEVELOPERIS === true) $qry->execute() or die('ERROR SQL : '.$res[0]);
+		else $qry->execute() or die('ERROR');
+		return $qry;
 	}
 
 	public function Fetch($qry){
@@ -103,7 +118,7 @@ class DB{
 			$string_is = true;
 		}
 
-		$r = mysqli_fetch_assoc($qry);
+		$r = $qry->fetch();
 		if($string_is) self::Free($qry);
 
 		return $r;
@@ -114,39 +129,109 @@ class DB{
 	}
 
 	public static function &GetQryObj($table){
-		$instance = new \BH_DB_Get();
+		$instance = new BH_DB_Get();
 		call_user_func_array(array($instance, 'AddTable'), func_get_args());
 		return $instance;
 	}
 
 	public static function &GetListQryObj($table){
-		$instance = new \BH_DB_GetList();
+		$instance = new BH_DB_GetList();
 		call_user_func_array(array($instance, 'AddTable'), func_get_args());
 		return $instance;
 	}
 
 	public static function &GetListPageQryObj($table){
-		$instance = new \BH_DB_GetListWithPage();
+		$instance = new BH_DB_GetListWithPage();
 		call_user_func_array(array($instance, 'AddTable'), func_get_args());
 		return $instance;
 	}
 
 	public static function &UpdateQryObj($table){
-		$instance = new \BH_DB_Update();
+		$instance = new BH_DB_Update();
 		call_user_func_array(array($instance, 'AddTable'), func_get_args());
 		return $instance;
 	}
 
 	public static function &InsertQryObj($table){
-		$instance = new \BH_DB_Insert();
+		$instance = new BH_DB_Insert();
 		call_user_func_array(array($instance, 'AddTable'), func_get_args());
 		return $instance;
 	}
 
 	public static function &DeleteQryObj($table){
-		$instance = new \BH_DB_Delete();
+		$instance = new BH_DB_Delete();
 		call_user_func_array(array($instance, 'AddTable'), func_get_args());
 		return $instance;
+	}
+
+	public static function StrToPDO($args){
+		$validateOk = new \BH_Result();
+		$validateOk->result = true;
+
+		if(!is_array($args)) $args = func_get_args();
+
+		$bindParam = array();
+
+		$n = sizeof($args);
+		if(!$n) return false;
+		if($n == 1) return array($args[0], $bindParam);
+		else{
+			$p = -1;
+			$w = $args[0];
+			for($i = 1; $i < $n; $i++){
+				$p = strpos($w, '%', $p+1);
+				$find = false;
+				while(!$find && $p !== false && $p < strlen($w)){
+					$t = $w[$p+1];
+					if($t === 's'){
+						if(is_array($args[$i])){
+							$bindNames = array();
+							foreach($args[$i] as $row){
+								$bindParam[self::BIND_NAME.self::$bindNum.'X'] = array($row, \PDO::PARAM_STR);
+								$bindNames[] = self::BIND_NAME.self::$bindNum.'X';
+								self::$bindNum++;
+							}
+							$t = implode(',', $bindNames);
+						}else{
+							$t = self::BIND_NAME.self::$bindNum.'X';
+							$bindParam[self::BIND_NAME.self::$bindNum.'X'] = array($args[$i], \PDO::PARAM_STR);
+							self::$bindNum++;
+						}
+						$w = substr_replace($w, $t, $p, 2);
+						$p += strlen($t);
+						$find = true;
+					}
+					else if($t === 'f'){
+						$res = ValidateFloat($args[$i]);
+						if(!$res->result) $validateOk = $res;
+						$t = is_array($args[$i]) ? implode(',', $args[$i]) : $args[$i];
+						$w = substr_replace($w, $t, $p, 2);
+						$p += strlen($t);
+						$find = true;
+					}
+					else if($t === 'd'){
+						$res = ValidateInt($args[$i]);
+						if(!$res->result) $validateOk = $res;
+						$t = is_array($args[$i]) ? implode(',', $args[$i]) : $args[$i];
+						$w = substr_replace($w, $t, $p, 2);
+						$p += strlen($t);
+						$find = true;
+					}
+					else if($t === '1'){
+						$t = is_array($args[$i]) ? implode(',', $args[$i]) : $args[$i];
+						$w = substr_replace($w, $t, $p, 2);
+						$p += strlen($t);
+						$find = true;
+					}
+					else{
+						$p = strpos($w, '%', $p+1);
+					}
+				}
+			}
+			$w = str_replace(array('%\s', '%\f', '%\d', '%\1', '%\t'), array('%s', '%f', '%d', '%1', '%t'), $w);
+			if($validateOk->result) return array($w, $bindParam);
+			else URLReplace(-1, $validateOk->message.(_DEVELOPERIS === true ? '['.$w.']' : ''));
+		}
 	}
 }
 
@@ -162,13 +247,21 @@ class BH_DB_Get{
 	protected $key = array();
 	protected $connName = '';
 
+	protected $bindParam = array();
+
 	public function  __construct($table = ''){
-		if($table !== '') $this->table = StrToSql(func_get_args());
-		$this->connName = \DB::DefaultConnName;
+		if($table !== '') $this->table = $this->StrToPDO(func_get_args());
+		$this->connName = DB::DefaultConnName;
 	}
 
 	public function __destruct(){
-		if($this->query) \DB::Sql($this->connName)->Free($this->query);
+		if($this->query) DB::Sql($this->connName)->Free($this->query);
+	}
+
+	public function StrToPDO($args){
+		$res = DB::StrToPDO(is_array($args) ? $args : func_get_args());
+		if(sizeof($res[1])) $this->bindParam = $this->bindParam + $res[1];
+		return $res[0];
 	}
 
 	public function &SetConnName($str){
@@ -177,19 +270,19 @@ class BH_DB_Get{
 	}
 
 	public function &AddTable($str){
-		$w = StrToSql(func_get_args());
+		$w = $this->StrToPDO(func_get_args());
 		if($w !== false) $this->table .= ' '.$w;
 		return $this;
 	}
 
 	public function &AddWhere($str){
-		$w = StrToSql(func_get_args());
+		$w = $this->StrToPDO(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
 		return $this;
 	}
 
 	public function &AddHaving($str){
-		$w = StrToSql(func_get_args());
+		$w = $this->StrToPDO(func_get_args());
 		if($w !== false) $this->having[] = '('.$w.')';
 		return $this;
 	}
@@ -243,17 +336,22 @@ class BH_DB_Get{
 		$sql .= $having;
 		if($this->sort) $sql .= ' ORDER BY ' . $this->sort;
 		$sql .= ' LIMIT 1';
-		if($this->test && _DEVELOPERIS === true){ echo $sql; exit; }
+		if($this->test && _DEVELOPERIS === true){
+			foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.$v[0].'\'', $sql);
+			echo $sql;
+			exit;
+		}
 
-		$sql = trim($sql);
-		$sqlFileNm = hash('sha1', $sql);
+		$sql = $sql2 = trim($sql);
+		foreach($this->bindParam as $k => $v) $sql2 .= '['.$v[0].']';
 
-		$this->query = \DB::SQL($this->connName)->Query($sql);
-		if($this->query){
-			$row = mysqli_fetch_assoc($this->query);
+		$this->query = DB::PDO($this->connName)->prepare($sql);
+		foreach($this->bindParam as $k => $v) $this->query->bindParam($k, $v[0], $v[1]);
+
+		if($this->query->execute()){
+			$row = $this->query->fetch();
 			if($row){
-				\DB::SQL($this->connName)->Free($this->query);
-				$this->query = null;
+				$this->query->closeCursor();
 				return $row;
 			}
 		}
@@ -283,6 +381,7 @@ class BH_DB_GetList extends BH_DB_Get{
 
 	public function &GetRows(){
 		if(!$this->RunIs) $this->Run();
+
 		$this->DrawRows();
 		return $this->data;
 	}
@@ -321,15 +420,18 @@ class BH_DB_GetList extends BH_DB_Get{
 		if($this->limit) $sql .= ' LIMIT ' . $this->limit;
 
 		if($this->test && _DEVELOPERIS === true){
+			foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.$v[0].'\'', $sql);
 			echo $sql;
 			exit;
 		}
 
-		$sql = trim($sql);
-		$sqlFileNm = hash('sha1', $sql);
+		$sql = $sql2 = trim($sql);
+		foreach($this->bindParam as $k => $v) $sql2 .= '['.$v[0].']';
 
-		$this->query = \DB::SQL($this->connName)->Query($sql);
-		if($this->query) $this->result = true;
+		$this->query = DB::PDO($this->connName)->prepare($sql);
+		foreach($this->bindParam as $k => $v) $this->query->bindParam($k, $v[0], $v[1]);
+
+		if($this->query->execute()) $this->result = true;
 		else $this->result = false;
 
 		return $this;
@@ -337,8 +439,7 @@ class BH_DB_GetList extends BH_DB_Get{
 
 	public function Get(){
 		if(!$this->RunIs) $this->Run();
-
-		$res = $this->query ? mysqli_fetch_assoc($this->query) : false;
+		$res = $this->query ? $this->query->fetch() : false;
 		return $res;
 	}
 }
@@ -351,7 +452,6 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	public $pageUrl = '';
 	public $CountKey = '';
 	public $SubCountKey = array();
-	private $pointer = -1;
 	private $RunIs = false;
 
 	// Result
@@ -399,7 +499,9 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 
 	public function DrawRows(){
 		if(!$this->RunIs) $this->Run();
-		while($row = $this->Get()) $this->data[]= $row;
+		while($row = $this->Get()){
+			$this->data[]= $row;
+		}
 	}
 
 	public function &GetRows(){
@@ -458,23 +560,29 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 			$sql .= ' LIMIT '.$beginPage.', ' . $this->articleCount;
 
 		if($this->test && _DEVELOPERIS === true){
+			foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.$v[0].'\'', $sql);
 			echo $sql;
 			exit;
 		}
 
-		$sql = trim($sql);
-		$sqlFileNm = hash('sha1', $sql);
+		$sql = $sql2 = trim($sql);
+		foreach($this->bindParam as $v) $sql2 .= '['.$v[0].']';
 
-		$this->countResult = \DB::SQL($this->connName)->Fetch($this->group ? 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x' : $sql_cnt);
-		$totalRecord = $this->countResult['cnt']; //total값 구함
-		//\DB::Sql($this->connName)->Free($result_cnt);
+		$qry = DB::PDO($this->connName)->prepare($this->group ? 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x' : $sql_cnt);
+		foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
+		if($qry->execute()){
+			$this->countResult = $qry->fetch();
+			$totalRecord = $this->countResult['cnt']; //total값 구함
+		}
+		else $totalRecord = 0;
 
 		$this->totalRecord = $totalRecord;
 		$this->beginNum = $totalRecord - ($nowPage * $this->articleCount);
 
-		$this->query = \DB::SQL($this->connName)->Query($sql);
-		if($this->query){
+		$this->query = DB::PDO($this->connName)->prepare($sql);
+		foreach($this->bindParam as $k => $v) $this->query->bindParam($k, $v[0], $v[1]);
 
+		if($this->query->execute()){
 			$pagedata['articleCount'] = $this->articleCount;
 			$pagedata['pageCount'] = $this->pageCount;
 			$pagedata['page'] = $this->page ? $this->page : 1;
@@ -506,7 +614,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		return $this->beginNum;
 	}
 
-	public function GetPageHtml(){
+	public function &GetPageHtml(){
 		if(!$this->RunIs) $this->Run();
 		return $this->pageHtml;
 	}
@@ -514,7 +622,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	public function Get(){
 		if(!$this->RunIs) $this->Run();
 
-		$res = $this->query ? mysqli_fetch_assoc($this->query) : false;
+		$res = $this->query ? $this->query->fetch() : false;
 		return $res;
 	}
 
@@ -588,9 +696,28 @@ class BH_DB_Insert{
 	private $connName = '';
 	private $duplicateData = array();
 
+	protected $tableBindParam = array();
+	protected $whereBindParam = array();
+	protected $bindParam = array();
+
 	public function  __construct($table = ''){
-		if($table !== '') $this->table = StrToSql(func_get_args());
-		$this->connName = \DB::DefaultConnName;
+		if($table !== '') $this->table = $this->StrToPDO('table', func_get_args());
+		$this->connName = DB::DefaultConnName;
+	}
+
+	public function StrToPDO($p, $args){
+		$a = $args;
+		if(!is_array($a)){
+			$a = func_get_args();
+			array_shift($a);
+		}
+		$res = DB::StrToPDO($a);
+		if(sizeof($res[1])){
+			if($p == 'table') $this->tableBindParam = $this->tableBindParam + $res[1];
+			else if($p == 'where') $this->whereBindParam = $this->whereBindParam + $res[1];
+			else $this->bindParam = $this->bindParam + $res[1];
+		}
+		return $res[0];
 	}
 
 	public function &SetOnDuplicateData($key, $val){
@@ -599,7 +726,7 @@ class BH_DB_Insert{
 	}
 
 	public function &SetOnDuplicateDataStr($key, $val){
-		$this->duplicateData[$key] = SetDBText($val);
+		$this->duplicateData[$key] = $this->StrToPDO('data','%s', $val);
 		return $this;
 	}
 
@@ -614,8 +741,8 @@ class BH_DB_Insert{
 	}
 
 	public function &AddTable($str){
-		$w = StrToSql(func_get_args());
-		if($w !== false) $this->table .= $w;
+		$w = $this->StrToPDO('table', func_get_args());
+		if($w !== false) $this->table .= ' '.$w;
 		return $this;
 	}
 
@@ -630,7 +757,7 @@ class BH_DB_Insert{
 	}
 
 	public function &SetDataStr($key, $val){
-		$this->data[$key] = SetDBText($val);
+		$this->data[$key] = $this->StrToPDO('data', '%s', $val);
 		return $this;
 	}
 
@@ -640,7 +767,7 @@ class BH_DB_Insert{
 	}
 
 	public function &AddWhere($str){
-		$w = StrToSql(func_get_args());
+		$w = $this->StrToPDO('where', func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
 		return $this;
 	}
@@ -674,9 +801,13 @@ class BH_DB_Insert{
 
 		$sql = 'INSERT INTO ' . $this->table . '(' . $this->MultiNames . ') VALUES '.implode(',', $this->MultiValues);
 		if($this->test && _DEVELOPERIS === true){
-			echo $sql;exit;
+			foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.$v[0].'\'', $sql);
+			echo $sql;
+			exit;
 		}
-		$res->result = \DB::SQL($this->connName)->Query($sql);
+		$qry = DB::PDO($this->connName)->prepare($sql);
+		foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
+		$res->result = $qry->execute();
 		return $res;
 	}
 
@@ -701,8 +832,15 @@ class BH_DB_Insert{
 			$r = false;
 			$cnt = 5;
 			while(!$r && $cnt > 0){
-				$minseq = \DB::SQL($this->connName)->Fetch('SELECT MIN(`'.$this->decrement.'`) as seq FROM `'.$this->table.'`'
+				$qry = DB::PDO($this->connName)->prepare('SELECT MIN(`'.$this->decrement.'`) as seq FROM '.$this->table
 					. ($this->where ? ' WHERE ' . implode(' AND ', $this->where) : ''));
+				foreach($this->tableBindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
+				foreach($this->whereBindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
+				if(!$qry->execute()){
+					$res->result = false;
+					return $res;
+				}
+				else $minseq = $qry->fetch();
 				if(!$minseq){
 					$res->result = false;
 					return $res;
@@ -712,10 +850,15 @@ class BH_DB_Insert{
 				$minseq['seq'] --;
 				$sql = 'INSERT INTO ' . $this->table . '(' . $names . ', `' . $this->decrement . '`) VALUES (' . $values . ',' . $minseq['seq'] . ')';
 				if($this->test && _DEVELOPERIS === true){
+					foreach($this->tableBindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
+					foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.$v[0].'\'', $sql);
 					echo $sql;
 					exit;
 				}
-				$r = \DB::SQL($this->connName)->Query($sql.(isset($duplicateSql) ? ' '.$duplicateSql : ''));
+				$qry = DB::PDO($this->connName)->prepare($sql.(isset($duplicateSql) ? ' '.$duplicateSql : ''));
+				foreach($this->tableBindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
+				foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
+				$r = $qry->execute();
 				$cnt --;
 			}
 			$res->result = $r ? true : false;
@@ -724,14 +867,16 @@ class BH_DB_Insert{
 		else{
 			$sql = 'INSERT INTO ' . $this->table . '(' . $names . ') VALUES (' . $values . ')'.(isset($duplicateSql) ? ' '.$duplicateSql : '');
 			if($this->test && _DEVELOPERIS === true){
+				foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.$v[0].'\'', $sql);
 				echo $sql;
 				exit;
 			}
 
-			$res->result = \DB::SQL($this->connName)->Query($sql);
-			$res->id = mysqli_insert_id(\DB::SQL($this->connName)->GetConn());
+			$qry = DB::PDO($this->connName)->prepare($sql);
+			foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
+			$res->result = $qry->execute();
+			if($res->result) $res->id = DB::PDO($this->connName)->lastInsertId();
 		}
-
 		return $res;
 	}
 
@@ -749,9 +894,17 @@ class BH_DB_Update{
 	public $sort = '';
 	private $connName = '';
 
+	protected $bindParam = array();
+
 	public function  __construct($table = ''){
-		if($table !== '') $this->table = StrToSql(func_get_args());
-		$this->connName = \DB::DefaultConnName;
+		if($table !== '') $this->table = $this->StrToPDO(func_get_args());
+		$this->connName = DB::DefaultConnName;
+	}
+
+	public function StrToPDO($args){
+		$res = DB::StrToPDO(is_array($args) ? $args : func_get_args());
+		if(sizeof($res[1])) $this->bindParam = $this->bindParam + $res[1];
+		return $res[0];
 	}
 
 	public function &SetConnName($str){
@@ -760,8 +913,8 @@ class BH_DB_Update{
 	}
 
 	public function &AddTable($str){
-		$w = StrToSql(func_get_args());
-		if($w !== false) $this->table .= $w;
+		$w = $this->StrToPDO(func_get_args());
+		if($w !== false) $this->table .= ' '.$w;
 		return $this;
 	}
 
@@ -771,7 +924,7 @@ class BH_DB_Update{
 	}
 
 	public function &SetDataStr($key, $val){
-		$this->data[$key] = SetDBText($val);
+		$this->data[$key] = $this->StrToPDO('%s', $val);
 		return $this;
 	}
 
@@ -781,7 +934,7 @@ class BH_DB_Update{
 	}
 
 	public function &AddWhere($str){
-		$w = StrToSql(func_get_args());
+		$w = $this->StrToPDO(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
 		return $this;
 	}
@@ -812,10 +965,13 @@ class BH_DB_Update{
 		$sql = 'UPDATE ' . $this->table . ' SET ' . $set . $where;
 		if($this->sort) $sql .= ' ORDER BY ' . $this->sort;
 		if($this->test && _DEVELOPERIS === true){
+			foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.$v[0].'\'', $sql);
 			echo $sql;
 			exit;
 		}
-		$res->result = \DB::SQL($this->connName)->Query($sql);
+		$qry = DB::PDO($this->connName)->prepare($sql);
+		foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
+		$res->result = $qry->execute();
 		return $res;
 	}
 
@@ -831,14 +987,17 @@ class BH_DB_Delete{
 	private $where = array();
 	private $connName = '';
 
-	public static function Init($table = ''){
-		$instance = new self($table);
-		return $instance;
-	}
+	protected $bindParam = array();
 
 	public function  __construct($table = ''){
-		if($table !== '') $this->table = StrToSql(func_get_args());
-		$this->connName = \DB::DefaultConnName;
+		if($table !== '') $this->table = $this->StrToPDO(func_get_args());
+		$this->connName = DB::DefaultConnName;
+	}
+
+	public function StrToPDO($args){
+		$res = DB::StrToPDO(is_array($args) ? $args : func_get_args());
+		if(sizeof($res[1])) $this->bindParam = $this->bindParam + $res[1];
+		return $res[0];
 	}
 
 	public function &SetConnName($str){
@@ -847,13 +1006,13 @@ class BH_DB_Delete{
 	}
 
 	public function &AddTable($str){
-		$w = StrToSql(func_get_args());
-		if($w !== false) $this->table .= $w;
+		$w = $this->StrToPDO(func_get_args());
+		if($w !== false) $this->table .= ' '.$w;
 		return $this;
 	}
 
 	public function &AddWhere($str){
-		$w = StrToSql(func_get_args());
+		$w = $this->StrToPDO(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
 		return $this;
 	}
@@ -864,11 +1023,15 @@ class BH_DB_Delete{
 
 		$sql = 'DELETE FROM '.$this->table.' '.$where;
 		if($this->test && _DEVELOPERIS === true){
+			foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.$v[0].'\'', $sql);
 			echo $sql;
 			exit;
+
 		}
 
-		$res = \DB::SQL($this->connName)->Query($sql);
+		$qry = DB::PDO($this->connName)->prepare($sql);
+		foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
+		$res = $qry->execute();
 		return $res;
 	}
 

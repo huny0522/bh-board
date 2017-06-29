@@ -3,12 +3,15 @@
  * Bang Hun.
  * 16.07.10
  */
-namespace Admin;
+
+namespace BH\Controller\Admin;
+
 use \BH_Application as App;
-use \BH_Common as CF;
+use \BH_Common as CM;
+use \DB as DB;
 
 require_once _COMMONDIR.'/BH_Category.class.php';
-class MenuManagerController extends \BH_Category{
+class MenuManager extends \BH_Category{
 
 	/**
 	 * @var MenuModel
@@ -20,7 +23,7 @@ class MenuManagerController extends \BH_Category{
 
 	public function __init(){
 		App::$Data['NowMenu'] = '004';
-		CF::AdminAuth();
+		CM::AdminAuth();
 		App::$Layout = '_Admin';
 		parent::__init();
 	}

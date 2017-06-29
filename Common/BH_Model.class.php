@@ -3,19 +3,13 @@
  * Bang Hun.
  * 16.07.10
  */
-use \BH_Common as CF;
-use \BH_Application as App;
 class ModelType{
 	const Int = 1;
 	const String = 2;
-	const Eng = 3;
-	const EngNum = 4;
-	const EngSpecial = 5;
 	const Float = 6;
 	const Datetime = 7;
 	const Date = 8;
 	const Enum = 9;
-	const Password = 10;
 }
 
 class HTMLType{
@@ -30,6 +24,10 @@ class HTMLType{
 	const Textarea = 'textarea';
 	const InputDate = 'date';
 	const InputDatePicker = 'datepicker';
+	const NumberFormat = 'numberformat';
+	const InputEng = 'engonly';
+	const InputEngNum = 'engnumonly';
+	const InputEngSpecial = 'engspecialonly';
 }
 
 class BH_ModelData{
@@ -67,7 +65,7 @@ class BH_Model{
 	public $Need = array();
 	protected $ConnName = '';
 
-	protected function __construct(){
+	public function __construct(){
 		$this->ConnName = \DB::DefaultConnName;
 		if(method_exists($this, '__Init')) $this->__Init();
 	}
@@ -81,19 +79,6 @@ class BH_Model{
 		return $this->ConnName;
 	}
 
-	/**
-	 * 모델 생성
-	 * @return static
-	 */
-	public static function &Get(){
-		static $Instance;
-		if(isset($Instance)) return $Instance;
-
-		$class = get_called_class();
-		$Instance = new $class();
-		return $Instance;
-	}
-
 	public function GetDisplayName($key){
 		return isset($this->data[$key]->DisplayName) ? $this->data[$key]->DisplayName : NULL;
 	}
@@ -104,7 +89,7 @@ class BH_Model{
 	 * @return BH_Result
 	 */
 	public function SetPostValues(){
-		return _ModelFunc::SetPostValues($this->data, $this->Except, $this->Need);
+		return _ModelFunc::SetPostValues($this);
 	}
 
 	/**
@@ -113,10 +98,7 @@ class BH_Model{
 	 */
 	public function GetErrorMessage(){
 		$ret = array();
-		foreach($this->data as $k=>$v){
-			$this->ValueCheck($k);
-			if($v->ModelErrorMsg) $ret[] =$v->ModelErrorMsg;
-		}
+		_ModelFunc::GetErrorMessage($this, $ret);
 		return $ret;
 	}
 
@@ -125,9 +107,7 @@ class BH_Model{
 	 * @param array $Values
 	 */
 	public function SetDBValues($Values){
-		foreach($Values as $k=>$v){
-			if(isset($this->data[$k])) $this->data[$k]->Value = $v;
-		}
+		foreach($Values as $k=>$v) if(isset($this->data[$k])) $this->data[$k]->Value = $v;
 	}
 
 	public function GetValue($key){
@@ -141,13 +121,7 @@ class BH_Model{
 	 * @return bool
 	 */
 	public function SetValue($key, $v){
-		if(!isset($this->data[$key])) return $key.' 키값이 정의되어 있지 않습니다.';
-
-		if(isset($v) && strlen($v)){
-			$this->data[$key]->Value = trim($v);
-			$this->Need[] = $key;
-		}
-		return true;
+		return _ModelFunc::SetValue($this, $key, $v);
 	}
 
 	/**
@@ -157,36 +131,15 @@ class BH_Model{
 	 * @return bool
 	 */
 	public function SetQueryValue($key, $v){
-		if(!isset($this->data[$key])) Redirect('-1', 'No Key : ' . $key);
-
-		if(!isset($v)) return true;
-
-		$this->data[$key]->Value = $v;
-		$this->data[$key]->ValueIsQuery = true;
-		$this->Need[] = $key;
-		return true;
+		return _ModelFunc::SetQueryValue($this, $key, $v);
 	}
 
 	public function AddExcept($ar){
-		if(is_string($ar)){
-			$this->Except[] = $ar;
-			return;
-		}
-		foreach($ar as $v){
-			$this->Except[] = $v;
-		}
+		_ModelFunc::AddExcept($this, $ar);
 	}
 
 	public function ValueCheck($key){
-		if(in_array($key, $this->Except)) return true;
-		if($this->data[$key]->ValueIsQuery) return true;
-		if($this->CheckRequired($key) === false) return false;
-		if(isset($this->data[$key]->Value) && strlen($this->data[$key]->Value)){
-			if(_ModelFunc::CheckType($key, $this->data[$key]) === false) return false;
-			if(_ModelFunc::CheckLength($key, $this->data[$key]) === false) return false;
-			if(_ModelFunc::CheckValue($key, $this->data[$key]) === false) return false;
-		}
-		return true;
+		return _ModelFunc::ValueCheck($this, $key);
 	}
 
 
@@ -208,14 +161,7 @@ class BH_Model{
 	}
 
 	public function CheckRequired($key){
-		if($this->data[$key]->Required == false) return true;
-		if(is_null($this->GetValue($key)) || !strlen($this->GetValue($key))){
-			if(!in_array($key, $this->Except) && $this->data[$key]->AutoDecrement !== true){
-				$this->data[$key]->ModelErrorMsg = $this->data[$key]->DisplayName.' 항목은 필수항목입니다.';
-				return false;
-			}
-		}
-		return true;
+		return _ModelFunc::CheckRequired($this, $key);
 	}
 
 	/**
@@ -238,12 +184,7 @@ class BH_Model{
 	 * @return string
 	 */
 	public function HTMLPrintLabel($Name, $HtmlAttribute = false){
-		$Attribute = '';
-		if($HtmlAttribute === false) $HtmlAttribute = array();
-		foreach($HtmlAttribute as $k => $row){
-			$Attribute .= ' '.$k.'="'.$row.'"';
-		}
-		return '<label for="MD_'.$Name.'" '.$Attribute.'>'.$this->data[$Name]->DisplayName.'</label>';
+		return _ModelFunc::HTMLPrintLabel($this, $Name, $HtmlAttribute);
 	}
 
 	/**
@@ -263,7 +204,7 @@ class BH_Model{
 	 * @param $test bool
 	 */
 	public function DBInsert($test = false){
-		return _ModelFunc::DBInsert($this->ConnName, $this->table, $this->data, $this->Except, $this->Key, $this->Need, $test);
+		return _ModelFunc::DBInsert($this, $test);
 	}
 
 	/**
@@ -272,7 +213,7 @@ class BH_Model{
 	 * @param $test bool
 	 */
 	public function DBUpdate($test = false){
-		return _ModelFunc::DBUpdate($this->ConnName, $this->table, $this->data, $this->Except, $this->Key, $this->Need, $test);
+		return _ModelFunc::DBUpdate($this, $test);
 	}
 
 	/**
@@ -282,9 +223,7 @@ class BH_Model{
 	 */
 	public function DBGet($keys){
 		$keyData = is_array($keys) ? $keys : func_get_args();
-		$res = _ModelFunc::DBGet($this->ConnName, $keyData, $this->Key, $this->table, $this->data);
-
-		return $res;
+		return _ModelFunc::DBGet($this, $keyData);
 	}
 
 	/**
@@ -294,18 +233,18 @@ class BH_Model{
 	 */
 	public function DBDelete($keys){
 		$keyData = is_array($keys) ? $keys : func_get_args();
-		return _ModelFunc::DBDelete($this->ConnName, $keyData, $this->Key, $this->table);
+		return _ModelFunc::DBDelete($this, $keyData);
 	}
 }
 
 class _ModelFunc{
-	public static function SetPostValues(&$Data, $Except, &$Need){
+	public static function SetPostValues(&$model){
 		$ret = new \BH_Result();
 		$ret->result = true;
-		foreach($Data as $k => &$v){
-			if(!in_array($k, $Except) && $v->AutoDecrement !== true){
+		foreach($model->data as $k => &$v){
+			if(!in_array($k, $model->Except) && $v->AutoDecrement !== true){
 				if(!isset($_POST[$k])){
-					if(isset($Need) && in_array($k, $Need)){
+					if(isset($model->Need) && in_array($k, $model->Need)){
 						$ret->message = $v->ModelErrorMsg = $v->DisplayName.' 항목이 정의되지 않았습니다.';
 						$ret->result = false;
 						return $ret;
@@ -313,13 +252,64 @@ class _ModelFunc{
 				}
 				else{
 					if((isset($v->HtmlType) || $v->Required) && $v->HtmlType != HTMLType::InputFile){
-						if(isset($_POST[$k])) $v->Value = $_POST[$k];
-						$Need[] = $k;
+						if(isset($_POST[$k])){
+							if($v->HtmlType === HTMLType::NumberFormat) $v->Value = preg_replace('/[^0-9]/', '', $_POST[$k]);
+							else $v->Value = $_POST[$k];
+						}
+						$model->Need[] = $k;
 					}
 				}
 			}
 		}
 		return $ret;
+	}
+
+	public static function GetErrorMessage(&$model, &$ret){
+		foreach($model->data as $k=>$v){
+			self::ValueCheck($model, $k);
+			if($v->ModelErrorMsg) $ret[] =$v->ModelErrorMsg;
+		}
+	}
+
+	public static function SetValue(&$model, $key, $v){
+		if(!isset($model->data[$key])) return $key.' 키값이 정의되어 있지 않습니다.';
+
+		if(isset($v) && strlen($v)){
+			$model->data[$key]->Value = trim($v);
+			$model->Need[] = $key;
+		}
+		return true;
+	}
+
+	public static function SetQueryValue(&$model, $key, $v){
+		if(!isset($model->data[$key])) URLReplace('-1', 'No Key : ' . $key);
+
+		if(!isset($v)) return true;
+
+		$model->data[$key]->Value = $v;
+		$model->data[$key]->ValueIsQuery = true;
+		$model->Need[] = $key;
+		return true;
+	}
+
+	public static function AddExcept(&$model, $ar){
+		if(is_string($ar)){
+			$model->Except[] = $ar;
+			return;
+		}
+		foreach($ar as $v) $model->Except[] = $v;
+	}
+
+	public static function ValueCheck(&$model, $key){
+		if(in_array($key, $model->Except)) return true;
+		if($model->data[$key]->ValueIsQuery) return true;
+		if(self::CheckRequired($model, $key) === false) return false;
+		if(isset($model->data[$key]->Value) && strlen($model->data[$key]->Value)){
+			if(self::CheckType($key, $model->data[$key]) === false) return false;
+			if(self::CheckLength($key, $model->data[$key]) === false) return false;
+			if(self::CheckValue($key, $model->data[$key]) === false) return false;
+		}
+		return true;
 	}
 
 	public static function CheckType($key, &$data){
@@ -344,25 +334,6 @@ class _ModelFunc{
 					return false;
 				}
 			break;
-			case ModelType::Eng:
-				$val = preg_replace('/[^a-zA-Z]/','',$data->Value);
-				if($val != $data->Value){
-					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문만 입력가능합니다.';
-					return false;
-				}
-			break;
-			case ModelType::EngNum:
-				if ( !ctype_alnum($data->Value) ){
-					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문과 숫자만 입력가능합니다.';
-					return false;
-				}
-			break;
-			case ModelType::EngSpecial:
-				$val = preg_replace('/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>\'\"\?\-=\+_\:\;\[\]\{\}\/]/','',$data->Value);
-				if($val != $data->Value){
-					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문과 숫자, 특수문자만 입력가능합니다.';
-					return false;
-				}
 		}
 		switch($data->HtmlType){
 			case HTMLType::InputEmail:
@@ -378,6 +349,25 @@ class _ModelFunc{
 					return false;
 				}
 			break;
+			case HTMLType::InputEng:
+				$val = preg_replace('/[^a-zA-Z]/','',$data->Value);
+				if($val != $data->Value){
+					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문만 입력가능합니다.';
+					return false;
+				}
+			break;
+			case HTMLType::InputEngNum:
+				if ( !ctype_alnum($data->Value) ){
+					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문과 숫자만 입력가능합니다.';
+					return false;
+				}
+			break;
+			case HTMLType::InputEngSpecial:
+				$val = preg_replace('/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>\'\"\?\-=\+_\:\;\[\]\{\}\/]/','',$data->Value);
+				if($val != $data->Value){
+					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문과 숫자, 특수문자만 입력가능합니다.';
+					return false;
+				}
 		}
 		return true;
 	}
@@ -410,6 +400,26 @@ class _ModelFunc{
 		return true;
 	}
 
+	public static function CheckRequired(&$model, $key){
+		if($model->data[$key]->Required == false) return true;
+		if(is_null($model->GetValue($key)) || !strlen($model->GetValue($key))){
+			if(!in_array($key, $model->Except) && $model->data[$key]->AutoDecrement !== true){
+				$model->data[$key]->ModelErrorMsg = $model->data[$key]->DisplayName.' 항목은 필수항목입니다.';
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public static function HTMLPrintLabel(&$model, $Name, $HtmlAttribute){
+		$Attribute = '';
+		if($HtmlAttribute === false) $HtmlAttribute = array();
+		foreach($HtmlAttribute as $k => $row){
+			$Attribute .= ' '.$k.'="'.$row.'"';
+		}
+		return '<label for="MD_'.$Name.'" '.$Attribute.'>'.$model->data[$Name]->DisplayName.'</label>';
+	}
+
 	public static function HTMLPrintInput($Name, &$data, $HtmlAttribute = false){
 		$htmlType = strtolower($data->HtmlType);
 		$Attribute = '';
@@ -432,10 +442,7 @@ class _ModelFunc{
 		if($data->Required) $Attribute .= ' required="required"';
 
 		// ModelType
-		if($data->Type == ModelType::Int) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'numberonly';
-		else if($data->Type == ModelType::EngNum) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engnumonly';
-		else if($data->Type == ModelType::Eng) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engonly';
-		else if($data->Type == ModelType::EngSpecial) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'engspecialonly';
+		if($data->Type == ModelType::Int && $data->HtmlType != 'numberformat') $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'numberonly';
 
 		// HTMLType
 		if($data->HtmlType == HTMLType::InputEmail) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'email';
@@ -450,6 +457,10 @@ class _ModelFunc{
 			$HtmlAttribute['maxlength'] = '10';
 			$HtmlAttribute['minlength'] = '10';
 		}
+		else if($data->HtmlType == HTMLType::NumberFormat) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').HTMLType::NumberFormat;
+		else if($data->HtmlType == HTMLType::InputEngNum) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').HTMLType::InputEngNum;
+		else if($data->HtmlType == HTMLType::InputEng) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').HTMLType::InputEng;
+		else if($data->HtmlType == HTMLType::InputEngSpecial) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').HTMLType::InputEngSpecial;
 
 		foreach($HtmlAttribute as $k => $row) $Attribute .= ' '.$k.'="'.$row.'"';
 
@@ -460,7 +471,11 @@ class _ModelFunc{
 			case HTMLType::InputTel:
 				return '<input type="'.$htmlType.'" name="'.$Name.'" id="MD_'.$Name.'" '.(isset($val) && $htmlType != HTMLType::InputPassword ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
 			break;
+			case HTMLType::NumberFormat:
 			case HTMLType::InputDatePicker:
+			case HTMLType::InputEngNum:
+			case HTMLType::InputEng:
+			case HTMLType::InputEngSpecial:
 				return '<input type="text" name="'.$Name.'" id="MD_'.$Name.'" '.(isset($val) ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
 			break;
 			case HTMLType::InputDate:
@@ -502,23 +517,22 @@ class _ModelFunc{
 		return '';
 	}
 
-	public static function DBInsert($ConnName, $Table, &$Data, $Except, $Key, $Need, $test = false){
-		$dbInsert = new \BH_DB_Insert($Table);
-		$dbInsert->SetConnName($ConnName);
+	public static function DBInsert(&$model, $test = false){
+		$dbInsert = new \BH_DB_Insert($model->table);
+		$dbInsert->SetConnName($model->GetConnName());
 		$result = new \BH_InsertResult();
 
-		/** @var  $Data \BH_ModelData[] */
-		foreach($Data as $k=>$v){
-			if(!isset($v->Value) && in_array($k, $Need)){
+		foreach($model->data as $k=>$v){
+			if(!isset($v->Value) && in_array($k, $model->Need)){
 				$result->result = false;
 				$result->message = 'ERROR#101';
 				return $result;
 			}
 
 			// 예외 패스, 셋이 없거나 셋에 있는것
-			if((!in_array($k, $Except) && (!sizeof($Need) || in_array($k, $Need)))){
+			if((!in_array($k, $model->Except) && (!sizeof($model->Need) || in_array($k, $model->Need)))){
 				if(isset($v->Value)){
-					if(in_array($k, $Key) && $v->AutoDecrement === true) continue;
+					if(in_array($k, $model->Key) && $v->AutoDecrement === true) continue;
 
 					if(!$v->ValueIsQuery && $v->HtmlType == HTMLType::InputTel) $v->Value = preg_replace('/[^0-9]/','',$v->Value);
 
@@ -545,15 +559,15 @@ class _ModelFunc{
 							}
 						}
 					}
-					else if($v->Type == ModelType::Password) $dbInsert->data[$k] = SetDBText(_password_hash($v->Value));
-					else $dbInsert->data[$k] = SetDBText($v->Value);
+					else if($v->HtmlType == HTMLType::InputPassword) $dbInsert->SetDataStr($k, _password_hash($v->Value));
+					else $dbInsert->SetDataStr($k, $v->Value);
 				}
 			}
 		}
 
-		foreach($Key as $k){
-			if($Data[$k]->AutoDecrement === true) $dbInsert->decrement = $k;
-			else if($Data[$k]->Value) $dbInsert->AddWhere($k.'='.SetDBText($Data[$k]->Value));
+		foreach($model->Key as $k){
+			if($model->data[$k]->AutoDecrement === true) $dbInsert->decrement = $k;
+			else if($model->data[$k]->Value) $dbInsert->AddWhere($k.'= %s', $model->data[$k]->Value);
 		}
 		if(!$dbInsert->decrement) $dbInsert->UnsetWhere();
 		if(_DEVELOPERIS === true) $dbInsert->test = $test;
@@ -561,29 +575,29 @@ class _ModelFunc{
 		return $result;
 	}
 
-	public static function DBUpdate($ConnName, $Table, &$Data, $Except, $Key, $Need, $test = false){
+	public static function DBUpdate(&$model, $test = false){
 		$result = new \BH_Result();
 
-		$dbUpdate = new \BH_DB_Update($Table);
-		$dbUpdate->SetConnName($ConnName);
-		foreach($Data as $k=>$v){
-			if(!isset($v->Value) && in_array($k, $Need)){
+		$dbUpdate = new \BH_DB_Update($model->table);
+		$dbUpdate->SetConnName($model->GetConnName());
+		foreach($model->data as $k=>$v){
+			if(!isset($v->Value) && in_array($k, $model->Need)){
 				$result->result = false;
 				$result->message = 'ERROR';
 				return $result;
 			}
 
 			// 예외와 키값 패스, 셋이 없거나 셋에 있는것
-			if(!in_array($k, $Except) && (!sizeof($Need) || in_array($k, $Need)) && !in_array($k, $Key)){
+			if(!in_array($k, $model->Except) && (!sizeof($model->Need) || in_array($k, $model->Need)) && !in_array($k, $model->Key)){
 				if(isset($v->Value)){
-					if(in_array($k, $Key) && $v->AutoDecrement === true) continue;
+					if(in_array($k, $model->Key) && $v->AutoDecrement === true) continue;
 
 					if(!$v->ValueIsQuery && $v->HtmlType == HTMLType::InputTel) $v->Value = preg_replace('/[^0-9]/','',$v->Value);
 
-					if($v->ValueIsQuery) $dbUpdate->data[$k] = $v->Value;
+					if($v->ValueIsQuery) $dbUpdate->SetData($k, $v->Value);
 					else if($v->Type == ModelType::Int){
 						$res = self::CheckInt($k, $v->Value);
-						if($res === true) $dbUpdate->data[$k] = $v->Value;
+						if($res === true) $dbUpdate->SetDataNum($k, $v->Value);
 						else{
 							$result->result = false;
 							$result->message = $res;
@@ -591,19 +605,19 @@ class _ModelFunc{
 					}
 					else if($v->Type == ModelType::Float){
 						$res = self::CheckFloat($k, $v->Value);
-						if($res === true) $dbUpdate->data[$k] = $v->Value;
+						if($res === true) $dbUpdate->SetDataNum($k, $v->Value);
 						else{
 							$result->result = false;
 							$result->message = $res;
 						}
 					}
-					else if($v->Type == ModelType::Password) $dbUpdate->data[$k] = SetDBText(_password_hash($v->Value));
-					else $dbUpdate->data[$k] = SetDBText($v->Value);
+					else if($v->HtmlType == HTMLType::InputPassword) $dbUpdate->SetDataStr($k, _password_hash($v->Value));
+					else $dbUpdate->SetDataStr($k, $v->Value);
 				}
 			}
 		}
-		foreach($Key as $k){
-			if(isset($Data[$k]->Value) && strlen($Data[$k]->Value)) $dbUpdate->AddWhere($k.'='.SetDBText($Data[$k]->Value));
+		foreach($model->Key as $k){
+			if(isset($model->data[$k]->Value) && strlen($model->data[$k]->Value)) $dbUpdate->AddWhere($k.' = %s', $model->data[$k]->Value);
 			else{
 				$result->message = 'Empty Key';
 				$result->result = false;
@@ -611,15 +625,15 @@ class _ModelFunc{
 			}
 		}
 
-		if(_DEVELOPERIS === true) $dbUpdate->test = $test;
+		if(_DEVELOPERIS === true) $dbUpdate->SetTest($test);
 		$result = $dbUpdate->Run();
 		return $result;
 	}
 
-	public static function DBGet($ConnName, $keys, $modelKey, $table, &$Data){
+	public static function DBGet(&$model, $keys){
 		$res = new \BH_Result();
 
-		if(!isset($modelKey) || !is_array($modelKey)){
+		if(!isset($model->Key) || !is_array($model->Key)){
 			if(_DEVELOPERIS === true){
 				echo '키값이 존재하지 않습니다.';
 				exit;
@@ -628,7 +642,7 @@ class _ModelFunc{
 			$res->message = 'ERROR#01';
 			return $res;
 		}
-		else if(sizeof($keys) != sizeof($modelKey)){
+		else if(sizeof($keys) != sizeof($model->Key)){
 			if(_DEVELOPERIS === true){
 				echo '모델의 키의 길이와 인자값의 키의 길이가 동일하지 않습니다.';
 				exit;
@@ -637,13 +651,13 @@ class _ModelFunc{
 			$res->message = 'ERROR#02';
 			return $res;
 		}
-		$dbGet = new \BH_DB_Get($table);
-		$dbGet->SetConnName($ConnName);
-		foreach($modelKey as $k => $v) $dbGet->AddWhere($v.' = '.SetDBTrimText($keys[$k]));
+		$dbGet = new \BH_DB_Get($model->table);
+		$dbGet->SetConnName($model->GetConnName());
+		foreach($model->Key as $k => $v) $dbGet->AddWhere($v.' = %s', trim($keys[$k]));
 		$data = $dbGet->Get();
 
 		if($data !== false){
-			foreach($data as $k=>$v) if(isset($Data[$k])) $Data[$k]->Value = $v;
+			foreach($data as $k=>$v) if(isset($model->data[$k])) $model->data[$k]->Value = $v;
 			$res->result = true;
 		}
 		else $res->result = false;
@@ -651,12 +665,12 @@ class _ModelFunc{
 		return $res;
 	}
 
-	public static function DBDelete($ConnName, $keyData, $ModelKey, $Table){
+	public static function DBDelete(&$model, $keyData){
 		$res = new \BH_Result();
 
 		if(!is_array($keyData)) $keyData = array($keyData);
 
-		if(!isset($ModelKey) || !is_array($ModelKey)){
+		if(!isset($model->Key) || !is_array($model->Key)){
 			if(_DEVELOPERIS === true){
 				echo '키값이 존재하지 않습니다.';
 				exit;
@@ -666,7 +680,7 @@ class _ModelFunc{
 			$res->message = 'ERROR#01';
 			return $res;
 		}
-		else if(sizeof($keyData) != sizeof($ModelKey)){
+		else if(sizeof($keyData) != sizeof($model->Key)){
 			if(_DEVELOPERIS === true){
 				echo '모델의 키의 길이와 인자값의 키의 길이가 동일하지 않습니다.';
 				exit;
@@ -676,19 +690,17 @@ class _ModelFunc{
 			$res->message = 'ERROR#02';
 			return $res;
 		}
-		$params['table'] = $Table;
-		$params['where'] = array();
-		foreach($ModelKey as $k => $v) $params['where'][] = $v.' = '.SetDBTrimText($keyData[$k]);
 
-		if(!sizeof($params['where'])){
+		$qry = DB::DeleteQryObj($model->table)->SetConnName($model->GetConnName());
+		foreach($model->Key as $k => $v) $qry->AddWhere($v.' = %s', trim($keyData[$k]));
+
+		if(!sizeof($model->Key)){
 			$res->result = false;
 			$res->message = 'ERROR#03';
 			return $res;
 		}
 
-		$sql = 'DELETE FROM '.$params['table'].' WHERE '.implode(' AND ', $params['where']);
-		$res->result = DB::SQL($ConnName)->Query($sql);
-		\BH_DB_Cache::DelPath($ConnName, $params['table']);
+		$res->result = $qry->Run();
 		return $res;
 	}
 
@@ -696,14 +708,14 @@ class _ModelFunc{
 		if(!strlen($v)){
 			if(_DEVELOPERIS === true){
 				if(_AJAXIS === true) JSON(false, '['.$k.']숫자값이 비어있습니다.');
-				else Redirect('-1', '['.$k.']숫자값이 비어있습니다.');
+				else URLReplace('-1', '['.$k.']숫자값이 비어있습니다.');
 			}else return 'ERROR#102';
 		}
 		$val = ToInt($v);
 		if($val != $v){
 			if(_DEVELOPERIS === true){
 				if(_AJAXIS === true) JSON(false, '['.$k.']숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
-				else Redirect('-1', '['.$k.']숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+				else URLReplace('-1', '['.$k.']숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
 			}else return 'ERROR#103';
 		}
 		return true;
@@ -713,14 +725,14 @@ class _ModelFunc{
 		if(!strlen($v)){
 			if(_DEVELOPERIS === true){
 				if(_AJAXIS === true) JSON(false, '['.$k.']숫자값이 비어있습니다.');
-				else Redirect('-1', '['.$k.']숫자값이 비어있습니다.');
+				else URLReplace('-1', '['.$k.']숫자값이 비어있습니다.');
 			}else return 'ERROR#112';
 		}
 		$val = ToFloat($v);
 		if($val != $v){
 			if(_DEVELOPERIS === true){
 				if(_AJAXIS === true) JSON(false, '['.$k.']숫자(소수)가 들아갈 항목에 문자가 들어갈 수 없습니다.');
-				else Redirect('-1', '['.$k.']숫자(소수)가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+				else URLReplace('-1', '['.$k.']숫자(소수)가 들아갈 항목에 문자가 들어갈 수 없습니다.');
 			}else return 'ERROR#113';
 		}
 		return true;

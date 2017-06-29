@@ -1,5 +1,5 @@
 <?php if(_BH_ !== true) exit;
-use \BH_Common as CF;
+use \BH_Common as CM;
 use \BH_Application as App;
 
 /**
@@ -11,13 +11,13 @@ use \BH_Application as App;
 
 		<fieldset>
 			<h2>개인정보보호정책</h2>
-			<div class="txt"><?vr. CF::Config('Default','Privacy') ?></div>
+			<div class="txt"><?vr. CM::Config('Default','Privacy') ?></div>
 			<p class="chk"><input type="checkbox" name="agree1" id="agree1"><label for="agree1">동의1</label></p>
 		</fieldset>
 
 		<fieldset>
 			<h2>이용약관</h2>
-			<div class="txt"><?vr. CF::Config('Default','Terms') ?></div>
+			<div class="txt"><?vr. CM::Config('Default','Terms') ?></div>
 			<p class="chk"><input type="checkbox" name="agree2" id="agree2"><label for="agree2">동의2</label></p>
 		</fieldset>
 
@@ -31,12 +31,12 @@ use \BH_Application as App;
 	$(document).on('submit', '#RegisterAgreeForm', function(e){
 		if(!$('#agree1')[0].checked){
 			e.preventDefault();
-			alert('동의해라');
+			CMAlert('동의해라');
 			return false;
 		}
 		if(!$('#agree2')[0].checked){
 			e.preventDefault();
-			alert('동의');
+			CMAlert('동의');
 			return false;
 		}
 	});

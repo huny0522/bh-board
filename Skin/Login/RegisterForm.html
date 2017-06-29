@@ -1,5 +1,5 @@
 <?php if(_BH_ !== true) exit;
-use \BH_Common as CF;
+use \BH_Common as CM;
 use \BH_Application as App;
 
 /**
@@ -81,15 +81,15 @@ use \BH_Application as App;
 	$(document).on('click', '#sameCheckEmail', function(){
 		if(!$('#sameCheckEmail').hasClass('btn2')) return;
 		if(jQuery.trim($('input[name=email1]').val()) == '' || jQuery.trim($('input[name=email2]').val()) == ''){
-			alert('이메일을 입력하여주세요.');
+			CMAlert('이메일을 입력하여주세요.');
 			return;
 		}
-		common.get('<?a. 'EmailCheck' ?>', {'email1' : $('input[name=email1]').val(), 'email2' : $('input[name=email2]').val()}, function(data){
+		JCM.get('<?a. 'EmailCheck' ?>', {'email1' : $('input[name=email1]').val(), 'email2' : $('input[name=email2]').val()}, function(data){
 			if(data){
 				$('#sameCheckEmail').removeClass('btn2');
-				alert('사용 가능한 이메일입니다.');
+				CMAlert('사용 가능한 이메일입니다.');
 			}else{
-				alert('이미 사용중인 이메일입니다.');
+				CMAlert('이미 사용중인 이메일입니다.');
 			}
 		})
 	})
@@ -97,15 +97,15 @@ use \BH_Application as App;
 	$(document).on('click', '#sameCheckNick', function(){
 		if(!$('#sameCheckNick').hasClass('btn2')) return;
 		if(jQuery.trim($('input[name=nickname]').val()) == ''){
-			alert('닉네임을 입력하여주세요.');
+			CMAlert('닉네임을 입력하여주세요.');
 			return;
 		}
-		common.get('<?a. 'NicknameCheck' ?>', {'nickname' : $('input[name=nickname]').val()}, function(data){
+		JCM.get('<?a. 'NicknameCheck' ?>', {'nickname' : $('input[name=nickname]').val()}, function(data){
 			if(data){
 				$('#sameCheckNick').removeClass('btn2');
-				alert('사용 가능한 닉네임입니다.');
+				CMAlert('사용 가능한 닉네임입니다.');
 			}else{
-				alert('이미 사용중인 닉네임입니다.');
+				CMAlert('이미 사용중인 닉네임입니다.');
 			}
 		})
 	})
@@ -120,15 +120,15 @@ use \BH_Application as App;
 			return false;
 		}
 		if($('#sameCheckEmail').hasClass('btn2')){
-			alert('이메일 중복체크를 해주시기 바랍니다.');
 			e.preventDefault();
+			CMAlert('이메일 중복체크를 해주시기 바랍니다.');
 			return false;
 		}
 		if($('#sameCheckNick').hasClass('btn2')){
-			alert('닉네임 중복체크를 해주시기 바랍니다.');
 			e.preventDefault();
+			CMAlert('닉네임 중복체크를 해주시기 바랍니다.');
 			return false;
 		}
 	});
-	<?php if(isset(App::$Data['alertMsg'])){ ?>alert('<?p. App::$Data['alertMsg'] ?>');<?php } ?>
+	<?php if(isset(App::$Data['alertMsg'])){ ?>CMAlert('<?p. App::$Data['alertMsg'] ?>');<?php } ?>
 </script>

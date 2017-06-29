@@ -1,14 +1,14 @@
 <?php
 if(_BH_ !== true) exit;
-use \BH_Common as CF;
+use \BH_Common as CM;
 use \BH_Application as App;
 
 ob_start();
 App::CSSAdd('jquery-ui-1.10.1.css', 10);
 App::CSSAdd('font-awesome/css/font-awesome.min.css', 10);
 App::CSSAdd('nanumgothic.css', 10);
-App::CSSAdd('common.css2?r='.CF::Config('Default', 'Refresh'), 10);
-App::CSSAdd('admin.css2?r='.CF::Config('Default', 'Refresh'), 10);
+App::CSSAdd('common.css2?r='.CM::Config('Default', 'Refresh'), 10);
+App::CSSAdd('admin.css2?r='.CM::Config('Default', 'Refresh'), 10);
 
 App::JSAdd('jquery-1.11.3.min.js', 10);
 App::JSAdd('jquery.form.min.js', 10);
@@ -31,7 +31,7 @@ App::JSAdd('admin.js', 10);
 				<ul>
 					<?php
 					$NM = App::$Data['NowMenu'];
-					$AdminAuth = explode(',', CF::GetMember('admin_auth'));
+					$AdminAuth = explode(',', CM::GetMember('admin_auth'));
 					foreach(App::$SettingData['AdminMenu'] as $c => $v){
 						if(strlen($c) == 3 && ($_SESSION['member']['level'] == _SADMIN_LEVEL || in_array($c, $AdminAuth))){
 							echo '<li '.(substr($NM,0,3) == $c ? ' class="Active"' : '').'>'
@@ -73,7 +73,7 @@ App::JSAdd('admin.js', 10);
 <?php if(App::$ControllerName != 'Home'){ ?>
 	<script>
 		$(document).ready(function(){
-			if(common.getCookie('managerSideView') == 'no'){
+			if(JCM.getCookie('managerSideView') == 'no'){
 				$('#wrap').addClass('sideHidden');
 			}
 
@@ -83,10 +83,10 @@ App::JSAdd('admin.js', 10);
 				e.preventDefault();
 				if($('#wrap').hasClass('sideHidden')){
 					$('#wrap').removeClass('sideHidden');
-					common.setCookie('managerSideView', 'yes');
+					JCM.setCookie('managerSideView', 'yes');
 				}else{
 					$('#wrap').addClass('sideHidden');
-					common.setCookie('managerSideView', 'no');
+					JCM.setCookie('managerSideView', 'no');
 				}
 			});
 

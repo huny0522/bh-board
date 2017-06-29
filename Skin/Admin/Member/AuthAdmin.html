@@ -1,5 +1,5 @@
 <?php if(_BH_ !== true) exit;
-use \BH_Common as CF;
+use \BH_Common as CM;
 use \BH_Application as App;
 
 /**
@@ -63,8 +63,8 @@ use \BH_Application as App;
 <script>
 	$('#AuthForm').on('submit', function(e){
 		e.preventDefault();
-		common.ajaxForm(this, function(data){
-			common.removeModal();
+		JCM.ajaxForm(this, function(data){
+			JCM.removeModal();
 		})
 	});
 	$('#AuthForm input[type=checkbox]').on('click', function(){

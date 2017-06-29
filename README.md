@@ -56,7 +56,7 @@ CSS 작성 편의 기능.
 
 ## PHP 임의 단축 변환 태그
 
-    Lib/htmlConvert.php의 ReplaceHtmlFile함수를 변경하여 추가 변경 가능.
+    Common/htmlConvert.php의 ReplaceHtmlFile함수를 변경하여 추가 변경 가능.
 
 - *\<?p. $guide ?>* : 단순 출력
 
@@ -123,6 +123,7 @@ CSS 작성 편의 기능.
 
 ### SQL 클래스 (Common/BH_DB.class.php)
 - DB::SQL() : 인스턴스 반환
+- DB::PDO() : PDO 인스턴스 반환
 - DB::SQL()->Free
 - DB::SQL()->TableExists
 - DB::SQL()->Query
@@ -132,7 +133,7 @@ CSS 작성 편의 기능.
 
 ### 기능함수 (Lib/common.php)
 - my_escape_string : mysqli_real_escape_string
-- Redirect : 페이지 이동명령(인자값 : 경로, 경고메시지)
+- URLReplace : 페이지 이동명령(인자값 : 경로, 경고메시지)
 - PhoneNumber : 숫자를 폰번호 형식으로 대쉬(-)를 붙여줌.
 - KrDate : 날짜를 한국날짜로 변경.(인자값 : 날짜, 보여줄 옵션 ymdhis, 시간 전 표시)
 - AutoLinkText : 텍스트에 링크 자동 걸기
@@ -347,11 +348,6 @@ CSS 작성 편의 기능.
 - function DBUpdate() : 가지고 있는 데이터를 DB에 업데이트.
 - function DBGet($keyData) : 키값 인자에 해당하는 데이터를 DB에서 가져와 설정.
 - function DBDelete($keyData) : 키값 인자에 해당하는 데이터를 DB에서 삭제.
-
-### BH_Router
-    라우팅을 위한 클래스.
-
-    BH_Router 클래스 router메쏘드에서 BH_Application 클래스의 인스턴스 변수를 설정.
 
 
 

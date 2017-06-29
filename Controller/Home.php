@@ -1,8 +1,11 @@
 <?php
-use \BH_Application as App;
-use \BH_Common as CF;
+namespace BH\Controller;
 
-class HomeController{
+use \BH_Application as App;
+use \BH_Common as CM;
+use \DB as DB;
+
+class Home{
 
 	public function __construct(){
 	}

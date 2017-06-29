@@ -1,9 +1,9 @@
 <?php
 if(_BH_ !== true) exit;
-use \BH_Common as CF;
+use \BH_Common as CM;
 use \BH_Application as App;
 
-$popup = CF::GetPopup();
+$popup = CM::GetPopup();
 ?>
 
 <script>
@@ -12,7 +12,7 @@ $popup = CF::GetPopup();
 	foreach($popup as $row){
 	echo 'var html = \''.$row['html'].'\';';
 	?>
-	common.popup('body', <?p. $row['seq'] ?>, 100, <?p. $left ?>, <?p. $row['width'] ?>, <?p. $row['height'] ?>, html);
+	JCM.popup('body', <?p. $row['seq'] ?>, 100, <?p. $left ?>, <?p. $row['width'] ?>, <?p. $row['height'] ?>, html);
 	<?php
 	$left += $row['width'];
 	}

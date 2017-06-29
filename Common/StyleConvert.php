@@ -1,6 +1,6 @@
 <?php
 if(_BH_ !== true) exit;
-use \BH_Common as CF;
+use \BH_Common as CM;
 use \BH_Application as App;
 
 class _BH_Node{
@@ -54,10 +54,10 @@ function BH_CSS($path, $target){
 	}
 	$f = preg_replace(array($pattern, '/\/\*(.*?)\*\//is'), '', $f);
 
-	$pattern = '/[\n](\$\S+)\s+(.*?)\;/';
+	$pattern = '/[\n](\$\S+)\s+(\'|)(.*?)(\'|)\;/';
 	preg_match_all($pattern, $f, $matches);
 	foreach($matches[1] as $k => $v){
-		$replaceVar[$v] = $matches[2][$k];
+		$replaceVar[$v] = $matches[3][$k];
 	}
 	uksort($replaceVar, 'mySort');
 	$f = preg_replace($pattern, '', $f);
@@ -149,6 +149,8 @@ function BH_CSS($path, $target){
 		'/(background-size)\s*[:]\s*(.*?);/',
 		'/(text-overflow)\s*[:]\s*(.*?);/',
 		'/(\S+?)\s*[:]\s*(linear\-|radial\-)gradient\s*\((.*?)\)\s*;/',
+
+		'/url\(\(\'(.*?)\'\)\)/',
 	);
 
 	$replace = array(
@@ -160,6 +162,8 @@ function BH_CSS($path, $target){
 		'-webkit-background-size:$2; background-size:$2;',
 		'-ms-text-overflow:$2; text-overflow:$2;',
 		'$1:-webkit-$2gradient($3); $1:-moz-$2gradient($3); $1:-o-$2gradient($3); $1:$2gradient($3);',
+
+		'url(\''._DOMAIN.'$1\')',
 	);
 
 	$f = preg_replace($patterns, $replace, $f);

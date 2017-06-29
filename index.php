@@ -11,7 +11,6 @@ header('Content-Type: text/html; charset=UTF-8');
 error_reporting(E_ALL);
 date_default_timezone_set('Asia/Seoul');
 define('_BH_', true);
-use \BH_Application as App;
 
 // -------------------------------------
 //
@@ -48,11 +47,9 @@ $_DEVELOPER_IP = array('127.0.0.1');
 define('_DEVELOPERIS', true && in_array($_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP));
 define('_CREATE_HTML_ALL', false && _DEVELOPERIS === true);
 define('_REFRESH_HTML_ALL', true && _DEVELOPERIS === true);
-define('_REFRESH_DB_CACHE_ALL', true && _DEVELOPERIS === true);
 define('_REFRESH_BTN', _DEVELOPERIS === true ? '<a id="_BH_RefreshBtn" href="'._URL.'/_Refresh?r_url='.urlencode($_SERVER['REQUEST_URI']).'">새로고침</a>' : '');
 define('_REMOVE_SPACE', false);
 define('_VIEW_MICROTIME', true);
-define('_USE_DB_CACHE', true);
 define('_USE_OLD_PASSWORD', false);
 define('_SHOW_CREATE_GUIDE', true);
 
@@ -117,7 +114,7 @@ define('_DEFAULT_CONTROLLER', 'Home');
 define('_DEFAULT_LAYOUT', '_Default');
 
 require _COMMONDIR.'/common.php';
-App::run();
+BH_Application::run();
 
 if(_VIEW_MICROTIME === true && _AJAXIS !== true){
 	$_END_MICROTIME = array_sum(explode(' ',microtime()));

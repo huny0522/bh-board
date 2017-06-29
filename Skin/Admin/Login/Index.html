@@ -1,5 +1,5 @@
 <?php if(_BH_ !== true) exit;
-use \BH_Common as CF;
+use \BH_Common as CM;
 use \BH_Application as App;
 
 /**
@@ -29,7 +29,7 @@ App::CSSAdd('admin.css2');
 <script>
 	jQuery(function($){
 		$(document).ready(function(){
-			var mid = common.getCookie('adminMid');
+			var mid = JCM.getCookie('adminMid');
 			if(mid != ''){
 				$('input[name=mid]').val(mid);
 				$('#RemberIDBtn').addClass('active');
@@ -49,9 +49,9 @@ App::CSSAdd('admin.css2');
 			var pwd = $('input[name=pwd]');
 
 			if($('#RemberIDBtn').hasClass('active')){
-				common.setCookie('adminMid', $('input[name=mid]').val(), 9999);
+				JCM.setCookie('adminMid', $('input[name=mid]').val(), 9999);
 			}else{
-				common.setCookie('adminMid', '1',0);
+				JCM.setCookie('adminMid', '1',0);
 			}
 		});
 

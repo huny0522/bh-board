@@ -3,11 +3,16 @@
  * Bang Hun.
  * 16.07.10
  */
-require _COMMONDIR.'/FileUpload.php';
-use \BH_Application as App;
-use \BH_Common as CF;
 
-class UploadController{
+namespace BH\Controller;
+
+use \BH_Application as App;
+use \BH_Common as CM;
+use \DB as DB;
+
+require _COMMONDIR.'/FileUpload.php';
+
+class Upload{
 
 	// 임시 파일 업로드
 	public function PostImageUpload(){
@@ -20,7 +25,7 @@ class UploadController{
 
 	private function FileUpload($type = ''){
 		DeleteOldTempFiles(_UPLOAD_DIR.'/temp/', strtotime('-6 hours'));
-		if(strpos('../', $_FILES['Filedata']['name']) !== false) Redirect('-1');
+		if(strpos('../', $_FILES['Filedata']['name']) !== false) URLReplace('-1');
 		$bSuccessUpload = is_uploaded_file($_FILES['Filedata']['tmp_name']);
 
 		// SUCCESSFUL

@@ -22,7 +22,7 @@ define('_POSTIS', $_SERVER['REQUEST_METHOD'] == 'POST');
 define('_AJAXIS', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
 define('_JSONIS', strpos(strtolower($_SERVER['HTTP_ACCEPT']), 'application/json') !== false);
 
-require _COMMONDIR.'/BH_DB.class.php';
+require _COMMONDIR.'/BH_PDO.class.php';
 require _COMMONDIR.'/BH_Application.class.php';
 require _COMMONDIR.'/BH_Model.class.php';
 require _COMMONDIR.'/BH_Common.class.php';
@@ -33,8 +33,6 @@ App::$SettingData['IMAGE_EXT'] = array('jpg','jpeg','png','gif','bmp');
 App::$SettingData['POSSIBLE_EXT'] = array('jpg','jpeg','png','gif','bmp','zip','7z','gz','xz','tar',
 	'xls', 'xlsx', 'ppt', 'doc', 'hwp', 'pdf', 'docx', 'pptx',
 	'avi', 'mov', 'mkv', 'mpg', 'mpeg', 'wmv','asf','asx', 'flv', 'm4v', 'mp4', 'mp3');
-BH_DB_Cache::$DBTableFirst = array(TABLE_FIRST);
-BH_DB_Cache::$ExceptTable = array(TABLE_MEMBER);
 
 if(_DEVELOPERIS === true){
 	if(!file_exists(_DATADIR) || !is_dir(_DATADIR)) @mkdir(_DATADIR, 0755, true);
@@ -73,7 +71,7 @@ function my_escape_string($str) {
 	else return mysqli_real_escape_string(DB::SQL()->GetConn(), trim($str));
 }
 
-function Redirect($url, $msg='', $data = '', $exitIs = true){
+function URLReplace($url, $msg='', $data = '', $exitIs = true, $redirect = false){
 	if(_JSONIS === true) JSON($url != '-1', $msg, $data);
 
 	echo '<script>';
@@ -81,10 +79,15 @@ function Redirect($url, $msg='', $data = '', $exitIs = true){
 	if($url == '-1') echo 'history.go(-1);';
 	else{
 		$url = str_replace(' ', '%20', $url);
-		echo 'location.replace(\''.$url.'\');';
+		if($redirect) echo 'location.href = \''.$url.'\';';
+		else  echo 'location.replace(\''.$url.'\');';
 	}
 	echo '</script>';
 	if($exitIs) exit;
+}
+
+function URLRedirect($url, $msg='', $data = '', $exitIs = true){
+	URLReplace($url, $msg, $data, $exitIs, true);
 }
 
 function PhoneNumber($num){
@@ -220,15 +223,12 @@ function Download($path, $fname){
 	set_time_limit(0); // disable the time limit for this script
 
 
-	if(strpos($path, '..') !== false) Redirect('-1', '경로오류');
-
 	$dl_file = filter_var($path, FILTER_SANITIZE_URL); // Remove (more) invalid characters
-	$fullPath = _UPLOAD_DIR.$dl_file;
-	if(!file_exists($fullPath)) Redirect(-1, '파일이 존재하지 않습니다.');
+	if(!file_exists($dl_file)) URLReplace(-1, '파일이 존재하지 않습니다.');
 
-	if ($fd = fopen ($fullPath, "r")) {
-		$fsize = filesize($fullPath);
-		$path_parts = pathinfo($fullPath);
+	if ($fd = fopen ($dl_file, "r")) {
+		$fsize = filesize($dl_file);
+		$path_parts = pathinfo($dl_file);
 		$ext = strtolower($path_parts["extension"]);
 		switch ($ext) {
 			case "pdf":
@@ -350,8 +350,8 @@ function SetDBInt($txt){
 		return $txt;
 	}
 	$val = (int)$txt;
-	if(!strlen($txt)) Redirect('-1', '숫자값이 비어있습니다.');
-	if((string)$val != (string)$txt) Redirect('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+	if(!strlen($txt)) URLReplace('-1', '숫자값이 비어있습니다.');
+	if((string)$val != (string)$txt) URLReplace('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
 	return $txt;
 }
 
@@ -384,10 +384,10 @@ function SetDBFloat($txt){
 		return $txt;
 	}
 
-	if(!strlen($txt)) Redirect('-1', '숫자값이 비어있습니다.');
+	if(!strlen($txt)) URLReplace('-1', '숫자값이 비어있습니다.');
 
 	$val = (float)$txt;
-	if((string)$val != (string)$txt) Redirect('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+	if((string)$val != (string)$txt) URLReplace('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
 
 	return $val;
 }
@@ -493,7 +493,6 @@ function StrToSql($args){
 				$t = $w[$p+1];
 				switch($t){
 					case 's':
-						// $t = is_array($args[$i]) ? implode(',', SetDBText($args[$i])) : SetDBText($args[$i]);
 						$t = is_array($args[$i]) ? implode(',', SetDBText($args[$i])) : SetDBText($args[$i]);
 						$w = substr_replace($w, $t, $p, 2);
 						$p += strlen($t);
@@ -529,7 +528,7 @@ function StrToSql($args){
 		}
 		$w = str_replace(array('%\s', '%\f', '%\d', '%\1', '%\t'), array('%s', '%f', '%d', '%1', '%t'), $w);
 		if($validateOk->result) return $w;
-		else Redirect(-1, $validateOk->message.(_DEVELOPERIS === true ? '['.$w.']' : ''));
+		else URLReplace(-1, $validateOk->message.(_DEVELOPERIS === true ? '['.$w.']' : ''));
 	}
 }
 
@@ -553,16 +552,15 @@ function _password_verify($str, $hash){
 	return false;
 }
 
-$fileModTime = array();
-function modifyFileTime($file){
+function modifyFileTime($file, $group = 'default'){
 	if(!file_exists($file)) return false;
 	$path = _DATADIR.'/fileModTime.php';
 	if(file_exists($path)) require_once $path;
 
 	$t = filemtime($file);
 
-	if(!isset($GLOBALS['fileModTime'][$file]) || $t != $GLOBALS['fileModTime'][$file]){
-		$GLOBALS['fileModTime'][$file] = $t;
+	if(!isset($GLOBALS['fileModTime']) || !isset($GLOBALS['fileModTime'][$group]) || !isset($GLOBALS['fileModTime'][$group][$file]) || $t != $GLOBALS['fileModTime'][$group][$file]){
+		$GLOBALS['fileModTime'][$group][$file] = $t;
 		$txt = '<?php $GLOBALS[\'fileModTime\'] = '.var_export($GLOBALS['fileModTime'], true).';';
 		file_put_contents($path, $txt);
 		return true;

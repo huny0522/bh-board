@@ -4,10 +4,13 @@
  * 16.07.10
  */
 
-use \BH_Application as App;
-use \BH_Common as CF;
+namespace BH\Controller;
 
-class LoginController{
+use \BH_Application as App;
+use \BH_Common as CM;
+use \DB as DB;
+
+class Login{
 	/**
 	 * @var MemberModel
 	 */
@@ -17,7 +20,7 @@ class LoginController{
 	}
 
 	public function __init(){
-		$this->model = App::GetModel('Member');
+		$this->model = App::InitModel('Member');
 	}
 
 	public function Index(){
@@ -26,19 +29,19 @@ class LoginController{
 	public function PostLogin(){
 		$email = trim($_POST['email1'].'@'.$_POST['email2']);
 		if(strlen($email) < 1){
-			Redirect('-1', '아이디를 입력하여 주세요.');
+			URLReplace('-1', '아이디를 입력하여 주세요.');
 		}
 		if(strlen($_POST['pwd']) < 1){
-			Redirect('-1', '패스워드를 입력하여 주세요.');
+			URLReplace('-1', '패스워드를 입력하여 주세요.');
 		}
 		$res = $this->LoginEmailCheck($email, $_POST['pwd']);
 		if($res === false){
-			Redirect('-1', '일치하는 회원이 없습니다.');
+			URLReplace('-1', '일치하는 회원이 없습니다.');
 		}else{
 			$_SESSION['member'] = array();
 			$_SESSION['member']['muid'] = $res['muid'];
 			$_SESSION['member']['level'] = $res['level'];
-			Redirect(_URL.'/');
+			URLReplace(_URL.'/');
 		}
 	}
 
@@ -95,7 +98,7 @@ class LoginController{
 			App::$Html = 'RegisterForm.html';
 			App::View($this, $this->model);
 		}else{
-			Redirect(_URL.'/', '등록되었습니다.');
+			URLReplace(_URL.'/', '등록되었습니다.');
 		}
 	}
 
@@ -112,13 +115,13 @@ class LoginController{
 	private function Check($key, $val, $wcheck = true){
 		$dbGet = new \BH_DB_Get($this->model->table);
 		$dbGet->SetKey('COUNT(muid) as cnt');
-		$dbGet->AddWhere($key.'='.SetDBText($val));
+		$dbGet->AddWhere($key.' = %s', $val);
 		$res = $dbGet->Get();
 
 		if($wcheck){ // 탈퇴회원 체크여부
 			$dbGet = new \BH_DB_Get(TABLE_WITHDRAW_MEMBER);
 			$dbGet->SetKey('COUNT(muid) as cnt');
-			$dbGet->AddWhere($key.'='.SetDBText($val));
+			$dbGet->AddWhere($key.' = %s', $val);
 			$res2 = $dbGet->Get();
 		}else $res2['cnt'] = 0;
 		return (!$res['cnt'] && !$res2['cnt']);
@@ -128,13 +131,13 @@ class LoginController{
 	public function Logout(){
 		unset($_SESSION['member']);
 		session_destroy();
-		Redirect(_URL.'/');
+		URLReplace(_URL.'/');
 	}
 
 	private function LoginMidCheck($mid, $pwd){
 		$dbGet = new \BH_DB_Get($this->model->table);
 		$dbGet->SetKey(array('muid', 'level', 'pwd'));
-		$dbGet->AddWhere('mid='.SetDBText($mid));
+		$dbGet->AddWhere('mid = %s', $mid);
 		//$params->test = true;
 		$res = $dbGet->Get();
 		if($res === false) return false;
@@ -145,7 +148,7 @@ class LoginController{
 		$dbGet = new \BH_DB_Get();
 		$dbGet->table = $this->model->table;
 		$dbGet->SetKey(array('muid', 'level', 'pwd'));
-		$dbGet->AddWhere('email='.SetDBText($email));
+		$dbGet->AddWhere('email = %s', $email);
 		$res = $dbGet->Get();
 		if($res === false) return false;
 		return (_password_verify($pwd, $res['pwd'])) ? array('muid' => $res['muid'], 'level' => $res['level']) : false;

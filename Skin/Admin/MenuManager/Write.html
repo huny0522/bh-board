@@ -1,5 +1,5 @@
 <?php if(_BH_ !== true) exit;
-use \BH_Common as CF;
+use \BH_Common as CM;
 use \BH_Application as App;
 
 /**
@@ -63,13 +63,14 @@ use \BH_Application as App;
 		if(!res){
 			return false;
 		}
-		common.ajaxForm(this, function(data){
-			alert('변경되었습니다.');
-			var enabled = $('#MenuWriteForm input[name=enabled]:checked').val() == 'y';
-			var category = $('#MenuWriteForm input[name=category]').val();
-			$('#BHMenu'+category+' > a.title b').html($('#MenuWriteForm input[name=title]').val());
-			if(enabled) $('#BHMenu'+category+' > a.folder').removeClass('disabled');
-			else $('#BHMenu'+category+' > a.folder').addClass('disabled');
+		JCM.ajaxForm(this, function(data){
+			CMAlert('변경되었습니다.', function(){
+				var enabled = $('#MenuWriteForm input[name=enabled]:checked').val() == 'y';
+				var category = $('#MenuWriteForm input[name=category]').val();
+				$('#BHMenu'+category+' > a.title b').html($('#MenuWriteForm input[name=title]').val());
+				if(enabled) $('#BHMenu'+category+' > a.folder').removeClass('disabled');
+				else $('#BHMenu'+category+' > a.folder').addClass('disabled');
+			});
 		});
 	});
 	function getBidList(){
@@ -77,7 +78,7 @@ use \BH_Application as App;
 		var type = $('#MenuWriteForm input[name=type]:checked').val();
 		if(type == 'board' || type == 'content'){
 			$('tr.bid').show();
-			common.post('<?a. 'GetBidList' ?>', {'type' : type}, function(data){
+			JCM.post('<?a. 'GetBidList' ?>', {'type' : type}, function(data){
 				var opt = '<option value="">선택</opt>';
 				for(var i=0; i < data.length; i++){
 					opt += '<option value="' + data[i].bid + '"' + (data[i].bid == def ? ' selected="selected"' : '') + '>' + data[i].subject + '(' + data[i].bid + ')</option>';

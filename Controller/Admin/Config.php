@@ -3,17 +3,20 @@
  * Bang Hun.
  * 16.07.10
  */
-namespace Admin;
-use \BH_Application as App;
-use \BH_Common as CF;
 
-class ConfigController{
+namespace BH\Controller\Admin;
+
+use \BH_Application as App;
+use \BH_Common as CM;
+use \DB as DB;
+
+class Config{
 	public function __construct(){
 	}
 
 	public function __init(){
 		App::$Data['NowMenu'] = '001001';
-		CF::AdminAuth();
+		CM::AdminAuth();
 
 		App::SetFollowQuery(array('where', 'keyword','page'));
 		App::$Layout = '_Admin';
@@ -34,6 +37,6 @@ class ConfigController{
 		$path = _DATADIR.'/CFG/'.$_POST['Code'].'.php';
 		$txt = '<?php \BH_Application::$CFG = '.var_export(App::$CFG, true).';';
 		file_put_contents($path, $txt);
-		Redirect(App::URLAction(), '설정되었습니다.');
+		URLReplace(App::URLAction(), '설정되었습니다.');
 	}
 }

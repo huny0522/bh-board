@@ -11,13 +11,13 @@ class BH_Common
 	public static function AdminAuth(){
 		if(_MEMBERIS !== true || ($_SESSION['member']['level'] != _SADMIN_LEVEL  && $_SESSION['member']['level'] != _ADMIN_LEVEL)){
 			if(_AJAXIS === true) JSON(false, _MSG_NO_AUTH.' 로그인하여 주세요.');
-			else Redirect(App::URLBase('Login'), _MSG_NO_AUTH.' 로그인하여 주세요.');
+			else URLReplace(App::URLBase('Login'), _MSG_NO_AUTH.' 로그인하여 주세요.');
 		}
 		if($_SESSION['member']['level'] == _ADMIN_LEVEL){
 			$AdminAuth = explode(',', self::GetMember('admin_auth'));
 			if(!in_array(App::$Data['NowMenu'], $AdminAuth)){
 				if(_AJAXIS === true) JSON(false, _MSG_NO_AUTH);
-				else Redirect('-1', _MSG_NO_AUTH);
+				else URLReplace('-1', _MSG_NO_AUTH);
 			}
 		}
 	}
@@ -30,11 +30,11 @@ class BH_Common
 	public static function MemberAuth($level = 1){
 		if(_MEMBERIS !== true){
 			if(_AJAXIS === true) JSON(false, _MSG_NO_AUTH.' 로그인하여 주세요.');
-			else Redirect(App::URLBase('Login'), _MSG_NO_AUTH.' 로그인하여 주세요.');
+			else URLReplace(App::URLBase('Login'), _MSG_NO_AUTH.' 로그인하여 주세요.');
 		}
 		if($_SESSION['member']['level'] < $level){
 			if(_AJAXIS === true) JSON(false, _MSG_NO_AUTH);
-			else Redirect('-1', _MSG_NO_AUTH);
+			else URLReplace('-1', _MSG_NO_AUTH);
 		}
 	}
 
@@ -179,27 +179,27 @@ class BH_Common
 		$AdminAuth = explode(',', self::GetMember('admin_auth'));
 		if(in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL){
 			if(strlen($_POST['select_menu'])){
-				$selectmenu = implode(',', SetDBText(explode(',', $_POST['select_menu'])));
+				$selectmenu = explode(',', $_POST['select_menu']);
 				$mUpdate = new \BH_DB_Update(TABLE_MENU);
-				$mUpdate->AddWhere('category IN ('.$selectmenu.')');
-				$mUpdate->SetData('type', SetDBText($type));
-				$mUpdate->SetData('bid', SetDBText($bid));
+				$mUpdate->AddWhere('category IN (%s)', $selectmenu);
+				$mUpdate->SetDataStr('type', $type);
+				$mUpdate->SetDataStr('bid', $bid);
 				$mUpdate->Run();
 
 				$mUpdate = new \BH_DB_Update(TABLE_MENU);
-				$mUpdate->AddWhere('bid = '.SetDBText($bid));
-				$mUpdate->AddWhere('category NOT IN ('.$selectmenu.')');
-				$mUpdate->AddWhere('type='.SetDBText($type));
-				$mUpdate->SetData('type', SetDBText('customize'));
-				$mUpdate->SetData('bid', SetDBText(''));
+				$mUpdate->AddWhere('bid = %s', $bid);
+				$mUpdate->AddWhere('category NOT IN (%s)', $selectmenu);
+				$mUpdate->AddWhere('type = %s', $type);
+				$mUpdate->SetDataStr('type', 'customize');
+				$mUpdate->SetDataStr('bid', '');
 				$mUpdate->Run();
 
 			}else{
 				$mUpdate = new \BH_DB_Update(TABLE_MENU);
-				$mUpdate->AddWhere('bid = '.SetDBText($bid));
-				$mUpdate->AddWhere('type='.SetDBText($type));
-				$mUpdate->SetData('type', SetDBText('customize'));
-				$mUpdate->SetData('bid', SetDBText(''));
+				$mUpdate->AddWhere('bid = %s', $bid);
+				$mUpdate->AddWhere('type = %s', $type);
+				$mUpdate->SetDataStr('type', 'customize');
+				$mUpdate->SetDataStr('bid', '');
 				$mUpdate->Run();
 			}
 		}
@@ -218,7 +218,7 @@ class BH_Common
 		$dbList->sort = 'sort1, sort2';
 		$dbList->limit = $limit;
 		if(strlen($category)){
-			$dbList->AddWhere('category = '.SetDBText($category));
+			$dbList->AddWhere('category = %s', $category);
 		}
 		return $dbList;
 	}
@@ -229,7 +229,7 @@ class BH_Common
 		$banner->AddWhere('begin_date <= \''.date('Y-m-d').'\'');
 		$banner->AddWhere('end_date >= \''.date('Y-m-d').'\'');
 		$banner->AddWhere('enabled = \'y\'');
-		$banner->AddWhere('category = '.SetDBText($category));
+		$banner->AddWhere('category = %s', $category);
 		$mlevel = _MEMBERIS === true ? $_SESSION['member']['level'] : 0;
 		$banner->AddWhere('mlevel <= '.$mlevel);
 		$banner->sort = 'sort DESC, seq ASC';
@@ -277,7 +277,7 @@ class BH_Common
 	------------------------------------------------- */
 	public static function _CategoryGetChild($table, $parent, $length){
 		$dbGet = new \BH_DB_GetList($table);
-		$dbGet->AddWhere('LEFT(category, '.strlen($parent).') = '.SetDBText($parent));
+		$dbGet->AddWhere('LEFT(category, %d) = %s', strlen($parent), $parent);
 		$dbGet->AddWhere('LENGTH(category) = '.(strlen($parent) + $length));
 		$dbGet->sort = 'sort';
 		return $dbGet->GetRows();
@@ -287,8 +287,8 @@ class BH_Common
 		if(is_null($parent)) return;
 
 		$dbUpdate = new \BH_DB_Update($table);
-		$dbUpdate->AddWhere('LEFT(category, '.strlen($parent).') = '.SetDBText($parent));
-		$dbUpdate->data['parent_enabled'] = SetDBText($enabled);
+		$dbUpdate->AddWhere('LEFT(category, %d) = %s', strlen($parent), $parent);
+		$dbUpdate->SetDataStr('parent_enabled', $enabled);
 		$dbUpdate->Run();
 	}
 
@@ -298,7 +298,7 @@ class BH_Common
 		if(!$parent) return false;
 
 		$dbGet = new \BH_DB_Get($table);
-		$dbGet->AddWhere('category='.SetDBText($parent));
+		$dbGet->AddWhere('category = %s', $parent);
 		return $dbGet->Get();
 	}
 
@@ -327,13 +327,13 @@ class BH_Common
 			->AddWhere('LENGTH(category) = '._CATEGORY_LENGTH)
 			->AddWhere('enabled = \'y\'')
 			->AddWhere('parent_enabled = \'y\'');
-		if($title) $dbGet->AddWhere('controller='.SetDBText($title));
+		if($title) $dbGet->AddWhere('controller = %s', $title);
 		return $dbGet->Get();
 	}
 
 	public static function _GetSubMenu($key){
 		$dbGetList = DB::GetListQryObj(TABLE_MENU)
-			->AddWhere('LEFT(category,'.strlen($key).') ='. SetDBText($key))
+			->AddWhere('LEFT(category, %d) = %s', strlen($key), $key)
 			->AddWhere('LENGTH(category) IN (%s)', array(strlen($key) + _CATEGORY_LENGTH, strlen($key) + _CATEGORY_LENGTH + _CATEGORY_LENGTH))
 			->AddWhere('enabled = \'y\'')
 			->AddWhere('parent_enabled = \'y\'')
@@ -364,8 +364,8 @@ class BH_Common
 		}
 
 		if(!isset(App::$SettingData['ActiveMenu']) && $cnt){
-			if(_DEVELOPERIS === true) Redirect(-1, '접근이 불가능한 메뉴입니다.');
-			Redirect(-1);
+			if(_DEVELOPERIS === true) URLReplace(-1, '접근이 불가능한 메뉴입니다.');
+			URLReplace(-1);
 		}
 
 		if(isset(App::$SettingData['ActiveMenu'])){

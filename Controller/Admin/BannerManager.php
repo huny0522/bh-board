@@ -4,11 +4,13 @@
  * 16.07.10
  */
 
-namespace Admin;
-use \BH_Application as App;
-use \BH_Common as CF;
+namespace BH\Controller\Admin;
 
-class BannerManagerController
+use \BH_Application as App;
+use \BH_Common as CM;
+use \DB as DB;
+
+class BannerManager
 {
 	/**
 	 * @var BannerModel
@@ -16,7 +18,7 @@ class BannerManagerController
 	public $model = null;
 
 	public function __construct(){
-		$this->model = App::GetModel('Banner');
+		$this->model = App::InitModel('Banner');
 
 		$dbGetList = new \BH_DB_GetList($this->model->table);
 		$dbGetList->SetKey('DISTINCT category');
@@ -25,7 +27,7 @@ class BannerManagerController
 
 	public function __init(){
 		App::$Data['NowMenu'] = '001002';
-		CF::AdminAuth();
+		CM::AdminAuth();
 		App::$Layout = '_Admin';
 	}
 
@@ -48,7 +50,7 @@ class BannerManagerController
 		$res = $this->model->DBGet(to10(App::$ID));
 
 		if(!$res->result){
-			Redirect('-1', $res->message);
+			URLReplace('-1', $res->message);
 		}
 		App::$Html = 'Write';
 		App::View($this, $this->model);
@@ -56,14 +58,14 @@ class BannerManagerController
 	public function PostWrite(){
 		$res = $this->model->SetPostValues();
 		if(!$res->result){
-			Redirect('-1',$res->message);
+			URLReplace('-1',$res->message);
 		}
 		else{
 			if(isset($_FILES['img'])){
 				require_once _COMMONDIR.'/FileUpload.php';
 				$fres_em = FileUpload($_FILES['img'], App::$SettingData['POSSIBLE_EXT'], '/board/'.date('ym').'/');
 
-				if(is_string($fres_em)) Redirect('-1', $fres_em);
+				if(is_string($fres_em)) URLReplace('-1', $fres_em);
 				else if(is_array($fres_em)){
 					$this->model->SetValue('img', $fres_em['file']);
 				}
@@ -76,11 +78,11 @@ class BannerManagerController
 			}else{
 				$res = $this->model->DBInsert();
 				if($res->result){
-					CF::ContentImageUpate($this->model->table, array('seq' => $res->id), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
+					CM::ContentImageUpate($this->model->table, array('seq' => $res->id), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
 
-					Redirect(App::URLAction().App::GetFollowQuery());
+					URLReplace(App::URLAction().App::GetFollowQuery());
 				}else{
-					Redirect(App::URLAction().App::GetFollowQuery(), 'ERROR');
+					URLReplace(App::URLAction().App::GetFollowQuery(), 'ERROR');
 				}
 			}
 		}
@@ -90,14 +92,14 @@ class BannerManagerController
 		$res = $this->model->DBGet(to10(App::$ID));
 		$res = $this->model->SetPostValues();
 		if(!$res->result){
-			Redirect('-1',$res->message);
+			URLReplace('-1',$res->message);
 		}
 		else{
 			if(isset($_FILES['img'])){
 				require_once _COMMONDIR.'/FileUpload.php';
 				$fres_em = FileUpload($_FILES['img'], App::$SettingData['POSSIBLE_EXT'], '/board/'.date('ym').'/');
 
-				if(is_string($fres_em)) Redirect('-1', $fres_em);
+				if(is_string($fres_em)) URLReplace('-1', $fres_em);
 				else if(is_array($fres_em)){
 					if($this->model->GetValue('img')) @unlink(_UPLOAD_DIR.$this->model->GetValue('img'));
 					$this->model->SetValue('img', $fres_em['file']);
@@ -106,16 +108,16 @@ class BannerManagerController
 
 			$error = $this->model->GetErrorMessage();
 			if(sizeof($error)){
-				Redirect(App::URLAction().App::GetFollowQuery(), $error[0]);
+				URLReplace(App::URLAction().App::GetFollowQuery(), $error[0]);
 			}
 
 			$res = $this->model->DBUpdate();
 			if($res->result){
-				CF::ContentImageUpate($this->model->table, array('seq' => to10(App::$ID)), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
+				CM::ContentImageUpate($this->model->table, array('seq' => to10(App::$ID)), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
 				$url = App::URLAction().App::GetFollowQuery();
-				Redirect($url, '수정완료');
+				URLReplace($url, '수정완료');
 			}else{
-				Redirect('-1', 'ERROR');
+				URLReplace('-1', 'ERROR');
 			}
 		}
 	}
@@ -124,9 +126,9 @@ class BannerManagerController
 		if(isset($_POST['seq']) && $_POST['seq'] != ''){
 			$res = $this->model->DBDelete(to10($_POST['seq']));
 			if($res->result){
-				Redirect(App::URLAction().App::GetFollowQuery(), '삭제되었습니다.');
+				URLReplace(App::URLAction().App::GetFollowQuery(), '삭제되었습니다.');
 			}else{
-				Redirect('-1', $res->message);
+				URLReplace('-1', $res->message);
 			}
 		}
 	}

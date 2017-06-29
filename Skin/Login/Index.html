@@ -1,5 +1,5 @@
 <?php if(_BH_ !== true) exit;
-use \BH_Common as CF;
+use \BH_Common as CM;
 use \BH_Application as App;
 
 /**
@@ -37,10 +37,10 @@ App::$Title = '로그인';
 <script>
 	jQuery(function($){
 		$(document).ready(function(){
-			var email1 = common.getCookie('email1');
+			var email1 = JCM.getCookie('email1');
 			if(email1 != ''){
 				$('input[name=email1]').val(email1);
-				$('input[name=email2]').val(common.getCookie('email2'));
+				$('input[name=email2]').val(JCM.getCookie('email2'));
 				$('#RemberIDBtn').addClass('active');
 			}
 
@@ -55,18 +55,18 @@ App::$Title = '로그인';
 			var email1 = $('input[name=email1]');
 			var email2 = $('input[name=email2]');
 			if(jQuery.trim(email2.val()) == ''){
-				alert('메일을 입력하여 주세요.');
 				e.preventDefault();
+				CMAlert('메일을 입력하여 주세요.');
 				return false;
 			}
 			var pwd = $('input[name=pwd]');
 
 			if($('#RemberIDBtn').hasClass('active')){
-				common.setCookie('email1', $('input[name=email1]').val(), 9999);
-				common.setCookie('email2', $('input[name=email2]').val(), 9999);
+				JCM.setCookie('email1', $('input[name=email1]').val(), 9999);
+				JCM.setCookie('email2', $('input[name=email2]').val(), 9999);
 			}else{
-				common.setCookie('email1', '1',0);
-				common.setCookie('email2', '1',0);
+				JCM.setCookie('email1', '1',0);
+				JCM.setCookie('email2', '1',0);
 			}
 		});
 

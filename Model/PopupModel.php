@@ -5,19 +5,17 @@
  * 16.07.10
  *
  */
-use \BH_Common as CF;
+
+use \BH_Common as CM;
 use \BH_Application as App;
 
-class BannerModel extends \BH_Model{
+class PopupModel extends \BH_Model{
 	public function __Init(){
 		$this->Key[] = 'seq';
-		$this->table = TABLE_BANNER;
+		$this->table = TABLE_POPUP;
 
 		$this->data['seq'] = new \BH_ModelData(ModelType::Int, false, '');
 		$this->data['seq']->AutoDecrement = true;
-
-		$this->data['category'] = new \BH_ModelData(ModelType::String, true, '분류');
-		$this->data['category']->MaxLength = 20;
 
 		$this->data['subject'] = new \BH_ModelData(ModelType::String, true, '제목');
 		$this->data['subject']->MaxLength = 50;
@@ -46,9 +44,17 @@ class BannerModel extends \BH_Model{
 		$this->data['mlevel']->EnumValues = App::$SettingData['LevelArray'];
 		$this->data['mlevel']->DefaultValue = '0';
 
+		$this->data['link_url'] = new \BH_ModelData(ModelType::String, false, '링크주소');
+
+		$this->data['width'] = new \BH_ModelData(ModelType::Int, true, '넓이');
+		$this->data['width']->DefaultValue = '300';
+
+		$this->data['height'] = new \BH_ModelData(ModelType::Int, true, '높이');
+		$this->data['height']->DefaultValue = '400';
+
 		$this->data['sort'] = new \BH_ModelData(ModelType::Int, true, '정렬');
 		$this->data['sort']->DefaultValue = '0';
 
-		$this->data['link_url'] = new \BH_ModelData(ModelType::String, false, '링크주소');
 	}
+
 }

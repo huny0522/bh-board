@@ -3,27 +3,30 @@
  * Bang Hun.
  * 16.07.10
  */
-use \BH_Common as CF;
+use \BH_Common as CM;
 use \BH_Application as App;
 
 class BH_HtmlCreate
 {
 	public static function CreateController($ControllerName, $ModelName, $TableName){
 		if(_DEVELOPERIS !== true) return;
-		$path = _CONTROLLERDIR.'/'.App::$NativeDir.'/'.$ControllerName.'.php';
+		$path = _CONTROLLERDIR.(strlen($_POST['sub_dir']) ? '/'.$_POST['sub_dir'] : '').'/'.$ControllerName.'.php';
+		$ndir = strlen($_POST['sub_dir']) ? '\\'.$_POST['sub_dir'] : '';
 		$text = "<?php
+namespace BH\\Controller{$ndir}
+
 use \\BH_Application as App;
-use \\BH_Common as CF;
+use \\BH_Common as CM;
 use \\DB as DB;
 
-class {$ControllerName}Controller{
+class {$ControllerName}{
 	/** @var \\{$ModelName}Model */
 	public \$model;
-	
+
 	public function __construct(){
-		\$this->model = App::GetModel('{$ModelName}');
+		\$this->model = App::InitModel('{$ModelName}');
 	}
-	
+
 	public function __Init(){
 		if(_DEVELOPERIS === true) \\BH_HtmlCreate::Create('{$ControllerName}', '{$ModelName}');
 	}
@@ -31,26 +34,26 @@ class {$ControllerName}Controller{
 	public function Index(){
 		\$qry = DB::GetListPageQryObj(\$this->model->table)
 			->SetArticleCount(10)
-			->SetPage(isset(\$_GET['page']) ? \$_GET['page'] : 0);
+			->SetPage(isset(\$_GET['page']) ? \$_GET['page'] : 0)
 			->SetPageUrl(App::URLAction().App::GetFollowQuery('page'))
 			->Run();
 
-		App::View(\$this, \$this->model, \$qry);
+		App::PrintView(\$this, \$this->model, \$qry);
 	}
 
 	public function View(){
 		\$this->_ModelSet();
-		App::View(\$this, \$this->model);
+		App::PrintView(\$this, \$this->model);
 	}
 
 	public function Write(){
-		App::View(\$this, \$this->model);
+		App::PrintView(\$this, \$this->model);
 	}
 
 	public function Modify(){
 		\$this->_ModelSet();
 		App::\$Html = 'Write';
-		App::View(\$this, \$this->model);
+		App::PrintView(\$this, \$this->model);
 	}
 
 	public function PostWrite(){
@@ -58,16 +61,16 @@ class {$ControllerName}Controller{
 		\$err = \$this->model->GetErrorMessage();
 		if(sizeof(\$err)){
 			App::\$Data['error'] = \$err[0];
-			App::View(\$this, \$this->model);
+			App::PrintView(\$this, \$this->model);
 			return;
 		}
 		\$res = \$this->model->DBInsert();
 		if(!\$res->result) {
 			App::\$Data['error'] = \$res->message ? \$res->message : 'Query Error';
-			App::View(\$this, \$this->model);
+			App::PrintView(\$this, \$this->model);
 			return;
 		}
-		else Redirect(App::URLAction().App::GetFollowQuery());
+		else URLReplace(App::URLAction().App::GetFollowQuery());
 	}
 
 	public function PostModify(){
@@ -76,33 +79,33 @@ class {$ControllerName}Controller{
 		\$err = \$this->model->GetErrorMessage();
 		if(sizeof(\$err)){
 			App::\$Data['error'] = \$err[0];
-			App::View(\$this, \$this->model);
+			App::PrintView(\$this, \$this->model);
 			return;
 		}
 		\$res = \$this->model->DBUpdate();
 		if(!\$res->result) {
 			App::\$Data['error'] = \$res->message ? \$res->message : 'Query Error';
-			App::View(\$this, \$this->model);
+			App::PrintView(\$this, \$this->model);
 			return;
 		}
-		else Redirect(App::URLAction('View/'.App::\$ID).App::GetFollowQuery());
+		else URLReplace(App::URLAction('View/'.App::\$ID).App::GetFollowQuery());
 	}
 
 	public function PostDelete(){
 		\$res = \$this->model->DBDelete(App::\$ID);
 
 		if(\$res->result){
-			Redirect(App::URLAction('').App::GetFollowQuery());
+			URLReplace(App::URLAction('').App::GetFollowQuery());
 		}
 		else{
-			Redirect(App::URLAction('View/'.App::\$ID).App::GetFollowQuery(), \$res->message ? \$res->message : 'Query Error');
+			URLReplace(App::URLAction('View/'.App::\$ID).App::GetFollowQuery(), \$res->message ? \$res->message : 'Query Error');
 		}
 	}
 
 	private function _ModelSet(){
-		if(!strlen(App::\$ID)) Redirect(-1, _WRONG_CONNECTED);
+		if(!strlen(App::\$ID)) URLReplace(-1, _MSG_WRONG_CONNECTED);
 		\$res = \$this->model->DBGet(App::\$ID);
-		if(!\$res->result) Redirect(-1, \$res->message ? \$res->message : _NO_ARTICLE);
+		if(!\$res->result) URLReplace(-1, \$res->message ? \$res->message : _MSG_NO_ARTICLE);
 	}
 }";
 		if(!file_exists($path)){
@@ -122,7 +125,7 @@ class {$ModelName}Model extends \\BH_Model{
 	}// __Init
 
 }";
-		$modelPath = '/Model/'.$ModelName.'.model.php';
+		$modelPath = '/Model/'.$ModelName.'Model.php';
 		echo '<br><br><b>'.$modelPath.'파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(self::ModifyModel($modelText)).'</textarea>';
 		echo '<br><br><a href="'.$_POST['controller_url'].'">완료</a>';
 	}
@@ -246,7 +249,7 @@ class {$ModelName}Model extends \\BH_Model{
 
 		$classname = $model . 'Model';
 		/** @var Model $modelClass */
-		$modelClass = App::GetModel($model);
+		$modelClass = App::InitModel($model);
 		if(!file_exists(_SKINDIR . $path)){
 
 			$a = explode('/', _SKINDIR .$path);
@@ -296,8 +299,8 @@ class {$ModelName}Model extends \\BH_Model{
 		if(_DEVELOPERIS !== true) return;
 
 		$classname = $model . 'Model';
-		/** @var Model $modelClass */
-		$modelClass = App::GetModel($model);
+		/** @var BH_Model $modelClass */
+		$modelClass = App::InitModel($model);
 		if(!file_exists(_SKINDIR . $path)){
 
 			$a = explode('/', _SKINDIR .$path);
@@ -333,10 +336,10 @@ class {$ModelName}Model extends \\BH_Model{
 				}else if($row->MinValue !== false){
 					$guide .= '					<li>'.$row->MinValue.' 이상의 값을 입력하여주세요.</li>'.chr(10);
 				}
-				if($row->Type == ModelType::Eng){
+				if($row->HtmlType == HTMLType::InputEng){
 					$guide .= '					<li>영문만 입력하여 주세요.</li>'.chr(10);
 				}
-				if($row->Type == ModelType::EngNum){
+				if($row->Type == HTMLType::InputEngNum){
 					$guide .= '					<li>영문과 숫자만 입력하여 주세요.</li>'.chr(10);
 				}
 				if($guide) $html .= '				<ul class="guide">' . chr(10).$guide.'				</ul>'.chr(10);
@@ -371,7 +374,7 @@ class {$ModelName}Model extends \\BH_Model{
 
 		$classname = $model . 'Model';
 		/** @var BH_Model $modelClass */
-		$modelClass = App::GetModel($model);
+		$modelClass = App::InitModel($model);
 		if(!file_exists(_SKINDIR . $path)){
 
 			$a = explode('/', _SKINDIR .$path);
@@ -415,7 +418,7 @@ class {$ModelName}Model extends \\BH_Model{
 			$html .= '<p class="nothing">등록된 게시물이 없습니다.</p>'. chr(10);
 			$html .= '<?php } ?>'. chr(10);
 			$html .= '<div class="left_btn"><a href="<?a. \'Write\' ?><?fq. \'\' ?>" class="mBtn">글쓰기</a></div>'. chr(10);
-			$html .= '<div class="paging"><?e. $Data->pageHtml ?></div>'. chr(10);
+			$html .= '<?e. $Data->GetPageHtml() ?>'. chr(10);
 			return $html;
 			/*file_put_contents(_SKINDIR . $path, $html);
 			ReplaceHTMLFile(_SKINDIR . $path, _HTMLDIR . $path);*/

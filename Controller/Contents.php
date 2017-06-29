@@ -4,17 +4,20 @@
  * 16.07.10
  */
 
-use \BH_Application as App;
-use \BH_Common as CF;
+namespace BH\Controller;
 
-class ContentsController{
+use \BH_Application as App;
+use \BH_Common as CM;
+use \DB as DB;
+
+class Contents{
 	/**
 	 * @var ContentModel
 	 */
 	public $model = null;
 
 	public function __construct(){
-		$this->model = App::GetModel('Content');
+		$this->model = App::InitModel('Content');
 	}
 
 	public function __init(){
@@ -23,7 +26,7 @@ class ContentsController{
 	public function Index(){
 		$res = $this->model->DBGet(App::$TID);
 		if(!$res->result){
-			Redirect('-1', 'ERROR');
+			URLReplace('-1', 'ERROR');
 		}
 
 		$layout = $this->model->GetValue('layout');
@@ -45,7 +48,7 @@ class ContentsController{
 		if(!isset($_COOKIE[$cookieName]) || !$_COOKIE[$cookieName]){
 			$dbUpdate = new \BH_DB_Update($this->model->table);
 			$dbUpdate->SetData('hit', 'hit + 1');
-			$dbUpdate->AddWhere('bid='.SetDBText($this->model->GetValue('bid')));
+			$dbUpdate->AddWhere('bid = %s'.$this->model->GetValue('bid'));
 			$dbUpdate->Run();
 			setcookie($cookieName, 'y');
 		}

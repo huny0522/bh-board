@@ -3,11 +3,14 @@
  * Bang Hun.
  * 16.07.10
  */
+
+namespace BH\Controller;
+
 use \BH_Application as App;
-use \BH_Common as CF;
+use \BH_Common as CM;
 use \DB as DB;
 
-class ReplyController{
+class Reply{
 	/** @var ReplyModel */
 	public $model;
 	/** @var BoardModel */
@@ -30,9 +33,9 @@ class ReplyController{
 	protected function _CommonQry(&$qry, $opt = null){}
 
 	public function __construct(){
-		$this->model = App::GetModel('Reply');
-		$this->boardModel = App::GetModel('Board');
-		$this->boardManger = App::GetModel('BoardManager');
+		$this->model = App::InitModel('Reply');
+		$this->boardModel = App::InitModel('Board');
+		$this->boardManger = App::InitModel('BoardManager');
 	}
 
 	public function __init(){
@@ -47,7 +50,7 @@ class ReplyController{
 		App::$Layout = null;
 		if(!isset($this->bid) || $this->bid == '') exit;
 
-		$mid = CF::GetMember('mid');
+		$mid = CM::GetMember('mid');
 		$manager = explode(',', $this->boardManger->GetValue('manager'));
 		if ($mid !== false && strlen($mid) && in_array($mid, $manager)) {
 			$this->managerIs = true;
@@ -96,11 +99,11 @@ class ReplyController{
 		foreach($dbList->data as &$row){
 			// 비밀번호없이 수정권한
 			$row['modifyAuthDirect'] = false;
-			if($this->GetAuth() && _MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || CF::GetAdminIs() )) $row['modifyAuthDirect'] = true;
+			if($this->GetAuth() && _MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || CM::GetAdminIs() )) $row['modifyAuthDirect'] = true;
 
 			// 수정 버튼 보기
 			if(
-				(_MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || CF::GetAdminIs())) ||
+				(_MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || CM::GetAdminIs())) ||
 				(!strlen($row['muid']))
 			) $row['modifyAuth'] = true;
 			else $row['modifyAuth'] = false;
@@ -112,12 +115,12 @@ class ReplyController{
 			// 비밀글일 경우 본문작성자, 댓글작성자, 매니저, 관리자 보기권한 부여
 			$row['secretIs'] = false;
 			if($row['delis'] == 'y'){
-				if(CF::GetAdminIs()) $row['comment'] = '[삭제됨]'.$row['comment'];
+				if(CM::GetAdminIs()) $row['comment'] = '[삭제됨]'.$row['comment'];
 				else $row['comment'] = _MSG_DELETED_REPLY;
 			}
 			else if($row['secret'] == 'y'){
 				if(!$myArticleIs){
-					if(!(_MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || CF::GetAdminIs() || $this->managerIs))){
+					if(!(_MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || CM::GetAdminIs() || $this->managerIs))){
 						$row['comment'] = _MSG_SECRET_ARTICLE;
 						$row['secretIs'] = true;
 					}
@@ -168,11 +171,11 @@ class ReplyController{
 		foreach($dbList->data as &$row){
 			// 비밀번호없이 수정권한
 			$row['modifyAuthDirect'] = false;
-			if($this->GetAuth() && _MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || CF::GetAdminIs() )) $row['modifyAuthDirect'] = true;
+			if($this->GetAuth() && _MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || CM::GetAdminIs() )) $row['modifyAuthDirect'] = true;
 
 			// 수정 버튼 보기
 			if(
-				(_MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || CF::GetAdminIs())) ||
+				(_MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || CM::GetAdminIs())) ||
 				(!strlen($row['muid']))
 			) $row['modifyAuth'] = true;
 			else $row['modifyAuth'] = false;
@@ -186,7 +189,7 @@ class ReplyController{
 			if($row['delis'] == 'y') $row['comment'] = _MSG_DELETED_REPLY;
 			else if($row['secret'] == 'y'){
 				if(!$myArticleIs){
-					if(!(_MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || CF::GetAdminIs() || $this->managerIs))){
+					if(!(_MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || CM::GetAdminIs() || $this->managerIs))){
 						$row['comment'] = _MSG_SECRET_ARTICLE;
 						$row['secretIs'] = true;
 					}
@@ -249,7 +252,7 @@ class ReplyController{
 
 		// 회원유무
 		if(_MEMBERIS === true){
-			$member = CF::GetMember();
+			$member = CM::GetMember();
 
 			$this->model->SetValue('muid', $_SESSION['member']['muid']);
 			$this->model->SetValue('mlevel', $member['level']);
@@ -346,9 +349,9 @@ class ReplyController{
 		// 회원 글 체크
 		if(strlen($this->model->GetValue('muid'))){
 			if(_MEMBERIS !== true) JSON(false, '#ERROR#101');
-			else if($this->model->GetValue('muid') != $_SESSION['member']['muid'] && CF::GetAdminIs()) JSON(false, 'ERROR#102');
+			else if($this->model->GetValue('muid') != $_SESSION['member']['muid'] && CM::GetAdminIs()) JSON(false, 'ERROR#102');
 		}
-		else if(_MEMBERIS !== true || !CF::GetAdminIs()){
+		else if(_MEMBERIS !== true || !CM::GetAdminIs()){
 			$qry = DB::GetQryObj($this->model->table, false)
 				->SetKey('pwd')
 				->AddWhere('article_seq = %d', $_POST['article_seq'])
@@ -399,9 +402,9 @@ class ReplyController{
 		// 회원 글 체크
 		if($this->model->GetValue('muid')){
 			if(_MEMBERIS !== true) JSON(false, 'ERROR#101');
-			else if($this->model->GetValue('muid') != $_SESSION['member']['muid'] && !CF::GetAdminIs()) JSON(false, 'ERROR#102');
+			else if($this->model->GetValue('muid') != $_SESSION['member']['muid'] && !CM::GetAdminIs()) JSON(false, 'ERROR#102');
 		}
-		else if(_MEMBERIS !== true || !CF::GetAdminIs() || !$this->managerIs){
+		else if(_MEMBERIS !== true || !CM::GetAdminIs() || !$this->managerIs){
 			$qry = DB::GetQryObj($this->model->table, false)
 				->SetKey('pwd')
 				->AddWhere('article_seq = %d', $_POST['article_seq'])
@@ -439,7 +442,7 @@ class ReplyController{
 
 	protected function _MyArticleCheck(){
 		$myArticleIs = false;
-		if($this->managerIs || CF::GetAdminIs()) $myArticleIs = true;
+		if($this->managerIs || CM::GetAdminIs()) $myArticleIs = true;
 		else if(strlen($this->boardModel->GetValue('muid')))
 			$myArticleIs = (_MEMBERIS === true && $this->boardModel->GetValue('muid') == $_SESSION['member']['muid']);
 		else if(isset($this->boardModel->data['target_muid']) && strlen($this->boardModel->GetValue('target_muid')))
