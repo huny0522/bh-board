@@ -547,26 +547,24 @@ function MessageModal($){
 	};
 }
 
-/* -----------------------------------------------------
- *
- *    ex) <a href="#" e-click="JCM.test">Test</a>
- *    속성 : e-click, e-submit, e-mousedown, e-mouseup,
- *    e-transition-end(e-animate-end), e-touch, e-touch-start(e-mouse-down),
- *    e-touch-move(e-mouse-move), e-touch-end(e-mouse-up)
- *
- ----------------------------------------------------- */
 function EventLink($){
 	var _this = this;
+	this.touch = function(selector, func){
+		$(document).on('touchstart mousedown', selector, function(e){
+			_this.TouchStartElement.call(this, e);
+			$(this).off('e_touch_visible');
+			$(this).on('e_touch_visible', func);
+		});
+	};
 
-	this.GetEventFunction = function(data){
-		var temp = data.split('.');
-		var obj = window;
-		for(var i=0, max = temp.length; i < max; i ++){
-			if(typeof(obj[temp[i]]) != 'function' && typeof(obj[temp[i]]) != 'object') return;
-			obj = obj[temp[i]];
-		}
-		if(typeof(obj) == 'function') return obj;
-		return null;
+	this.drag = function(selector, dragFunc, dragEndFunc){
+		$(document).on('touchstart mousedown', selector, function(e){
+			eventLink.TouchStartElement.call(this, e);
+			$(this).off('e_drag');
+			$(this).on('e_drag', dragFunc);
+			$(this).off('e_drag_end');
+			$(this).on('e_drag_end', dragEndFunc);
+		});
 	};
 
 	this.TouchStartElement = function(e){
@@ -584,62 +582,41 @@ function EventLink($){
 			objs.push(this);
 			body.data('touchObject', objs);
 		}
-		$(this).data('touchStart', e.type == 'mousedown' ? {
+
+		var xy = (typeof(e.originalEvent) == 'undefined' || typeof(e.originalEvent.touches) == 'undefined') ? {
 			'pageX': e.pageX,
 			'pageY': e.pageY
-		} : e.originalEvent.touches[0]);
+		} : e.originalEvent.touches[0];
+		$(this).data('touchStart', xy);
 		$(this).data('touchEnd', null);
-		$(this).data('visibleTouchIs', this == document.elementFromPoint($(this).data('touchStart').pageX, $(this).data('touchStart').pageY) );
+		$(this).data('visibleTouchIs', this == document.elementFromPoint(xy.pageX, xy.pageY) );
 	};
 
 	this.Init = function(){
 		$.fn.touch = function(func){
 			// touchStart
-			this.addEventListener('touchstart', function(e){
-				_this.TouchStartElement.call(this, e);
-			});
-
-			this.addEventListener('mousedown', function(e){
-				_this.TouchStartElement.call(this, e);
-			});
+			$(this).on('touchstart mousedown', _this.TouchStartElement);
 
 			// touchEnd
-			this.addEventListener('e_touch', function(e){
-				func.call(this, e);
-			});
+			$(this).on('e_touch', func);
 		};
 
 		$.fn.touchVisible = function(func){
 			// touchStart
-			this.addEventListener('touchstart', function(e){
-				_this.TouchStartElement.call(this, e);
-			});
-			this.addEventListener('mousedown', function(e){
-				_this.TouchStartElement.call(this, e);
-			});
+			$(this).on('touchstart mousedown', _this.TouchStartElement);
 			// touchMove
 			// touchEnd
-			this.addEventListener('e_touch_visible', function(e){
-				func.call(this, e);
-			});
+			$(this).on('e_touch_visible', func);
 		};
+
 
 		$.fn.drag = function(dragFunc, dragEndFunc){
 			// touchStart
-			this.addEventListener('touchstart', function(e){
-				_this.TouchStartElement.call(this, e);
-			});
-			this.addEventListener('mousedown', function(e){
-				_this.TouchStartElement.call(this, e);
-			});
+			$(this).on('touchstart mousedown', _this.TouchStartElement);
 			// touchMove
-			this.addEventListener('e_drag', function(e){
-				dragFunc.call(this, e);
-			});
+			$(this).on('e_drag', dragFunc);
 			// touchEnd
-			this.addEventListener('e_drag_end', function(e){
-				dragEndFunc.call(this, e);
-			});
+			$(this).on('e_drag_end', dragEndFunc);
 		};
 
 		$(document).on('touchmove mousemove', 'body', function(e){
@@ -647,14 +624,15 @@ function EventLink($){
 			if(typeof(body.data) == 'undefined' || typeof(body.data('touchObject')) == 'undefined' || body.data('touchObject') == null) return;
 			var touchObject = body.data('touchObject');
 			if(typeof($(touchObject).data) == 'undefined' || typeof($(touchObject).data('touchStart')) == 'undefined' || $(touchObject).data('touchStart') == null) return;
-			$.each(touchObject, function(idx, obj){
-				var jObj = $(obj);
+
+			for(var i=0, max = touchObject.length; i < max; i++){
+				var jObj = $(touchObject[i]);
 				jObj.data('touchEnd', e.type == 'mousemove' ? {
 					'pageX': e.pageX,
 					'pageY': e.pageY
 				} : e.originalEvent.touches[0]);
 				jObj.trigger('e_drag', e);
-			});
+			}
 		});
 
 		$(document).on('touchend mouseup', 'body', function(e){
@@ -663,23 +641,22 @@ function EventLink($){
 			var touchObject = body.data('touchObject');
 			if(!$(touchObject).length || typeof($(touchObject).data) == 'undefined' || typeof($(touchObject).data('touchStart')) == 'undefined' || $(touchObject).data('touchStart') == null) return;
 
-			$.each(touchObject, function(idx, obj){
-				var jObj = $(obj);
+			for(var i=0, max = touchObject.length; i < max; i++){
+				var jObj = $(touchObject[i]);
 				if(typeof(jObj.data) == 'undefined' || typeof(jObj.data('touchStart')) == 'undefined' || jObj.data('touchStart') == null) return;
-				var data = jObj.data;
-				var touchStart = data('touchStart');
-				if(typeof(data('touchEnd')) == 'undefined' || data('touchEnd') == null) data('touchEnd', touchStart);
-				var touchEnd = body.data('touchEnd');
+				var touchStart = jObj.data('touchStart');
+				if(typeof(jObj.data('touchEnd')) == 'undefined' || jObj.data('touchEnd') == null) jObj.data('touchEnd', touchStart);
+				var touchEnd = jObj.data('touchEnd');
 
 				var elementFromPoint = $(document.elementFromPoint(touchEnd.pageX, touchEnd.pageY))[0];
 
-				if(obj == elementFromPoint || $(elementFromPoint).closest(obj).length){
+				if(touchObject[i] == elementFromPoint || $(elementFromPoint).closest(touchObject[i]).length){
 					var x = touchEnd.pageX - touchStart.pageX;
 					var y = touchEnd.pageY - touchStart.pageY;
 					if(Math.abs(x) < 5 && Math.abs(y) < 5) jObj.trigger('e_touch', e);
 				}
 
-				if(data('visibleTouchIs') && obj == document.elementFromPoint(touchEnd.pageX, touchEnd.pageY)){
+				if(jObj.data('visibleTouchIs') && touchObject[i] == document.elementFromPoint(touchEnd.pageX, touchEnd.pageY)){
 					var x = touchEnd.pageX - touchStart.pageX;
 					var y = touchEnd.pageY - touchStart.pageY;
 					if(Math.abs(x) < 5 && Math.abs(y) < 5) jObj.trigger('e_touch_visible', e);
@@ -689,9 +666,9 @@ function EventLink($){
 
 				jObj.trigger('e_drag_end', e);
 
-				data('touchStart', null);
-				data('touchEnd', null);
-			});
+				jObj.data('touchStart', null);
+				jObj.data('touchEnd', null);
+			}
 			body.data('touchObject', null);
 		});
 	};
@@ -699,7 +676,7 @@ function EventLink($){
 	this.Init();
 };
 
-var _EventLink = new EventLink(jQuery);
+var eventLink = new EventLink(jQuery);
 
 
 /* -----------------------------------------------------
@@ -1435,7 +1412,7 @@ $(document).on('click', '.backbtn, .hback a, a.hback', function (e) {
 	history.back();
 });
 
-$(function(){
+$(document).ready(function(){
 
 	$('input.datePicker').not('.nopicker').each(function(){
 		datepicker.call(this);

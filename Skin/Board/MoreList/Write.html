@@ -6,12 +6,12 @@ use \BH_Application as App;
  * @var $Ctrl \BH\Controller\Board
  * @var $Model \BoardModel
 */
+App::JSAdd('board.js', 200);
 ?>
 
 <form name="BoardWriteForm" id="BoardWriteForm" method="post" action="<?a. App::$Action ?>/<?php if(App::$Action == 'Modify') echo App::$ID; ?><?fq. '' ?>" enctype="multipart/form-data">
 	<input type="hidden" name="htmlis" value="<?p. _MOBILEIS !== true ? 'y' : 'n' ?>">
 	<?php if(App::$Action == 'Answer'){ ?>
-
 	<input type="hidden" name="mode" value="answer">
 	<input type="hidden" name="target" value="<?p. $_GET['target'] ?>">
 	<?php } ?>
@@ -110,17 +110,5 @@ use \BH_Application as App;
 
 
 <script>
-
-	<?php if(_MOBILEIS !== true){ ?>SE2_paste('MD_content','<?p. _URL ?>');<?php } ?>
-
-	$(document).on('submit', '#BoardWriteForm', function(e){
-		<?php if(_MOBILEIS !== true){ ?>SE2_update('MD_content');<?php } ?>
-
-		var res = $(this).validCheck();
-		if(!res){
-			e.preventDefault();
-			return false;
-		}
-
-	});
+	App.Board.Write.Init(<?p. _MOBILEIS !== true ? 'true' : 'false' ?>);
 </script>

@@ -7,6 +7,7 @@ use \BH_Application as App;
  * @var $Model \BoardModel
  * @var $Data \BH_DB_GetListWithPage
  */
+App::JSAdd('board.js', 200);
 ?>
 <div id="bhBoardList">
 	<form id="bbsSchForm" name="bbsSchForm" method="get" action="<?a. 'MoreList' ?>" class="boardSearch leftBoardSearch">
@@ -60,54 +61,5 @@ use \BH_Application as App;
 </div>
 
 <script>
-	if(typeof(MoreList) != 'function'){
-		function MoreList(){
-			JCM.ajaxForm('#bbsSchForm', function(data){
-				var boardList = $('#bhBoardList table.list tbody');
-				if(data.lastIs) $('#bhBoardList .moreViewBtn').hide();
-				else $('#bhBoardList .moreViewBtn').show();
-				if($.trim(data.list) == ''){
-					if($.trim(boardList.text()) == '') boardList.html('<p class="nothing">검색된 글이 없습니다.</p>');
-					return;
-				}
-				boardList.append(data.list);
-			});
-		}
-	}
-
-	$('#bbsSchForm').on('submit', function(e){
-		e.preventDefault();
-		$('#bhBoardList table.list tbody').html('');
-		$(this).find('input[name=searchKeyword]').val($(this).find('input[name=searchInput]').val());
-		$(this).find('input[name=lastSeq]').val('');
-		MoreList();
-	});
-
-	$('#moreViewBtn').on('click', function(e){
-		e.preventDefault();
-		$('#bhBoardList .lastSeq').val($('#bhBoardList table.list tbody tr').last().attr('data-seq'));
-		MoreList();
-	});
-
-	MoreList();
-
-	$('#bhBoardList').on('click', '.passwordView', function(e){
-		e.preventDefault();
-		$('#viewForm').attr('action', this.href);
-		$('#secretViewForm').show();
-	});
-
-	$('#secretViewForm button[type=reset]').on('click', function(e){
-		$('#viewForm')[0].reset();
-		$('#secretViewForm').hide();
-	});
-
-	$('#viewForm').on('submit', function(e){
-		e.preventDefault();
-		JCM.ajaxForm(this, function(data){
-			appJS.createSubPage(this, true, data);
-			$('#viewForm')[0].reset();
-			$('#secretViewForm').hide();
-		});
-	});
+	App.Board.MoreListInit();
 </script>

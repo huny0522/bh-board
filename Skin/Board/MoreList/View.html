@@ -6,6 +6,7 @@ use \BH_Application as App;
  * @var $Ctrl \BH\Controller\Board
  * @var $Model \BoardModel
 */
+App::JSAdd('board.js', 200);
 App::JSAdd('reply.js', 200);
 ?>
 <div class="BoardView">
@@ -69,42 +70,25 @@ App::JSAdd('reply.js', 200);
 <?php } ?>
 
 <script>
-	$('#deleteArticle').on('click', function(e){
-		e.preventDefault();
-		$('#deleteForm').show();
-	});
-	$('#deleteForm button[type=reset]').on('click', function(e){
-		$('#deleteForm').hide();
-	});
-
-	$('#modifyBtn').on('click', function(e){
-		if($('#modForm').length){
-			e.preventDefault();
-			$('#modifyForm').show();
-		}
-	});
-	$('#modifyForm button[type=reset]').on('click', function(e){
-		$('#modifyForm').hide();
-	});
+	App.Board.View.Init();
 </script>
 
-
-
-<?php if($Ctrl->boardManger->GetValue('use_reply') == 'y'){ ?>
-
-	<div id="Reply"></div>
-	<form id="replyGetForm" name="replyGetForm" action="<?p. _URL ?>/Reply/<?v. App::$TID ?>" method="post">
-		<input type="hidden" name="page" value="0">
-		<input type="hidden" name="article_seq" value="<?p. to10(App::$ID) ?>">
-		<input type="hidden" name="article_pwd" value="<?v. isset($_POST['pwd']) ? $_POST['pwd'] : '' ?>">
-	</form>
+<?php
+if($Ctrl->boardManger->GetValue('use_reply') == 'y'){
+	$Controller = 'Reply/'.App::$TID;
+	$ArticleSeq = to10(App::$ID);
+	?>
+	<div id="Reply">
+		<?inc. '/Reply/Form.html' ?>
+		<div id="ReplyList"></div>
+	</div>
 
 	<script>
 		$(document).ready(function(){
-			getReplyList();
+			App.Reply.Init();
+			App.Reply.GetList();
 		});
 	</script>
-
 <?php } ?>
 
 <?php if(isset(App::$Data['List'])) echo App::$Data['List']; ?>

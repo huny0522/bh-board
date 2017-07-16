@@ -5,6 +5,7 @@ use \BH_Application as App;
 /**
  * @var $Model \BoardModel
  */
+App::JSAdd('board.js', 200);
 ?>
 <h2><?p. $Ctrl->boardManger->GetValue('subject') ?> 게시물관리</h2>
 <div class="right_btn"><a href="<?c. 'BoardManager' ?>" class="sBtn">게시판 관리로 이동</a></div>
@@ -85,17 +86,5 @@ use \BH_Application as App;
 
 
 <script>
-
-	<?php if(_MOBILEIS !== true){ ?>SE2_paste('MD_content','<?p. _URL ?>');<?php } ?>
-
-	$(document).on('submit', '#BoardWriteForm', function(e){
-		<?php if(_MOBILEIS !== true){ ?>SE2_update('MD_content');<?php } ?>
-
-		var res = $(this).validCheck();
-		if(!res){
-			e.preventDefault();
-			return false;
-		}
-
-	});
+	App.Board.Write.Init(<?p. _MOBILEIS !== true ? 'true' : 'false' ?>);
 </script>

@@ -213,18 +213,19 @@ function BHCategory(elem, opt){
 	// 메뉴삭제
 	this.element.on('click', 'a.delete', function(e){
 		e.preventDefault();
+		var thisObj = this;
+		CMConfirm('하위폴더까지 모두 삭제됩니다.\n정말 삭제하시겠습니까?', function(){
+			var li = $(thisObj).closest('li');
 
-		if(!confirm('하위폴더까지 모두 삭제됩니다.\n정말 삭제하시겠습니까?')) return;
-		var li = $(this).closest('li');
+			if(typeof menuObject.optionDeleteMenu != 'undefined'){
+				menuObject.ActionOption = {
+					command : 'Del',
+					element : li
+				};
 
-		if(typeof menuObject.optionDeleteMenu != 'undefined'){
-			menuObject.ActionOption = {
-				command : 'Del',
-				element : li
-			};
-
-			menuObject.optionDeleteMenu(li.attr('data-id'));
-		}
+				menuObject.optionDeleteMenu(li.attr('data-id'));
+			}
+		});
 	});
 
 	// 폴더 클릭

@@ -7,6 +7,7 @@ use \BH_Application as App;
  * @var $Data \BH_DB_GetListWithPage
  * @var $Ctrl \BH\Controller\Admin\Board
  */
+App::JSAdd('board.js', 200);
 ?>
 <h2><?p. $Ctrl->boardManger->GetValue('subject') ?> 게시물관리</h2>
 <div class="right_btn"><a href="<?c. 'BoardManager' ?>" class="sBtn">게시판 관리로 이동</a></div>
@@ -139,30 +140,5 @@ use \BH_Application as App;
 </div>
 
 <script>
-	$('a.deleteArticle').on('click', function(e){
-		e.preventDefault();
-		$('#delForm').attr('action', this.href);
-		$('#deleteForm').show();
-	});
-	$('#deleteForm button[type=reset]').on('click', function(e){
-		$('#deleteForm').hide();
-	});
-
-	$('a.removeArticle').on('click', function(e){
-		e.preventDefault();
-		$('#remForm').attr('action', this.href);
-		$('#removeForm').show();
-	});
-	$('#removeForm button[type=reset]').on('click', function(e){
-		$('#removeForm').hide();
-	});
-
-	$('.passwordView').on('click', function(e){
-		e.preventDefault();
-		$('#viewForm').attr('action', this.href);
-		$('#secretViewForm').show();
-	});
-	$('#secretViewForm button[type=reset]').on('click', function(e){
-		$('#secretViewForm').hide();
-	});
+	App.admin.BoardListInit();
 </script>

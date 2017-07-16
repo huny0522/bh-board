@@ -7,6 +7,7 @@ use \BH_Application as App;
  * @var $Data \BH_DB_GetListWithPage
  * @var $Ctrl \BH\Controller\Board
  */
+App::JSAdd('board.js', 200);
 ?>
 <?php if($Data->result && $Data->totalRecord){ ?>
 
@@ -95,12 +96,5 @@ use \BH_Application as App;
 </div>
 
 <script>
-	$('.passwordView').on('click', function(e){
-		e.preventDefault();
-		$('#viewForm').attr('action', this.href);
-		$('#secretViewForm').show();
-	});
-	$('#secretViewForm button[type=reset]').on('click', function(e){
-		$('#secretViewForm').hide();
-	});
+	App.Board.ListInit();
 </script>

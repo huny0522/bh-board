@@ -11,13 +11,13 @@ switch(App::$SettingData['GetUrl'][1]){
 		App::$NativeDir = 'Admin';
 		App::$BaseDir .= '/'.App::$SettingData['GetUrl'][1];
 
-		if(App::$SettingData['GetUrl'][2] == 'Board'){
+		if(App::$SettingData['GetUrl'][2] == 'Board' || App::$SettingData['GetUrl'][2] == 'Reply'){
 			App::$ControllerName = App::$SettingData['GetUrl'][2];
 			App::$TID = App::$SettingData['GetUrl'][3];
 			App::$Action = App::$SettingData['GetUrl'][4];
 			App::$ID = App::$SettingData['GetUrl'][5];
 			App::$CtrlUrl = _URL.App::$BaseDir.'/'.App::$ControllerName.'/'.App::$TID;
-			App::$Data['NowMenu'] = '002';
+			if(App::$SettingData['GetUrl'][2] == 'Board') App::$Data['NowMenu'] = '002';
 		}else{
 			App::$ControllerName = App::$SettingData['GetUrl'][2];
 			App::$Action = App::$SettingData['GetUrl'][3];

@@ -1,0 +1,97 @@
+<form id="replyGetForm" name="replyGetForm" action="<?c. $Controller ?>" method="post">
+	<input type="hidden" name="page" value="0">
+	<input type="hidden" name="article_seq" value="<?p. $ArticleSeq ?>">
+	<input type="hidden" name="article_pwd" value="<?v. isset($_POST['pwd']) ? $_POST['pwd'] : '' ?>">
+</form>
+
+<?php if(_MEMBERIS !== true){ ?>
+	<div id="replyPwdLayer" class="repLayer hidden">
+		<form id="repPwdForm" name="repPwdForm" method="post" action="<?c. $Controller.'/ViewSecret' ?>">
+			<input type="hidden" name="article_seq" value="<?p. $ArticleSeq ?>">
+			<input type="hidden" name="seq" value="">
+
+			<fieldset class="pwd">
+				<p>비밀글을 보시려면 비밀번호를 입력하여 주세요.</p>
+				<input type="password" name="pwd" required>
+			</fieldset>
+
+			<div>
+				<button type="submit" class="sBtn btn2">확인</button>
+				<button type="reset" class="sBtn">취소</button>
+			</div>
+		</form>
+	</div>
+<?php } ?>
+
+<div id="replyDeleteLayer" class="repLayer hidden">
+	<form id="repDeleteForm" name="repDeleteForm" method="post" action="<?c. $Controller.'/Delete' ?>">
+		<input type="hidden" name="article_seq" value="<?p. $ArticleSeq ?>">
+		<input type="hidden" name="seq" value="">
+		<fieldset class="pwd">
+			<p>정말 삭제하시겠습니까?<br><span class="pwdinp">삭제하시려면 비밀번호를 입력하여 주세요.</span></p>
+			<span class="pwdinp"><input type="password" name="pwd" required></span>
+		</fieldset>
+		<div class="btn">
+			<button type="submit" class="sBtn btn2">확인</button>
+			<button type="reset" class="sBtn">취소</button>
+		</div>
+	</form>
+</div>
+
+<div id="replyModifyLayer" class="repLayer hidden">
+	<form id="repModifyForm" name="repModifyForm" method="post" action="<?c. $Controller.'/Modify' ?>">
+		<input type="hidden" name="article_seq" value="<?p. $ArticleSeq ?>">
+		<input type="hidden" name="seq" value="">
+
+		<fieldset class="text">
+			<textarea name="comment" placeholder="내용을 입력해 주세요." required></textarea>
+		</fieldset>
+
+		<fieldset class="pwd pwdinp">
+			<p>이전에 입력하신 비밀번호를 입력하여 주세요.</p>
+			<input type="password" name="pwd" required>
+		</fieldset>
+
+		<div class="btn">
+			<span><button type="submit" class="sBtn btn2">등록</button></span>
+			<span><button type="reset" class="sBtn">취소</button></span>
+		</div>
+	</form>
+</div>
+
+<div id="replyAnswerLayer" class="repLayer hidden">
+	<form id="repAnswerForm" name="repAnswerForm" method="post" action="<?c. $Controller.'/Answer' ?>">
+		<input type="hidden" name="article_seq" value="<?p. $ArticleSeq ?>">
+		<input type="hidden" name="seq" value="">
+		<input type="hidden" name="target_seq" value="">
+
+		<div class="targetContent">
+			<header>
+				<b></b>
+				<span></span>
+			</header>
+			<p></p>
+		</div>
+		<?php if(_MEMBERIS !== true){ ?>
+			<fieldset class="user">
+				<dl>
+					<dt>이름</dt>
+					<dd><input type="text" name="mname" required /></dd>
+				</dl>
+				<dl>
+					<dt>패스워드</dt>
+					<dd><input type="password" name="pwd" required /></dd>
+				</dl>
+			</fieldset>
+		<?php } ?>
+
+		<fieldset class="text">
+			<textarea name="comment" placeholder="내용을 입력해 주세요." required></textarea>
+		</fieldset>
+
+		<div class="btn">
+			<span><button type="submit" class="sBtn btn2">등록</button></span>
+			<span><button type="reset" class="sBtn btn">취소</button></span>
+		</div>
+	</form>
+</div>
