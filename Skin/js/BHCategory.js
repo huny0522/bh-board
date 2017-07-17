@@ -1,11 +1,11 @@
 function BHCategory(elem, opt){
+	var menuObject = this;
 	this.mouseDownPosition = {'x' : 0, 'y' : 0, 'moveIs' : false, 'downIs' : false, 'obj' : null};
 	this.element = '';
 	this.elementID = '';
 	this.menu = {};
 	this.slideSpeed = 200;
 	this.IDFirst = 'BHMenu';
-	menuObject = this;
 	this.addMenuIs = false;
 
 	// Option

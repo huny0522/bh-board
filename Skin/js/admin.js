@@ -66,9 +66,9 @@ App.admin = {
 			ResetPwdForm : function(e){
 				document.querySelector('#secretViewForm').reset();
 				$('#secretViewForm').hide();
-			},
+			}
 		};
 
 		App.Board.AdminList.Init();
-	},
+	}
 };

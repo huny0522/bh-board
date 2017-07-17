@@ -1,13 +1,13 @@
 function getInternetExplorerVersion() {
 	var rv = -1;
-	if (navigator.appName == 'Microsoft Internet Explorer') {
+	if (navigator.appName === 'Microsoft Internet Explorer') {
 		var ua = navigator.userAgent;
 		var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-		if (re.exec(ua) != null)
+		if (re.exec(ua) !== null)
 			rv = parseFloat(RegExp.$1);
 	}
 	return rv;
-};
+}
 
 var transitionEnd = 'transitionend webkittransitionend otransitionend mstransitionend';
 
@@ -21,12 +21,14 @@ function Common($) {
 	this.ie8 = false;
 	this.ie9 = false;
 
+	this.loadingIs = false;
+
 	this.Init = function(){
 		var ieVer = getInternetExplorerVersion();
-		this.ie8 = ieVer == 8 ? true : false;
-		this.ie9 = ieVer == 9 ? true : false;
+		this.ie8 = ieVer === 8;
+		this.ie9 = ieVer === 9;
 
-		if(ieVer < 9 && ieVer != -1){
+		if(ieVer < 9 && ieVer !== -1){
 			document.write('현재 사용하시고 계시는 브라우저의 버전은 지원하지 않습니다.');
 			$(document).ready(function(){
 				document.write('현재 사용하시고 계시는 브라우저의 버전은 지원하지 않습니다.');
@@ -61,16 +63,22 @@ function Common($) {
 	};
 
 	this.val = function(v){
-		if(typeof v != 'undefined') return v;
+		if(typeof v !== 'undefined') return v;
 		return '';
-	}
+	};
+
+	this.loadingAnimation = function(){
+
+	};
 
 	this.loading = function () {
+		this.loadingIs = true;
 		$('body').append('<div class="loading_layer"><div class="loading_layer_wrap"><div class="animation"></div><p>Loading...</p></div></div>');
-		if(typeof this.loadingAnimation == 'function') this.loadingAnimation($('.loading_layer .animation').last());
+		if(typeof this.loadingAnimation === 'function') this.loadingAnimation($('.loading_layer .animation').last());
 	};
 
 	this.loading_end = function () {
+		this.loadingIs = false;
 		$('.loading_layer').eq(0).remove();
 	};
 
@@ -91,11 +99,12 @@ function Common($) {
 	};
 
 	this.html2xt = function(str){
-		str = str.replace(/\</ig, '&lt;');
-		str = str.replace(/\>/ig, '&gt;');
-		str = str.replace(/\'/ig, '&#39;');
+		//language=JSRegexp
+		str = str.replace(/</ig, '&lt;');
+		str = str.replace(/>/ig, '&gt;');
+		str = str.replace(/'/ig, '&#39;');
 		return str;
-	}
+	};
 
 
 	/* scrollTop */
@@ -112,10 +121,10 @@ function Common($) {
 		var ca = document.cookie.split(';');
 		for(var i = 0; i <ca.length; i++) {
 			var c = ca[i];
-			while (c.charAt(0)==' ') {
+			while (c.charAt(0) === ' ') {
 				c = c.substring(1);
 			}
-			if (c.indexOf(name) == 0) {
+			if (c.indexOf(name) === 0) {
 				return c.substring(name.length,c.length);
 			}
 		}
@@ -124,7 +133,7 @@ function Common($) {
 
 	this.setCookie = function(cname, cvalue, exdays){
 		var expires = '';
-		if(exdays != null){
+		if(exdays !== null){
 			var d = new Date();
 			d.setTime(d.getTime() + (exdays*24*60*60*1000));
 			expires = "expires="+ d.toUTCString();
@@ -142,7 +151,7 @@ function Common($) {
 	};
 
 	this.safe_tags_replace = function(str) {
-		if(!str || str == '') return '';
+		if(!str || str === '') return '';
 		return str.replace(/[&<>]/g, _this.replaceTag);
 	};
 
@@ -153,7 +162,7 @@ function Common($) {
 
 	this.popup = function(target, seq, top, left, width, height, data) {
 		var ck = _this.getCookie('todayClosePopup' + seq);
-		if (ck == 'y') return;
+		if (ck === 'y') return;
 		//return;
 		var html = '';
 		html += '<div class="BH_Popup" id="BH_Popup' + seq + '" style="top:' + top + 'px; left:' + left + 'px;">'
@@ -178,6 +187,7 @@ function Common($) {
 	 *
 	 ------------------------------------------- */
 	this.ajaxForm = function (formObj, success_func, fail_func) {
+		if(this.loadingIs) return;
 		_this.loading();
 
 		$(formObj).ajaxSubmit({
@@ -186,15 +196,15 @@ function Common($) {
 			success: function (response, textStatus, xhr, form) {
 				_this.loading_end();
 
-				if(typeof response.message != 'undefined' && response.message != null && response.message.length) CMAlert(response.message);
-				if(typeof response.result != 'undefined' && response.result != null){
+				if(typeof response.message !== 'undefined' && response.message !== null && response.message.length) CMAlert(response.message);
+				if(typeof response.result !== 'undefined' && response.result !== null){
 					if(response.result === true){
-						if(typeof success_func != 'undefined') success_func(response.data);
+						if(typeof success_func !== 'undefined') success_func(response.data);
 					}else{
-						if(typeof fail_func != 'undefined') fail_func(response.data);
+						if(typeof fail_func !== 'undefined') fail_func(response.data);
 					}
 				}else{
-					if(typeof success_func != 'undefined') success_func(response);
+					if(typeof success_func !== 'undefined') success_func(response);
 				}
 			},
 			error: function (xhr, textStatus, errorThrown) {
@@ -211,15 +221,18 @@ function Common($) {
 
 	this._ajax = function (ur, dt, opt, success_func, fail_func) {
 		var le = false;
-		if (typeof(dt.loadingEnable) != 'undefined'){
+		if (typeof(dt.loadingEnable) !== 'undefined'){
 			le = dt.loadingEnable;
-			if(dt.loadingEnable == true) _this.loading();
+			if(dt.loadingEnable === true){
+				if(this.loadingIs) return;
+				_this.loading();
+			}
 			delete dt.loadingEnable;
 		}
 
 
 		$.ajax({
-			type: (typeof opt.type != 'undefined' ? opt.type : 'post')
+			type: (typeof opt.type !== 'undefined' ? opt.type : 'post')
 			, dataType: 'json'
 			, url: ur
 			, data: dt
@@ -227,15 +240,15 @@ function Common($) {
 			, success: function (response, textStatus, jqXHR) {
 				if (le === true) _this.loading_end();
 
-				if (typeof response.message != 'undefined' && response.message != null && response.message.length) CMAlert(response.message);
-				if(typeof response.result != 'undefined' && response.result != null){
+				if (typeof response.message !== 'undefined' && response.message !== null && response.message.length) CMAlert(response.message);
+				if(typeof response.result !== 'undefined' && response.result !== null){
 					if(response.result === true){
-						if (typeof success_func!= 'undefined') success_func(response.data);
+						if (typeof success_func !== 'undefined') success_func(response.data);
 					}else{
-						if (typeof fail_func != 'undefined') fail_func(response.data);
+						if (typeof fail_func !== 'undefined') fail_func(response.data);
 					}
 				}else{
-					if (typeof success_func!= 'undefined') success_func(response);
+					if (typeof success_func !== 'undefined') success_func(response);
 				}
 			}
 			, error: function (jqXHR, textStatus, errorThrown) {
@@ -276,10 +289,10 @@ function Common($) {
 	 ------------------------------------------- */
 	// modal 제거
 	this.removeModal = function (obj) {
-		var modal = (typeof obj == 'undefined') ? $('.modal_layer:visible').last() : $(obj);
+		var modal = (typeof obj === 'undefined') ? $('.modal_layer:visible').last() : $(obj);
 		if(!modal.length) return;
 
-		if(modal.attr('data-close-type') == 'hidden') modal.hide();
+		if(modal.attr('data-close-type') === 'hidden') modal.hide();
 		else modal.remove();
 		$('body').css('overflow-y', $('body')[0].hasAttribute('data-ovy') ? $('body').attr('data-ovy') : 'auto');
 	};
@@ -290,7 +303,7 @@ function Common($) {
 		if (!w) w = 400;
 		if (!h) h = 300;
 		var html = '<div id="' + modal_id + '" class="modal_layer"><div class="modal_wrap">';
-		if (title && title != '') html += '<div class="modal_header"><h1 class="modal_title">' + title + '</h1><p class="close_modal_btn"><i class="fa fa-close" title="닫기" onclick="JCM.removeModal(\'#' + modal_id + '\')"></i></p></div>';
+		if (title && title !== '') html += '<div class="modal_header"><h1 class="modal_title">' + title + '</h1><p class="close_modal_btn"><i class="fa fa-close" title="닫기" onclick="JCM.removeModal(\'#' + modal_id + '\')"></i></p></div>';
 		html += '<div class="modal_contents">' + data + '</div>';
 		html += '</div></div>';
 		$('body').append(html);
@@ -322,7 +335,7 @@ function Common($) {
 
 	this._ajaxModal = function (type, ur, dt, title, modal_id, w, h) {
 		dt.loadingEnable = true;
-		if(type == 'get'){
+		if(type === 'get'){
 			this.get(ur, dt, function(data){
 				_this.createModal(title, modal_id, data, w, h);
 			});
@@ -381,7 +394,7 @@ function Common($) {
 	 ------------------------------------------- */
 
 	this.popPostCode = function (callback) {
-		if (typeof daum == "undefined") {
+		if (typeof daum === "undefined") {
 
 			jQuery.getScript("http://dmaps.daum.net/map_js_init/postcode.v2.js").done(function (script, textStatus) {
 				_this.popDaumPostCode(callback);
@@ -443,15 +456,15 @@ function Common($) {
  ----------------------------------------------------- */
 window.CMAlert = function(message, callback){
 	alert(message);
-	if(typeof(callback) == 'function') callback();
+	if(typeof(callback) === 'function') callback();
 };
 
 window.CMConfirm = function(message, yesCallback, noCallback){
 	if(confirm(message)){
-		if(typeof(yesCallback) == 'function') yesCallback();
+		if(typeof(yesCallback) === 'function') yesCallback();
 	}
 	else{
-		if(typeof(noCallback) == 'function') noCallback();
+		if(typeof(noCallback) === 'function') noCallback();
 	}
 };
 
@@ -469,7 +482,7 @@ function MessageModal($){
 		$(document).on('click', '.MessageModal footer a', function(e){
 			e.preventDefault();
 			var obj = $(this).data();
-			if(typeof(obj.onclick) == 'function') obj.onclick.call(this);
+			if(typeof(obj.onclick) === 'function') obj.onclick.call(this);
 			_this.Remove.call(this);
 			$(_this.activeElement).focus();
 		});
@@ -477,8 +490,8 @@ function MessageModal($){
 
 	this.Create = function(message, buttons, title){
 		this.alertNumber++;
-		if(typeof(title) == 'undefined') title = '알림';
-		if(typeof(buttons) == 'undefined'){
+		if(typeof(title) === 'undefined') title = '알림';
+		if(typeof(buttons) === 'undefined'){
 			buttons = [{'text' : '확인'}];
 		}
 
@@ -495,7 +508,7 @@ function MessageModal($){
 			'</div></div>';
 
 		$('body').append(html);
-		if(buttons.length == 1){
+		if(buttons.length === 1){
 			$('.MessageModal footer a').last().focus();
 		}
 
@@ -518,7 +531,7 @@ function MessageModal($){
 			'margin-top' : '-' + (MessageModalWrap.outerHeight() / 2) + 'px',
 			'margin-left' : '-' + (MessageModalWrap.outerWidth() / 2) + 'px'
 		});
-	}
+	};
 
 	this.Remove = function(){
 		$(this).closest('.MessageModal').remove();
@@ -527,7 +540,7 @@ function MessageModal($){
 	this.Init();
 
 	window.CMAlert = function(msg, callback){
-		if(typeof callback == 'function')
+		if(typeof callback === 'function')
 			_this.Create(msg, [{text : '확인', onclick : function(obj){
 				callback();
 			}}]);
@@ -535,14 +548,14 @@ function MessageModal($){
 	};
 
 	window.CMConfirm = function(message, yesCallback, noCallback, title){
-		if(typeof title == 'undefined') title = '알림';
+		if(typeof title === 'undefined') title = '알림';
 		_this.Create(message, [
 			{text : '확인', onclick : function(obj){
-				if(typeof yesCallback == 'function') yesCallback();
+				if(typeof yesCallback === 'function') yesCallback();
 			}},
 			{text : '취소', onclick : function(obj){
-				if(typeof noCallback == 'function') noCallback();
-			}},
+				if(typeof noCallback === 'function') noCallback();
+			}}
 		], title);
 	};
 }
@@ -571,7 +584,7 @@ function EventLink($){
 		e.stopPropagation();
 		var body = $('body');
 
-		if(typeof(body.data) == 'undefined' || typeof(body.data('touchObject')) == 'undefined' || body.data('touchObject') == null){
+		if(typeof(body.data) === 'undefined' || typeof(body.data('touchObject')) === 'undefined' || body.data('touchObject') === null){
 			body.data('touchObject', [this]);
 		}
 		else{
@@ -583,13 +596,13 @@ function EventLink($){
 			body.data('touchObject', objs);
 		}
 
-		var xy = (typeof(e.originalEvent) == 'undefined' || typeof(e.originalEvent.touches) == 'undefined') ? {
+		var xy = (typeof(e.originalEvent) === 'undefined' || typeof(e.originalEvent.touches) === 'undefined') ? {
 			'pageX': e.pageX,
 			'pageY': e.pageY
 		} : e.originalEvent.touches[0];
 		$(this).data('touchStart', xy);
 		$(this).data('touchEnd', null);
-		$(this).data('visibleTouchIs', this == document.elementFromPoint(xy.pageX, xy.pageY) );
+		$(this).data('visibleTouchIs', this === document.elementFromPoint(xy.pageX, xy.pageY) );
 	};
 
 	this.Init = function(){
@@ -621,13 +634,13 @@ function EventLink($){
 
 		$(document).on('touchmove mousemove', 'body', function(e){
 			var body = $(this);
-			if(typeof(body.data) == 'undefined' || typeof(body.data('touchObject')) == 'undefined' || body.data('touchObject') == null) return;
+			if(typeof(body.data) === 'undefined' || typeof(body.data('touchObject')) === 'undefined' || body.data('touchObject') === null) return;
 			var touchObject = body.data('touchObject');
-			if(typeof($(touchObject).data) == 'undefined' || typeof($(touchObject).data('touchStart')) == 'undefined' || $(touchObject).data('touchStart') == null) return;
+			if(typeof($(touchObject).data) === 'undefined' || typeof($(touchObject).data('touchStart')) === 'undefined' || $(touchObject).data('touchStart') === null) return;
 
 			for(var i=0, max = touchObject.length; i < max; i++){
 				var jObj = $(touchObject[i]);
-				jObj.data('touchEnd', e.type == 'mousemove' ? {
+				jObj.data('touchEnd', e.type === 'mousemove' ? {
 					'pageX': e.pageX,
 					'pageY': e.pageY
 				} : e.originalEvent.touches[0]);
@@ -637,26 +650,26 @@ function EventLink($){
 
 		$(document).on('touchend mouseup', 'body', function(e){
 			var body = $(this);
-			if(typeof(body.data) == 'undefined' || typeof(body.data('touchObject')) == 'undefined' || body.data('touchObject') == null) return;
+			if(typeof(body.data) === 'undefined' || typeof(body.data('touchObject')) === 'undefined' || body.data('touchObject') === null) return;
 			var touchObject = body.data('touchObject');
-			if(!$(touchObject).length || typeof($(touchObject).data) == 'undefined' || typeof($(touchObject).data('touchStart')) == 'undefined' || $(touchObject).data('touchStart') == null) return;
+			if(!$(touchObject).length || typeof($(touchObject).data) === 'undefined' || typeof($(touchObject).data('touchStart')) === 'undefined' || $(touchObject).data('touchStart') === null) return;
 
 			for(var i=0, max = touchObject.length; i < max; i++){
 				var jObj = $(touchObject[i]);
-				if(typeof(jObj.data) == 'undefined' || typeof(jObj.data('touchStart')) == 'undefined' || jObj.data('touchStart') == null) return;
+				if(typeof(jObj.data) === 'undefined' || typeof(jObj.data('touchStart')) === 'undefined' || jObj.data('touchStart') === null) return;
 				var touchStart = jObj.data('touchStart');
-				if(typeof(jObj.data('touchEnd')) == 'undefined' || jObj.data('touchEnd') == null) jObj.data('touchEnd', touchStart);
+				if(typeof(jObj.data('touchEnd')) === 'undefined' || jObj.data('touchEnd') === null) jObj.data('touchEnd', touchStart);
 				var touchEnd = jObj.data('touchEnd');
 
 				var elementFromPoint = $(document.elementFromPoint(touchEnd.pageX, touchEnd.pageY))[0];
 
-				if(touchObject[i] == elementFromPoint || $(elementFromPoint).closest(touchObject[i]).length){
+				if(touchObject[i] === elementFromPoint || $(elementFromPoint).closest(touchObject[i]).length){
 					var x = touchEnd.pageX - touchStart.pageX;
 					var y = touchEnd.pageY - touchStart.pageY;
 					if(Math.abs(x) < 5 && Math.abs(y) < 5) jObj.trigger('e_touch', e);
 				}
 
-				if(jObj.data('visibleTouchIs') && touchObject[i] == document.elementFromPoint(touchEnd.pageX, touchEnd.pageY)){
+				if(jObj.data('visibleTouchIs') && touchObject[i] === document.elementFromPoint(touchEnd.pageX, touchEnd.pageY)){
 					var x = touchEnd.pageX - touchStart.pageX;
 					var y = touchEnd.pageY - touchStart.pageY;
 					if(Math.abs(x) < 5 && Math.abs(y) < 5) jObj.trigger('e_touch_visible', e);
@@ -674,7 +687,7 @@ function EventLink($){
 	};
 
 	this.Init();
-};
+}
 
 var eventLink = new EventLink(jQuery);
 
@@ -755,7 +768,7 @@ function ImageAlign($) {
 		var opt = layer.attr('data-opt');
 		var img = layer.find('img');
 
-		if (layer.attr('data-load') == 'y') {
+		if (layer.attr('data-load') === 'y') {
 			imagePosition(layer, img, opt);
 			return;
 		}
@@ -768,7 +781,7 @@ function ImageAlign($) {
 
 		tmpImg.src = img.attr('src');
 	}
-};
+}
 
 var _ImageAlign = new ImageAlign(jQuery);
 
@@ -812,7 +825,7 @@ var _SelectBox = new SelectBox(jQuery);
  *
  ----------------------------------------------------- */
 (function($) {
-	$.ieIs = navigator.appName == 'Microsoft Internet Explorer';
+	$.ieIs = navigator.appName === 'Microsoft Internet Explorer';
 
 	$.fn.FormReset = function(){
 		this.reset();
@@ -827,16 +840,16 @@ var _SelectBox = new SelectBox(jQuery);
 	 *
 	 ----------------------------------------------------- */
 	$.fn.translate3d = function(before, after, duration, complete) {
-		if(typeof before.z == 'undefined') before.z = 0;
-		if(typeof before.css == 'undefined') before.css = {};
-		if(typeof after.z == 'undefined') after.z = 0;
-		if(typeof after.css == 'undefined') after.css = {};
+		if(typeof before.z === 'undefined') before.z = 0;
+		if(typeof before.css === 'undefined') before.css = {};
+		if(typeof after.z === 'undefined') after.z = 0;
+		if(typeof after.css === 'undefined') after.css = {};
 		if($.ieIs){
 			before.css.top = before.y;
 			before.css.left = before.x;
 			after.css.top = after.y;
 			after.css.left = after.x;
-			before.css['transition'] = 0;
+			before.css['transition'] = '0s';
 			before.css.display = 'block';
 			$(this).css(before.css);
 			$(this).animate(after.css, duration, complete);
@@ -846,6 +859,10 @@ var _SelectBox = new SelectBox(jQuery);
 			var beforeTranslate = 'translate3d(' + before.x + ', ' + before.y + ', ' + before.z + ')';
 			var afterTranslate = 'translate3d(' + after.x + ', ' + after.y + ', ' + after.z + ')';
 			before.css.transition = '0s';
+			if(before.css.transform){
+				beforeTranslate += ' ' + before.css.transform;
+				delete before.css.transform;
+			}
 			before.css['-webkit-transform'] = beforeTranslate;
 			before.css['-ms-transform'] = beforeTranslate;
 			before.css.transform = beforeTranslate;
@@ -853,8 +870,12 @@ var _SelectBox = new SelectBox(jQuery);
 			$(this).css(before.css);
 
 			$(this).css('width');
-			if(typeof(complete) == 'function') $(this).on('transitionend webkittransitionend mstransitionend', complete);
+			if(typeof(complete) === 'function') $(this).on('transitionend webkittransitionend mstransitionend', complete);
 			after.css.transition = duration + 'ms';
+			if(after.css.transform){
+				afterTranslate += ' ' + after.css.transform;
+				delete after.css.transform;
+			}
 			after.css['-webkit-transform'] = afterTranslate;
 			after.css['-ms-transform'] = afterTranslate;
 			after.css.transform = afterTranslate;
@@ -876,7 +897,7 @@ var _SelectBox = new SelectBox(jQuery);
 			if(ret) {
 
 				if (this.hasAttribute('required')) {
-					if ($(this).attr('type') == 'checkbox' || $(this).attr('type') == 'radio') {
+					if ($(this).attr('type') === 'checkbox' || $(this).attr('type') === 'radio') {
 						if (!f.find('input[name=' + $(this).attr('name') + ']:checked').length) {
 							var obj = this;
 							CMAlert($(this).attr('data-displayname') + ' 항목을 선택하여 주세요.', function(){
@@ -886,7 +907,7 @@ var _SelectBox = new SelectBox(jQuery);
 							return false;
 						}
 					}
-					else if ($.trim($(this).val()) == '') {
+					else if ($.trim($(this).val()) === '') {
 						var obj = this;
 						CMAlert($(this).attr('data-displayname') + ' 항목을 입력하여 주세요.', function(){
 							$(obj).focus();
@@ -896,10 +917,10 @@ var _SelectBox = new SelectBox(jQuery);
 					}
 				}
 
-				if(this.tagName == 'INPUT' && $(this).attr('type') != 'radio' && $(this).attr('type') != 'checkbox' && $.trim(this.value) != ''){
+				if(this.tagName === 'INPUT' && $(this).attr('type') !== 'radio' && $(this).attr('type') !== 'checkbox' && $.trim(this.value) !== ''){
 					if($(this).hasClass('engonly')){
 						var val = this.value.replace(/[^a-zA-Z]/gi,'');
-						if(val != this.value){
+						if(val !== this.value){
 							var obj = this;
 							CMAlert($(this).attr('data-displayname') + ' 항목은 영문만 입력하여 주세요.', function(){
 								$(obj).focus();
@@ -911,7 +932,7 @@ var _SelectBox = new SelectBox(jQuery);
 
 					if($(this).hasClass('email')){
 						var v = $.trim(this.value);
-						if(v != '' && !JCM.validateEmail(this.value)){
+						if(v !== '' && !JCM.validateEmail(this.value)){
 							var obj = this;
 							CMAlert($(this).attr('data-displayname') + ' 항목 형식이 올바르지 않습니다.!', function(){
 								$(obj).focus();
@@ -923,7 +944,7 @@ var _SelectBox = new SelectBox(jQuery);
 
 					if($(this).hasClass('tel')){
 						var val = this.value.replace(/[^0-9\-\*\#]/gi,'');
-						if(val != this.value){
+						if(val !== this.value){
 							var obj = this;
 							CMAlert($(this).attr('data-displayname') + ' 항목 형식이 올바르지 않습니다.', function(){
 								$(obj).focus();
@@ -935,7 +956,7 @@ var _SelectBox = new SelectBox(jQuery);
 
 					if($(this).hasClass('engnumonly')){
 						var val = this.value.replace(/[^a-zA-Z0-9]/gi,'');
-						if(val != this.value){
+						if(val !== this.value){
 							var obj = this;
 							CMAlert($(this).attr('data-displayname') + ' 항목은 영문 또는 숫자만 입력하여 주세요.', function(){
 								$(obj).focus();
@@ -947,7 +968,7 @@ var _SelectBox = new SelectBox(jQuery);
 
 					if($(this).hasClass('numberonly')){
 						var val = this.value.replace(/[^0-9]/gi,'');
-						if(val != this.value){
+						if(val !== this.value){
 							var obj = this;
 							CMAlert($(this).attr('data-displayname') + ' 항목은 숫자만 입력하여 주세요.', function(){
 								$(obj).focus();
@@ -959,7 +980,7 @@ var _SelectBox = new SelectBox(jQuery);
 
 					if($(this).hasClass('numberformat')){
 						var val = this.value.replace(/[^0-9\,]/gi,'');
-						if(val != this.value){
+						if(val !== this.value){
 							var obj = this;
 							CMAlert($(this).attr('data-displayname') + ' 항목은 숫자만 입력하여 주세요.', function(){
 								$(obj).focus();
@@ -971,7 +992,7 @@ var _SelectBox = new SelectBox(jQuery);
 
 					if($(this).hasClass('engspecialonly')) {
 						var val = this.value.replace(/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>'\"\?\-=\+_\:\;\[\]\{\}\/]/gi,'');
-						if(val != this.value){
+						if(val !== this.value){
 							var obj = this;
 							CMAlert($(this).attr('data-displayname') + ' 항목은 영문 및 숫자, 특수문자만 입력하여 주세요.', function(){
 								$(obj).focus();
@@ -1028,10 +1049,10 @@ var _SelectBox = new SelectBox(jQuery);
 						}
 					}
 
-					if(this.hasAttribute('data-same') && this.tagName == 'INPUT'){
+					if(this.hasAttribute('data-same') && this.tagName === 'INPUT'){
 						var target = $(this).closest('form').find('input[name=' + $(this).attr('data-same') + ']');
 						if(target.length){
-							if($(this).val() != target.val()){
+							if($(this).val() !== target.val()){
 								CMAlert(target.attr('data-displayname') + ' 값이 일치하지 않습니다.', function(){
 									target.focus();
 								});
@@ -1067,14 +1088,14 @@ function DateInput(e){
 	if(!$(this).siblings('.before').length) $(this).before('<div class="before"></div>');
 	var val = $(this).val();
 	var len = val.length;
-	if(typeof(e) != 'undefined' && e.keyCode == 8){
-		if(len == 4){
+	if(typeof(e) !== 'undefined' && e.keyCode === 8){
+		if(len === 4){
 			e.preventDefault();
 			val = val.substring(0, 3);
 			len = 3;
 			$(this).val(val);
 		}
-		else if(len == 7){
+		else if(len === 7){
 			e.preventDefault();
 			val = val.substring(0, 6);
 			len = 6;
@@ -1106,7 +1127,7 @@ function DateInput(e){
 			n3 = n3.substring(0, 4) + '-' + n3.substring(4, n2.length);
 		}
 
-		if(n3 != val){
+		if(n3 !== val){
 			$(this).val(n3);
 			len = n3.length;
 		}
@@ -1134,7 +1155,7 @@ $(document).on('keyup mousedown change focus focusout', '.dateInput input.date',
 $(function () {
 	$(document).ready(function(){
 		$('.swiper-container').each(function () {
-			if ($(this).attr('data-auto-init') == '0') return;
+			if ($(this).attr('data-auto-init') === '0') return;
 			var opt = {};
 			SwiperInit($(this), opt);
 		});
@@ -1143,7 +1164,7 @@ $(function () {
 
 var swiperJsIs = false;
 function SwiperInit(obj, opt) {
-	if(typeof(Swiper) == 'undefined'){
+	if(typeof(Swiper) === 'undefined'){
 		if(!swiperJsIs){
 			swiperJsIs = true;
 			$('<link/>', {
@@ -1167,15 +1188,15 @@ function SwiperInit(obj, opt) {
 		spaceBetween: 0,
 		paginationClickable: true,
 		calculateHeight: true,
-		DOMAnimation: (JCM.ie8 || JCM.ie9) ? false : true
+		DOMAnimation: !(JCM.ie8 || JCM.ie9)
 	};
 
-	if(obj.attr('data-complete') == 'y'){
+	if(obj.attr('data-complete') === 'y'){
 		return;
 	}
 	obj.attr('data-complete', 'y');
 
-	if (obj.attr('data-loop') == '1') {
+	if (obj.attr('data-loop') === '1') {
 		opt.loop = true;
 		opt.autoplayDisableOnInteraction = false;
 	}
@@ -1191,7 +1212,7 @@ function SwiperInit(obj, opt) {
 	if (obj.attr('data-per-view')) {
 		opt.slidesPerView = parseFloat(obj.attr('data-per-view'));
 	}
-	if (obj.attr('data-center') == '1') {
+	if (obj.attr('data-center') === '1') {
 		opt.centeredSlides = true;
 	}
 
@@ -1246,7 +1267,7 @@ function datepicker() {
 var oEditors = [];
 var SE2LoadIs = false;
 function SE2_paste(id, defaultfolder, hiddenimage){
-	var scriptLoadIs = typeof(nhn) != 'undefined' && typeof(nhn.husky) != 'undefined' && typeof(nhn.husky.EZCreator) != 'undefined';
+	var scriptLoadIs = typeof(nhn) !== 'undefined' && typeof(nhn.husky) !== 'undefined' && typeof(nhn.husky.EZCreator) !== 'undefined';
 	if(scriptLoadIs){
 		SE2LoadIs = true;
 		spaste(id, defaultfolder, hiddenimage);
@@ -1344,8 +1365,7 @@ $(document).on('click', '.checkAllArea input.checkAll', function(){
 
 $(document).on('click', '.checkAllArea input.checkItem', function(){
 	var area = $(this).closest('.checkAllArea');
-	if(area.find('input.checkItem:not(:checked)').length) area.find('input.checkAll')[0].checked = false;
-	else area.find('input.checkAll')[0].checked = true;
+	area.find('input.checkAll')[0].checked = !area.find('input.checkItem:not(:checked)').length;
 });
 
 /* -------------------------------------------
@@ -1377,31 +1397,31 @@ $(document).on('change', '.UploadImagePreview input[type=file]', function () {
  ------------------------------------------- */
 $(document).on('keyup', 'input.numberonly input.numberOnly', function() {
 	var val = this.value.replace(/[^0-9]/gi,'');
-	if(this.value != val) this.value = val;
+	if(this.value !== val) this.value = val;
 });
 
 $(document).on('keyup', 'input.engonly', function() {
 	var val = this.value.replace(/[^a-zA-Z]/gi,'');
-	if(this.value != val) this.value = val;
+	if(this.value !== val) this.value = val;
 });
 
 $(document).on('keyup', 'input.engnumonly', function() {
 	var val = this.value.replace(/[^a-zA-Z0-9]/gi,'');
-	if(this.value != val) this.value = val;
+	if(this.value !== val) this.value = val;
 });
 
 $(document).on('keyup', 'input.tel', function() {
 	var val = this.value.replace(/[^0-9\-\*\#]/gi,'');
-	if(this.value != val) this.value = val;
+	if(this.value !== val) this.value = val;
 });
 
 $(document).on('keyup', 'input.engspecialonly', function() {
 	var val = this.value.replace(/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>'\"\?\-=\+_\:\;\[\]\{\}\/]/gi,'');
-	if(this.value != val) this.value = val;
+	if(this.value !== val) this.value = val;
 });
 
 $(document).on('keyup click change focus', 'input.numberformat', function(){
-	if(this.value == '') return;
+	if(this.value === '') return;
 	var val = JCM.setComma(parseInt(this.value.replace(/[^0-9]/gi,'')));
 	this.value = '';
 	this.value = val;
@@ -1430,15 +1450,15 @@ $(document).ready(function(){
 		this.oncomplete = function () {
 			obj.parent().show();
 		};
-		this.src = obj.attr('src') == '' ? '#' : obj.attr('src');
+		this.src = obj.attr('src') === '' ? '#' : obj.attr('src');
 	});
 
 	if ($('.selectMail select[name=selectMail]').length) {
 		$(document).on('change', '.selectMail select[name=selectMail]', function (e) {
 			var inp = $(this).closest('.selectMail').find('input.emailAddr');
-			if ($(this).val() == 'x') {
+			if ($(this).val() === 'x') {
 				inp.val('');
-			} else if ($(this).val() != '') {
+			} else if ($(this).val() !== '') {
 				inp.val($(this).val());
 			}
 		});
@@ -1466,7 +1486,7 @@ $(document).ready(function(){
 		$(e.target).find('.imgAlign, .selectBox, input.datePicker').each(function(){
 			if($(this).hasClass('imgAlign'))_ImageAlign.align.call(this);
 			if($(this).hasClass('selectBox')) _SelectBox.Set.call($(this).find('select'));
-			if($(this).hasClass('datePicker') && !$(this).hasClass('nopicker')) datepicker.call(this);;
+			if($(this).hasClass('datePicker') && !$(this).hasClass('nopicker')) datepicker.call(this);
 		});
 	}
 });

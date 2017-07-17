@@ -35,6 +35,7 @@ App.Reply = {
 			var btns = '<a href="#" class="answerBtn">답변</a><a href="#" class="modifyBtn">수정</a><a href="#" class="deleteBtn">삭제</a>';
 			$('#repArticle'+seq+' .commentText').html(data);
 			$('#repArticle'+seq+' .btns').html(btns);
+			$('#replyPwdLayer form')[0].reset();
 			$('#replyPwdLayer').hide();
 		});
 	},
@@ -59,6 +60,8 @@ App.Reply = {
 		e.preventDefault();
 		JCM.ajaxForm(this, function(data){
 			App.Reply.GetList();
+			$('#replyDeleteLayer form')[0].reset();
+			$('#replyDeleteLayer').hide();
 		});
 	},
 
@@ -83,6 +86,8 @@ App.Reply = {
 		e.preventDefault();
 		JCM.ajaxForm(this, function(data){
 			App.Reply.GetList();
+			$('#replyModifyLayer form')[0].reset();
+			$('#replyModifyLayer').hide();
 		});
 	},
 
@@ -107,6 +112,8 @@ App.Reply = {
 		e.preventDefault();
 		JCM.ajaxForm(this, function(data){
 			App.Reply.GetList();
+			$('#replyAnswerLayer form')[0].reset();
+			$('#replyAnswerLayer').hide();
 		});
 	},
 
@@ -146,5 +153,5 @@ App.Reply = {
 		JCM.ajaxForm('#replyGetForm', function(data){
 			$('#ReplyList').html(data);
 		});
-	},
+	}
 };

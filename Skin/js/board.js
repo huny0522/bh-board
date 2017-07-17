@@ -34,8 +34,8 @@ App.Board = {
 			var boardList = $('#bhBoardList table.list tbody');
 			if(data.lastIs) $('#bhBoardList .moreViewBtn').hide();
 			else $('#bhBoardList .moreViewBtn').show();
-			if($.trim(data.list) == ''){
-				if($.trim(boardList.text()) == '') boardList.html('<p class="nothing">검색된 글이 없습니다.</p>');
+			if($.trim(data.list) === ''){
+				if($.trim(boardList.text()) === '') boardList.html('<p class="nothing">검색된 글이 없습니다.</p>');
 				return;
 			}
 			boardList.append(data.list);
@@ -85,7 +85,7 @@ App.Board = {
 		ResetModifyForm : function(e){
 			document.querySelector('#modifyForm').reset();
 			$('#modifyForm').hide();
-		},
+		}
 	},
 
 	Write : {
@@ -107,6 +107,6 @@ App.Board = {
 				return false;
 			}
 
-		},
-	},
+		}
+	}
 };
