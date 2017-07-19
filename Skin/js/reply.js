@@ -3,7 +3,7 @@ App.Reply = {
 		e.preventDefault();
 		$(this).validCheck();
 
-		JCM.ajaxForm(this, function(data){
+		JCM.ajaxForm(this, function(){
 			$('#replyGetForm input[name=page]').val(1);
 			App.Reply.GetList();
 		});
@@ -15,17 +15,26 @@ App.Reply = {
 		App.Reply.GetList();
 	},
 
-	ClickReset : function(e){
-		$(this).closest('form')[0].reset();
-		$(this).closest('.repLayer').hide();
+	ClickReset : function(){
+		App.Reply.RemoveFormBox();
+	},
+
+	RemoveFormBox : function(){
+		var obj = $('#replyFormBox');
+		if(obj.hasClass('modifyForm')){
+			obj.closest('article').find('div.comment').show();
+			obj.remove();
+		}
+		else obj.remove();
 	},
 
 	ClickPwdView : function(e){
 		e.preventDefault();
 		var seq = $(this).closest('article').attr('data-seq');
-		$('#replyPwdLayer form')[0].reset();
-		$('#replyPwdLayer input[name=seq]').val(seq);
-		$('#replyPwdLayer').show();
+		var layer = $('#replyPwdLayer');
+		layer.find('form')[0].reset();
+		layer.find('input[name=seq]').val(seq);
+		layer.show();
 	},
 
 	SubmitPwdForm : function(e){
@@ -42,111 +51,119 @@ App.Reply = {
 
 	ClickDeleteBtn : function(e){
 		e.preventDefault();
-		var seq = $(this).closest('article').attr('data-seq');
-		$('#replyDeleteLayer form')[0].reset();
-		$('#replyDeleteLayer input[name=seq]').val(seq);
-		if($(this).hasClass('myDoc')){
-			$('#replyDeleteLayer .pwdinp').hide();
-			$('#replyDeleteLayer .pwdinp input').attr('disabled', 'disabled');
-		}else{
-			$('#replyDeleteLayer .pwdinp').show();
-			$('#replyDeleteLayer .pwdinp input').removeAttr('disabled');
-		}
+		var article = $(this).closest('article');
+		if(article.children('.repDeleteForm').length) return;
 
-		$('#replyDeleteLayer').show();
+		App.Reply.RemoveFormBox();
+		article.append('<div id="replyFormBox">' + $('#replyDeleteLayer').html() + '</div>');
+		var form = article.find('form');
+
+		var seq = $(this).closest('article').attr('data-seq');
+		form[0].reset();
+		form.find('input[name=seq]').val(seq);
+		if($(this).hasClass('myDoc')){
+			form.find('.pwdinp').hide();
+			form.find('.pwdinp input').attr('disabled', 'disabled');
+		}else{
+			form.find('.pwdinp').show();
+			form.find('.pwdinp input').removeAttr('disabled');
+		}
 	},
 
 	SubmitDeleteForm : function(e){
 		e.preventDefault();
 		JCM.ajaxForm(this, function(data){
 			App.Reply.GetList();
-			$('#replyDeleteLayer form')[0].reset();
-			$('#replyDeleteLayer').hide();
 		});
 	},
 
 	ClickModifyBtn : function(e){
 		e.preventDefault();
+		if($('#replyListContents .repModifyForm').length) return;
 		var seq = $(this).closest('article').attr('data-seq');
 		var txt = $(this).closest('article').find('.commentText').text();
-		$('#replyModifyLayer form')[0].reset();
-		$('#replyModifyLayer input[name=seq]').val(seq);
-		$('#replyModifyLayer textarea[name=comment]').val(txt);
+
+		var article = $(this).closest('article');
+
+		App.Reply.RemoveFormBox();
+		article.append('<div id="replyFormBox" class="modifyForm">' + $('#replyModifyLayer').html() + '</div>');
+		article.find('div.comment').hide();
+
+		var form = article.find('form');
+		form[0].reset();
+		form.find('input[name=seq]').val(seq);
+		form.find('textarea[name=comment]').val(txt);
 		if($(this).hasClass('myDoc')){
-			$('#replyModifyLayer .pwdinp').hide();
-			$('#replyModifyLayer .pwdinp input').attr('disabled', 'disabled');
+			form.find('.pwdinp').hide();
+			form.find('.pwdinp input').attr('disabled', 'disabled');
 		}else{
-			$('#replyModifyLayer .pwdinp').show();
-			$('#replyModifyLayer .pwdinp input').removeAttr('disabled');
+			form.find('.pwdinp').show();
+			form.find('.pwdinp input').removeAttr('disabled');
 		}
-		$('#replyModifyLayer').show();
 	},
 
 	SubmitModifyForm : function(e){
 		e.preventDefault();
 		JCM.ajaxForm(this, function(data){
 			App.Reply.GetList();
-			$('#replyModifyLayer form')[0].reset();
-			$('#replyModifyLayer').hide();
 		});
 	},
 
 	ClickAnswerBtn : function(e){
 		e.preventDefault();
+		if($('article.replyAnswer').length) return;
 		var article = $(this).closest('article');
 		var seq = article.attr('data-seq');
 		$('#replyAnswerLayer form')[0].reset();
 		$('#replyAnswerLayer input[name=target_seq]').val(seq);
 
-		var comment = article.find('.commentText').html();
-		var mname = article.find('header b').text();
-		var dt = article.find('header span').text();
-		$('#replyAnswerLayer .targetContent p').html(comment);
-		$('#replyAnswerLayer header b').html(mname);
-		$('#replyAnswerLayer header span').html(dt);
-
-		$('#replyAnswerLayer').show();
+		App.Reply.RemoveFormBox();
+		article.after('<article class="replyAnswer" id="replyFormBox">' + $('#replyAnswerLayer').html() + '</article>');
 	},
 
 	SubmitAnswerForm : function(e){
 		e.preventDefault();
 		JCM.ajaxForm(this, function(data){
 			App.Reply.GetList();
-			$('#replyAnswerLayer form')[0].reset();
-			$('#replyAnswerLayer').hide();
 		});
 	},
 
+	EventInit : false,
+
 	Init : function(){
 
-		// Write
-		$(document).on('submit', '.replyWrite form', App.Reply.SubmitWrite);
-		// Paging
-		$(document).on('click', '#replyPaging a', App.Reply.ClickPaging);
+		if(!this.EventInit){
+			this.EventInit = true;
 
-		$(document).on('click', '.repLayer button[type=reset]', App.Reply.ClickReset);
-		// Secret Reply View Pwd
-		$(document).on('click', '#replyListContents a.pwdView', App.Reply.ClickPwdView);
+			// Write
+			$(document).on('submit', '.replyWrite form', App.Reply.SubmitWrite);
+			// Paging
+			$(document).on('click', '#replyPaging a', App.Reply.ClickPaging);
 
-		$(document).on('submit', '#repPwdForm', App.Reply.SubmitPwdForm);
+			$(document).on('click', '#Reply button[type=reset]', App.Reply.ClickReset);
+			// Secret Reply View Pwd
+			$(document).on('click', '#replyListContents a.pwdView', App.Reply.ClickPwdView);
 
-		// -------------------------------------
-		// Delete Reply
-		$(document).on('click', '#replyListContents a.deleteBtn', App.Reply.ClickDeleteBtn);
+			$(document).on('submit', '#repPwdForm', App.Reply.SubmitPwdForm);
 
-		$(document).on('submit', '#repDeleteForm', App.Reply.SubmitDeleteForm);
+			// -------------------------------------
+			// Delete Reply
+			$(document).on('click', '#replyListContents a.deleteBtn', App.Reply.ClickDeleteBtn);
 
-		// -------------------------------------
-		// Modify Reply
-		$(document).on('click', '#replyListContents a.modifyBtn', App.Reply.ClickModifyBtn);
+			$(document).on('submit', '#repDeleteForm', App.Reply.SubmitDeleteForm);
 
-		$(document).on('submit', '#repModifyForm', App.Reply.SubmitModifyForm);
+			// -------------------------------------
+			// Modify Reply
+			$(document).on('click', '#replyListContents a.modifyBtn', App.Reply.ClickModifyBtn);
 
-		// -------------------------------------
-		// Answer Reply
-		$(document).on('click', '#replyListContents a.answerBtn', App.Reply.ClickAnswerBtn);
+			$(document).on('submit', '#repModifyForm', App.Reply.SubmitModifyForm);
 
-		$(document).on('submit', '#repAnswerForm', App.Reply.SubmitAnswerForm);
+			// -------------------------------------
+			// Answer Reply
+			$(document).on('click', '#replyListContents a.answerBtn', App.Reply.ClickAnswerBtn);
+
+			$(document).on('submit', '#repAnswerForm', App.Reply.SubmitAnswerForm);
+		}
 	},
 
 	GetList : function(){

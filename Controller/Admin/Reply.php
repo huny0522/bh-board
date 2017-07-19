@@ -1,6 +1,6 @@
 <?php
-namespace BH\Controller\Admin;
+namespace Controller\Admin;
 
-class Reply extends \BH\Controller\Reply{
+class Reply extends \Controller\Reply{
 
 }

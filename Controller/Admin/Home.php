@@ -1,6 +1,6 @@
 <?php
 
-namespace BH\Controller\Admin;
+namespace Controller\Admin;
 
 use \BH_Application as App;
 use \BH_Common as CM;

@@ -4,7 +4,7 @@
  * 16.07.10
  */
 
-namespace BH\Controller;
+namespace Controller;
 
 use \BH_Application as App;
 use \BH_Common as CM;

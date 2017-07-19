@@ -1,6 +1,6 @@
 <?php
-namespace BH\Controller\Admin;
+namespace Controller\Admin;
 
-class Board extends \BH\Controller\Board{
+class Board extends \Controller\Board{
 
 }

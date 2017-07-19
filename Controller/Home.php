@@ -1,5 +1,5 @@
 <?php
-namespace BH\Controller;
+namespace Controller;
 
 use \BH_Application as App;
 use \BH_Common as CM;

@@ -41,7 +41,7 @@ class BH_Application{
 
 	public static function AutoLoad($class) {
 		if(substr($class, -5) === 'Model') $file = _MODELDIR.'/'.$class.'.php';
-		else $file = _DIR.'/'.str_replace('\\', '/', substr($class,0, 3) === 'BH\\' ? substr($class, 3) : $class).'.php';
+		else $file = _DIR.'/'.str_replace('\\', '/', $class).'.php';
 		require $file;
 	}
 
@@ -138,7 +138,7 @@ class BH_Application{
 
 		if(file_exists($path)){
 			require $path;
-			$controller = '\\BH\\Controller\\'.(self::$NativeDir ? self::$NativeDir.'\\' : '').self::$ControllerName;
+			$controller = '\\Controller\\'.(self::$NativeDir ? self::$NativeDir.'\\' : '').self::$ControllerName;
 			if (!class_exists($controller)){
 				if(_DEVELOPERIS === true) echo '클래스('.$controller.')가 존재하지 않습니다.';
 				exit;
@@ -238,8 +238,7 @@ class BH_Application{
 		self::$BodyHtml = ob_get_clean();
 
 		if(!$DisableLayout && !is_null(self::$Layout)){
-			$layoutChoose = isset($opt['Layout']) && strlen($opt['Layout']) ? $opt['Layout'] : self::$Layout;
-			$layout = '/Layout/'.($layoutChoose ? $layoutChoose :  _DEFAULT_LAYOUT);
+			$layout = '/Layout/'.self::$Layout;
 			if(substr($layout, -5) != '.html') $layout .= '.html';
 			if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR.$layout, _HTMLDIR.$layout);
 			if($layout && file_exists(_HTMLDIR.$layout)) require _HTMLDIR.$layout;

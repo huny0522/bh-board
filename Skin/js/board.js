@@ -1,18 +1,30 @@
 App.Board = {
-	ListInit : function(){
-		$(document).on('click', '.passwordView', App.Board.ClickPwdView);
+	EventInit : false,
 
-		$(document).on('click', '#secretViewForm button[type=reset]', App.Board.ResetPwdView);
+	ListInit : function(){
+		if(!this.EventInit){
+			this.EventInit = true;
+
+			$(document).on('click', '.passwordView', App.Board.ClickPwdView);
+
+			$(document).on('click', '#secretViewForm button[type=reset]', App.Board.ResetPwdView);
+		}
 	},
 
+	MoreListEventInit : false,
+
 	MoreListInit : function(){
-		$(document).on('submit', '#bbsSchForm', App.Board.SubmitSearchForm);
+		if(!this.MoreListEventInit){
+			this.MoreListEventInit = true;
 
-		$(document).on('click', '#moreViewBtn', App.Board.ClickMoreViewBtn);
+			$(document).on('submit', '#bbsSchForm', App.Board.SubmitSearchForm);
 
-		$(document).on('click', '.passwordView', App.Board.ClickPwdView);
+			$(document).on('click', '#moreViewBtn', App.Board.ClickMoreViewBtn);
 
-		$(document).on('click', '#secretViewForm button[type=reset]', App.Board.ResetPwdView);
+			$(document).on('click', '.passwordView', App.Board.ClickPwdView);
+
+			$(document).on('click', '#secretViewForm button[type=reset]', App.Board.ResetPwdView);
+		}
 
 		App.Board.GetMoreList();
 
@@ -57,12 +69,18 @@ App.Board = {
 	},
 
 	View : {
-		Init : function(){
-			$(document).on('click', '#deleteArticle', App.Board.View.ClickDeleteBtn);
-			$(document).on('click', '#deleteForm button[type=reset]', App.Board.View.ResetDeleteForm);
+		EventInit : false,
 
-			$(document).on('click', '#modifyBtn', App.Board.View.ClickModifyBtn);
-			$(document).on('click', '#modifyForm button[type=reset]', App.Board.View.ResetModifyForm);
+		Init : function(){
+			if(!this.EventInit){
+				this.EventInit = true;
+
+				$(document).on('click', '#deleteArticle', App.Board.View.ClickDeleteBtn);
+				$(document).on('click', '#deleteForm button[type=reset]', App.Board.View.ResetDeleteForm);
+
+				$(document).on('click', '#modifyBtn', App.Board.View.ClickModifyBtn);
+				$(document).on('click', '#modifyForm button[type=reset]', App.Board.View.ResetModifyForm);
+			}
 		},
 
 		ClickDeleteBtn : function(e){
@@ -71,7 +89,7 @@ App.Board = {
 		},
 
 		ResetDeleteForm : function(e){
-			document.querySelector('#deleteForm').reset();
+			document.querySelector('#delForm').reset();
 			$('#deleteForm').hide();
 		},
 
@@ -90,16 +108,20 @@ App.Board = {
 
 	Write : {
 		useSE2Is : false,
+		EventInit : false,
 
 		Init : function(useSE2){
 			this.useSE2Is = useSE2;
 			if(useSE2) SE2_paste('MD_content','');
+			if(!this.EventInit){
+				this.EventInit = true;
 
-			$(document).on('submit', '#BoardWriteForm', App.Board.Write.SubmitWrite);
+				$(document).on('submit', '#BoardWriteForm', App.Board.Write.SubmitWrite);
+			}
 		},
 
 		SubmitWrite : function(e){
-			if(this.useSE2Is) SE2_update('MD_content');
+			if(App.Board.Write.useSE2Is) SE2_update('MD_content');
 
 			var res = $(this).validCheck();
 			if(!res){
