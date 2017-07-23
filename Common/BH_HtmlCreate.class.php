@@ -20,7 +20,7 @@ use \\BH_Common as CM;
 use \\DB as DB;
 
 class {$ControllerName}{
-	/** @var \\{$ModelName}Model */
+	/* @var \\{$ModelName}Model */
 	public \$model;
 
 	public function __construct(){
@@ -117,7 +117,7 @@ class {$ControllerName}{
 
 class {$ModelName}Model extends \\BH_Model{
 
-	/** @var \BH_ModelData[] */
+	/* @var \BH_ModelData[] */
 	public \$data = array();
 
 	public function __Init(){
@@ -248,7 +248,7 @@ class {$ModelName}Model extends \\BH_Model{
 		if(_DEVELOPERIS !== true) return;
 
 		$classname = $model . 'Model';
-		/** @var Model $modelClass */
+		/* @var $modelClass Model */
 		$modelClass = App::InitModel($model);
 		if(!file_exists(_SKINDIR . $path)){
 
@@ -299,7 +299,7 @@ class {$ModelName}Model extends \\BH_Model{
 		if(_DEVELOPERIS !== true) return;
 
 		$classname = $model . 'Model';
-		/** @var BH_Model $modelClass */
+		/* @var $modelClass BH_Model */
 		$modelClass = App::InitModel($model);
 		if(!file_exists(_SKINDIR . $path)){
 
@@ -373,7 +373,7 @@ class {$ModelName}Model extends \\BH_Model{
 		if(_DEVELOPERIS !== true) return;
 
 		$classname = $model . 'Model';
-		/** @var BH_Model $modelClass */
+		/* @var $modelClass BH_Model */
 		$modelClass = App::InitModel($model);
 		if(!file_exists(_SKINDIR . $path)){
 

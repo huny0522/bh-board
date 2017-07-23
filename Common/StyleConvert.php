@@ -6,9 +6,9 @@ use \BH_Application as App;
 class _BH_Node{
 	public $selector = false;
 	public $data = false;
-	/** @var _BH_Node */
+	/* @var _BH_Node */
 	public $Parent = false;
-	/** @var _BH_Node */
+	/* @var _BH_Node */
 	public $Next = false;
 	public function setChild(){
 		$this->data = new _BH_Node();
@@ -173,7 +173,7 @@ function BH_CSS($path, $target){
 }
 
 function convCssNode($node, $replaceVar, $group = array()){
-	/** @var $node _BH_Node */
+	/* @var $node _BH_Node */
 	$f = '';
 	if(is_string($node->data)){
 

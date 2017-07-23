@@ -11,16 +11,17 @@ use \BH_Common as CM;
 use \DB as DB;
 
 class Reply{
-	/** @var ReplyModel */
+	/* @var ReplyModel */
 	public $model;
-	/** @var BoardModel */
+	/* @var BoardModel */
 	public $boardModel;
-	/** @var BoardManagerModel */
+	/* @var BoardManagerModel */
 	public $boardManger;
 	public $managerIs = false;
 	public $bid = '';
 	protected $MoreListIs = false;
 	protected $Path = '';
+	public $uploadUrl = '';
 
 	protected function _PostModifyUpdateBefore(){}
 	protected function _PostModifyUpdateAfter(){}
@@ -36,6 +37,7 @@ class Reply{
 		$this->model = App::InitModel('Reply');
 		$this->boardModel = App::InitModel('Board');
 		$this->boardManger = App::InitModel('BoardManager');
+		$this->uploadUrl = '/reply/' .$this->bid.'/' . date('ym') . '/';
 	}
 
 	public function __init(){
@@ -238,7 +240,7 @@ class Reply{
 
 		// 파일 업로드
 		if(isset($_FILES['file'])){
-			$fres_em = FileUpload($_FILES['file'], App::$SettingData['IMAGE_EXT'], '/reply/' .$this->bid.'/' . date('ym') . '/');
+			$fres_em = FileUpload($_FILES['file'], App::$SettingData['IMAGE_EXT'], $this->uploadUrl);
 
 			if(is_string($fres_em)) JSON(false, $fres_em);
 			else if(is_array($fres_em)){
@@ -363,7 +365,7 @@ class Reply{
 
 		// 파일 업로드
 		if(isset($_FILES['file'])){
-			$fres_em = FileUpload($_FILES['file'], App::$SettingData['IMAGE_EXT'], '/reply/'.$this->bid.'/'.date('ym').'/');
+			$fres_em = FileUpload($_FILES['file'], App::$SettingData['IMAGE_EXT'], $this->uploadUrl);
 
 			if(is_string($fres_em)) JSON(false, $fres_em);
 			else if(is_array($fres_em)){

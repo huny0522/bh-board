@@ -568,4 +568,22 @@ function modifyFileTime($file, $group = 'default'){
 	return false;
 }
 
+function &Post($param){
+	if(!isset(App::$SettingData['_BH_PostData'][$param])){
+		App::$SettingData['_BH_PostData'][$param] = true;
+		if(!isset($_POST[$param])) $_POST[$param] = null;
+		else if(is_string($_POST[$param])) $_POST[$param] = trim($_POST[$param]);
+	}
+	return $_POST[$param];
+}
+
+function &Get($param){
+	if(!isset(App::$SettingData['_BH_GetData'][$param])){
+		App::$SettingData['_BH_GetData'][$param] = true;
+		if(!isset($_GET[$param])) $_GET[$param] = null;
+		else if(is_string($_GET[$param])) $_GET[$param] = trim($_GET[$param]);
+	}
+	return $_GET[$param];
+}
+
 require _COMMONDIR.'/MyLib.php';

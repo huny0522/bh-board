@@ -14,7 +14,7 @@ class DB{
 	 */
 	private static $Instance;
 
-	/** @var \PDO[] */
+	/* @var \PDO[] */
 	private static $Conn = array();
 	private static $ConnName = '';
 	private static $ConnectionInfo = array();
@@ -118,7 +118,7 @@ class DB{
 			$string_is = true;
 		}
 
-		$r = $qry->fetch();
+		$r = $qry->fetch(PDO::FETCH_ASSOC);
 		if($string_is) self::Free($qry);
 
 		return $r;
@@ -349,7 +349,7 @@ class BH_DB_Get{
 		foreach($this->bindParam as $k => $v) $this->query->bindParam($k, $v[0], $v[1]);
 
 		if($this->query->execute()){
-			$row = $this->query->fetch();
+			$row = $this->query->fetch(PDO::FETCH_ASSOC);
 			if($row){
 				$this->query->closeCursor();
 				return $row;
@@ -439,7 +439,7 @@ class BH_DB_GetList extends BH_DB_Get{
 
 	public function Get(){
 		if(!$this->RunIs) $this->Run();
-		$res = $this->query ? $this->query->fetch() : false;
+		$res = $this->query ? $this->query->fetch(PDO::FETCH_ASSOC) : false;
 		return $res;
 	}
 }
@@ -571,7 +571,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		$qry = DB::PDO($this->connName)->prepare($this->group ? 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x' : $sql_cnt);
 		foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
 		if($qry->execute()){
-			$this->countResult = $qry->fetch();
+			$this->countResult = $qry->fetch(PDO::FETCH_ASSOC);
 			$totalRecord = $this->countResult['cnt']; //total값 구함
 		}
 		else $totalRecord = 0;
@@ -622,7 +622,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	public function Get(){
 		if(!$this->RunIs) $this->Run();
 
-		$res = $this->query ? $this->query->fetch() : false;
+		$res = $this->query ? $this->query->fetch(PDO::FETCH_ASSOC) : false;
 		return $res;
 	}
 
@@ -840,7 +840,7 @@ class BH_DB_Insert{
 					$res->result = false;
 					return $res;
 				}
-				else $minseq = $qry->fetch();
+				else $minseq = $qry->fetch(PDO::FETCH_ASSOC);
 				if(!$minseq){
 					$res->result = false;
 					return $res;

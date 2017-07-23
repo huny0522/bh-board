@@ -8,7 +8,7 @@ use \BH_Application as App;
 class BH_Category{
 	const ROOT_CATEGORY_CODE = '_ROOT';
 
-	/** @var MenuModel */
+	/* @var MenuModel */
 	public $model;
 	public $Name;
 

@@ -29,7 +29,7 @@ class DB{
 
 		if(!isset(self::$Conn[self::$ConnName])){
 			if(isset(self::$ConnectionInfo[self::$ConnName])){
-				/** @var array $_DBInfo */
+				/* @var $_DBInfo array */
 				self::$Conn[self::$ConnName] = mysqli_connect(self::$ConnectionInfo[self::$ConnName]['hostName'], self::$ConnectionInfo[self::$ConnName]['userName'], self::$ConnectionInfo[self::$ConnName]['userPassword'], self::$ConnectionInfo[self::$ConnName]['dbName']);
 				if(!self::$Conn[self::$ConnName]){
 					echo('ACCESS_DENIED_DB_CONNECTION');

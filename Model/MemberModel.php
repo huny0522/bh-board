@@ -9,7 +9,7 @@ use \BH_Application as App;
 
 class MemberModel extends \BH_Model{
 
-	/** @var \BH_ModelData[] */
+	/* @var \BH_ModelData[] */
 	public $data = array();
 
 	public function __Init(){

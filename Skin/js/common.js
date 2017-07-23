@@ -202,6 +202,7 @@ function Common($) {
 						if(typeof success_func !== 'undefined') success_func(response.data);
 					}else{
 						if(typeof fail_func !== 'undefined') fail_func(response.data);
+						if(typeof(_this.ajaxFailed) === 'function')_this.ajaxFailed(response.data);
 					}
 				}else{
 					if(typeof success_func !== 'undefined') success_func(response);
@@ -246,6 +247,7 @@ function Common($) {
 						if (typeof success_func !== 'undefined') success_func(response.data);
 					}else{
 						if (typeof fail_func !== 'undefined') fail_func(response.data);
+						if(typeof(_this.ajaxFailed) === 'function')_this.ajaxFailed(response.data);
 					}
 				}else{
 					if (typeof success_func !== 'undefined') success_func(response);

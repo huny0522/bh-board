@@ -25,6 +25,8 @@ class Board{
 	public $Path = '';
 	public $AdminPathIs = false;
 	public $bid = '';
+	public $uploadDir = '';
+	public $uploadImageDir = '';
 
 	/** @param \BH_DB_GetListWithPage $qry */
 	protected function _GetListQuery(&$qry){}
@@ -51,6 +53,8 @@ class Board{
 		}
 		$this->model = App::InitModel('Board');
 		$this->boardManger = App::InitModel('BoardManager');
+		$this->uploadDir = '/board/'.$this->bid.'/'.date('ym').'/';
+		$this->uploadImageDir = '/boardimage/'.$this->bid.'/'.date('ym').'/';
 	}
 
 	public function __init(){
@@ -451,7 +455,7 @@ class Board{
 
 			if($this->boardManger->GetValue('attach_type') == 'image') $POSSIBLE_EXT = App::$SettingData['IMAGE_EXT'];
 			else $POSSIBLE_EXT = App::$SettingData['POSSIBLE_EXT'];
-			$fres_em = FileUpload($_FILES['file'.$n], $POSSIBLE_EXT, '/board/'.$this->bid.'/'.date('ym').'/');
+			$fres_em = FileUpload($_FILES['file'.$n], $POSSIBLE_EXT, $this->uploadDir);
 
 			if(is_string($fres_em)){
 				if(_JSONIS === true) JSON(false, $fres_em);
@@ -557,7 +561,7 @@ class Board{
 
 			if($this->boardManger->GetValue('attach_type') == 'image') $POSSIBLE_EXT = App::$SettingData['IMAGE_EXT'];
 			else $POSSIBLE_EXT = App::$SettingData['POSSIBLE_EXT'];
-			$fres_em = FileUpload($_FILES['file'.$n], $POSSIBLE_EXT, '/board/'.$this->bid.'/'.date('ym').'/');
+			$fres_em = FileUpload($_FILES['file'.$n], $POSSIBLE_EXT, $this->uploadDir);
 
 			if(is_string($fres_em)){
 				if(_JSONIS === true) JSON(false, $fres_em);
@@ -782,7 +786,6 @@ class Board{
 		$imageCount = $cnt['cnt'];
 
 		if(isset($_POST['addimg']) && is_array($_POST['addimg'])){
-			$ym = date('ym');
 			foreach($_POST['addimg'] as $img){
 				$exp = explode('|', $img);
 
@@ -792,8 +795,8 @@ class Board{
 						continue;
 					}
 
-					$newpath = str_replace('/temp/', '/boardimage/'.$this->bid.'/'.$ym.'/', $exp[0]);
-					$uploadDir = _UPLOAD_DIR.'/boardimage/'.$this->bid.'/'.$ym;
+					$newpath = str_replace('/temp/', $this->uploadImageDir, $exp[0]);
+					$uploadDir = _UPLOAD_DIR.$this->uploadImageDir;
 					if(!is_dir($uploadDir)){
 						mkdir($uploadDir, 0777, true);
 					}

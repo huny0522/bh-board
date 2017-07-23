@@ -5,8 +5,6 @@
  */
 class BH_Application{
 	public static $ControllerInstance = null;
-	/** @var BH_Router */
-	public static $RouterInstance = null;
 
 	public static $ControllerName = '';
 	public static $Action = '';
@@ -19,7 +17,6 @@ class BH_Application{
 	public static $InstallIs = true;
 	public static $CFG = array();
 
-	// BH_Controller
 	public static $Layout = null;
 	public static $Html;
 	public static $Title;
@@ -78,8 +75,8 @@ class BH_Application{
 
 		if(self::$SettingData['GetUrl'][1] == '_Refresh'){
 			if(_DEVELOPERIS === true){
-				$s = \BH_Common::Config('Default', 'Refresh');
-				$res = \BH_Common::SetConfig('Default', 'Refresh', $s+1);
+				$s = \BH_Common::Config('Refresh', 'Refresh');
+				$res = \BH_Common::SetConfig('Refresh', 'Refresh', $s+1);
 
 				if($res->result){
 					if(_REFRESH_HTML_ALL === true){

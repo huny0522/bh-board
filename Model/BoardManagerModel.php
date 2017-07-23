@@ -11,7 +11,7 @@ use \BH_Application as App;
 
 class BoardManagerModel extends \BH_Model{
 
-	/** @var  \BH_ModelData[] */
+	/* @var  \BH_ModelData[] */
 	public $data;
 
 	public function __Init(){
