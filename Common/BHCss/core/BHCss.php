@@ -30,11 +30,11 @@ class BHCss{
 	public static $convDirMessage = array();
 
 	private function __construct(){
-
+		
 	}
 
 	private function __clone(){
-
+		
 	}
 
 	public static function reset(){
@@ -217,7 +217,7 @@ class BHCss{
 	private static function node2css(&$node, $group = array()){
 		$txt = '';
 		if(is_string($node->data)){
-			$node->data = trim(preg_replace(array('/\r/', '/\n/is', '/\s+/is'), array('', ' ', ' '), $node->data));
+			$node->data = trim(preg_replace(array('/\r\n/is', '/\s+/is'), array(' ', ' '), $node->data));
 			// ---------------------------------------------------------------
 			// 변환
 
@@ -295,7 +295,7 @@ class BHCss{
 			else{
 				$txt .= self::NL . self::NL . $node->selector . '{' . self::NL;
 				$data = trim(self::node2css($node->data, $group2));
-				$data = chr(9) . preg_replace('/\}\n*\s*/is', "}\n\t", $data);
+				$data = chr(9) . preg_replace('/\}\r\n*\s*/is', "}\r\n\t", $data);
 				$txt .= $data;
 				$txt .= self::NL . '}' . self::NL;
 			}
@@ -406,8 +406,8 @@ class BHCss{
 
 		$replace = array(
 			'border-radius:$2; -webkit-border-radius:$2; -moz-border-radius:$2;',
-			'$1-moz-transition:$3; $1-webkit-transition:$3; $1-ms-transition:$3; $1-o-transition:$3; $1transition:$3;',
-			'$1-moz-transform:$3; $1-webkit-transform:$3; $1-ms-transform:$3; $1-o-transform:$3; $1transform:$3;',
+			'$1-moz-transition:$3; -webkit-transition:$3; -ms-transition:$3; -o-transition:$3; transition:$3;',
+			'$1-moz-transform:$3; -webkit-transform:$3; -ms-transform:$3; -o-transform:$3; transform:$3;',
 			'-webkit-box-shadow:$2; -moz-box-shadow:$2; box-shadow:$2;',
 			'-webkit-box-sizing:$2; -moz-box-sizing:$2; box-sizing:$2;',
 			'-webkit-background-size:$2; background-size:$2;',
@@ -460,7 +460,7 @@ class BHCss{
 			while(($file = readdir($dh)) !== false){
 				if($file != '.' && $file != '..'){
 					$dest_path = $tempfile_path . '/' . $file;
-					if(is_dir($dest_path)) convertBHCssDir($dest_path, false);
+					if(is_dir($dest_path)) self::convertBHCssDir($dest_path, false);
 					else{
 						if(substr($dest_path, strlen(BHCss::$fileExtension) * (-1)) == BHCss::$fileExtension){
 							if(!isset(self::$modifyFilesTime[$dest_path]))

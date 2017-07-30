@@ -8,14 +8,14 @@ ob_start();
 App::CSSAdd('jquery-ui-1.10.1.css', 10);
 App::CSSAdd('font-awesome/css/font-awesome.min.css', 10);
 App::CSSAdd('nanumgothic.css', 10);
-App::CSSAdd('style.bhcss.php?r=' . CM::Config('Refresh', 'Refresh'), 10);
-App::CSSAdd(_STYLEFILE . '?r=' . CM::Config('Refresh', 'Refresh'), 10);
+App::CSSAdd('style.bhcss.php' . CM::RefreshParam(), 10);
+App::CSSAdd(_STYLEFILE . CM::RefreshParam(), 10);
 
 App::JSAdd('jquery-1.11.3.min.js', 10);
 App::JSAdd('jquery.form.min.js', 10);
 App::JSAdd('jquery-ui.min.js', 10);
-App::JSAdd('common.js?r=' . CM::Config('Refresh', 'Refresh'), 10);
-App::JSAdd('contents.js?r=' . CM::Config('Refresh', 'Refresh'), 11);
+App::JSAdd('common.js' . CM::RefreshParam(), 10);
+App::JSAdd('contents.js' . CM::RefreshParam(), 11);
 ?>
 <?inc. '/Layout/_Header.html' ?>
 <div id="wrap">

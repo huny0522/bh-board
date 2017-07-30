@@ -58,7 +58,7 @@ App::JSAdd('board.js', 200);
 			<tr>
 				<th><?mt('pwd')?></th>
 				<td>
-					<?minp('pwd', array('value' =>(App::$Action == 'Modify' ? $_POST['pwd'] : ''))) ?>
+					<?minp('pwd', array('value' =>(App::$Action == 'Modify' ? post('pwd') : ''))) ?>
 					<ul class="guide">
 						<li>16자 이하로 입력하여주세요.</li>
 					</ul>

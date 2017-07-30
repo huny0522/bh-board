@@ -13,12 +13,7 @@ BHCss::setNL(false);
 
 
 $dir = $oriDir = isset($argv[1]) ? $argv[1] : '';
-if(strlen($dir) && $dir[0] !== '/' && $dir[0] !== '\\')
-		$dir = '/' . str_replace('\\', '/', $dir);
-
-if(file_exists(_DIR . $dir) && is_dir(_DIR . $dir)){
-	$dir = _DIR . $dir;
-}
+$dir = str_replace('\\', '/', $dir);
 
 if(!file_exists($dir) || !is_dir($dir)){
 	echo chr(10) . '[' . $oriDir . '] 폴더가 존재하지 않습니다.' . chr(10) . chr(10);

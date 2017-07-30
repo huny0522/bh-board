@@ -94,6 +94,10 @@ class BH_Common
 		$res->result = true;
 		return $res;
 	}
+	
+	public static function RefreshParam($beginMark = '?'){
+		return $beginMark.'r='.self::Config('Refresh', 'Refresh');
+	}
 
 	// 이미지 등록
 	public static function ContentImageUpate($tid, $keyValue, $content, $mode = 'write'){

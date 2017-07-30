@@ -30,6 +30,7 @@ require _COMMONDIR . '/BH_PDO.class.php';
 require _COMMONDIR . '/BH_Application.class.php';
 require _COMMONDIR . '/BH_Model.class.php';
 require _COMMONDIR . '/BH_Common.class.php';
+require _COMMONDIR . '/BHCss/core/BHCss.php';
 
 App::$SettingData['LevelArray'] = array(0 => '비회원', 1 => '일반회원', 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 15 => '매니저', 18 => '관리자', 20 => '최고관리자');
 App::$SettingData['noext'] = array('php', 'htm', 'html', 'cfg', 'inc', 'phtml', 'php5', 'asp', 'jsp');
@@ -41,7 +42,6 @@ App::$SettingData['POSSIBLE_EXT'] = array('jpg', 'jpeg', 'png', 'gif', 'bmp', 'z
 if(_DEVELOPERIS === true){
 	if(!file_exists(_DATADIR) || !is_dir(_DATADIR)) @mkdir(_DATADIR, 0755, true);
 	require _COMMONDIR . '/HtmlConvert.php';
-	require _COMMONDIR . '/BHCss/core/BHCss.php';
 	BH\BHCss\BHCss::setNL(true);
 	require _COMMONDIR . '/BH_HtmlCreate.class.php';
 }
