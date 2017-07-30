@@ -1,1 +1,1 @@
-php -q "%BHCSS_HOME%\index.php" %1
+php -q "%BHCSS_HOME%\index.php" %cd%\%1
