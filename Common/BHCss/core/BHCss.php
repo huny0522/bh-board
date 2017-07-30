@@ -11,13 +11,14 @@ define('BHCSS', true);
 
 require 'Node.php';
 
-class BHCss {
+class BHCss{
 
 	const COMMENT_STRING = '@charset CONVERT COMMENT STRING;';
 	const NL = "\r\n";
 
 	public static $fileExtension = '.bhcss.php';
 	public static $variable = array();
+	public static $modifyFilesTime = array();
 	private static $cssBody = '';
 	private static $comment = array();
 	private static $node = null;
@@ -26,21 +27,22 @@ class BHCss {
 	private static $paramVariable = array();
 	private static $enableNL = true;
 	private static $passFiles = array();
+	public static $convDirMessage = array();
 
-	private function __construct() {
-
-	}
-
-	private function __clone() {
+	private function __construct(){
 
 	}
 
-	public static function reset() {
+	private function __clone(){
+
+	}
+
+	public static function reset(){
 		self::$passFiles = array();
 		self::resetForParent();
 	}
 
-	private static function resetForParent() {
+	private static function resetForParent(){
 		self::$variable = array();
 		self::$cssBody = '';
 		self::$comment = array();
@@ -52,38 +54,36 @@ class BHCss {
 	}
 
 	// 파일 변경 시간 체크 후 컨버팅
-	public static function convTimeCheck(&$beforeTime, $path, $target = '') {
+	public static function convTimeCheck(&$beforeTime, $path, $target = ''){
 		$path = str_replace('\\', '/', $path);
-		if (!$target)
-			$target = self::getTargetPath($path);
+		if(!$target) $target = self::getTargetPath($path);
 
-		if (in_array($path, self::$passFiles))
-			return null;
+		if(in_array($path, self::$passFiles)) return null;
 
-		if (file_exists($path)) {
+		if(file_exists($path)){
 			$targetTime = filemtime($path);
-			if ($beforeTime != $targetTime) {
+			if($beforeTime != $targetTime){
 				$res = self::conv($path, $target);
-				if (is_null($res)) {
+				if(is_null($res)){
 					return null;
 				}
-				if ($res->result === true) {
+				if($res->result === true){
 					$beforeTime = $targetTime;
 				}
 				return $res;
 			}
-		} else {
+		}
+		else{
 			return self::conv($path, $target);
 		}
 		return null;
 	}
 
 	// 컨버팅
-	public static function conv($path, $target = '') {
+	public static function conv($path, $target = ''){
 		$path = str_replace('\\', '/', $path);
 
-		if (!$target)
-			$target = self::getTargetPath($path);
+		if(!$target) $target = self::getTargetPath($path);
 
 
 		$result = (object) array('result' => false, 'message' => '');
@@ -92,7 +92,7 @@ class BHCss {
 		include $path;
 		self::$cssBody = str_replace("\n", "\r\n", preg_replace(array('/\r|\t/', '/(\<|\<\/)style(.*?)\>/'), '', ob_get_clean()));
 
-		if (in_array($path, self::$passFiles)) {
+		if(in_array($path, self::$passFiles)){
 			$result->result = true;
 			return $result;
 		}
@@ -104,8 +104,8 @@ class BHCss {
 		$exp = explode('/', $target);
 		array_pop($exp);
 		$tempPath = implode('/', $exp);
-		if (!file_exists($tempPath) || !is_dir($tempPath))
-			mkdir($tempPath, 0755, true);
+		if(!file_exists($tempPath) || !is_dir($tempPath))
+				mkdir($tempPath, 0755, true);
 
 		self::extractComment();
 
@@ -119,11 +119,12 @@ class BHCss {
 
 		self::crossCss();
 
-		if (!self::$enableNL) {
+		if(!self::$enableNL){
 			self::$cssBody = str_replace(array(self::COMMENT_STRING, "\t", "\n", "\r"), '', self::$cssBody);
-		} else {
+		}
+		else{
 			// 주석삽입
-			foreach (self::$comment as $v) {
+			foreach(self::$comment as $v){
 				self::$cssBody = preg_replace('/' . str_replace(array('@', ';'), array("\\@", "\\;"), self::COMMENT_STRING) . '/', self::NL . self::NL . $v, self::$cssBody, 1);
 			}
 		}
@@ -141,23 +142,20 @@ class BHCss {
 	 * @param array $parentPath 부모파일경로
 	 * @return boolean
 	 */
-	public static function callParent($thisPath, array $parentPath) {
+	public static function callParent($thisPath, array $parentPath){
 		$thisPath = str_replace('\\', '/', $thisPath);
 		$dir = dirname($thisPath);
 
-		if (in_array($thisPath, self::$passFiles))
-			return false;
+		if(in_array($thisPath, self::$passFiles)) return false;
 
 		self::$passFiles[] = $thisPath;
 
-		foreach ($parentPath as $path) {
-			if (file_exists($dir . '/' . $path))
-				$path = $dir . '/' . $path;
+		foreach($parentPath as $path){
+			if(file_exists($dir . '/' . $path)) $path = $dir . '/' . $path;
 
-			else if (file_exists(__DIR__ . '/' . $path))
-				$path = __DIR__ . '/' . $path;
+			else if(file_exists(__DIR__ . '/' . $path)) $path = __DIR__ . '/' . $path;
 
-			if (file_exists($path)) {
+			if(file_exists($path)){
 				self::resetForParent();
 				self::conv($path);
 			}
@@ -166,49 +164,48 @@ class BHCss {
 	}
 
 	// 인클루드
-	public static function includeBHCss($path) {
+	public static function includeBHCss($path){
 		self::$passFiles[] = $path;
-		if (file_exists($path))
-			include $path;
+		if(file_exists($path)) include $path;
 	}
 
 	// 주석 및 줄바꿈 표시
-	public static function setNL($bool) {
+	public static function setNL($bool){
 		self::$enableNL = $bool;
 	}
 
 	// css 변수 초기화
-	private static function settingVariable() {
-		foreach (self::$variable as $k => $v) {
-			if (substr($v, -1) === ';')
-				$v = substr($v, 0, -1);
+	private static function settingVariable(){
+		foreach(self::$variable as $k => $v){
+			if(substr($v, -1) === ';') $v = substr($v, 0, -1);
 
-			if (substr($k, 0, 3) === '$--') {
+			if(substr($k, 0, 3) === '$--'){
 				self::$beforeVariables[$k] = $v;
-			} else if (substr($k, -2) === '--') {
+			}
+			else if(substr($k, -2) === '--'){
 				self::$afterVariables[$k] = $v;
-			} else {
+			}
+			else{
 				self::$paramVariable[$k] = $v;
 			}
 		}
 	}
 
 	// css 변수 길이순 정렬
-	private static function varSort($key1, $key2) {
+	private static function varSort($key1, $key2){
 		$s1 = strlen($key1);
 		$s2 = strlen($key2);
-		if ($s1 == $s2)
-			return 0;
+		if($s1 == $s2) return 0;
 
 		return $s1 > $s2 ? -1 : 1;
 	}
 
 	// css 변수들을 값으로 변환
-	private static function convertVariable() {
+	private static function convertVariable(){
 		$params = array();
 		$values = array();
 
-		foreach (self::$paramVariable as $k => $v) {
+		foreach(self::$paramVariable as $k => $v){
 			$params[] = '/\\' . $k . '/';
 			$values[] = $v;
 		}
@@ -217,83 +214,85 @@ class BHCss {
 	}
 
 	// 노드를 CSS로 변환
-	private static function node2css(&$node, $group = array()) {
+	private static function node2css(&$node, $group = array()){
 		$txt = '';
-		if (is_string($node->data)) {
+		if(is_string($node->data)){
 			$node->data = trim(preg_replace(array('/\r/', '/\n/is', '/\s+/is'), array('', ' ', ' '), $node->data));
 			// ---------------------------------------------------------------
 			// 변환
 
 			$after = array();
 			$before = array();
-			foreach (self::$afterVariables as $k => $v) {
-				if (strpos($node->data, $k) !== false) {
+			foreach(self::$afterVariables as $k => $v){
+				if(strpos($node->data, $k) !== false){
 					$after[] = $v;
 					$node->data = preg_replace('/' . str_replace(array('$', '-'), array('\$', '\-'), $k) . '\s*;*\s*/', '', $node->data);
 				}
 			}
 
-			foreach (self::$beforeVariables as $k => $v) {
-				if (strpos($node->data, $k) !== false) {
+			foreach(self::$beforeVariables as $k => $v){
+				if(strpos($node->data, $k) !== false){
 					$before[] = $v;
 					$node->data = preg_replace('/' . str_replace(array('$', '-'), array('\$', '\-'), $k) . '\s*;*\s*/', '', $node->data);
 				}
 			}
 
-			if (is_array($group) && sizeof($group)) {
+			if(is_array($group) && sizeof($group)){
 				$groups = '';
-				foreach ($group as $k => $v) {
+				foreach($group as $k => $v){
 					$v = trim($v);
-					if (!$k)
-						$groups = $v;
+					if(!$k) $groups = $v;
 					else
-						$groups .= ($v[0] == '~' ? trim(substr($v, 1)) : ($v[0] == ':' ? '' : ' ') . $v);
+							$groups .= ($v[0] == '~' ? trim(substr($v, 1)) : ($v[0] == ':' ? '' : ' ') . $v);
 				}
 
 				$s = explode(',', $node->selector);
-				foreach ($s as $k => &$v) {
+				foreach($s as $k => &$v){
 					$v = trim($v);
-					if (!strlen($v))
-						$v = $groups;
+					if(!strlen($v)) $v = $groups;
 					else
-						$v = $groups . ($v[0] == '~' ? trim(substr($v, 1)) : ($v[0] == ':' ? '' : ' ') . $v);
+							$v = $groups . ($v[0] == '~' ? trim(substr($v, 1)) : ($v[0] == ':' ? '' : ' ') . $v);
 				}
 				$txt .= implode(',', $s) . '{' . $node->data . '}';
-				if (sizeof($after)) {
+				if(sizeof($after)){
 					$temp = $s;
-					foreach ($temp as $k => $v) {
+					foreach($temp as $k => $v){
 						$temp[$k] = trim($v) . ':after';
 					}
 					$txt .= implode(',', $temp) . '{' . implode(';', $after) . '}';
 				}
-				if (sizeof($before)) {
+				if(sizeof($before)){
 					$temp = $s;
-					foreach ($temp as $k => $v) {
+					foreach($temp as $k => $v){
 						$temp[$k] = trim($v) . ':before';
 					}
 					$txt .= implode(',', $temp) . '{' . implode(';', $before) . '}';
 				}
-			} else if (strlen($node->selector)) {
+			}
+			else if(strlen($node->selector)){
 				$txt .= $node->selector . '{' . $node->data . '}';
-				if (sizeof($after)) {
+				if(sizeof($after)){
 					$txt .= $node->selector . ':after' . '{' . implode(';', $after) . '}';
 				}
-				if (sizeof($before)) {
+				if(sizeof($before)){
 					$txt .= $node->selector . ':after' . '{' . implode(';', $before) . '}';
 				}
-			} else {
+			}
+			else{
 				$txt .= $node->data;
 			}
-		} else if ($node->data !== false) {
+		}
+		else if($node->data !== false){
 			$group2 = $group;
 			$node->selector = trim($node->selector);
-			if ($node->selector[0] != '@') {
+			if($node->selector[0] != '@'){
 				$group2[] = $node->selector;
-				if ($node->parent === false) {
+				if($node->parent === false){
 					$txt .= self::NL . self::NL;
 				}
 				$txt .= self::node2css($node->data, $group2);
-			} else {
+			}
+			else{
 				$txt .= self::NL . self::NL . $node->selector . '{' . self::NL;
 				$data = trim(self::node2css($node->data, $group2));
 				$data = chr(9) . preg_replace('/\}\n*\s*/is', "}\n\t", $data);
@@ -301,14 +300,14 @@ class BHCss {
 				$txt .= self::NL . '}' . self::NL;
 			}
 		}
-		if ($node->next) {
+		if($node->next){
 			$txt .= self::node2css($node->next, $group);
 		}
 		return $txt;
 	}
 
 	// CSS를 노드로 변환
-	private static function cssToNode() {
+	private static function cssToNode(){
 		$at = array('@charset', '@import', '@namespace');
 
 		self::$node = new Node();
@@ -316,19 +315,20 @@ class BHCss {
 		$flen = strlen(self::$cssBody);
 		$p = &self::$node;
 
-		for ($i = 0; $i < $flen; $i++) {
-			foreach ($at as $item) {
-				if (substr(self::$cssBody, $i, strlen($item)) == $item) {
+		for($i = 0; $i < $flen; $i++){
+			foreach($at as $item){
+				if(substr(self::$cssBody, $i, strlen($item)) == $item){
 					$findEnd = strpos(self::$cssBody, ';', $i);
-					if ($findEnd !== false) {
-						if ($p->data !== false) {
+					if($findEnd !== false){
+						if($p->data !== false){
 							$p->setNext();
 							$p = &$p->next;
 						}
 						$p->data = substr(self::$cssBody, $i, $findEnd - $i + 1);
 						$i = $findEnd + 1;
-					} else {
-						if ($p->data !== false) {
+					}
+					else{
+						if($p->data !== false){
 							$p->setNext();
 							$p = &$p->next;
 						}
@@ -337,23 +337,23 @@ class BHCss {
 					}
 				}
 			}
-			if ($i >= $flen)
-				break;
+			if($i >= $flen) break;
 
-			if (self::$cssBody[$i] == '{') {
+			if(self::$cssBody[$i] == '{'){
 				$findBegin = strpos(self::$cssBody, '{', $i + 1);
 				$findEnd = strpos(self::$cssBody, '}', $i);
 
-				if ($findBegin > $findEnd || $findBegin === false) {
-					if ($p->data !== false) {
+				if($findBegin > $findEnd || $findBegin === false){
+					if($p->data !== false){
 						$p->setNext();
 						$p = &$p->next;
 					}
 					$p->selector = $txt;
 					$p->data = substr(self::$cssBody, $i + 1, $findEnd - $i - 1);
 					$i = $findEnd;
-				} else {
-					if ($p->data !== false) {
+				}
+				else{
+					if($p->data !== false){
 						$p->setNext();
 						$p = &$p->next;
 					}
@@ -362,18 +362,20 @@ class BHCss {
 					$p = &$p->data;
 				}
 				$txt = '';
-			} else if (self::$cssBody[$i] == '}') {
-				if ($p->parent !== false) {
+			}
+			else if(self::$cssBody[$i] == '}'){
+				if($p->parent !== false){
 					$p = &$p->parent;
 				}
-			} else {
+			}
+			else{
 				$txt .= self::$cssBody[$i];
 			}
 		}
 	}
 
 	// 브라우저별 셀렉터 변환
-	private static function crossCss() {
+	private static function crossCss(){
 		self::$cssBody = preg_replace(array(
 			'/(-\S+-transition)\s*[:]\s*(.*?);\s*/',
 			'/(-\S+-transform)\s*[:]\s*(.*?);\s*/',
@@ -387,8 +389,8 @@ class BHCss {
 
 		$patterns = array(
 			'/(border-radius)\s*[:]\s*(.*?);/',
-			'/([^-]transition)\s*[:]\s*(.*?);/',
-			'/([^-]transform)\s*[:]\s*(.*?);/',
+			'/([^-])(transition)\s*[:]\s*(.*?);/',
+			'/([^-])(transform)\s*[:]\s*(.*?);/',
 			'/(box-shadow)\s*[:]\s*(.*?);/',
 			'/(box-sizing)\s*[:]\s*(.*?);/',
 			'/(background-size)\s*[:]\s*(.*?);/',
@@ -404,8 +406,8 @@ class BHCss {
 
 		$replace = array(
 			'border-radius:$2; -webkit-border-radius:$2; -moz-border-radius:$2;',
-			'-moz-transition:$2; -webkit-transition:$2; -ms-transition:$2; -o-transition:$2; transition:$2;',
-			'-moz-transform:$2; -webkit-transform:$2; -ms-transform:$2; -o-transform:$2; transform:$2;',
+			'$1-moz-transition:$3; $1-webkit-transition:$3; $1-ms-transition:$3; $1-o-transition:$3; $1transition:$3;',
+			'$1-moz-transform:$3; $1-webkit-transform:$3; $1-ms-transform:$3; $1-o-transform:$3; $1transform:$3;',
 			'-webkit-box-shadow:$2; -moz-box-shadow:$2; box-shadow:$2;',
 			'-webkit-box-sizing:$2; -moz-box-sizing:$2; box-sizing:$2;',
 			'-webkit-background-size:$2; background-size:$2;',
@@ -423,7 +425,7 @@ class BHCss {
 	}
 
 	// 주석 추출
-	private static function extractComment() {
+	private static function extractComment(){
 		$pattern = '/(\/\*)(.*?)(\*\/)/is';
 		$matches = array();
 		preg_match_all($pattern, self::$cssBody, $matches);
@@ -435,15 +437,50 @@ class BHCss {
 		self::$cssBody = preg_replace('/(([^http:|https:|url\(|url\(\']|\n)\/\/|^\/\/)(.*)/', '', self::$cssBody);
 	}
 
-	private static function getTargetPath($path) {
+	public static function getTargetPath($path){
 		$temp = explode('/', $path);
 		$filename = array_pop($temp);
-		if (substr($filename, strlen(self::$fileExtension) * (-1)) == self::$fileExtension) {
+		if(substr($filename, strlen(self::$fileExtension) * (-1)) == self::$fileExtension){
 			return implode('/', $temp) . '/' . substr($filename, 0, strlen(self::$fileExtension) * (-1)) . '.css';
-		} else {
+		}
+		else{
 			$temp2 = explode('.', $filename);
 			array_pop($temp2);
 			return implode('/', $temp) . '/' . implode('.', $temp2) . '.css';
+		}
+	}
+
+	public static function convertBHCssDir($tempfile_path, $beginIs = true){
+		if($beginIs)
+				self::$convDirMessage = array('success' => array(), 'fail' => array());
+
+		if(!is_dir($tempfile_path)) return;
+
+		if($dh = opendir($tempfile_path)){
+			while(($file = readdir($dh)) !== false){
+				if($file != '.' && $file != '..'){
+					$dest_path = $tempfile_path . '/' . $file;
+					if(is_dir($dest_path)) convertBHCssDir($dest_path, false);
+					else{
+						if(substr($dest_path, strlen(BHCss::$fileExtension) * (-1)) == BHCss::$fileExtension){
+							if(!isset(self::$modifyFilesTime[$dest_path]))
+									self::$modifyFilesTime[$dest_path] = 0;
+
+							BHCss::reset();
+							$res = BHCss::convTimeCheck(self::$modifyFilesTime[$dest_path], $dest_path, $tempfile_path . '/' . substr($file, 0, strlen(BHCss::$fileExtension) * (-1)) . '.css');
+							if(!is_null($res)){
+								if($res->result){
+									self::$convDirMessage['success'][] = $dest_path;
+								}
+								else{
+									self::$convDirMessage['fail'][] = $dest_path;
+								}
+							}
+						}
+					}
+				}
+			}
+			closedir($dh);
 		}
 	}
 

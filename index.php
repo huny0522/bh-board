@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Bang Hun.
  * 16.07.10
  */
 session_start();
-$_BEGIN_MICROTIME = array_sum(explode(' ',microtime()));
+$_BEGIN_MICROTIME = array_sum(explode(' ', microtime()));
 
 header('Content-Type: text/html; charset=UTF-8');
 //error_reporting(E_ERROR | E_WARNING);
@@ -21,22 +22,22 @@ define('_DIR', str_replace('\\', '/', dirname(__FILE__)));
 define('_MODELDIR', _DIR . '/Model');
 define('_CONTROLLERDIR', _DIR . '/Controller');
 define('_COMMONDIR', _DIR . '/Common');
-define('_SKINDIR', _DIR.'/Skin');
-define('_DATADIR', _DIR.'/Data');
-define('_HTMLDIR', _DATADIR.'/_HTML');
+define('_SKINDIR', _DIR . '/Skin');
+define('_DATADIR', _DIR . '/Data');
+define('_HTMLDIR', _DATADIR . '/_HTML');
 define('_UPLOAD_DIRNAME', 'Upload');
-define('_UPLOAD_DIR', _DATADIR.'/'._UPLOAD_DIRNAME);
+define('_UPLOAD_DIR', _DATADIR . '/' . _UPLOAD_DIRNAME);
 
 define('_URL', '');
-define('_DATAURL', _URL.'/Data');
-define('_SKINURL', _URL.'/Skin');
-define('_HTMLURL', _DATAURL.'/_HTML');
+define('_DATAURL', _URL . '/Data');
+define('_SKINURL', _URL . '/Skin');
+define('_HTMLURL', _DATAURL . '/_HTML');
 define('_ADMINURLNAME', 'BHAdm');
-define('_ADMINURL', _URL.'/'._ADMINURLNAME);
-define('_IMGURL', _SKINURL.'/images');
-define('_UPLOAD_URL', _DATAURL.'/'._UPLOAD_DIRNAME);
+define('_ADMINURL', _URL . '/' . _ADMINURLNAME);
+define('_IMGURL', _SKINURL . '/images');
+define('_UPLOAD_URL', _DATAURL . '/' . _UPLOAD_DIRNAME);
 
-define('_DOMAIN', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http').'://'.$_SERVER['HTTP_HOST']);
+define('_DOMAIN', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']);
 
 // -------------------------------------
 //
@@ -47,13 +48,13 @@ $_DEVELOPER_IP = array('127.0.0.1');
 define('_DEVELOPERIS', true && in_array($_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP));
 define('_CREATE_HTML_ALL', false && _DEVELOPERIS === true);
 define('_REFRESH_HTML_ALL', true && _DEVELOPERIS === true);
-define('_REFRESH_BTN', _DEVELOPERIS === true ? '<a id="_BH_RefreshBtn" href="'._URL.'/_Refresh?r_url='.urlencode($_SERVER['REQUEST_URI']).'">새로고침</a>' : '');
+define('_REFRESH_BTN', _DEVELOPERIS === true ? '<a id="_BH_RefreshBtn" href="' . _URL . '/_Refresh?r_url=' . urlencode($_SERVER['REQUEST_URI']) . '">새로고침</a>' : '');
 define('_REMOVE_SPACE', false);
 define('_VIEW_MICROTIME', true);
 define('_USE_OLD_PASSWORD', false);
 define('_SHOW_CREATE_GUIDE', true);
 
-define('_STYLEFILE', '_bhinline.css2');
+define('_STYLEFILE', '_bhinline.bhcss.php');
 
 define('_MAX_IMAGE_COUNT', 10);
 define('_MAX_IMAGE_WIDTH', '1024');
@@ -81,7 +82,7 @@ define('_MSG_COMPLETE_DELETE', '삭제되었습니다.');
 define('_MSG_WRONG_PASSWORD', '비밀번호가 일치하지 않습니다.');
 
 define('_MSG_IMPOSSIBLE_FILE', '등록 불가능한 파일입니다.');
-define('_MSG_FILE_TOO_BIG', '업로드한 파일이 제한용량보다 큽니다.('.ini_get('upload_max_filesize').')');
+define('_MSG_FILE_TOO_BIG', '업로드한 파일이 제한용량보다 큽니다.(' . ini_get('upload_max_filesize') . ')');
 define('_MSG_UPLOAD_ERROR', '파일 등록 오류');
 
 // -------------------------------------
@@ -90,20 +91,20 @@ define('_MSG_UPLOAD_ERROR', '파일 등록 오류');
 //
 // -------------------------------------
 define('TABLE_FIRST', 'bh_');
-define('TABLE_BOARD_MNG', TABLE_FIRST.'board_manager');
-define('TABLE_MEMBER', TABLE_FIRST.'member');
-define('TABLE_WITHDRAW_MEMBER', TABLE_FIRST.'w_member');
-define('TABLE_MENU', TABLE_FIRST.'menu');
-define('TABLE_CONTENT', TABLE_FIRST.'content');
-define('TABLE_BANNER', TABLE_FIRST.'banner');
-define('TABLE_POPUP', TABLE_FIRST.'popup');
-define('TABLE_IMAGES', TABLE_FIRST.'images');
+define('TABLE_BOARD_MNG', TABLE_FIRST . 'board_manager');
+define('TABLE_MEMBER', TABLE_FIRST . 'member');
+define('TABLE_WITHDRAW_MEMBER', TABLE_FIRST . 'w_member');
+define('TABLE_MENU', TABLE_FIRST . 'menu');
+define('TABLE_CONTENT', TABLE_FIRST . 'content');
+define('TABLE_BANNER', TABLE_FIRST . 'banner');
+define('TABLE_POPUP', TABLE_FIRST . 'popup');
+define('TABLE_IMAGES', TABLE_FIRST . 'images');
 
 define('_MEMBERIS', isset($_SESSION['member']) && strlen($_SESSION['member']['muid']));
-define('_MEMBER_LEVEL',1);
-define('_MANAGER_LEVEL',15);
-define('_ADMIN_LEVEL',18);
-define('_SADMIN_LEVEL',20);
+define('_MEMBER_LEVEL', 1);
+define('_MANAGER_LEVEL', 15);
+define('_ADMIN_LEVEL', 18);
+define('_SADMIN_LEVEL', 20);
 
 // -------------------------------------
 //
@@ -113,10 +114,10 @@ define('_SADMIN_LEVEL',20);
 define('_DEFAULT_CONTROLLER', 'Home');
 define('_DEFAULT_LAYOUT', '_Default');
 
-require _COMMONDIR.'/common.php';
+require _COMMONDIR . '/common.php';
 BH_Application::run();
 
 if(_VIEW_MICROTIME === true && _AJAXIS !== true){
-	$_END_MICROTIME = array_sum(explode(' ',microtime()));
-	echo chr(10).'<!-- RUNTIME : '.sprintf('%02.6f', $_END_MICROTIME - $_BEGIN_MICROTIME).' -->';
+	$_END_MICROTIME = array_sum(explode(' ', microtime()));
+	echo chr(10) . '<!-- RUNTIME : ' . sprintf('%02.6f', $_END_MICROTIME - $_BEGIN_MICROTIME) . ' -->';
 }

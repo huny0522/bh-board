@@ -1,11 +1,12 @@
 <?php
+
 /**
  * Bang Hun.
  * 16.07.10
  */
 class BH_Application{
-	public static $ControllerInstance = null;
 
+	public static $ControllerInstance = null;
 	public static $ControllerName = '';
 	public static $Action = '';
 	public static $ID = '';
@@ -13,32 +14,26 @@ class BH_Application{
 	public static $BaseDir = '';
 	public static $TID = '';
 	public static $CtrlUrl = '';
-
 	public static $InstallIs = true;
 	public static $CFG = array();
-
 	public static $Layout = null;
 	public static $Html;
 	public static $Title;
-
 	public static $CSS = array();
 	public static $JS = array();
 	public static $FollowQuery = array();
-
 	public static $SettingData = array();
 	public static $Data = array();
-
 	public static $BodyHtml = '';
-
 	public static $ExtendMethod = array();
 
 	private function __construct(){
+
 	}
 
-
-	public static function AutoLoad($class) {
-		if(substr($class, -5) === 'Model') $file = _MODELDIR.'/'.$class.'.php';
-		else $file = _DIR.'/'.str_replace('\\', '/', $class).'.php';
+	public static function AutoLoad($class){
+		if(substr($class, -5) === 'Model') $file = _MODELDIR . '/' . $class . '.php';
+		else $file = _DIR . '/' . str_replace('\\', '/', $class) . '.php';
 		require $file;
 	}
 
@@ -46,10 +41,11 @@ class BH_Application{
 		self::$SettingData['URLFirst'] = '';
 		spl_autoload_register(array('BH_Application', 'AutoLoad'));
 
-		$composerFile = _DIR.'/vendor/autoload.php';
+		$composerFile = _DIR . '/vendor/autoload.php';
 		if(file_exists($composerFile)) require $composerFile;
 
-		if(_DEVELOPERIS === true) self::$InstallIs = \DB::SQL()->TableExists(TABLE_MEMBER);
+		if(_DEVELOPERIS === true)
+				self::$InstallIs = \DB::SQL()->TableExists(TABLE_MEMBER);
 
 		self::$SettingData['MainMenu'] = array();
 		self::$SettingData['SubMenu'] = array();
@@ -58,7 +54,9 @@ class BH_Application{
 		//    라우팅 초기화
 		//
 		self::$SettingData['GetUrl'] = explode('/', isset($_GET['_bh_url']) ? $_GET['_bh_url'] : '');
-		for($i = 0; $i < 10; $i++) if(!isset(self::$SettingData['GetUrl'][$i])) self::$SettingData['GetUrl'][$i] = '';
+		for($i = 0; $i < 10; $i++)
+				if(!isset(self::$SettingData['GetUrl'][$i]))
+					self::$SettingData['GetUrl'][$i] = '';
 
 		if(self::$SettingData['GetUrl'][1] == 'MyIp'){
 			echo $_SERVER['REMOTE_ADDR'];
@@ -67,7 +65,8 @@ class BH_Application{
 
 		if(self::$SettingData['GetUrl'][1] == '~Create'){
 			if(_DEVELOPERIS === true && _POSTIS === true){
-				if(!isset($_POST['const']) || $_POST['const'] != 'y') $_POST['table_name'] = "'{$_POST['table_name']}'";
+				if(!isset($_POST['const']) || $_POST['const'] != 'y')
+						$_POST['table_name'] = "'{$_POST['table_name']}'";
 				BH_HtmlCreate::CreateController($_POST['controller_name'], $_POST['model_name'], $_POST['table_name']);
 			}
 			exit;
@@ -76,14 +75,14 @@ class BH_Application{
 		if(self::$SettingData['GetUrl'][1] == '_Refresh'){
 			if(_DEVELOPERIS === true){
 				$s = \BH_Common::Config('Refresh', 'Refresh');
-				$res = \BH_Common::SetConfig('Refresh', 'Refresh', $s+1);
+				$res = \BH_Common::SetConfig('Refresh', 'Refresh', $s + 1);
 
 				if($res->result){
 					if(_REFRESH_HTML_ALL === true){
 						delTree(_HTMLDIR);
 						ReplaceHTMLAll(_SKINDIR, _HTMLDIR);
-						ReplaceCSS2ALL(_HTMLDIR, _HTMLDIR);
-						ReplaceCSS2ALL(_SKINDIR, _HTMLDIR);
+						ReplaceBHCSSALL(_HTMLDIR, _HTMLDIR);
+						ReplaceBHCSSALL(_SKINDIR, _HTMLDIR);
 					}
 
 					if(isset(self::$ExtendMethod['refreshExtend'])){
@@ -97,7 +96,8 @@ class BH_Application{
 			exit;
 		}
 
-		if(!isset(self::$SettingData['GetUrl'][1]) || !strlen(self::$SettingData['GetUrl'][1])) self::$SettingData['GetUrl'][1] = _DEFAULT_CONTROLLER;
+		if(!isset(self::$SettingData['GetUrl'][1]) || !strlen(self::$SettingData['GetUrl'][1]))
+				self::$SettingData['GetUrl'][1] = _DEFAULT_CONTROLLER;
 
 
 		self::$BaseDir = _URL;
@@ -108,11 +108,11 @@ class BH_Application{
 				self::$ControllerName = self::$SettingData['GetUrl'][1];
 				self::$Action = self::$SettingData['GetUrl'][2];
 				self::$ID = self::$SettingData['GetUrl'][3];
-				self::$CtrlUrl = _URL.'/'.self::$ControllerName;
+				self::$CtrlUrl = _URL . '/' . self::$ControllerName;
 			}
 			else exit;
 		}
-		else require _COMMONDIR.'/BH_Router.php';
+		else require _COMMONDIR . '/BH_Router.php';
 
 		//
 		//    라우팅 초기화
@@ -122,38 +122,42 @@ class BH_Application{
 
 		if(!self::$ControllerName) self::$ControllerName = _DEFAULT_CONTROLLER;
 		if(!strlen(self::$Action)) self::$Action = 'Index';
-		else if(strtolower(substr(self::$Action, 0, 4)) == 'post') self::$Action = preg_replace('/^(Post)+(.*)/i', '$2', self::$Action);
+		else if(strtolower(substr(self::$Action, 0, 4)) == 'post')
+				self::$Action = preg_replace('/^(Post)+(.*)/i', '$2', self::$Action);
 
-		if(substr(self::$Action, 0, 1) == '_') self::$Action = preg_replace('/_+(.*+)/', '$1', self::$Action);
+		if(substr(self::$Action, 0, 1) == '_')
+				self::$Action = preg_replace('/_+(.*+)/', '$1', self::$Action);
 
 		if(substr(self::$Action, 0, 1) == '~'){
 			self::$ID = substr(self::$Action, 1);
 			self::$Action = '_DirectView';
 		}
 
-		$path = _DIR.'/Controller/'.(self::$NativeDir ? self::$NativeDir.'/' : '').self::$ControllerName.'.php';
+		$path = _DIR . '/Controller/' . (self::$NativeDir ? self::$NativeDir . '/' : '') . self::$ControllerName . '.php';
 
 		if(file_exists($path)){
 			require $path;
-			$controller = '\\Controller\\'.(self::$NativeDir ? self::$NativeDir.'\\' : '').self::$ControllerName;
-			if (!class_exists($controller)){
-				if(_DEVELOPERIS === true) echo '클래스('.$controller.')가 존재하지 않습니다.';
+			$controller = '\\Controller\\' . (self::$NativeDir ? self::$NativeDir . '\\' : '') . self::$ControllerName;
+			if(!class_exists($controller)){
+				if(_DEVELOPERIS === true) echo '클래스(' . $controller . ')가 존재하지 않습니다.';
 				exit;
 			}
 
-			$action = _POSTIS === true ? 'Post'.self::$Action : self::$Action;
+			$action = _POSTIS === true ? 'Post' . self::$Action : self::$Action;
 
 			if(method_exists($controller, $action) && is_callable(array($controller, $action))){
 				self::$ControllerInstance = new $controller();
-				if(method_exists(self::$ControllerInstance, '__Init')) self::$ControllerInstance->__Init();
+				if(method_exists(self::$ControllerInstance, '__Init'))
+						self::$ControllerInstance->__Init();
 				self::$ControllerInstance->{$action}();
 			}else{
 				if(_DEVELOPERIS === true) echo '메소드가 존재하지 않습니다.(#2)';
-				else URLReplace(_URL.'/');
+				else URLReplace(_URL . '/');
 			}
 		}else{
-			if(_DEVELOPERIS === true && _SHOW_CREATE_GUIDE === true) require _COMMONDIR.'/Create.html';
-			else URLReplace(_URL.'/');
+			if(_DEVELOPERIS === true && _SHOW_CREATE_GUIDE === true)
+					require _COMMONDIR . '/Create.html';
+			else URLReplace(_URL . '/');
 		}
 	}
 
@@ -163,7 +167,9 @@ class BH_Application{
 	 */
 	public static function SetFollowQuery($ar){
 		if(!is_array($ar)) $ar = func_get_args();
-		foreach($ar as $v) if(isset($_GET[$v]) && !empty($_GET[$v])) self::$FollowQuery[$v] = $_GET[$v];
+		foreach($ar as $v)
+				if(isset($_GET[$v]) && !empty($_GET[$v]))
+					self::$FollowQuery[$v] = $_GET[$v];
 	}
 
 	/**
@@ -183,8 +189,10 @@ class BH_Application{
 
 		$queryparam = '';
 		foreach($fq as $k => $v){
-			if(is_array($v)) foreach($v as $v2) $queryparam .= ($queryparam ? '&' : $begin ).$k.'[]='.$v2;
-			else $queryparam .= ($queryparam ? '&' : $begin ).$k.'='.$v;
+			if(is_array($v))
+					foreach($v as $v2)
+						$queryparam .= ($queryparam ? '&' : $begin ) . $k . '[]=' . $v2;
+			else $queryparam .= ($queryparam ? '&' : $begin ) . $k . '=' . $v;
 		}
 		return $queryparam;
 	}
@@ -203,7 +211,8 @@ class BH_Application{
 		}
 
 		$queryparam = '';
-		foreach($fq as $k => $v) $queryparam .= '<input type="hidden" name="'.GetDBText($k).'" value="'.GetDBText($v).'">';
+		foreach($fq as $k => $v)
+				$queryparam .= '<input type="hidden" name="' . GetDBText($k) . '" value="' . GetDBText($v) . '">';
 		return $queryparam;
 	}
 
@@ -215,30 +224,31 @@ class BH_Application{
 	 * @param $DisableLayout bool
 	 * @return string
 	 */
-
 	private static function SetViewHtml(&$Ctrl, &$Model, &$Data, $DisableLayout = false){
 		$viewAction = isset($Ctrl->Html) && strlen($Ctrl->Html) ? $Ctrl->Html : (self::$Html ? self::$Html : self::$Action);
 		if(!$viewAction) $viewAction = 'Index';
 
 		$html = substr($viewAction, 0, 1) == '/' ? $viewAction :
-			(self::$NativeDir ? '/'.self::$NativeDir : '').'/'.self::$ControllerName.'/'.$viewAction;
+				(self::$NativeDir ? '/' . self::$NativeDir : '') . '/' . self::$ControllerName . '/' . $viewAction;
 		if(substr($html, -5) != '.html') $html .= '.html';
 
-		if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR.$html, _HTMLDIR.$html);
+		if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true)
+				ReplaceHTMLFile(_SKINDIR . $html, _HTMLDIR . $html);
 
 		ob_start();
-		if(file_exists(_HTMLDIR.$html)) require _HTMLDIR . $html;
+		if(file_exists(_HTMLDIR . $html)) require _HTMLDIR . $html;
 		else{
 			if(_DEVELOPERIS !== true) echo 'ERROR : NOT EXISTS TEMPLATE';
-			else echo 'ERROR : NOT EXISTS TEMPLATE : '._HTMLDIR.$html;
+			else echo 'ERROR : NOT EXISTS TEMPLATE : ' . _HTMLDIR . $html;
 		}
 		self::$BodyHtml = ob_get_clean();
 
 		if(!$DisableLayout && !is_null(self::$Layout)){
-			$layout = '/Layout/'.self::$Layout;
+			$layout = '/Layout/' . self::$Layout;
 			if(substr($layout, -5) != '.html') $layout .= '.html';
-			if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR.$layout, _HTMLDIR.$layout);
-			if($layout && file_exists(_HTMLDIR.$layout)) require _HTMLDIR.$layout;
+			if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true)
+					ReplaceHTMLFile(_SKINDIR . $layout, _HTMLDIR . $layout);
+			if($layout && file_exists(_HTMLDIR . $layout)) require _HTMLDIR . $layout;
 		}
 
 		if(isset(self::$ExtendMethod['AfterSetView'])){
@@ -285,8 +295,10 @@ class BH_Application{
 			ksort(self::$JS);
 			foreach(self::$JS as $v){
 				foreach($v as $row){
-					if(substr($row, 0, 4) == 'http' || substr($row, 0, 1) == '/') $html .= chr(9) . '<script src="' . $row . '" charset="utf8"></script>' . chr(10);
-					else $html .= chr(9) . '<script src="' . _SKINURL . '/js/' . $row . '" charset="utf8"></script>' . chr(10);
+					if(substr($row, 0, 4) == 'http' || substr($row, 0, 1) == '/')
+							$html .= chr(9) . '<script src="' . $row . '" charset="utf8"></script>' . chr(10);
+					else
+							$html .= chr(9) . '<script src="' . _SKINURL . '/js/' . $row . '" charset="utf8"></script>' . chr(10);
 				}
 			}
 		}
@@ -303,8 +315,10 @@ class BH_Application{
 			ksort(self::$CSS);
 			foreach(self::$CSS as $v){
 				foreach($v as $row){
-					if(substr($row, 0, 4) == 'http' || substr($row, 0, 1) == '/') $html .= chr(9) . '<link rel="stylesheet" href="' . $row . '">' . chr(10);
-					else $html .= chr(9) . '<link rel="stylesheet" href="' . _SKINURL . '/css/' . $row . '">' . chr(10);
+					if(substr($row, 0, 4) == 'http' || substr($row, 0, 1) == '/')
+							$html .= chr(9) . '<link rel="stylesheet" href="' . $row . '">' . chr(10);
+					else
+							$html .= chr(9) . '<link rel="stylesheet" href="' . _SKINURL . '/css/' . $row . '">' . chr(10);
 				}
 			}
 		}
@@ -314,9 +328,10 @@ class BH_Application{
 	public static function CSSAdd($css, $idx = 100){
 		if(strpos($css, '?') !== false){
 			$ex1 = explode('?', $css);
-			$queryParam = '?'.array_pop($ex1);
+			$queryParam = '?' . array_pop($ex1);
 			$css = $ex1[0];
-		}else $queryParam = '';
+		}
+		else $queryParam = '';
 
 		$ex = explode('.', $css);
 		$ext = array_pop($ex);
@@ -324,26 +339,30 @@ class BH_Application{
 			self::$CSS[$idx][] = $css;
 			return;
 		}
-		$convCss = implode('.', $ex).'.css';
-		$target = _HTMLURL.'/css'.($convCss[0] == '/' ? $convCss : '/'.$convCss);
+
+		$convCss = (substr($css, strlen(BH\BHCss\BHCss::$fileExtension) * (-1)) === BH\BHCss\BHCss::$fileExtension) ?
+				substr($css, 0, strlen(BH\BHCss\BHCss::$fileExtension) * (-1)) . '.css' : implode('.', $ex) . '.css';
+		$target = _HTMLURL . '/css' . ($convCss[0] == '/' ? $convCss : '/' . $convCss);
 
 		if(_DEVELOPERIS === true){
-			$css2 = '/css'.($css[0] == '/' ? $css : '/'.$css);
+			$css2 = '/css' . ($css[0] == '/' ? $css : '/' . $css);
 			$dir = _SKINDIR;
-			if(file_exists(_HTMLDIR.$css2)) $dir = _HTMLDIR;
-			else if(!file_exists(_SKINDIR.$css2)) $dir = false;
+			if(file_exists(_HTMLDIR . $css2)) $dir = _HTMLDIR;
+			else if(!file_exists(_SKINDIR . $css2)) $dir = false;
 
-			if($dir !== false) BH_CSS($dir.$css2, _DIR.$target);
+			if($dir !== false){
+				$res = BH\BHCss\BHCss::conv($dir . $css2, _DIR . $target);
+			}
 		}
-		self::$CSS[$idx][] = $target.$queryParam;
+		self::$CSS[$idx][] = $target . $queryParam;
 	}
 
 	public static function URLAction($Action = ''){
-		return self::$SettingData['URLFirst'].self::$CtrlUrl.'/'.$Action;
+		return self::$SettingData['URLFirst'] . self::$CtrlUrl . '/' . $Action;
 	}
 
 	public static function URLBase($Controller = ''){
-		return self::$SettingData['URLFirst'].self::$BaseDir.'/'.$Controller;
+		return self::$SettingData['URLFirst'] . self::$BaseDir . '/' . $Controller;
 	}
 
 	/**
@@ -352,14 +371,15 @@ class BH_Application{
 	 * @return mixed
 	 */
 	public static function &InitModel($ModelName){
-		$model = $ModelName.'Model';
+		$model = $ModelName . 'Model';
 		if(class_exists($model)){
 			$newModel = new $model();
 			return $newModel;
 		}
 
-		if(_DEVELOPERIS === true) echo $ModelName.'-Model is not exists';
+		if(_DEVELOPERIS === true) echo $ModelName . '-Model is not exists';
 		else echo 'ERROR';
 		exit;
 	}
+
 }
