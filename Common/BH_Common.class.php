@@ -89,7 +89,7 @@ class BH_Common
 
 		App::$CFG[$code][$key] = $val;
 		$path = _DATADIR.'/CFG/'.$code.'.php';
-		$txt = '<?php \BH_Application::$CFG = '.var_export(App::$CFG, true).';';
+		$txt = '<?php \BH_Application::$CFG[\''.$code.'\'] = '.var_export(App::$CFG[$code], true).';';
 		file_put_contents($path, $txt);
 		$res->result = true;
 		return $res;

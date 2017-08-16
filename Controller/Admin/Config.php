@@ -35,7 +35,7 @@ class Config{
 		}
 
 		$path = _DATADIR.'/CFG/'.$_POST['Code'].'.php';
-		$txt = '<?php \BH_Application::$CFG = '.var_export(App::$CFG, true).';';
+		$txt = '<?php \BH_Application::$CFG[\''.$_POST['Code'].'\'] = '.var_export(App::$CFG[$_POST['Code']], true).';';
 		file_put_contents($path, $txt);
 		URLReplace(App::URLAction(), '설정되었습니다.');
 	}

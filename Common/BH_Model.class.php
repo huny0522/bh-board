@@ -274,7 +274,7 @@ class _ModelFunc{
 	public static function SetValue(&$model, $key, $v){
 		if(!isset($model->data[$key])) return $key.' 키값이 정의되어 있지 않습니다.';
 
-		if(isset($v) && strlen($v)){
+		if(isset($v)){
 			$model->data[$key]->Value = trim($v);
 			$model->Need[] = $key;
 		}

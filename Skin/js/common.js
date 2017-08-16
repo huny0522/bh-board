@@ -564,6 +564,11 @@ function MessageModal($){
 
 function EventLink($){
 	var _this = this;
+	
+	this.mouseDownEnable = true;
+	this.mouseMoveEnable = true;
+	this.mouseUpEnable = true;
+	
 	this.touch = function(selector, func){
 		$(document).on('touchstart mousedown', selector, function(e){
 			_this.TouchStartElement.call(this, e);
@@ -585,6 +590,11 @@ function EventLink($){
 	this.TouchStartElement = function(e){
 		e.stopPropagation();
 		var body = $('body');
+
+		if (this.mouseDownEnable && e.type === 'touchstart'){
+			this.mouseDownEnable = false;
+			$(document).off('mousedown', 'body');
+		}
 
 		if(typeof(body.data) === 'undefined' || typeof(body.data('touchObject')) === 'undefined' || body.data('touchObject') === null){
 			body.data('touchObject', [this]);
@@ -636,6 +646,12 @@ function EventLink($){
 
 		$(document).on('touchmove mousemove', 'body', function(e){
 			var body = $(this);
+			
+			if (_this.mouseMoveEnable && e.type === 'touchmove') {
+				_this.mouseMoveEnable = false;
+				$(document).off('mousemove', 'body');
+			}
+			
 			if(typeof(body.data) === 'undefined' || typeof(body.data('touchObject')) === 'undefined' || body.data('touchObject') === null) return;
 			var touchObject = body.data('touchObject');
 			if(typeof($(touchObject).data) === 'undefined' || typeof($(touchObject).data('touchStart')) === 'undefined' || $(touchObject).data('touchStart') === null) return;
@@ -652,6 +668,12 @@ function EventLink($){
 
 		$(document).on('touchend mouseup', 'body', function(e){
 			var body = $(this);
+			
+			if (_this.mouseUpEnable && e.type === 'touchend') {
+				_this.mouseUpEnable = false;
+				$(document).off('mouseup', 'body');
+			}
+			
 			if(typeof(body.data) === 'undefined' || typeof(body.data('touchObject')) === 'undefined' || body.data('touchObject') === null) return;
 			var touchObject = body.data('touchObject');
 			if(!$(touchObject).length || typeof($(touchObject).data) === 'undefined' || typeof($(touchObject).data('touchStart')) === 'undefined' || $(touchObject).data('touchStart') === null) return;

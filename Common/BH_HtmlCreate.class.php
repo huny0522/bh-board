@@ -13,7 +13,7 @@ class BH_HtmlCreate
 		$path = _CONTROLLERDIR.(strlen($_POST['sub_dir']) ? '/'.$_POST['sub_dir'] : '').'/'.$ControllerName.'.php';
 		$ndir = strlen($_POST['sub_dir']) ? '\\'.$_POST['sub_dir'] : '';
 		$text = "<?php
-namespace Controller{$ndir}
+namespace Controller{$ndir};
 
 use \\BH_Application as App;
 use \\BH_Common as CM;
