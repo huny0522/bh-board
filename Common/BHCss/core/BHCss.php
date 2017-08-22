@@ -395,7 +395,7 @@ class BHCss{
 			'/(box-sizing)\s*[:]\s*(.*?);/',
 			'/(background-size)\s*[:]\s*(.*?);/',
 			'/(text-overflow)\s*[:]\s*(.*?);/',
-			'/(\S+?)\s*[:]\s*(linear\-|radial\-)gradient\s*\((.*?)\)\s*;/',
+			'/([a-zA-Z]+?)\s*[:]\s*(linear\-|radial\-)gradient\s*\((.*?)\)\s*;/',
 			'/(\r\n){3,}/is',
 			'/\{\r\n+/',
 			'/\}\s*\}/is',
