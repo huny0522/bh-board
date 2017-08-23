@@ -4,13 +4,15 @@
  * Bang Hun.
  * 16.07.10
  */
-class BH_Application{
+class BH_Application
+{
 
 	public static $ControllerInstance = null;
 	public static $ControllerName = '';
 	public static $Action = '';
 	public static $ID = '';
 	public static $NativeDir = '';
+	public static $NativeSkinDir = '';
 	public static $BaseDir = '';
 	public static $TID = '';
 	public static $CtrlUrl = '';
@@ -44,8 +46,7 @@ class BH_Application{
 		$composerFile = _DIR . '/vendor/autoload.php';
 		if(file_exists($composerFile)) require $composerFile;
 
-		if(_DEVELOPERIS === true)
-				self::$InstallIs = \DB::SQL()->TableExists(TABLE_MEMBER);
+		if(_DEVELOPERIS === true) self::$InstallIs = \DB::SQL()->TableExists(TABLE_MEMBER);
 
 		self::$SettingData['MainMenu'] = array();
 		self::$SettingData['SubMenu'] = array();
@@ -54,9 +55,7 @@ class BH_Application{
 		//    라우팅 초기화
 		//
 		self::$SettingData['GetUrl'] = explode('/', isset($_GET['_bh_url']) ? $_GET['_bh_url'] : '');
-		for($i = 0; $i < 10; $i++)
-				if(!isset(self::$SettingData['GetUrl'][$i]))
-					self::$SettingData['GetUrl'][$i] = '';
+		for($i = 0; $i < 10; $i++) if(!isset(self::$SettingData['GetUrl'][$i])) self::$SettingData['GetUrl'][$i] = '';
 
 		if(self::$SettingData['GetUrl'][1] == 'MyIp'){
 			echo $_SERVER['REMOTE_ADDR'];
@@ -65,8 +64,7 @@ class BH_Application{
 
 		if(self::$SettingData['GetUrl'][1] == '~Create'){
 			if(_DEVELOPERIS === true && _POSTIS === true){
-				if(!isset($_POST['const']) || $_POST['const'] != 'y')
-						$_POST['table_name'] = "'{$_POST['table_name']}'";
+				if(!isset($_POST['const']) || $_POST['const'] != 'y') $_POST['table_name'] = "'{$_POST['table_name']}'";
 				BH_HtmlCreate::CreateController($_POST['controller_name'], $_POST['model_name'], $_POST['table_name']);
 			}
 			exit;
@@ -96,8 +94,7 @@ class BH_Application{
 			exit;
 		}
 
-		if(!isset(self::$SettingData['GetUrl'][1]) || !strlen(self::$SettingData['GetUrl'][1]))
-				self::$SettingData['GetUrl'][1] = _DEFAULT_CONTROLLER;
+		if(!isset(self::$SettingData['GetUrl'][1]) || !strlen(self::$SettingData['GetUrl'][1])) self::$SettingData['GetUrl'][1] = _DEFAULT_CONTROLLER;
 
 
 		self::$BaseDir = _URL;
@@ -120,13 +117,16 @@ class BH_Application{
 		// ----------------------
 
 
+		if(isset(self::$ExtendMethod['BeforeLoadController'])){
+			$beforeLoadController = self::$ExtendMethod['BeforeLoadController'];
+			$beforeLoadController();
+		}
+
 		if(!self::$ControllerName) self::$ControllerName = _DEFAULT_CONTROLLER;
 		if(!strlen(self::$Action)) self::$Action = 'Index';
-		else if(strtolower(substr(self::$Action, 0, 4)) == 'post')
-				self::$Action = preg_replace('/^(Post)+(.*)/i', '$2', self::$Action);
+		else if(strtolower(substr(self::$Action, 0, 4)) == 'post') self::$Action = preg_replace('/^(Post)+(.*)/i', '$2', self::$Action);
 
-		if(substr(self::$Action, 0, 1) == '_')
-				self::$Action = preg_replace('/_+(.*+)/', '$1', self::$Action);
+		if(substr(self::$Action, 0, 1) == '_') self::$Action = preg_replace('/_+(.*+)/', '$1', self::$Action);
 
 		if(substr(self::$Action, 0, 1) == '~'){
 			self::$ID = substr(self::$Action, 1);
@@ -137,7 +137,7 @@ class BH_Application{
 
 		if(file_exists($path)){
 			require $path;
-			$controller = '\\Controller\\' . (self::$NativeDir ? self::$NativeDir . '\\' : '') . self::$ControllerName;
+			$controller = '\\Controller\\' . (self::$NativeDir ? str_replace('/', '\\', self::$NativeDir) . '\\' : '') . self::$ControllerName;
 			if(!class_exists($controller)){
 				if(_DEVELOPERIS === true) echo '클래스(' . $controller . ')가 존재하지 않습니다.';
 				exit;
@@ -147,16 +147,16 @@ class BH_Application{
 
 			if(method_exists($controller, $action) && is_callable(array($controller, $action))){
 				self::$ControllerInstance = new $controller();
-				if(method_exists(self::$ControllerInstance, '__Init'))
-						self::$ControllerInstance->__Init();
+				if(method_exists(self::$ControllerInstance, '__Init')) self::$ControllerInstance->__Init();
 				self::$ControllerInstance->{$action}();
-			}else{
+			}
+			else{
 				if(_DEVELOPERIS === true) echo '메소드가 존재하지 않습니다.(#2)';
 				else URLReplace(_URL . '/');
 			}
-		}else{
-			if(_DEVELOPERIS === true && _SHOW_CREATE_GUIDE === true)
-					require _COMMONDIR . '/Create.html';
+		}
+		else{
+			if(_DEVELOPERIS === true && _SHOW_CREATE_GUIDE === true) require _COMMONDIR . '/Create.html';
 			else URLReplace(_URL . '/');
 		}
 	}
@@ -167,9 +167,7 @@ class BH_Application{
 	 */
 	public static function SetFollowQuery($ar){
 		if(!is_array($ar)) $ar = func_get_args();
-		foreach($ar as $v)
-				if(isset($_GET[$v]) && !empty($_GET[$v]))
-					self::$FollowQuery[$v] = $_GET[$v];
+		foreach($ar as $v) if(isset($_GET[$v]) && !empty($_GET[$v])) self::$FollowQuery[$v] = $_GET[$v];
 	}
 
 	/**
@@ -189,10 +187,8 @@ class BH_Application{
 
 		$queryparam = '';
 		foreach($fq as $k => $v){
-			if(is_array($v))
-					foreach($v as $v2)
-						$queryparam .= ($queryparam ? '&' : $begin ) . $k . '[]=' . $v2;
-			else $queryparam .= ($queryparam ? '&' : $begin ) . $k . '=' . $v;
+			if(is_array($v)) foreach($v as $v2) $queryparam .= ($queryparam ? '&' : $begin) . $k . '[]=' . $v2;
+			else $queryparam .= ($queryparam ? '&' : $begin) . $k . '=' . $v;
 		}
 		return $queryparam;
 	}
@@ -211,8 +207,7 @@ class BH_Application{
 		}
 
 		$queryparam = '';
-		foreach($fq as $k => $v)
-				$queryparam .= '<input type="hidden" name="' . GetDBText($k) . '" value="' . GetDBText($v) . '">';
+		foreach($fq as $k => $v) $queryparam .= '<input type="hidden" name="' . GetDBText($k) . '" value="' . GetDBText($v) . '">';
 		return $queryparam;
 	}
 
@@ -228,12 +223,11 @@ class BH_Application{
 		$viewAction = isset($Ctrl->Html) && strlen($Ctrl->Html) ? $Ctrl->Html : (self::$Html ? self::$Html : self::$Action);
 		if(!$viewAction) $viewAction = 'Index';
 
-		$html = substr($viewAction, 0, 1) == '/' ? $viewAction :
-				(self::$NativeDir ? '/' . self::$NativeDir : '') . '/' . self::$ControllerName . '/' . $viewAction;
+		if(!self::$NativeSkinDir) self::$NativeSkinDir = self::$NativeDir;
+		$html = substr($viewAction, 0, 1) == '/' ? $viewAction : (self::$NativeSkinDir ? '/' . self::$NativeSkinDir : '') . '/' . self::$ControllerName . '/' . $viewAction;
 		if(substr($html, -5) != '.html') $html .= '.html';
 
-		if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true)
-				ReplaceHTMLFile(_SKINDIR . $html, _HTMLDIR . $html);
+		if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR . $html, _HTMLDIR . $html);
 
 		ob_start();
 		if(file_exists(_HTMLDIR . $html)) require _HTMLDIR . $html;
@@ -246,8 +240,7 @@ class BH_Application{
 		if(!$DisableLayout && !is_null(self::$Layout)){
 			$layout = '/Layout/' . self::$Layout;
 			if(substr($layout, -5) != '.html') $layout .= '.html';
-			if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true)
-					ReplaceHTMLFile(_SKINDIR . $layout, _HTMLDIR . $layout);
+			if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR . $layout, _HTMLDIR . $layout);
 			if($layout && file_exists(_HTMLDIR . $layout)) require _HTMLDIR . $layout;
 		}
 
@@ -257,34 +250,40 @@ class BH_Application{
 		}
 	}
 
-	public static function View(&$Ctrl, $Model = NULL, $Data = NULL){
+	// 레이아웃을 포함한 HTML을 출력한다.
+	public static function View(&$Ctrl, $Model = null, $Data = null){
 		self::SetViewHtml($Ctrl, $Model, $Data);
 		echo self::$BodyHtml;
 	}
 
-	public static function OnlyView(&$Ctrl, $Model = NULL, $Data = NULL){
+	// 레이아웃을 제외한 HTML을 출력한다.
+	public static function OnlyView(&$Ctrl, $Model = null, $Data = null){
 		self::SetViewHtml($Ctrl, $Model, $Data, true);
 		echo self::$BodyHtml;
 	}
 
-	public static function PrintView(&$Ctrl, $Model = NULL, $Data = NULL){
+	// 레이아웃을 포함한 HTML을 출력한다. AJAX일경우 JSON 대응
+	public static function PrintView(&$Ctrl, $Model = null, $Data = null){
 		self::SetViewHtml($Ctrl, $Model, $Data);
 		if(_JSONIS === true) JSON(true, '', self::$BodyHtml);
 		else echo self::$BodyHtml;
 	}
 
-	public static function PrintOnlyView(&$Ctrl, $Model = NULL, $Data = NULL){
+	// 레이아웃을 제외한 HTML을 출력한다. AJAX일경우 JSON 대응
+	public static function PrintOnlyView(&$Ctrl, $Model = null, $Data = null){
 		self::SetViewHtml($Ctrl, $Model, $Data, true);
 		if(_JSONIS === true) JSON(true, '', self::$BodyHtml);
 		else echo self::$BodyHtml;
 	}
 
-	public static function &GetView(&$Ctrl, $Model = NULL, $Data = NULL){
+	// 레이아웃을 포함한 HTML을 가져온다.
+	public static function &GetView(&$Ctrl, $Model = null, $Data = null){
 		self::SetViewHtml($Ctrl, $Model, $Data);
 		return self::$BodyHtml;
 	}
 
-	public static function &GetOnlyView(&$Ctrl, $Model = NULL, $Data = NULL){
+	// 레이아웃을 제외한 HTML을 가져온다.
+	public static function &GetOnlyView(&$Ctrl, $Model = null, $Data = null){
 		self::SetViewHtml($Ctrl, $Model, $Data, true);
 		return self::$BodyHtml;
 	}
@@ -295,10 +294,9 @@ class BH_Application{
 			ksort(self::$JS);
 			foreach(self::$JS as $v){
 				foreach($v as $row){
-					if(substr($row, 0, 4) == 'http' || substr($row, 0, 1) == '/')
-							$html .= chr(9) . '<script src="' . $row . '" charset="utf8"></script>' . chr(10);
+					if(substr($row, 0, 4) == 'http' || substr($row, 0, 1) == '/') $html .= chr(9) . '<script src="' . $row . '" charset="utf8"></script>' . chr(10);
 					else
-							$html .= chr(9) . '<script src="' . _SKINURL . '/js/' . $row . '" charset="utf8"></script>' . chr(10);
+						$html .= chr(9) . '<script src="' . _SKINURL . '/js/' . $row . '" charset="utf8"></script>' . chr(10);
 				}
 			}
 		}
@@ -315,10 +313,9 @@ class BH_Application{
 			ksort(self::$CSS);
 			foreach(self::$CSS as $v){
 				foreach($v as $row){
-					if(substr($row, 0, 4) == 'http' || substr($row, 0, 1) == '/')
-							$html .= chr(9) . '<link rel="stylesheet" href="' . $row . '">' . chr(10);
+					if(substr($row, 0, 4) == 'http' || substr($row, 0, 1) == '/') $html .= chr(9) . '<link rel="stylesheet" href="' . $row . '">' . chr(10);
 					else
-							$html .= chr(9) . '<link rel="stylesheet" href="' . _SKINURL . '/css/' . $row . '">' . chr(10);
+						$html .= chr(9) . '<link rel="stylesheet" href="' . _SKINURL . '/css/' . $row . '">' . chr(10);
 				}
 			}
 		}
@@ -340,8 +337,7 @@ class BH_Application{
 			return;
 		}
 
-		$convCss = (substr($css, strlen(BH\BHCss\BHCss::$fileExtension) * (-1)) === BH\BHCss\BHCss::$fileExtension) ?
-				substr($css, 0, strlen(BH\BHCss\BHCss::$fileExtension) * (-1)) . '.css' : implode('.', $ex) . '.css';
+		$convCss = (substr($css, strlen(BH\BHCss\BHCss::$fileExtension) * (-1)) === BH\BHCss\BHCss::$fileExtension) ? substr($css, 0, strlen(BH\BHCss\BHCss::$fileExtension) * (-1)) . '.css' : implode('.', $ex) . '.css';
 		$target = _HTMLURL . '/css' . ($convCss[0] == '/' ? $convCss : '/' . $convCss);
 
 		if(_DEVELOPERIS === true){

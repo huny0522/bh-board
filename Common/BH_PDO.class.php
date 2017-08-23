@@ -372,11 +372,12 @@ class BH_DB_GetList extends BH_DB_Get{
 	public $data = array();
 	private $RunIs = false;
 
-	public function DrawRows(){
+	public function &DrawRows(){
 		if(!$this->RunIs) $this->Run();
 		while($row = $this->Get()){
 			$this->data[]= $row;
 		}
+		return $this;
 	}
 
 	public function &GetRows(){
@@ -497,11 +498,12 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		return $this;
 	}
 
-	public function DrawRows(){
+	public function &DrawRows(){
 		if(!$this->RunIs) $this->Run();
 		while($row = $this->Get()){
 			$this->data[]= $row;
 		}
+		return $this;
 	}
 
 	public function &GetRows(){
