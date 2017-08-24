@@ -39,11 +39,11 @@ class BannerManager
 		$dbGetList->articleCount = 20;
 		$dbGetList->Run();
 
-		App::View($this, $this->model, $dbGetList);
+		App::View($this->model, $dbGetList);
 	}
 
 	public function Write(){
-		App::View($this, $this->model);
+		App::View($this->model);
 	}
 
 	public function Modify(){
@@ -53,7 +53,7 @@ class BannerManager
 			URLReplace('-1', $res->message);
 		}
 		App::$Html = 'Write';
-		App::View($this, $this->model);
+		App::View($this->model);
 	}
 	public function PostWrite(){
 		$res = $this->model->SetPostValues();
@@ -74,7 +74,7 @@ class BannerManager
 			$error = $this->model->GetErrorMessage();
 			if(sizeof($error)){
 				App::$Data['error'] = $error[0];
-				App::View($this, $this->model);
+				App::View($this->model);
 			}else{
 				$res = $this->model->DBInsert();
 				if($res->result){

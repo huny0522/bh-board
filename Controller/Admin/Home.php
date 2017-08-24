@@ -19,6 +19,6 @@ class Home{
 	}
 
 	public function Index(){
-		App::View($this);
+		App::View();
 	}
 }

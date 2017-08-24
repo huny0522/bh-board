@@ -44,7 +44,7 @@ class ContentManager{
 		$dbGetList->SetKey('A.*, group_concat(B.title SEPARATOR \', \') as title');
 		$dbGetList->Run();
 
-		App::View($this, $this->model, $dbGetList);
+		App::View($this->model, $dbGetList);
 	}
 	public function View(){
 		$res = $this->model->DBGet($_GET['bid']);
@@ -58,13 +58,13 @@ class ContentManager{
 			URLReplace('-1', $res->message);
 		}
 
-		App::View($this, $this->model);
+		App::View($this->model);
 	}
 	public function Write(){
 		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
 		$dbGetList->AddWhere('LENGTH(category) = '._CATEGORY_LENGTH);
 		App::$Data['menu'] = $dbGetList->GetRows();
-		App::View($this, $this->model);
+		App::View($this->model);
 	}
 	public function Modify(){
 		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
@@ -81,7 +81,7 @@ class ContentManager{
 			URLReplace('-1', $res->message);
 		}
 		App::$Html = 'Write';
-		App::View($this, $this->model);
+		App::View($this->model);
 	}
 	public function PostWrite(){
 		$res = $this->model->SetPostValues();

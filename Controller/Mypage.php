@@ -44,7 +44,7 @@ class Mypage{
 				$data[$row['bid']]['list'][] = $row2;
 			}
 		}
-		App::View($this, null, $data);
+		App::View(null, $data);
 	}
 
 	public function PostPassword(){
@@ -69,13 +69,13 @@ class Mypage{
 	public function MyInfo(){
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
 			App::$Html = 'Password.html';
-			App::View($this);
+			App::View();
 			return;
 		}
 		$model = App::InitModel('Member');
 		$model->data['pwd']->Required = false;
 		$model->DBGet($_SESSION['member']['muid']);
-		App::View($this, $model);
+		App::View($model);
 	}
 
 	public function PostMyInfo(){
@@ -108,17 +108,17 @@ class Mypage{
 			URLReplace(App::URLAction(), '수정되었습니다.');
 		}
 		else{
-			App::View($this, $model);
+			App::View($model);
 		}
 	}
 
 	public function WithDraw(){
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
 			App::$Html = 'Password.html';
-			App::View($this);
+			App::View();
 			return;
 		}
-		App::View($this);
+		App::View();
 	}
 	public function PostWithDraw(){
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){

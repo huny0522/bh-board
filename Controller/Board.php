@@ -122,8 +122,8 @@ class Board{
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 		if($this->GetListIs || $this->MoreListIs){
-			if(_JSONIS === true) JSON(true, '', App::GetView($this, $this->model));
-			else  App::View($this, $this->model);
+			if(_JSONIS === true) JSON(true, '', App::GetView($this->model));
+			else  App::View($this->model);
 			return;
 		}
 		$this->GetList();
@@ -180,9 +180,9 @@ class Board{
 
 		App::$Html = $this->Path.'Index.html';
 
-		if($viewPageIs) return App::GetOnlyView($this, $this->model, $dbList);
-		else if(_JSONIS === true) JSON(true, '', App::GetView($this, $this->model, $dbList));
-		else  App::View($this, $this->model, $dbList);
+		if($viewPageIs) return App::GetOnlyView($this->model, $dbList);
+		else if(_JSONIS === true) JSON(true, '', App::GetView($this->model, $dbList));
+		else  App::View($this->model, $dbList);
 	}
 
 	public function MoreList(){
@@ -253,8 +253,8 @@ class Board{
 		if(sizeof($dbList->data)) $lastSeq = end($dbList->data)['seq'];
 		if(sizeof($dbList->data) < $this->boardManger->GetValue('article_count')) $lastIs = true;
 
-		if(_JSONIS === true) JSON(true, '', array('list' => App::GetOnlyView($this, $this->model, $dbList), 'lastSeq' => $lastSeq, 'lastIs' => $lastIs));
-		else App::View($this, $this->model, array('list' => $dbList, 'lastSeq' => $lastSeq));
+		if(_JSONIS === true) JSON(true, '', array('list' => App::GetOnlyView($this->model, $dbList), 'lastSeq' => $lastSeq, 'lastIs' => $lastIs));
+		else App::View($this->model, array('list' => $dbList, 'lastSeq' => $lastSeq));
 	}
 
 	public function _RowSet(&$data){
@@ -340,8 +340,8 @@ class Board{
 		}
 		$this->_ViewEnd($data);  // Reserved
 
-		if(_JSONIS === true) JSON(true, '', App::GetView($this, $this->model, $data));
-		else App::View($this, $this->model, $data);
+		if(_JSONIS === true) JSON(true, '', App::GetView($this->model, $data));
+		else App::View($this->model, $data);
 	}
 
 	public function Write(){
@@ -352,8 +352,8 @@ class Board{
 		}
 
 		$this->_WriteEnd();  // Reserved
-		if(_JSONIS === true) JSON(true, '', App::GetView($this, $this->model));
-		else App::View($this, $this->model);
+		if(_JSONIS === true) JSON(true, '', App::GetView($this->model));
+		else App::View($this->model);
 	}
 
 	public function Answer(){
@@ -376,8 +376,8 @@ class Board{
 
 		$this->_AnswerEnd();  // Reserved
 
-		if(_JSONIS === true) JSON(true, '', App::GetView($this, $this->model));
-		else App::View($this, $this->model);
+		if(_JSONIS === true) JSON(true, '', App::GetView($this->model));
+		else App::View($this->model);
 	}
 
 	public function Modify(){
@@ -403,8 +403,8 @@ class Board{
 
 		$this->_ModifyEnd();  // Reserved
 
-		if(_JSONIS === true) JSON(true, '', App::GetView($this, $this->model));
-		else App::View($this, $this->model);
+		if(_JSONIS === true) JSON(true, '', App::GetView($this->model));
+		else App::View($this->model);
 	}
 
 	public function PostModify(){
@@ -435,7 +435,7 @@ class Board{
 			$res->message ? $res->message : 'ERROR#101';
 			if(_AJAXIS === true) JSON(false, $res->message);
 			App::$Data['error'] = $res->message;
-			App::View($this, $this->model);
+			App::View($this->model);
 			return;
 		}
 		// 회원 글 체크
@@ -444,7 +444,7 @@ class Board{
 			if($res !== true){
 				if(_AJAXIS === true) JSON(false, $res);
 				App::$Data['error'] = $res;
-				App::View($this, $this->model);
+				App::View($this->model);
 				return;
 			}
 		}
@@ -460,7 +460,7 @@ class Board{
 			if(is_string($fres_em)){
 				if(_JSONIS === true) JSON(false, $fres_em);
 				App::$Data['error'] = $fres_em;
-				App::View($this, $this->model);
+				App::View($this->model);
 				return;
 			}
 			else if(is_array($fres_em)){
@@ -479,7 +479,7 @@ class Board{
 		if(sizeof($error)){
 			if(_AJAXIS === true) JSON(false, $error[0]);
 			App::$Data['error'] = $error[0];
-			App::View($this, $this->model);
+			App::View($this->model);
 			return;
 		}
 
@@ -495,7 +495,7 @@ class Board{
 		else{
 			if(_AJAXIS === true) JSON(false, $res2->message ? $res2->message : 'ERROR#102');
 			App::$Data['error'] = $res2->message ? $res2->message : 'ERROR#102';
-			App::View($this, $this->model);
+			App::View($this->model);
 			return;
 		}
 	}
@@ -566,7 +566,7 @@ class Board{
 			if(is_string($fres_em)){
 				if(_JSONIS === true) JSON(false, $fres_em);
 				App::$Data['error'] = $fres_em;
-				App::View($this, $this->model);
+				App::View($this->model);
 				return;
 			}
 			else if(is_array($fres_em)){

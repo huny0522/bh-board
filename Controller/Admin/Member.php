@@ -46,7 +46,7 @@ class Member{
 		}
 		$dbGetList->Run();
 
-		App::View($this, $this->model, $dbGetList);
+		App::View($this->model, $dbGetList);
 	}
 
 	public function View(){
@@ -59,13 +59,13 @@ class Member{
 			URLReplace('-1', $res->message);
 		}
 
-		App::View($this, $this->model);
+		App::View($this->model);
 	}
 	public function Write(){
 		foreach($this->model->data['level']->EnumValues as $k => $v){
 			if($k <= $_SESSION['member']['level']) App::$Data['level'][$k] = $v;
 		}
-		App::View($this, $this->model);
+		App::View($this->model);
 	}
 	public function Modify(){
 		foreach($this->model->data['level']->EnumValues as $k => $v){
@@ -80,32 +80,32 @@ class Member{
 		if(!$res->result) URLReplace('-1', $res->message);
 
 		App::$Html = 'Write';
-		App::View($this, $this->model);
+		App::View($this->model);
 	}
 	public function PostWrite(){
 		$res = $this->model->SetPostValues();
 		if(!$res->result){
 			App::$Data['error'] = $res->message ? $res->message : 'ERROR';
-			App::View($this, $this->model);
+			App::View($this->model);
 			return;
 		}
 
 		$row = \DB::SQL()->Fetch('SELECT COUNT(*) as cnt FROM %1 WHERE mid=%s', $this->model->table, $_POST['mid']);
 		if($row['cnt']){
 			App::$Data['error'] = '중복되는 아이디가 존재합니다.';
-			App::View($this, $this->model);
+			App::View($this->model);
 			return;
 		}
 		$row = \DB::SQL()->Fetch('SELECT COUNT(*) as cnt FROM %1 WHERE nickname=%s', $this->model->table, $_POST['nickname']);
 		if($row['cnt']){
 			App::$Data['error'] = '중복되는 닉네임이 존재합니다.';
-			App::View($this, $this->model);
+			App::View($this->model);
 			return;
 		}
 		$row = \DB::SQL()->Fetch('SELECT COUNT(*) as cnt FROM %1 WHERE email=%s', $this->model->table, $_POST['email']);
 		if($row['cnt']){
 			App::$Data['error'] = '중복되는 이메일이 존재합니다.';
-			App::View($this, $this->model);
+			App::View($this->model);
 			return;
 		}
 
@@ -171,7 +171,7 @@ class Member{
 		if(!$res) return;
 		if($res['level'] != _ADMIN_LEVEL) return;
 		App::$Data['auth'] = explode(',', $res['admin_auth']);
-		JSON(true, '', App::GetView($this));
+		JSON(true, '', App::GetView());
 	}
 
 	public function PostAuthAdmin(){

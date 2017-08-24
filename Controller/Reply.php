@@ -77,7 +77,7 @@ class Reply{
 
 	public function PostIndex(){
 		if(!$this->MoreListIs) $this->PostGetList();
-		else JSON(true, '', App::GetView($this, $this->model));
+		else JSON(true, '', App::GetView($this->model));
 	}
 
 	public function PostGetList(){
@@ -132,7 +132,7 @@ class Reply{
 			$row['kdate'] = krDate($row['reg_date'],'mdhi');
 		}
 
-		JSON(true, '', App::GetView($this, null, $dbList));
+		JSON(true, '', App::GetView(null, $dbList));
 	}
 
 	public function PostMoreList(){
@@ -201,7 +201,7 @@ class Reply{
 			$row['kdate'] = krDate($row['reg_date'],'mdhi');
 		}
 
-		JSON(true, '', App::GetView($this, null, $dbList));
+		JSON(true, '', App::GetView(null, $dbList));
 	}
 
 	public function PostWrite($answerIs = false){

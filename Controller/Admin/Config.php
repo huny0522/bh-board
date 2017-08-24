@@ -25,7 +25,7 @@ class Config{
 	public function Index(){
 		App::$Data['NowMenu'] = '001001001';
 		App::$Data['Code'] = 'Default';
-		App::View($this);
+		App::View();
 	}
 
 	public function PostWrite(){

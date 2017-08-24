@@ -24,7 +24,7 @@ class Login{
 	}
 
 	public function Index(){
-		App::View($this, $this->model);
+		App::View($this->model);
 	}
 	public function PostLogin(){
 		$email = trim($_POST['email1'].'@'.$_POST['email2']);
@@ -46,7 +46,7 @@ class Login{
 	}
 
 	public function Register(){
-		App::View($this);
+		App::View();
 	}
 
 	public function PostRegister(){
@@ -54,7 +54,7 @@ class Login{
 		$this->model->data['nickname']->Required = true;
 		App::$Data['email1'] = '';
 		App::$Data['email2'] = '';
-		App::View($this, $this->model);
+		App::View($this->model);
 	}
 
 	public function PostRegisterProcess(){
@@ -96,7 +96,7 @@ class Login{
 			App::$Data['email1'] = $_POST['email1'];
 			App::$Data['email2'] = $_POST['email2'];
 			App::$Html = 'RegisterForm.html';
-			App::View($this, $this->model);
+			App::View($this->model);
 		}else{
 			URLReplace(_URL.'/', '등록되었습니다.');
 		}

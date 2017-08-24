@@ -219,9 +219,12 @@ class BH_Application
 	 * @param $DisableLayout bool
 	 * @return string
 	 */
-	private static function SetViewHtml(&$Ctrl, &$Model, &$Data, $DisableLayout = false){
-		$viewAction = isset($Ctrl->Html) && strlen($Ctrl->Html) ? $Ctrl->Html : (self::$Html ? self::$Html : self::$Action);
-		if(!$viewAction) $viewAction = 'Index';
+	private static function SetViewHtml(&$Ctrl, &$Model, &$Data, $DisableLayout = false, $htmlPath = ''){
+		if(strlen($htmlPath)) $viewAction = $htmlPath;
+		else if(isset($Ctrl->Html) && strlen($Ctrl->Html)) $viewAction = $Ctrl->Html;
+		else if(self::$Html) $viewAction = self::$Html;
+		else if(self::$Action) $viewAction = self::$Action;
+		else $viewAction = 'Index';
 
 		if(!self::$NativeSkinDir) self::$NativeSkinDir = self::$NativeDir;
 		$html = substr($viewAction, 0, 1) == '/' ? $viewAction : (self::$NativeSkinDir ? '/' . self::$NativeSkinDir : '') . '/' . self::$ControllerName . '/' . $viewAction;
@@ -251,40 +254,54 @@ class BH_Application
 	}
 
 	// 레이아웃을 포함한 HTML을 출력한다.
-	public static function View(&$Ctrl, $Model = null, $Data = null){
-		self::SetViewHtml($Ctrl, $Model, $Data);
+	public static function View($Model = null, $Data = null){
+		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+		self::SetViewHtml($d_b[1]['object'], $Model, $Data);
 		echo self::$BodyHtml;
 	}
 
 	// 레이아웃을 제외한 HTML을 출력한다.
-	public static function OnlyView(&$Ctrl, $Model = null, $Data = null){
-		self::SetViewHtml($Ctrl, $Model, $Data, true);
+	public static function OnlyView($Model = null, $Data = null){
+		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+		self::SetViewHtml($d_b[1]['object'], $Model, $Data, true);
 		echo self::$BodyHtml;
 	}
 
 	// 레이아웃을 포함한 HTML을 출력한다. AJAX일경우 JSON 대응
-	public static function PrintView(&$Ctrl, $Model = null, $Data = null){
-		self::SetViewHtml($Ctrl, $Model, $Data);
+	public static function PrintView($Model = null, $Data = null){
+		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+
+		self::SetViewHtml($d_b[1]['object'], $Model, $Data);
 		if(_JSONIS === true) JSON(true, '', self::$BodyHtml);
 		else echo self::$BodyHtml;
 	}
 
 	// 레이아웃을 제외한 HTML을 출력한다. AJAX일경우 JSON 대응
-	public static function PrintOnlyView(&$Ctrl, $Model = null, $Data = null){
-		self::SetViewHtml($Ctrl, $Model, $Data, true);
+	public static function PrintOnlyView($Model = null, $Data = null){
+		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+		self::SetViewHtml($d_b[1]['object'], $Model, $Data, true);
 		if(_JSONIS === true) JSON(true, '', self::$BodyHtml);
 		else echo self::$BodyHtml;
 	}
 
 	// 레이아웃을 포함한 HTML을 가져온다.
-	public static function &GetView(&$Ctrl, $Model = null, $Data = null){
-		self::SetViewHtml($Ctrl, $Model, $Data);
+	public static function &GetView($Model = null, $Data = null){
+		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+		self::SetViewHtml($d_b[1]['object'], $Model, $Data);
 		return self::$BodyHtml;
 	}
 
 	// 레이아웃을 제외한 HTML을 가져온다.
-	public static function &GetOnlyView(&$Ctrl, $Model = null, $Data = null){
-		self::SetViewHtml($Ctrl, $Model, $Data, true);
+	public static function &GetOnlyView($Model = null, $Data = null){
+		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+		self::SetViewHtml($d_b[1]['object'], $Model, $Data, true);
+		return self::$BodyHtml;
+	}
+
+	// html소스를 선택하여, 레이아웃을 제외한 HTML을 가져온다.
+	public static function &GetArticleView($html, $Model = null, $Data = null){
+		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+		self::SetViewHtml($d_b[1]['object'], $Model, $Data, true, $html);
 		return self::$BodyHtml;
 	}
 

@@ -53,9 +53,9 @@ class Contents{
 			setcookie($cookieName, 'y');
 		}
 
-		if(_JSONIS === true) JSON(true, '', App::GetView($this));
+		if(_JSONIS === true) JSON(true, '', App::GetView());
 
-		App::View($this);
+		App::View();
 
 	}
 }
