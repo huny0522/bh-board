@@ -350,12 +350,12 @@ function ValidateInt($txt){
 		return $res;
 	}
 
-	$val = (int) $txt;
+	$val = ToInt($txt);
 	if(!strlen($txt)){
 		$res->result = false;
 		$res->message = '숫자값이 비어있습니다.';
 	}
-	else if((string) $val != (string) $txt){
+	else if((string) $val !== (string) $txt){
 		$res->result = false;
 		$res->message = '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.';
 	}
@@ -367,9 +367,9 @@ function SetDBInt($txt){
 		foreach($txt as $k => &$v) $v = SetDBInt($v);
 		return $txt;
 	}
-	$val = (int) $txt;
 	if(!strlen($txt)) URLReplace('-1', '숫자값이 비어있습니다.');
-	if((string) $val != (string) $txt)
+	$val = ToInt($txt);
+	if((string) $val !== (string) $txt)
 			URLReplace('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
 	return $txt;
 }
@@ -385,12 +385,12 @@ function ValidateFloat($txt){
 		return $res;
 	}
 
-	$val = (float) $txt;
+	$val = ToFloat($txt);
 	if(!strlen($txt)){
 		$res->result = false;
 		$res->message = '숫자값이 비어있습니다.';
 	}
-	else if((string) $val != (string) $txt){
+	else if((string) $val !== (string) $txt){
 		$res->result = false;
 		$res->message = '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.';
 	}
@@ -405,8 +405,8 @@ function SetDBFloat($txt){
 
 	if(!strlen($txt)) URLReplace('-1', '숫자값이 비어있습니다.');
 
-	$val = (float) $txt;
-	if((string) $val != (string) $txt)
+	$val = ToFloat($txt);
+	if((string) $val !== (string) $txt)
 			URLReplace('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
 
 	return $val;

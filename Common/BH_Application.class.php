@@ -285,21 +285,21 @@ class BH_Application
 	}
 
 	// 레이아웃을 포함한 HTML을 가져온다.
-	public static function &GetView($Model = null, $Data = null){
+	public static function GetView($Model = null, $Data = null){
 		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
 		self::SetViewHtml($d_b[1]['object'], $Model, $Data);
 		return self::$BodyHtml;
 	}
 
 	// 레이아웃을 제외한 HTML을 가져온다.
-	public static function &GetOnlyView($Model = null, $Data = null){
+	public static function GetOnlyView($Model = null, $Data = null){
 		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
 		self::SetViewHtml($d_b[1]['object'], $Model, $Data, true);
 		return self::$BodyHtml;
 	}
 
 	// html소스를 선택하여, 레이아웃을 제외한 HTML을 가져온다.
-	public static function &GetArticleView($html, $Model = null, $Data = null){
+	public static function GetArticleView($html, $Model = null, $Data = null){
 		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
 		self::SetViewHtml($d_b[1]['object'], $Model, $Data, true, $html);
 		return self::$BodyHtml;
