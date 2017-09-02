@@ -98,11 +98,12 @@ function Common($) {
 		return nStr.replace(/,/g, '');
 	};
 
-	this.html2xt = function(str){
+	this.html2txt = function(str){
 		//language=JSRegexp
 		str = str.replace(/</ig, '&lt;');
 		str = str.replace(/>/ig, '&gt;');
 		str = str.replace(/'/ig, '&#39;');
+		str = str.replace(/"/ig, '&quot;');
 		return str;
 	};
 
@@ -564,11 +565,11 @@ function MessageModal($){
 
 function EventLink($){
 	var _this = this;
-	
+
 	this.mouseDownEnable = true;
 	this.mouseMoveEnable = true;
 	this.mouseUpEnable = true;
-	
+
 	this.touch = function(selector, func){
 		$(document).on('touchstart mousedown', selector, function(e){
 			_this.TouchStartElement.call(this, e);
@@ -646,12 +647,12 @@ function EventLink($){
 
 		$(document).on('touchmove mousemove', 'body', function(e){
 			var body = $(this);
-			
+
 			if (_this.mouseMoveEnable && e.type === 'touchmove') {
 				_this.mouseMoveEnable = false;
 				$(document).off('mousemove', 'body');
 			}
-			
+
 			if(typeof(body.data) === 'undefined' || typeof(body.data('touchObject')) === 'undefined' || body.data('touchObject') === null) return;
 			var touchObject = body.data('touchObject');
 			if(typeof($(touchObject).data) === 'undefined' || typeof($(touchObject).data('touchStart')) === 'undefined' || $(touchObject).data('touchStart') === null) return;
@@ -668,12 +669,12 @@ function EventLink($){
 
 		$(document).on('touchend mouseup', 'body', function(e){
 			var body = $(this);
-			
+
 			if (_this.mouseUpEnable && e.type === 'touchend') {
 				_this.mouseUpEnable = false;
 				$(document).off('mouseup', 'body');
 			}
-			
+
 			if(typeof(body.data) === 'undefined' || typeof(body.data('touchObject')) === 'undefined' || body.data('touchObject') === null) return;
 			var touchObject = body.data('touchObject');
 			if(!$(touchObject).length || typeof($(touchObject).data) === 'undefined' || typeof($(touchObject).data('touchStart')) === 'undefined' || $(touchObject).data('touchStart') === null) return;
@@ -1419,7 +1420,7 @@ $(document).on('change', '.UploadImagePreview input[type=file]', function () {
  *   Input Value Check
  *
  ------------------------------------------- */
-$(document).on('keyup', 'input.numberonly input.numberOnly', function() {
+$(document).on('keyup', 'input.numberonly, input.numberOnly', function() {
 	var val = this.value.replace(/[^0-9]/gi,'');
 	if(this.value !== val) this.value = val;
 });

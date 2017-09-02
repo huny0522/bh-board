@@ -4,17 +4,20 @@
  * Bang Hun.
  * 16.07.10
  */
+
 use \BH_Application as App;
 use \DB as DB;
 
-class BH_Result{
+class BH_Result
+{
 
 	public $result = false;
 	public $message = '';
 
 }
 
-class BH_InsertResult{
+class BH_InsertResult
+{
 
 	public $result = false;
 	public $id = null;
@@ -32,12 +35,13 @@ require _COMMONDIR . '/BH_Model.class.php';
 require _COMMONDIR . '/BH_Common.class.php';
 require _COMMONDIR . '/BHCss/core/BHCss.php';
 
-App::$SettingData['LevelArray'] = array(0 => '비회원', 1 => '일반회원', 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 15 => '매니저', 18 => '관리자', 20 => '최고관리자');
+App::$SettingData['LevelArray'] = array(0 => '비회원', 1 => '일반회원', 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8,
+	9 => 9, 10 => 10, 15 => '매니저', 18 => '관리자', 20 => '최고관리자');
 App::$SettingData['noext'] = array('php', 'htm', 'html', 'cfg', 'inc', 'phtml', 'php5', 'asp', 'jsp');
 App::$SettingData['IMAGE_EXT'] = array('jpg', 'jpeg', 'png', 'gif', 'bmp');
-App::$SettingData['POSSIBLE_EXT'] = array('jpg', 'jpeg', 'png', 'gif', 'bmp', 'zip', '7z', 'gz', 'xz', 'tar',
-	'xls', 'xlsx', 'ppt', 'doc', 'hwp', 'pdf', 'docx', 'pptx',
-	'avi', 'mov', 'mkv', 'mpg', 'mpeg', 'wmv', 'asf', 'asx', 'flv', 'm4v', 'mp4', 'mp3');
+App::$SettingData['POSSIBLE_EXT'] = array('jpg', 'jpeg', 'png', 'gif', 'bmp', 'zip', '7z', 'gz', 'xz', 'tar', 'xls',
+	'xlsx', 'ppt', 'doc', 'hwp', 'pdf', 'docx', 'pptx', 'avi', 'mov', 'mkv', 'mpg', 'mpeg', 'wmv', 'asf', 'asx', 'flv',
+	'm4v', 'mp4', 'mp3');
 
 if(_DEVELOPERIS === true){
 	if(!file_exists(_DATADIR) || !is_dir(_DATADIR)) @mkdir(_DATADIR, 0755, true);
@@ -97,10 +101,9 @@ function URLRedirect($url, $msg = '', $data = '', $exitIs = true){
 
 function PhoneNumber($num){
 	$num = str_replace('-', '', $num);
-	if(strlen($num) == 11)
-			return substr($num, 0, 3) . '-' . substr($num, 3, 4) . '-' . substr($num, 7, 4);
+	if(strlen($num) == 11) return substr($num, 0, 3) . '-' . substr($num, 3, 4) . '-' . substr($num, 7, 4);
 	else
-			return substr($num, 0, 3) . '-' . substr($num, 3, 3) . '-' . substr($num, 6, 4);
+		return substr($num, 0, 3) . '-' . substr($num, 3, 3) . '-' . substr($num, 6, 4);
 }
 
 function KrDate($date, $opt = 'ymdhis', $hourView = 0){
@@ -111,12 +114,7 @@ function KrDate($date, $opt = 'ymdhis', $hourView = 0){
 		else if($t < 3600 * $hourView) return floor($t / 3600) . '시간 전';
 	}
 	$opt = strtolower($opt);
-	$res = (strpos($opt, 'y') !== false ? substr($date, 0, 4) . '년 ' : '')
-			. (strpos($opt, 'm') !== false ? (int) substr($date, 5, 2) . '월 ' : '')
-			. (strpos($opt, 'd') !== false ? (int) substr($date, 8, 2) . '일 ' : '')
-			. (strpos($opt, 'h') !== false ? (int) substr($date, 11, 2) . '시 ' : '')
-			. (strpos($opt, 'i') !== false ? (int) substr($date, 14, 2) . '분 ' : '')
-			. (strpos($opt, 's') !== false ? (int) substr($date, 17, 2) . '초 ' : '');
+	$res = (strpos($opt, 'y') !== false ? substr($date, 0, 4) . '년 ' : '') . (strpos($opt, 'm') !== false ? (int)substr($date, 5, 2) . '월 ' : '') . (strpos($opt, 'd') !== false ? (int)substr($date, 8, 2) . '일 ' : '') . (strpos($opt, 'h') !== false ? (int)substr($date, 11, 2) . '시 ' : '') . (strpos($opt, 'i') !== false ? (int)substr($date, 14, 2) . '분 ' : '') . (strpos($opt, 's') !== false ? (int)substr($date, 17, 2) . '초 ' : '');
 	return trim($res);
 }
 
@@ -128,7 +126,7 @@ function AutoLinkText($text){
 	$text = preg_replace("/(^|[\n ])([\w]*?)((ht|f)tp(s)?:\/\/[\w]+[^ \,\"\n\r\t<]*)/is", "$1$2<a href=\"$3\" target=\"_blank\">$3</a>", $text);
 	$text = preg_replace("/(^|[\n ])([\w]*?)((www|ftp)\.[^ \,\"\t\n\r<]*)/is", "$1$2<a href=\"http://$3\" target=\"_blank\">$3</a>", $text);
 	$text = preg_replace("/(^|[\n ])([a-z0-9&\-_\.]+?)@([\w\-]+\.([\w\-\.]+)+)/i", "$1<a href=\"mailto:$2@$3\" target=\"_blank\">$2@$3</a>", $text);
-	return($text);
+	return ($text);
 }
 
 function OptionAreaNumber($num = ''){
@@ -152,8 +150,9 @@ function OptionAreaNumber($num = ''){
 	$numbers[] = array('num' => '064', 'loc' => '제주');
 
 	$str = '';
-	foreach($numbers as $item)
-			$str .= '<option value="' . $item['num'] . '"' . ($num == $item['num'] ? ' selected="selected"' : '') . '>' . $item['num'] . '(' . $item['loc'] . ')</option>';
+	foreach($numbers as $item){
+		$str .= '<option value="' . $item['num'] . '"' . ($num == $item['num'] ? ' selected="selected"' : '') . '>' . $item['num'] . '(' . $item['loc'] . ')</option>';
+	}
 	return $str;
 }
 
@@ -165,8 +164,9 @@ function OptionPhoneFirstNumber($find = ''){
 	$numbers[] = '017';
 	$numbers[] = '019';
 	$str = '';
-	foreach($numbers as $item)
-			$str .= '<option value="' . $item . '"' . ($find == $item ? ' selected="selected"' : '') . '>' . $item . '</option>';
+	foreach($numbers as $item){
+		$str .= '<option value="' . $item . '"' . ($find == $item ? ' selected="selected"' : '') . '>' . $item . '</option>';
+	}
 	return $str;
 }
 
@@ -177,8 +177,9 @@ function OptionEmailAddress($find = ''){
 	$addr[] = 'hanmail.net';
 
 	$str = '';
-	foreach($addr as $item)
-			$str .= '<option value="' . $item . '"' . ($find == $item ? ' selected="selected"' : '') . '>' . $item . '</option>';
+	foreach($addr as $item){
+		$str .= '<option value="' . $item . '"' . ($find == $item ? ' selected="selected"' : '') . '>' . $item . '</option>';
+	}
 	return $str;
 }
 
@@ -190,15 +191,15 @@ function OptionEmailAddress($find = ''){
 function SelectOption($OptionValues, $SelectValue = ''){
 	$str = '';
 	if(!isset($OptionValues) || !is_array($OptionValues)) return $str;
-	foreach($OptionValues as $k => $v)
-			$str .= '<option value="' . $k . '"' . (isset($SelectValue) && $SelectValue === (string) $k ? ' selected="selected"' : '') . '>' . $v . '</option>';
+	foreach($OptionValues as $k => $v){
+		$str .= '<option value="' . $k . '"' . (isset($SelectValue) && $SelectValue === (string)$k ? ' selected="selected"' : '') . '>' . $v . '</option>';
+	}
 	return $str;
 }
 
 // Cut title length
 function StringCut($title, $length, $last = '...'){
-	if(mb_strlen($title, 'utf-8') > $length)
-			$result_title = mb_substr($title, 0, $length, 'utf-8') . $last;
+	if(mb_strlen($title, 'utf-8') > $length) $result_title = mb_substr($title, 0, $length, 'utf-8') . $last;
 	else $result_title = $title;
 	Return $result_title;
 }
@@ -244,14 +245,14 @@ function Download($path, $fname){
 			case "pdf":
 				header("Content-type: application/pdf");
 				header("Content-Disposition: attachment; filename=\"" . $fname . "\""); // use 'attachment' to force a file download
-				break;
+			break;
 			// add more headers for other content types here
 			default;
 				header("Content-type: application/octet-stream");
 				header('Content-Description: File Download');
 				header('Content-Disposition: attachment; filename="' . $fname . '"');
 				header('Content-Transfer-Encoding: binary');
-				break;
+			break;
 		}
 		header("Content-length: $fsize");
 		header("Cache-control: private"); //use this to open files directly
@@ -265,8 +266,7 @@ function Download($path, $fname){
 }
 
 function ResizeImage($path, $width, $noext = _NO_IMG){
-	if(!file_exists(_UPLOAD_DIR . $path))
-			return $noext ? _URL . $noext : _UPLOAD_URL . $path;
+	if(!file_exists(_UPLOAD_DIR . $path)) return $noext ? _URL . $noext : _UPLOAD_URL . $path;
 	$temp = explode('/', $path);
 	$temp[sizeof($temp) - 1] = $width . '_' . $temp[sizeof($temp) - 1];
 	$new = implode('/', $temp);
@@ -285,34 +285,34 @@ function UnlinkImage($file){
 }
 
 function DeleteOldTempFiles($tempfile_path, $time){
-	if(is_dir($tempfile_path))
-			if($dh = opendir($tempfile_path)){
-			while(($file = readdir($dh)) !== false){
-				if($file != '.' && $file != '..'){
-					$dest_path = $tempfile_path . '/' . $file;
-					if(is_dir($dest_path)) DeleteOldTempFiles($dest_path, $time);
-					else{
-						$fat = filemtime($dest_path);
-						if($fat < $time) @unlink($dest_path);
-					}
+	if(is_dir($tempfile_path)) if($dh = opendir($tempfile_path)){
+		while(($file = readdir($dh)) !== false){
+			if($file != '.' && $file != '..'){
+				$dest_path = $tempfile_path . '/' . $file;
+				if(is_dir($dest_path)) DeleteOldTempFiles($dest_path, $time);
+				else{
+					$fat = filemtime($dest_path);
+					if($fat < $time) @unlink($dest_path);
 				}
 			}
-			closedir($dh);
 		}
+		closedir($dh);
+	}
 }
 
 function ToInt($s){
 	if(!$s) return 0;
-	return ($s[0] == '-' ? $s[0] : '') . preg_replace('/[^0-9]/', '', $s);
+	return (substr($s, 0, 1) == '-' ? substr($s, 0, 1) : '') . preg_replace('/[^0-9]/', '', $s);
 }
 
 function ToFloat($s){
 	if(!$s) return 0;
-	return ($s[0] == '-' ? $s[0] : '') . preg_replace('/[^0-9\.]/', '', $s);
+	return (substr($s, 0, 1) == '-' ? substr($s, 0, 1) : '') . preg_replace('/[^0-9\.]/', '', $s);
 }
 
 function RemoveScriptTag($str){
-	return preg_replace(array('/\<\/*\s*(script|form|input|select|button|textarea)(.*?)\>/is', '/\<(.*?)(\s+(on|e-).*?)\>/is'), array('', '<$1>'), $str);
+	return preg_replace(array('/\<\/*\s*(script|form|input|select|button|textarea)(.*?)\>/is',
+		'/\<(.*?)(\s+(on|e-).*?)\>/is'), array('', '<$1>'), $str);
 }
 
 function SetDBTrimText($txt){
@@ -355,7 +355,7 @@ function ValidateInt($txt){
 		$res->result = false;
 		$res->message = '숫자값이 비어있습니다.';
 	}
-	else if((string) $val !== (string) $txt){
+	else if((string)$val !== (string)$txt){
 		$res->result = false;
 		$res->message = '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.';
 	}
@@ -369,8 +369,7 @@ function SetDBInt($txt){
 	}
 	if(!strlen($txt)) URLReplace('-1', '숫자값이 비어있습니다.');
 	$val = ToInt($txt);
-	if((string) $val !== (string) $txt)
-			URLReplace('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+	if((string)$val !== (string)$txt) URLReplace('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
 	return $txt;
 }
 
@@ -390,7 +389,7 @@ function ValidateFloat($txt){
 		$res->result = false;
 		$res->message = '숫자값이 비어있습니다.';
 	}
-	else if((string) $val !== (string) $txt){
+	else if((string)$val !== (string)$txt){
 		$res->result = false;
 		$res->message = '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.';
 	}
@@ -406,8 +405,7 @@ function SetDBFloat($txt){
 	if(!strlen($txt)) URLReplace('-1', '숫자값이 비어있습니다.');
 
 	$val = ToFloat($txt);
-	if((string) $val !== (string) $txt)
-			URLReplace('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+	if((string)$val !== (string)$txt) URLReplace('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
 
 	return $val;
 }
@@ -444,12 +442,12 @@ function my_bcmod($x, $y){
 	$take = 5;
 	$mod = '';
 	do{
-		$a = (int) $mod . substr($x, 0, $take);
+		$a = (int)$mod . substr($x, 0, $take);
 		$x = substr($x, $take);
 		$mod = $a % $y;
 	}while(strlen($x));
 
-	return (int) $mod;
+	return (int)$mod;
 }
 
 function toBase($num, $b = 62, $base = ENG_NUM){
@@ -491,8 +489,9 @@ function aes_decrypt($ciphertext, $password){
 function delTree($dir){
 	if(!is_dir($dir)) return false;
 	$files = array_diff(scandir($dir), array('.', '..'));
-	foreach($files as $file)
-			(is_dir($dir . '/' . $file)) ? delTree($dir . '/' . $file) : unlink($dir . '/' . $file);
+	foreach($files as $file){
+		(is_dir($dir . '/' . $file)) ? delTree($dir . '/' . $file) : unlink($dir . '/' . $file);
+	}
 	return rmdir($dir);
 }
 
@@ -500,9 +499,9 @@ function findDelTree($ConnName, $dir){
 	$path = _DATADIR . '/temp/' . $ConnName . '/';
 	if(!file_exists($path) && !is_dir($path)) mkdir($path, 0755, true);
 	$files = array_diff(scandir($path), array('.', '..'));
-	foreach($files as $file)
-			if(is_dir($path . $file) && strpos($file, $dir) !== false)
-				delTree($path . $file);
+	foreach($files as $file){
+		if(is_dir($path . $file) && strpos($file, $dir) !== false) delTree($path . $file);
+	}
 }
 
 function StrToSql($args){
@@ -527,7 +526,7 @@ function StrToSql($args){
 						$w = substr_replace($w, $t, $p, 2);
 						$p += strlen($t);
 						$find = true;
-						break;
+					break;
 					case 'f':
 						$res = ValidateFloat($args[$i]);
 						if(!$res->result) $validateOk = $res;
@@ -535,7 +534,7 @@ function StrToSql($args){
 						$w = substr_replace($w, $t, $p, 2);
 						$p += strlen($t);
 						$find = true;
-						break;
+					break;
 					case 'd':
 						$res = ValidateInt($args[$i]);
 						if(!$res->result) $validateOk = $res;
@@ -543,23 +542,23 @@ function StrToSql($args){
 						$w = substr_replace($w, $t, $p, 2);
 						$p += strlen($t);
 						$find = true;
-						break;
+					break;
 					case '1':
 						$t = is_array($args[$i]) ? implode(',', $args[$i]) : $args[$i];
 						$w = substr_replace($w, $t, $p, 2);
 						$p += strlen($t);
 						$find = true;
-						break;
+					break;
 					default:
 						$p = strpos($w, '%', $p + 1);
-						break;
+					break;
 				}
 			}
 		}
 		$w = str_replace(array('%\s', '%\f', '%\d', '%\1', '%\t'), array('%s', '%f', '%d', '%1', '%t'), $w);
 		if($validateOk->result) return $w;
 		else
-				URLReplace(-1, $validateOk->message . (_DEVELOPERIS === true ? '[' . $w . ']' : ''));
+			URLReplace(-1, $validateOk->message . (_DEVELOPERIS === true ? '[' . $w . ']' : ''));
 	}
 }
 
@@ -570,16 +569,14 @@ function SqlPassword($input){
 
 function _password_hash($str){
 	if(_USE_OLD_PASSWORD === true) return '*' . SqlPassword($str);
-	if(phpversion() < '5.3.7')
-			return hash('sha256', hash('sha512', sha1(sha1($str, true))));
+	if(phpversion() < '5.3.7') return hash('sha256', hash('sha512', sha1(sha1($str, true))));
 	else if(phpversion() < '5.5') require_once _COMMONDIR . '/password.php';
 	return password_hash(hash('sha256', $str), PASSWORD_BCRYPT);
 }
 
 function _password_verify($str, $hash){
 	if(_USE_OLD_PASSWORD === true) return '*' . SqlPassword($str) == $hash;
-	if(phpversion() < '5.3.7')
-			return $hash === hash('sha256', hash('sha512', sha1(sha1($str, true))));
+	if(phpversion() < '5.3.7') return $hash === hash('sha256', hash('sha512', sha1(sha1($str, true))));
 	else if(phpversion() < '5.5') require_once _COMMONDIR . '/password.php';
 	if(password_verify(hash('sha256', $str), $hash)) return true;
 	return false;
