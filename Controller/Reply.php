@@ -37,7 +37,6 @@ class Reply{
 		$this->model = App::InitModel('Reply');
 		$this->boardModel = App::InitModel('Board');
 		$this->boardManger = App::InitModel('BoardManager');
-		$this->uploadUrl = '/reply/' .$this->bid.'/' . date('ym') . '/';
 	}
 
 	public function __init(){
@@ -46,6 +45,7 @@ class Reply{
 		App::$Data['article_seq'] = SetDBInt((string)$_POST['article_seq']);
 		$this->boardManger->DBGet($this->bid);
 		$this->_ReplySetting();
+		$this->uploadUrl = '/reply/' .$this->bid.'/' . date('ym') . '/';
 	}
 
 	protected function _ReplySetting(){

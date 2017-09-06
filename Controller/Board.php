@@ -53,14 +53,14 @@ class Board{
 		}
 		$this->model = App::InitModel('Board');
 		$this->boardManger = App::InitModel('BoardManager');
-		$this->uploadDir = '/board/'.$this->bid.'/'.date('ym').'/';
-		$this->uploadImageDir = '/boardimage/'.$this->bid.'/'.date('ym').'/';
 	}
 
 	public function __init(){
 		$this->bid = App::$TID;
 		$this->boardManger->DBGet($this->bid);
 		$this->_BoardSetting();
+		$this->uploadDir = '/board/'.$this->bid.'/'.date('ym').'/';
+		$this->uploadImageDir = '/boardimage/'.$this->bid.'/'.date('ym').'/';
 	}
 
 	protected function _BoardSetting(){
