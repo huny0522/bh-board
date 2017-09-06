@@ -8,10 +8,11 @@ class BH_Common
 	private function __construct(){
 	}
 
-	public static function AdminAuth(){
+	public static function AdminAuth($redirectUrl = ''){
+		if($redirectUrl === '') $redirectUrl = App::URLBase('Login');
 		if(_MEMBERIS !== true || ($_SESSION['member']['level'] != _SADMIN_LEVEL  && $_SESSION['member']['level'] != _ADMIN_LEVEL)){
 			if(_AJAXIS === true) JSON(false, _MSG_NO_AUTH.' 로그인하여 주세요.');
-			else URLReplace(App::URLBase('Login'), _MSG_NO_AUTH.' 로그인하여 주세요.');
+			else URLReplace($redirectUrl, _MSG_NO_AUTH.' 로그인하여 주세요.');
 		}
 		if($_SESSION['member']['level'] == _ADMIN_LEVEL){
 			$AdminAuth = explode(',', self::GetMember('admin_auth'));
@@ -94,7 +95,7 @@ class BH_Common
 		$res->result = true;
 		return $res;
 	}
-	
+
 	public static function RefreshParam($beginMark = '?'){
 		return $beginMark.'r='.self::Config('Refresh', 'Refresh');
 	}

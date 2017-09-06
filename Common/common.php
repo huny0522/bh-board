@@ -197,6 +197,20 @@ function SelectOption($OptionValues, $SelectValue = ''){
 	return $str;
 }
 
+/**
+ * @param string $name
+ * @param array $OptionValues
+ * @param string $SelectValue
+ * @return string
+ */
+function InputRadio($name, $OptionValues, $SelectValue = ''){
+	if(is_null($SelectValue)) $SelectValue = '';
+	$str = '';
+	if(!isset($OptionValues) || !is_array($OptionValues)) return $str;
+	foreach($OptionValues as $k => $v) $str .= '<label><input type="radio" name="' . $name . '" value="' . $k . '"' . (isset($SelectValue) && $SelectValue === (string)$k ? ' checked' : '') . '>' . $v . '</label>';
+	return $str;
+}
+
 // Cut title length
 function StringCut($title, $length, $last = '...'){
 	if(mb_strlen($title, 'utf-8') > $length) $result_title = mb_substr($title, 0, $length, 'utf-8') . $last;

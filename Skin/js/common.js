@@ -869,6 +869,12 @@ var _SelectBox = new SelectBox(jQuery);
 		if(typeof before.css === 'undefined') before.css = {};
 		if(typeof after.z === 'undefined') after.z = 0;
 		if(typeof after.css === 'undefined') after.css = {};
+		$.each(before, function(idx, val){
+			if(idx !== 'z' && idx !== 'x' && idx !== 'y' && idx !== 'css') before.css[idx] = val;
+		});
+		$.each(after, function(idx, val){
+			if(idx !== 'z' && idx !== 'x' && idx !== 'y' && idx !== 'css') after.css[idx] = val;
+		});
 		if($.ieIs){
 			before.css.top = before.y;
 			before.css.left = before.x;
