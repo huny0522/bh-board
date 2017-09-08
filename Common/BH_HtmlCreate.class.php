@@ -3,6 +3,7 @@
  * Bang Hun.
  * 16.07.10
  */
+
 use \BH_Common as CM;
 use \BH_Application as App;
 
@@ -10,8 +11,22 @@ class BH_HtmlCreate
 {
 	public static function CreateController($ControllerName, $ModelName, $TableName){
 		if(_DEVELOPERIS !== true) return;
-		$path = _CONTROLLERDIR.(strlen($_POST['sub_dir']) ? '/'.$_POST['sub_dir'] : '').'/'.$ControllerName.'.php';
-		$ndir = strlen($_POST['sub_dir']) ? '\\'.$_POST['sub_dir'] : '';
+		$create = ($_SERVER['REMOTE_ADDR'] === '127.0.0.1' && _FILE_PUT_GUIDE === true);
+
+		$table = str_replace('\'', '', $TableName);
+		if(Post('const') == 'y'){
+			if(!defined($TableName)){
+				URLRedirect(-1, $TableName . ' 상수가 정의되지 않았습니다.');
+			}
+			$table = constant($TableName);
+		}
+		if(!DB::SQL()->TableExists($table)){
+			URLRedirect(-1, '테이블이 존재하지 않습니다.');
+		}
+
+		$path = _CONTROLLERDIR . (strlen($_POST['sub_dir']) ? '/' . $_POST['sub_dir'] : '') . '/' . $ControllerName . '.php';
+		$ndir = strlen($_POST['sub_dir']) ? '\\' . str_replace('/', '\\', $_POST['sub_dir']) : '';
+
 		$text = "<?php
 namespace Controller{$ndir};
 
@@ -24,7 +39,7 @@ class {$ControllerName}{
 	public \$model;
 
 	public function __construct(){
-		\$this->model = App::InitModel('{$ModelName}');
+		\$this->model = new \\{$ModelName}Model();
 	}
 
 	public function __Init(){
@@ -38,22 +53,22 @@ class {$ControllerName}{
 			->SetPageUrl(App::URLAction().App::GetFollowQuery('page'))
 			->Run();
 
-		App::PrintView(\$this, \$this->model, \$qry);
+		App::PrintView(\$this->model, \$qry);
 	}
 
 	public function View(){
 		\$this->_ModelSet();
-		App::PrintView(\$this, \$this->model);
+		App::PrintView(\$this->model);
 	}
 
 	public function Write(){
-		App::PrintView(\$this, \$this->model);
+		App::PrintView(\$this->model);
 	}
 
 	public function Modify(){
 		\$this->_ModelSet();
 		App::\$Html = 'Write';
-		App::PrintView(\$this, \$this->model);
+		App::PrintView(\$this->model);
 	}
 
 	public function PostWrite(){
@@ -61,13 +76,13 @@ class {$ControllerName}{
 		\$err = \$this->model->GetErrorMessage();
 		if(sizeof(\$err)){
 			App::\$Data['error'] = \$err[0];
-			App::PrintView(\$this, \$this->model);
+			App::PrintView(\$this->model);
 			return;
 		}
 		\$res = \$this->model->DBInsert();
 		if(!\$res->result) {
 			App::\$Data['error'] = \$res->message ? \$res->message : 'Query Error';
-			App::PrintView(\$this, \$this->model);
+			App::PrintView(\$this->model);
 			return;
 		}
 		else URLReplace(App::URLAction().App::GetFollowQuery());
@@ -79,13 +94,13 @@ class {$ControllerName}{
 		\$err = \$this->model->GetErrorMessage();
 		if(sizeof(\$err)){
 			App::\$Data['error'] = \$err[0];
-			App::PrintView(\$this, \$this->model);
+			App::PrintView(\$this->model);
 			return;
 		}
 		\$res = \$this->model->DBUpdate();
 		if(!\$res->result) {
 			App::\$Data['error'] = \$res->message ? \$res->message : 'Query Error';
-			App::PrintView(\$this, \$this->model);
+			App::PrintView(\$this->model);
 			return;
 		}
 		else URLReplace(App::URLAction('View/'.App::\$ID).App::GetFollowQuery());
@@ -108,9 +123,14 @@ class {$ControllerName}{
 		if(!\$res->result) URLReplace(-1, \$res->message ? \$res->message : _MSG_NO_ARTICLE);
 	}
 }";
-		if(!file_exists($path)){
-			$path = '/Controller/'.($_POST['sub_dir'] ? $_POST['sub_dir'].'/' : '').$ControllerName.'.php';
-			echo '<b>'.$path.'파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.($text).'</textarea>';
+		if($create){
+			file_put_contents($path, $text);
+		}
+		else{
+			if(!file_exists($path)){
+				$path = '/Controller/' . ($_POST['sub_dir'] ? $_POST['sub_dir'] . '/' : '') . $ControllerName . '.php';
+				echo '<b>' . $path . '파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">' . ($text) . '</textarea>';
+			}
 		}
 
 		$modelText = "<?php
@@ -125,9 +145,16 @@ class {$ModelName}Model extends \\BH_Model{
 	}// __Init
 
 }";
-		$modelPath = '/Model/'.$ModelName.'Model.php';
-		echo '<br><br><b>'.$modelPath.'파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(self::ModifyModel($modelText)).'</textarea>';
-		echo '<br><br><a href="'.$_POST['controller_url'].'">완료</a>';
+
+		$modelPath = '/Model/' . $ModelName . 'Model.php';
+		if($create){
+			file_put_contents(_DIR . $modelPath, self::ModifyModel($modelText));
+			URLRedirect($_POST['controller_url']);
+		}
+		else{
+			echo '<br><br><b>' . $modelPath . '파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">' . (self::ModifyModel($modelText)) . '</textarea>';
+			echo '<br><br><a href="' . $_POST['controller_url'] . '">완료</a>';
+		}
 	}
 
 	public static function ModifyModel($f){
@@ -143,7 +170,8 @@ class {$ModelName}Model extends \\BH_Model{
 			$pattern = '/\$this\-\>table\s*=\s*(.*?)\;/i';
 			preg_match($pattern, $f, $matches);
 			if(sizeof($matches) > 1 && $matches[1]) $TableName = constant($matches[1]);
-		}else $TableName = $matches[1];
+		}
+		else $TableName = $matches[1];
 
 		if(!$TableName) return;
 
@@ -152,12 +180,12 @@ class {$ModelName}Model extends \\BH_Model{
 		$initFuncText = '';
 		if(sizeof($fn_matches) > 1 && $fn_matches[1]) $initFuncText = str_replace(chr(9), '', $fn_matches[1]);
 
-		$qry = \DB::SQL()->Query('SHOW FULL COLUMNS FROM '.$TableName);
+		$qry = \DB::SQL()->Query('SHOW FULL COLUMNS FROM ' . $TableName);
 		$primaryKey = array();
 		//$tData = array();
 		while($row = \DB::SQL()->Fetch($qry)){
 			//$tData[$row['Field']] = $row;
-			$findIs = preg_match('/\$this\-\>data\[\''.$row['Field'].'\'\]\s*=\s*new\s*BH_ModelData/is', $initFuncText);
+			$findIs = preg_match('/\$this\-\>data\[\'' . $row['Field'] . '\'\]\s*=\s*new\s*BH_ModelData/is', $initFuncText);
 			if(strtolower($row['Key']) == 'pri') $primaryKey[] = "'{$row['Field']}'";
 
 			if(!$findIs){
@@ -167,7 +195,7 @@ class {$ModelName}Model extends \\BH_Model{
 				$row['Type'] = strtolower($row['Type']);
 				if(strpos($row['Type'], 'int(') !== false){
 					$modelType = 'ModelType::Int';
-					$addOption .= chr(10).'$this->data[\''.$row['Field'].'\']->DefaultValue = '.(int)$row['Default'].';';
+					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->DefaultValue = ' . (int)$row['Default'] . ';';
 				}
 				else if(strpos($row['Type'], 'date') !== false){
 					$modelType = 'ModelType::Date';
@@ -184,20 +212,20 @@ class {$ModelName}Model extends \\BH_Model{
 					$enum = explode(',', $matches[1]);
 					$enum_t = array();
 					foreach($enum as $v){
-						$enum_t[]= $v.' => '.$v;
+						$enum_t[] = $v . ' => ' . $v;
 					}
-					$addOption .= chr(10).'$this->data[\''.$row['Field'].'\']->EnumValues = array('.implode(',', $enum_t).');';
-					$addOption .= chr(10).'$this->data[\''.$row['Field'].'\']->DefaultValue = \''.$row['Default'].'\';';
+					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->EnumValues = array(' . implode(',', $enum_t) . ');';
+					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->DefaultValue = \'' . $row['Default'] . '\';';
 				}
 				else if(strpos($row['Type'], 'varchar(') !== false){
 					preg_match('/\(([0-9]*?)\)/', $row['Type'], $matches);
-					$addOption .= chr(10).'$this->data[\''.$row['Field'].'\']->MaxLength = \''.$matches[1].'\';';
+					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->MaxLength = \'' . $matches[1] . '\';';
 				}
 				else if(strpos($row['Type'], 'text') !== false){
 					$htmlType = ', HTMLType::Textarea';
 				}
 
-				$initFuncText .= chr(10).chr(10).'$this->data[\''.$row['Field'].'\'] = new \\BH_ModelData('.$modelType.', false, \''.($row['Comment'] ? $row['Comment'] : $row['Field']).'\''.$htmlType.');'.$addOption;
+				$initFuncText .= chr(10) . chr(10) . '$this->data[\'' . $row['Field'] . '\'] = new \\BH_ModelData(' . $modelType . ', false, \'' . ($row['Comment'] ? $row['Comment'] : $row['Field']) . '\'' . $htmlType . ');' . $addOption;
 			}
 
 		}
@@ -205,13 +233,13 @@ class {$ModelName}Model extends \\BH_Model{
 		$pattern = '/\$this\-\>Key\s*=\s*array/i';
 		preg_match($pattern, $initFuncText, $matches);
 		if(!sizeof($matches)){
-			$initFuncText = '$this->Key = array('.implode(',', $primaryKey).');'.chr(10).$initFuncText;
+			$initFuncText = '$this->Key = array(' . implode(',', $primaryKey) . ');' . chr(10) . $initFuncText;
 		}
 
 		$initFuncText = str_replace(chr(11), '', $initFuncText);
-		$initFuncText = str_replace(chr(10), chr(10).chr(9).chr(9), $initFuncText);
+		$initFuncText = str_replace(chr(10), chr(10) . chr(9) . chr(9), $initFuncText);
 		$pattern = '/function\s+__Init\s*\(\s*\)\s*\{\s*(.*?)\s*\}\s*\/\/\s*__Init/is';
-		$res = preg_replace($pattern, 'function __Init(){'.chr(10).chr(9).chr(9).$initFuncText.chr(10).chr(9).'} // __Init', $f);
+		$res = preg_replace($pattern, 'function __Init(){' . chr(10) . chr(9) . chr(9) . $initFuncText . chr(10) . chr(9) . '} // __Init', $f);
 
 		return $res;
 	}
@@ -222,22 +250,35 @@ class {$ModelName}Model extends \\BH_Model{
 	 */
 	public static function Create($path, $model){
 		if(_DEVELOPERIS !== true) return;
-		$path = '/'.$path;
-		if(App::$NativeDir) $path = '/'.App::$NativeDir.$path;
-		if(file_exists(_SKINDIR.$path) && is_dir(_SKINDIR.$path)) return;
+		$create = ($_SERVER['REMOTE_ADDR'] === '127.0.0.1' && _FILE_PUT_GUIDE === true);
 
-		$IndexHtml = self::Index($path.'/Index.html', $model);
-		$ViewHtml = self::View($path.'/View.html', $model);
-		$WriteHtml = self::Write($path.'/Write.html', $model);
-		$path = _SKINURL.'/'.(App::$NativeDir ? App::$NativeDir.'/' : '').App::$ControllerName.'/';
-		echo '<b>'.$path.'Index.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(GetDBText($IndexHtml)).'</textarea>';
-		echo '<br><br>';
-		echo '<b>'.$path.'View.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(GetDBText($ViewHtml)).'</textarea>';
-		echo '<br><br>';
-		echo '<b>'.$path.'Write.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">'.(GetDBText($WriteHtml)).'</textarea>';
-		echo '<br><br>';
+		$path = '/' . $path;
+		if(App::$NativeDir) $path = '/' . App::$NativeDir . $path;
+		if(file_exists(_SKINDIR . $path) && is_dir(_SKINDIR . $path)) return;
+
+		$IndexHtml = self::Index($path . '/Index.html', $model);
+		$ViewHtml = self::View($path . '/View.html', $model);
+		$WriteHtml = self::Write($path . '/Write.html', $model);
+
+		if($create){
+			@mkdir(_SKINDIR . $path, 0777, true);
+			file_put_contents(_SKINDIR . $path . '/Index.html', $IndexHtml);
+			file_put_contents(_SKINDIR . $path . '/View.html', $ViewHtml);
+			file_put_contents(_SKINDIR . $path . '/Write.html', $WriteHtml);
+			URLReplace(App::URLAction());
+		}
+		else{
+			$path = _SKINURL . '/' . (App::$NativeDir ? App::$NativeDir . '/' : '') . App::$ControllerName . '/';
+			echo '<b>' . $path . 'Index.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">' . (GetDBText($IndexHtml)) . '</textarea>';
+			echo '<br><br>';
+			echo '<b>' . $path . 'View.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">' . (GetDBText($ViewHtml)) . '</textarea>';
+			echo '<br><br>';
+			echo '<b>' . $path . 'Write.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">' . (GetDBText($WriteHtml)) . '</textarea>';
+			echo '<br><br>';
+		}
 		exit;
 	}
+
 	/**
 	 * @param string $path
 	 * @param string $model
@@ -252,43 +293,38 @@ class {$ModelName}Model extends \\BH_Model{
 		$modelClass = App::InitModel($model);
 		if(!file_exists(_SKINDIR . $path)){
 
-			$a = explode('/', _SKINDIR .$path);
+			$a = explode('/', _SKINDIR . $path);
 			$filename = array_pop($a);
-			$path2 = implode('/', $a).'/';
+			$path2 = implode('/', $a) . '/';
 
 			//if(!is_dir($path2)) mkdir($path2, 0777, true);
 
-			$html = '<?php if(_BH_ !== true) exit;' . chr(10) . '/**'.chr(10).'* @var $Model \\'.$classname.chr(10).' */' . chr(10) . '?>' . chr(10) . chr(10) . '<table class="view">' . chr(10);
+			$html = "<?php if(_BH_ !== true) exit;
+			
+use \\BH_Application as App;
+use \\BH_Common as CM;
+
+/**
+ * @var \$Model \\{$classname}
+ */
+ 
+ ?>
+ 
+ ";
+			$html .= '<table class="view">' . chr(10);
 			foreach($modelClass->data as $k => $row){
 
-				$html .= '<tr>' . chr(10)
-					. '	<th><?mt(\'' . $k . '\') ?></th>' . chr(10);
-				if(isset($row->EnumValues) && is_array($row->EnumValues)) $html .= '	<td><?menum(\''.$k.'\') ?></td>'. chr(10);
-				else $html .= '	<td>'.chr(10). '		<?mv(\'' . $k . '\') ?>'. chr(10) . '	</td>'.chr(10);
+				$html .= '<tr>' . chr(10) . '	<th><?mt(\'' . $k . '\') ?></th>' . chr(10);
+				if(isset($row->EnumValues) && is_array($row->EnumValues)) $html .= '	<td><?menum(\'' . $k . '\') ?></td>' . chr(10);
+				else $html .= '	<td>' . chr(10) . '		<?mv(\'' . $k . '\') ?>' . chr(10) . '	</td>' . chr(10);
 				$html .= '</tr>' . chr(10);
 			}
 			$html .= '</table>' . chr(10);
 			$html .= '<div class="bottomBtn"><a href="<?a. \'\' ?><?fq. \'\' ?>" class="bBtn">리스트</a><a href="<?a. \'Modify/\'.App::$ID ?><?fq. \'\' ?>" class="bBtn">수정</a><a href="#" id="deleteArticle" class="bBtn">삭제</a><a href="#" class="backbtn bBtn">뒤로</a></div>' . chr(10);
-			$html .= '<div id="deleteForm" class="hidden">'. chr(10)
-				. chr(9).'<form id="delForm" name="delForm" method="post" action="<?a. \'Delete/\'.App::$ID ?><?fq. \'\' ?>">'. chr(10);
+			$html .= '<div id="deleteForm" class="hidden">' . chr(10) . chr(9) . '<form id="delForm" name="delForm" method="post" action="<?a. \'Delete/\'.App::$ID ?><?fq. \'\' ?>">' . chr(10);
 
-			$html .= chr(9). chr(9).'<p>정말 삭제하시겠습니까?</p>'.chr(10)
-				. chr(9). chr(9).'<div class="sPopBtns">' . chr(10)
-				. chr(9). chr(9).chr(9).'<button type="submit" class="btn2">삭제하기</button>' . chr(10)
-				. chr(9). chr(9).chr(9).'<button type="reset" class="btn2">취소</button>' . chr(10)
-				. chr(9).chr(9).'</div>'. chr(10)
-				. chr(9).'</form>'. chr(10)
-				.'</div>'. chr(10);
-			$html .= '<script>'
-				.chr(9).'$(\'#deleteArticle\').on(\'click\', function(e){' . chr(10)
-				.chr(9).chr(9).'e.preventDefault();' . chr(10)
-				.chr(9).chr(9).'$(\'#deleteForm\').show();' . chr(10)
-				.chr(9).'});' . chr(10)
-				.chr(9).'$(\'#deleteForm button[type=reset]\').on(\'click\', function(e){' . chr(10)
-				.chr(9).chr(9).'e.preventDefault();' . chr(10)
-				.chr(9).chr(9).'$(\'#deleteForm\').hide();' . chr(10)
-				.chr(9).'});' . chr(10)
-				.'</script>';
+			$html .= chr(9) . chr(9) . '<p>정말 삭제하시겠습니까?</p>' . chr(10) . chr(9) . chr(9) . '<div class="sPopBtns">' . chr(10) . chr(9) . chr(9) . chr(9) . '<button type="submit" class="btn2">삭제하기</button>' . chr(10) . chr(9) . chr(9) . chr(9) . '<button type="reset" class="btn2">취소</button>' . chr(10) . chr(9) . chr(9) . '</div>' . chr(10) . chr(9) . '</form>' . chr(10) . '</div>' . chr(10);
+			$html .= '<script>' . chr(9) . '$(\'#deleteArticle\').on(\'click\', function(e){' . chr(10) . chr(9) . chr(9) . 'e.preventDefault();' . chr(10) . chr(9) . chr(9) . '$(\'#deleteForm\').show();' . chr(10) . chr(9) . '});' . chr(10) . chr(9) . '$(\'#deleteForm button[type=reset]\').on(\'click\', function(e){' . chr(10) . chr(9) . chr(9) . 'e.preventDefault();' . chr(10) . chr(9) . chr(9) . '$(\'#deleteForm\').hide();' . chr(10) . chr(9) . '});' . chr(10) . '</script>';
 			return $html;
 			/*file_put_contents(_SKINDIR . $path, $html);
 			ReplaceHTMLFile(_SKINDIR . $path, _HTMLDIR . $path);*/
@@ -303,20 +339,28 @@ class {$ModelName}Model extends \\BH_Model{
 		$modelClass = App::InitModel($model);
 		if(!file_exists(_SKINDIR . $path)){
 
-			$a = explode('/', _SKINDIR .$path);
+			$a = explode('/', _SKINDIR . $path);
 			$filename = array_pop($a);
-			$path2 = implode('/', $a).'/';
+			$path2 = implode('/', $a) . '/';
 
 			//if(!is_dir($path2)) mkdir($path2, 0777, true);
 
+			$html = "<?php if(_BH_ !== true) exit;
 
-			$html = '<?php if(_BH_ !== true) exit;' . chr(10) .'/**'.chr(10).'* @var $Model \\'.$classname.chr(10).' */' . chr(10) .'?>' . chr(10) . chr(10);
-			$html .= '<form name="'.$model.'WriteForm" id="'.$model.'WriteForm" method="post" action="<?a. App::$Action.\'/\'.App::$ID ?><?fq. \'\' ?>">'. chr(10);
+use \\BH_Application as App;
+use \\BH_Common as CM;
 
-			$html .= chr(10).'	<table class="write">' . chr(10);
+/**
+ * @var \$Model \\{$classname}
+ */
+?>
+
+";
+			$html .= '<form name="' . $model . 'WriteForm" id="' . $model . 'WriteForm" method="post" action="<?a. App::$Action.\'/\'.App::$ID ?><?fq. \'\' ?>">' . chr(10);
+
+			$html .= chr(10) . '	<table class="write">' . chr(10);
 			foreach($modelClass->data as $k => $row){
-				$html .= '		<tr>' . chr(10)
-					. '			<th>';
+				$html .= '		<tr>' . chr(10) . '			<th>';
 				if($row->Required) $html .= '<i class="requiredBullet" title="필수항목">*</i> ';
 				$html .= '<?mt(\'' . $k . '\') ?></th>' . chr(10);
 				$html .= '			<td>' . chr(10);
@@ -324,45 +368,34 @@ class {$ModelName}Model extends \\BH_Model{
 				$guide = '';
 				if($row->MaxLength !== false){
 					$guide .= '					<li>';
-					if($row->MinLength !== false) $guide .= $row->MinLength.'자 이상, ';
-					$guide .= $row->MaxLength.'자 이하로 입력하여주세요.</li>'.chr(10);
-				}else if($row->MinLength !== false){
-					$guide .= '					<li>'.$row->MinLength.'자 이상 입력하여주세요.</li>'.chr(10);
+					if($row->MinLength !== false) $guide .= $row->MinLength . '자 이상, ';
+					$guide .= $row->MaxLength . '자 이하로 입력하여주세요.</li>' . chr(10);
+				}
+				else if($row->MinLength !== false){
+					$guide .= '					<li>' . $row->MinLength . '자 이상 입력하여주세요.</li>' . chr(10);
 				}
 				if($row->MaxValue !== false){
 					$guide .= '					<li>';
-					if($row->MaxValue !== false) $guide .= $row->MinValue.' 이상, ';
-					$guide .= $row->MaxValue.' 이하의 값을 입력하여주세요.</li>'.chr(10);
-				}else if($row->MinValue !== false){
-					$guide .= '					<li>'.$row->MinValue.' 이상의 값을 입력하여주세요.</li>'.chr(10);
+					if($row->MaxValue !== false) $guide .= $row->MinValue . ' 이상, ';
+					$guide .= $row->MaxValue . ' 이하의 값을 입력하여주세요.</li>' . chr(10);
+				}
+				else if($row->MinValue !== false){
+					$guide .= '					<li>' . $row->MinValue . ' 이상의 값을 입력하여주세요.</li>' . chr(10);
 				}
 				if($row->HtmlType == HTMLType::InputEng){
-					$guide .= '					<li>영문만 입력하여 주세요.</li>'.chr(10);
+					$guide .= '					<li>영문만 입력하여 주세요.</li>' . chr(10);
 				}
 				if($row->Type == HTMLType::InputEngNum){
-					$guide .= '					<li>영문과 숫자만 입력하여 주세요.</li>'.chr(10);
+					$guide .= '					<li>영문과 숫자만 입력하여 주세요.</li>' . chr(10);
 				}
-				if($guide) $html .= '				<ul class="guide">' . chr(10).$guide.'				</ul>'.chr(10);
+				if($guide) $html .= '				<ul class="guide">' . chr(10) . $guide . '				</ul>' . chr(10);
 
-				$html .= '			</td>' . chr(10)
-					. '		</tr>' . chr(10);
+				$html .= '			</td>' . chr(10) . '		</tr>' . chr(10);
 			}
 			$html .= '	</table>' . chr(10) . chr(10);
-			$html .= '	<div class="bottomBtn">' . chr(10)
-				.'		<button type="submit" class="bBtn"><?php echo App::$Action == \'Modify\' ? \'수정\' : \'등록\'; ?></button>' . chr(10)
-				.'		<button type="reset" class="bBtn">취소</button>' . chr(10)
-				.'		<a href="#" class="backbtn bBtn">뒤로</a>'.chr(10)
-				.'	</div>' . chr(10);
-			$html .= '</form>' . chr(10). chr(10);
-			$html .= chr(60).'script>' . chr(10)
-				. '	$(document).on(\'submit\', \'#'.$model.'WriteForm\', function(e){' . chr(10)
-				. '		var res = $(this).validCheck();' . chr(10)
-				. '		if(!res){' . chr(10)
-				. '			e.preventDefault(); ' . chr(10)
-				. '			return false; ' . chr(10)
-				. '		} ' . chr(10)
-				. '	});' . chr(10)
-				. '</script>' . chr(10);
+			$html .= '	<div class="bottomBtn">' . chr(10) . '		<button type="submit" class="bBtn"><?php echo App::$Action == \'Modify\' ? \'수정\' : \'등록\'; ?></button>' . chr(10) . '		<button type="reset" class="bBtn">취소</button>' . chr(10) . '		<a href="#" class="backbtn bBtn">뒤로</a>' . chr(10) . '	</div>' . chr(10);
+			$html .= '</form>' . chr(10) . chr(10);
+			$html .= chr(60) . 'script>' . chr(10) . '	$(document).on(\'submit\', \'#' . $model . 'WriteForm\', function(e){' . chr(10) . '		var res = $(this).validCheck();' . chr(10) . '		if(!res){' . chr(10) . '			e.preventDefault(); ' . chr(10) . '			return false; ' . chr(10) . '		} ' . chr(10) . '	});' . chr(10) . '</script>' . chr(10);
 			return $html;
 			/*file_put_contents(_SKINDIR . $path, $html);
 			ReplaceHTMLFile(_SKINDIR . $path, _HTMLDIR . $path);*/
@@ -377,48 +410,60 @@ class {$ModelName}Model extends \\BH_Model{
 		$modelClass = App::InitModel($model);
 		if(!file_exists(_SKINDIR . $path)){
 
-			$a = explode('/', _SKINDIR .$path);
+			$a = explode('/', _SKINDIR . $path);
 			$filename = array_pop($a);
-			$path2 = implode('/', $a).'/';
+			$path2 = implode('/', $a) . '/';
+
 
 			//키값
-			$html = '<?php if(_BH_ !== true) exit;' . chr(10) . '/**'.chr(10).'* @var $Model \\'.$classname.chr(10).' */' . chr(10) . '/**'.chr(10).'* @var $Data \\BH_DB_GetListWithPage'.chr(10).'*/' . chr(10) . '?>' . chr(10) . chr(10);
-			$html .= '<?php if($Data->result && $Data->totalRecord){ ?>'. chr(10);
-			$html .= '<table class="list">'.chr(10);
-			$html .= '<thead>'. chr(10);
+			$html = "<?php if(_BH_ !== true) exit;
+
+use \\BH_Application as App;
+use \\BH_Common as CM;
+
+/**
+ * @var \$Model \\{$classname}
+ * @var \$Data \\BH_DB_GetListWithPage
+ */
+?>
+
+";
+			$html .= '<?php if($Data->result && $Data->totalRecord){ ?>' . chr(10);
+			$html .= '<table class="list">' . chr(10);
+			$html .= '<thead>' . chr(10);
 			$html .= '<tr>' . chr(10);
 			$n = 0;
 			$html .= '	<th>번호</th>' . chr(10);
 			foreach($modelClass->data as $k => $row){
 				$html .= '	<th><?mt(\'' . $k . '\') ?></th>' . chr(10);
-				$n ++;
+				$n++;
 			}
-			$html .= '	<th></th>'. chr(10);
-			$html .= '</tr>'. chr(10);
-			$html .= '</thead>'. chr(10);
-			$html .= '<tbody>'. chr(10);
-			$html .= '<?php while($row = $Data->Get()){?>'. chr(10);
-			$html .= '<tr>'. chr(10);
-			$html .= '	<td><?e. $Data->beginNum-- ?></td>'. chr(10);
+			$html .= '	<th></th>' . chr(10);
+			$html .= '</tr>' . chr(10);
+			$html .= '</thead>' . chr(10);
+			$html .= '<tbody>' . chr(10);
+			$html .= '<?php while($row = $Data->Get()){?>' . chr(10);
+			$html .= '<tr>' . chr(10);
+			$html .= '	<td><?e. $Data->beginNum-- ?></td>' . chr(10);
 			foreach($modelClass->data as $k => $row){
-				if(isset($row->EnumValues) && is_array($row->EnumValues)) $html .= '	<td><?menum(\''.$k.'\', $row[\''.$k.'\']) ?></td>'. chr(10);
-				else $html .= '	<td><?v. $row[\''.$k.'\']; ?></td>'. chr(10);
+				if(isset($row->EnumValues) && is_array($row->EnumValues)) $html .= '	<td><?menum(\'' . $k . '\', $row[\'' . $k . '\']) ?></td>' . chr(10);
+				else $html .= '	<td><?v. $row[\'' . $k . '\']; ?></td>' . chr(10);
 			}
 			$keys = array();
 			foreach($modelClass->Key as $k){
-				$keys[] = '$row[\''.$k.'\']';
+				$keys[] = '$row[\'' . $k . '\']';
 			}
-			$html .= '	<td><a href="<?a. \'View/\'.'.implode('.\'/\'.', $keys).' ?><?fn. \'\' ?>">상세보기</a></td>'. chr(10);
+			$html .= '	<td><a href="<?a. \'View/\'.' . implode('.\'/\'.', $keys) . ' ?><?fn. \'\' ?>">상세보기</a></td>' . chr(10);
 
-			$html .= '</tr>'. chr(10);
-			$html .= '<?php } ?>'. chr(10);
-			$html .= '</tbody>'. chr(10);
-			$html .= '</table>'.chr(10). chr(10);
-			$html .= '<?php } else{ ?>'. chr(10);
-			$html .= '<p class="nothing">등록된 게시물이 없습니다.</p>'. chr(10);
-			$html .= '<?php } ?>'. chr(10);
-			$html .= '<div class="left_btn"><a href="<?a. \'Write\' ?><?fq. \'\' ?>" class="mBtn">글쓰기</a></div>'. chr(10);
-			$html .= '<?e. $Data->GetPageHtml() ?>'. chr(10);
+			$html .= '</tr>' . chr(10);
+			$html .= '<?php } ?>' . chr(10);
+			$html .= '</tbody>' . chr(10);
+			$html .= '</table>' . chr(10) . chr(10);
+			$html .= '<?php } else{ ?>' . chr(10);
+			$html .= '<p class="nothing">등록된 게시물이 없습니다.</p>' . chr(10);
+			$html .= '<?php } ?>' . chr(10);
+			$html .= '<div class="left_btn"><a href="<?a. \'Write\' ?><?fq. \'\' ?>" class="mBtn">글쓰기</a></div>' . chr(10);
+			$html .= '<?e. $Data->GetPageHtml() ?>' . chr(10);
 			return $html;
 			/*file_put_contents(_SKINDIR . $path, $html);
 			ReplaceHTMLFile(_SKINDIR . $path, _HTMLDIR . $path);*/

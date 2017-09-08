@@ -55,6 +55,7 @@ define('_USE_OLD_PASSWORD', false);
 define('_SHOW_CREATE_GUIDE', true);
 
 define('_STYLEFILE', '_bhinline.bhcss.php');
+define('_FILE_PUT_GUIDE', true);
 
 define('_MAX_IMAGE_COUNT', 10);
 define('_MAX_IMAGE_WIDTH', '1024');
