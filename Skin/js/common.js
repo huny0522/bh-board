@@ -1056,9 +1056,10 @@ var _SelectBox = new SelectBox(jQuery);
 						}
 
 					}
-					if($(this).hasClass('numberonly') && this.hasAttribute('data-minvalue')){
+					if(($(this).hasClass('numberonly') || $(this).hasClass('numberformat')) && this.hasAttribute('data-minvalue')){
 						var min = parseInt($(this).attr('data-minvalue'));
-						if(parseInt($(this).val()) < min){
+						var val = parseInt(JCM.removeComma($(this).val()));
+						if(val < min){
 							var obj = this;
 							CMAlert($(this).attr('data-displayname') + ' 항목의 최소값은 ' + min + '입니다.', function(){
 								$(obj).focus();
@@ -1068,9 +1069,10 @@ var _SelectBox = new SelectBox(jQuery);
 						}
 
 					}
-					if($(this).hasClass('numberonly') && this.hasAttribute('data-maxvalue')){
+					if(($(this).hasClass('numberonly') || $(this).hasClass('numberformat')) && this.hasAttribute('data-maxvalue')){
 						var max = parseInt($(this).attr('data-maxvalue'));
-						if(parseInt($(this).val()) > max){
+						var val = parseInt(JCM.removeComma($(this).val()));
+						if(val > max){
 							var obj = this;
 							CMAlert($(this).attr('data-displayname') + ' 항목의 최대값은 ' + max + '입니다.', function(){
 								$(obj).focus();
