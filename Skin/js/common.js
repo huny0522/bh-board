@@ -866,8 +866,12 @@ var _SelectBox = new SelectBox(jQuery);
 	 ----------------------------------------------------- */
 	$.fn.translate3d = function(before, after, duration, complete) {
 		if(typeof before.z === 'undefined') before.z = 0;
+		if(typeof before.x === 'undefined') before.x = 0;
+		if(typeof before.y === 'undefined') before.y = 0;
 		if(typeof before.css === 'undefined') before.css = {};
 		if(typeof after.z === 'undefined') after.z = 0;
+		if(typeof after.x === 'undefined') after.x = 0;
+		if(typeof after.y === 'undefined') after.y = 0;
 		if(typeof after.css === 'undefined') after.css = {};
 		$.each(before, function(idx, val){
 			if(idx !== 'z' && idx !== 'x' && idx !== 'y' && idx !== 'css') before.css[idx] = val;
@@ -901,7 +905,14 @@ var _SelectBox = new SelectBox(jQuery);
 			$(this).css(before.css);
 
 			$(this).css('width');
-			if(typeof(complete) === 'function') $(this).on('transitionend webkittransitionend mstransitionend', complete);
+			if(typeof(complete) === 'function'){
+				var t = this;
+				$(this).on('transitionend webkittransitionend mstransitionend', function(e){
+					$(t).off('transitionend webkittransitionend mstransitionend');
+					complete.call(this, e);
+				});
+			}
+
 			after.css.transition = duration + 'ms';
 			if(after.css.transform){
 				afterTranslate += ' ' + after.css.transform;
@@ -1100,6 +1111,18 @@ var _SelectBox = new SelectBox(jQuery);
 			}
 		});
 		return ret;
+	};
+
+	$.fn.selectVal = function(str){
+		if($(this)[0].tagName === 'SELECT'){
+			var opt = $(this).find('option[value="' + str + '"]');
+			if(opt.length) opt[0].selected = true;
+			else $(this).find('option')[0].selected = true;
+			if($(this).closest('.selectBox').length){
+				_SelectBox.Set.call(this);
+			}
+		}
+		else $(this).val(str);
 	};
 })(jQuery);
 
@@ -1453,9 +1476,10 @@ $(document).on('keyup', 'input.engspecialonly', function() {
 	if(this.value !== val) this.value = val;
 });
 
-$(document).on('keyup click change focus', 'input.numberformat', function(){
-	if(this.value === '') return;
+$(document).on('keyup click change focusin focusout', 'input.numberformat', function(e){
+	if(this.value === '') this.value = '0';
 	var val = JCM.setComma(parseInt(this.value.replace(/[^0-9]/gi,'')));
+	if(e.type !== 'focusout' && val === '0') val = '';
 	this.value = '';
 	this.value = val;
 });
@@ -1506,8 +1530,11 @@ $(document).ready(function(){
 		container.find('section').eq(idx).addClass('on').siblings('section').removeClass('on');
 	});
 
-	document.body.addEventListener('DOMNodeInserted', DomInserted);
-	document.body.addEventListener('DomNodeInsertedIntoDocument', DomInserted);
+	function DomModified(e){
+		if(e.target.tagName === 'SELECT' && $(e.target).closest('.selectBox').length){
+			_SelectBox.Set.call($(e.target));
+		}
+	}
 
 	function DomInserted(e){
 		if($(e.target).hasClass('imgAlign')) _ImageAlign.align.call(e.target);
@@ -1521,6 +1548,17 @@ $(document).ready(function(){
 			if($(this).hasClass('selectBox')) _SelectBox.Set.call($(this).find('select'));
 			if($(this).hasClass('datePicker') && !$(this).hasClass('nopicker')) datepicker.call(this);
 		});
+	}
+
+	if(JCM.ie8){
+		document.body.attachEvent('DOMNodeInserted', DomInserted);
+		document.body.attachEvent('DomNodeInsertedIntoDocument', DomInserted);
+		document.body.attachEvent('DOMSubtreeModified', DomModified);
+	}
+	else{
+		document.body.addEventListener('DOMNodeInserted', DomInserted);
+		document.body.addEventListener('DomNodeInsertedIntoDocument', DomInserted);
+		document.body.addEventListener('DOMSubtreeModified', DomModified);
 	}
 });
 

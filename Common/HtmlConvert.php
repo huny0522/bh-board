@@ -37,12 +37,14 @@ function ReplaceHTMLFile($source, $target){
 		'/<\?\s*inc\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
 		'/<\?\s*mt\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*mv\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'/<\?\s*mvn\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*mvr\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*mvb\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*minp\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*menum\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*mt\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*mv\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'/<\?\s*mvn\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*mvr\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*mvb\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*minp\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
@@ -70,12 +72,14 @@ function ReplaceHTMLFile($source, $target){
 		'<?php if(_DEVELOPERIS === true) ReplaceHTMLFile(_SKINDIR.$1, _HTMLDIR.$1); require _HTMLDIR.$1; ?>',
 		'<?php echo $Model->data[$1]->DisplayName; ?>',
 		'<?php echo GetDBText($Model->GetValue($1)); ?>',
+		'<?php echo number_format(GetDBText($Model->GetValue($1))); ?>',
 		'<?php echo GetDBRaw($Model->GetValue($1)); ?>',
 		'<?php echo nl2br(GetDBText($Model->GetValue($1))); ?>',
 		'<?php echo $Model->HTMLPrintInput($1); ?>',
 		'<?php echo $Model->HTMLPrintEnum($1); ?>',
 		'<?php echo $Ctrl->$1->data[$2]->DisplayName; ?>',
 		'<?php echo GetDBText($Ctrl->$1->GetValue($2)); ?>',
+		'<?php echo number_format(GetDBText($Ctrl->$1->GetValue($2))); ?>',
 		'<?php echo GetDBRaw($Ctrl->$1->GetValue($2)); ?>',
 		'<?php echo nl2br(GetDBText($Ctrl->$1->GetValue($2))); ?>',
 		'<?php echo $Ctrl->$1->HTMLPrintInput($2); ?>',
@@ -123,7 +127,7 @@ function ReplaceHTMLFile($source, $target){
 		foreach($files as $css){
 			$findIs = false;
 			if($styleData[$css])
-					foreach($styleData[$css] as $k => &$v){
+				foreach($styleData[$css] as $k => &$v){
 					if($v['type'] == 'incss' && $v['file'] == $file){
 						$findIs = true;
 						if(!isset($cssFileData[$css]) || $v['data'] !== $cssFileData[$css]){
@@ -147,22 +151,22 @@ function ReplaceHTMLFile($source, $target){
 
 		$f = str_replace("\r", '', $f);
 		$f = preg_replace(
-				array(
-			'/(<\!--)([^\[].*?)(\-\->)/s',
-			'/(\/\*)(.*?)(\*\/)/s',
-			'/\n\s*/'
-				), array(
+			array(
+				'/(<\!--)([^\[].*?)(\-\->)/s',
+				'/(\/\*)(.*?)(\*\/)/s',
+				'/\n\s*/'
+			), array(
 			'',
 			'',
 			"\n"
-				), $f);
+		), $f);
 		if(_REMOVE_SPACE === true){
 			$f = preg_replace(
-					array(
-				'/>\s*</s'
-					), array(
+				array(
+					'/>\s*</s'
+				), array(
 				'><'
-					), $f);
+			), $f);
 		}
 		$f = preg_replace($patterns, $replace, $f);
 
@@ -220,7 +224,7 @@ function __styleGet($file = ''){
 	$f = '';
 	$path = _HTMLDIR . '/css/';
 	if(file_exists($path . $file))
-			$f = str_replace(chr(13), '', file_get_contents($path . $file));
+		$f = str_replace(chr(13), '', file_get_contents($path . $file));
 
 	$styleData[$file] = array();
 	$flen = strlen($f);

@@ -228,40 +228,58 @@ class BH_Common
 		return $dbList;
 	}
 
-	// 배너 가져오기
-	public static function GetBanner($category){
+	/**
+	 * 배너 가져오기
+	 * @param string $category
+	 * @param int $number
+	 * @param string $sort
+	 * @return array
+	 */
+	public static function GetBanner($category, $number = 5, $sort = 'sort DESC, seq ASC'){
 		$banner = new \BH_DB_GetList(TABLE_BANNER);
-		$banner->AddWhere('begin_date <= \''.date('Y-m-d').'\'');
-		$banner->AddWhere('end_date >= \''.date('Y-m-d').'\'');
-		$banner->AddWhere('enabled = \'y\'');
-		$banner->AddWhere('category = %s', $category);
-		$mlevel = _MEMBERIS === true ? $_SESSION['member']['level'] : 0;
-		$banner->AddWhere('mlevel <= '.$mlevel);
-		$banner->sort = 'sort DESC, seq ASC';
+		$banner->AddWhere('begin_date <= \''.date('Y-m-d').'\'')
+			->AddWhere('end_date >= \''.date('Y-m-d').'\'')
+			->AddWhere('enabled = \'y\'')
+			->AddWhere('category = %s', $category)
+			->SetSort($sort)
+			->SetLimit($number);
 
-		$data = array();
-		while($row = $banner->Get()){
+		$mlevel = _MEMBERIS === true ? $_SESSION['member']['level'] : 0;
+		$banner->AddWhere('mlevel <= '.$mlevel)
+			->DrawRows();
+
+		foreach($banner->data as $k => $row){
 			$html = '';
 			if($row['link_url']) $html .= '<a href="'.$row['link_url'].'"'.($row['new_window'] == 'y' ? ' target="_blank"' : '').'>';
 			$html .= '<img src="'._UPLOAD_URL.$row['img'].'" alt="'.GetDBText($row['subject']).'">';
 			if($row['link_url']) $html .= '</a>';
-			$data[] = $html;
+			$banner->data[$k]['html'] = $html;
 		}
-		return $data;
+
+		return $banner->data;
 	}
 
-	// 팝업 가져오기
-	public static function GetPopup(){
-		$banner = new \BH_DB_GetList(TABLE_POPUP);
-		$banner->AddWhere('begin_date <= \''.date('Y-m-d').'\'');
-		$banner->AddWhere('end_date >= \''.date('Y-m-d').'\'');
-		$banner->AddWhere('enabled = \'y\'');
-		$mlevel = _MEMBERIS === true ? $_SESSION['member']['level'] : 0;
-		$banner->AddWhere('mlevel <= '.$mlevel);
-		$banner->sort = 'sort DESC, seq ASC';
+	/**
+	 * 팝업 가져오기
+	 * @param int $number
+	 * @param string $sort
+	 * @return array
+	 */
+	public static function GetPopup($number = 5, $sort = 'sort DESC, seq ASC'){
 
-		$data = array();
-		while($row = $banner->Get()){
+		$banner = new \BH_DB_GetList(TABLE_POPUP);
+		$banner->AddWhere('begin_date <= \''.date('Y-m-d').'\'')
+			->AddWhere('end_date >= \''.date('Y-m-d').'\'')
+			->AddWhere('enabled = \'y\'')
+			->SetSort($sort)
+			->SetLimit($number);
+
+		$mlevel = _MEMBERIS === true ? $_SESSION['member']['level'] : 0;
+		$banner->AddWhere('mlevel <= '.$mlevel)
+			->DrawRows();
+
+
+		foreach($banner->data as $k => $row){
 			if($row['type'] == 'i'){
 				$html = '';
 				if($row['link_url']) $html .= '<a href="'.$row['link_url'].'"'.($row['new_window'] == 'y' ? ' target="_blank"' : '').'>';
@@ -270,9 +288,9 @@ class BH_Common
 			}
 			else $html = GetDBRaw(addslashes($row['contents']));
 
-			$data[] = array('html' => $html, 'seq' => $row['seq'], 'width' => $row['width'], 'height' => $row['height']);
+			$banner->data[$k]['html'] = $html;
 		}
-		return $data;
+		return $banner->data;
 	}
 
 	/* -------------------------------------------------

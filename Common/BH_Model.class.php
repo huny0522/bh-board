@@ -388,11 +388,11 @@ class _ModelFunc{
 
 	public static function CheckLength($key, &$Data){
 		if($Data->Type == ModelType::String){
-			if($Data->MinLength !== false && $Data->MinLength > strlen($Data->Value)){
+			if($Data->MinLength !== false && $Data->MinLength > mb_strlen($Data->Value)){
 				$Data->ModelErrorMsg = $Data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 '.$Data->MinLength.'자 이상 입력하여 주세요.';
 				return false;
 			}
-			if($Data->MaxLength !== false && $Data->MaxLength < strlen($Data->Value)){
+			if($Data->MaxLength !== false && $Data->MaxLength < mb_strlen($Data->Value)){
 				$Data->ModelErrorMsg = $Data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 '.$Data->MaxLength.'자 이하 입력하여 주세요.';
 				return false;
 			}

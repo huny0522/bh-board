@@ -53,22 +53,22 @@ class {$ControllerName}{
 			->SetPageUrl(App::URLAction().App::GetFollowQuery('page'))
 			->Run();
 
-		App::PrintView(\$this->model, \$qry);
+		App::View(\$this->model, \$qry);
 	}
 
 	public function View(){
 		\$this->_ModelSet();
-		App::PrintView(\$this->model);
+		App::View(\$this->model);
 	}
 
 	public function Write(){
-		App::PrintView(\$this->model);
+		App::View(\$this->model);
 	}
 
 	public function Modify(){
 		\$this->_ModelSet();
 		App::\$Html = 'Write';
-		App::PrintView(\$this->model);
+		App::View(\$this->model);
 	}
 
 	public function PostWrite(){
@@ -76,13 +76,13 @@ class {$ControllerName}{
 		\$err = \$this->model->GetErrorMessage();
 		if(sizeof(\$err)){
 			App::\$Data['error'] = \$err[0];
-			App::PrintView(\$this->model);
+			App::View(\$this->model);
 			return;
 		}
 		\$res = \$this->model->DBInsert();
 		if(!\$res->result) {
 			App::\$Data['error'] = \$res->message ? \$res->message : 'Query Error';
-			App::PrintView(\$this->model);
+			App::View(\$this->model);
 			return;
 		}
 		else URLReplace(App::URLAction().App::GetFollowQuery());
@@ -94,13 +94,13 @@ class {$ControllerName}{
 		\$err = \$this->model->GetErrorMessage();
 		if(sizeof(\$err)){
 			App::\$Data['error'] = \$err[0];
-			App::PrintView(\$this->model);
+			App::View(\$this->model);
 			return;
 		}
 		\$res = \$this->model->DBUpdate();
 		if(!\$res->result) {
 			App::\$Data['error'] = \$res->message ? \$res->message : 'Query Error';
-			App::PrintView(\$this->model);
+			App::View(\$this->model);
 			return;
 		}
 		else URLReplace(App::URLAction('View/'.App::\$ID).App::GetFollowQuery());
