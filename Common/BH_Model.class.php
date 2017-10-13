@@ -228,7 +228,7 @@ class BH_Model{
 
 	/**
 	 * 키값에 해당하는 DB데이터를 한 행 가져온다.
-	 * @param array $keys
+	 * @param array|string $keys
 	 * @return BH_Result
 	 */
 	public function DBDelete($keys){
@@ -388,11 +388,11 @@ class _ModelFunc{
 
 	public static function CheckLength($key, &$Data){
 		if($Data->Type == ModelType::String){
-			if($Data->MinLength !== false && $Data->MinLength > mb_strlen($Data->Value)){
+			if($Data->MinLength !== false && $Data->MinLength > mb_strlen($Data->Value, 'UTF-8')){
 				$Data->ModelErrorMsg = $Data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 '.$Data->MinLength.'자 이상 입력하여 주세요.';
 				return false;
 			}
-			if($Data->MaxLength !== false && $Data->MaxLength < mb_strlen($Data->Value)){
+			if($Data->MaxLength !== false && $Data->MaxLength < mb_strlen($Data->Value, 'UTF-8')){
 				$Data->ModelErrorMsg = $Data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 '.$Data->MaxLength.'자 이하 입력하여 주세요.';
 				return false;
 			}
@@ -538,6 +538,7 @@ class _ModelFunc{
 
 					if($v->ValueIsQuery) $dbInsert->data[$k] = $v->Value;
 					else if($v->Type == ModelType::Int){
+						if(!strlen($v->Value) && !isset($v->DefaultValue)) continue;
 						if(!strlen($v->Value) && isset($v->DefaultValue)) $dbInsert->data[$k] = $v->DefaultValue;
 						else{
 							$res = self::CheckInt($k, $v->Value);
@@ -549,6 +550,7 @@ class _ModelFunc{
 						}
 					}
 					else if($v->Type == ModelType::Float){
+						if(!strlen($v->Value) && !isset($v->DefaultValue)) continue;
 						if(!strlen($v->Value) && isset($v->DefaultValue)) $dbInsert->data[$k] = $v->DefaultValue;
 						else{
 							$res = self::CheckFloat($k, $v->Value);
@@ -596,6 +598,7 @@ class _ModelFunc{
 
 					if($v->ValueIsQuery) $dbUpdate->SetData($k, $v->Value);
 					else if($v->Type == ModelType::Int){
+						if(!strlen($v->Value)) continue;
 						$res = self::CheckInt($k, $v->Value);
 						if($res === true) $dbUpdate->SetDataNum($k, $v->Value);
 						else{
@@ -604,6 +607,7 @@ class _ModelFunc{
 						}
 					}
 					else if($v->Type == ModelType::Float){
+						if(!strlen($v->Value)) continue;
 						$res = self::CheckFloat($k, $v->Value);
 						if($res === true) $dbUpdate->SetDataNum($k, $v->Value);
 						else{

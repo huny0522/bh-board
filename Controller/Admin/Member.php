@@ -32,17 +32,19 @@ class Member{
 	public function Index(){
 
 		// 리스트를 불러온다.
-		$dbGetList = new \BH_DB_GetListWithPage($this->model->table);
-		$dbGetList->page = isset($_GET['page']) ? $_GET['page'] : 1;
-		$dbGetList->pageUrl = App::URLAction('').App::GetFollowQuery('page');
-		$dbGetList->articleCount = 20;
-		$dbGetList->AddWhere('level < '.$_SESSION['member']['level'].' OR muid = '.$_SESSION['member']['muid']);
-		if(isset($_GET['Keyword']) && strlen(trim($_GET['Keyword']))){
-			$keywrod = my_escape_string(trim($_GET['Keyword']));
-			$dbGetList->AddWhere('( mid LIKE \'%'.$keywrod.'%\' OR email LIKE \'%'.$keywrod.'%\' OR mname LIKE \'%'.$keywrod.'%\' OR nickname LIKE \'%'.$keywrod.'%\' OR phone LIKE \'%'.$keywrod.'%\' )');
+		$dbGetList = DB::GetListPageQryObj($this->model->table)
+			->SetPage(Get('page'))
+			->SetPageUrl(App::URLAction('').App::GetFollowQuery('page'))
+			->SetArticleCount(20)
+			->AddWhere('level < %d OR muid = %d', $_SESSION['member']['level'], $_SESSION['member']['muid']);
+		$keyword = trim(Get('Keyword'));
+		$slevel = Get('SLevel');
+
+		if(strlen($keyword)){
+			$dbGetList->AddWhere('INSTR(mid, %s) OR INSTR(email, %s) OR INSTR(mname, %s) OR INSTR(nickname, %s) OR INSTR(phone, %s)', $keyword, $keyword, $keyword, $keyword, $keyword);
 		}
-		if(isset($_GET['SLevel']) && strlen($_GET['SLevel'])){
-			$dbGetList->AddWhere('level='.SetDBInt($_GET['SLevel']));
+		if(strlen($slevel)){
+			$dbGetList->AddWhere('level = %d', $slevel);
 		}
 		$dbGetList->Run();
 
@@ -109,6 +111,13 @@ class Member{
 			return;
 		}
 
+		$err = $this->model->GetErrorMessage();
+		if(sizeof($err)){
+			App::$Data['error'] = $err[0];
+			App::View($this->model);
+			return;
+		}
+
 		if($this->model->GetValue('level') >= $_SESSION['member']['level']) URLReplace('-1', '해당 레벨로 등록이 불가능합니다.');
 
 		$this->model->SetValue('reg_date', date('Y-m-d H:i:s'));
@@ -119,9 +128,9 @@ class Member{
 	}
 
 	public function PostModify(){
-		if(!$_POST['pwd']) unset($_POST['pwd']);
+		if(!strlen(Post('pwd'))) $this->model->AddExcept('pwd');
 
-		$res = $this->model->DBGet($_POST['muid']);
+		$res = $this->model->DBGet(Post('muid'));
 		if($this->model->GetValue('level') > $_SESSION['member']['level'] || ($_SESSION['member']['muid'] != $this->model->GetValue('muid') && $this->model->GetValue('level') == $_SESSION['member']['level'])){
 			URLReplace('-1', _MSG_WRONG_CONNECTED);
 		}
@@ -129,6 +138,11 @@ class Member{
 		$res = $this->model->SetPostValues();
 		if($this->model->GetValue('level') >= $_SESSION['member']['level'] && $this->model->GetValue('muid') != $_SESSION['member']['muid']){
 			URLReplace('-1', '해당 레벨로 등록이 불가능합니다.');
+		}
+
+		$err = $this->model->GetErrorMessage();
+		if(sizeof($err)){
+			URLRedirect('-1',$err[0]);
 		}
 
 		if(!$res->result){

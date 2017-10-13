@@ -485,7 +485,29 @@ function to10($num, $b = 62, $base = ENG_NUM){
 	return $res;
 }
 
+function bc_toBase($num, $b = 62, $base = ENG_NUM){
+	if(!isset($num) || !strlen($num)) return '';
+	$r = bcmod($num, $b);
+	$res = $base[$r];
+	$q = bcdiv($num, $b);
+	while($q){
+		$r = bcmod($q, $b);
+		$q = bcdiv($q, $b);
+		$res = $base[$r] . $res;
+	}
+	return $res;
+}
+
+function bc_to10($num, $b = 62, $base = ENG_NUM){
+	if(!isset($num) || !strlen($num)) return '';
+	$limit = strlen($num);
+	$res = strpos($base, $num[0]);
+	for($i = 1; $i < $limit; $i++) $res = bcadd(bcmul($b, $res), strpos($base, $num[$i]));
+	return $res;
+}
+
 function JSON($bool, $message = '', $data = array(), $exitIs = true){
+	header('Content-Type: application/json');
 	echo json_encode(array('result' => $bool, 'message' => $message, 'data' => $data));
 	if($exitIs) exit;
 }
@@ -605,6 +627,11 @@ function modifyFileTime($file, $group = 'default'){
 
 	if(!isset($GLOBALS['fileModTime']) || !isset($GLOBALS['fileModTime'][$group]) || !isset($GLOBALS['fileModTime'][$group][$file]) || $t != $GLOBALS['fileModTime'][$group][$file]){
 		$GLOBALS['fileModTime'][$group][$file] = $t;
+		foreach($GLOBALS['fileModTime'] as $k => $v){
+			foreach($v as $k2 => $v2){
+				if(!file_exists($v2)) unset($GLOBALS[$k][$k2]);
+			}
+		}
 		$txt = '<?php $GLOBALS[\'fileModTime\'] = ' . var_export($GLOBALS['fileModTime'], true) . ';';
 		file_put_contents($path, $txt);
 		return true;
