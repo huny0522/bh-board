@@ -125,6 +125,7 @@ class BH_Common
 
 		$dbGet = new \BH_DB_Get(TABLE_IMAGES);
 		$dbGet->AddWhere('tid = %s', $tid);
+		$dbGet->AddWhere('article_seq = %d', $dbKeyValue);
 		$dbGet->SetKey('COUNT(*) as cnt');
 		$cnt = $dbGet->Get();
 		$imageCount = $cnt['cnt'];

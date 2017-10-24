@@ -95,8 +95,10 @@ class Board{
 
 		// 관리자
 		if($this->AdminPathIs){
-			$this->Path = '/Board/Admin/';
-			App::$Html = '/Board/Admin/' . $action.'.html';
+			$this->Path = '/Board/Admin/'.$this->boardManger->GetValue('skin').'/';
+			if(!file_exists(_SKINDIR.$this->Path.$action.'.html')) $this->Path = '/Board/Admin/';
+
+			App::$Html = $this->Path . $action.'.html';
 			App::$Layout = '_Admin';
 			$this->MoreListIs = false;
 			$this->GetListIs = false;

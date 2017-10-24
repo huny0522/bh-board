@@ -37,6 +37,7 @@ class Reply{
 		$this->model = App::InitModel('Reply');
 		$this->boardModel = App::InitModel('Board');
 		$this->boardManger = App::InitModel('BoardManager');
+		$this->uploadUrl = '/reply/' .$this->bid.'/' . date('ym') . '/';
 	}
 
 	public function __init(){
@@ -45,7 +46,6 @@ class Reply{
 		App::$Data['article_seq'] = SetDBInt((string)$_POST['article_seq']);
 		$this->boardManger->DBGet($this->bid);
 		$this->_ReplySetting();
-		$this->uploadUrl = '/reply/' .$this->bid.'/' . date('ym') . '/';
 	}
 
 	protected function _ReplySetting(){
@@ -258,7 +258,7 @@ class Reply{
 
 			$this->model->SetValue('muid', $_SESSION['member']['muid']);
 			$this->model->SetValue('mlevel', $member['level']);
-			$this->model->SetValue('mname', $member['nickname']);
+			$this->model->SetValue('mname', $member['nickname'] ? $member['nickname'] : $member['mname']);
 		}
 
 		// 답글쓰기라면 sort 정렬

@@ -10,7 +10,7 @@ function RandomFileName(){
 	$t = microtime();
 	$t = explode(' ',$t);
 	$t2 = (double)($t[0]*1000000);
-	$t3 = toBase(rand(0,3843)).toBase($t[1],36).toBase($t2,36);
+	$t3 = toBase(rand(0,3843), 36).toBase($t[1],36).toBase($t2,36);
 	return $t3;
 }
 

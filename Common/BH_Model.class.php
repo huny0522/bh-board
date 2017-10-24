@@ -183,8 +183,8 @@ class BH_Model{
 	 *
 	 * @return string
 	 */
-	public function HTMLPrintLabel($Name, $HtmlAttribute = false){
-		return _ModelFunc::HTMLPrintLabel($this, $Name, $HtmlAttribute);
+	public function HTMLPrintLabel($Name, $HtmlAttribute = false, $firstIDName = 'MD_'){
+		return _ModelFunc::HTMLPrintLabel($this, $Name, $HtmlAttribute, $firstIDName);
 	}
 
 	/**
@@ -194,8 +194,8 @@ class BH_Model{
 	 *
 	 * @return string
 	 */
-	public function HTMLPrintInput($Name, $HtmlAttribute = false){
-		return _ModelFunc::HTMLPrintInput($Name, $this->data[$Name], $HtmlAttribute);
+	public function HTMLPrintInput($Name, $HtmlAttribute = false, $firstIDName = 'MD_'){
+		return _ModelFunc::HTMLPrintInput($Name, $this->data[$Name], $HtmlAttribute, $firstIDName);
 	}
 
 	/**
@@ -411,16 +411,16 @@ class _ModelFunc{
 		return true;
 	}
 
-	public static function HTMLPrintLabel(&$model, $Name, $HtmlAttribute){
+	public static function HTMLPrintLabel(&$model, $Name, $HtmlAttribute, $firstIDName){
 		$Attribute = '';
 		if($HtmlAttribute === false) $HtmlAttribute = array();
 		foreach($HtmlAttribute as $k => $row){
 			$Attribute .= ' '.$k.'="'.$row.'"';
 		}
-		return '<label for="MD_'.$Name.'" '.$Attribute.'>'.$model->data[$Name]->DisplayName.'</label>';
+		return '<label for="'.$firstIDName.$Name.'" '.$Attribute.'>'.$model->data[$Name]->DisplayName.'</label>';
 	}
 
-	public static function HTMLPrintInput($Name, &$data, $HtmlAttribute = false){
+	public static function HTMLPrintInput($Name, &$data, $HtmlAttribute = false, $firstIDName){
 		$htmlType = strtolower($data->HtmlType);
 		$Attribute = '';
 		$val = isset($data->Value) ? $data->Value : $data->DefaultValue;
@@ -469,23 +469,23 @@ class _ModelFunc{
 			case HTMLType::InputPassword:
 			case HTMLType::InputEmail:
 			case HTMLType::InputTel:
-				return '<input type="'.$htmlType.'" name="'.$Name.'" id="MD_'.$Name.'" '.(isset($val) && $htmlType != HTMLType::InputPassword ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+				return '<input type="'.$htmlType.'" name="'.$Name.'" id="'.$firstIDName.$Name.'" '.(isset($val) && $htmlType != HTMLType::InputPassword ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
 			break;
 			case HTMLType::NumberFormat:
 			case HTMLType::InputDatePicker:
 			case HTMLType::InputEngNum:
 			case HTMLType::InputEng:
 			case HTMLType::InputEngSpecial:
-				return '<input type="text" name="'.$Name.'" id="MD_'.$Name.'" '.(isset($val) ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+				return '<input type="text" name="'.$Name.'" id="'.$firstIDName.$Name.'" '.(isset($val) ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
 			break;
 			case HTMLType::InputDate:
-				return '<span class="dateInput"><input type="text" name="'.$Name.'" id="MD_'.$Name.'" '.(isset($val) ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'></span>';
+				return '<span class="dateInput"><input type="text" name="'.$Name.'" id="'.$firstIDName.$Name.'" '.(isset($val) ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'></span>';
 			break;
 			case HTMLType::InputFile:
-				return '<input type="'.$htmlType.'" name="'.$Name.'" id="MD_'.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+				return '<input type="'.$htmlType.'" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
 			break;
 			case HTMLType::Textarea:
-				return '<textarea name="'.$Name.'" id="MD_'.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>'.(isset($val) ? GetDBText($val) : '').'</textarea>';
+				return '<textarea name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>'.(isset($val) ? GetDBText($val) : '').'</textarea>';
 			break;
 			case HTMLType::InputRadio:
 			case HTMLType::InputCheckbox:
@@ -495,14 +495,14 @@ class _ModelFunc{
 					foreach($data->EnumValues as $k=>$v){
 						$checked = isset($val) && $k == $val ? ' checked="checked"' : '';
 
-						$ret .= '<label for="MD_'.$Name.'_'.$i.'" class="'.$htmlType.'"><input type="'.$htmlType.'" name="'.$Name.'" id="MD_'.$Name.'_'.$i.'" value="'.$k.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.$checked.'> <span>'.$v.'</span></label>';
+						$ret .= '<label for="'.$firstIDName.$Name.'_'.$i.'" class="'.$htmlType.'"><input type="'.$htmlType.'" name="'.$Name.'" id="'.$firstIDName.$Name.'_'.$i.'" value="'.$k.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.$checked.'> <span>'.$v.'</span></label>';
 						$i++;
 					}
 				}
 				return $ret;
 			break;
 			case HTMLType::Select:
-				$ret = '<select name="'.$Name.'" id="MD_'.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+				$ret = '<select name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
 
 				if(isset($data->EnumValues) && is_array($data->EnumValues)){
 					foreach($data->EnumValues as $k=>$v){
@@ -534,7 +534,7 @@ class _ModelFunc{
 				if(isset($v->Value)){
 					if(in_array($k, $model->Key) && $v->AutoDecrement === true) continue;
 
-					if(!$v->ValueIsQuery && $v->HtmlType == HTMLType::InputTel) $v->Value = preg_replace('/[^0-9]/','',$v->Value);
+					if(!$v->ValueIsQuery && $v->HtmlType == HTMLType::InputTel) $v->Value = preg_replace('/[^0-9\-\*\#]/','',$v->Value);
 
 					if($v->ValueIsQuery) $dbInsert->data[$k] = $v->Value;
 					else if($v->Type == ModelType::Int){
@@ -594,7 +594,7 @@ class _ModelFunc{
 				if(isset($v->Value)){
 					if(in_array($k, $model->Key) && $v->AutoDecrement === true) continue;
 
-					if(!$v->ValueIsQuery && $v->HtmlType == HTMLType::InputTel) $v->Value = preg_replace('/[^0-9]/','',$v->Value);
+					if(!$v->ValueIsQuery && $v->HtmlType == HTMLType::InputTel) $v->Value = preg_replace('/[^0-9\-\*\#]/','',$v->Value);
 
 					if($v->ValueIsQuery) $dbUpdate->SetData($k, $v->Value);
 					else if($v->Type == ModelType::Int){
