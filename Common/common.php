@@ -207,7 +207,7 @@ function InputRadio($name, $OptionValues, $SelectValue = ''){
 	if(is_null($SelectValue)) $SelectValue = '';
 	$str = '';
 	if(!isset($OptionValues) || !is_array($OptionValues)) return $str;
-	foreach($OptionValues as $k => $v) $str .= '<label><input type="radio" name="' . $name . '" value="' . $k . '"' . (isset($SelectValue) && $SelectValue === (string)$k ? ' checked' : '') . '>' . $v . '</label>';
+	foreach($OptionValues as $k => $v) $str .= '<label class="radio"><input type="radio" name="' . $name . '" value="' . $k . '"' . (isset($SelectValue) && $SelectValue === (string)$k ? ' checked' : '') . '><span>' . $v . '</span></label>';
 	return $str;
 }
 

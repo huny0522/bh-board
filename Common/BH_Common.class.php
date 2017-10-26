@@ -64,7 +64,7 @@ class BH_Common
 		if(!isset(App::$CFG[$code])){
 			$path = _DATADIR.'/CFG/'.$code.'.php';
 			if(file_exists($path)){
-				require_once $path;
+				App::$CFG[$code] = unserialize(substr(file_get_contents($path), 15));
 			}else App::$CFG[$code] = array();
 		}
 		return isset(App::$CFG[$code][$key]) ? App::$CFG[$code][$key] : null;
@@ -84,13 +84,13 @@ class BH_Common
 		if(!isset(App::$CFG[$code])){
 			$path = _DATADIR.'/CFG/'.$code.'.php';
 			if(file_exists($path)){
-				require_once $path;
+				App::$CFG[$code] = unserialize(substr(file_get_contents($path), 15));
 			}else App::$CFG[$code] = array();
 		}
 
 		App::$CFG[$code][$key] = $val;
 		$path = _DATADIR.'/CFG/'.$code.'.php';
-		$txt = '<?php \BH_Application::$CFG[\''.$code.'\'] = '.var_export(App::$CFG[$code], true).';';
+		$txt = '<?php return;/*'.serialize(App::$CFG[$code]);
 		file_put_contents($path, $txt);
 		$res->result = true;
 		return $res;

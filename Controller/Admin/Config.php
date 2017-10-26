@@ -70,7 +70,7 @@ class Config{
 		}
 
 		$path = _DATADIR.'/CFG/'.$_POST['Code'].'.php';
-		$txt = '<?php \BH_Application::$CFG[\''.$_POST['Code'].'\'] = '.var_export(App::$CFG[$_POST['Code']], true).';';
+		$txt = '<?php return;/*'.serialize(App::$CFG[$_POST['Code']]);
 		file_put_contents($path, $txt);
 		URLReplace(App::URLAction($_POST['Code'] != 'Default' ? $_POST['Code'] : ''), '설정되었습니다.');
 	}

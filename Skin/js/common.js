@@ -296,7 +296,10 @@ function Common($) {
 		if(!modal.length) return;
 
 		if(modal.attr('data-close-type') === 'hidden') modal.hide();
-		else modal.remove();
+		else{
+			if(typeof modal.data('close_method') === 'function') modal.data('close_method')();
+			modal.remove();
+		}
 		$('body').css('overflow-y', $('body')[0].hasAttribute('data-ovy') ? $('body').attr('data-ovy') : 'auto');
 	};
 
@@ -853,7 +856,7 @@ var _SelectBox = new SelectBox(jQuery);
 	$.ieIs = navigator.appName === 'Microsoft Internet Explorer';
 
 	$.fn.FormReset = function(){
-		this.reset();
+		$(this)[0].reset();
 		_SelectBox.SetAll();
 		DateInputAll();
 	};
