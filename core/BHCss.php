@@ -30,11 +30,11 @@ class BHCss{
 	public static $convDirMessage = array();
 
 	private function __construct(){
-		
+
 	}
 
 	private function __clone(){
-		
+
 	}
 
 	public static function reset(){
@@ -79,6 +79,35 @@ class BHCss{
 		return null;
 	}
 
+	public static function convStyleText($text){
+		self::$cssBody = $text;
+		uksort(self::$variable, array('\BH\BHCss\BHCss', 'varSort'));
+
+		self::extractComment();
+
+		self::settingVariable();
+
+		self::cssToNode();
+
+		self::$cssBody = self::node2css(self::$node);
+
+		self::convertVariable();
+
+		self::crossCss();
+
+		if(!self::$enableNL){
+			self::$cssBody = str_replace(array(self::COMMENT_STRING, "\t", "\n", "\r"), '', self::$cssBody);
+		}
+		else{
+			// 주석삽입
+			foreach(self::$comment as $v){
+				self::$cssBody = preg_replace('/' . str_replace(array('@', ';'), array("\\@", "\\;"), self::COMMENT_STRING) . '/', self::NL . self::NL . $v, self::$cssBody, 1);
+			}
+		}
+
+		return self::$cssBody;
+	}
+
 	// 컨버팅
 	public static function conv($path, $target = ''){
 		$path = str_replace('\\', '/', $path);
@@ -105,7 +134,7 @@ class BHCss{
 		array_pop($exp);
 		$tempPath = implode('/', $exp);
 		if(!file_exists($tempPath) || !is_dir($tempPath))
-				mkdir($tempPath, 0755, true);
+			mkdir($tempPath, 0755, true);
 
 		self::extractComment();
 
@@ -243,7 +272,7 @@ class BHCss{
 					$v = trim($v);
 					if(!$k) $groups = $v;
 					else
-							$groups .= ($v[0] == '~' ? trim(substr($v, 1)) : ($v[0] == ':' ? '' : ' ') . $v);
+						$groups .= ($v[0] == '~' ? trim(substr($v, 1)) : ($v[0] == ':' ? '' : ' ') . $v);
 				}
 
 				$s = explode(',', $node->selector);
@@ -251,7 +280,7 @@ class BHCss{
 					$v = trim($v);
 					if(!strlen($v)) $v = $groups;
 					else
-							$v = $groups . ($v[0] == '~' ? trim(substr($v, 1)) : ($v[0] == ':' ? '' : ' ') . $v);
+						$v = $groups . ($v[0] == '~' ? trim(substr($v, 1)) : ($v[0] == ':' ? '' : ' ') . $v);
 				}
 				$txt .= implode(',', $s) . '{' . $node->data . '}';
 				if(sizeof($after)){
@@ -384,8 +413,8 @@ class BHCss{
 			'/(-\S+-box-sizing)\s*[:]\s*(.*?);\s*/',
 			'/(-\S+-background-size)\s*[:]\s*(.*?);\s*/',
 			'/(-\S+-text-overflow)\s*[:]\s*(.*?);\s*/',
-			'/(\S+?)\s*[:]\s*\-(webkit\-|moz\-|o\-)(linear\-|radial\-)gradient\s*\((.*?)\)\s*;/',
-				), '', self::$cssBody);
+			'/([a-zA-Z]+?)\s*[:]\s*\-(webkit\-|moz\-|o\-)(linear\-|radial\-)gradient\s*\((.*?)\)\s*;/',
+		), '', self::$cssBody);
 
 		$patterns = array(
 			'/(border-radius)\s*[:]\s*(.*?);/',
@@ -452,7 +481,7 @@ class BHCss{
 
 	public static function convertBHCssDir($tempfile_path, $beginIs = true){
 		if($beginIs)
-				self::$convDirMessage = array('success' => array(), 'fail' => array());
+			self::$convDirMessage = array('success' => array(), 'fail' => array());
 
 		if(!is_dir($tempfile_path)) return;
 
@@ -464,7 +493,7 @@ class BHCss{
 					else{
 						if(substr($dest_path, strlen(BHCss::$fileExtension) * (-1)) == BHCss::$fileExtension){
 							if(!isset(self::$modifyFilesTime[$dest_path]))
-									self::$modifyFilesTime[$dest_path] = 0;
+								self::$modifyFilesTime[$dest_path] = 0;
 
 							BHCss::reset();
 							$res = BHCss::convTimeCheck(self::$modifyFilesTime[$dest_path], $dest_path, $tempfile_path . '/' . substr($file, 0, strlen(BHCss::$fileExtension) * (-1)) . '.css');
