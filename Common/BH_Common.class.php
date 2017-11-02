@@ -64,7 +64,9 @@ class BH_Common
 		if(!isset(App::$CFG[$code])){
 			$path = _DATADIR.'/CFG/'.$code.'.php';
 			if(file_exists($path)){
-				App::$CFG[$code] = unserialize(substr(file_get_contents($path), 15));
+				$data = file_get_contents($path);
+				if(substr($data, 0, 15) == '<?php return;/*') App::$CFG[$code] = unserialize(substr($data, 15));
+				else require $path;
 			}else App::$CFG[$code] = array();
 		}
 		return isset(App::$CFG[$code][$key]) ? App::$CFG[$code][$key] : null;

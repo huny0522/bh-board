@@ -325,8 +325,7 @@ function ToFloat($s){
 }
 
 function RemoveScriptTag($str){
-	return preg_replace(array('/\<\/*\s*(script|form|input|select|button|textarea)(.*?)\>/is',
-		'/\<(.*?)(\s+(on|e-).*?)\>/is'), array('', '<$1>'), $str);
+	return preg_replace(array('/\<\/*\s*(script|form|input|select|button|textarea).*?\>/is', '/\<\s*(\S+?)\s+on.*?\>/is'), array('', '<$1>'), $str);
 }
 
 function SetDBTrimText($txt){
