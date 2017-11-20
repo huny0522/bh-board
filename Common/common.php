@@ -100,10 +100,20 @@ function URLRedirect($url, $msg = '', $data = '', $exitIs = true){
 }
 
 function PhoneNumber($num){
-	$num = str_replace('-', '', $num);
-	if(strlen($num) == 11) return substr($num, 0, 3) . '-' . substr($num, 3, 4) . '-' . substr($num, 7, 4);
-	else
-		return substr($num, 0, 3) . '-' . substr($num, 3, 3) . '-' . substr($num, 6, 4);
+	$num = preg_replace('/[^0-9]/', '', str_replace('-', '', $num));
+	if(substr($num, 0, 2) == '02'){
+		if(strlen($num) >= 10){
+			return substr($num, 0, 2) . '-' . substr($num, 2, 4) . '-' . substr($num, 6);
+		}else if(strlen($num) == 9){
+			return substr($num, 0, 2) . '-' . substr($num, 2, 3) . '-' . substr($num, 5);
+		}
+		else return $num;
+	}
+	else if(strlen($num) >= 11) return substr($num, 0, 3) . '-' . substr($num, 3, 4) . '-' . substr($num, 7);
+	else if(strlen($num) == 10){
+		return substr($num, 0, 3) . '-' . substr($num, 3, 3) . '-' . substr($num, 6);
+	}
+	else return $num;
 }
 
 function KrDate($date, $opt = 'ymdhis', $hourView = 0){

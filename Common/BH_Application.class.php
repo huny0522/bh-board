@@ -133,6 +133,12 @@ class BH_Application
 			self::$Action = '_DirectView';
 		}
 
+		else if(substr(self::$ControllerName, 0, 1) == '~'){
+			self::$ID = substr(self::$ControllerName, 1);
+			self::$ControllerName = _DEFAULT_CONTROLLER;
+			self::$Action = '_DirectView';
+		}
+
 		$path = _DIR . '/Controller/' . (self::$NativeDir ? self::$NativeDir . '/' : '') . self::$ControllerName . '.php';
 
 		if(file_exists($path)){
@@ -254,47 +260,68 @@ class BH_Application
 	}
 
 	// 레이아웃을 포함한 HTML을 출력한다.
-	public static function View($Model = null, $Data = null){
+	public static function View(){
+		$Model = $Data = $html = null;
+		$args = func_get_args();
+		foreach($args as $k => &$row){
+			if(is_object($row) && substr(get_class($row), -5) === 'Model') $Model = $row;
+			else if(!$k && is_string($row)) $html = $row;
+			else $Data = $row;
+		}
 		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
 
-		self::SetViewHtml($d_b[1]['object'], $Model, $Data);
+		if(is_null($html)) self::SetViewHtml($d_b[1]['object'], $Model, $Data);
+		else self::SetViewHtml($d_b[1]['object'], $Model, $Data, false, $html);
 		if(_JSONIS === true) JSON(true, '', self::$BodyHtml);
 		else echo self::$BodyHtml;
 	}
 
 	// 레이아웃을 제외한 HTML을 출력한다.
-	public static function OnlyView($Model = null, $Data = null){
+	public static function OnlyView(){
+		$Model = $Data = $html = null;
+		$args = func_get_args();
+		foreach($args as $k => &$row){
+			if(is_object($row) && substr(get_class($row), -5) === 'Model') $Model = $row;
+			else if(!$k && is_string($row)) $html = $row;
+			else $Data = $row;
+		}
+
 		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-		self::SetViewHtml($d_b[1]['object'], $Model, $Data, true);
+		if(is_null($html)) self::SetViewHtml($d_b[1]['object'], $Model, $Data, true);
+		else self::SetViewHtml($d_b[1]['object'], $Model, $Data, true, $html);
 		if(_JSONIS === true) JSON(true, '', self::$BodyHtml);
 		else echo self::$BodyHtml;
 	}
 
-	// html소스를 선택하여, 레이아웃을 제외한 HTML을 출력한다.
-	public static function ArticleView($html, $Model = null, $Data = null){
-		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-		self::SetViewHtml($d_b[1]['object'], $Model, $Data, true, $html);
-		echo self::$BodyHtml;
-	}
-
 	// 레이아웃을 포함한 HTML을 가져온다.
-	public static function GetView($Model = null, $Data = null){
+	public static function GetView(){
+		$Model = $Data = $html = null;
+		$args = func_get_args();
+		foreach($args as $k => &$row){
+			if(is_object($row) && substr(get_class($row), -5) === 'Model') $Model = $row;
+			else if(!$k && is_string($row)) $html = $row;
+			else $Data = $row;
+		}
+
 		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-		self::SetViewHtml($d_b[1]['object'], $Model, $Data);
+		if(is_null($html)) self::SetViewHtml($d_b[1]['object'], $Model, $Data);
+		else self::SetViewHtml($d_b[1]['object'], $Model, $Data, false, $html);
 		return self::$BodyHtml;
 	}
 
 	// 레이아웃을 제외한 HTML을 가져온다.
-	public static function GetOnlyView($Model = null, $Data = null){
-		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-		self::SetViewHtml($d_b[1]['object'], $Model, $Data, true);
-		return self::$BodyHtml;
-	}
+	public static function GetOnlyView(){
+		$Model = $Data = $html = null;
+		$args = func_get_args();
+		foreach($args as $k => &$row){
+			if(is_object($row) && substr(get_class($row), -5) === 'Model') $Model = $row;
+			else if(!$k && is_string($row)) $html = $row;
+			else $Data = $row;
+		}
 
-	// html소스를 선택하여, 레이아웃을 제외한 HTML을 가져온다.
-	public static function GetArticleView($html, $Model = null, $Data = null){
 		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-		self::SetViewHtml($d_b[1]['object'], $Model, $Data, true, $html);
+		if(is_null($html)) self::SetViewHtml($d_b[1]['object'], $Model, $Data, true);
+		else self::SetViewHtml($d_b[1]['object'], $Model, $Data, true, $html);
 		return self::$BodyHtml;
 	}
 

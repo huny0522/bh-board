@@ -300,7 +300,7 @@ function Common($) {
 			if(typeof modal.data('close_method') === 'function') modal.data('close_method')();
 			modal.remove();
 		}
-		$('body').css('overflow-y', $('body')[0].hasAttribute('data-ovy') ? $('body').attr('data-ovy') : 'auto');
+		$('body').css({'overflow-y' : $('body')[0].hasAttribute('data-ovy') ? $('body').attr('data-ovy') : 'auto', 'margin-right' : '0'});
 	};
 
 	// modal 생성
@@ -309,7 +309,7 @@ function Common($) {
 		if (!w) w = 400;
 		if (!h) h = 300;
 		var html = '<div id="' + modal_id + '" class="modal_layer"><div class="modal_wrap">';
-		if (title && title !== '') html += '<div class="modal_header"><h1 class="modal_title">' + title + '</h1><p class="close_modal_btn"><i class="fa fa-close" title="닫기" onclick="JCM.removeModal(\'#' + modal_id + '\')"></i></p></div>';
+		if (title && title !== '') html += '<div class="modal_header"><h1 class="modal_title">' + title + '</h1><p class="close_modal_btn"><i title="닫기" onclick="JCM.removeModal(\'#' + modal_id + '\')"></i></p></div>';
 		html += '<div class="modal_contents">' + data + '</div>';
 		html += '</div></div>';
 		$('body').append(html);
@@ -325,8 +325,11 @@ function Common($) {
 		box.css({
 			'margin': '-' + (box.outerHeight() / 2) + 'px' + ' 0 0 -' + (box.outerWidth() / 2) + 'px'
 		});
+		var beforeW = $('body').width();
 		if(!$('body')[0].hasAttribute('data-ovy')) $('body').attr('data-ovy', $('body').css('overflow-y'));
 		$('body').css('overflow-y', 'hidden');
+		$('body').css({'position' : 'relative', 'width' : 'auto', 'margin-right' : ($('body').width() - beforeW)+'px'});
+
 	};
 
 	// ajax를 보낸 후 모달창을 띄움(createModal)
