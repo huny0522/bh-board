@@ -431,26 +431,35 @@ function Common($) {
 			$(this).remove();
 		});
 
+		var w = 500;
+		var h = 500;
+		if(w > $('body').width()){
+			w = 320;
+			h = 410;
+		}
+
 		$('#DaumPostCodeWrap').css({
 			'position': 'fixed',
 			'z-index': '9999',
 			'top': '50%',
 			'left': '50%',
-			'width': '500px',
-			'height': '500px',
-			'margin-top': '-250px',
-			'margin-left': '-250px',
+			'width': w + 'px',
+			'height': h + 'px',
+			'margin-top': '-' + (h/2) + 'px',
+			'margin-left': '-' + (w/2) + 'px',
+			'box-sizing': 'border-box',
 			'background': 'white',
 			'border': '5px solid black'
 		});
+
 		daum.postcode.load(function () {
 			new daum.Postcode({
 				oncomplete: function (data) {
 					$('#DaumPostCode').remove();
 					if(callback) callback(data);
 				},
-				width: '490px',
-				height: '490px'
+				width: (w - 10) + 'px',
+				height: (h - 10) + 'px'
 			}).embed($('#DaumPostCodeWrap')[0]);
 		});
 	};
@@ -551,8 +560,8 @@ function MessageModal($){
 	window.CMAlert = function(msg, callback){
 		if(typeof callback === 'function')
 			_this.Create(msg, [{text : '확인', onclick : function(obj){
-				callback();
-			}}]);
+					callback();
+				}}]);
 		else _this.Create(msg);
 	};
 
@@ -560,11 +569,11 @@ function MessageModal($){
 		if(typeof title === 'undefined') title = '알림';
 		_this.Create(message, [
 			{text : '확인', onclick : function(obj){
-				if(typeof yesCallback === 'function') yesCallback();
-			}},
+					if(typeof yesCallback === 'function') yesCallback();
+				}},
 			{text : '취소', onclick : function(obj){
-				if(typeof noCallback === 'function') noCallback();
-			}}
+					if(typeof noCallback === 'function') noCallback();
+				}}
 		], title);
 	};
 }

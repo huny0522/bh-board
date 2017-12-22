@@ -117,11 +117,6 @@ class BH_Application
 		// ----------------------
 
 
-		if(isset(self::$ExtendMethod['BeforeLoadController'])){
-			$beforeLoadController = self::$ExtendMethod['BeforeLoadController'];
-			$beforeLoadController();
-		}
-
 		if(!self::$ControllerName) self::$ControllerName = _DEFAULT_CONTROLLER;
 		if(!strlen(self::$Action)) self::$Action = 'Index';
 		else if(strtolower(substr(self::$Action, 0, 4)) == 'post') self::$Action = preg_replace('/^(Post)+(.*)/i', '$2', self::$Action);
@@ -142,6 +137,12 @@ class BH_Application
 		$path = _DIR . '/Controller/' . (self::$NativeDir ? self::$NativeDir . '/' : '') . self::$ControllerName . '.php';
 
 		if(file_exists($path)){
+
+			if(isset(self::$ExtendMethod['BeforeLoadController'])){
+				$beforeLoadController = self::$ExtendMethod['BeforeLoadController'];
+				$beforeLoadController();
+			}
+
 			require $path;
 			$controller = '\\Controller\\' . (self::$NativeDir ? str_replace('/', '\\', self::$NativeDir) . '\\' : '') . self::$ControllerName;
 			if(!class_exists($controller)){

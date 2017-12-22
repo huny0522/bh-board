@@ -31,7 +31,7 @@ class BH_Common
 	public static function MemberAuth($level = 1){
 		if(_MEMBERIS !== true){
 			if(_AJAXIS === true) JSON(false, _MSG_NO_AUTH.' 로그인하여 주세요.');
-			else URLReplace(App::URLBase('Login'), _MSG_NO_AUTH.' 로그인하여 주세요.');
+			else URLReplace(_URL . '/Login', _MSG_NO_AUTH.' 로그인하여 주세요.');
 		}
 		if($_SESSION['member']['level'] < $level){
 			if(_AJAXIS === true) JSON(false, _MSG_NO_AUTH);
