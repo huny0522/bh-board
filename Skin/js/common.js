@@ -313,6 +313,12 @@ function Common($) {
 		html += '<div class="modal_contents">' + data + '</div>';
 		html += '</div></div>';
 		$('body').append(html);
+		JCM.showModal(modal_id, w, h);
+	};
+
+	this.showModal = function(modal_id, w, h){
+		if (!w) w = 400;
+		if (!h) h = 300;
 		$('#' + modal_id).children('.modal_wrap').css({
 			'width': w + 'px'
 			, 'height': h + 'px'
@@ -329,7 +335,6 @@ function Common($) {
 		if(!$('body')[0].hasAttribute('data-ovy')) $('body').attr('data-ovy', $('body').css('overflow-y'));
 		$('body').css('overflow-y', 'hidden');
 		$('body').css({'position' : 'relative', 'width' : 'auto', 'margin-right' : ($('body').width() - beforeW)+'px'});
-
 	};
 
 	// ajax를 보낸 후 모달창을 띄움(createModal)
@@ -365,7 +370,11 @@ function Common($) {
 	 *
 	 ------------------------------------------- */
 
+	this.imageFileFormRunIs = false;
 	this.imageFileForm = function(){
+		if(this.imageFileFormRunIs) return;
+		this.imageFileFormRunIs = true;
+
 		if($('#_uploadImgFrm').length) return;
 		var frm = '<form id="_uploadImgFrm" method="post" action="/Upload/ImageUpload/" enctype="multipart/form-data" style="display:block; width:0; height:0; opacity:0; overflow:hidden;">' +
 			'<input type="file" name="Filedata" value="" data-sname="" id="_uploadImgInp" style="display:block; width:0; height:0; opacity:0;" />' +
@@ -378,6 +387,17 @@ function Common($) {
 				obj : $(this).closest('.fileUploadArea').find('input.fileUploadInput')[0]
 			});
 			$('#_uploadImgInp').click();
+		});
+		$(document).on('click','.fileUploadArea button.fileUploadAreaAddBtn',function(e){
+			var area = $(this).closest('.fileUploadArea');
+			var inHtml = '<div class="fileUploadArea">' + area.html().replace(/\<span.+?class\=\"fileUploadImage\"\>.*?\<\/span\>/ig, '<span class="fileUploadImage"></span>').replace(/value\=\".*?\"/ig, 'value=""') + '</div>';
+			area.after(inHtml);
+			e.preventDefault();
+		});
+		$(document).on('click','.fileUploadArea button.fileUploadAreaRmBtn',function(e){
+			e.preventDefault();
+			var area = $(this).closest('.fileUploadArea');
+			if(area.siblings('.fileUploadArea').length) area.remove();
 		});
 		$(document).on('change', '#_uploadImgInp', function(e){
 			e.preventDefault();

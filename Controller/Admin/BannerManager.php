@@ -13,7 +13,7 @@ use \DB as DB;
 class BannerManager
 {
 	/**
-	 * @var BannerModel
+	 * @var \BannerModel
 	 */
 	public $model = null;
 
@@ -56,12 +56,12 @@ class BannerManager
 		App::View($this->model);
 	}
 	public function PostWrite(){
-		$res = $this->model->SetPostValues();
+		$res = $this->model->SetPostValuesWithFile();
 		if(!$res->result){
 			URLReplace('-1',$res->message);
 		}
 		else{
-			if(isset($_FILES['img'])){
+			/*if(isset($_FILES['img'])){
 				require_once _COMMONDIR.'/FileUpload.php';
 				$fres_em = FileUpload($_FILES['img'], App::$SettingData['POSSIBLE_EXT'], '/board/'.date('ym').'/');
 
@@ -69,7 +69,7 @@ class BannerManager
 				else if(is_array($fres_em)){
 					$this->model->SetValue('img', $fres_em['file']);
 				}
-			}
+			}*/
 
 			$error = $this->model->GetErrorMessage();
 			if(sizeof($error)){
@@ -90,12 +90,12 @@ class BannerManager
 
 	public function PostModify(){
 		$res = $this->model->DBGet(to10(App::$ID));
-		$res = $this->model->SetPostValues();
+		$res = $this->model->SetPostValuesWithFile();
 		if(!$res->result){
 			URLReplace('-1',$res->message);
 		}
 		else{
-			if(isset($_FILES['img'])){
+			/*if(isset($_FILES['img'])){
 				require_once _COMMONDIR.'/FileUpload.php';
 				$fres_em = FileUpload($_FILES['img'], App::$SettingData['POSSIBLE_EXT'], '/board/'.date('ym').'/');
 
@@ -104,7 +104,7 @@ class BannerManager
 					if($this->model->GetValue('img')) @unlink(_UPLOAD_DIR.$this->model->GetValue('img'));
 					$this->model->SetValue('img', $fres_em['file']);
 				}
-			}
+			}*/
 
 			$error = $this->model->GetErrorMessage();
 			if(sizeof($error)){

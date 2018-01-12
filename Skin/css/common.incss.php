@@ -33,7 +33,7 @@ BHCss::$variable['$flr'] = 'float:right;';
 BHCss::$variable['$fz'] = 'font-size';
 BHCss::$variable['$fw'] = 'font-weight';
 ?>
-<style>
+<style type="text/scss">
 	@charset "utf-8";
 	
 	html, body, div, span, applet, object, iframe,
@@ -158,4 +158,10 @@ BHCss::$variable['$fw'] = 'font-weight';
 			> footer a:focus{ background:#ddd;}
 		}
 	}
+
+	span.uploadedFile{$dib; padding:3px 5px; border:1px solid #ccc; background:#eee; border-radius:3px;}
+	.fileUploadArea{padding:10px 0;}
+	.fileUploadArea + .fileUploadArea{padding-top:0;}
+	.fileUploadImage{$dib; $vam;}
+	.fileUploadImage img{$db; max-width:100px; max-height:100px;}
 </style>

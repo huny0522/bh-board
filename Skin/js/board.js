@@ -101,7 +101,7 @@ App.Board = {
 		},
 
 		ResetModifyForm : function(e){
-			document.querySelector('#modifyForm').reset();
+			document.querySelector('#modForm').reset();
 			$('#modifyForm').hide();
 		}
 	},

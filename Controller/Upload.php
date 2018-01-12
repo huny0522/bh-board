@@ -10,8 +10,6 @@ use \BH_Application as App;
 use \BH_Common as CM;
 use \DB as DB;
 
-require _COMMONDIR.'/FileUpload.php';
-
 class Upload{
 
 	// 임시 파일 업로드
@@ -41,10 +39,9 @@ class Upload{
 			$uploadDir = _UPLOAD_DIR.$path;
 			if(!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
-			$newFileName = RandomFileName().'.'.$filename_ext;
+			$newFileName = \_ModelFunc::RandomFileName().'.'.$filename_ext;
 
-
-			if($type == 'image' && $filename_ext != 'gif') Thumbnail($tmp_name, $uploadDir.$newFileName, _MAX_IMAGE_WIDTH);
+			if($type == 'image' && $filename_ext != 'gif') \_ModelFunc::Thumbnail($tmp_name, $uploadDir.$newFileName, _MAX_IMAGE_WIDTH);
 			else @move_uploaded_file($tmp_name, $uploadDir.$newFileName);
 
 			$data['uploadDir'] = _UPLOAD_URL;

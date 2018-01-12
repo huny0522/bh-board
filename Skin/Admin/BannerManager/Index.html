@@ -27,7 +27,7 @@ use \BH_Application as App;
 <tr>
 	<td><?p. $Data->beginNum-- ?></td>
 	<td><?v. $row['category']; ?></td>
-	<td><img src="<?v. _UPLOAD_URL.$row['img']; ?>" alt=""></td>
+	<td><img src="<?v. _UPLOAD_URL . $Model->GetFilePathByValue($row['img']); ?>" alt=""></td>
 	<td><?v. $row['subject']; ?></td>
 	<td><?v. $row['begin_date']; ?> ~ <?v. $row['end_date']; ?></td>
 	<td><?menum('enabled', $row['enabled']) ?></td>

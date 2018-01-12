@@ -1,7 +1,7 @@
 <?php
 if(BHCSS !== true) exit;
 
-include 'common.css.php';
+include 'common.incss.php';
 ?>
 
 <style>

@@ -20,7 +20,7 @@ class PopupModel extends \BH_Model{
 		$this->data['subject'] = new \BH_ModelData(ModelType::String, true, '제목');
 		$this->data['subject']->MaxLength = 50;
 
-		$this->data['img'] = new \BH_ModelData(ModelType::String, false, '이미지', HTMLType::InputFile);
+		$this->data['img'] = new \BH_ModelData(ModelType::String, false, '이미지', HTMLType::InputImageFile);
 
 		$this->data['contents'] = new \BH_ModelData(ModelType::String, false, '내용', HTMLType::Textarea);
 

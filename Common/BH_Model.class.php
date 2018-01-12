@@ -20,6 +20,9 @@ class HTMLType{
 	const InputEmail = 'email';
 	const InputTel = 'tel';
 	const InputFile = 'file';
+	const InputFileWithName = 'filewithname';
+	const InputImageFile = 'imagefile';
+	const InputImageFileArray = 'imagefilearray';
 	const Select = 'select';
 	const Textarea = 'textarea';
 	const InputDate = 'date';
@@ -70,15 +73,29 @@ class BH_Model{
 		if(method_exists($this, '__Init')) $this->__Init();
 	}
 
+	/**
+	 * 정의 된 키의 DB 선택
+	 * @param $str
+	 * @return $this
+	 */
 	public function &SetConnName($str){
 		$this->ConnName = $str;
 		return $this;
 	}
 
+	/**
+	 * 현재 DB의 정의 키
+	 * @return string
+	 */
 	public function GetConnName(){
 		return $this->ConnName;
 	}
 
+	/**
+	 * 표시명 반환
+	 * @param string $key
+	 * @return null|string
+	 */
 	public function GetDisplayName($key){
 		return isset($this->data[$key]->DisplayName) ? $this->data[$key]->DisplayName : NULL;
 	}
@@ -86,10 +103,27 @@ class BH_Model{
 	/**
 	 * POST로 넘어온 값으로 데이타를 등록
 	 * GetErrorMessage 메쏘드로 에러메세지 체크
+	 * @param array|null $val
 	 * @return BH_Result
 	 */
-	public function SetPostValues(){
-		return _ModelFunc::SetPostValues($this);
+	public function SetPostValues($val = null){
+		if(is_array($val)) $ref =  &$val;
+		else $ref = &$_POST;
+
+		return _ModelFunc::SetPostValues($this, $ref);
+	}
+
+	/**
+	 * POST로 넘어온 값으로 데이타를 등록
+	 * GetErrorMessage 메쏘드로 에러메세지 체크
+	 * @param array|null $val
+	 * @return BH_Result
+	 */
+	public function SetPostValuesWithFile($val = null){
+		if(is_array($val)) $ref =  &$val;
+		else $ref = &$_POST;
+
+		return _ModelFunc::SetPostValues($this, $ref, true);
 	}
 
 	/**
@@ -110,8 +144,29 @@ class BH_Model{
 		foreach($Values as $k=>$v) if(isset($this->data[$k])) $this->data[$k]->Value = $v;
 	}
 
+	/**
+	 * 데이타의 값 반환
+	 * @param $key
+	 * @return null|string
+	 */
 	public function GetValue($key){
 		return isset($this->data[$key]->Value) ? $this->data[$key]->Value : NULL;
+	}
+
+	public function GetFileName($key, $n = 0){
+		return _ModelFunc::GetFilePath($this->data[$key], 1, $n);
+	}
+
+	public function GetFilePath($key, $n = 0){
+		return _ModelFunc::GetFilePath($this->data[$key], 0, $n);
+	}
+
+	public function GetFileNameByValue($value, $n = 0){
+		return _ModelFunc::GetFilePathByValue($value, 1, $n);
+	}
+
+	public function GetFilePathByValue($value, $n = 0){
+		return _ModelFunc::GetFilePathByValue($value, 0, $n);
 	}
 
 	/**
@@ -125,6 +180,14 @@ class BH_Model{
 	}
 
 	/**
+	 * @param string $key
+	 * @param array $file $_FILE['key']
+	 */
+	public function SetFileValue($key){
+		return _ModelFunc::SetFileValue($this, $key);
+	}
+
+	/**
 	 * 값을 쿼리문으로 등록
 	 * @param $key
 	 * @param $v
@@ -134,10 +197,19 @@ class BH_Model{
 		return _ModelFunc::SetQueryValue($this, $key, $v);
 	}
 
+	/**
+	 * 제외 키 등록
+	 * @param array $ar
+	 */
 	public function AddExcept($ar){
 		_ModelFunc::AddExcept($this, $ar);
 	}
 
+	/**
+	 * 데이타 값의 유효성 검사
+	 * @param $key
+	 * @return bool
+	 */
 	public function ValueCheck($key){
 		return _ModelFunc::ValueCheck($this, $key);
 	}
@@ -152,14 +224,29 @@ class BH_Model{
 		return _ModelFunc::CheckType($key, $this->data[$key]);
 	}
 
+	/**
+	 * 숫자형 값의 최대 최소 값 검사
+	 * @param $key
+	 * @return bool
+	 */
 	public function CheckValue($key){
 		return _ModelFunc::CheckValue($key, $this->data[$key]);
 	}
 
+	/**
+	 * 문자열 길이 최대 최소 검사
+	 * @param $key
+	 * @return bool
+	 */
 	public function CheckLength($key){
 		return _ModelFunc::CheckLength($key, $this->data[$key]);
 	}
 
+	/**
+	 * 필수 항목 검사
+	 * @param $key
+	 * @return bool
+	 */
 	public function CheckRequired($key){
 		return _ModelFunc::CheckRequired($this, $key);
 	}
@@ -180,6 +267,7 @@ class BH_Model{
 	 * BH_ModelData <label>출력
 	 * @param string $Name
 	 * @param bool $HtmlAttribute
+	 * @param string $firstIDName
 	 *
 	 * @return string
 	 */
@@ -191,6 +279,7 @@ class BH_Model{
 	 * input, select textarea 출력
 	 * @param string $Name
 	 * @param bool $HtmlAttribute
+	 * @param string $firstIDName
 	 *
 	 * @return string
 	 */
@@ -227,7 +316,7 @@ class BH_Model{
 	}
 
 	/**
-	 * 키값에 해당하는 DB데이터를 한 행 가져온다.
+	 * 키값에 해당하는 DB데이터를 삭제
 	 * @param array|string $keys
 	 * @return BH_Result
 	 */
@@ -235,26 +324,116 @@ class BH_Model{
 		$keyData = is_array($keys) ? $keys : func_get_args();
 		return _ModelFunc::DBDelete($this, $keyData);
 	}
+
+	/**
+	 * 키값에 해당하는 DB데이터를 파일과 함께 삭제
+	 * @param array|string $keys
+	 * @return BH_Result
+	 */
+	public function DBDeleteWithFile($keys){
+		$keyData = is_array($keys) ? $keys : func_get_args();
+		return _ModelFunc::DBDelete($this, $keyData, true);
+	}
 }
 
 class _ModelFunc{
-	public static function SetPostValues(&$model){
+	public static function IsFileType($type){
+		return in_array($type, array(HTMLType::InputFile, HTMLType::InputFileWithName, HTMLType::InputImageFile, HTMLType::InputImageFileArray));
+	}
+	public static function SetPostValues(&$model, &$post, $withFile = false){
 		$ret = new \BH_Result();
 		$ret->result = true;
 		foreach($model->data as $k => &$v){
 			if(!in_array($k, $model->Except) && $v->AutoDecrement !== true){
-				if(!isset($_POST[$k])){
-					if(isset($model->Need) && in_array($k, $model->Need)){
+				if(!isset($post[$k])){
+					if(isset($v->HtmlType) && $v->HtmlType == HTMLType::InputFile){
+						if($withFile){
+							$res = self::SetFileValue($model, $k);
+						}
+					}
+
+					else if(isset($model->Need) && in_array($k, $model->Need)){
 						$ret->message = $v->ModelErrorMsg = $v->DisplayName.' 항목이 정의되지 않았습니다.';
 						$ret->result = false;
 						return $ret;
 					}
 				}
 				else{
-					if((isset($v->HtmlType) || $v->Required) && $v->HtmlType != HTMLType::InputFile){
-						if(isset($_POST[$k])){
-							if($v->HtmlType === HTMLType::NumberFormat) $v->Value = preg_replace('/[^0-9]/', '', $_POST[$k]);
-							else $v->Value = $_POST[$k];
+					if($v->HtmlType == HTMLType::InputImageFileArray){
+						$delFiles = Post('del_file_' . $k);
+						if(!is_array($delFiles)) $delFiles = array();
+
+						$values = array();
+						if(!is_array($post[$k])){
+							$ret->message = $v->ModelErrorMsg = $v->DisplayName.'항목이 다중 파일 형식이 아닙니다.';
+							$ret->result = false;
+							return $ret;
+						}
+
+						foreach($post[$k] as $path){
+							if($path){
+								$newpath = self::ReservedMoveFile($path, $model->table);
+								if(is_string($newpath)){
+									$values[]= $newpath;
+									$v->__moveFile[]= array('source' => $path, 'dest' => $newpath);
+									$model->Need[] = $k;
+								}
+								else if($newpath->result === -1){
+									$ret->message = $v->ModelErrorMsg = $v->DisplayName . '항목에 ' . $newpath->message;
+									$ret->result = false;
+									return $ret;
+								}
+							}
+						}
+
+						// 기존 파일
+						if(strlen($v->Value)){
+							$p = explode(';', $v->Value);
+							$valuePath = array();
+							foreach($p as $path){
+								if(in_array($path, $delFiles)) $v->__deleteFile[] = $path;
+								else $valuePath[]= $path;
+							}
+							$values = array_merge($values, $valuePath);
+						}
+						$v->Value = implode(';', $values);
+						$model->Need[] = $k;
+					}
+
+					else if($v->HtmlType == HTMLType::InputImageFile){
+						$fileUpIs = false;
+						if(strlen($post[$k])){
+							$fileUpIs = true;
+							$newpath = self::ReservedMoveFile($post[$k], $model->table);
+
+							if(is_string($newpath)){
+								$v->__moveFile[]= array('source' => $post[$k], 'dest' => $newpath);
+								// 기존 파일
+								if(strlen($v->Value)) $v->__deleteFile[]= $v->Value;
+
+								$v->Value = $newpath;
+								$model->Need[] = $k;
+							}
+							else{
+								if($newpath->result === -1){
+									$ret->message = $v->ModelErrorMsg = $v->DisplayName . '항목에 ' . $newpath->message;
+									$ret->result = false;
+									return $ret;
+								}
+							}
+						}
+
+						if(!$fileUpIs && strlen($v->Value) && Post('del_file_' . $k) == 'y'){
+							$v->__deleteFile[]= $v->Value;
+							$v->Value = '';
+							$model->Need[] = $k;
+						}
+					}
+
+					else if((isset($v->HtmlType) || $v->Required) && !self::IsFileType($v->HtmlType)){
+						if(isset($post[$k])){
+							if($v->HtmlType === HTMLType::NumberFormat) $v->Value = preg_replace('/[^0-9]/', '', $post[$k]);
+							else $v->Value = $post[$k];
 						}
 						$model->Need[] = $k;
 					}
@@ -262,6 +441,46 @@ class _ModelFunc{
 			}
 		}
 		return $ret;
+	}
+
+	/**
+	 * @param $path
+	 * @param $dir
+	 * @return string|object
+	 */
+	private static function ReservedMoveFile($path, $dir){
+		if(strpos($path, '..') !== false) return (object) array('result' => -1, 'message' => '잘못된 파일경로가 탐지었습니다.');
+
+		$path = preg_replace('/[^0-9a-zA-Z\/\_\-\!\@\.]/', '', $path);
+		if(file_exists(_UPLOAD_DIR . $path)){
+			$upDir = '/modelData/' . $dir . '/' . date('Ym') . '/';
+			$newpath = substr_replace($path, $upDir, 0, 6);
+			if(!is_dir(_UPLOAD_DIR . $upDir)) mkdir(_UPLOAD_DIR . $upDir, 0777, true);
+
+			return $newpath;
+		}
+		return (object) array('result' => -2, 'message' => '업로드한 파일이 존재하지 않습니다.');
+	}
+
+	/**
+	 * @param \BH_Model $model
+	 */
+	private static function FileProcess(&$model){
+		foreach($model->data as $v){
+			if(self::IsFileType($v->HtmlType)){
+				if(isset($v->__moveFile) && is_array($v->__moveFile)){
+					foreach($v->__moveFile as $mv){
+						@copy(_UPLOAD_DIR . $mv['source'], _UPLOAD_DIR . $mv['dest']);
+						UnlinkImage(_UPLOAD_DIR . $mv['source']);
+					}
+				}
+				if(isset($v->__deleteFile) && is_array($v->__deleteFile)){
+					foreach($v->__deleteFile as $f){
+						UnlinkImage(_UPLOAD_DIR . $f);
+					}
+				}
+			}
+		}
 	}
 
 	public static function GetErrorMessage(&$model, &$ret){
@@ -279,6 +498,31 @@ class _ModelFunc{
 			$model->Need[] = $key;
 		}
 		return true;
+	}
+
+	public static function GetFilePath($data, $n, $n2){
+		if(isset($data->Value)){
+			if(self::IsFileType($data->HtmlType)){
+				$p = explode(';', $data->Value);
+				if(isset($p[$n2])){
+					$f = explode('*', $p[$n2]);
+					return isset($f[$n]) ? $f[$n] : $f[0];
+				}
+				else return NULL;
+			}
+			else return $data->Value;
+		}
+
+		else return NULL;
+	}
+
+	public static function GetFilePathByValue($value, $n, $n2){
+		$p = explode(';', $value);
+		if(isset($p[$n2])){
+			$f = explode('*', $p[$n2]);
+			return isset($f[$n]) ? $f[$n] : $f[0];
+		}
+		else return NULL;
 	}
 
 	public static function SetQueryValue(&$model, $key, $v){
@@ -461,6 +705,7 @@ class _ModelFunc{
 		else if($data->HtmlType == HTMLType::InputEngNum) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').HTMLType::InputEngNum;
 		else if($data->HtmlType == HTMLType::InputEng) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').HTMLType::InputEng;
 		else if($data->HtmlType == HTMLType::InputEngSpecial) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').HTMLType::InputEngSpecial;
+		else if(in_array($data->HtmlType, array(HTMLType::InputImageFile, HTMLType::InputImageFileArray))) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'fileUploadInput';
 
 		foreach($HtmlAttribute as $k => $row) $Attribute .= ' '.$k.'="'.$row.'"';
 
@@ -481,8 +726,39 @@ class _ModelFunc{
 			case HTMLType::InputDate:
 				return '<span class="dateInput"><input type="text" name="'.$Name.'" id="'.$firstIDName.$Name.'" '.(isset($val) ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'></span>';
 			break;
+			case HTMLType::InputFileWithName:
+				$h = '';
+				if(strlen($data->Value)){
+					$f = explode('*', $data->Value);
+					$h = ' <span class="uploadedFile">' . (isset($f[1]) ? GetDBText($f[1]) : '') . ' <label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><span> 파일삭제</span></label></span>';
+				}
+				return $h . ' <input type="file" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+			break;
 			case HTMLType::InputFile:
-				return '<input type="'.$htmlType.'" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+				$h = '';
+				if(strlen($data->Value)){
+					$h = ' <span class="uploadedFile"><label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><span> 파일삭제</span></label></span>';
+				}
+				return $h . ' <input type="file" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+			break;
+			case HTMLType::InputImageFile:
+				$h = '<div class="fileUploadArea"><input type="hidden" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+				$h .= '<span class="fileUploadImage">';
+				if(strlen($data->Value)) $h .= '<img src="' . _UPLOAD_URL . $data->Value . '" alt="">';
+				$h .= '</span>';
+				if(strlen($data->Value)) $h .= ' <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><span>삭제</span></label>';
+				return $h . '<button type="button" class="fileUploadBtn sBtn">이미지업로드</button></div><script>JCM.imageFileForm();</script>';
+			break;
+			case HTMLType::InputImageFileArray:
+				$h = '<div class="multiFileUploadArea">';
+				if(strlen($data->Value)){
+					$p = explode(';', $data->Value);
+					foreach($p as $path){
+						$h .= ' <span class="fileUploadImage"><img src="' . _UPLOAD_URL . $path . '"></span> <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '[]" value="' . $path . '"><span>삭제</span></label>';
+					}
+				}
+				$h .= '<div class="fileUploadArea"><span class="fileUploadImage"></span><input type="hidden" name="'.$Name.'[]" data-displayname="' . $data->DisplayName . '" '.$Attribute.'><button type="button" class="fileUploadBtn sBtn">이미지업로드</button><button type="button" class="fileUploadAreaAddBtn sBtn">추가</button><button type="button" class="fileUploadAreaRmBtn sBtn">삭제</button></div>';
+				return $h . '</div><script>JCM.imageFileForm();</script>';
 			break;
 			case HTMLType::Textarea:
 				return '<textarea name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>'.(isset($val) ? GetDBText($val) : '').'</textarea>';
@@ -574,6 +850,9 @@ class _ModelFunc{
 		if(!$dbInsert->decrement) $dbInsert->UnsetWhere();
 		if(_DEVELOPERIS === true) $dbInsert->test = $test;
 		$result = $dbInsert->Run();
+		if($result->result){
+			self::FileProcess($model);
+		}
 		return $result;
 	}
 
@@ -631,6 +910,10 @@ class _ModelFunc{
 
 		if(_DEVELOPERIS === true) $dbUpdate->SetTest($test);
 		$result = $dbUpdate->Run();
+		if($result->result){
+			self::FileProcess($model);
+		}
+
 		return $result;
 	}
 
@@ -669,7 +952,7 @@ class _ModelFunc{
 		return $res;
 	}
 
-	public static function DBDelete(&$model, $keyData){
+	public static function DBDelete(&$model, $keyData, $withFile = false){
 		$res = new \BH_Result();
 
 		if(!is_array($keyData)) $keyData = array($keyData);
@@ -695,14 +978,30 @@ class _ModelFunc{
 			return $res;
 		}
 
-		$qry = DB::DeleteQryObj($model->table)->SetConnName($model->GetConnName());
-		foreach($model->Key as $k => $v) $qry->AddWhere($v.' = %s', trim($keyData[$k]));
-
 		if(!sizeof($model->Key)){
 			$res->result = false;
 			$res->message = 'ERROR#03';
 			return $res;
 		}
+
+		if($withFile){
+			$res = self::DBGet($model, $keyData);
+			foreach($model->data as $data){
+				if(self::IsFileType($data->HtmlType) && strlen($data->Value)){
+					$p = explode(';', $data->Value);
+					foreach($p as $path){
+						UnlinkImage(_UPLOAD_DIR . $path);
+					}
+				}
+			}
+		}
+
+		$qry = DB::DeleteQryObj($model->table)->SetConnName($model->GetConnName());
+		foreach($model->Key as $k => $v){
+			$qry->AddWhere($v.' = %s', trim($keyData[$k]));
+		}
+
+
 
 		$res->result = $qry->Run();
 		return $res;
@@ -740,6 +1039,208 @@ class _ModelFunc{
 			}else return 'ERROR#113';
 		}
 		return true;
+	}
+
+	public static function SetFileValue(&$model, $key){
+		$ext = in_array($model->data[$key]->HtmlType, array(HTMLType::InputImageFile, HTMLType::InputImageFileArray)) ? BH_Application::$SettingData['IMAGE_EXT'] : BH_Application::$SettingData['POSSIBLE_EXT'];
+		$value = array();
+		if(isset($_FILES[$key])){
+			$res = self::FileUploadArray($_FILES[$key], $ext, '/temp/');
+			foreach($res as $k => $v){
+				if(is_array($v)){
+					$value[] = $v;
+				}
+				else if(is_string($v)){
+					$model->data[$key]->ModelErrorMsg = '[' . $model->data[$key]->DisplayName . ']' . $v;
+				}
+			}
+		}
+
+		// 단일 파일, 업로드 시 기존 파일 삭제
+		if(in_array($model->data[$key]->HtmlType, array(HTMLType::InputImageFile, HTMLType::InputFileWithName, HTMLType::InputFile))){
+			if(isset($model->data[$key]->Value) && strlen($model->data[$key]->Value) && Post('del_file_' . $key) == 'y'){
+				$temp = explode('*', $model->data[$key]->Value);
+				$model->data[$key]->__deleteFile[]= $temp[0];
+				$model->data[$key]->Value = '';
+				$model->Need[] = $key;
+			}
+
+			if(sizeof($value)){
+				$newpath = self::ReservedMoveFile($value[0]['file'], $model->table);
+
+				if(is_string($newpath)){
+					$model->data[$key]->__moveFile[]= array('source' => $value[0]['file'], 'dest' => $newpath);
+					// 기존 파일
+					if(isset($model->data[$key]->Value) && strlen($model->data[$key]->Value)){
+						$temp = explode('*', $model->data[$key]->Value);
+						$model->data[$key]->__deleteFile[]= $temp[0];
+					}
+
+					self::SetValue($model, $key, $newpath . (($model->data[$key]->HtmlType === HTMLType::InputFileWithName) ? '*' . $value[0]['original'] : ''));
+				}
+				else{
+					if($newpath->result === -1){
+						$model->data[$key]->ModelErrorMsg = $model->data[$key]->DisplayName . '항목에 ' . $newpath->message;
+					}
+				}
+			}
+		}
+
+		// 다중 파일, 선택 파일 삭제
+		else if($model->data[$key]->HtmlType == HTMLType::InputImageFileArray){
+			$deleteFiles = Post('del_file_' . $key);
+
+			$valuePath = array();
+			if(strlen($model->data[$key]->Value)){
+				$p = explode(';', $model->data[$key]->Value);
+				foreach($p as $k => $v){
+					$f = explode('*', $v);
+					if(is_array($deleteFiles) && in_array($f[0], $deleteFiles)) $model->data[$key]->__deleteFile[]=  $f[0];
+					else $valuePath[] = $f[0];
+				}
+
+				foreach($value as $path){
+					$newpath = self::ReservedMoveFile($path['file'], $model->table);
+					if(is_string($newpath)){
+						$model->data[$key]->__moveFile[]= array('source' => $path['file'], 'dest' => $newpath);
+						$valuePath[] = $newpath;
+					}
+					else{
+						if($newpath->result === -1){
+							$model->data[$key]->ModelErrorMsg = $model->data[$key]->DisplayName . '항목에 ' . $newpath->message;
+						}
+					}
+				}
+				self::SetValue($model, $key, implode(';', $valuePath));
+			}
+		}
+
+	}
+
+	public static function RandomFileName(){
+		$t = microtime();
+		$t = explode(' ',$t);
+		$t2 = (double)($t[0]*1000000);
+		$t3 = toBase(rand(0,3843), 36).toBase($t[1],36).toBase($t2,36);
+		return $t3;
+	}
+
+	/**
+	 * @param array $files : Post $_FILE Array Data
+	 * @param array $possible_ext
+	 * @param string $path
+	 *
+	 * @return array
+	 */
+	public static function FileUploadArray($files, $possible_ext = null, $path = '/data/'){
+		$filedata = array();
+		$res = array();
+		if(isset($files['name'])){
+			if(is_array($files['name'])){
+				foreach($files as $k=>$v){
+					foreach($v as $k2=>$v2){
+						$filedata[$k2][$k] = $v2;
+					}
+				}
+				//print_r($filedata);exit;
+				foreach($filedata as $v){
+					$res[]= self::FileUpload($v, $possible_ext, $path);
+				}
+			}else{
+				$res[]= self::FileUpload($files, $possible_ext, $path);
+			}
+		}
+		return $res;
+	}
+
+	/**
+	 * @param array $files : Post $_FILE Data
+	 * @param array $possible_ext
+	 * @param string $path
+	 *
+	 * @return bool|string
+	 */
+	public static function FileUpload($files, $possible_ext = null, $path = '/data/'){
+		if($files['name']){
+			$ext = explode('.', $files['name']);
+			$ext = strtolower($ext[sizeof($ext)-1]);
+
+			if(in_array($ext, BH_Application::$SettingData['noext'])) return _MSG_IMPOSSIBLE_FILE;
+			else if(!in_array($ext, BH_Application::$SettingData['POSSIBLE_EXT'])) return _MSG_IMPOSSIBLE_FILE;
+			else if($possible_ext && !in_array($ext, $possible_ext)) return _MSG_IMPOSSIBLE_FILE;
+
+			if($files['error'] ===  UPLOAD_ERR_INI_SIZE) return _MSG_FILE_TOO_BIG;
+			if($files['error'] !==  UPLOAD_ERR_OK) return _MSG_UPLOAD_ERROR;
+
+			if(!is_dir(_UPLOAD_DIR.$path)) @mkdir(_UPLOAD_DIR.$path, 0777, true);
+
+			$newFileName = '';
+			while($newFileName == '' || file_exists(_UPLOAD_DIR.$path.$newFileName.'.'.$ext)) $newFileName = self::RandomFileName();
+
+
+			copy($files['tmp_name'], _UPLOAD_DIR.$path.$newFileName.'.'.$ext);
+			$res['original'] = $files['name'];
+			$res['path'] = $path;
+			$res['name'] = $newFileName;
+			$res['ext'] = $ext;
+			$res['file'] = $path.$newFileName.'.'.$ext;
+			return $res;
+		}
+		else return false;
+	}
+
+	public static function Thumbnail($source, $thumb, $width, $height = 0){
+		// 썸네일의 넓이가 넘어오지 않으면 에러
+		if (!$width)
+			return -1;
+		if (!$thumb)
+			$thumb = $source;
+		$size = getimagesize($source);
+		if ($size[2] == 1)
+			$source = imagecreatefromgif($source);
+		else if ($size[2] == 2)
+			$source = imagecreatefromjpeg($source);
+		else if ($size[2] == 3)
+			$source = imagecreatefrompng($source);
+		else
+			return -2;
+		// 썸네일 이미지 넓이 보다 원본이미지의 넓이가 작다면 그냥 원본이미지가 썸네일이 됨
+		if ($width > $size[0]){
+			$target = imagecreatetruecolor($size[0], $size[1]);
+			if ($size[2] == 3) {
+				imagealphablending($target , 0);
+				imagesavealpha($target , 1);
+			}
+			imagecopyresampled($target, $source, 0, 0, 0, 0, $size[0], $size[1], $size[0], $size[1]);
+		}
+		else{
+			// 썸네일 높이가 넘어왔다면 비율에 의해 이미지를 생성하지 않음
+			if ($height){
+				// 원본이미지를 썸네일로 복사
+				// 1000x1500 -> 500x500 으로 복사되는 형식이므로 이미지가 일그러진다.
+				$comp_height = $height;
+			}
+			else{
+				// 원래 이미지와 썸네일 이미지와의 비율
+				$rate = round($width / $size[0], 2); // 소수점 2자리 , 소수점 3자리에서 반올림됨
+				// 비율에 의해 계산된 높이
+				$comp_height = floor($size[1] * $rate); // 소수점 이하 버림
+			}
+			$target = imagecreatetruecolor($width, $comp_height);
+			if ($size[2] == 3) {
+				imagealphablending($target , 0);
+				imagesavealpha($target , 1);
+			}
+			imagecopyresampled($target, $source, 0, 0, 0, 0, $width, $comp_height, $size[0], $size[1]);
+		}
+		if ($size[2] == 3) {
+			imagepng($target, $thumb, 9);
+		} else {
+			imagejpeg($target, $thumb, 90);
+		}
+		imagedestroy($target);
+		@chmod($thumb, 0666); // 추후 삭제를 위하여 파일모드 변경
+		return 1;
 	}
 }
 

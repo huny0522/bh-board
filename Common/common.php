@@ -10,19 +10,24 @@ use \DB as DB;
 
 class BH_Result
 {
-
 	public $result = false;
 	public $message = '';
+	public $data;
 
+	public static function Init($res, $mes = null, $dt = null){
+		$result = new static();
+		$result->result = $res;
+		if(!is_null($mes)) $result->message = $mes;
+		if(!is_null($dt)) $result->data = $dt;
+		return $result;
+	}
 }
 
 class BH_InsertResult
 {
-
 	public $result = false;
 	public $id = null;
 	public $message = '';
-
 }
 
 define('_POSTIS', $_SERVER['REQUEST_METHOD'] == 'POST');
@@ -41,7 +46,7 @@ App::$SettingData['noext'] = array('php', 'htm', 'html', 'cfg', 'inc', 'phtml', 
 App::$SettingData['IMAGE_EXT'] = array('jpg', 'jpeg', 'png', 'gif', 'bmp');
 App::$SettingData['POSSIBLE_EXT'] = array('jpg', 'jpeg', 'png', 'gif', 'bmp', 'zip', '7z', 'gz', 'xz', 'tar', 'xls',
 	'xlsx', 'ppt', 'doc', 'hwp', 'pdf', 'docx', 'pptx', 'avi', 'mov', 'mkv', 'mpg', 'mpeg', 'wmv', 'asf', 'asx', 'flv',
-	'm4v', 'mp4', 'mp3');
+	'm4v', 'mp4', 'mp3', 'txt');
 
 if(_DEVELOPERIS === true){
 	if(!file_exists(_DATADIR) || !is_dir(_DATADIR)) @mkdir(_DATADIR, 0755, true);
@@ -104,7 +109,8 @@ function PhoneNumber($num){
 	if(substr($num, 0, 2) == '02'){
 		if(strlen($num) >= 10){
 			return substr($num, 0, 2) . '-' . substr($num, 2, 4) . '-' . substr($num, 6);
-		}else if(strlen($num) == 9){
+		}
+		else if(strlen($num) == 9){
 			return substr($num, 0, 2) . '-' . substr($num, 2, 3) . '-' . substr($num, 5);
 		}
 		else return $num;
@@ -229,9 +235,9 @@ function StringCut($title, $length, $last = '...'){
 }
 
 /**
- * @params int $month 월 (숫자 두자리 또는 '2015-10-11'형식으로 $year 생략)
- * @params int $year 년
- *
+ * @param $month 월 (숫자 두자리 또는 '2015-10-11'형식으로 $year 생략)
+ * @param false|int $year 년
+ * @return bool|false|string
  */
 function GetLastDay($month, $year = false){
 	if(!strlen($month)){
@@ -295,8 +301,7 @@ function ResizeImage($path, $width, $noext = _NO_IMG){
 	$temp[sizeof($temp) - 1] = $width . '_' . $temp[sizeof($temp) - 1];
 	$new = implode('/', $temp);
 	if(!file_exists(_UPLOAD_DIR . $new)){
-		require_once _COMMONDIR . '/FileUpload.php';
-		Thumbnail(_UPLOAD_DIR . $path, _UPLOAD_DIR . $new, $width);
+		_ModelFunc::Thumbnail(_UPLOAD_DIR . $path, _UPLOAD_DIR . $new, $width);
 	}
 	return _UPLOAD_URL . $new;
 }
@@ -335,7 +340,7 @@ function ToFloat($s){
 }
 
 function RemoveScriptTag($str){
-	return preg_replace(array('/\<\/*\s*(script|form|input|select|button|textarea).*?\>/is', '/\<\s*(\S+?)\s+on.*?\>/is'), array('', '<$1>'), $str);
+	return preg_replace(array('/\<\/*\s*(script|form|input|select|button|textarea).*?\>/is', '/\<\s*(\S+?)(\s+.*?\s+on|\s+on).*?\>/is'), array('', '<$1>'), $str);
 }
 
 function SetDBTrimText($txt){
