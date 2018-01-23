@@ -41,12 +41,14 @@ App::JSAdd('board.js', 200);
 				</td>
 			</tr>
 		<?php } ?>
+		<?php if($Ctrl->boardManger->GetValue('use_secret') === 'y'){ ?>
 		<tr>
 			<th><?mt('secret')?></th>
 			<td>
 				<?minp('secret') ?>
 			</td>
 		</tr>
+		<?php } ?>
 		<tr>
 			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('subject')?></th>
 			<td>

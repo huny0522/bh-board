@@ -80,6 +80,10 @@ class BoardManagerModel extends \BH_Model{
 		$this->data['man_to_man']->EnumValues = array('y'=>'사용','n'=>'사용안함');
 		$this->data['man_to_man']->DefaultValue = 'n';
 
+		$this->data['use_secret'] = new \BH_ModelData(ModelType::Enum, false, '비밀글 사용여부', HTMLType::InputRadio);
+		$this->data['use_secret']->EnumValues = array('y'=>'사용','n'=>'사용안함');
+		$this->data['use_secret']->DefaultValue = 'n';
+
 		$this->data['layout'] = new \BH_ModelData(ModelType::String, false, '레이아웃',HTMLType::InputEngSpecial);
 		$this->data['layout']->MinLength = 1;
 		$this->data['layout']->MaxLength = 50;

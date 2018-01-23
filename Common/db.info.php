@@ -1,6 +1,6 @@
 <?php
 
-self::$ConnectionInfo['MY']['hostName'] = 'localhost';
-self::$ConnectionInfo['MY']['userName'] = 'bh_site';
-self::$ConnectionInfo['MY']['userPassword'] = '1234';
-self::$ConnectionInfo['MY']['dbName'] = 'bh_site';
+self::$connectionInfo['MY']['hostName'] = 'localhost';
+self::$connectionInfo['MY']['userName'] = 'bh_site';
+self::$connectionInfo['MY']['userPassword'] = '1234';
+self::$connectionInfo['MY']['dbName'] = 'bh_site';

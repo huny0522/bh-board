@@ -19,7 +19,7 @@ App::JSAdd('board.js', 200);
 
 	<?php if(isset(App::$Data['error'])){ ?><p class="alert"><?p. App::$Data['error'] ?></p><?php } ?>
 	<table class="write">
-		<?php if(_MEMBERIS === true && ($Ctrl->managerIs || $_SESSION['member']['level'] == _SADMIN_LEVEL || $_SESSION['member']['level'] == _ADMIN_LEVEL)){ ?>
+		<?php if(_MEMBERIS === true && $Ctrl->managerIs){ ?>
 		<tr>
 			<th><?mt('notice')?></th>
 			<td>
@@ -40,12 +40,14 @@ App::JSAdd('board.js', 200);
 			</td>
 		</tr>
 		<?php } ?>
-		<tr>
-			<th><?mt('secret')?></th>
-			<td>
-				<?minp('secret') ?>
-			</td>
-		</tr>
+		<?php if($Ctrl->boardManger->GetValue('use_secret') === 'y'){ ?>
+			<tr>
+				<th><?mt('secret')?></th>
+				<td>
+					<?minp('secret') ?>
+				</td>
+			</tr>
+		<?php } ?>
 
 		<?php if(_MEMBERIS !== true || (App::$Action == 'Modify' && !strlen($Model->GetValue('muid')))){?>
 			<tr>

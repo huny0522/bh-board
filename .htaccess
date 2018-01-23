@@ -3,6 +3,7 @@ RewriteEngine on
 RewriteCond %{REQUEST_URI} \.inc$
 RewriteRule ^(.+)$ index.php [QSA,L]
 
+RewriteCond %{REQUEST_URI} !\.(gif|jpg|png|css|js|php|pdf|zip|bmp)$ [NC]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-l
 RewriteRule ^(.+)$ index.php?_bh_url=/$1 [QSA,L]

@@ -62,6 +62,7 @@ CREATE TABLE `".TABLE_BOARD_MNG."` (
 	`list_in_view` ENUM('y','n') NOT NULL DEFAULT 'n',
 	`layout` VARCHAR(50) NOT NULL,
 	`man_to_man` ENUM('y','n') NOT NULL DEFAULT 'n',
+	`use_secret` ENUM('y','n') NOT NULL DEFAULT 'n',
 	`new_view_day` TINYINT(2) NOT NULL DEFAULT '1',
 	`attach_type` ENUM('normal','image') NOT NULL DEFAULT 'normal',
 	`reg_date` DATETIME NOT NULL,

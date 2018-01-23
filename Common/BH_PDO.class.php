@@ -12,12 +12,12 @@ class DB{
 	/**
 	 * @var self
 	 */
-	private static $Instance;
+	private static $instance;
 
 	/* @var \PDO[] */
-	private static $Conn = array();
-	private static $ConnName = '';
-	private static $ConnectionInfo = array();
+	private static $conn = array();
+	private static $connName = '';
+	private static $connectionInfo = array();
 
 	public static $bindNum = 0;
 
@@ -26,33 +26,33 @@ class DB{
 	}
 
 	public function __destruct(){
-		foreach(self::$Conn as $k => &$v) $v = null;
+		foreach(self::$conn as $k => &$v) $v = null;
 	}
 
 	public static function &SQL($connName = self::DefaultConnName){
-		self::$ConnName = $connName;
-		if (!isset(self::$Instance)) self::$Instance = new self();
+		self::$connName = $connName;
+		if (!isset(self::$instance)) self::$instance = new self();
 
-		if(!isset(self::$Conn[self::$ConnName])){
-			if(isset(self::$ConnectionInfo[self::$ConnName])){
+		if(!isset(self::$conn[self::$connName])){
+			if(isset(self::$connectionInfo[self::$connName])){
 				try {
-					self::$Conn[self::$ConnName] = new PDO('mysql:host='.self::$ConnectionInfo[self::$ConnName]['hostName'].';dbname='.self::$ConnectionInfo[self::$ConnName]['dbName'], self::$ConnectionInfo[self::$ConnName]['userName'], self::$ConnectionInfo[self::$ConnName]['userPassword']);
+					self::$conn[self::$connName] = new PDO('mysql:host='.self::$connectionInfo[self::$connName]['hostName'].';dbname='.self::$connectionInfo[self::$connName]['dbName'], self::$connectionInfo[self::$connName]['userName'], self::$connectionInfo[self::$connName]['userPassword']);
 				}
 				catch(PDOException $e) {
 					echo $e->getMessage();
 					exit;
 				}
 
-				self::$Conn[self::$ConnName]->exec("set names utf8");
+				self::$conn[self::$connName]->exec("set names utf8");
 			}
 			else{ echo('NOT_DEFINE_DB'); exit; }
 		}
-		return self::$Instance;
+		return self::$instance;
 	}
 
 	public static function &PDO($connName = self::DefaultConnName){
 		self::SQL($connName);
-		return self::$Conn[self::$ConnName];
+		return self::$conn[self::$connName];
 	}
 
 	public function TableExists($table){
@@ -76,7 +76,7 @@ class DB{
 	public function Query($str, $dieIs = true){
 		$res = self::StrToPDO(is_array($str) ? $str : func_get_args());
 
-		$qry = self::$Conn[self::$ConnName]->prepare($res[0]);
+		$qry = self::$conn[self::$connName]->prepare($res[0]);
 		foreach($res[1] as $k => $v){
 			$qry->bindParam($k, $v[0], $v[1]);
 		}
@@ -96,7 +96,7 @@ class DB{
 		$args[0] = str_replace('%t', $table, $args[0]);
 		$res = self::StrToPDO($args);
 
-		$qry = self::$Conn[self::$ConnName]->prepare($res[0]);
+		$qry = self::$conn[self::$connName]->prepare($res[0]);
 		foreach($res[1] as $k => $v){
 			$qry->bindParam($k, $v[0], $v[1]);
 		}
@@ -125,7 +125,7 @@ class DB{
 	}
 
 	public static function &GetConn(){
-		return self::$Conn[self::$ConnName];
+		return self::$conn[self::$connName];
 	}
 
 	public static function &GetQryObj($table){
@@ -370,10 +370,12 @@ class BH_DB_GetList extends BH_DB_Get{
 
 	public $result = false;
 	public $data = array();
-	private $RunIs = false;
+	public $drawRowsIs = false;
+	private $runIs = false;
 
 	public function &DrawRows(){
-		if(!$this->RunIs) $this->Run();
+		if(!$this->runIs) $this->Run();
+		$this->drawRowsIs = true;
 		while($row = $this->Get()){
 			$this->data[]= $row;
 		}
@@ -381,7 +383,7 @@ class BH_DB_GetList extends BH_DB_Get{
 	}
 
 	public function &GetRows(){
-		if(!$this->RunIs) $this->Run();
+		if(!$this->runIs) $this->Run();
 
 		$this->DrawRows();
 		return $this->data;
@@ -393,7 +395,7 @@ class BH_DB_GetList extends BH_DB_Get{
 	}
 
 	function &Run(){
-		$this->RunIs = true;
+		$this->runIs = true;
 
 		$where = '';
 		if(isset($this->where) && is_array($this->where) && sizeof($this->where)){
@@ -439,7 +441,7 @@ class BH_DB_GetList extends BH_DB_Get{
 	}
 
 	public function Get(){
-		if(!$this->RunIs) $this->Run();
+		if(!$this->runIs) $this->Run();
 		$res = $this->query ? $this->query->fetch(PDO::FETCH_ASSOC) : false;
 		return $res;
 	}
@@ -453,7 +455,8 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	public $pageUrl = '';
 	public $CountKey = '';
 	public $SubCountKey = array();
-	private $RunIs = false;
+	public $drawRowsIs = false;
+	private $runIs = false;
 
 	// Result
 	public $result = false;
@@ -499,7 +502,8 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	}
 
 	public function &DrawRows(){
-		if(!$this->RunIs) $this->Run();
+		if(!$this->runIs) $this->Run();
+		$this->drawRowsIs = true;
 		while($row = $this->Get()){
 			$this->data[]= $row;
 		}
@@ -507,13 +511,13 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	}
 
 	public function &GetRows(){
-		if(!$this->RunIs) $this->Run();
+		if(!$this->runIs) $this->Run();
 		$this->DrawRows();
 		return $this->data;
 	}
 
 	public function &Run(){
-		$this->RunIs = true;
+		$this->runIs = true;
 		if($this->page < 1) $this->page = 1;
 		$nowPage = $this->page - 1;
 
@@ -602,27 +606,27 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	}
 
 	public function GetCountResult(){
-		if(!$this->RunIs) $this->Run();
+		if(!$this->runIs) $this->Run();
 		return $this->countResult;
 	}
 
 	public function GetTotalRecord(){
-		if(!$this->RunIs) $this->Run();
+		if(!$this->runIs) $this->Run();
 		return $this->totalRecord;
 	}
 
 	public function GetBeginNum(){
-		if(!$this->RunIs) $this->Run();
+		if(!$this->runIs) $this->Run();
 		return $this->beginNum;
 	}
 
 	public function &GetPageHtml(){
-		if(!$this->RunIs) $this->Run();
+		if(!$this->runIs) $this->Run();
 		return $this->pageHtml;
 	}
 
 	public function Get(){
-		if(!$this->RunIs) $this->Run();
+		if(!$this->runIs) $this->Run();
 
 		$res = $this->query ? $this->query->fetch(PDO::FETCH_ASSOC) : false;
 		return $res;

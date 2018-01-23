@@ -27,6 +27,7 @@ class Board{
 	public $bid = '';
 	public $uploadDir = '';
 	public $uploadImageDir = '';
+	public static $loginUrl = _URL . '/Login';
 
 	/** @param \BH_DB_GetListWithPage $qry */
 	protected function _GetListQuery(&$qry){}
@@ -68,10 +69,18 @@ class Board{
 
 		App::SetFollowQuery(array('page','searchType','searchKeyword','category','lastSeq'));
 
-		$mid = CM::GetMember('mid');
-		$manager = explode(',', $this->boardManger->GetValue('manager'));
-		if ($mid != '' && $mid !== false && in_array($mid, $manager)) {
-			$this->managerIs = true;
+		if(CM::GetAdminIs()) $this->managerIs = true;
+		else{
+			$mid = CM::GetMember('mid');
+			$manager = explode(',', $this->boardManger->GetValue('manager'));
+			if ($mid != '' && $mid !== false && in_array($mid, $manager)) {
+				$this->managerIs = true;
+			}
+		}
+
+		if($this->boardManger->GetValue('attach_type') == 'image'){
+			$this->model->data['file1']->HtmlType = \HTMLType::InputImageFile;
+			$this->model->data['file2']->HtmlType = \HTMLType::InputImageFile;
 		}
 
 		$action = App::$Action;
@@ -115,12 +124,15 @@ class Board{
 		if(!is_null($this->boardManger->GetValue('category')) && strlen($this->boardManger->GetValue('category'))){
 			App::$Data['categorys'] = explode(',', $this->boardManger->GetValue('category'));
 		}
+
+		if(!$this->AdminPathIs && _MEMBERIS !== true && $this->boardManger->GetValue('man_to_man') === 'y') URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
+		if($this->boardManger->GetValue('man_to_man') === 'y') $this->boardManger->SetValue('use_secret', 'n');
 	}
 
 	public function Index(){
 		$res = $this->GetAuth('List');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 		if($this->GetListIs || $this->MoreListIs){
@@ -134,7 +146,7 @@ class Board{
 	public function GetList($viewPageIs = false){
 		$res = $this->GetAuth('List');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
@@ -158,7 +170,10 @@ class Board{
 			->SetArticleCount($this->boardManger->GetValue('article_count'));
 		$this->_CommonQry($dbList);
 
-		if(!$this->AdminPathIs) $dbList->AddWhere('A.delis=\'n\'');
+		if(!$this->AdminPathIs){
+			$dbList->AddWhere('A.delis=\'n\'');
+			if(!$this->managerIs && $this->boardManger->GetValue('man_to_man') === 'y') $dbList->AddWhere('A.muid = %d OR A.target_muid = %d', $_SESSION['member']['muid'], $_SESSION['member']['muid']);
+		}
 
 		if(isset($_GET['category']) && strlen($_GET['category'])) $dbList->AddWhere('category = %s', $_GET['category']);
 
@@ -190,7 +205,7 @@ class Board{
 	public function MoreList(){
 		$res = $this->GetAuth('List');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
@@ -211,7 +226,11 @@ class Board{
 			->SetLimit($this->boardManger->GetValue('article_count'))
 			->SetSort('A.sort1, A.sort2');
 		$this->_CommonQry($dbList);
-		if(!$this->AdminPathIs) $dbList->AddWhere('A.delis=\'n\'');
+
+		if(!$this->AdminPathIs){
+			$dbList->AddWhere('A.delis=\'n\'');
+			if(!$this->managerIs && $this->boardManger->GetValue('man_to_man') === 'y') $dbList->AddWhere('A.muid = %d OR A.target_muid = %d', $_SESSION['member']['muid'], $_SESSION['member']['muid']);
+		}
 
 		if(isset($_GET['seq']) && strlen($_GET['seq'])){
 			$seq = to10($_GET['seq']);
@@ -261,7 +280,7 @@ class Board{
 
 	public function _RowSet(&$data){
 		foreach($data as &$row){
-			if($this->managerIs || CM::GetAdminIs() || $row['secret'] == 'n' || ($row['first_member_is'] == 'y' && strlen($row['muid']))) $row['possibleView'] = true;
+			if($this->managerIs || $row['secret'] == 'n' || ($row['first_member_is'] == 'y' && strlen($row['muid']))) $row['possibleView'] = true;
 			else $row['possibleView'] = false;
 			$row['viewUrl'] = App::URLAction('View/').toBase($row['seq']).App::GetFollowQuery();
 			$row['replyCount'] = $row['reply_cnt'] ? '<span class="ReplyCount">['.$row['reply_cnt'].']</span>' : '';
@@ -282,12 +301,16 @@ class Board{
 
 		$viewAuth = $this->GetAuth('View');
 		if(!$viewAuth){
-			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
 		$this->_GetBoardData($seq);
-		if(!$this->AdminPathIs && $this->model->GetValue('delis') == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
+
+		if(!$this->AdminPathIs){
+			if($this->model->GetValue('delis') == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
+			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && $this->model->GetValue('muid') != $_SESSION['member']['muid'] && $this->model->GetValue('target_muid') != $_SESSION['member']['muid']) URLReplace('-1', _MSG_WRONG_CONNECTED);
+		}
 
 		$data['answerAuth'] = $this->GetAuth('Answer');
 
@@ -349,7 +372,7 @@ class Board{
 	public function Write(){
 		$res = $this->GetAuth('Write');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
@@ -361,7 +384,7 @@ class Board{
 	public function Answer(){
 		$res = $this->GetAuth('Answer');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 		$seq = to10($_GET['target']);
@@ -371,7 +394,10 @@ class Board{
 			->AddWhere('seq = %d', $seq);
 		$this->_CommonQry($qry);
 		$data = $qry->Get();
-		if(!$this->AdminPathIs && $data['delis'] == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
+		if(!$this->AdminPathIs){
+			if($data['delis'] == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
+			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && $data['muid'] != $_SESSION['member']['muid'] && $data['target_muid'] != $_SESSION['member']['muid']) URLReplace('-1', _MSG_WRONG_CONNECTED);
+		}
 
 		$this->model->SetValue('subject', strpos('[답변]', $data['subject']) === false ? '[답변] '.$data['subject'] : $data['subject']);
 		$this->model->SetValue('secret', $data['secret']);
@@ -389,13 +415,16 @@ class Board{
 
 		$res = $this->GetAuth('Modify');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
 		$seq = to10(App::$ID);
 		$this->_GetBoardData($seq);
-		if(!$this->AdminPathIs && $this->model->GetValue('delis') == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
+		if(!$this->AdminPathIs){
+			if($this->model->GetValue('delis') == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
+			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && $this->model->GetValue('muid') != $_SESSION['member']['muid'] && $this->model->GetValue('target_muid') != $_SESSION['member']['muid']) URLReplace('-1', _MSG_WRONG_CONNECTED);
+		}
 
 		// 회원 글 체크
 		if(_MEMBERIS !== true || !CM::GetAdminIs()){
@@ -416,23 +445,25 @@ class Board{
 		}
 		$res = $this->GetAuth('Modify');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
-		require_once _COMMONDIR.'/FileUpload.php';
-
 		$seq = to10(App::$ID);
 
-		if(!$this->AdminPathIs) $this->model->AddExcept('delis');
-
-		$this->model->Need = array('subject', 'content', 'secret');
+		$this->model->Need = array('subject', 'content');
+		if($this->boardManger->GetValue('use_secret') === 'y') $this->model->Need[] = 'secret';
 		if(_MEMBERIS !== true) $this->model->Need[] = 'mnane';
 		else $this->model->AddExcept('pwd');
 
 		$this->_GetBoardData($seq);
-		if(!$this->AdminPathIs && $this->model->GetValue('delis') == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
-		$res = $this->model->SetPostValues();
+		if(!$this->AdminPathIs){
+			if($this->model->GetValue('delis') == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
+			$this->model->AddExcept('delis');
+			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && $this->model->GetValue('muid') != $_SESSION['member']['muid'] && $this->model->GetValue('target_muid') != $_SESSION['member']['muid']) URLReplace('-1', _MSG_WRONG_CONNECTED);
+		}
+
+		$res = $this->model->SetPostValuesWithFile();
 		if(!$res->result){
 			$res->message ? $res->message : 'ERROR#101';
 			if(_AJAXIS === true) JSON(false, $res->message);
@@ -448,27 +479,6 @@ class Board{
 				App::$Data['error'] = $res;
 				App::View($this->model);
 				return;
-			}
-		}
-
-		// 파일 업로드
-		for($n = 1; $n <= 2; $n++){
-			if(!isset($_FILES['file'.$n])) continue;
-
-			if($this->boardManger->GetValue('attach_type') == 'image') $POSSIBLE_EXT = App::$SettingData['IMAGE_EXT'];
-			else $POSSIBLE_EXT = App::$SettingData['POSSIBLE_EXT'];
-			$fres_em = FileUpload($_FILES['file'.$n], $POSSIBLE_EXT, $this->uploadDir);
-
-			if(is_string($fres_em)){
-				if(_JSONIS === true) JSON(false, $fres_em);
-				App::$Data['error'] = $fres_em;
-				App::View($this->model);
-				return;
-			}
-			else if(is_array($fres_em)){
-				if($this->model->GetValue('file'.$n)) @unlink (_UPLOAD_DIR.$this->model->GetValue('file'.$n));
-				$this->model->SetValue('file'.$n, $fres_em['file']);
-				$this->model->SetValue('filenm'.$n, $_FILES['file'.$n]['name']);
 			}
 		}
 
@@ -511,7 +521,7 @@ class Board{
 
 		$res = $this->GetAuth('Write');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
@@ -522,32 +532,36 @@ class Board{
 		if(App::$Action == 'Answer'){
 			$auth = $this->GetAuth('Answer');
 			if(!$res){
-				if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+				if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
 				URLReplace('-1', _MSG_NO_AUTH);
 			}
 
 			$qry = DB::GetQryObj($this->model->table)
 				->AddWhere('seq=%d', to10($_POST['target']))
-				->SetKey('mname, depth, muid, sort1, sort2', 'seq', 'first_seq', 'first_member_is', 'category', 'delis');
+				->SetKey('mname, depth, muid, target_muid, sort1, sort2', 'seq', 'first_seq', 'first_member_is', 'category', 'delis');
 			$this->_CommonQry($qry);
 			App::$Data['targetData'] = $qry->Get();
-			if(!$this->AdminPathIs && App::$Data['targetData']['delis'] == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
+			if(!$this->AdminPathIs){
+				if(App::$Data['targetData']['delis'] == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
+				if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && App::$Data['targetData']['muid'] != $_SESSION['member']['muid'] && App::$Data['targetData']['target_muid'] != $_SESSION['member']['muid']) URLReplace('-1', _MSG_WRONG_CONNECTED);
+			}
+
 			$first_seq = strlen(App::$Data['targetData']['first_seq']) ? App::$Data['targetData']['first_seq'] : App::$Data['targetData']['seq'];
 			$first_member_is = App::$Data['targetData']['first_member_is'];
 		}
 
-		require_once _COMMONDIR.'/FileUpload.php';
 
 		$result = new \BH_Result();
 
 		if(!$this->AdminPathIs) $this->model->AddExcept('delis');
-		$this->model->Need = array('subject', 'content', 'secret');
+		$this->model->Need = array('subject', 'content');
+		if($this->boardManger->GetValue('use_secret') === 'y') $this->model->Need[] = 'secret';
 		if(_MEMBERIS === true){
 			$member = CM::GetMember();
 			$this->model->AddExcept('pwd');
 		}
 
-		$res = $this->model->SetPostValues();
+		$res = $this->model->SetPostValuesWithFile();
 
 		if(!$res->result){
 			$res->message ? $res->message : 'ERROR#101';
@@ -555,26 +569,6 @@ class Board{
 			App::$Data['error'] = $res->message;
 			$this->{App::$Action}();
 			return;
-		}
-
-		// 파일 업로드
-		for($n = 1; $n <= 2; $n++){
-			if(!isset($_FILES['file'.$n])) continue;
-
-			if($this->boardManger->GetValue('attach_type') == 'image') $POSSIBLE_EXT = App::$SettingData['IMAGE_EXT'];
-			else $POSSIBLE_EXT = App::$SettingData['POSSIBLE_EXT'];
-			$fres_em = FileUpload($_FILES['file'.$n], $POSSIBLE_EXT, $this->uploadDir);
-
-			if(is_string($fres_em)){
-				if(_JSONIS === true) JSON(false, $fres_em);
-				App::$Data['error'] = $fres_em;
-				App::View($this->model);
-				return;
-			}
-			else if(is_array($fres_em)){
-				$this->model->SetValue('file'.$n, $fres_em['file']);
-				$this->model->SetValue('filenm'.$n, $_FILES['file'.$n]['name']);
-			}
 		}
 
 		// 기본 데이타
@@ -644,11 +638,9 @@ class Board{
 	}
 
 	public function PostDelete(){
-		if(_POSTIS !== true) URLReplace('-1', _MSG_WRONG_CONNECTED);
-
 		$res = $this->GetAuth('Write');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(-1, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
@@ -656,8 +648,13 @@ class Board{
 
 		$this->_GetBoardData($seq);
 
+		if(!$this->AdminPathIs){
+			if($this->model->GetValue('delis') == 'y') URLReplace('-1', '이미 삭제된 글입니다.');
+			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && $this->model->GetValue('muid') != $_SESSION['member']['muid']) URLReplace('-1', _MSG_WRONG_CONNECTED);
+		}
+
 		// 회원 글 체크
-		if(_MEMBERIS !== true || (!CM::GetAdminIs() && !$this->managerIs)){
+		if(_MEMBERIS !== true || !$this->managerIs){
 			$res = $this->_PasswordCheck();
 			if($res !== true){
 				URLReplace('-1', $res);
@@ -687,7 +684,12 @@ class Board{
 	public function Download(){
 		$seq = to10(App::$ID);
 		$this->_GetBoardData($seq);
-		Download(_UPLOAD_DIR.$this->model->GetValue('file1'), $this->model->GetValue('filenm1'));
+		$file = explode('*', $this->model->GetValue('file1'));
+		if(sizeof($file) < 2){
+			$name = explode('/', $file[0]);
+			$file[1] = end($name);
+		}
+		Download(_UPLOAD_DIR . $file[0], $file[1]);
 	}
 
 	public function PostRemove(){
@@ -721,8 +723,8 @@ class Board{
 				->Run();
 		}
 
-		if(file_exists(_UPLOAD_DIR.$row['file1'])) @unlink(_UPLOAD_DIR.$row['file1']);
-		if(file_exists(_UPLOAD_DIR.$row['file2'])) @unlink(_UPLOAD_DIR.$row['file2']);
+		if($this->model->GetValue($row['file1']) && file_exists(_UPLOAD_DIR.$this->model->GetFilePathByValue($row['file1']))) @unlink(_UPLOAD_DIR.$this->model->GetFilePathByValue($row['file1']));
+		if($this->model->GetValue($row['file2']) && file_exists(_UPLOAD_DIR.$this->model->GetFilePathByValue($row['file2']))) @unlink(_UPLOAD_DIR.$this->model->GetFilePathByValue($row['file2']));
 		$qry = DB::DeleteQryObj($this->model->table)
 			->AddWhere('seq = '.$row['seq']);
 		$this->_CommonQry($qry);

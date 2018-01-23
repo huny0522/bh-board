@@ -3,7 +3,7 @@ use \BH_Application as App;
 use \DB as DB;
 class BH_Common
 {
-	public static $Member;
+	public static $member;
 
 	private function __construct(){
 	}
@@ -46,14 +46,14 @@ class BH_Common
 	public static function GetMember($key = ''){
 		// 원글 가져오기
 		if(_MEMBERIS === true){
-			if(!isset(self::$Member) || !self::$Member){
+			if(!isset(self::$member) || !self::$member){
 				$dbGet = new \BH_DB_Get(TABLE_MEMBER);
 				$dbGet->AddWhere('muid=' . SetDBInt($_SESSION['member']['muid']));
 				$dbGet->SetKey('*', 'NULL as pwd');
-				self::$Member = $dbGet->Get();
+				self::$member = $dbGet->Get();
 			}
-			if($key) return self::$Member[$key];
-			return self::$Member;
+			if($key) return self::$member[$key];
+			return self::$member;
 		}else{
 			return false;
 		}

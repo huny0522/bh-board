@@ -119,6 +119,8 @@ include 'common.incss.php';
 	.BoardView header ul:after{ content:' '; display:block; clear:both;}
 	.BoardView header li{ float:right; margin-left:1.5rem;}
 	.BoardView header li.mname{ float:left; margin-right:0;}
+	.BoardView .files{ padding:1.0rem; border-bottom:1px solid #ccc; background:#eee; font-size:12px; $tar;}
+	.BoardView .files a{ text-decoration:underline;}
 	.BoardView .contents{ padding:2.0rem 1.0rem;}
 	.BoardView .contents img{max-width:100% !important;}
 

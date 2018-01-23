@@ -73,9 +73,9 @@ class BoardModel extends \BH_Model{
 
 		$this->data['thumnail'] = new \BH_ModelData(ModelType::String, false, '섬네일이미지', HTMLType::InputFile);
 
-		$this->data['file1'] = new \BH_ModelData(ModelType::String, false, '파일#1', HTMLType::InputFile);
+		$this->data['file1'] = new \BH_ModelData(ModelType::String, false, '파일#1', HTMLType::InputFileWithName);
 
-		$this->data['file2'] = new \BH_ModelData(ModelType::String, false, '파일#2', HTMLType::InputFile);
+		$this->data['file2'] = new \BH_ModelData(ModelType::String, false, '파일#2', HTMLType::InputFileWithName);
 
 		$this->data['filenm1'] = new \BH_ModelData(ModelType::String, false, '파일명#1');
 		$this->data['filenm2'] = new \BH_ModelData(ModelType::String, false, '파일명#2');

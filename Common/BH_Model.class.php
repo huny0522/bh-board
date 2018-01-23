@@ -48,6 +48,7 @@ class BH_ModelData{
 	public $HtmlType;
 	public $AutoDecrement = false;
 	public $ValueIsQuery = false;
+	public $BlankIsNull = false;
 
 	public function __construct($Type = ModelType::String, $Required = false, $DisplayName = '', $HtmlType = HTMLType::InputText){
 		$this->Type = $Type;
@@ -181,10 +182,9 @@ class BH_Model{
 
 	/**
 	 * @param string $key
-	 * @param array $file $_FILE['key']
 	 */
 	public function SetFileValue($key){
-		return _ModelFunc::SetFileValue($this, $key);
+		_ModelFunc::SetFileValue($this, $key);
 	}
 
 	/**
@@ -345,13 +345,15 @@ class _ModelFunc{
 		$ret->result = true;
 		foreach($model->data as $k => &$v){
 			if(!in_array($k, $model->Except) && $v->AutoDecrement !== true){
-				if(!isset($post[$k])){
-					if(isset($v->HtmlType) && $v->HtmlType == HTMLType::InputFile){
-						if($withFile){
-							$res = self::SetFileValue($model, $k);
-						}
+				if(isset($v->HtmlType) && self::IsFileType($v->HtmlType)){
+					if($withFile) self::SetFileValue($model, $k);
+				}
+				else if(!isset($post[$k])){
+					if($v->BlankIsNull){
+						$v->Value = 'NULL';
+						$v->ValueIsQuery = true;
+						$model->Need[] = $k;
 					}
-
 					else if(isset($model->Need) && in_array($k, $model->Need)){
 						$ret->message = $v->ModelErrorMsg = $v->DisplayName.' 항목이 정의되지 않았습니다.';
 						$ret->result = false;
@@ -431,7 +433,11 @@ class _ModelFunc{
 					}
 
 					else if((isset($v->HtmlType) || $v->Required) && !self::IsFileType($v->HtmlType)){
-						if(isset($post[$k])){
+						if(!strlen($post[$k]) && $v->BlankIsNull){
+							$v->Value = 'NULL';
+							$v->ValueIsQuery = true;
+						}
+						else{
 							if($v->HtmlType === HTMLType::NumberFormat) $v->Value = preg_replace('/[^0-9]/', '', $post[$k]);
 							else $v->Value = $post[$k];
 						}
@@ -506,7 +512,11 @@ class _ModelFunc{
 				$p = explode(';', $data->Value);
 				if(isset($p[$n2])){
 					$f = explode('*', $p[$n2]);
-					return isset($f[$n]) ? $f[$n] : $f[0];
+					if(isset($f[$n])) return $f[$n];
+					else{
+						$fn = explode('/', $f[0]);
+						return end($fn);
+					}
 				}
 				else return NULL;
 			}
@@ -520,7 +530,11 @@ class _ModelFunc{
 		$p = explode(';', $value);
 		if(isset($p[$n2])){
 			$f = explode('*', $p[$n2]);
-			return isset($f[$n]) ? $f[$n] : $f[0];
+			if(isset($f[$n])) return $f[$n];
+			else{
+				$fn = explode('/', $f[0]);
+				return end($fn);
+			}
 		}
 		else return NULL;
 	}
@@ -990,7 +1004,8 @@ class _ModelFunc{
 				if(self::IsFileType($data->HtmlType) && strlen($data->Value)){
 					$p = explode(';', $data->Value);
 					foreach($p as $path){
-						UnlinkImage(_UPLOAD_DIR . $path);
+						$pn = explode('*', $path);
+						UnlinkImage(_UPLOAD_DIR . $pn[0]);
 					}
 				}
 			}
