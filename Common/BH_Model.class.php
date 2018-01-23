@@ -67,10 +67,19 @@ class BH_Model{
 	public $Key = array();
 	public $Except = array();
 	public $Need = array();
-	protected $ConnName = '';
+	/**
+	 * @var BH_DB_GetListWithPage|BH_DB_GetList
+	 */
+	public $qry = null;
+	protected $listPosition = -1;
+	protected $connName = '';
+	/**
+	 * @var BH_Model
+	 */
+	public $parent = null;
 
 	public function __construct(){
-		$this->ConnName = \DB::DefaultConnName;
+		$this->connName = \DB::DefaultConnName;
 		if(method_exists($this, '__Init')) $this->__Init();
 	}
 
@@ -80,7 +89,7 @@ class BH_Model{
 	 * @return $this
 	 */
 	public function &SetConnName($str){
-		$this->ConnName = $str;
+		$this->connName = $str;
 		return $this;
 	}
 
@@ -89,7 +98,151 @@ class BH_Model{
 	 * @return string
 	 */
 	public function GetConnName(){
-		return $this->ConnName;
+		return $this->connName;
+	}
+
+	/**
+	 * @param BH_Model $model
+	 * @param string $tableNaming
+	 * @param string $on
+	 * @return $this
+	 */
+	public function &LeftJoin(&$model, $tableNaming, $on){
+		$args = func_get_args();
+		array_unshift($args, "LEFT");
+		$args[1] = &$model;
+		_ModelFunc::_Join($this, $args);
+		return $this;
+	}
+
+	/**
+	 * @param BH_Model $model
+	 * @param string $tableNaming
+	 * @param string $on
+	 * @return $this
+	 */
+	public function &RightJoin(&$model, $tableNaming, $on){
+		$args = func_get_args();
+		array_unshift($args, "RIGHT");
+		$args[1] = &$model;
+		_ModelFunc::_Join($this, $args);
+		return $this;
+	}
+
+	/**
+	 * @param BH_Model $model
+	 * @param string $tableNaming
+	 * @param string $on
+	 * @return $this
+	 */
+	public function &InnerJoin(&$model, $tableNaming, $on){
+		$args = func_get_args();
+		array_unshift($args, "INNER");
+		$args[1] = &$model;
+		_ModelFunc::_Join($this, $args);
+		return $this;
+	}
+
+	/**
+	 * @param BH_Model $model
+	 * @param string $tableNaming
+	 * @param string $on
+	 * @return $this
+	 */
+	public function &OuterJoin(&$model, $tableNaming, $on){
+		$args = func_get_args();
+		array_unshift($args, "OUTER");
+		$args[1] = &$model;
+		_ModelFunc::_Join($this, $args);
+		return $this;
+	}
+
+	/**
+	 * @param string $tableNaming
+	 * @return $this
+	 */
+	public function &QryListInstance($tableNaming = ''){
+		$this->qry = new BH_DB_GetList();
+		$this->qry->AddTable($this->table . (strlen($tableNaming) ? ' `' . $tableNaming . '`' : ''));
+		return $this;
+	}
+
+	/**
+	 * @param string $tableNaming
+	 * @return $this
+	 */
+	public function &QryPageListInstance($tableNaming = ''){
+		$this->qry = new BH_DB_GetListWithPage();
+		$this->qry->AddTable($this->table . (strlen($tableNaming) ? ' `' . $tableNaming . '`' : ''));
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function QryNext(){
+		if(!$this->qry->drawRowsIs) $this->qry->DrawRows();
+		$this->listPosition++;
+		return isset($this->qry->data[$this->listPosition]);
+	}
+
+	public function QryDraw(){
+		$this->qry->DrawRows();
+	}
+
+	/**
+	 * @param int $pos
+	 * @return bool
+	 */
+	public function QryPosition($pos){
+		if(!$this->qry->drawRowsIs) $this->qry->DrawRows();
+		$this->listPosition = $pos;
+		return isset($this->qry->data[$this->listPosition]);
+	}
+
+	/**
+	 * @param string $key
+	 * @param null|string $dataKey
+	 * @return mixed
+	 */
+	public function QryValue($key, $dataKey = null){
+		return _ModelFunc::QryValueByModel($this, $key, $dataKey);
+	}
+
+	/**
+	 * @param string $key
+	 * @param null|string $dataKey
+	 * @return mixed
+	 */
+	public function QrySafeValue($key, $dataKey = null){
+		return GetDBText(_ModelFunc::QryValueByModel($this, $key, $dataKey));
+	}
+
+	/**
+	 * @param string $key
+	 * @param null|string $dataKey
+	 * @return mixed
+	 */
+	public function QrySafeRawValue($key, $dataKey = null){
+		return GetDBRaw(_ModelFunc::QryValueByModel($this, $key, $dataKey));
+	}
+
+	/**
+	 * @param string $key
+	 * @param null|string $dataKey
+	 * @return mixed
+	 */
+	public function QrySafeBRValue($key, $dataKey = null){
+		return nl2br(GetDBText(_ModelFunc::QryValueByModel($this, $key, $dataKey)));
+	}
+
+	/**
+	 * @return bool|string
+	 */
+	public function TotalRecord(){
+		if(!$this->qry->drawRowsIs) $this->qry->DrawRows();
+		if($this->qry->result) return $this->qry->totalRecord;
+		else return false;
 	}
 
 	/**
@@ -147,11 +300,24 @@ class BH_Model{
 
 	/**
 	 * 데이타의 값 반환
-	 * @param $key
+	 * @param string $key
+	 * @param bool $enumVal true일경우 Enum키의 값을 반환
 	 * @return null|string
 	 */
-	public function GetValue($key){
-		return isset($this->data[$key]->Value) ? $this->data[$key]->Value : NULL;
+	public function GetValue($key, $enumVal = false){
+		return isset($this->data[$key]->Value) ? (($enumVal && $this->data[$key]->Type == ModelType::Enum && isset($this->data[$key]->EnumValues[$this->data[$key]->Value])) ? $this->data[$key]->EnumValues[$this->data[$key]->Value] : $this->data[$key]->Value) : NULL;
+	}
+
+	public function GetSafeValue($key, $enumVal = true){
+		return GetDBText($this->GetValue($key, $enumVal));
+	}
+
+	public function GetSafeRawValue($key, $enumVal = true){
+		return GetDBRaw($this->GetValue($key, $enumVal));
+	}
+
+	public function GetSafeBRValue($key, $enumVal = true){
+		return nl2br(GetDBText($this->GetValue($key, $enumVal)));
 	}
 
 	public function GetFileName($key, $n = 0){
@@ -337,9 +503,32 @@ class BH_Model{
 }
 
 class _ModelFunc{
+	public static function _Join(&$model, $args){
+		$args[1]->parent = &$model;
+		$n = array_values(array_slice($args, 3));
+		$txt = $model->qry->StrToPDO($n);
+		$model->qry->AddTable('%1 JOIN `%1` `%1` ON %1', $args[0], $args[1]->table, $args[2], $txt);
+		return true;
+	}
+
+	public static function QryValueByModel(&$nowModel, $key, $dataKey = null){
+		$refModel = &$nowModel;
+		while(!is_null($nowModel->parent)) $nowModel = &$nowModel->parent;
+
+		if(is_null($dataKey)) $dataKey = $key;
+		if(!isset($nowModel->qry->data[$nowModel->listPosition][$key])) return null;
+		if($dataKey === false) return $nowModel->qry->data[$nowModel->listPosition][$key];
+		if(isset($refModel->data[$dataKey]) && $refModel->data[$dataKey]->Type == ModelType::Enum){
+			if(isset($refModel->data[$dataKey]->EnumValues[$nowModel->qry->data[$nowModel->listPosition][$key]])) return $refModel->data[$dataKey]->EnumValues[$nowModel->qry->data[$nowModel->listPosition][$key]];
+			return null;
+		}
+		return $nowModel->qry->data[$nowModel->listPosition][$key];
+	}
+
 	public static function IsFileType($type){
 		return in_array($type, array(HTMLType::InputFile, HTMLType::InputFileWithName, HTMLType::InputImageFile, HTMLType::InputImageFileArray));
 	}
+
 	public static function SetPostValues(&$model, &$post, $withFile = false){
 		$ret = new \BH_Result();
 		$ret->result = true;

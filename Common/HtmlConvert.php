@@ -103,21 +103,21 @@ function ReplaceHTMLFile($source, $target){
 
 		// mv()
 		'<?php echo $Model->data[$1]->DisplayName; ?>',
-		'<?php echo $Model->GetValue($1); ?>',
-		'<?php echo GetDBText($Model->GetValue($1)); ?>',
-		'<?php echo number_format(GetDBText($Model->GetValue($1))); ?>',
-		'<?php echo GetDBRaw($Model->GetValue($1)); ?>',
-		'<?php echo nl2br(GetDBText($Model->GetValue($1))); ?>',
+		'<?php echo $Model->GetValue($1, true); ?>',
+		'<?php echo $Model->GetSafeValue($1); ?>',
+		'<?php echo number_format(GetDBText($Model->GetValue($1, true))); ?>',
+		'<?php echo $Model->GetSafeRawValue($1); ?>',
+		'<?php echo $Model->GetSafeBRValue($1); ?>',
 		'<?php echo $Model->HTMLPrintInput($1); ?>',
 		'<?php echo $Model->HTMLPrintEnum($1); ?>',
 
 		// mv.modelName()
 		'<?php echo $Ctrl->$1->data[$2]->DisplayName; ?>',
-		'<?php echo $Ctrl->$1->GetValue($2); ?>',
-		'<?php echo GetDBText($Ctrl->$1->GetValue($2)); ?>',
-		'<?php echo number_format(GetDBText($Ctrl->$1->GetValue($2))); ?>',
-		'<?php echo GetDBRaw($Ctrl->$1->GetValue($2)); ?>',
-		'<?php echo nl2br(GetDBText($Ctrl->$1->GetValue($2))); ?>',
+		'<?php echo $Ctrl->$1->GetValue($2, true); ?>',
+		'<?php echo $Ctrl->$1->GetSafeValue($2); ?>',
+		'<?php echo number_format(GetDBText($Ctrl->$1->GetValue($2, true))); ?>',
+		'<?php echo $Ctrl->$1->GetSafeRawValue($2); ?>',
+		'<?php echo $Ctrl->$1->GetSafeBRValue($2); ?>',
 		'<?php echo $Ctrl->$1->HTMLPrintInput($2); ?>',
 		'<?php echo $Ctrl->$1->HTMLPrintEnum($2); ?>',
 

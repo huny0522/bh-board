@@ -1159,6 +1159,16 @@ var _SelectBox = new SelectBox(jQuery);
 		}
 		else $(this).val(str);
 	};
+
+	$.fn.imgLoad = function(callback){
+		var nowThis = this;
+		var tmpImg = new Image();
+		tmpImg.onload = function () {
+			if(typeof callback === 'function') callback.call(nowThis);
+		};
+
+		tmpImg.src = this.attr('src');
+	};
 })(jQuery);
 
 var JCM = new Common(jQuery);
