@@ -3,6 +3,13 @@
  * Bang Hun.
  * 16.07.10
  */
+define('QRY_GET', 1);
+define('QRY_LIST', 2);
+define('QRY_PAGE_LIST', 3);
+define('QRY_INSERT', 4);
+define('QRY_UPDATE', 5);
+define('QRY_DELETE', 6);
+
 class ModelType{
 	const Int = 1;
 	const String = 2;
@@ -68,7 +75,7 @@ class BH_Model{
 	public $Except = array();
 	public $Need = array();
 	/**
-	 * @var BH_DB_GetListWithPage|BH_DB_GetList
+	 * @var BH_DB_Get|BH_DB_GetListWithPage|BH_DB_GetList|BH_DB_Insert|BH_DB_Update|BH_DB_Delete
 	 */
 	public $qry = null;
 	protected $listPosition = -1;
@@ -158,23 +165,67 @@ class BH_Model{
 	}
 
 	/**
+	 * @param int $type
 	 * @param string $tableNaming
 	 * @return $this
 	 */
-	public function &QryListInstance($tableNaming = ''){
-		$this->qry = new BH_DB_GetList();
-		$this->qry->AddTable($this->table . (strlen($tableNaming) ? ' `' . $tableNaming . '`' : ''));
+	public function &SetQry($type, $tableNaming = ''){
+		_ModelFunc::SetQry($this, $type, $tableNaming);
 		return $this;
 	}
 
 	/**
 	 * @param string $tableNaming
-	 * @return $this
+	 * @return BH_DB_Get
 	 */
-	public function &QryPageListInstance($tableNaming = ''){
-		$this->qry = new BH_DB_GetListWithPage();
-		$this->qry->AddTable($this->table . (strlen($tableNaming) ? ' `' . $tableNaming . '`' : ''));
-		return $this;
+	public function &GetSetQry($tableNaming = ''){
+		_ModelFunc::SetQry($this, QRY_GET, $tableNaming);
+		return $this->qry;
+	}
+
+	/**
+	 * @param string $tableNaming
+	 * @return BH_DB_GetList
+	 */
+	public function &GetSetListQry($tableNaming = ''){
+		_ModelFunc::SetQry($this, QRY_LIST, $tableNaming);
+		return $this->qry;
+	}
+
+	/**
+	 * @param string $tableNaming
+	 * @return BH_DB_GetListWithPage
+	 */
+	public function &GetSetPageListQry($tableNaming = ''){
+		_ModelFunc::SetQry($this, QRY_PAGE_LIST, $tableNaming);
+		return $this->qry;
+	}
+
+	/**
+	 * @param string $tableNaming
+	 * @return BH_DB_Insert
+	 */
+	public function &GetSetInsertQry($tableNaming = ''){
+		_ModelFunc::SetQry($this, QRY_INSERT, $tableNaming);
+		return $this->qry;
+	}
+
+	/**
+	 * @param string $tableNaming
+	 * @return BH_DB_Update
+	 */
+	public function &GetSetUpdateQry($tableNaming = ''){
+		_ModelFunc::SetQry($this, QRY_UPDATE, $tableNaming);
+		return $this->qry;
+	}
+
+	/**
+	 * @param string $tableNaming
+	 * @return BH_DB_Delete
+	 */
+	public function &GetSetDeleteQry($tableNaming = ''){
+		_ModelFunc::SetQry($this, QRY_DELETE, $tableNaming);
+		return $this->qry;
 	}
 
 	/**
@@ -503,6 +554,16 @@ class BH_Model{
 }
 
 class _ModelFunc{
+	public static function SetQry(&$model, $type, $tableNaming){
+		if($type === QRY_LIST) $model->qry = new BH_DB_GetList();
+		else if($type === QRY_PAGE_LIST) $model->qry = new BH_DB_GetListWithPage();
+		else if($type === QRY_INSERT) $model->qry = new BH_DB_Insert();
+		else if($type === QRY_UPDATE) $model->qry = new BH_DB_Update();
+		else if($type === QRY_DELETE) $model->qry = new BH_DB_Delete();
+		else $model->qry = new BH_DB_Get();
+
+		$model->qry->AddTable('`' . $model->table . '`' . (strlen($tableNaming) ? ' `' . $tableNaming . '`' : ''));
+	}
 	public static function _Join(&$model, $args){
 		$args[1]->parent = &$model;
 		$n = array_values(array_slice($args, 3));
@@ -534,7 +595,7 @@ class _ModelFunc{
 		$ret->result = true;
 		foreach($model->data as $k => &$v){
 			if(!in_array($k, $model->Except) && $v->AutoDecrement !== true){
-				if(isset($v->HtmlType) && self::IsFileType($v->HtmlType)){
+				if(isset($v->HtmlType) && self::IsFileType($v->HtmlType) && isset($_FILES[$k])){
 					if($withFile) self::SetFileValue($model, $k);
 				}
 				else if(!isset($post[$k])){
@@ -947,20 +1008,22 @@ class _ModelFunc{
 			case HTMLType::InputImageFile:
 				$h = '<div class="fileUploadArea"><input type="hidden" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
 				$h .= '<span class="fileUploadImage">';
-				if(strlen($data->Value)) $h .= '<img src="' . _UPLOAD_URL . $data->Value . '" alt="">';
+				if(strlen($data->Value)){
+					$h .= '<i style="background-image:url(' . _UPLOAD_URL . $data->Value . ')"></i>';
+				}
 				$h .= '</span>';
 				if(strlen($data->Value)) $h .= ' <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><span>삭제</span></label>';
-				return $h . '<button type="button" class="fileUploadBtn sBtn">이미지업로드</button></div><script>JCM.imageFileForm();</script>';
+				return $h . '<button type="button" class="fileUploadBtn sBtn"><span>이미지업로드</span></button></div><script>JCM.imageFileForm();</script>';
 			break;
 			case HTMLType::InputImageFileArray:
 				$h = '<div class="multiFileUploadArea">';
 				if(strlen($data->Value)){
 					$p = explode(';', $data->Value);
 					foreach($p as $path){
-						$h .= ' <span class="fileUploadImage"><img src="' . _UPLOAD_URL . $path . '"></span> <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '[]" value="' . $path . '"><span>삭제</span></label>';
+						$h .= ' <span class="fileUploadImage"><i style="background-image:url(' . _UPLOAD_URL . $path . ')"></i></span> <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '[]" value="' . $path . '"><span>삭제</span></label>';
 					}
 				}
-				$h .= '<div class="fileUploadArea"><span class="fileUploadImage"></span><input type="hidden" name="'.$Name.'[]" data-displayname="' . $data->DisplayName . '" '.$Attribute.'><button type="button" class="fileUploadBtn sBtn">이미지업로드</button><button type="button" class="fileUploadAreaAddBtn sBtn">추가</button><button type="button" class="fileUploadAreaRmBtn sBtn">삭제</button></div>';
+				$h .= '<div class="fileUploadArea"><span class="fileUploadImage"></span><input type="hidden" name="'.$Name.'[]" data-displayname="' . $data->DisplayName . '" '.$Attribute.'><button type="button" class="fileUploadBtn sBtn"><span>이미지업로드</span></button><button type="button" class="fileUploadAreaAddBtn sBtn">추가</button><button type="button" class="fileUploadAreaRmBtn sBtn">삭제</button></div>';
 				return $h . '</div><script>JCM.imageFileForm();</script>';
 			break;
 			case HTMLType::Textarea:

@@ -67,7 +67,7 @@ function Common($) {
 		return '';
 	};
 
-	this.loadingAnimation = function(){
+	this.loadingAnimation = function(obj){
 
 	};
 
@@ -409,9 +409,12 @@ function Common($) {
 			_this.ajaxForm(this, function(result){
 				$('#_uploadImgFrm')[0].reset();
 				var obj = $('#_uploadImgFrm').data().obj;
+				var area = $(obj).closest('.fileUploadArea');
 				$(obj).val(result.path);
-				var img = $(obj).closest('.fileUploadArea').find('.fileUploadImage');
-				if(img.length) img.html('<img src="' + result.uploadDir + result.path + '">');
+				var img = area.find('.fileUploadImage');
+				if(img.length){
+					img.html('<i style="background-image:url(' + result.uploadDir + result.path  + ')"></i>');
+				}
 			});
 		});
 	};
@@ -605,16 +608,37 @@ function EventLink($){
 	this.mouseMoveEnable = true;
 	this.mouseUpEnable = true;
 
-	this.touch = function(selector, func){
-		$(document).on('touchstart mousedown', selector, function(e){
+	this.touch = function(selector, func, parent){
+		if(typeof parent === 'undefined') parent = document;
+		$(parent).on('touchstart mousedown', selector, function(e){
+			$(this).off('click e_touch');
+
+			$(this).on('click', function(e){
+				e.preventDefault();
+			});
+
 			_this.TouchStartElement.call(this, e);
-			$(this).off('e_touch_visible');
+
+			$(this).on('e_touch', func);
+		});
+	};
+
+	this.touchVisible = function(selector, func, parent){
+		if(typeof parent === 'undefined') parent = document;
+		$(parent).on('touchstart mousedown', selector, function(e){
+			$(this).off('click e_touch_visible');
+
+			$(this).data('visibleTouchIs', true);
+
+			_this.TouchStartElement.call(this, e);
 			$(this).on('e_touch_visible', func);
 		});
 	};
 
-	this.drag = function(selector, dragFunc, dragEndFunc){
-		$(document).on('touchstart mousedown', selector, function(e){
+	this.drag = function(selector, dragFunc, dragEndFunc, parent){
+		if(typeof parent === 'undefined') parent = document;
+		$(parent).on('touchstart mousedown', selector, function(e){
+			$(this).data('dragTouchIs', true);
 			eventLink.TouchStartElement.call(this, e);
 			$(this).off('e_drag');
 			$(this).on('e_drag', dragFunc);
@@ -624,7 +648,14 @@ function EventLink($){
 	};
 
 	this.TouchStartElement = function(e){
-		e.stopPropagation();
+		if(this.tagName === 'SELECT'){
+			e.preventDefault();
+		}
+
+		if($(this).data('visibleTouchIs') !== true){
+			e.stopPropagation();
+		}
+		//$(this).blur();
 		var body = $('body');
 
 		if (this.mouseDownEnable && e.type === 'touchstart'){
@@ -650,34 +681,45 @@ function EventLink($){
 		} : e.originalEvent.touches[0];
 		$(this).data('touchStart', xy);
 		$(this).data('touchEnd', null);
-		$(this).data('visibleTouchIs', this === document.elementFromPoint(xy.pageX, xy.pageY) );
 	};
 
 	this.Init = function(){
 		$.fn.touch = function(func){
-			// touchStart
-			$(this).on('touchstart mousedown', _this.TouchStartElement);
+			$(this).on('touchstart mousedown', function(e){
 
-			// touchEnd
-			$(this).on('e_touch', func);
+				$(this).off('click e_touch');
+
+				$(this).on('click', function(e){
+					e.preventDefault();
+				});
+
+				_this.TouchStartElement.call(this, e);
+
+				$(this).on('e_touch', func);
+			});
 		};
 
 		$.fn.touchVisible = function(func){
-			// touchStart
-			$(this).on('touchstart mousedown', _this.TouchStartElement);
-			// touchMove
-			// touchEnd
-			$(this).on('e_touch_visible', func);
+			$(this).on('touchstart mousedown', function(e){
+				$(this).off('click e_touch_visible');
+
+				$(this).data('visibleTouchIs', true);
+
+				_this.TouchStartElement.call(this, e);
+				$(this).on('e_touch_visible', func);
+			});
 		};
 
 
 		$.fn.drag = function(dragFunc, dragEndFunc){
-			// touchStart
-			$(this).on('touchstart mousedown', _this.TouchStartElement);
-			// touchMove
-			$(this).on('e_drag', dragFunc);
-			// touchEnd
-			$(this).on('e_drag_end', dragEndFunc);
+			$(this).on('touchstart mousedown', function(e){
+				$(this).data('dragTouchIs', true);
+				eventLink.TouchStartElement.call(this, e);
+				$(this).off('e_drag');
+				$(this).on('e_drag', dragFunc);
+				$(this).off('e_drag_end');
+				$(this).on('e_drag_end', dragEndFunc);
+			});
 		};
 
 		$(document).on('touchmove mousemove', 'body', function(e){
@@ -698,7 +740,7 @@ function EventLink($){
 					'pageX': e.pageX,
 					'pageY': e.pageY
 				} : e.originalEvent.touches[0]);
-				jObj.trigger('e_drag', e);
+				if(jObj.data('dragTouchIs') === true) jObj.trigger('e_drag', e);
 			}
 		});
 
@@ -721,18 +763,26 @@ function EventLink($){
 				if(typeof(jObj.data('touchEnd')) === 'undefined' || jObj.data('touchEnd') === null) jObj.data('touchEnd', touchStart);
 				var touchEnd = jObj.data('touchEnd');
 
-				var elementFromPoint = $(document.elementFromPoint(touchEnd.pageX, touchEnd.pageY))[0];
+				var elementFromPoint = document.elementFromPoint(touchEnd.pageX - $(window).scrollLeft(), touchEnd.pageY - $(window).scrollTop());
 
 				if(touchObject[i] === elementFromPoint || $(elementFromPoint).closest(touchObject[i]).length){
 					var x = touchEnd.pageX - touchStart.pageX;
 					var y = touchEnd.pageY - touchStart.pageY;
-					if(Math.abs(x) < 5 && Math.abs(y) < 5) jObj.trigger('e_touch', e);
+					if(Math.abs(x) < 5 && Math.abs(y) < 5){
+						e.stopPropagation();
+						e.preventDefault();
+						jObj.trigger('e_touch', e);
+					}
 				}
 
-				if(jObj.data('visibleTouchIs') && touchObject[i] === document.elementFromPoint(touchEnd.pageX, touchEnd.pageY)){
+				if(typeof(jObj.data('visibleTouchIs')) !== 'undefined' && jObj.data('visibleTouchIs') && touchObject[i] === elementFromPoint){
 					var x = touchEnd.pageX - touchStart.pageX;
 					var y = touchEnd.pageY - touchStart.pageY;
-					if(Math.abs(x) < 5 && Math.abs(y) < 5) jObj.trigger('e_touch_visible', e);
+					if(Math.abs(x) < 5 && Math.abs(y) < 5){
+						e.stopPropagation();
+						e.preventDefault();
+						jObj.trigger('e_touch_visible', e);
+					}
 				}
 
 				jObj.trigger('e_touch_end', e);
@@ -751,6 +801,46 @@ function EventLink($){
 
 var eventLink = new EventLink(jQuery);
 
+/* -----------------------------------------------------
+ *
+ *    스크롤 영역 이미지 스크롤 바
+ *
+ *    element 필수 태그클래스
+ *    .scrollContents
+ *    .scrollBar > .scrollBtn
+ *
+ ----------------------------------------------------- */
+function ScrollAreaInit(selector){
+	var bar = $(selector).find('.scrollBar').eq(0);
+	var btn = $(selector).find('.scrollBtn').eq(0);
+	var scrollContents = $(selector).find('.scrollContents').eq(0);
+	var maxHeight = bar.height() - btn.height();
+
+	scrollContents.scroll(function(){
+		var sh = scrollContents[0].scrollHeight - scrollContents.height();
+		var sy = scrollContents.scrollTop() / sh;
+		btn.css({top : (maxHeight * sy) + 'px'});
+	});
+
+	btn.drag(function(e){
+		// scroll begin
+		var y = btn.data('touchEnd').pageY - (bar.offset().top - $(window).scrollTop());
+		y -= btn.height() / 2;
+		if(y < 0) y = 0;
+		else if(y > maxHeight) y = maxHeight;
+		btn.css({top : y + 'px'});
+		scrollConetntsAct(y);
+	}, function(){
+		// scroll end
+	});
+
+	function scrollConetntsAct(y){
+		var sh = scrollContents[0].scrollHeight - scrollContents.height();
+		var sy = sh * (y / maxHeight);
+		if(!sh) btn.css({top : 0});
+		scrollContents.scrollTop(sy);
+	}
+}
 
 /* -----------------------------------------------------
  *
@@ -852,6 +942,8 @@ var _ImageAlign = new ImageAlign(jQuery);
  ------------------------------------------- */
 function SelectBox($){
 	var _this = this;
+	this.parentSelectElement = null;
+
 	this.SetAll = function(){
 		$('.selectBox select').each(function(){
 			_this.Set.call(this);
@@ -872,7 +964,95 @@ function SelectBox($){
 			$(this).prev().text(val);
 		}
 		else selectTxtE.text(val);
-	}
+
+		if($(this)[0].hasAttribute('data-option-type') && !$(this)[0].hasAttribute('data-has-touch-e')){
+			$(this).touch(_this.OptionToUl);
+			$(this).attr('data-has-touch-e', 'y');
+		}
+	};
+
+	this.OptionToUl = function(){
+		if($('#selectOptionWrap').length){
+			_this.parentSelectElement = null;
+			$('#selectOptionWrap').remove();
+			return;
+		}
+		if(_this.parentSelectElement !== null) return;
+
+		_this.parentSelectElement = this;
+
+		var type = $(this).attr('data-option-type');
+		var html = '<div id="selectOptionWrap" class="selectOptionWrap' + type + '"><div class="selectOptionContents"><ul>';
+		var selVal = $(this).val();
+		$(this).children('option').each(function(){
+			var value = this.hasAttribute('value') ? $(this).attr('value') : $(this).text();
+			var selected = selVal == value ? ' class="selected"' : '';
+			html += '<li><button type="button" data-value="' + value + '"' + selected + '>' + $(this).text() + '</button></li>';
+		});
+		html += '</ul></div>';
+
+		$('body').append(html);
+
+		var optWrap = $('#selectOptionWrap');
+		optWrap.css({
+			position : 'absolute',
+			top : 0,
+			left : 0,
+			width : '100%',
+			height : $(document).height() + 'px'
+		});
+
+		optWrap.find('.selectOptionContents').css({
+			position : 'absolute',
+			left : 0,
+			top : 0,
+			'min-width' : $(_this.parentSelectElement).closest('.selectBox').outerWidth() + 'px'
+		});
+
+		optWrap.touchVisible(function(){
+			$(this).remove();
+			_this.parentSelectElement = null;
+		});
+
+		optWrap.find('button').touch(_this.OptionClick);
+
+		$(_this.parentSelectElement).trigger('init_layer_option', document.getElementById('selectOptionWrap'));
+
+		if(type === 'drop') _this.DropOptionSetPosition();
+	};
+
+	this.DropOptionSetPosition = function(){
+		var optWrap = $('#selectOptionWrap');
+		if(!optWrap.length) return;
+		var sBox = $(_this.parentSelectElement).closest('.selectBox');
+		var x = sBox.offset().left;
+		optWrap.css({
+			height : $(document).height() + 'px'
+		});
+		if($(window).height() / 2 > sBox.offset().top - $(window).scrollTop()){
+			var y = sBox.offset().top + sBox.outerHeight();
+			optWrap.find('.selectOptionContents').css({
+				top : y + 'px',
+				left : x + 'px',
+			});
+		}
+		else{
+			var y = sBox.offset().top;
+			optWrap.find('ul').css({
+				top : (y - optWrap.find('ul').outerHeight()) + 'px',
+				left : x + 'px',
+			});
+		}
+		setTimeout(function(){
+			_this.DropOptionSetPosition();
+		}, 200);
+	};
+
+	this.OptionClick = function(e){
+		$(_this.parentSelectElement).selectVal($(this).attr('data-value'));
+		_this.parentSelectElement = null;
+		$('#selectOptionWrap').remove();
+	};
 }
 
 var _SelectBox = new SelectBox(jQuery);
@@ -1152,7 +1332,14 @@ var _SelectBox = new SelectBox(jQuery);
 		if($(this)[0].tagName === 'SELECT'){
 			var opt = $(this).find('option[value="' + str + '"]');
 			if(opt.length) opt[0].selected = true;
-			else $(this).find('option')[0].selected = true;
+			else{
+				var options = $(this).find('option');
+				options[0].selected = true;
+				options.each(function(){
+					if(!this.hasAttribute('value') && $(this).text() === str) this.selected = true;
+				});
+
+			}
 			if($(this).closest('.selectBox').length){
 				_SelectBox.Set.call(this);
 			}
@@ -1584,10 +1771,11 @@ $(document).ready(function(){
 	function DomInserted(e){
 		if($(e.target).hasClass('imgAlign')) _ImageAlign.align.call(e.target);
 
+		if(e.target.tagName === 'IMG' && $(e.target).parent().hasClass('imgAlign')) _ImageAlign.align.call($(e.target).parent());
+
 		if($(e.target).hasClass('selectBox')) _SelectBox.Set.call($(e.target).find('select'));
 
 		if(e.target.tagName === 'INPUT' && $(e.target).hasClass('datePicker') && !$(e.target).hasClass('nopicker')) datepicker.call(e.target);
-
 		$(e.target).find('.imgAlign, .selectBox, input.datePicker').each(function(){
 			if($(this).hasClass('imgAlign'))_ImageAlign.align.call(this);
 			if($(this).hasClass('selectBox')) _SelectBox.Set.call($(this).find('select'));
@@ -1595,15 +1783,17 @@ $(document).ready(function(){
 		});
 	}
 
-	if(JCM.ie8){
-		document.body.attachEvent('DOMNodeInserted', DomInserted);
-		document.body.attachEvent('DomNodeInsertedIntoDocument', DomInserted);
-		document.body.attachEvent('DOMSubtreeModified', DomModified);
-	}
-	else{
-		document.body.addEventListener('DOMNodeInserted', DomInserted);
-		document.body.addEventListener('DomNodeInsertedIntoDocument', DomInserted);
-		document.body.addEventListener('DOMSubtreeModified', DomModified);
-	}
+	$(document).ready(function(){
+		if(JCM.getInternetExplorerVersion >= 0){
+			document.body.attachEvent('DOMNodeInserted', DomInserted);
+			document.body.attachEvent('DomNodeInsertedIntoDocument', DomInserted);
+			document.body.attachEvent('DOMSubtreeModified', DomModified);
+		}
+		else{
+			document.body.addEventListener('DOMNodeInserted', DomInserted);
+			document.body.addEventListener('DomNodeInsertedIntoDocument', DomInserted);
+			document.body.addEventListener('DOMSubtreeModified', DomModified);
+		}
+	});
 });
 

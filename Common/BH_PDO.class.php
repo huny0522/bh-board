@@ -14,7 +14,7 @@ class DB{
 	 */
 	private static $instance;
 
-	/* @var \PDO[] */
+	/** @var \PDO[] */
 	private static $conn = array();
 	private static $connName = '';
 	private static $connectionInfo = array();
@@ -29,6 +29,11 @@ class DB{
 		foreach(self::$conn as $k => &$v) $v = null;
 	}
 
+	/**
+	 * DB 컨넥션 및 인스턴스 반환
+	 * @param string $connName
+	 * @return $this
+	 */
 	public static function &SQL($connName = self::DefaultConnName){
 		self::$connName = $connName;
 		if (!isset(self::$instance)) self::$instance = new self();
@@ -50,17 +55,29 @@ class DB{
 		return self::$instance;
 	}
 
+	/**
+	 * @param string $connName
+	 * @return PDO
+	 */
 	public static function &PDO($connName = self::DefaultConnName){
 		self::SQL($connName);
 		return self::$conn[self::$connName];
 	}
 
+	/**
+	 * @param string $table
+	 * @return bool
+	 */
 	public function TableExists($table){
 		$exists = self::NumRows('SHOW TABLES LIKE \'' . $table . '\'');
 		if($exists) return true;
 		else return false;
 	}
 
+	/**
+	 * @param string|PDOStatement $qry
+	 * @return bool|int
+	 */
 	public function NumRows($qry){
 		if(is_string($qry)) $qry = self::Query($qry);
 		if($qry === false) return false;
@@ -73,6 +90,11 @@ class DB{
 		$qry->closeCursor();
 	}
 
+	/**
+	 * @param string $str
+	 * @param boolean $dieIs
+	 * @return PDOStatement
+	 */
 	public function Query($str, $dieIs = true){
 		$res = self::StrToPDO(is_array($str) ? $str : func_get_args());
 
@@ -85,6 +107,11 @@ class DB{
 		return $qry;
 	}
 
+	/**
+	 * @param string $table
+	 * @param string $str
+	 * @return PDOStatement
+	 */
 	public function CCQuery($table, $str){
 		if(is_array($str)) $args = $str;
 		else{
@@ -106,6 +133,10 @@ class DB{
 		return $qry;
 	}
 
+	/**
+	 * @param string|PDOStatement $qry
+	 * @return mixed
+	 */
 	public function Fetch($qry){
 		if(!isset($qry) || $qry === false || empty($qry)){
 			if(_DEVELOPERIS === true) echo 'FETCH ASSOC MESSAGE(DEBUG ON) : <b>query is empty( or null, false).</b><br>';
@@ -124,40 +155,67 @@ class DB{
 		return $r;
 	}
 
+	/**
+	 * @return PDO
+	 */
 	public static function &GetConn(){
 		return self::$conn[self::$connName];
 	}
 
+	/**
+	 * @param string $table
+	 * @return \BH_DB_Get
+	 */
 	public static function &GetQryObj($table){
 		$instance = new BH_DB_Get();
 		call_user_func_array(array($instance, 'AddTable'), func_get_args());
 		return $instance;
 	}
 
+	/**
+	 * @param string $table
+	 * @return \BH_DB_GetList
+	 */
 	public static function &GetListQryObj($table){
 		$instance = new BH_DB_GetList();
 		call_user_func_array(array($instance, 'AddTable'), func_get_args());
 		return $instance;
 	}
 
+	/**
+	 * @param string $table
+	 * @return \BH_DB_GetListWithPage
+	 */
 	public static function &GetListPageQryObj($table){
 		$instance = new BH_DB_GetListWithPage();
 		call_user_func_array(array($instance, 'AddTable'), func_get_args());
 		return $instance;
 	}
 
+	/**
+	 * @param string $table
+	 * @return \BH_DB_Update
+	 */
 	public static function &UpdateQryObj($table){
 		$instance = new BH_DB_Update();
 		call_user_func_array(array($instance, 'AddTable'), func_get_args());
 		return $instance;
 	}
 
+	/**
+	 * @param string $table
+	 * @return \BH_DB_Insert
+	 */
 	public static function &InsertQryObj($table){
 		$instance = new BH_DB_Insert();
 		call_user_func_array(array($instance, 'AddTable'), func_get_args());
 		return $instance;
 	}
 
+	/**
+	 * @param string $table
+	 * @return \BH_DB_Delete
+	 */
 	public static function &DeleteQryObj($table){
 		$instance = new BH_DB_Delete();
 		call_user_func_array(array($instance, 'AddTable'), func_get_args());
@@ -264,29 +322,49 @@ class BH_DB_Get{
 		return $res[0];
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &SetConnName($str){
 		$this->connName = $str;
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &AddTable($str){
 		$w = $this->StrToPDO(func_get_args());
 		if($w !== false) $this->table .= ' '.$w;
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &AddWhere($str){
 		$w = $this->StrToPDO(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &AddHaving($str){
 		$w = $this->StrToPDO(func_get_args());
 		if($w !== false) $this->having[] = '('.$w.')';
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &SetKey($str){
 		$args = func_get_args();
 		foreach($args as $k => $keys){
@@ -302,6 +380,10 @@ class BH_DB_Get{
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &AddKey($str){
 		$args = func_get_args();
 		foreach($args as $keys){
@@ -311,11 +393,19 @@ class BH_DB_Get{
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &SetGroup($str){
 		$this->group = $str;
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &SetSort($str){
 		$this->sort = $str;
 		return $this;
@@ -358,6 +448,10 @@ class BH_DB_Get{
 		return false;
 	}
 
+	/**
+	 * @param bool $bool
+	 * @return $this
+	 */
 	public function &SetTest($bool = false){
 		$this->test = $bool;
 		return $this;
@@ -373,6 +467,9 @@ class BH_DB_GetList extends BH_DB_Get{
 	public $drawRowsIs = false;
 	private $runIs = false;
 
+	/**
+	 * @return $this
+	 */
 	public function &DrawRows(){
 		if(!$this->runIs) $this->Run();
 		$this->drawRowsIs = true;
@@ -382,6 +479,9 @@ class BH_DB_GetList extends BH_DB_Get{
 		return $this;
 	}
 
+	/**
+	 * @return array
+	 */
 	public function &GetRows(){
 		if(!$this->runIs) $this->Run();
 
@@ -389,11 +489,18 @@ class BH_DB_GetList extends BH_DB_Get{
 		return $this->data;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &SetLimit($str){
 		$this->limit = $str;
 		return $this;
 	}
 
+	/**
+	 * @return $this
+	 */
 	function &Run(){
 		$this->runIs = true;
 
@@ -466,41 +573,73 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	public $beginNum = '';
 	public $pageHtml = '';
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &SetLimit($str){
 		$this->limit = $str;
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &SetPage($str){
 		$this->page = $str;
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &SetPageUrl($str){
 		$this->pageUrl = $str;
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &SetPageCount($str){
 		$this->pageCount = (int)$str;
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &SetArticleCount($str){
 		$this->articleCount = (int)$str;
 		return $this;
 	}
 
+	/**
+	 * @param string $asName
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &SetSubCountKey($asName, $str){
 		$this->SubCountKey[$asName]= $str;
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &SetCountKey($str){
 		$this->CountKey = $str;
 		return $this;
 	}
 
+	/**
+	 * @return $this
+	 */
 	public function &DrawRows(){
 		if(!$this->runIs) $this->Run();
 		$this->drawRowsIs = true;
@@ -510,12 +649,18 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		return $this;
 	}
 
+	/**
+	 * @return array
+	 */
 	public function &GetRows(){
 		if(!$this->runIs) $this->Run();
 		$this->DrawRows();
 		return $this->data;
 	}
 
+	/**
+	 * @return $this
+	 */
 	public function &Run(){
 		$this->runIs = true;
 		if($this->page < 1) $this->page = 1;
@@ -605,21 +750,33 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		return $this;
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function GetCountResult(){
 		if(!$this->runIs) $this->Run();
 		return $this->countResult;
 	}
 
+	/**
+	 * @return int
+	 */
 	public function GetTotalRecord(){
 		if(!$this->runIs) $this->Run();
 		return $this->totalRecord;
 	}
 
+	/**
+	 * @return int
+	 */
 	public function GetBeginNum(){
 		if(!$this->runIs) $this->Run();
 		return $this->beginNum;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function &GetPageHtml(){
 		if(!$this->runIs) $this->Run();
 		return $this->pageHtml;
@@ -726,63 +883,115 @@ class BH_DB_Insert{
 		return $res[0];
 	}
 
+	/**
+	 * @param string $key
+	 * @param string $val
+	 * @return $this
+	 */
 	public function &SetOnDuplicateData($key, $val){
 		$this->duplicateData[$key] = $val;
 		return $this;
 	}
 
+	/**
+	 * @param string $key
+	 * @param string $val
+	 * @return $this
+	 */
 	public function &SetOnDuplicateDataStr($key, $val){
 		$this->duplicateData[$key] = $this->StrToPDO('data','%s', $val);
 		return $this;
 	}
 
+	/**
+	 * @param string $key
+	 * @param string $val
+	 * @return $this
+	 */
 	public function &SetOnDuplicateDataNum($key, $val){
 		$this->duplicateData[$key] = SetDBFloat($val);
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &SetConnName($str){
 		$this->connName = $str;
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &AddTable($str){
 		$w = $this->StrToPDO('table', func_get_args());
 		if($w !== false) $this->table .= ' '.$w;
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &SetDecrementKey($str){
 		$this->decrement = $str;
 		return $this;
 	}
 
+	/**
+	 * @param string $key
+	 * @param string $val
+	 * @return $this
+	 */
 	public function &SetData($key, $val){
 		$this->data[$key] = $val;
 		return $this;
 	}
 
+	/**
+	 * @param string $key
+	 * @param string $val
+	 * @return $this
+	 */
 	public function &SetDataStr($key, $val){
 		$this->data[$key] = $this->StrToPDO('data', '%s', $val);
 		return $this;
 	}
 
+	/**
+	 * @param string $key
+	 * @param string $val
+	 * @return $this
+	 */
 	public function &SetDataNum($key, $val){
 		$this->data[$key] = SetDBFloat($val);
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &AddWhere($str){
 		$w = $this->StrToPDO('where', func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
 		return $this;
 	}
 
+	/**
+	 * @return $this
+	 */
 	public function &UnsetWhere(){
 		unset($this->where);
 		return $this;
 	}
 
+	/**
+	 * @return $this
+	 */
 	public function &MultiAdd(){
 		$temp = '';
 		$names = '';
@@ -797,6 +1006,9 @@ class BH_DB_Insert{
 		return $this;
 	}
 
+	/**
+	 * @return \BH_Result
+	 */
 	public function MultiRun(){
 		$res = new \BH_Result();
 		if(!sizeof($this->data)){
@@ -817,6 +1029,9 @@ class BH_DB_Insert{
 		return $res;
 	}
 
+	/**
+	 * @return \BH_InsertResult
+	 */
 	public function Run(){
 		$res = new \BH_InsertResult();
 		$temp = '';
@@ -886,6 +1101,10 @@ class BH_DB_Insert{
 		return $res;
 	}
 
+	/**
+	 * @param bool $bool
+	 * @return $this
+	 */
 	public function &SetTest($bool = false){
 		$this->test = $bool;
 		return $this;
@@ -913,43 +1132,77 @@ class BH_DB_Update{
 		return $res[0];
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &SetConnName($str){
 		$this->connName = $str;
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &AddTable($str){
 		$w = $this->StrToPDO(func_get_args());
 		if($w !== false) $this->table .= ' '.$w;
 		return $this;
 	}
 
+	/**
+	 * @param string $key
+	 * @param string $val
+	 * @return $this
+	 */
 	public function &SetData($key, $val){
 		$this->data[$key] = $val;
 		return $this;
 	}
 
+	/**
+	 * @param string $key
+	 * @param string $val
+	 * @return $this
+	 */
 	public function &SetDataStr($key, $val){
 		$this->data[$key] = $this->StrToPDO('%s', $val);
 		return $this;
 	}
 
+	/**
+	 * @param string $key
+	 * @param string $val
+	 * @return $this
+	 */
 	public function &SetDataNum($key, $val){
 		$this->data[$key] = SetDBFloat($val);
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &AddWhere($str){
 		$w = $this->StrToPDO(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &SetSort($str){
 		$this->sort = $str;
 		return $this;
 	}
 
+	/**
+	 * @return $this
+	 */
 	function Run(){
 		$res = new \BH_Result();
 		$temp = '';
@@ -981,6 +1234,10 @@ class BH_DB_Update{
 		return $res;
 	}
 
+	/**
+	 * @param bool $bool
+	 * @return $this
+	 */
 	public function &SetTest($bool = false){
 		$this->test = $bool;
 		return $this;
@@ -1006,23 +1263,38 @@ class BH_DB_Delete{
 		return $res[0];
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &SetConnName($str){
 		$this->connName = $str;
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &AddTable($str){
 		$w = $this->StrToPDO(func_get_args());
 		if($w !== false) $this->table .= ' '.$w;
 		return $this;
 	}
 
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &AddWhere($str){
 		$w = $this->StrToPDO(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
 		return $this;
 	}
 
+	/**
+	 * @return $this
+	 */
 	function Run(){
 		$where = '';
 		if(isset($this->where) && is_array($this->where) && sizeof($this->where)) $where = ' WHERE ' . implode(' AND ', $this->where);
@@ -1041,6 +1313,10 @@ class BH_DB_Delete{
 		return $res;
 	}
 
+	/**
+	 * @param bool $bool
+	 * @return $this
+	 */
 	public function &SetTest($bool = false){
 		$this->test = $bool;
 		return $this;
