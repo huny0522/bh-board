@@ -1,13 +1,13 @@
-App.Board = {
+var AppBoard = {
 	EventInit : false,
 
 	ListInit : function(){
 		if(!this.EventInit){
 			this.EventInit = true;
 
-			$(document).on('click', '.passwordView', App.Board.ClickPwdView);
+			$(document).on('click', '.passwordView', AppBoard.ClickPwdView);
 
-			$(document).on('click', '#secretViewForm button[type=reset]', App.Board.ResetPwdView);
+			$(document).on('click', '#secretViewForm button[type=reset]', AppBoard.ResetPwdView);
 		}
 	},
 
@@ -17,16 +17,16 @@ App.Board = {
 		if(!this.MoreListEventInit){
 			this.MoreListEventInit = true;
 
-			$(document).on('submit', '#bbsSchForm', App.Board.SubmitSearchForm);
+			$(document).on('submit', '#bbsSchForm', AppBoard.SubmitSearchForm);
 
-			$(document).on('click', '#moreViewBtn', App.Board.ClickMoreViewBtn);
+			$(document).on('click', '#moreViewBtn', AppBoard.ClickMoreViewBtn);
 
-			$(document).on('click', '.passwordView', App.Board.ClickPwdView);
+			$(document).on('click', '.passwordView', AppBoard.ClickPwdView);
 
-			$(document).on('click', '#secretViewForm button[type=reset]', App.Board.ResetPwdView);
+			$(document).on('click', '#secretViewForm button[type=reset]', AppBoard.ResetPwdView);
 		}
 
-		App.Board.GetMoreList();
+		AppBoard.GetMoreList();
 
 	},
 
@@ -59,13 +59,13 @@ App.Board = {
 		$('#bhBoardList table.list tbody').html('');
 		$(this).find('input[name=searchKeyword]').val($(this).find('input[name=searchInput]').val());
 		$(this).find('input[name=lastSeq]').val('');
-		App.Board.GetMoreList();
+		AppBoard.GetMoreList();
 	},
 
 	ClickMoreViewBtn : function(e){
 		e.preventDefault();
 		$('#bhBoardList .lastSeq').val($('#bhBoardList table.list tbody tr').last().attr('data-seq'));
-		App.Board.GetMoreList();
+		AppBoard.GetMoreList();
 	},
 
 	View : {
@@ -75,11 +75,11 @@ App.Board = {
 			if(!this.EventInit){
 				this.EventInit = true;
 
-				$(document).on('click', '#deleteArticle', App.Board.View.ClickDeleteBtn);
-				$(document).on('click', '#deleteForm button[type=reset]', App.Board.View.ResetDeleteForm);
+				$(document).on('click', '#deleteArticle', AppBoard.View.ClickDeleteBtn);
+				$(document).on('click', '#deleteForm button[type=reset]', AppBoard.View.ResetDeleteForm);
 
-				$(document).on('click', '#modifyBtn', App.Board.View.ClickModifyBtn);
-				$(document).on('click', '#modifyForm button[type=reset]', App.Board.View.ResetModifyForm);
+				$(document).on('click', '#modifyBtn', AppBoard.View.ClickModifyBtn);
+				$(document).on('click', '#modifyForm button[type=reset]', AppBoard.View.ResetModifyForm);
 			}
 		},
 
@@ -116,12 +116,12 @@ App.Board = {
 			if(!this.EventInit){
 				this.EventInit = true;
 
-				$(document).on('submit', '#BoardWriteForm', App.Board.Write.SubmitWrite);
+				$(document).on('submit', '#BoardWriteForm', AppBoard.Write.SubmitWrite);
 			}
 		},
 
 		SubmitWrite : function(e){
-			if(App.Board.Write.useSE2Is) SE2_update('MD_content');
+			if(AppBoard.Write.useSE2Is) SE2_update('MD_content');
 
 			var res = $(this).validCheck();
 			if(!res){

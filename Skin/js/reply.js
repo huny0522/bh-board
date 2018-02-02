@@ -1,22 +1,22 @@
-App.Reply = {
+var AppReply = {
 	SubmitWrite : function(e){
 		e.preventDefault();
 		$(this).validCheck();
 
 		JCM.ajaxForm(this, function(){
 			$('#replyGetForm input[name=page]').val(1);
-			App.Reply.GetList();
+			AppReply.GetList();
 		});
 	},
 
 	ClickPaging : function(e){
 		e.preventDefault();
 		$('#replyGetForm input[name=page]').val($(this).text());
-		App.Reply.GetList();
+		AppReply.GetList();
 	},
 
 	ClickReset : function(){
-		App.Reply.RemoveFormBox();
+		AppReply.RemoveFormBox();
 	},
 
 	RemoveFormBox : function(){
@@ -54,7 +54,7 @@ App.Reply = {
 		var article = $(this).closest('article');
 		if(article.children('.repDeleteForm').length) return;
 
-		App.Reply.RemoveFormBox();
+		AppReply.RemoveFormBox();
 		article.append('<div id="replyFormBox">' + $('#replyDeleteLayer').html() + '</div>');
 		var form = article.find('form');
 
@@ -73,7 +73,7 @@ App.Reply = {
 	SubmitDeleteForm : function(e){
 		e.preventDefault();
 		JCM.ajaxForm(this, function(data){
-			App.Reply.GetList();
+			AppReply.GetList();
 		});
 	},
 
@@ -85,7 +85,7 @@ App.Reply = {
 
 		var article = $(this).closest('article');
 
-		App.Reply.RemoveFormBox();
+		AppReply.RemoveFormBox();
 		article.append('<div id="replyFormBox" class="modifyForm">' + $('#replyModifyLayer').html() + '</div>');
 		article.find('div.comment').hide();
 
@@ -105,7 +105,7 @@ App.Reply = {
 	SubmitModifyForm : function(e){
 		e.preventDefault();
 		JCM.ajaxForm(this, function(data){
-			App.Reply.GetList();
+			AppReply.GetList();
 		});
 	},
 
@@ -117,14 +117,14 @@ App.Reply = {
 		$('#replyAnswerLayer form')[0].reset();
 		$('#replyAnswerLayer input[name=target_seq]').val(seq);
 
-		App.Reply.RemoveFormBox();
+		AppReply.RemoveFormBox();
 		article.after('<article class="replyAnswer" id="replyFormBox">' + $('#replyAnswerLayer').html() + '</article>');
 	},
 
 	SubmitAnswerForm : function(e){
 		e.preventDefault();
 		JCM.ajaxForm(this, function(data){
-			App.Reply.GetList();
+			AppReply.GetList();
 		});
 	},
 
@@ -136,33 +136,33 @@ App.Reply = {
 			this.EventInit = true;
 
 			// Write
-			$(document).on('submit', '.replyWrite form', App.Reply.SubmitWrite);
+			$(document).on('submit', '.replyWrite form', AppReply.SubmitWrite);
 			// Paging
-			$(document).on('click', '#replyPaging a', App.Reply.ClickPaging);
+			$(document).on('click', '#replyPaging a', AppReply.ClickPaging);
 
-			$(document).on('click', '#Reply button[type=reset]', App.Reply.ClickReset);
+			$(document).on('click', '#Reply button[type=reset]', AppReply.ClickReset);
 			// Secret Reply View Pwd
-			$(document).on('click', '#replyListContents a.pwdView', App.Reply.ClickPwdView);
+			$(document).on('click', '#replyListContents a.pwdView', AppReply.ClickPwdView);
 
-			$(document).on('submit', '#repPwdForm', App.Reply.SubmitPwdForm);
+			$(document).on('submit', '#repPwdForm', AppReply.SubmitPwdForm);
 
 			// -------------------------------------
 			// Delete Reply
-			$(document).on('click', '#replyListContents a.deleteBtn', App.Reply.ClickDeleteBtn);
+			$(document).on('click', '#replyListContents a.deleteBtn', AppReply.ClickDeleteBtn);
 
-			$(document).on('submit', '#repDeleteForm', App.Reply.SubmitDeleteForm);
+			$(document).on('submit', '#repDeleteForm', AppReply.SubmitDeleteForm);
 
 			// -------------------------------------
 			// Modify Reply
-			$(document).on('click', '#replyListContents a.modifyBtn', App.Reply.ClickModifyBtn);
+			$(document).on('click', '#replyListContents a.modifyBtn', AppReply.ClickModifyBtn);
 
-			$(document).on('submit', '#repModifyForm', App.Reply.SubmitModifyForm);
+			$(document).on('submit', '#repModifyForm', AppReply.SubmitModifyForm);
 
 			// -------------------------------------
 			// Answer Reply
-			$(document).on('click', '#replyListContents a.answerBtn', App.Reply.ClickAnswerBtn);
+			$(document).on('click', '#replyListContents a.answerBtn', AppReply.ClickAnswerBtn);
 
-			$(document).on('submit', '#repAnswerForm', App.Reply.SubmitAnswerForm);
+			$(document).on('submit', '#repAnswerForm', AppReply.SubmitAnswerForm);
 		}
 	},
 

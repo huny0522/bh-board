@@ -77,7 +77,7 @@ App::JSAdd('reply.js', 200);
 <?php } ?>
 
 <script>
-	App.Board.View.Init();
+	AppBoard.View.Init();
 </script>
 
 <?php
@@ -92,8 +92,8 @@ if($Ctrl->boardManger->GetValue('use_reply') == 'y'){
 
 	<script>
 		$(document).ready(function(){
-			App.Reply.Init();
-			App.Reply.GetList();
+			AppReply.Init();
+			AppReply.GetList();
 		});
 	</script>
 <?php } ?>

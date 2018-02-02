@@ -1,38 +1,38 @@
-App.admin = {
+var AppAdmin = {
 	BoardViewInit : function(){
-		App.Board.View.AdminInit = function(){
-			App.Board.View.Init();
+		AppBoard.View.AdminInit = function(){
+			AppBoard.View.Init();
 
-			$(document).on('click', '#removeBtn', App.Board.View.ClickRemoveBtn);
-			$(document).on('click', '#removeForm button[type=reset]', App.Board.View.ResetRemoveForm);
+			$(document).on('click', '#removeBtn', AppBoard.View.ClickRemoveBtn);
+			$(document).on('click', '#removeForm button[type=reset]', AppBoard.View.ResetRemoveForm);
 		};
 
-		App.Board.View.ClickRemoveBtn = function(e){
+		AppBoard.View.ClickRemoveBtn = function(e){
 			e.preventDefault();
 			$('#removeForm').show();
 		};
 
-		App.Board.View.ResetRemoveForm = function(e){
+		AppBoard.View.ResetRemoveForm = function(e){
 			document.querySelector('#removeForm').reset();
 			$('#removeForm').hide();
 		};
 
-		App.Board.View.AdminInit();
+		AppBoard.View.AdminInit();
 	},
 	BoardListInit : function(){
-		App.Board.AdminList = {
+		AppBoard.AdminList = {
 			Init : function(){
-				$('a.deleteArticle').on('click', App.Board.AdminList.ClickDeleteBtn);
+				$('a.deleteArticle').on('click', AppBoard.AdminList.ClickDeleteBtn);
 
-				$('#deleteForm button[type=reset]').on('click', App.Board.AdminList.ResetDeleteForm);
+				$('#deleteForm button[type=reset]').on('click', AppBoard.AdminList.ResetDeleteForm);
 
-				$('a.removeArticle').on('click', App.Board.AdminList.ClickRemoveBtn);
+				$('a.removeArticle').on('click', AppBoard.AdminList.ClickRemoveBtn);
 
-				$('#removeForm button[type=reset]').on('click', App.Board.AdminList.ResetRemoveForm);
+				$('#removeForm button[type=reset]').on('click', AppBoard.AdminList.ResetRemoveForm);
 
-				$('.passwordView').on('click', App.Board.AdminList.ClickPwdBtn);
+				$('.passwordView').on('click', AppBoard.AdminList.ClickPwdBtn);
 
-				$('#secretViewForm button[type=reset]').on('click', App.Board.AdminList.ResetPwdForm);
+				$('#secretViewForm button[type=reset]').on('click', AppBoard.AdminList.ResetPwdForm);
 			},
 
 			ClickDeleteBtn : function(e){
@@ -69,6 +69,6 @@ App.admin = {
 			}
 		};
 
-		App.Board.AdminList.Init();
+		AppBoard.AdminList.Init();
 	}
 };
