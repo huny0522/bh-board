@@ -637,6 +637,10 @@ function EventLink($){
 
 	this.drag = function(selector, dragFunc, dragEndFunc, parent){
 		if(typeof parent === 'undefined') parent = document;
+		$(parent).on('click', selector, function (e){
+			e.preventDefault();
+		});
+
 		$(parent).on('touchstart mousedown', selector, function(e){
 			$(this).data('dragTouchIs', true);
 			eventLink.TouchStartElement.call(this, e);
@@ -648,7 +652,7 @@ function EventLink($){
 	};
 
 	this.TouchStartElement = function(e){
-		if(this.tagName === 'SELECT'){
+		if (this.tagName === 'SELECT' || $(this).data('dragTouchIs') === true){
 			e.preventDefault();
 		}
 
@@ -712,6 +716,10 @@ function EventLink($){
 
 
 		$.fn.drag = function(dragFunc, dragEndFunc){
+			$(this).on('click', function (e){
+				e.preventDefault();
+			});
+
 			$(this).on('touchstart mousedown', function(e){
 				$(this).data('dragTouchIs', true);
 				eventLink.TouchStartElement.call(this, e);
@@ -765,9 +773,10 @@ function EventLink($){
 
 				var elementFromPoint = document.elementFromPoint(touchEnd.pageX - $(window).scrollLeft(), touchEnd.pageY - $(window).scrollTop());
 
+				var x = touchEnd.pageX - touchStart.pageX;
+				var y = touchEnd.pageY - touchStart.pageY;
+
 				if(touchObject[i] === elementFromPoint || $(elementFromPoint).closest(touchObject[i]).length){
-					var x = touchEnd.pageX - touchStart.pageX;
-					var y = touchEnd.pageY - touchStart.pageY;
 					if(Math.abs(x) < 5 && Math.abs(y) < 5){
 						e.stopPropagation();
 						e.preventDefault();
@@ -776,8 +785,6 @@ function EventLink($){
 				}
 
 				if(typeof(jObj.data('visibleTouchIs')) !== 'undefined' && jObj.data('visibleTouchIs') && touchObject[i] === elementFromPoint){
-					var x = touchEnd.pageX - touchStart.pageX;
-					var y = touchEnd.pageY - touchStart.pageY;
 					if(Math.abs(x) < 5 && Math.abs(y) < 5){
 						e.stopPropagation();
 						e.preventDefault();
@@ -787,7 +794,7 @@ function EventLink($){
 
 				jObj.trigger('e_touch_end', e);
 
-				jObj.trigger('e_drag_end', e);
+				if (jObj.data('dragTouchIs') === true) jObj.trigger('e_drag_end', e);
 
 				jObj.data('touchStart', null);
 				jObj.data('touchEnd', null);
