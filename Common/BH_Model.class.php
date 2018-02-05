@@ -63,6 +63,123 @@ class BH_ModelData{
 		$this->DisplayName = $DisplayName;
 		if($HtmlType) $this->HtmlType = $HtmlType;
 	}
+
+	public function __toString(){
+		return $this->GetValue();
+	}
+
+	/**
+	 * @param int $Type
+	 * @param string $DisplayName
+	 * @param string $HtmlType
+	 * @return BH_ModelData
+	 */
+	public static function GetInstance($Type = ModelType::String, $DisplayName = '', $HtmlType = HTMLType::InputText){
+		return new self($Type, false, $DisplayName, $HtmlType);
+	}
+
+	/**
+	 * 데이타의 값 반환
+	 * @return null|string
+	 */
+	public function GetValue(){
+		return isset($this->Value) ? ($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value]) ? $this->EnumValues[$this->Value] : $this->Value) : NULL;
+	}
+
+	public function GetSafeValue(){
+		return GetDBText($this->GetValue());
+	}
+
+	public function GetSafeRawValue(){
+		return GetDBRaw($this->GetValue());
+	}
+
+	public function GetSafeBRValue(){
+		return nl2br(GetDBText($this->GetValue()));
+	}
+
+	/**
+	 * 데이타의 실제 값 반환
+	 * @return null|string
+	 */
+	public function GetNativeValue(){
+		return isset($this->Value) ? $this->Value : NULL;
+	}
+
+	public function &SetValue($v){
+		$this->Value = trim($v);
+		return $this;
+	}
+
+	public function &SetRequired($bool = true){
+		$this->Required = $bool;
+		return $this;
+	}
+
+	public function &SetMinLength($num){
+		$this->MinLength = $num;
+		return $this;
+	}
+
+	public function &SetMaxLength($num){
+		$this->MaxLength = $num;
+		return $this;
+	}
+
+	public function &SetMinValue($num){
+		$this->MinValue = $num;
+		return $this;
+	}
+
+	public function &SetMaxValue($num){
+		$this->MaxValue = $num;
+		return $this;
+	}
+
+	public function &SetEnumValues($array){
+		$this->EnumValues = $array;
+		return $this;
+	}
+
+	public function &SetDefaultValue($val){
+		$this->DefaultValue = $val;
+		return $this;
+	}
+
+	public function &SetType($type){
+		$this->Type = $type;
+		return $this;
+	}
+
+	public function &SetDisplayName($str){
+		$this->DisplayName = $str;
+		return $this;
+	}
+
+	public function &SetModelErrorMsg($str){
+		$this->ModelErrorMsg = $str;
+		return $this;
+	}
+
+	public function &SetHtmlType($str){
+		$this->HtmlType = $str;
+		return $this;
+	}
+
+	public function &SetAutoDecrement($bool = true){
+		$this->AutoDecrement = $bool;
+		return $this;
+	}
+
+	public function &SetValueIsQuery($bool = true){
+		$this->ValueIsQuery = $bool;
+		return $this;
+	}
+
+	public function &SetBlankIsNull($bool = true){
+		$this->BlankIsNull = $bool;
+		return $this;
+	}
 }
 
 class BH_Model{

@@ -269,7 +269,7 @@ class BH_Application
 			else if(!$k && is_string($row)) $html = $row;
 			else $Data = $row;
 		}
-		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+		$d_b = phpversion() < 5.6 ? debug_backtrace() : debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
 
 		if(is_null($html)) self::SetViewHtml($d_b[1]['object'], $Model, $Data);
 		else self::SetViewHtml($d_b[1]['object'], $Model, $Data, false, $html);
@@ -287,7 +287,7 @@ class BH_Application
 			else $Data = $row;
 		}
 
-		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+		$d_b = phpversion() < 5.6 ? debug_backtrace() : debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
 		if(is_null($html)) self::SetViewHtml($d_b[1]['object'], $Model, $Data, true);
 		else self::SetViewHtml($d_b[1]['object'], $Model, $Data, true, $html);
 		if(_JSONIS === true) JSON(true, '', self::$BodyHtml);
@@ -304,7 +304,7 @@ class BH_Application
 			else $Data = $row;
 		}
 
-		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+		$d_b = phpversion() < 5.6 ? debug_backtrace() : debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
 		if(is_null($html)) self::SetViewHtml($d_b[1]['object'], $Model, $Data);
 		else self::SetViewHtml($d_b[1]['object'], $Model, $Data, false, $html);
 		return self::$BodyHtml;
@@ -320,7 +320,7 @@ class BH_Application
 			else $Data = $row;
 		}
 
-		$d_b = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+		$d_b = phpversion() < 5.6 ? debug_backtrace() : debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
 		if(is_null($html)) self::SetViewHtml($d_b[1]['object'], $Model, $Data, true);
 		else self::SetViewHtml($d_b[1]['object'], $Model, $Data, true, $html);
 		return self::$BodyHtml;
