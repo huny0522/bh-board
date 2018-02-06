@@ -26,7 +26,7 @@ class BHCss{
 	private static $afterVariables = array();
 	private static $paramVariable = array();
 	private static $enableNL = true;
-	private static $passFiles = array();
+	public static $passFiles = array();
 	public static $convDirMessage = array();
 
 	private function __construct(){
