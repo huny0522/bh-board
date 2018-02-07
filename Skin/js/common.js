@@ -15,7 +15,7 @@ $(window).resize(function () {
 	_ImageAlign.alignAll();
 });
 
-function Common($) {
+function Common($){
 	var _this = this;
 
 	this.ie8 = false;
@@ -487,6 +487,31 @@ function Common($) {
 		});
 	};
 
+	this.getAttribute = function(el, name){
+		if(typeof(el.hasAttribute) === 'undefined') return '';
+		if(el.hasAttribute(name)) return el.getAttribute(name);
+		return '';
+	};
+	this.hasClass = function(el, name){
+		if(typeof(el[0]) !== 'undefined') el = el[0];
+		return new RegExp('(\\s|^)'+name+'(\\s|$)').test(JCM.getAttribute(el, 'class'));
+	};
+
+	this.addClass = function(el, name){
+		if(typeof(el[0]) !== 'undefined') el = el[0];
+		if (!this.hasClass(el, name)){
+			if(typeof(el.setAttribute) === 'undefined') return;
+			el.setAttribute('class', (JCM.getAttribute(el, 'class') ? JCM.getAttribute(el, 'class') + ' ' : '') +name);
+		}
+	};
+
+	this.removeClass = function(el, name){
+		if(typeof(el[0]) !== 'undefined') el = el[0];
+		if (this.hasClass(el, name)) {
+			el.setAttribute(JCM.getAttribute(el, 'class').replace(new RegExp('(\\s|^)'+name+'(\\s|$)'),' ').replace(/^\s+|\s+$/g, ''));
+		}
+	};
+
 	this.Init();
 };
 
@@ -509,27 +534,46 @@ window.CMConfirm = function(message, yesCallback, noCallback){
 	}
 };
 
-function MessageModal($){
-	var _this = this;
-	this.activeElement = null;
-	this.alertNumber = 0;
+var MessageModal = {
+	activeElement : null,
+	alertNumber : 0,
 
-	this.Init = function(){
+	Init : function(){
 
 		$(document).on('mousedown touch', '.MessageModal footer a', function(e){
-			_this.activeElement = $('*:focus');
+			MessageModal.activeElement = $('*:focus');
 		});
 
 		$(document).on('click', '.MessageModal footer a', function(e){
 			e.preventDefault();
 			var obj = $(this).data();
 			if(typeof(obj.onclick) === 'function') obj.onclick.call(this);
-			_this.Remove.call(this);
-			$(_this.activeElement).focus();
+			MessageModal.Remove.call(this);
+			$(MessageModal.activeElement).focus();
 		});
-	};
 
-	this.Create = function(message, buttons, title){
+		window.CMAlert = function(msg, callback){
+			if(typeof callback === 'function')
+				MessageModal.Create(msg, [{text : '확인', onclick : function(obj){
+						callback();
+					}}]);
+			else MessageModal.Create(msg);
+		};
+
+		window.CMConfirm = function(message, yesCallback, noCallback, title){
+			if(typeof title === 'undefined') title = '알림';
+			MessageModal.Create(message, [
+				{text : '확인', onclick : function(obj){
+						if(typeof yesCallback === 'function') yesCallback();
+					}},
+				{text : '취소', onclick : function(obj){
+						if(typeof noCallback === 'function') noCallback();
+					}}
+			], title);
+		};
+	},
+
+	Create : function(message, buttons, title){
 		this.alertNumber++;
 		if(typeof(title) === 'undefined') title = '알림';
 		if(typeof(buttons) === 'undefined'){
@@ -558,255 +602,183 @@ function MessageModal($){
 			$('#MessageModal' + this.alertNumber + ' footer a').eq(i).data({'onclick' : func});
 		}
 
-		_this.Move('#MessageModal' + _this.alertNumber);
+		MessageModal.Move('#MessageModal' + MessageModal.alertNumber);
 		for(var i = 1; i < 11; i++){
 			setTimeout(function(){
-				_this.Move('#MessageModal' + _this.alertNumber);
+				MessageModal.Move('#MessageModal' + MessageModal.alertNumber);
 			}, i*100);
 		}
-	};
+	},
 
-	this.Move = function(obj){
+	Move : function(obj){
 		var MessageModalWrap = $(obj).find('.MessageModalWrap');
 		MessageModalWrap.css({
 			'margin-top' : '-' + (MessageModalWrap.outerHeight() / 2) + 'px',
 			'margin-left' : '-' + (MessageModalWrap.outerWidth() / 2) + 'px'
 		});
-	};
+	},
 
-	this.Remove = function(){
+	Remove : function(){
 		$(this).closest('.MessageModal').remove();
-	};
-
-	this.Init();
-
-	window.CMAlert = function(msg, callback){
-		if(typeof callback === 'function')
-			_this.Create(msg, [{text : '확인', onclick : function(obj){
-					callback();
-				}}]);
-		else _this.Create(msg);
-	};
-
-	window.CMConfirm = function(message, yesCallback, noCallback, title){
-		if(typeof title === 'undefined') title = '알림';
-		_this.Create(message, [
-			{text : '확인', onclick : function(obj){
-					if(typeof yesCallback === 'function') yesCallback();
-				}},
-			{text : '취소', onclick : function(obj){
-					if(typeof noCallback === 'function') noCallback();
-				}}
-		], title);
-	};
+	}
 }
 
-function EventLink($){
-	var _this = this;
+var EventLink = {
 
-	this.mouseDownEnable = true;
-	this.mouseMoveEnable = true;
-	this.mouseUpEnable = true;
+	startPos : null,
+	endPos : null,
+	dragObj : null,
 
-	this.touch = function(selector, func, parent){
-		if(typeof parent === 'undefined') parent = document;
-		$(parent).on('touchstart mousedown', selector, function(e){
-			$(this).off('click e_touch');
-
-			$(this).on('click', function(e){
-				e.preventDefault();
-			});
-
-			_this.TouchStartElement.call(this, e);
-
-			$(this).on('e_touch', func);
-		});
-	};
-
-	this.touchVisible = function(selector, func, parent){
-		if(typeof parent === 'undefined') parent = document;
-		$(parent).on('touchstart mousedown', selector, function(e){
-			$(this).off('click e_touch_visible');
-
-			$(this).data('visibleTouchIs', true);
-
-			_this.TouchStartElement.call(this, e);
-			$(this).on('e_touch_visible', func);
-		});
-	};
-
-	this.drag = function(selector, dragFunc, dragEndFunc, parent){
-		if(typeof parent === 'undefined') parent = document;
-		$(parent).on('click', selector, function (e){
-			e.preventDefault();
-		});
-
-		$(parent).on('touchstart mousedown', selector, function(e){
-			$(this).data('dragTouchIs', true);
-			eventLink.TouchStartElement.call(this, e);
-			$(this).off('e_drag');
-			$(this).on('e_drag', dragFunc);
-			$(this).off('e_drag_end');
-			$(this).on('e_drag_end', dragEndFunc);
-		});
-	};
-
-	this.TouchStartElement = function(e){
-		if (this.tagName === 'SELECT' || $(this).data('dragTouchIs') === true){
-			e.preventDefault();
-		}
-
-		if($(this).data('visibleTouchIs') !== true){
-			e.stopPropagation();
-		}
-		//$(this).blur();
-		var body = $('body');
-
-		if (this.mouseDownEnable && e.type === 'touchstart'){
-			this.mouseDownEnable = false;
-			$(document).off('mousedown', 'body');
-		}
-
-		if(typeof(body.data) === 'undefined' || typeof(body.data('touchObject')) === 'undefined' || body.data('touchObject') === null){
-			body.data('touchObject', [this]);
-		}
-		else{
-			var objs = body.data('touchObject');
-			for(var i=0, max = objs.length; i < max; i++){
-				if(objs[i] === this) return;
-			}
-			objs.push(this);
-			body.data('touchObject', objs);
-		}
-
-		var xy = (typeof(e.originalEvent) === 'undefined' || typeof(e.originalEvent.touches) === 'undefined') ? {
+	touchStart : function(e){
+		EventLink.startPos = (typeof(e.originalEvent) === 'undefined' || typeof(e.originalEvent.touches) === 'undefined') ? {
 			'pageX': e.pageX,
 			'pageY': e.pageY
 		} : e.originalEvent.touches[0];
-		$(this).data('touchStart', xy);
-		$(this).data('touchEnd', null);
-	};
 
-	this.Init = function(){
-		$.fn.touch = function(func){
-			$(this).on('touchstart mousedown', function(e){
+		var node = document.elementFromPoint(EventLink.startPos.pageX - $(window).scrollLeft(), EventLink.startPos.pageY - $(window).scrollTop());
 
-				$(this).off('click e_touch');
+		while(node){
+			if(JCM.hasClass(node, 'bh-event-touch')){
+				if (this.tagName === 'SELECT'){
+					e.preventDefault();
+				}
+			}
+			if(JCM.hasClass(node, 'bh-event-drag')){
+				EventLink.dragObj = node;
+			}
+			node = node.parentNode;
+		}
+	},
+
+	Init : function(){
+		$.fn.touch = function(arg1, arg2){
+			if(typeof arg1 === 'function'){
+				arg2 = arg1;
+				arg1 = this;
+			}
+			if(this === arg1){
+				$(this).on('e_touch', arg2);
 
 				$(this).on('click', function(e){
 					e.preventDefault();
 				});
 
-				_this.TouchStartElement.call(this, e);
+				$(this).on('touchstart mousedown', function(e){
+					JCM.addClass(this, 'bh-event-touch');
+					EventLink.touchStart.call(this, e);
+				});
+			}
+			else{
+				$(this).on('e_touch', arg1, arg2);
 
-				$(this).on('e_touch', func);
-			});
+				$(this).on('click', arg1, function(e){
+					e.preventDefault();
+				});
+				$(this).on('touchstart mousedown', arg1, function(e){
+					JCM.addClass(this, 'bh-event-touch');
+					EventLink.touchStart.call(this, e);
+				});
+			}
 		};
 
-		$.fn.touchVisible = function(func){
-			$(this).on('touchstart mousedown', function(e){
-				$(this).off('click e_touch_visible');
+		$.fn.touchVisible = function(arg1, arg2){
+			if(typeof arg1 === 'function'){
+				arg2 = arg1;
+				arg1 = this;
+			}
 
-				$(this).data('visibleTouchIs', true);
-
-				_this.TouchStartElement.call(this, e);
-				$(this).on('e_touch_visible', func);
-			});
+			if(this === arg1){
+				$(this).on('e_touch_visible', arg2);
+				$(this).on('touchstart mousedown', function(e){
+					JCM.addClass(this, 'bh-event-touch-visible');
+					EventLink.touchStart.call(this, e);
+				});
+			}
+			else{
+				$(this).on('e_touch_visible', arg1, arg2);
+				$(this).on('touchstart mousedown', arg1, function(e){
+					JCM.addClass(this, 'bh-event-touch-visible');
+					EventLink.touchStart.call(this, e);
+				});
+			}
 		};
 
+		$.fn.drag = function(arg1, arg2, arg3){
+			if(typeof arg1 === 'function'){
+				arg3 = arg2;
+				arg2 = arg1;
+				arg1 = this;
+			}
 
-		$.fn.drag = function(dragFunc, dragEndFunc){
-			$(this).on('click', function (e){
-				e.preventDefault();
-			});
-
-			$(this).on('touchstart mousedown', function(e){
-				$(this).data('dragTouchIs', true);
-				eventLink.TouchStartElement.call(this, e);
-				$(this).off('e_drag');
-				$(this).on('e_drag', dragFunc);
-				$(this).off('e_drag_end');
-				$(this).on('e_drag_end', dragEndFunc);
-			});
+			if(this === arg1){
+				$(this).on('e_drag', arg2);
+				$(this).on('e_drag_end', arg3);
+				$(this).on('touchstart mousedown', function(e){
+					e.preventDefault();
+					JCM.addClass(this, 'bh-event-drag');
+					EventLink.touchStart.call(this, e);
+				});
+			}
+			else{
+				$(this).on('e_drag', arg1, arg2);
+				$(this).on('e_drag_end', arg1, arg3);
+				$(this).on('touchstart mousedown', arg1, function(e){
+					e.preventDefault();
+					JCM.addClass(this, 'bh-event-drag');
+					EventLink.touchStart.call(this, e);
+				});
+			}
 		};
 
 		$(document).on('touchmove mousemove', 'body', function(e){
-			var body = $(this);
+			if(EventLink.startPos === null) return;
+			EventLink.endPos = (typeof(e.originalEvent) === 'undefined' || typeof(e.originalEvent.touches) === 'undefined') ? {
+				'pageX': e.pageX,
+				'pageY': e.pageY
+			} : e.originalEvent.touches[0];
 
-			if (_this.mouseMoveEnable && e.type === 'touchmove') {
-				_this.mouseMoveEnable = false;
-				$(document).off('mousemove', 'body');
-			}
-
-			if(typeof(body.data) === 'undefined' || typeof(body.data('touchObject')) === 'undefined' || body.data('touchObject') === null) return;
-			var touchObject = body.data('touchObject');
-			if(typeof($(touchObject).data) === 'undefined' || typeof($(touchObject).data('touchStart')) === 'undefined' || $(touchObject).data('touchStart') === null) return;
-
-			for(var i=0, max = touchObject.length; i < max; i++){
-				var jObj = $(touchObject[i]);
-				jObj.data('touchEnd', e.type === 'mousemove' ? {
-					'pageX': e.pageX,
-					'pageY': e.pageY
-				} : e.originalEvent.touches[0]);
-				if(jObj.data('dragTouchIs') === true) jObj.trigger('e_drag', e);
-			}
+			if(EventLink.dragObj !== null) $(EventLink.dragObj).trigger('e_drag', [EventLink.startPos, EventLink.endPos]);
 		});
 
 		$(document).on('touchend mouseup', 'body', function(e){
-			var body = $(this);
+			if(EventLink.startPos === null) return;
+			if(EventLink.endPos === null) EventLink.endPos = EventLink.startPos;
 
-			if (_this.mouseUpEnable && e.type === 'touchend') {
-				_this.mouseUpEnable = false;
-				$(document).off('mouseup', 'body');
+			var node = document.elementFromPoint(EventLink.endPos.pageX - $(window).scrollLeft(), EventLink.endPos.pageY - $(window).scrollTop());
+
+			var x = EventLink.endPos.pageX - EventLink.startPos.pageX;
+			var y = EventLink.endPos.pageY - EventLink.startPos.pageY;
+
+			var clickIs = (Math.abs(x) < 5 && Math.abs(y) < 5);
+
+			if(clickIs && JCM.hasClass(node, 'bh-event-touch-visible')){
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				$(node).trigger('e_touch_visible');
 			}
 
-			if(typeof(body.data) === 'undefined' || typeof(body.data('touchObject')) === 'undefined' || body.data('touchObject') === null) return;
-			var touchObject = body.data('touchObject');
-			if(!$(touchObject).length || typeof($(touchObject).data) === 'undefined' || typeof($(touchObject).data('touchStart')) === 'undefined' || $(touchObject).data('touchStart') === null) return;
-
-			for(var i=0, max = touchObject.length; i < max; i++){
-				var jObj = $(touchObject[i]);
-				if(typeof(jObj.data) === 'undefined' || typeof(jObj.data('touchStart')) === 'undefined' || jObj.data('touchStart') === null) return;
-				var touchStart = jObj.data('touchStart');
-				if(typeof(jObj.data('touchEnd')) === 'undefined' || jObj.data('touchEnd') === null) jObj.data('touchEnd', touchStart);
-				var touchEnd = jObj.data('touchEnd');
-
-				var elementFromPoint = document.elementFromPoint(touchEnd.pageX - $(window).scrollLeft(), touchEnd.pageY - $(window).scrollTop());
-
-				var x = touchEnd.pageX - touchStart.pageX;
-				var y = touchEnd.pageY - touchStart.pageY;
-
-				if(touchObject[i] === elementFromPoint || $(elementFromPoint).closest(touchObject[i]).length){
-					if(Math.abs(x) < 5 && Math.abs(y) < 5){
-						e.stopPropagation();
-						e.preventDefault();
-						jObj.trigger('e_touch', e);
-					}
-				}
-
-				if(typeof(jObj.data('visibleTouchIs')) !== 'undefined' && jObj.data('visibleTouchIs') && touchObject[i] === elementFromPoint){
-					if(Math.abs(x) < 5 && Math.abs(y) < 5){
-						e.stopPropagation();
-						e.preventDefault();
-						jObj.trigger('e_touch_visible', e);
-					}
-				}
-
-				jObj.trigger('e_touch_end', e);
-
-				if (jObj.data('dragTouchIs') === true) jObj.trigger('e_drag_end', e);
-
-				jObj.data('touchStart', null);
-				jObj.data('touchEnd', null);
+			if(EventLink.dragObj !== null){
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				$(EventLink.dragObj).trigger('e_drag_end', [EventLink.startPos, EventLink.endPos]);
 			}
-			body.data('touchObject', null);
+
+			while(node !== this && node){
+				if(clickIs && JCM.hasClass(node, 'bh-event-touch')){
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					$(node).trigger('e_touch');
+				}
+				node = node.parentNode;
+			}
+
+			// end
+			EventLink.startPos = null;
+			EventLink.endPos = null;
+			EventLink.dragObj = null;
 		});
-	};
-
-	this.Init();
+	}
 }
-
-var eventLink = new EventLink(jQuery);
 
 /* -----------------------------------------------------
  *
@@ -829,15 +801,15 @@ function ScrollAreaInit(selector){
 		btn.css({top : (maxHeight * sy) + 'px'});
 	});
 
-	btn.drag(function(e){
+	btn.drag(function(e, startPos, endPos){
 		// scroll begin
-		var y = btn.data('touchEnd').pageY - (bar.offset().top - $(window).scrollTop());
+		var y = endPos.pageY - (bar.offset().top - $(window).scrollTop());
 		y -= btn.height() / 2;
 		if(y < 0) y = 0;
 		else if(y > maxHeight) y = maxHeight;
 		btn.css({top : y + 'px'});
 		scrollConetntsAct(y);
-	}, function(){
+	}, function(e, startPos, endPos){
 		// scroll end
 	});
 
