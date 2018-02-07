@@ -34,12 +34,13 @@ App::JSAdd('board.js', 200);
 		<?php
 		foreach(App::$Data['notice'] as $row){
 			$secretIcon = $row['secret'] == 'y' ? '<span class="secretDoc">[비밀글]</span> ' : '';
+			$newtIcon = $row['newArticleIs'] ? '<span class="newDoc">[새글]</span> ' : '';
 			?>
 			<tr class="notice">
 				<td>공지</td>
 				<td class="left">
 					<a href="<?p. $row['viewUrl'] ?>"<?php if(!$row['possibleView']){ ?> class="passwordView"<?php } ?>>
-						[공지] <?v. $row['subject'] ?> <?p. $row['replyCount'] ?> <?p. $secretIcon ?>
+						[공지] <?v. $row['subject'] ?> <?p. $row['replyCount'] ?> <?p. $secretIcon . $newtIcon ?>
 					</a>
 				</td>
 				<td><?v. $row['mname']; ?></td>
@@ -51,12 +52,13 @@ App::JSAdd('board.js', 200);
 		<?php
 		foreach($Data->data as $row){
 			$secretIcon = $row['secret'] == 'y' ? '<span class="secretDoc">[비밀글]</span> ' : '';
+			$newtIcon = $row['newArticleIs'] ? '<span class="newDoc">[새글]</span> ' : '';
 			?>
 			<tr>
 				<td><?p. $Data->beginNum-- ?></td>
 				<td class="left">
 					<a href="<?p. $row['viewUrl'] ?>"<?php if(!$row['possibleView']){ ?> class="passwordView"<?php } ?>>
-						<?v. $row['subject'] ?> <?p. $row['replyCount'] ?> <?p. $secretIcon ?>
+						<?v. $row['subject'] ?> <?p. $row['replyCount'] ?> <?p. $secretIcon . $newtIcon ?>
 					</a>
 				</td>
 

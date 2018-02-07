@@ -218,15 +218,15 @@ class BH_Application
 		return $queryparam;
 	}
 
-	/**
+	/*
 	 * html : self::$Html 를 지정하면 그 파일을 찾고 아니라면 액션명의 파일을 찾는다.
 	 * layout : /Layout 디렉토리에서 self::$Layout 의 파일을 찾아 레이아웃을 생성
-	 * @param $Model mixed
-	 * @param $Data mixed
-	 * @param $DisableLayout bool
-	 * @return string
 	 */
-	private static function SetViewHtml(&$Ctrl, &$Model, &$Data, $DisableLayout = false, $htmlPath = ''){
+	private static function SetViewHtml(&$Model, &$Data, $DisableLayout = false, $htmlPath = ''){
+		$d_b = phpversion() < 5.6 ? debug_backtrace() : debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3);
+
+		$Ctrl = &$d_b[2]['object'];
+
 		if(strlen($htmlPath)) $viewAction = $htmlPath;
 		else if(isset($Ctrl->Html) && strlen($Ctrl->Html)) $viewAction = $Ctrl->Html;
 		else if(self::$Html) $viewAction = self::$Html;
@@ -269,10 +269,8 @@ class BH_Application
 			else if(!$k && is_string($row)) $html = $row;
 			else $Data = $row;
 		}
-		$d_b = phpversion() < 5.6 ? debug_backtrace() : debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-
-		if(is_null($html)) self::SetViewHtml($d_b[1]['object'], $Model, $Data);
-		else self::SetViewHtml($d_b[1]['object'], $Model, $Data, false, $html);
+		if(is_null($html)) self::SetViewHtml($Model, $Data);
+		else self::SetViewHtml($Model, $Data, false, $html);
 		if(_JSONIS === true) JSON(true, '', self::$BodyHtml);
 		else echo self::$BodyHtml;
 	}
@@ -287,9 +285,8 @@ class BH_Application
 			else $Data = $row;
 		}
 
-		$d_b = phpversion() < 5.6 ? debug_backtrace() : debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-		if(is_null($html)) self::SetViewHtml($d_b[1]['object'], $Model, $Data, true);
-		else self::SetViewHtml($d_b[1]['object'], $Model, $Data, true, $html);
+		if(is_null($html)) self::SetViewHtml($Model, $Data, true);
+		else self::SetViewHtml($Model, $Data, true, $html);
 		if(_JSONIS === true) JSON(true, '', self::$BodyHtml);
 		else echo self::$BodyHtml;
 	}
@@ -304,9 +301,8 @@ class BH_Application
 			else $Data = $row;
 		}
 
-		$d_b = phpversion() < 5.6 ? debug_backtrace() : debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-		if(is_null($html)) self::SetViewHtml($d_b[1]['object'], $Model, $Data);
-		else self::SetViewHtml($d_b[1]['object'], $Model, $Data, false, $html);
+		if(is_null($html)) self::SetViewHtml($Model, $Data);
+		else self::SetViewHtml($Model, $Data, false, $html);
 		return self::$BodyHtml;
 	}
 
@@ -320,9 +316,8 @@ class BH_Application
 			else $Data = $row;
 		}
 
-		$d_b = phpversion() < 5.6 ? debug_backtrace() : debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-		if(is_null($html)) self::SetViewHtml($d_b[1]['object'], $Model, $Data, true);
-		else self::SetViewHtml($d_b[1]['object'], $Model, $Data, true, $html);
+		if(is_null($html)) self::SetViewHtml($Model, $Data, true);
+		else self::SetViewHtml($Model, $Data, true, $html);
 		return self::$BodyHtml;
 	}
 

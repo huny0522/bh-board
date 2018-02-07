@@ -10,6 +10,8 @@ use \BH_Application as App;
 use \BH_Common as CM;
 use \DB as DB;
 
+define('_DEFAULT_BOARD_LOGIN_URL', _URL . '/Login');
+
 class Board{
 	/**
 	 * @var \BoardModel
@@ -27,7 +29,7 @@ class Board{
 	public $bid = '';
 	public $uploadDir = '';
 	public $uploadImageDir = '';
-	public static $loginUrl = _URL . '/Login';
+	public static $loginUrl = _DEFAULT_BOARD_LOGIN_URL;
 
 	/** @param \BH_DB_GetListWithPage $qry */
 	protected function _GetListQuery(&$qry){}
@@ -154,17 +156,18 @@ class Board{
 		App::$Data['notice'] = array();
 		$_GET['searchKeyword'] = isset($_GET['searchKeyword']) ? trim($_GET['searchKeyword']) : '';
 		if((!isset($_GET['page']) || $_GET['page'] < 2) && !strlen($_GET['searchKeyword'])){
-			$qry = DB::GetListQryObj($this->model->table.' A')
-				->AddWhere('A.delis=\'n\'')
+			$qry = $this->model->NewQryName('notice')->GetSetListQry('A');
+			$qry->AddWhere('A.delis=\'n\'')
 				->AddWhere('A.notice=\'y\'');
 			$this->_CommonQry($qry);
-			App::$Data['notice'] = $qry->GetRows();
-			$this->_RowSet(App::$Data['notice']);
+			$qry->DrawRows();
+			$this->_RowSet($qry->data);
+			App::$Data['notice'] = &$qry->data;
 		}
 
 		// 리스트를 불러온다.
-		$dbList = DB::GetListPageQryObj($this->model->table.' A')
-			->SetSort('A.sort1, A.sort2')
+		$dbList = $this->model->NewQryName('default')->GetSetPageListQry('A');
+		$dbList->SetSort('A.sort1, A.sort2')
 			->SetPage(isset($_GET['page']) ? $_GET['page'] : 1)
 			->SetPageUrl(App::URLAction('').App::GetFollowQuery('page'))
 			->SetArticleCount($this->boardManger->GetValue('article_count'));
@@ -213,17 +216,17 @@ class Board{
 		App::$Data['notice'] = array();
 		$_GET['searchKeyword'] = isset($_GET['searchKeyword']) ? trim($_GET['searchKeyword']) : '';
 		if((!isset($_GET['seq']) || !strlen($_GET['seq'])) && (!isset($_GET['lastSeq']) || !strlen($_GET['lastSeq'])) && !strlen($_GET['searchKeyword'])){
-			$qry = DB::GetListQryObj($this->model->table.' A')
-				->AddWhere('A.delis=\'n\'')
+			$qry = $this->model->NewQryName('notice')->GetSetListQry('A');
+			$qry->AddWhere('A.delis=\'n\'')
 				->AddWhere('A.notice=\'y\'');
 			$this->_CommonQry($qry);
-			App::$Data['notice'] = $qry->GetRows();
+			App::$Data['notice'] = &$qry->GetRows();
 			$this->_RowSet(App::$Data['notice']);
 		}
 
 		// 리스트를 불러온다.
-		$dbList = DB::GetListQryObj($this->model->table.' A')
-			->SetLimit($this->boardManger->GetValue('article_count'))
+		$dbList = $this->model->NewQryName('default')->GetSetListQry('A');
+		$dbList->SetLimit($this->boardManger->GetValue('article_count'))
 			->SetSort('A.sort1, A.sort2');
 		$this->_CommonQry($dbList);
 
@@ -271,7 +274,10 @@ class Board{
 
 		$lastSeq = '';
 		$lastIs = false;
-		if(sizeof($dbList->data)) $lastSeq = end($dbList->data)['seq'];
+		if(sizeof($dbList->data)){
+			$end = end($dbList->data);
+			$lastSeq = $end['seq'];
+		}
 		if(sizeof($dbList->data) < $this->boardManger->GetValue('article_count')) $lastIs = true;
 
 		if(_JSONIS === true) JSON(true, '', array('list' => App::GetOnlyView($this->model, $dbList), 'lastSeq' => $lastSeq, 'lastIs' => $lastIs));
@@ -284,6 +290,7 @@ class Board{
 			else $row['possibleView'] = false;
 			$row['viewUrl'] = App::URLAction('View/').toBase($row['seq']).App::GetFollowQuery();
 			$row['replyCount'] = $row['reply_cnt'] ? '<span class="ReplyCount">['.$row['reply_cnt'].']</span>' : '';
+			$row['newArticleIs'] = (time() - strtotime($row['reg_date']) < $this->boardManger->data['new_view_day']->Value * 60 * 60 * 24);
 		}
 	}
 

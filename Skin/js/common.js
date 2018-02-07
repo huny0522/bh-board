@@ -28,13 +28,13 @@ function Common($){
 		this.ie8 = ieVer === 8;
 		this.ie9 = ieVer === 9;
 
-		if(ieVer < 9 && ieVer !== -1){
+		/*if(ieVer < 9 && ieVer !== -1){
 			document.write('현재 사용하시고 계시는 브라우저의 버전은 지원하지 않습니다.');
 			$(document).ready(function(){
 				document.write('현재 사용하시고 계시는 브라우저의 버전은 지원하지 않습니다.');
 			});
 			return;
-		}
+		}*/
 
 		/* -------------------------------------------
 		 *
@@ -493,12 +493,12 @@ function Common($){
 		return '';
 	};
 	this.hasClass = function(el, name){
-		if(typeof(el[0]) !== 'undefined') el = el[0];
+		if(el.tagName === 'undefined') el = el[0];
 		return new RegExp('(\\s|^)'+name+'(\\s|$)').test(JCM.getAttribute(el, 'class'));
 	};
 
 	this.addClass = function(el, name){
-		if(typeof(el[0]) !== 'undefined') el = el[0];
+		if(el.tagName === 'undefined') el = el[0];
 		if (!this.hasClass(el, name)){
 			if(typeof(el.setAttribute) === 'undefined') return;
 			el.setAttribute('class', (JCM.getAttribute(el, 'class') ? JCM.getAttribute(el, 'class') + ' ' : '') +name);
@@ -506,9 +506,9 @@ function Common($){
 	};
 
 	this.removeClass = function(el, name){
-		if(typeof(el[0]) !== 'undefined') el = el[0];
+		if(el.tagName === 'undefined') el = el[0];
 		if (this.hasClass(el, name)) {
-			el.setAttribute(JCM.getAttribute(el, 'class').replace(new RegExp('(\\s|^)'+name+'(\\s|$)'),' ').replace(/^\s+|\s+$/g, ''));
+			el.setAttribute('class', JCM.getAttribute(el, 'class').replace(new RegExp('(\\s|^)'+name+'(\\s|$)'),' ').replace(/^\s+|\s+$/g, ''));
 		}
 	};
 
@@ -945,6 +945,7 @@ function SelectBox($){
 		else selectTxtE.text(val);
 
 		if($(this)[0].hasAttribute('data-option-type') && !$(this)[0].hasAttribute('data-has-touch-e')){
+			if(typeof $(this).touch === 'undefined') EventLink.Init();
 			$(this).touch(_this.OptionToUl);
 			$(this).attr('data-has-touch-e', 'y');
 		}
@@ -978,6 +979,7 @@ function SelectBox($){
 			top : 0,
 			left : 0,
 			width : '100%',
+			'z-index' : 9999,
 			height : $(document).height() + 'px'
 		});
 

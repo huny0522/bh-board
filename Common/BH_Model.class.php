@@ -83,7 +83,7 @@ class BH_ModelData{
 	 * @return null|string
 	 */
 	public function GetValue(){
-		return isset($this->Value) ? ($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value]) ? $this->EnumValues[$this->Value] : $this->Value) : NULL;
+		return isset($this->Value) ? ($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value]) ? $this->EnumValues[$this->Value] : $this->Value) : '';
 	}
 
 	public function GetSafeValue(){
@@ -192,10 +192,11 @@ class BH_Model{
 	public $Except = array();
 	public $Need = array();
 	/**
-	 * @var BH_DB_Get|BH_DB_GetListWithPage|BH_DB_GetList|BH_DB_Insert|BH_DB_Update|BH_DB_Delete
+	 * @var BH_DB_Get[]|BH_DB_GetListWithPage[]|BH_DB_GetList[]|BH_DB_Insert[]|BH_DB_Update[]|BH_DB_Delete[]
 	 */
-	public $qry = null;
-	protected $listPosition = -1;
+	public $qry = array('default' => null);
+	public $qryName = 'default';
+	public $listPosition = -1;
 	protected $connName = '';
 	/**
 	 * @var BH_Model
@@ -282,6 +283,31 @@ class BH_Model{
 	}
 
 	/**
+	 * 입력값에 해당하는 쿼리를 반환
+	 * @param string $name
+	 * @return BH_DB_Delete|BH_DB_Get|BH_DB_GetList|BH_DB_GetListWithPage|BH_DB_Insert|BH_DB_Update
+	 */
+	public function &SelectQryName($name = null){
+		$this->listPosition = -1;
+		if(!is_null($name)) $this->qryName = $name;
+		if(!isset($this->qry[$this->qryName])) $this->qry[$this->qryName] = null;
+		return $this->qry[$this->qryName];
+	}
+
+	/**
+	 * 쿼리를 위한 공간을 비워둔다
+	 * @param string $name
+	 * @return $this
+	 */
+	public function &NewQryName($name){
+		$this->qryName = $name;
+		$this->qry[$name] = null;
+		$this->listPosition = -1;
+		return $this;
+	}
+
+	/**
+	 * Type에 해당하는 쿼리 생성
 	 * @param int $type
 	 * @param string $tableNaming
 	 * @return $this
@@ -292,70 +318,76 @@ class BH_Model{
 	}
 
 	/**
+	 * 한개행쿼리 생성하고 반환
 	 * @param string $tableNaming
 	 * @return BH_DB_Get
 	 */
 	public function &GetSetQry($tableNaming = ''){
 		_ModelFunc::SetQry($this, QRY_GET, $tableNaming);
-		return $this->qry;
+		return $this->qry[$this->qryName];
 	}
 
 	/**
+	 * 리스트쿼리 생성하고 반환
 	 * @param string $tableNaming
 	 * @return BH_DB_GetList
 	 */
 	public function &GetSetListQry($tableNaming = ''){
 		_ModelFunc::SetQry($this, QRY_LIST, $tableNaming);
-		return $this->qry;
+		return $this->qry[$this->qryName];
 	}
 
 	/**
+	 * 리스트&페이지쿼리 생성하고 반환
 	 * @param string $tableNaming
 	 * @return BH_DB_GetListWithPage
 	 */
 	public function &GetSetPageListQry($tableNaming = ''){
 		_ModelFunc::SetQry($this, QRY_PAGE_LIST, $tableNaming);
-		return $this->qry;
+		return $this->qry[$this->qryName];
 	}
 
 	/**
+	 * 삽입쿼리 생성하고 반환
 	 * @param string $tableNaming
 	 * @return BH_DB_Insert
 	 */
 	public function &GetSetInsertQry($tableNaming = ''){
 		_ModelFunc::SetQry($this, QRY_INSERT, $tableNaming);
-		return $this->qry;
+		return $this->qry[$this->qryName];
 	}
 
 	/**
+	 * 업데이트쿼리 생성하고 반환
 	 * @param string $tableNaming
 	 * @return BH_DB_Update
 	 */
 	public function &GetSetUpdateQry($tableNaming = ''){
 		_ModelFunc::SetQry($this, QRY_UPDATE, $tableNaming);
-		return $this->qry;
+		return $this->qry[$this->qryName];
 	}
 
 	/**
+	 * 삭제쿼리 생성하고 반환
 	 * @param string $tableNaming
 	 * @return BH_DB_Delete
 	 */
 	public function &GetSetDeleteQry($tableNaming = ''){
 		_ModelFunc::SetQry($this, QRY_DELETE, $tableNaming);
-		return $this->qry;
+		return $this->qry[$this->qryName];
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function QryNext(){
-		if(!$this->qry->drawRowsIs) $this->qry->DrawRows();
+		if(!$this->qry[$this->qryName]->drawRowsIs) $this->qry[$this->qryName]->DrawRows();
 		$this->listPosition++;
-		return isset($this->qry->data[$this->listPosition]);
+		return isset($this->qry[$this->qryName]->data[$this->listPosition]) ? $this->qry[$this->qryName]->data[$this->listPosition] : false;
 	}
 
 	public function QryDraw(){
-		$this->qry->DrawRows();
+		$this->qry[$this->qryName]->DrawRows();
 	}
 
 	/**
@@ -363,53 +395,17 @@ class BH_Model{
 	 * @return bool
 	 */
 	public function QryPosition($pos){
-		if(!$this->qry->drawRowsIs) $this->qry->DrawRows();
+		if(!$this->qry[$this->qryName]->drawRowsIs) $this->qry[$this->qryName]->DrawRows();
 		$this->listPosition = $pos;
-		return isset($this->qry->data[$this->listPosition]);
-	}
-
-	/**
-	 * @param string $key
-	 * @param null|string $dataKey
-	 * @return mixed
-	 */
-	public function QryValue($key, $dataKey = null){
-		return _ModelFunc::QryValueByModel($this, $key, $dataKey);
-	}
-
-	/**
-	 * @param string $key
-	 * @param null|string $dataKey
-	 * @return mixed
-	 */
-	public function QrySafeValue($key, $dataKey = null){
-		return GetDBText(_ModelFunc::QryValueByModel($this, $key, $dataKey));
-	}
-
-	/**
-	 * @param string $key
-	 * @param null|string $dataKey
-	 * @return mixed
-	 */
-	public function QrySafeRawValue($key, $dataKey = null){
-		return GetDBRaw(_ModelFunc::QryValueByModel($this, $key, $dataKey));
-	}
-
-	/**
-	 * @param string $key
-	 * @param null|string $dataKey
-	 * @return mixed
-	 */
-	public function QrySafeBRValue($key, $dataKey = null){
-		return nl2br(GetDBText(_ModelFunc::QryValueByModel($this, $key, $dataKey)));
+		return isset($this->qry[$this->qryName]->data[$this->listPosition]);
 	}
 
 	/**
 	 * @return bool|string
 	 */
 	public function TotalRecord(){
-		if(!$this->qry->drawRowsIs) $this->qry->DrawRows();
-		if($this->qry->result) return $this->qry->totalRecord;
+		if(!$this->qry[$this->qryName]->drawRowsIs) $this->qry[$this->qryName]->DrawRows();
+		if($this->qry[$this->qryName]->result) return $this->qry[$this->qryName]->totalRecord;
 		else return false;
 	}
 
@@ -672,35 +668,21 @@ class BH_Model{
 
 class _ModelFunc{
 	public static function SetQry(&$model, $type, $tableNaming){
-		if($type === QRY_LIST) $model->qry = new BH_DB_GetList();
-		else if($type === QRY_PAGE_LIST) $model->qry = new BH_DB_GetListWithPage();
-		else if($type === QRY_INSERT) $model->qry = new BH_DB_Insert();
-		else if($type === QRY_UPDATE) $model->qry = new BH_DB_Update();
-		else if($type === QRY_DELETE) $model->qry = new BH_DB_Delete();
-		else $model->qry = new BH_DB_Get();
+		if($type === QRY_LIST) $model->qry[$model->qryName] = new BH_DB_GetList();
+		else if($type === QRY_PAGE_LIST) $model->qry[$model->qryName] = new BH_DB_GetListWithPage();
+		else if($type === QRY_INSERT) $model->qry[$model->qryName] = new BH_DB_Insert();
+		else if($type === QRY_UPDATE) $model->qry[$model->qryName] = new BH_DB_Update();
+		else if($type === QRY_DELETE) $model->qry[$model->qryName] = new BH_DB_Delete();
+		else $model->qry[$model->qryName] = new BH_DB_Get();
 
-		$model->qry->AddTable('`' . $model->table . '`' . (strlen($tableNaming) ? ' `' . $tableNaming . '`' : ''));
+		$model->qry[$model->qryName]->AddTable('`' . $model->table . '`' . (strlen($tableNaming) ? ' `' . $tableNaming . '`' : ''));
 	}
 	public static function _Join(&$model, $args){
 		$args[1]->parent = &$model;
 		$n = array_values(array_slice($args, 3));
-		$txt = $model->qry->StrToPDO($n);
-		$model->qry->AddTable('%1 JOIN `%1` `%1` ON %1', $args[0], $args[1]->table, $args[2], $txt);
+		$txt = $model->qry[$model->qryName]->StrToPDO($n);
+		$model->qry[$model->qryName]->AddTable('%1 JOIN `%1` `%1` ON %1', $args[0], $args[1]->table, $args[2], $txt);
 		return true;
-	}
-
-	public static function QryValueByModel(&$nowModel, $key, $dataKey = null){
-		$refModel = &$nowModel;
-		while(!is_null($nowModel->parent)) $nowModel = &$nowModel->parent;
-
-		if(is_null($dataKey)) $dataKey = $key;
-		if(!isset($nowModel->qry->data[$nowModel->listPosition][$key])) return null;
-		if($dataKey === false) return $nowModel->qry->data[$nowModel->listPosition][$key];
-		if(isset($refModel->data[$dataKey]) && $refModel->data[$dataKey]->Type == ModelType::Enum){
-			if(isset($refModel->data[$dataKey]->EnumValues[$nowModel->qry->data[$nowModel->listPosition][$key]])) return $refModel->data[$dataKey]->EnumValues[$nowModel->qry->data[$nowModel->listPosition][$key]];
-			return null;
-		}
-		return $nowModel->qry->data[$nowModel->listPosition][$key];
 	}
 
 	public static function IsFileType($type){
