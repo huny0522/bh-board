@@ -290,6 +290,7 @@ class DB{
 			if($validateOk->result) return array($w, $bindParam);
 			else URLReplace(-1, $validateOk->message.(_DEVELOPERIS === true ? '['.$w.']' : ''));
 		}
+		return false;
 	}
 }
 
@@ -299,6 +300,9 @@ class BH_DB_Get{
 	public $sort = '';
 	public $group = '';
 
+	/**
+	 * @var PDOStatement
+	 */
 	protected $query = null;
 	protected $having = array();
 	protected $where = array();
@@ -1201,7 +1205,7 @@ class BH_DB_Update{
 	}
 
 	/**
-	 * @return $this
+	 * @return BH_Result
 	 */
 	function Run(){
 		$res = new \BH_Result();
@@ -1293,7 +1297,7 @@ class BH_DB_Delete{
 	}
 
 	/**
-	 * @return $this
+	 * @return bool
 	 */
 	function Run(){
 		$where = '';

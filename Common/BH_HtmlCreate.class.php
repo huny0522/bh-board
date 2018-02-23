@@ -27,6 +27,8 @@ class BH_HtmlCreate
 		$path = _CONTROLLERDIR . (strlen($_POST['sub_dir']) ? '/' . $_POST['sub_dir'] : '') . '/' . $ControllerName . '.php';
 		$ndir = strlen($_POST['sub_dir']) ? '\\' . str_replace('/', '\\', $_POST['sub_dir']) : '';
 
+		$ModelValueName = strtolower(substr($ModelName, 0, 1)) . substr($ModelName, 1).'Model';
+
 		$text = "<?php
 namespace Controller{$ndir};
 
@@ -36,10 +38,10 @@ use \\DB as DB;
 
 class {$ControllerName}{
 	/* @var \\{$ModelName}Model */
-	public \$model;
+	public \${$ModelValueName};
 
 	public function __construct(){
-		\$this->model = new \\{$ModelName}Model();
+		\$this->{$ModelValueName} = new \\{$ModelName}Model();
 	}
 
 	public function __Init(){
@@ -47,67 +49,58 @@ class {$ControllerName}{
 	}
 
 	public function Index(){
-		\$qry = DB::GetListPageQryObj(\$this->model->table)
+		\$this->{$ModelValueName}->GetSetPageListQry()
 			->SetArticleCount(10)
 			->SetPage(isset(\$_GET['page']) ? \$_GET['page'] : 0)
 			->SetPageUrl(App::URLAction().App::GetFollowQuery('page'))
 			->Run();
 
-		App::View(\$this->model, \$qry);
+		App::View();
 	}
 
 	public function View(){
-		\$this->_ModelSet();
-		App::View(\$this->model);
+		\$this->_ModelSet(App::\$ID);
+		App::View();
 	}
 
 	public function Write(){
-		App::View(\$this->model);
+		App::View();
 	}
 
 	public function Modify(){
-		\$this->_ModelSet();
-		App::\$Html = 'Write';
-		App::View(\$this->model);
+		\$this->_ModelSet(App::\$ID);
+		App::View('Write');
 	}
 
-	public function PostWrite(){
-		\$this->model->SetPostValues();
-		\$err = \$this->model->GetErrorMessage();
+	public function PostWrite(\$seq = null){
+		if(!is_null(\$seq)) \$this->_ModelSet(App::\$ID);
+		\$this->{$ModelValueName}->SetPostValues();
+		\$err = \$this->{$ModelValueName}->GetErrorMessage();
 		if(sizeof(\$err)){
 			App::\$Data['error'] = \$err[0];
-			App::View(\$this->model);
+			App::View('Write');
 			return;
 		}
-		\$res = \$this->model->DBInsert();
+		if(is_null(\$seq)) \$res = \$this->{$ModelValueName}->DBInsert();
+		else \$res = \$this->{$ModelValueName}->DBUpdate();
+		
 		if(!\$res->result) {
 			App::\$Data['error'] = \$res->message ? \$res->message : 'Query Error';
-			App::View(\$this->model);
+			App::View('Write');
 			return;
 		}
-		else URLReplace(App::URLAction().App::GetFollowQuery());
+		else{
+			if(is_null(\$seq)) URLReplace(App::URLAction().App::GetFollowQuery());
+			else URLReplace(App::URLAction('View/'.\$seq).App::GetFollowQuery());
+		}
 	}
 
 	public function PostModify(){
-		\$this->_ModelSet();
-		\$this->model->SetPostValues();
-		\$err = \$this->model->GetErrorMessage();
-		if(sizeof(\$err)){
-			App::\$Data['error'] = \$err[0];
-			App::View(\$this->model);
-			return;
-		}
-		\$res = \$this->model->DBUpdate();
-		if(!\$res->result) {
-			App::\$Data['error'] = \$res->message ? \$res->message : 'Query Error';
-			App::View(\$this->model);
-			return;
-		}
-		else URLReplace(App::URLAction('View/'.App::\$ID).App::GetFollowQuery());
+		\$this->PostWrite();
 	}
 
 	public function PostDelete(){
-		\$res = \$this->model->DBDelete(App::\$ID);
+		\$res = \$this->{$ModelValueName}->DBDelete(App::\$ID);
 
 		if(\$res->result){
 			URLReplace(App::URLAction('').App::GetFollowQuery());
@@ -117,9 +110,9 @@ class {$ControllerName}{
 		}
 	}
 
-	private function _ModelSet(){
-		if(!strlen(App::\$ID)) URLReplace(-1, _MSG_WRONG_CONNECTED);
-		\$res = \$this->model->DBGet(App::\$ID);
+	private function _ModelSet(\$seq){
+		if(!strlen(\$seq)) URLReplace(-1, _MSG_WRONG_CONNECTED);
+		\$res = \$this->{$ModelValueName}->DBGet(\$seq);
 		if(!\$res->result) URLReplace(-1, \$res->message ? \$res->message : _MSG_NO_ARTICLE);
 	}
 }";
@@ -298,6 +291,11 @@ class {$ModelName}Model extends \\BH_Model{
 			$path2 = implode('/', $a) . '/';
 
 			//if(!is_dir($path2)) mkdir($path2, 0777, true);
+			$temp = explode('/', $path);
+			array_pop($temp);
+			$temp = implode('\\', $temp);
+
+			$ModelValueName = strtolower(substr($classname, 0, 1)) . substr($classname, 1);
 
 			$html = "<?php if(_BH_ !== true) exit;
 			
@@ -305,9 +303,10 @@ use \\BH_Application as App;
 use \\BH_Common as CM;
 
 /**
- * @var \$Model \\{$classname}
+ * @var \\Controller{$temp} \$Ctrl
+ * @var \\{$classname} \$Model
  */
- 
+ \$Model = &\$Ctrl->{$ModelValueName};
  ?>
  
  ";
@@ -321,9 +320,9 @@ use \\BH_Common as CM;
 			}
 			$html .= '</table>' . chr(10);
 			$html .= '<div class="bottomBtn"><a href="<?a. \'\' ?><?fq. \'\' ?>" class="bBtn">리스트</a><a href="<?a. \'Modify/\'.App::$ID ?><?fq. \'\' ?>" class="bBtn">수정</a><a href="#" id="deleteArticle" class="bBtn">삭제</a><a href="#" class="backbtn bBtn">뒤로</a></div>' . chr(10);
-			$html .= '<div id="deleteForm" class="hidden">' . chr(10) . chr(9) . '<form id="delForm" name="delForm" method="post" action="<?a. \'Delete/\'.App::$ID ?><?fq. \'\' ?>">' . chr(10);
+			$html .= '<div id="deleteForm" class="modalConfirm hidden">' . chr(10) . chr(9) . '<form id="delForm" name="delForm" method="post" action="<?a. \'Delete/\'.App::$ID ?><?fq. \'\' ?>">' . chr(10);
 
-			$html .= chr(9) . chr(9) . '<p>정말 삭제하시겠습니까?</p>' . chr(10) . chr(9) . chr(9) . '<div class="sPopBtns">' . chr(10) . chr(9) . chr(9) . chr(9) . '<button type="submit" class="btn2">삭제하기</button>' . chr(10) . chr(9) . chr(9) . chr(9) . '<button type="reset" class="btn2">취소</button>' . chr(10) . chr(9) . chr(9) . '</div>' . chr(10) . chr(9) . '</form>' . chr(10) . '</div>' . chr(10);
+			$html .= chr(9) . chr(9) . '<p>정말 삭제하시겠습니까?</p>' . chr(10) . chr(9) . chr(9) . '<div class="sPopBtns">' . chr(10) . chr(9) . chr(9) . chr(9) . '<button type="submit" class="sBtn btn2">삭제하기</button>' . chr(10) . chr(9) . chr(9) . chr(9) . '<button type="reset" class="sBtn btn2">취소</button>' . chr(10) . chr(9) . chr(9) . '</div>' . chr(10) . chr(9) . '</form>' . chr(10) . '</div>' . chr(10);
 			$html .= '<script>' . chr(9) . '$(\'#deleteArticle\').on(\'click\', function(e){' . chr(10) . chr(9) . chr(9) . 'e.preventDefault();' . chr(10) . chr(9) . chr(9) . '$(\'#deleteForm\').show();' . chr(10) . chr(9) . '});' . chr(10) . chr(9) . '$(\'#deleteForm button[type=reset]\').on(\'click\', function(e){' . chr(10) . chr(9) . chr(9) . 'e.preventDefault();' . chr(10) . chr(9) . chr(9) . '$(\'#deleteForm\').hide();' . chr(10) . chr(9) . '});' . chr(10) . '</script>';
 			return $html;
 			/*file_put_contents(_SKINDIR . $path, $html);
@@ -343,7 +342,12 @@ use \\BH_Common as CM;
 			$filename = array_pop($a);
 			$path2 = implode('/', $a) . '/';
 
+			$temp = explode('/', $path);
+			array_pop($temp);
+			$temp = implode('\\', $temp);
+
 			//if(!is_dir($path2)) mkdir($path2, 0777, true);
+			$ModelValueName = strtolower(substr($classname, 0, 1)) . substr($classname, 1);
 
 			$html = "<?php if(_BH_ !== true) exit;
 
@@ -351,8 +355,10 @@ use \\BH_Application as App;
 use \\BH_Common as CM;
 
 /**
- * @var \$Model \\{$classname}
+ * @var \\Controller{$temp} \$Ctrl
+ * @var \\{$classname} \$Model
  */
+\$Model = &\$Ctrl->{$ModelValueName};
 ?>
 
 ";
@@ -414,6 +420,11 @@ use \\BH_Common as CM;
 			$filename = array_pop($a);
 			$path2 = implode('/', $a) . '/';
 
+			$temp = explode('/', $path);
+			array_pop($temp);
+			$temp = implode('\\', $temp);
+
+			$ModelValueName = strtolower(substr($classname, 0, 1)) . substr($classname, 1);
 
 			//키값
 			$html = "<?php if(_BH_ !== true) exit;
@@ -422,9 +433,15 @@ use \\BH_Application as App;
 use \\BH_Common as CM;
 
 /**
- * @var \$Model \\{$classname}
- * @var \$Data \\BH_DB_GetListWithPage
+ * @var \\Controller{$temp} \$Ctrl
+ * @var \\{$classname} \$Model
  */
+\$Model = &\$Ctrl->{$ModelValueName};
+
+/**
+ * @var \BH_DB_GetListWithPage \$Data
+ */
+\$Data = &\$Model->QryObj();
 ?>
 
 ";

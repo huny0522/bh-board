@@ -56,6 +56,7 @@ class BH_ModelData{
 	public $AutoDecrement = false;
 	public $ValueIsQuery = false;
 	public $BlankIsNull = false;
+	public $possibleExt;
 
 	public function __construct($Type = ModelType::String, $Required = false, $DisplayName = '', $HtmlType = HTMLType::InputText){
 		$this->Type = $Type;
@@ -166,6 +167,11 @@ class BH_ModelData{
 		return $this;
 	}
 
+	public function &SetPossibleExt($arr){
+		$this->possibleExt = $arr;
+		return $this;
+	}
+
 	public function &SetAutoDecrement($bool = true){
 		$this->AutoDecrement = $bool;
 		return $this;
@@ -196,7 +202,6 @@ class BH_Model{
 	 */
 	public $qry = array('default' => null);
 	public $qryName = 'default';
-	public $listPosition = -1;
 	protected $connName = '';
 	/**
 	 * @var BH_Model
@@ -287,10 +292,17 @@ class BH_Model{
 	 * @param string $name
 	 * @return BH_DB_Delete|BH_DB_Get|BH_DB_GetList|BH_DB_GetListWithPage|BH_DB_Insert|BH_DB_Update
 	 */
-	public function &SelectQryName($name = null){
-		$this->listPosition = -1;
+	public function &SelectQryObj($name = null){
 		if(!is_null($name)) $this->qryName = $name;
 		if(!isset($this->qry[$this->qryName])) $this->qry[$this->qryName] = null;
+		return $this->qry[$this->qryName];
+	}
+
+	/**
+	 * 현재 쿼리를 반환
+	 * @return BH_DB_Delete|BH_DB_Get|BH_DB_GetList|BH_DB_GetListWithPage|BH_DB_Insert|BH_DB_Update
+	 */
+	public function &QryObj(){
 		return $this->qry[$this->qryName];
 	}
 
@@ -302,7 +314,6 @@ class BH_Model{
 	public function &NewQryName($name){
 		$this->qryName = $name;
 		$this->qry[$name] = null;
-		$this->listPosition = -1;
 		return $this;
 	}
 
@@ -375,38 +386,6 @@ class BH_Model{
 	public function &GetSetDeleteQry($tableNaming = ''){
 		_ModelFunc::SetQry($this, QRY_DELETE, $tableNaming);
 		return $this->qry[$this->qryName];
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function QryNext(){
-		if(!$this->qry[$this->qryName]->drawRowsIs) $this->qry[$this->qryName]->DrawRows();
-		$this->listPosition++;
-		return isset($this->qry[$this->qryName]->data[$this->listPosition]) ? $this->qry[$this->qryName]->data[$this->listPosition] : false;
-	}
-
-	public function QryDraw(){
-		$this->qry[$this->qryName]->DrawRows();
-	}
-
-	/**
-	 * @param int $pos
-	 * @return bool
-	 */
-	public function QryPosition($pos){
-		if(!$this->qry[$this->qryName]->drawRowsIs) $this->qry[$this->qryName]->DrawRows();
-		$this->listPosition = $pos;
-		return isset($this->qry[$this->qryName]->data[$this->listPosition]);
-	}
-
-	/**
-	 * @return bool|string
-	 */
-	public function TotalRecord(){
-		if(!$this->qry[$this->qryName]->drawRowsIs) $this->qry[$this->qryName]->DrawRows();
-		if($this->qry[$this->qryName]->result) return $this->qry[$this->qryName]->totalRecord;
-		else return false;
 	}
 
 	/**
@@ -751,7 +730,7 @@ class _ModelFunc{
 						$model->Need[] = $k;
 					}
 
-					else if($v->HtmlType == HTMLType::InputImageFile){
+					else if(self::IsFileType($v->HtmlType)){
 						$fileUpIs = false;
 						if(strlen($post[$k])){
 							$fileUpIs = true;
