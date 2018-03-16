@@ -7,17 +7,33 @@
 use \BH_Common as CM;
 use \BH_Application as App;
 
+/**
+ * Class MemberModel
+ *
+ * @property BH_ModelData[] $data
+ * @property BH_ModelData $_muid
+ * @property BH_ModelData $_mid
+ * @property BH_ModelData $_pwd
+ * @property BH_ModelData $_mname
+ * @property BH_ModelData $_email
+ * @property BH_ModelData $_cname
+ * @property BH_ModelData $_nickname
+ * @property BH_ModelData $_level
+ * @property BH_ModelData $_address1
+ * @property BH_ModelData $_address2
+ * @property BH_ModelData $_zipcode
+ * @property BH_ModelData $_tel
+ * @property BH_ModelData $_phone
+ * @property BH_ModelData $_reg_date
+ * @property BH_ModelData $_approve
+ */
 class MemberModel extends \BH_Model{
-
-	/* @var \BH_ModelData[] */
-	public $data = array();
 
 	public function __Init(){
 		$this->Key = array('muid');
 		$this->Except = array('muid');
 		$this->table = TABLE_MEMBER;
 
-		$this->data = array();
 		$this->data['muid'] = new \BH_ModelData(ModelType::Int, false);
 		$this->data['muid']->AutoDecrement = true;
 

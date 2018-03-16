@@ -7,6 +7,18 @@
 use \BH_Common as CM;
 use \BH_Application as App;
 
+/**
+ * Class ContentModel
+ *
+ * @property BH_ModelData[] $data
+ * @property BH_ModelData $_subject
+ * @property BH_ModelData $_bid
+ * @property BH_ModelData $_html
+ * @property BH_ModelData $_layout
+ * @property BH_ModelData $_hit
+ * @property BH_ModelData $_recommend
+ * @property BH_ModelData $_reg_date
+ */
 class ContentModel extends \BH_Model{
 
 	public function __Init(){

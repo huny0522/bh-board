@@ -9,6 +9,23 @@
 use \BH_Common as CM;
 use \BH_Application as App;
 
+/**
+ * Class BannerModel
+ * @property BH_ModelData[] $data
+ * @property BH_ModelData $_seq
+ * @property BH_ModelData $_category
+ * @property BH_ModelData $_subject
+ * @property BH_ModelData $_img
+ * @property BH_ModelData $_contents
+ * @property BH_ModelData $_type
+ * @property BH_ModelData $_begin_date
+ * @property BH_ModelData $_end_date
+ * @property BH_ModelData $_enabled
+ * @property BH_ModelData $_new_window
+ * @property BH_ModelData $_mlevel
+ * @property BH_ModelData $_sort
+ * @property BH_ModelData $_link_url
+ */
 class BannerModel extends \BH_Model{
 	public function __Init(){
 		$this->Key[] = 'seq';

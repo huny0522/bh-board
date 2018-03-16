@@ -127,11 +127,12 @@ class {$ControllerName}{
 		}
 
 		$modelText = "<?php
-
+/**
+ * Class {$ModelName}Model
+ * @property \BH_ModelData[] \$data
+ * [@property]
+ */
 class {$ModelName}Model extends \\BH_Model{
-
-	/* @var \BH_ModelData[] */
-	public \$data = array();
 
 	public function __Init(){
 		\$this->table = {$TableName};
@@ -176,9 +177,11 @@ class {$ModelName}Model extends \\BH_Model{
 		$qry = \DB::SQL()->Query('SHOW FULL COLUMNS FROM ' . $TableName);
 		$primaryKey = array();
 		//$tData = array();
+		$propertyDoc = '';
 		while($row = \DB::SQL()->Fetch($qry)){
 			//$tData[$row['Field']] = $row;
 			$findIs = preg_match('/\$this\-\>data\[\'' . $row['Field'] . '\'\]\s*=\s*new\s*BH_ModelData/is', $initFuncText);
+			$propertyDoc .= " * @property \\BH_ModelData \$_{$row['Field']}\n";
 			if(strtolower($row['Key']) == 'pri') $primaryKey[] = "'{$row['Field']}'";
 
 			if(!$findIs){
@@ -222,6 +225,7 @@ class {$ModelName}Model extends \\BH_Model{
 			}
 
 		}
+		$f = preg_replace("/\s*\*\s*\[\@property\]\s*\n/is", PHP_EOL . $propertyDoc, $f);
 
 		$pattern = '/\$this\-\>Key\s*=\s*array/i';
 		preg_match($pattern, $initFuncText, $matches);

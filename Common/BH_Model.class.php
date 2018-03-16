@@ -58,15 +58,13 @@ class BH_ModelData{
 	public $BlankIsNull = false;
 	public $possibleExt;
 
+	public $NeedIs = false;
+
 	public function __construct($Type = ModelType::String, $Required = false, $DisplayName = '', $HtmlType = HTMLType::InputText){
 		$this->Type = $Type;
 		$this->Required = $Required;
 		$this->DisplayName = $DisplayName;
 		if($HtmlType) $this->HtmlType = $HtmlType;
-	}
-
-	public function __toString(){
-		return $this->GetValue();
 	}
 
 	/**
@@ -80,28 +78,124 @@ class BH_ModelData{
 	}
 
 	/**
-	 * 데이타의 값 반환
-	 * @return null|string
+	 * 값을 반환(enum은 해당 값을 반환)
+	 *
+	 * @return string
 	 */
-	public function GetValue(){
-		return isset($this->Value) ? ($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value]) ? $this->EnumValues[$this->Value] : $this->Value) : '';
-	}
-
-	public function GetSafeValue(){
-		return GetDBText($this->GetValue());
-	}
-
-	public function GetSafeRawValue(){
-		return GetDBRaw($this->GetValue());
-	}
-
-	public function GetSafeBRValue(){
-		return nl2br(GetDBText($this->GetValue()));
+	public function v(){
+		if(!isset($this->Value)) return '';
+		if($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value])) return $this->EnumValues[$this->Value];
+		return $this->Value;
 	}
 
 	/**
-	 * 데이타의 실제 값 반환
-	 * @return null|string
+	 * 값을 반환(enum은 해당 값을 반환, htmlspecialchars)
+	 *
+	 * @return string
+	 */
+	public function vs(){
+		if(!isset($this->Value)) return '';
+		if($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value])) return $this->EnumValues[$this->Value];
+		return GetDBText($this->Value);
+	}
+
+	/**
+	 * 실제 등록된 원본값을 반환
+	 *
+	 * @return string|null
+	 */
+	public function txt(){
+		return isset($this->Value) ? $this->Value : NULL;
+	}
+
+	/**
+	 * 숫자 number_format 반환
+	 *
+	 * @return string
+	 */
+	public function num(){
+		return isset($this->Value) ? number_format($this->Value) : 0;
+	}
+
+	/**
+	 * 실제 등록된 원본값을 반환(htmlspecialchars)
+	 *
+	 * @return string|null
+	 */
+	public function vTxt(){
+		return isset($this->Value) ? GetDBText($this->Value) : NULL;
+	}
+
+	/**
+	 * 값을 반환(html 태그 출력)
+	 *
+	 * @return string
+	 */
+	public function vRaw(){
+		if(!isset($this->Value)) return '';
+		if($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value])) return $this->EnumValues[$this->Value];
+		return GetDBRaw($this->Value);
+	}
+
+	/**
+	 * 값을 반환(htmlspecialchars, nl2br)
+	 *
+	 * @return string
+	 */
+	public function vBr(){
+		if(!isset($this->Value)) return '';
+		if($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value])) return $this->EnumValues[$this->Value];
+		return nl2br(GetDBRaw($this->Value));
+	}
+
+	/**
+	 * 값을 반환(enum은 해당 값을 반환)
+	 *
+	 * @return string
+	 */
+	public function GetValue(){
+		if(!isset($this->Value)) return '';
+		if($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value])) return $this->EnumValues[$this->Value];
+		return $this->Value;
+	}
+
+	/**
+	 * 값을 반환(enum은 해당 값을 반환, htmlspecialchars)
+	 *
+	 * @return string
+	 */
+	public function GetSafeValue(){
+		if(!isset($this->Value)) return '';
+		if($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value])) return $this->EnumValues[$this->Value];
+		return GetDBText($this->Value);
+	}
+
+	/**
+	 * 값을 반환(html 태그 출력)
+	 *
+	 * @return string
+	 */
+	public function GetSafeRawValue(){
+		if(!isset($this->Value)) return '';
+		if($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value])) return $this->EnumValues[$this->Value];
+		return GetDBRaw($this->Value);
+	}
+
+	/**
+	 * 값을 반환(htmlspecialchars, nl2br)
+	 *
+	 * @return string
+	 */
+	public function GetSafeBRValue(){
+		if(!isset($this->Value)) return '';
+		if($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value])) return $this->EnumValues[$this->Value];
+		return nl2br(GetDBRaw($this->Value));
+	}
+
+	/**
+	 * 실제 등록된 원본값을 반환
+	 *
+	 * @return string|null
 	 */
 	public function GetNativeValue(){
 		return isset($this->Value) ? $this->Value : NULL;
@@ -109,6 +203,7 @@ class BH_ModelData{
 
 	public function &SetValue($v){
 		$this->Value = trim($v);
+		$this->NeedIs = true;
 		return $this;
 	}
 
@@ -179,6 +274,7 @@ class BH_ModelData{
 
 	public function &SetValueIsQuery($bool = true){
 		$this->ValueIsQuery = $bool;
+		$this->NeedIs = true;
 		return $this;
 	}
 
@@ -188,6 +284,10 @@ class BH_ModelData{
 	}
 }
 
+/**
+ * Class BH_Model
+ * @property array $Need
+ */
 class BH_Model{
 	/**
 	 * @var BH_ModelData[]
@@ -196,21 +296,51 @@ class BH_Model{
 	public $table = '';
 	public $Key = array();
 	public $Except = array();
-	public $Need = array();
+	//public $Need = array();
 	/**
 	 * @var BH_DB_Get[]|BH_DB_GetListWithPage[]|BH_DB_GetList[]|BH_DB_Insert[]|BH_DB_Update[]|BH_DB_Delete[]
 	 */
 	public $qry = array('default' => null);
 	public $qryName = 'default';
 	protected $connName = '';
-	/**
-	 * @var BH_Model
-	 */
-	public $parent = null;
 
 	public function __construct(){
 		$this->connName = \DB::DefaultConnName;
 		if(method_exists($this, '__Init')) $this->__Init();
+		foreach($this->data as $k => $v) if(!isset($this->{'_'.$k})) $this->{'_'.$k} = $v;
+	}
+
+	public function __set($name, $value){
+		if(is_object($value) && get_class($value) === 'BH_ModelData' && $name[0] === '_'){
+			$this->{$name} = $value;
+			if(!isset($this->data[substr($name, 1)]) || !is_null($this->data[substr($name, 1)])) $this->data[substr($name, 1)] = $this->{$name};
+		}
+		else if($name === 'Need') call_user_func_array(array($this, 'SetNeedData'), $value);
+	}
+
+	/**
+	 * @param $name
+	 * @return array|BH_ModelData
+	 */
+	public function __get($name){
+		if($name === 'Need'){
+			$res = array();
+			foreach($this->data as $k => $v){
+				if($v->NeedIs) $res[] = $k;
+			}
+			return $res;
+		}
+		else if($name[0] === '_' && isset($this->data[substr($name, 1)])){
+			$this->{$name} = $this->data[substr($name, 1)];
+			return $this->{$name};
+		}
+	}
+
+	public function SetNeedData($str){
+		$args = func_get_args();
+		for($i = 0, $i2 = sizeof($args); $i < $i2; $i++){
+			if(isset($this->data[$args[$i]])) $this->data[$args[$i]]->NeedIs = true;
+		}
 	}
 
 	/**
@@ -680,9 +810,9 @@ class _ModelFunc{
 					if($v->BlankIsNull){
 						$v->Value = 'NULL';
 						$v->ValueIsQuery = true;
-						$model->Need[] = $k;
+						$v->NeedIs = true;
 					}
-					else if(isset($model->Need) && in_array($k, $model->Need)){
+					else if($v->NeedIs){
 						$ret->message = $v->ModelErrorMsg = $v->DisplayName.' 항목이 정의되지 않았습니다.';
 						$ret->result = false;
 						return $ret;
@@ -706,7 +836,7 @@ class _ModelFunc{
 								if(is_string($newpath)){
 									$values[]= $newpath;
 									$v->__moveFile[]= array('source' => $path, 'dest' => $newpath);
-									$model->Need[] = $k;
+									$v->NeedIs = true;
 								}
 								else if($newpath->result === -1){
 									$ret->message = $v->ModelErrorMsg = $v->DisplayName . '항목에 ' . $newpath->message;
@@ -727,7 +857,7 @@ class _ModelFunc{
 							$values = array_merge($values, $valuePath);
 						}
 						$v->Value = implode(';', $values);
-						$model->Need[] = $k;
+						$v->NeedIs = true;
 					}
 
 					else if(self::IsFileType($v->HtmlType)){
@@ -742,7 +872,7 @@ class _ModelFunc{
 								if(strlen($v->Value)) $v->__deleteFile[]= $v->Value;
 
 								$v->Value = $newpath;
-								$model->Need[] = $k;
+								$v->NeedIs = true;
 							}
 							else{
 								if($newpath->result === -1){
@@ -756,7 +886,7 @@ class _ModelFunc{
 						if(!$fileUpIs && strlen($v->Value) && Post('del_file_' . $k) == 'y'){
 							$v->__deleteFile[]= $v->Value;
 							$v->Value = '';
-							$model->Need[] = $k;
+							$v->NeedIs = true;
 						}
 					}
 
@@ -769,7 +899,7 @@ class _ModelFunc{
 							if($v->HtmlType === HTMLType::NumberFormat) $v->Value = preg_replace('/[^0-9]/', '', $post[$k]);
 							else $v->Value = $post[$k];
 						}
-						$model->Need[] = $k;
+						$v->NeedIs = true;
 					}
 				}
 			}
@@ -829,7 +959,7 @@ class _ModelFunc{
 
 		if(isset($v)){
 			$model->data[$key]->Value = trim($v);
-			$model->Need[] = $key;
+			$model->data[$key]->NeedIs = true;
 		}
 		return true;
 	}
@@ -874,7 +1004,7 @@ class _ModelFunc{
 
 		$model->data[$key]->Value = $v;
 		$model->data[$key]->ValueIsQuery = true;
-		$model->Need[] = $key;
+		$model->data[$key]->NeedIs = true;
 		return true;
 	}
 
@@ -1137,20 +1267,25 @@ class _ModelFunc{
 		return '';
 	}
 
+	private static function HasNeed(&$model){
+		foreach($model->data as $v) if($v->NeedIs) return true;
+		return false;
+	}
+
 	public static function DBInsert(&$model, $test = false){
 		$dbInsert = new \BH_DB_Insert($model->table);
 		$dbInsert->SetConnName($model->GetConnName());
 		$result = new \BH_InsertResult();
 
 		foreach($model->data as $k=>$v){
-			if(!isset($v->Value) && in_array($k, $model->Need)){
+			if(!isset($v->Value) && $v->NeedIs){
 				$result->result = false;
 				$result->message = 'ERROR#101';
 				return $result;
 			}
 
 			// 예외 패스, 셋이 없거나 셋에 있는것
-			if((!in_array($k, $model->Except) && (!sizeof($model->Need) || in_array($k, $model->Need)))){
+			if((!in_array($k, $model->Except) && (!self::HasNeed($model) || $v->NeedIs))){
 				if(isset($v->Value)){
 					if(in_array($k, $model->Key) && $v->AutoDecrement === true) continue;
 
@@ -1206,14 +1341,14 @@ class _ModelFunc{
 		$dbUpdate = new \BH_DB_Update($model->table);
 		$dbUpdate->SetConnName($model->GetConnName());
 		foreach($model->data as $k=>$v){
-			if(!isset($v->Value) && in_array($k, $model->Need)){
+			if(!isset($v->Value) && $v->NeedIs){
 				$result->result = false;
 				$result->message = 'ERROR';
 				return $result;
 			}
 
 			// 예외와 키값 패스, 셋이 없거나 셋에 있는것
-			if(!in_array($k, $model->Except) && (!sizeof($model->Need) || in_array($k, $model->Need)) && !in_array($k, $model->Key)){
+			if(!in_array($k, $model->Except) && (!self::HasNeed($model) || $v->NeedIs) && !in_array($k, $model->Key)){
 				if(isset($v->Value)){
 					if(in_array($k, $model->Key) && $v->AutoDecrement === true) continue;
 
@@ -1407,7 +1542,7 @@ class _ModelFunc{
 				$temp = explode('*', $model->data[$key]->Value);
 				$model->data[$key]->__deleteFile[]= $temp[0];
 				$model->data[$key]->Value = '';
-				$model->Need[] = $key;
+				$model->data[$key]->NeedIs = true;
 			}
 
 			if(sizeof($value)){

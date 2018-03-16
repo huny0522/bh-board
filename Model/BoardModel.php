@@ -9,6 +9,40 @@
 use \BH_Common as CM;
 use \BH_Application as App;
 
+/**
+ * Class BoardModel
+ *
+ * @property BH_ModelData[] $data
+ * @property BH_ModelData $_seq
+ * @property BH_ModelData $_sort1
+ * @property BH_ModelData $_sort2
+ * @property BH_ModelData $_depth
+ * @property BH_ModelData $_muid
+ * @property BH_ModelData $_mlevel
+ * @property BH_ModelData $_target_mname
+ * @property BH_ModelData $_target_muid
+ * @property BH_ModelData $_first_seq
+ * @property BH_ModelData $_first_member_is
+ * @property BH_ModelData $_reg_date
+ * @property BH_ModelData $_hit
+ * @property BH_ModelData $_recommend
+ * @property BH_ModelData $_reply_cnt
+ * @property BH_ModelData $_delis
+ * @property BH_ModelData $_htmlis
+ * @property BH_ModelData $_manager
+ * @property BH_ModelData $_notice
+ * @property BH_ModelData $_category
+ * @property BH_ModelData $_secret
+ * @property BH_ModelData $_mname
+ * @property BH_ModelData $_pwd
+ * @property BH_ModelData $_subject
+ * @property BH_ModelData $_content
+ * @property BH_ModelData $_thumnail
+ * @property BH_ModelData $_file1
+ * @property BH_ModelData $_file2
+ * @property BH_ModelData $_filenm1
+ * @property BH_ModelData $_filenm2
+ */
 class BoardModel extends \BH_Model{
 	public $imageTable = '';
 	public $bid = '';

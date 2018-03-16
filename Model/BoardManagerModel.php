@@ -9,10 +9,33 @@
 use \BH_Common as CM;
 use \BH_Application as App;
 
+/**
+ * Class BoardManagerModel
+ *
+ * @property BH_ModelData[] $data
+ * @property BH_ModelData $_subject
+ * @property BH_ModelData $_bid
+ * @property BH_ModelData $_manager
+ * @property BH_ModelData $_skin
+ * @property BH_ModelData $_reply_skin
+ * @property BH_ModelData $_category
+ * @property BH_ModelData $_article_count
+ * @property BH_ModelData $_reply_count
+ * @property BH_ModelData $_auth_list_level
+ * @property BH_ModelData $_auth_write_level
+ * @property BH_ModelData $_auth_view_level
+ * @property BH_ModelData $_auth_reply_level
+ * @property BH_ModelData $_auth_answer_level
+ * @property BH_ModelData $_use_reply
+ * @property BH_ModelData $_list_in_view
+ * @property BH_ModelData $_man_to_man
+ * @property BH_ModelData $_use_secret
+ * @property BH_ModelData $_layout
+ * @property BH_ModelData $_new_view_day
+ * @property BH_ModelData $_attach_type
+ * @property BH_ModelData $_reg_date
+ */
 class BoardManagerModel extends \BH_Model{
-
-	/* @var  \BH_ModelData[] */
-	public $data;
 
 	public function __Init(){
 		$this->Key[] = 'bid';

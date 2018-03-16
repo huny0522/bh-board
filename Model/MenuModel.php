@@ -7,6 +7,19 @@
 use \BH_Common as CM;
 use \BH_Application as App;
 
+/**
+ * Class MenuModel
+ *
+ * @property BH_ModelData[] $data
+ * @property BH_ModelData $_category
+ * @property BH_ModelData $_title
+ * @property BH_ModelData $_sort
+ * @property BH_ModelData $_type
+ * @property BH_ModelData $_bid
+ * @property BH_ModelData $_controller
+ * @property BH_ModelData $_enabled
+ * @property BH_ModelData $_parent_enabled
+ */
 class MenuModel extends \BH_Model{
 
 	public $CategoryLength = _CATEGORY_LENGTH;

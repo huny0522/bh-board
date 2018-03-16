@@ -9,6 +9,30 @@
 use \BH_Common as CM;
 use \BH_Application as App;
 
+/**
+ * Class ReplyModel
+ *
+ * @property BH_ModelData[] $data
+ * @property BH_ModelData $_seq
+ * @property BH_ModelData $_sort1
+ * @property BH_ModelData $_sort2
+ * @property BH_ModelData $_article_seq
+ * @property BH_ModelData $_article_sort
+ * @property BH_ModelData $_depth
+ * @property BH_ModelData $_mlevel
+ * @property BH_ModelData $_muid
+ * @property BH_ModelData $_first_seq
+ * @property BH_ModelData $_first_member_is
+ * @property BH_ModelData $_target_muid
+ * @property BH_ModelData $_target_mname
+ * @property BH_ModelData $_reg_date
+ * @property BH_ModelData $_file
+ * @property BH_ModelData $_delis
+ * @property BH_ModelData $_secret
+ * @property BH_ModelData $_mname
+ * @property BH_ModelData $_pwd
+ * @property BH_ModelData $_comment
+ */
 class ReplyModel extends \BH_Model{
 	public $bid = '';
 	public $boardTable = '';
