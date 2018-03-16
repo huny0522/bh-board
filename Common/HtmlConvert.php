@@ -53,7 +53,9 @@ function ReplaceHTMLFile($source, $target){
 		'/<\?\s*mv\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*mvn\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*mvr\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+
 		'/<\?\s*mvb\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+
 		'/<\?\s*minp\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*menum\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 
@@ -63,7 +65,9 @@ function ReplaceHTMLFile($source, $target){
 		'/<\?\s*mv\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*mvn\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*mvr\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+
 		'/<\?\s*mvb\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+
 		'/<\?\s*minp\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 		'/<\?\s*menum\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
 
@@ -103,10 +107,11 @@ function ReplaceHTMLFile($source, $target){
 
 		// mv()
 		'<?php echo $Model->data[$1]->DisplayName; ?>',
-		'<?php echo $Model->data[$1]->v(); ?>',
+		'<?php echo $Model->data[$1]->txt(); ?>',
 		'<?php echo $Model->data[$1]->vs(); ?>',
 		'<?php echo $Model->data[$1]->num(); ?>',
 		'<?php echo $Model->data[$1]->vRaw(); ?>',
+
 		'<?php echo $Model->data[$1]->vBr(); ?>',
 
 		'<?php echo $Model->HTMLPrintInput($1); ?>',
@@ -114,9 +119,11 @@ function ReplaceHTMLFile($source, $target){
 
 		// mv.modelName()
 		'<?php echo $Ctrl->$1->data[$2]->DisplayName; ?>',
+		'<?php echo $Ctrl->$1->data[$2]->txt(); ?>',
 		'<?php echo $Ctrl->$1->data[$2]->vs(); ?>',
 		'<?php echo $Ctrl->$1->data[$2]->num(); ?>',
 		'<?php echo $Ctrl->$1->data[$2]->vRaw(); ?>',
+
 		'<?php echo $Ctrl->$1->data[$2]->vBr(); ?>',
 		'<?php echo $Ctrl->$1->HTMLPrintInput($2); ?>',
 		'<?php echo $Ctrl->$1->HTMLPrintEnum($2); ?>',

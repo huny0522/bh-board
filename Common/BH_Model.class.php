@@ -57,14 +57,33 @@ class BH_ModelData{
 	public $ValueIsQuery = false;
 	public $BlankIsNull = false;
 	public $possibleExt;
+	public $KeyName = null;
 
 	public $NeedIs = false;
+	public $IdFirst = 'MD_';
+
+	/**
+	 * @var BH_Model
+	 */
+	public $parent = null;
 
 	public function __construct($Type = ModelType::String, $Required = false, $DisplayName = '', $HtmlType = HTMLType::InputText){
 		$this->Type = $Type;
 		$this->Required = $Required;
 		$this->DisplayName = $DisplayName;
 		if($HtmlType) $this->HtmlType = $HtmlType;
+
+		$d_b = phpversion() < 5.6 ? debug_backtrace() : debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3);
+		if(get_parent_class($d_b[1]['object']) === 'BH_Model') $this->parent = &$d_b[1]['object'];
+		else if(get_parent_class($d_b[2]['object']) === 'BH_Model') $this->parent = &$d_b[2]['object'];
+	}
+
+	public function __debugInfo() {
+		$res = array();
+		foreach($this as $k => $v){
+			if($k != 'parent') $res[$k] = $v;
+		}
+		return $res;
 	}
 
 	/**
@@ -145,7 +164,7 @@ class BH_ModelData{
 	public function vBr(){
 		if(!isset($this->Value)) return '';
 		if($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value])) return $this->EnumValues[$this->Value];
-		return nl2br(GetDBRaw($this->Value));
+		return nl2br(GetDBText($this->Value));
 	}
 
 	/**
@@ -189,7 +208,7 @@ class BH_ModelData{
 	public function GetSafeBRValue(){
 		if(!isset($this->Value)) return '';
 		if($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value])) return $this->EnumValues[$this->Value];
-		return nl2br(GetDBRaw($this->Value));
+		return nl2br(GetDBText($this->Value));
 	}
 
 	/**
@@ -282,6 +301,31 @@ class BH_ModelData{
 		$this->BlankIsNull = $bool;
 		return $this;
 	}
+
+	private function GetKeyName(){
+		if(is_null($this->KeyName) && !is_null($this->parent)){
+			foreach($this->parent->data as $k => $d){
+				if($this === $d){
+					$this->KeyName = $k;
+					return $this->KeyName;
+				}
+			}
+		}
+		return $this->KeyName;
+	}
+
+	public function &SetIdFirst($str){
+		$this->IdFirst = $str;
+		return $this;
+	}
+
+	public function HtmlPrintLabel($HtmlAttribute = array(), $callback = null){
+		return _ModelFunc::HTMLPrintLabel($this, $this->GetKeyName(), $HtmlAttribute, $callback, $this->IdFirst);
+	}
+
+	public function HTMLPrintInput($HtmlAttribute = array()){
+		return _ModelFunc::HTMLPrintInput($this->GetKeyName(), $this, $HtmlAttribute, $this->IdFirst);
+	}
 }
 
 /**
@@ -310,10 +354,16 @@ class BH_Model{
 		foreach($this->data as $k => $v) if(!isset($this->{'_'.$k})) $this->{'_'.$k} = $v;
 	}
 
+	public function DataUnset(){
+		foreach($this->data as $k => $v){
+			unset($this->data[$k]);
+		}
+	}
+
 	public function __set($name, $value){
 		if(is_object($value) && get_class($value) === 'BH_ModelData' && $name[0] === '_'){
 			$this->{$name} = $value;
-			if(!isset($this->data[substr($name, 1)]) || !is_null($this->data[substr($name, 1)])) $this->data[substr($name, 1)] = $this->{$name};
+			if(!isset($this->data[substr($name, 1)]) || is_null($this->data[substr($name, 1)])) $this->data[substr($name, 1)] = $this->{$name};
 		}
 		else if($name === 'Need') call_user_func_array(array($this, 'SetNeedData'), $value);
 	}
@@ -582,15 +632,21 @@ class BH_Model{
 	}
 
 	public function GetSafeValue($key, $enumVal = true){
-		return GetDBText($this->GetValue($key, $enumVal));
+		if(!isset($this->data[$key]->Value)) return '';
+		if($enumVal && $this->data[$key]->Type == ModelType::Enum && isset($this->data[$key]->EnumValues[$this->data[$key]->Value])) return $this->data[$key]->EnumValues[$this->data[$key]->data[$key]->Value];
+		return GetDBText($this->data[$key]->Value);
 	}
 
 	public function GetSafeRawValue($key, $enumVal = true){
-		return GetDBRaw($this->GetValue($key, $enumVal));
+		if(!isset($this->data[$key]->Value)) return '';
+		if($enumVal && $this->data[$key]->Type == ModelType::Enum && isset($this->data[$key]->EnumValues[$this->data[$key]->Value])) return $this->data[$key]->EnumValues[$this->data[$key]->data[$key]->Value];
+		return GetDBRaw($this->data[$key]->Value);
 	}
 
 	public function GetSafeBRValue($key, $enumVal = true){
-		return nl2br(GetDBText($this->GetValue($key, $enumVal)));
+		if(!isset($this->data[$key]->Value)) return '';
+		if($enumVal && $this->data[$key]->Type == ModelType::Enum && isset($this->data[$key]->EnumValues[$this->data[$key]->Value])) return $this->data[$key]->EnumValues[$this->data[$key]->data[$key]->Value];
+		return nl2br(GetDBText($this->data[$key]->Value));
 	}
 
 	public function GetFileName($key, $n = 0){
@@ -616,7 +672,10 @@ class BH_Model{
 	 * @return bool
 	 */
 	public function SetValue($key, $v){
-		return _ModelFunc::SetValue($this, $key, $v);
+		if(!isset($this->data[$key])) return $key.' 키값이 정의되어 있지 않습니다.';
+
+		$this->data[$key]->Value = trim($v);
+		$this->data[$key]->NeedIs = true;
 	}
 
 	/**
@@ -633,15 +692,21 @@ class BH_Model{
 	 * @return bool
 	 */
 	public function SetQueryValue($key, $v){
-		return _ModelFunc::SetQueryValue($this, $key, $v);
+		if(!isset($this->data[$key])) URLReplace('-1', 'No Key : ' . $key);
+
+		$this->data[$key]->Value = $v;
+		$this->data[$key]->ValueIsQuery = true;
+		$this->data[$key]->NeedIs = true;
+		return true;
 	}
 
 	/**
 	 * 제외 키 등록
-	 * @param array $ar
+	 * @param array:string $ar
 	 */
 	public function AddExcept($ar){
-		_ModelFunc::AddExcept($this, $ar);
+		if(!is_array($ar)) $ar = func_get_args();
+		$this->Except = array_merge($this->Except, $ar);
 	}
 
 	/**
@@ -706,12 +771,13 @@ class BH_Model{
 	 * BH_ModelData <label>출력
 	 * @param string $Name
 	 * @param bool $HtmlAttribute
+	 * @param null|callable $callback
 	 * @param string $firstIDName
 	 *
 	 * @return string
 	 */
-	public function HTMLPrintLabel($Name, $HtmlAttribute = false, $firstIDName = 'MD_'){
-		return _ModelFunc::HTMLPrintLabel($this, $Name, $HtmlAttribute, $firstIDName);
+	public function HTMLPrintLabel($Name, $HtmlAttribute = false, $callback = null, $firstIDName = 'MD_'){
+		return _ModelFunc::HTMLPrintLabel($this->data[$Name], $Name, $HtmlAttribute, $callback, $firstIDName);
 	}
 
 	/**
@@ -812,7 +878,7 @@ class _ModelFunc{
 						$v->ValueIsQuery = true;
 						$v->NeedIs = true;
 					}
-					else if($v->NeedIs){
+					else if($v->NeedIs && (!isset($v->Value) || !strlen($v->Value))){
 						$ret->message = $v->ModelErrorMsg = $v->DisplayName.' 항목이 정의되지 않았습니다.';
 						$ret->result = false;
 						return $ret;
@@ -954,16 +1020,6 @@ class _ModelFunc{
 		}
 	}
 
-	public static function SetValue(&$model, $key, $v){
-		if(!isset($model->data[$key])) return $key.' 키값이 정의되어 있지 않습니다.';
-
-		if(isset($v)){
-			$model->data[$key]->Value = trim($v);
-			$model->data[$key]->NeedIs = true;
-		}
-		return true;
-	}
-
 	public static function GetFilePath($data, $n, $n2){
 		if(isset($data->Value)){
 			if(self::IsFileType($data->HtmlType)){
@@ -995,25 +1051,6 @@ class _ModelFunc{
 			}
 		}
 		else return NULL;
-	}
-
-	public static function SetQueryValue(&$model, $key, $v){
-		if(!isset($model->data[$key])) URLReplace('-1', 'No Key : ' . $key);
-
-		if(!isset($v)) return true;
-
-		$model->data[$key]->Value = $v;
-		$model->data[$key]->ValueIsQuery = true;
-		$model->data[$key]->NeedIs = true;
-		return true;
-	}
-
-	public static function AddExcept(&$model, $ar){
-		if(is_string($ar)){
-			$model->Except[] = $ar;
-			return;
-		}
-		foreach($ar as $v) $model->Except[] = $v;
 	}
 
 	public static function ValueCheck(&$model, $key){
@@ -1127,13 +1164,19 @@ class _ModelFunc{
 		return true;
 	}
 
-	public static function HTMLPrintLabel(&$model, $Name, $HtmlAttribute, $firstIDName){
+	public static function HTMLPrintLabel(&$data, $Name, $HtmlAttribute, $callback, $firstIDName){
 		$Attribute = '';
-		if($HtmlAttribute === false) $HtmlAttribute = array();
-		foreach($HtmlAttribute as $k => $row){
-			$Attribute .= ' '.$k.'="'.$row.'"';
+		if(is_array($HtmlAttribute)){
+			foreach($HtmlAttribute as $k => $row){
+				$Attribute .= ' '.$k.'="'.$row.'"';
+			}
 		}
-		return '<label for="'.$firstIDName.$Name.'" '.$Attribute.'>'.$model->data[$Name]->DisplayName.'</label>';
+		else if(is_string($HtmlAttribute)) $Attribute = $HtmlAttribute;
+
+		if(is_callable($callback)){
+			return '<label for="'.$firstIDName.$Name.'" '.$Attribute.'>'.$callback($data->DisplayName).'</label>';
+		}
+		return '<label for="'.$firstIDName.$Name.'" '.$Attribute.'>'.$data->DisplayName.'</label>';
 	}
 
 	public static function HTMLPrintInput($Name, &$data, $HtmlAttribute = false, $firstIDName){
@@ -1556,7 +1599,7 @@ class _ModelFunc{
 						$model->data[$key]->__deleteFile[]= $temp[0];
 					}
 
-					self::SetValue($model, $key, $newpath . (($model->data[$key]->HtmlType === HTMLType::InputFileWithName) ? '*' . $value[0]['original'] : ''));
+					$model->SetValue($key, $newpath . (($model->data[$key]->HtmlType === HTMLType::InputFileWithName) ? '*' . $value[0]['original'] : ''));
 				}
 				else{
 					if($newpath->result === -1){
@@ -1591,7 +1634,7 @@ class _ModelFunc{
 						}
 					}
 				}
-				self::SetValue($model, $key, implode(';', $valuePath));
+				$model->SetValue($key, implode(';', $valuePath));
 			}
 		}
 

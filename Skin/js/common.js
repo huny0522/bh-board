@@ -709,12 +709,14 @@ var EventLink = {
 				arg2 = arg1;
 				arg1 = this;
 			}
+			$(arg1).on('dragstart', function(e){
+				return false;
+			});
 
 			if(this === arg1){
 				$(this).on('e_drag', arg2);
 				$(this).on('e_drag_end', arg3);
 				$(this).on('touchstart mousedown', function(e){
-					e.preventDefault();
 					JCM.addClass(this, 'bh-event-drag');
 					EventLink.touchStart.call(this, e);
 				});
@@ -723,7 +725,6 @@ var EventLink = {
 				$(this).on('e_drag', arg1, arg2);
 				$(this).on('e_drag_end', arg1, arg3);
 				$(this).on('touchstart mousedown', arg1, function(e){
-					e.preventDefault();
 					JCM.addClass(this, 'bh-event-drag');
 					EventLink.touchStart.call(this, e);
 				});
@@ -757,7 +758,7 @@ var EventLink = {
 				$(node).trigger('e_touch_visible');
 			}
 
-			if(EventLink.dragObj !== null){
+			if(!clickIs && EventLink.dragObj !== null){
 				e.preventDefault();
 				e.stopImmediatePropagation();
 				$(EventLink.dragObj).trigger('e_drag_end', [EventLink.startPos, EventLink.endPos]);
