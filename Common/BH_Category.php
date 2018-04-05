@@ -3,17 +3,21 @@
  * Bang Hun.
  * 16.07.10
  */
+
+namespace Common;
+
 use \BH_Common as CM;
 use \BH_Application as App;
+
 class BH_Category{
 	const ROOT_CATEGORY_CODE = '_ROOT';
 
-	/* @var MenuModel */
+	/* @var \MenuModel */
 	public $model;
 	public $Name;
 
 	public function __Init(){
-		$this->model = App::InitModel('Menu');
+		$this->model = new \MenuModel();
 	}
 
 	public function Index(){
@@ -36,7 +40,7 @@ class BH_Category{
 		if(!$res->result) JSON(false, $res->message);
 		else{
 			$res = $this->model->DBUpdate();
-			$dt = $this->model->GetParent($this->model->GetValue('category'));
+			$dt = $this->model->GetParent($this->model->_category->txt());
 			$this->model->SetChildEnabled($_POST['category'], $_POST['enabled'] == 'y' && (!$dt || ($dt['enabled'] == 'y' && $dt['parent_enabled'] == 'y')) ? 'y' : 'n');
 			JSON($res->result, $res->message);
 		}
@@ -68,14 +72,14 @@ class BH_Category{
 					$newCategory = str_pad($newCategory, $this->model->CategoryLength, '0', STR_PAD_LEFT);
 				}
 			}
-			$this->model->SetValue('category', $_POST['parent'].$newCategory);
+			$this->model->_category->SetValue($_POST['parent'].$newCategory);
 
 			$dbGet = new \BH_DB_Get($this->model->table);
 			$dbGet->AddWhere('category = %s', $_POST['parent']);
 			$dbGet->AddKey('parent_enabled');
 			$dbGet->AddKey('enabled');
 			$parent = $dbGet->Get();
-			$this->model->SetValue('parent_enabled', $parent['parent_enabled'] == 'n' || $parent['enabled'] == 'n' ? 'n' : 'y');
+			$this->model->_parent_enabled->SetValue($parent['parent_enabled'] == 'n' || $parent['enabled'] == 'n' ? 'n' : 'y');
 
 			$res = $this->model->DBInsert();
 
@@ -109,20 +113,20 @@ class BH_Category{
 			$parentWhere .= StrToSql(' AND LENGTH(category) = %d', strlen($_POST['parent']) + $this->model->CategoryLength);
 
 			$res = false;
-			if($sort < $this->model->GetValue('sort')){
+			if($sort < $this->model->_sort->txt()){
 				$qry = new \BH_DB_Update($this->model->table);
 				$qry->SetData('sort', 'sort + 1');
 				$qry->AddWhere('sort >= %d', $sort);
-				$qry->AddWhere('sort < %d', $this->model->GetValue('sort'));
+				$qry->AddWhere('sort < %d', $this->model->_sort->txt());
 				$qry->AddWhere($parentWhere);
 				$result = $qry->Run();
 				$res = $result->result;
 			}
-			else if($sort > $this->model->GetValue('sort')){
+			else if($sort > $this->model->_sort->txt()){
 				$qry = new \BH_DB_Update($this->model->table);
 				$qry->SetData('sort', 'sort - 1');
 				$qry->AddWhere('sort <= %d', $sort);
-				$qry->AddWhere('sort > %d', $this->model->GetValue('sort'));
+				$qry->AddWhere('sort > %d', $this->model->_sort->txt());
 				$qry->AddWhere($parentWhere);
 				$result = $qry->Run();
 				$res = $result->result;
@@ -173,12 +177,12 @@ class BH_Category{
 		$res = $this->model->DBGet($_POST['category']);
 		if(!$res->result) JSON(false, 'ERROR#101');
 		else{
-			$enabled = $this->model->GetValue('enabled') == 'y' ? 'n' : 'y';
-			$this->model->SetValue('enabled', $enabled);
+			$enabled = $this->model->_enabled->txt() == 'y' ? 'n' : 'y';
+			$this->model->_enabled->SetValue($enabled);
 			$res = $this->model->DBUpdate();
-			if(strlen($this->model->GetValue('category')) == $this->model->CategoryLength) $dt = null;
-			else $dt = $this->model->GetParent($this->model->GetValue('category'));
-			$this->model->SetChildEnabled($this->model->GetValue('category'), $enabled == 'y' && (!$dt || ($dt['enabled'] == 'y' && $dt['parent_enabled'] == 'y')) ? 'y' : 'n');
+			if(strlen($this->model->_category->txt()) == $this->model->CategoryLength) $dt = null;
+			else $dt = $this->model->GetParent($this->model->_category->txt());
+			$this->model->SetChildEnabled($this->model->_category->txt(), $enabled == 'y' && (!$dt || ($dt['enabled'] == 'y' && $dt['parent_enabled'] == 'y')) ? 'y' : 'n');
 
 			if(!$res->result) JSON(false, 'ERROR#102');
 			else JSON(true, '', array('enabled' => $enabled));

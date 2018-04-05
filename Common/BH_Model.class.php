@@ -103,7 +103,7 @@ class BH_ModelData{
 	 */
 	public function v(){
 		if(!isset($this->Value)) return '';
-		if($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value])) return $this->EnumValues[$this->Value];
+		if($this->Type == ModelType::Enum) return $this->GetEnumValues();
 		return $this->Value;
 	}
 
@@ -112,9 +112,9 @@ class BH_ModelData{
 	 *
 	 * @return string
 	 */
-	public function vs(){
+	public function sv(){
 		if(!isset($this->Value)) return '';
-		if($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value])) return $this->EnumValues[$this->Value];
+		if($this->Type == ModelType::Enum) return GetDBText($this->GetEnumValues());
 		return GetDBText($this->Value);
 	}
 
@@ -141,7 +141,7 @@ class BH_ModelData{
 	 *
 	 * @return string|null
 	 */
-	public function vTxt(){
+	public function sTxt(){
 		return isset($this->Value) ? GetDBText($this->Value) : NULL;
 	}
 
@@ -152,7 +152,7 @@ class BH_ModelData{
 	 */
 	public function vRaw(){
 		if(!isset($this->Value)) return '';
-		if($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value])) return $this->EnumValues[$this->Value];
+		if($this->Type == ModelType::Enum) return GetDBRaw($this->GetEnumValues());
 		return GetDBRaw($this->Value);
 	}
 
@@ -163,8 +163,22 @@ class BH_ModelData{
 	 */
 	public function vBr(){
 		if(!isset($this->Value)) return '';
-		if($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value])) return $this->EnumValues[$this->Value];
+		if($this->Type == ModelType::Enum) return nl2br(GetDBText($this->GetEnumValues()));
 		return nl2br(GetDBText($this->Value));
+	}
+
+	public function GetEnumValues($val = false){
+		if($val === false) $val = $this->Value;
+		if($this->HtmlType === HTMLType::InputCheckbox){
+			$e = explode(',', $val);
+			$t = array();
+			foreach($e as $v){
+				if(isset($this->EnumValues[$v])) $t[] = $this->EnumValues[$v];
+			}
+			return implode(', ', $t);
+		}
+		else if(isset($this->EnumValues[$val])) return $this->EnumValues[$val];
+		else return '';
 	}
 
 	/**
@@ -174,7 +188,7 @@ class BH_ModelData{
 	 */
 	public function GetValue(){
 		if(!isset($this->Value)) return '';
-		if($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value])) return $this->EnumValues[$this->Value];
+		if($this->Type == ModelType::Enum) return $this->GetEnumValues();
 		return $this->Value;
 	}
 
@@ -185,7 +199,7 @@ class BH_ModelData{
 	 */
 	public function GetSafeValue(){
 		if(!isset($this->Value)) return '';
-		if($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value])) return $this->EnumValues[$this->Value];
+		if($this->Type == ModelType::Enum) return GetDBText($this->GetEnumValues());
 		return GetDBText($this->Value);
 	}
 
@@ -196,7 +210,7 @@ class BH_ModelData{
 	 */
 	public function GetSafeRawValue(){
 		if(!isset($this->Value)) return '';
-		if($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value])) return $this->EnumValues[$this->Value];
+		if($this->Type == ModelType::Enum) return GetDBRaw($this->GetEnumValues());
 		return GetDBRaw($this->Value);
 	}
 
@@ -207,7 +221,7 @@ class BH_ModelData{
 	 */
 	public function GetSafeBRValue(){
 		if(!isset($this->Value)) return '';
-		if($this->Type == ModelType::Enum && isset($this->EnumValues[$this->Value])) return $this->EnumValues[$this->Value];
+		if($this->Type == ModelType::Enum) return nl2br(GetDBText($this->GetEnumValues()));
 		return nl2br(GetDBText($this->Value));
 	}
 
@@ -628,24 +642,24 @@ class BH_Model{
 	 * @return null|string
 	 */
 	public function GetValue($key, $enumVal = false){
-		return isset($this->data[$key]->Value) ? (($enumVal && $this->data[$key]->Type == ModelType::Enum && isset($this->data[$key]->EnumValues[$this->data[$key]->Value])) ? $this->data[$key]->EnumValues[$this->data[$key]->Value] : $this->data[$key]->Value) : NULL;
+		return isset($this->data[$key]->Value) ? ($enumVal && $this->data[$key]->Type == ModelType::Enum ? $this->data[$key]->GetEnumValues() : $this->data[$key]->Value) : NULL;
 	}
 
 	public function GetSafeValue($key, $enumVal = true){
 		if(!isset($this->data[$key]->Value)) return '';
-		if($enumVal && $this->data[$key]->Type == ModelType::Enum && isset($this->data[$key]->EnumValues[$this->data[$key]->Value])) return $this->data[$key]->EnumValues[$this->data[$key]->data[$key]->Value];
+		if($enumVal && $this->data[$key]->Type == ModelType::Enum) return GetDBText($this->data[$key]->GetEnumValues());
 		return GetDBText($this->data[$key]->Value);
 	}
 
 	public function GetSafeRawValue($key, $enumVal = true){
 		if(!isset($this->data[$key]->Value)) return '';
-		if($enumVal && $this->data[$key]->Type == ModelType::Enum && isset($this->data[$key]->EnumValues[$this->data[$key]->Value])) return $this->data[$key]->EnumValues[$this->data[$key]->data[$key]->Value];
+		if($enumVal && $this->data[$key]->Type == ModelType::Enum) return GetDBRaw($this->data[$key]->GetEnumValues());
 		return GetDBRaw($this->data[$key]->Value);
 	}
 
 	public function GetSafeBRValue($key, $enumVal = true){
 		if(!isset($this->data[$key]->Value)) return '';
-		if($enumVal && $this->data[$key]->Type == ModelType::Enum && isset($this->data[$key]->EnumValues[$this->data[$key]->Value])) return $this->data[$key]->EnumValues[$this->data[$key]->data[$key]->Value];
+		if($enumVal && $this->data[$key]->Type == ModelType::Enum) return nl2br(GetDBText($this->data[$key]->GetEnumValues()));
 		return nl2br(GetDBText($this->data[$key]->Value));
 	}
 
@@ -763,8 +777,8 @@ class BH_Model{
 	 * @return string
 	 */
 	public function HTMLPrintEnum($Name, $Value = false){
-		if($Value === false) $Value = $this->GetValue($Name);
-		return isset($this->data[$Name]->EnumValues[$Value]) ? $this->data[$Name]->EnumValues[$Value] : null;
+		if(!isset($this->data[$Name])) return null;
+		return $this->data[$Name]->GetEnumValues($Value);
 	}
 
 	/**
@@ -957,7 +971,16 @@ class _ModelFunc{
 					}
 
 					else if((isset($v->HtmlType) || $v->Required) && !self::IsFileType($v->HtmlType)){
-						if(!strlen($post[$k]) && $v->BlankIsNull){
+						if(is_array($post[$k])){
+							if($v->HtmlType === HTMLType::InputCheckbox){
+								$v->Value = implode(',', $post[$k]);
+							}
+							else{
+								$ret->message = $v->ModelErrorMsg = $v->DisplayName . '항목에 배열데이터를 사입할 수 없습니다.';
+								$ret->result = false;
+							}
+						}
+						else if(!strlen($post[$k]) && $v->BlankIsNull){
 							$v->Value = 'NULL';
 							$v->ValueIsQuery = true;
 						}
@@ -1282,13 +1305,14 @@ class _ModelFunc{
 			break;
 			case HTMLType::InputRadio:
 			case HTMLType::InputCheckbox:
+				$nm = $htmlType === HTMLType::InputCheckbox ? $Name . '[]' : $Name;
 				$ret = '';
 				if(isset($data->EnumValues) && is_array($data->EnumValues)){
 					$i = 1;
 					foreach($data->EnumValues as $k=>$v){
 						$checked = isset($val) && $k == $val ? ' checked="checked"' : '';
 
-						$ret .= '<label for="'.$firstIDName.$Name.'_'.$i.'" class="'.$htmlType.'"><input type="'.$htmlType.'" name="'.$Name.'" id="'.$firstIDName.$Name.'_'.$i.'" value="'.$k.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.$checked.'> <span>'.$v.'</span></label>';
+						$ret .= '<label for="'.$firstIDName.$Name.'_'.$i.'" class="'.$htmlType.'"><input type="'.$htmlType.'" name="'.$nm.'" id="'.$firstIDName.$Name.'_'.$i.'" value="'.$k.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.$checked.'> <span>'.$v.'</span></label>';
 						$i++;
 					}
 				}

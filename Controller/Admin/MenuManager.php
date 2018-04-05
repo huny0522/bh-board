@@ -8,13 +8,13 @@ namespace Controller\Admin;
 
 use \BH_Application as App;
 use \BH_Common as CM;
+use Common\BH_Category;
 use \DB as DB;
 
-require_once _COMMONDIR.'/BH_Category.class.php';
-class MenuManager extends \BH_Category{
+class MenuManager extends BH_Category{
 
 	/**
-	 * @var MenuModel
+	 * @var \MenuModel
 	 */
 	public $model;
 

@@ -108,7 +108,7 @@ function ReplaceHTMLFile($source, $target){
 		// mv()
 		'<?php echo $Model->data[$1]->DisplayName; ?>',
 		'<?php echo $Model->data[$1]->txt(); ?>',
-		'<?php echo $Model->data[$1]->vs(); ?>',
+		'<?php echo $Model->data[$1]->sv(); ?>',
 		'<?php echo $Model->data[$1]->num(); ?>',
 		'<?php echo $Model->data[$1]->vRaw(); ?>',
 
@@ -120,7 +120,7 @@ function ReplaceHTMLFile($source, $target){
 		// mv.modelName()
 		'<?php echo $Ctrl->$1->data[$2]->DisplayName; ?>',
 		'<?php echo $Ctrl->$1->data[$2]->txt(); ?>',
-		'<?php echo $Ctrl->$1->data[$2]->vs(); ?>',
+		'<?php echo $Ctrl->$1->data[$2]->sv(); ?>',
 		'<?php echo $Ctrl->$1->data[$2]->num(); ?>',
 		'<?php echo $Ctrl->$1->data[$2]->vRaw(); ?>',
 

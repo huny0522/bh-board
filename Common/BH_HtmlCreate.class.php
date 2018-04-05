@@ -73,7 +73,7 @@ class {$ControllerName}{
 	}
 
 	public function PostWrite(\$seq = null){
-		if(!is_null(\$seq)) \$this->_ModelSet(App::\$ID);
+		if(!is_null(\$seq)) \$this->_ModelSet(\$seq);
 		\$this->{$ModelValueName}->SetPostValues();
 		\$err = \$this->{$ModelValueName}->GetErrorMessage();
 		if(sizeof(\$err)){
@@ -96,7 +96,7 @@ class {$ControllerName}{
 	}
 
 	public function PostModify(){
-		\$this->PostWrite();
+		\$this->PostWrite(App::\$ID);
 	}
 
 	public function PostDelete(){
