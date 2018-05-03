@@ -394,7 +394,7 @@ class Board{
 			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
-		$seq = to10($_GET['target']);
+		$seq = to10(strlen(Post('target')) ? Post('target') : Get('target'));
 		if(!strlen($seq)) URLReplace('-1');
 
 		$qry = DB::GetQryObj($this->model->table)
@@ -459,8 +459,8 @@ class Board{
 		$seq = to10(App::$ID);
 
 		$this->model->Need = array('subject', 'content');
-		if($this->boardManger->GetValue('use_secret') === 'y') $this->model->Need[] = 'secret';
-		if(_MEMBERIS !== true) $this->model->Need[] = 'mnane';
+		if($this->boardManger->GetValue('use_secret') === 'y') $this->model->Need = 'secret';
+		if(_MEMBERIS !== true) $this->model->Need = 'mnane';
 		else $this->model->AddExcept('pwd');
 
 		$this->_GetBoardData($seq);
@@ -562,7 +562,7 @@ class Board{
 
 		if(!$this->AdminPathIs) $this->model->AddExcept('delis');
 		$this->model->Need = array('subject', 'content');
-		if($this->boardManger->GetValue('use_secret') === 'y') $this->model->Need[] = 'secret';
+		if($this->boardManger->GetValue('use_secret') === 'y') $this->model->Need = 'secret';
 		if(_MEMBERIS === true){
 			$member = CM::GetMember();
 			$this->model->AddExcept('pwd');
@@ -574,7 +574,7 @@ class Board{
 			$res->message ? $res->message : 'ERROR#101';
 			if(_JSONIS === true) JSON(false, $res->message);
 			App::$Data['error'] = $res->message;
-			$this->{App::$Action}();
+			$this->Write();
 			return;
 		}
 
@@ -602,7 +602,7 @@ class Board{
 			if(!$res->result){
 				if(_JSONIS === true) JSON(false, 'ERROR#201');
 				App::$Data['error'] = 'ERROR#201';
-				$this->{App::$Action}();
+				$this->Write();
 				return;
 			}
 			$this->model->SetValue('first_seq', $first_seq);
@@ -623,7 +623,7 @@ class Board{
 		if(sizeof($error)){
 			if(_JSONIS === true) JSON(false, $error[0]);
 			App::$Data['error'] = $error[0];
-			$this->{App::$Action}();
+			$this->Write();
 			return;
 		}
 
@@ -639,7 +639,7 @@ class Board{
 		}else{
 			if(_AJAXIS === true) JSON(false, $result->message ? $result->message : 'ERROR');
 			App::$Data['error'] = $result->message ? $result->message : 'ERROR';
-			$this->{App::$Action}();
+			$this->Write();
 			return;
 		}
 	}

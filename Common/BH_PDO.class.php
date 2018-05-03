@@ -97,6 +97,9 @@ class DB{
 	 */
 	public function Query($str, $dieIs = true){
 		$res = self::StrToPDO(is_array($str) ? $str : func_get_args());
+		$end = end($res);
+		if($end === true || $end === false) $dieIs = array_pop($res);
+		else $dieIs = true;
 
 		$qry = self::$conn[self::$connName]->prepare($res[0]);
 		foreach($res[1] as $k => $v){

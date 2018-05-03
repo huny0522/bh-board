@@ -297,8 +297,9 @@ function Download($path, $fname){
 	exit;
 }
 
-function ResizeImage($path, $width, $noext = _NO_IMG){
-	if(!file_exists(_UPLOAD_DIR . $path)) return $noext ? _URL . $noext : _UPLOAD_URL . $path;
+function ResizeImage($path, $width, $noext = ''){
+	if(!strlen($noext)) $noext = (isset(App::$SettingData['noImg']) && strlen(App::$SettingData['noImg'])) ? App::$SettingData['noImg'] : _NO_IMG;
+	if(!file_exists(_UPLOAD_DIR . $path) || is_dir(_UPLOAD_DIR . $path)) return $noext ? _URL . $noext : '';
 	$temp = explode('/', $path);
 	$temp[sizeof($temp) - 1] = $width . '_' . $temp[sizeof($temp) - 1];
 	$new = implode('/', $temp);

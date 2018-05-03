@@ -22,7 +22,12 @@ class BannerManager
 
 		$dbGetList = new \BH_DB_GetList($this->model->table);
 		$dbGetList->SetKey('DISTINCT category');
-		while($row = $dbGetList->Get()) App::$Data['category'][] = $row['category'];
+		App::$Data['category'] = array();
+		if(isset(App::$SettingData['bannerCategory'])) foreach(App::$SettingData['bannerCategory'] as $v){
+			App::$Data['category'][$v] = $v;
+		}
+
+		while($row = $dbGetList->Get()) App::$Data['category'][$row['category']] = $row['category'];
 	}
 
 	public function __init(){

@@ -254,7 +254,7 @@ class BH_Common
 		foreach($banner->data as $k => $row){
 			$html = '';
 			if($row['link_url']) $html .= '<a href="'.$row['link_url'].'"'.($row['new_window'] == 'y' ? ' target="_blank"' : '').'>';
-			$html .= '<img src="'._UPLOAD_URL.$row['img'].'" alt="'.GetDBText($row['subject']).'">';
+			$html .= ($row['type'] == 'i') ? '<img src="'._UPLOAD_URL.$row['img'].'" alt="'.GetDBText($row['subject']).'">' : $row['contents'];
 			if($row['link_url']) $html .= '</a>';
 			$banner->data[$k]['html'] = $html;
 		}

@@ -87,16 +87,6 @@ class BH_ModelData{
 	}
 
 	/**
-	 * @param int $Type
-	 * @param string $DisplayName
-	 * @param string $HtmlType
-	 * @return BH_ModelData
-	 */
-	public static function GetInstance($Type = ModelType::String, $DisplayName = '', $HtmlType = HTMLType::InputText){
-		return new self($Type, false, $DisplayName, $HtmlType);
-	}
-
-	/**
 	 * 값을 반환(enum은 해당 값을 반환)
 	 *
 	 * @return string
@@ -1105,7 +1095,12 @@ class _ModelFunc{
 				}
 			break;
 			case ModelType::Enum:
-				if(!(isset($data->EnumValues) && is_array($data->EnumValues) && isset($data->EnumValues[$data->Value]))){
+				$v = $data->Value;
+				if($data->HtmlType == HTMLType::InputCheckbox){
+					$temp = explode(',', $data->Value);
+					$v = trim($temp[0]);
+				}
+				if(!(isset($data->EnumValues) && is_array($data->EnumValues) && isset($data->EnumValues[$v]))){
 					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목에 값이 필요합니다.';
 					return false;
 				}
@@ -1307,10 +1302,11 @@ class _ModelFunc{
 			case HTMLType::InputCheckbox:
 				$nm = $htmlType === HTMLType::InputCheckbox ? $Name . '[]' : $Name;
 				$ret = '';
+				$tempVal = $htmlType === HTMLType::InputCheckbox ? explode(',', $val) : array($val);
 				if(isset($data->EnumValues) && is_array($data->EnumValues)){
 					$i = 1;
 					foreach($data->EnumValues as $k=>$v){
-						$checked = isset($val) && $k == $val ? ' checked="checked"' : '';
+						$checked = isset($val) && in_array($k, $tempVal) ? ' checked="checked"' : '';
 
 						$ret .= '<label for="'.$firstIDName.$Name.'_'.$i.'" class="'.$htmlType.'"><input type="'.$htmlType.'" name="'.$nm.'" id="'.$firstIDName.$Name.'_'.$i.'" value="'.$k.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.$checked.'> <span>'.$v.'</span></label>';
 						$i++;

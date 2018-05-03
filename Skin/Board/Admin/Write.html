@@ -14,7 +14,7 @@ App::JSAdd('board.js', 200);
 	<input type="hidden" name="htmlis" value="y">
 	<?php if(App::$Action == 'Answer'){ ?>
 		<input type="hidden" name="mode" value="answer">
-		<input type="hidden" name="target" value="<?p. $_GET['target'] ?>">
+		<input type="hidden" name="target" value="<?v. strlen(Post('target')) ? Post('target') : Get('target') ?>">
 	<?php } ?>
 
 
@@ -84,6 +84,10 @@ App::JSAdd('board.js', 200);
 		<button type="reset" class="mBtn btn1">취소</button>
 		<a href="#" class="backbtn mBtn btn1">뒤로</a>
 	</div>
+
+	<?php if(is_array(Post('addimg'))) foreach(Post('addimg') as $v){?>
+		<input type="hidden" name="addimg[]" value="<?v. $v ?>">
+	<?php } ?>
 </form>
 
 

@@ -211,8 +211,8 @@ class Reply{
 
 		$this->model->Need = array('comment', 'article_seq');
 		if(_MEMBERIS !== true){
-			$this->model->Need[] = 'mname';
-			$this->model->Need[] = 'pwd';
+			$this->model->Need = 'mname';
+			$this->model->Need = 'pwd';
 		}
 
 		$res = $this->model->SetPostValues();
@@ -340,7 +340,7 @@ class Reply{
 
 		$this->model->Need = array('comment');
 		if(_MEMBERIS !== true){
-			$this->model->Need[] = 'mnane';
+			$this->model->Need = 'mnane';
 		}
 
 		$this->_GetData(App::$Data['article_seq'], $_POST['seq']);

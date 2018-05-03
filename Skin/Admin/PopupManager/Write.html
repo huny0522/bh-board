@@ -92,12 +92,16 @@ use \BH_Application as App;
 		<a href="#" id="deleteArticle" data-seq="<?v. $_GET['seq'] ?>" class="bBtn">삭제</a>
 		<a href="#" class="backbtn bBtn">뒤로</a>
 	</div>
+
+	<?php if(is_array(Post('addimg'))) foreach(Post('addimg') as $v){?>
+		<input type="hidden" name="addimg[]" value="<?v. $v ?>">
+	<?php } ?>
 </form>
 
 <script>
 	$(document).ready(function(){
-		typeView('<?mv('type') ?>');
-	})
+		typeView('<?$Model->data['type']->txt() ?>');
+	});
 
 	var contentsViewIs = false;
 	function typeView(v){

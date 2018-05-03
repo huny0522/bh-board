@@ -16,9 +16,7 @@ use \BH_Application as App;
 			<td>
 				<select id="category_choice">
 					<option value="">선택</option>
-					<?php if(isset(App::$Data['category'])) foreach(App::$Data['category'] as $row){ ?>
-						<option<?php if($Model->GetValue('category') == $row) echo ' selected'; ?>><?v. $row ?></option>
-					<?php } ?>
+					<?p. SelectOption(App::$Data['category'], $Model->GetValue('category')) ?>
 					<option value="x">추가</option>
 				</select>
 				<span class="hidden" id="category_real"><input type="text" name="category" value="<?mv('category') ?>" id="category"></span>
@@ -101,12 +99,16 @@ use \BH_Application as App;
 		<a href="#" id="deleteArticle" data-seq="<?v. $_GET['seq'] ?>" class="bBtn">삭제</a>
 		<a href="#" class="backbtn bBtn">뒤로</a>
 	</div>
+
+	<?php if(is_array(Post('addimg'))) foreach(Post('addimg') as $v){?>
+		<input type="hidden" name="addimg[]" value="<?v. $v ?>">
+	<?php } ?>
 </form>
 
 <script>
 	$(document).ready(function(){
-		typeView('<?mv('type') ?>');
-	})
+		typeView('<?$Model->data['type']->txt() ?>');
+	});
 
 	var contentsViewIs = false;
 	function typeView(v){

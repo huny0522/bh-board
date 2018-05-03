@@ -130,7 +130,6 @@ class {$ControllerName}{
 /**
  * Class {$ModelName}Model
  * @property \BH_ModelData[] \$data
- * [@property]
  */
 class {$ModelName}Model extends \\BH_Model{
 
@@ -225,7 +224,7 @@ class {$ModelName}Model extends \\BH_Model{
 			}
 
 		}
-		$f = preg_replace("/\s*\*\s*\[\@property\]\s*\n/is", PHP_EOL . $propertyDoc, $f);
+		//$f = preg_replace("/\s*\*\s*\[\@property\]\s*\n/is", PHP_EOL . $propertyDoc, $f);
 
 		$pattern = '/\$this\-\>Key\s*=\s*array/i';
 		preg_match($pattern, $initFuncText, $matches);

@@ -1,10 +1,13 @@
 var AppReply = {
 	SubmitWrite : function(e){
 		e.preventDefault();
-		$(this).validCheck();
+		var form = this;
+		var res = $(this).validCheck();
+		if(!res) return;
 
 		JCM.ajaxForm(this, function(){
 			$('#replyGetForm input[name=page]').val(1);
+			form.reset();
 			AppReply.GetList();
 		});
 	},
