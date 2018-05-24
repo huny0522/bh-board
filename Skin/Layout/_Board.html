@@ -3,7 +3,7 @@ if(_BH_ !== true) exit;
 use \BH_Common as CM;
 use \BH_Application as App;
 
-ob_start();
+App::$parentLayout = '_Default';
 ?>
 <div class="Board">
 	<h2><?v. $Ctrl->boardManger->GetValue('subject') ?></h2>
@@ -18,7 +18,3 @@ ob_start();
 
 	<?p. App::$BodyHtml ?>
 </div>
-<?php
-App::$BodyHtml = ob_get_clean();
-?>
-<?inc. '/Layout/_Default.html' ?>

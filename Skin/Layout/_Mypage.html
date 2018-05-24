@@ -3,7 +3,7 @@ if(_BH_ !== true) exit;
 use \BH_Common as CM;
 use \BH_Application as App;
 
-ob_start();
+App::$parentLayout = '_Default';
 ?>
 <div id="lnb" class="Mypage">
 	<h2>마이페이지</h2>
@@ -18,7 +18,3 @@ ob_start();
 <div id="contents" class="Mypage">
 	<?p. App::$BodyHtml ?>
 </div>
-<?php
-App::$BodyHtml = ob_get_clean();
-?>
-<?inc. '/Layout/_Default.html' ?>

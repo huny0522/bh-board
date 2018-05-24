@@ -19,6 +19,7 @@ class BH_Application
 	public static $InstallIs = true;
 	public static $CFG = array();
 	public static $Layout = null;
+	public static $parentLayout = '';
 	public static $Html;
 	public static $Title;
 	public static $CSS = array();
@@ -248,10 +249,20 @@ class BH_Application
 		self::$BodyHtml = ob_get_clean();
 
 		if(!$DisableLayout && !is_null(self::$Layout)){
-			$layout = '/Layout/' . self::$Layout;
-			if(substr($layout, -5) != '.html') $layout .= '.html';
-			if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR . $layout, _HTMLDIR . $layout);
-			if($layout && file_exists(_HTMLDIR . $layout)) require _HTMLDIR . $layout;
+			self::$parentLayout = self::$Layout;
+			while(strlen(self::$parentLayout)){
+				self::$Layout = self::$parentLayout;
+				self::$parentLayout = '';
+
+				$layout = '/Layout/' . self::$Layout;
+				if(substr($layout, -5) != '.html') $layout .= '.html';
+				if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR . $layout, _HTMLDIR . $layout);
+				if($layout && file_exists(_HTMLDIR . $layout)){
+					ob_start();
+					require _HTMLDIR . $layout;
+					self::$BodyHtml = ob_get_clean();
+				}
+			}
 		}
 
 		if(isset(self::$ExtendMethod['AfterSetView'])){

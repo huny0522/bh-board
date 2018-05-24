@@ -116,6 +116,7 @@ CSS 작성 편의 기능.
 - _URL, _SKINURL, _ADMINURLNAME, _ADMINURL, _IMGURL, _UPLOAD_URL : 웹사이트 절대경로를 위한 상수
 - _POSTIS : 서버요청방식 정의. POST일 경우 true.
 - _AJAXIS : 서버요청이 AJAX인 경우 true.
+- _JSONIS : 서버요청이 AJAX인 경우 true.
 - _DEVELOPERIS : 개발자모드 스위치. 개발자 모드인 경우 _SKIN폴더에서 *.html 파일을 변환하여 _HTML 폴더에 php가 읽을 수 있는 정상적인 파일을 생성.
 - _REMOVE_SPACE : html파일을 변환 할 때 최대한 빈칸을 제거해주는 스위치.
 
@@ -155,23 +156,23 @@ CSS 작성 편의 기능.
 - to10 : 10진법으로 변경.
 
 ### 파일 관련 함수 (Lib/FileUpload.php)
-- RandomFileName : 랜덤파일명 생성.
+- _ModelFunc::RandomFileName : 랜덤파일명 생성.
 
-- FileUploadArray : 배열로 업로드한 파일 처리.
-
-    인자값
-    - $files : 파일 글로벌 변수
-    - $possible_ext : 업로드 가능 확장자(배열)
-    - $path : 업로드 파일이 위치할 폴더(ex : /data/)
-
-- FileUpload : 파일 업로드 처리.
+- _ModelFunc::FileUploadArray : 배열로 업로드한 파일 처리.
 
     인자값
     - $files : 파일 글로벌 변수
     - $possible_ext : 업로드 가능 확장자(배열)
     - $path : 업로드 파일이 위치할 폴더(ex : /data/)
 
-- Thumbnail : 이미지 사이즈 변경.
+- _ModelFunc::FileUpload : 파일 업로드 처리.
+
+    인자값
+    - $files : 파일 글로벌 변수
+    - $possible_ext : 업로드 가능 확장자(배열)
+    - $path : 업로드 파일이 위치할 폴더(ex : /data/)
+
+- _ModelFunc::Thumbnail : 이미지 사이즈 변경.
     
     인자값
     - $source : 파일경로
@@ -183,6 +184,7 @@ CSS 작성 편의 기능.
 ### BH_DB_Get
     생성자 인수로 테이블명을 입력.
     ex. $get = new BH_DB_Get(‘my_table’)
+    ex. $get = DB::GetQryObj(‘my_table’)
 
 - public $table : 테이블명.
 - public $test : true 설정 시 쿼리문을 출력.
@@ -195,6 +197,7 @@ CSS 작성 편의 기능.
 ### BH_DB_GetList
     생성자 인수로 테이블명을 입력.
     ex. $get = new BH_DB_GetList(‘my_table’)
+    ex. $get = DB::GetListQryObj(‘my_table’)
 
 - public $table : 테이블명.
 - public $limit : ‘limit’ 구문을 생성.
@@ -215,6 +218,7 @@ CSS 작성 편의 기능.
 ### BH_DB_GetListWithPage
     생성자 인수로 테이블명을 입력.
     ex. $get = new BH_DB_GetListWithPage(‘my_table’)
+    ex. $get = DB::GetListPageQryObj(‘my_table’)
 
 - public $table : 테이블명.
 - public $articleCount : 페이지별로 가져올 데이터 개수.
@@ -243,12 +247,15 @@ CSS 작성 편의 기능.
 ### BH_DB_Insert
     생성자 인수로 테이블명을 입력.
     ex. $get = new BH_DB_Insert(‘my_table’)
+    ex. $get = DB::InsertQryObj(‘my_table’)
 
 - public $table : 테이블명.
 - public $decrement : 역순으로 들어갈 키.
 - public $MAXInt : 역순으로 들어갈 키값의 최고값.
 - public $test : true 설정 시 쿼리문을 출력.
 - function SetData($key, $value) : insert구문에 삽입할 키와 값을 추가.
+- function SetDataNum($key, $value) : insert구문에 삽입할 키와 숫자 값을 추가.
+- function SetDataStr($key, $value) : insert구문에 삽입할 키와 문자 값을 추가.
 - function AddWhere($str) : 역순으로 들어갈 키를 위해 ‘where’ 구문을 만듭니다. 여러 번 호출하여 ‘and’ 로 묶어줍니다.
 - function Run() : mysqli_query를 실행.
 	- BH_InsertResult 클래스 반환
@@ -262,10 +269,13 @@ CSS 작성 편의 기능.
 ### BH_DB_Update
     생성자 인수로 테이블명을 입력.
     ex. $get = new BH_DB_Update(‘my_table’)
+    ex. $get = DB::UpdateQryObj(‘my_table’)
 
 - public $table : 테이블명.
 - public $test : true 설정 시 쿼리문을 출력.
 - function SetData($key, $value) : update구문에 삽입할 키와 값을 추가.
+- function SetDataNum($key, $value) : update구문에 삽입할 키와 숫자 값을 추가.
+- function SetDataStr($key, $value) : update구문에 삽입할 키와 문자 값을 추가.
 - function AddWhere($str) : ‘where’ 구문을 만듭니다. 여러 번 호출하여 ‘and’ 로 묶어줍니다.
 - function Run() : mysqli_query를 실행.
 	- BH_Result 클래스 반환
@@ -275,11 +285,11 @@ CSS 작성 편의 기능.
 ## 주요 클래스
 ### BH_Application 클래스(static)
 - $ControllerInstance : 컨트롤러 인스턴스.
-- $RouterInstance : 라우터 인스턴스.
 - $ControllerName : 컨트롤러명.
 - $Action : 불러올 컨트롤러의 메쏘드를 위한 값.
 - $ID : 메쏘드에서 사용할 키값.
 - $NativeDir : 컨트롤러파일이나 스킨파일의 서브디렉토리.
+- $NativeSkinDir : 스킨파일의 서브디렉토리.
 - $BaseUrl : 컨트롤러 이전의 서브디렉토리를 포함한 URL.
 - $CtrlUrl : 컨트롤러의 URL.
 - $TID : 게시판이나 컨텐츠, 댓글의 키.
@@ -296,7 +306,7 @@ CSS 작성 편의 기능.
     1. 첫번째 인자 : 컨트롤러.
     2. 두번째 인자 : html에서 사용할 모델 클래스.
     3. 세번째 인자 : html에서 사용할 데이터.
-- function GetView($Ctrl, $model, $Data) : 레이아웃을 제외한 html을 문자열로 반환.
+- function View($skin, $model, $Data) : 레이아웃을 제외한 html을 문자열로 반환.
 - function JSAdd($js, $idx = 100) : script 경로 추가. 두번째 인자가 작을수록 먼저 출력.
 - function JSPrint() : script구문 출력.
 - function CSSAdd($css, $idx = 100) : 스타일시트 경로 추가. 두번째 인자가 작을수록 먼저 출력.
@@ -330,10 +340,8 @@ CSS 작성 편의 기능.
 - public $table : 데이터들의 테이블명.
 - $Key : 키명 배열.
 - $Except : 제외 키.
-- $Need : 필수 키.
 - $errorMessage
 - function __Init() : BH_Model을 상속한 클래스에서 생성자용으로 사용.
-- function InitModelData($key, $type, $Required, $DisplayName) : $data에 BH_ModelData데이터를 추가생성.
 - function SetPostValues() : POST로 넘어온 값으로 데이터의 값을 설정.
 - function GetErrorMessage() : 데이터의 에러메세지들을 배열로 반환.
 - function SetDBValues($Values) : 데이터를 설정.

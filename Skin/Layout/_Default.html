@@ -4,7 +4,7 @@ if(_BH_ !== true) exit;
 use \BH_Common as CM;
 use \BH_Application as App;
 
-ob_start();
+App::$parentLayout = '_Common';
 App::CSSAdd('jquery-ui-1.10.1.css', 10);
 App::CSSAdd('font-awesome/css/font-awesome.min.css', 10);
 App::CSSAdd('nanumgothic.css', 10);
@@ -17,7 +17,7 @@ App::JSAdd('jquery-ui.min.js', 10);
 App::JSAdd('common.js' . CM::RefreshParam(), 10);
 App::JSAdd('contents.js' . CM::RefreshParam(), 11);
 ?>
-<?inc. '/Layout/_Header.html' ?>
+
 <div id="wrap">
 	<header id="header">
 		<div id="header_wrap">
@@ -124,6 +124,3 @@ else{ ?>
 </script>
 
 <?p. _REFRESH_BTN ?>
-<?inc. '/Layout/_Footer.html' ?>
-<?php
-App::$BodyHtml = ob_get_clean();

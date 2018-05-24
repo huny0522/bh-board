@@ -3,7 +3,7 @@ if(_BH_ !== true) exit;
 use \BH_Common as CM;
 use \BH_Application as App;
 
-ob_start();
+App::$parentLayout = '_Common';
 
 App::CSSAdd('jquery-ui-1.10.1.css', 10);
 App::CSSAdd('font-awesome/css/font-awesome.min.css', 10);
@@ -14,11 +14,7 @@ App::JSAdd('jquery.form.min.js', 10);
 App::JSAdd('jquery-ui.min.js', 10);
 App::JSAdd('common.js', 10);
 ?>
-<?inc. '/Layout/_Header.html' ?>
 
 <?p. App::$BodyHtml ?>
 
 <?p. _REFRESH_BTN ?>
-<?inc. '/Layout/_Footer.html' ?>
-<?php
-App::$BodyHtml = ob_get_clean();
