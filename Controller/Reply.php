@@ -61,10 +61,10 @@ class Reply{
 		$action = App::$Action;
 		if($action == 'Answer' || $action == 'Modify') $action = 'Write';
 		if($action == '_DirectView') $action = 'View';
-		$this->Path = '/Reply/'.App::$NativeDir.'/'.$this->boardManger->GetValue('skin').'/';
+		$this->Path = '/Reply/'.App::$NativeDir.'/'.$this->boardManger->GetValue('reply_skin').'/';
 		if(file_exists(_SKINDIR.$this->Path.$action.'.html')) App::$Html = $this->Path.$action.'.html';
 		else{
-			$this->Path = '/Reply/'.$this->boardManger->GetValue('skin').'/';
+			$this->Path = '/Reply/'.$this->boardManger->GetValue('reply_skin').'/';
 			if(file_exists(_SKINDIR.$this->Path.$action.'.html')) App::$Html = $this->Path.$action.'.html';
 			else{
 				$this->Path = '/Reply/';
@@ -236,11 +236,9 @@ class Reply{
 		}
 		else $this->model->SetValue('secret', isset($_POST['secret']) && $_POST['secret'] == 'y' ? 'y' : 'n');
 
-		require_once _COMMONDIR.'/FileUpload.php';
-
 		// 파일 업로드
 		if(isset($_FILES['file'])){
-			$fres_em = FileUpload($_FILES['file'], App::$SettingData['IMAGE_EXT'], $this->uploadUrl);
+			$fres_em = \_ModelFunc::FileUpload($_FILES['file'], App::$SettingData['IMAGE_EXT'], $this->uploadUrl);
 
 			if(is_string($fres_em)) JSON(false, $fres_em);
 			else if(is_array($fres_em)){
@@ -336,8 +334,6 @@ class Reply{
 		$res = $this->GetAuth();
 		if(!$res) JSON(false, _MSG_NO_AUTH);
 
-		require_once _COMMONDIR.'/FileUpload.php';
-
 		$this->model->Need = array('comment');
 		if(_MEMBERIS !== true){
 			$this->model->Need = 'mnane';
@@ -365,7 +361,7 @@ class Reply{
 
 		// 파일 업로드
 		if(isset($_FILES['file'])){
-			$fres_em = FileUpload($_FILES['file'], App::$SettingData['IMAGE_EXT'], $this->uploadUrl);
+			$fres_em = \_ModelFunc::FileUpload($_FILES['file'], App::$SettingData['IMAGE_EXT'], $this->uploadUrl);
 
 			if(is_string($fres_em)) JSON(false, $fres_em);
 			else if(is_array($fres_em)){

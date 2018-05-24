@@ -110,7 +110,7 @@ class BH_Application
 			}
 			else exit;
 		}
-		else require _COMMONDIR . '/BH_Router.php';
+		else require _DIR . '/Custom/BH_Router.php';
 
 		//
 		//    라우팅 초기화

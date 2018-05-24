@@ -3,44 +3,241 @@ if(_BH_ !== true) exit;
 use \BH_Common as CM;
 use \BH_Application as App;
 
+$NaverClientId = CM::Config('Default', 'NaverClientId');
+if(strlen($NaverClientId)){
+	App::JSAdd('https://openapi.map.naver.com/openapi/v3/maps.js?clientId='. $NaverClientId . '&submodules=geocoder');
+}
 ?>
 
-<h2>기본환경설정</h2>
+<h2><?p. AdminTitleSet() ?></h2>
 
-<form name="ConfigForm" id="ConfigForm" method="post" action="<?a. 'Write' ?>">
+<form name="ConfigForm" id="ConfigForm" method="post" action="<?a. 'Write' ?>" enctype="multipart/form-data">
 	<input type="hidden" name="Code" value="<?v. App::$Data['Code'] ?>">
+	<input type="hidden" name="lat" value="<?v. CM::Config(App::$Data['Code'], 'lat') ?>" id="MD_lat">
+	<input type="hidden" name="lng" value="<?v. CM::Config(App::$Data['Code'], 'lng') ?>" id="MD_lng">
+
 	<fieldset>
-		<h3><i class="fa fa-angle-right"></i> 기본설정</h3>
+		<h3>기본설정</h3>
 
 		<table class="write">
+			<colgroup>
+				<col style="width:150px;">
+				<col>
+				<col style="width:150px;">
+				<col>
+			</colgroup>
 			<tr>
 				<th>회사명</th>
 				<td colspan="3">
-					<input type="text" name="Company" value="<?p. CM::Config(App::$Data['Code'], 'Company') ?>">
+					<input type="text" name="Company" value="<?v. CM::Config(App::$Data['Code'], 'Company') ?>" class="w30p">
 				</td>
 			</tr>
 			<tr>
 				<th>사이트명</th>
 				<td colspan="3">
-					<input type="text" name="SiteName" value="<?p. CM::Config(App::$Data['Code'], 'SiteName') ?>">
+					<input type="text" name="SiteName" value="<?v. CM::Config(App::$Data['Code'], 'SiteName') ?>" class="w100p">
+				</td>
+			</tr>
+			<tr>
+				<th>회사주소</th>
+				<td colspan="3" class="daumAddress">
+					<p>
+						<input type="text" name="zipcode" value="<?v. CM::Config(App::$Data['Code'], 'zipcode') ?>" class="zipcode w10p">
+						<button type="button" class="sBtn" id="findAddressBtn1">우편번호 찾기</button>
+					</p>
+					<p>
+						<input type="text" id="MD_address1" name="Address1" value="<?v. CM::Config(App::$Data['Code'], 'Address1') ?>" class="address1 w40p">&nbsp;&nbsp;&nbsp;
+						상세주소 : <input type="text" id="MD_address2" name="Address2" value="<?v. CM::Config(App::$Data['Code'], 'Address2') ?>" class="address2 w40p"><br>
+					</p>
+				</td>
+			</tr>
+			<tr>
+				<th>대표자명</th>
+				<td>
+					<input type="text" name="CEO" value="<?v. CM::Config(App::$Data['Code'], 'CEO') ?>" class="w40p">
+				</td>
+				<th>이메일</th>
+				<td>
+					<input type="text" name="Email" value="<?v. CM::Config(App::$Data['Code'], 'Email') ?>" class="w100p">
+				</td>
+			</tr>
+			<tr>
+				<th>연락처</th>
+				<td>
+					<input type="text" name="Tel" value="<?v. CM::Config(App::$Data['Code'], 'Tel') ?>" class="w60p">
+				</td>
+				<th>팩스</th>
+				<td>
+					<input type="text" name="Fax" value="<?v. CM::Config(App::$Data['Code'], 'Fax') ?>" class="w60p">
+				</td>
+			</tr>
+			<tr>
+				<th>사업자등록번호</th>
+				<td>
+					<input type="text" name="bNumber" value="<?v. CM::Config(App::$Data['Code'], 'bNumber') ?>" class="w60p">
+				</td>
+				<th>통신판매업 신고번호</th>
+				<td>
+					<input type="text" name="oNumber" value="<?v. CM::Config(App::$Data['Code'], 'oNumber') ?>" class="w60p">
+				</td>
+			</tr>
+			<tr>
+				<th>개인정보책임자 연락처</th>
+				<td>
+					<input type="text" name="privacyTel" value="<?v. CM::Config(App::$Data['Code'], 'privacyTel') ?>" class="w40p">
+				</td>
+				<th>개인정보책임자 이메일</th>
+				<td>
+					<input type="text" name="privacyEmail" value="<?v. CM::Config(App::$Data['Code'], 'privacyEmail') ?>" class="w40p">
+				</td>
+			</tr>
+			<tr>
+				<th>통합고객센터</th>
+				<td colspan="3">
+					<input type="text" name="csTel" value="<?v. CM::Config(App::$Data['Code'], 'csTel') ?>" class="w40p">
+				</td>
+			</tr>
+			<tr>
+				<th>통합고객센터 시간</th>
+				<td colspan="3">
+					<textarea name="csTelTime"><?v. CM::Config(App::$Data['Code'], 'csTelTime') ?></textarea>
 				</td>
 			</tr>
 		</table>
 	</fieldset>
 
 	<fieldset>
-		<h3><i class="fa fa-angle-right"></i> 약관등 정보관리</h3>
+		<h3>사이트설정</h3>
+
 		<table class="write">
 			<tr>
-				<th>개인정보보호정책</th>
-				<td colspan="3">
-					<textarea name="Privacy" id="Privacy"><?p. CM::Config(App::$Data['Code'], 'Privacy') ?></textarea>
+				<th>지역설정</th>
+				<td colspan="3"><input type="text" name="loc" id="defaultLocInp" value="<?v. CM::Config(App::$Data['Code'], 'loc') ?>" class="w80p"><button type="button" class="sBtn" id="insertLocBtn">기본값 삽입</button>
+					<p class="guide">* 세미콜론(;)으로 구분하여 입력해 주세요.</p>
 				</td>
 			</tr>
 			<tr>
-				<th>이용약관</th>
+				<th>로고</th>
 				<td colspan="3">
-					<textarea name="Terms" id="Terms"><?p. CM::Config(App::$Data['Code'], 'Terms') ?></textarea>
+					<input type="hidden" name="file_field[]" value="LogoUrl">
+					<?php if(CM::Config(App::$Data['Code'], 'LogoUrl')){ ?>
+						<img src="<?p. _UPLOAD_URL.CM::Config(App::$Data['Code'], 'LogoUrl') ?>" style="max-width:100px; max-height:100px;">
+					<?php } ?>
+					<input type="file" name="LogoUrl" value="<?v. CM::Config(App::$Data['Code'], 'LogoUrl') ?>">
+					<label class="checkbox"><input type="checkbox" name="_delFile[]" value="LogoUrl"><span>삭제</span></label>
+				</td>
+			</tr>
+			<tr>
+				<th>하단로고</th>
+				<td colspan="3">
+					<input type="hidden" name="file_field[]" value="FootLogoUrl">
+					<?php if(CM::Config(App::$Data['Code'], 'FootLogoUrl')){ ?>
+						<img src="<?p. _UPLOAD_URL.CM::Config(App::$Data['Code'], 'FootLogoUrl') ?>" style="max-width:100px; max-height:100px;">
+					<?php } ?>
+					<input type="file" name="FootLogoUrl" value="<?v. CM::Config(App::$Data['Code'], 'FootLogoUrl') ?>">
+					<label class="checkbox"><input type="checkbox" name="_delFile[]" value="FootLogoUrl"><span>삭제</span></label>
+				</td>
+			</tr>
+			<tr>
+				<th>모바일 로고</th>
+				<td colspan="3">
+					<input type="hidden" name="file_field[]" value="MobileLogoUrl">
+					<?php if(CM::Config(App::$Data['Code'], 'MobileLogoUrl')){ ?>
+						<img src="<?p. _UPLOAD_URL.CM::Config(App::$Data['Code'], 'MobileLogoUrl') ?>" style="max-width:100px; max-height:100px;">
+					<?php } ?>
+					<input type="file" name="MobileLogoUrl" value="<?v. CM::Config(App::$Data['Code'], 'MobileLogoUrl') ?>">
+					<label class="checkbox"><input type="checkbox" name="_delFile[]" value="MobileLogoUrl"><span>삭제</span></label>
+				</td>
+			</tr>
+			<tr>
+				<th>이메일 상단로고</th>
+				<td colspan="3">
+					<input type="hidden" name="file_field[]" value="EmailLogoUrl">
+					<?php if(CM::Config(App::$Data['Code'], 'EmailLogoUrl')){ ?>
+						<img src="<?p. _UPLOAD_URL.CM::Config(App::$Data['Code'], 'EmailLogoUrl') ?>" style="max-width:100px; max-height:100px;">
+					<?php } ?>
+					<input type="file" name="EmailLogoUrl" value="<?v. CM::Config(App::$Data['Code'], 'EmailLogoUrl') ?>">
+					<label class="checkbox"><input type="checkbox" name="_delFile[]" value="EmailLogoUrl"><span>삭제</span></label>
+				</td>
+			</tr>
+			<tr>
+				<th>이미지 없음</th>
+				<td colspan="3">
+					<input type="hidden" name="file_field[]" value="noImg">
+					<?php if(CM::Config(App::$Data['Code'], 'noImg')){ ?>
+						<img src="<?p. _UPLOAD_URL.CM::Config(App::$Data['Code'], 'noImg') ?>" style="max-width:100px; max-height:100px;">
+					<?php } ?>
+					<input type="file" name="noImg" value="<?v. CM::Config(App::$Data['Code'], 'noImg') ?>">
+					<label class="checkbox"><input type="checkbox" name="_delFile[]" value="noImg"><span>삭제</span></label>
+				</td>
+			</tr>
+			<tr>
+				<th>COPYRIGHT</th>
+				<td colspan="3">
+					<input type="text" name="Copyright" value="<?v. CM::Config(App::$Data['Code'], 'Copyright') ?>" class="w100p">
+				</td>
+			</tr>
+			<tr>
+				<th>발송메일주소</th>
+				<td>
+					<input type="text" name="Email" value="<?v. CM::Config(App::$Data['Code'], 'Email') ?>" class="w100p">
+				</td>
+				<th>발송메일표시명</th>
+				<td>
+					<input type="text" name="EmailName" value="<?v. CM::Config(App::$Data['Code'], 'EmailName') ?>" class="w100p">
+				</td>
+			</tr>
+			<tr>
+				<th>META 설명</th>
+				<td colspan="3">
+					<input type="text" name="meta_description" value="<?v. CM::Config(App::$Data['Code'], 'meta_description') ?>" class="w100p">
+				</td>
+			</tr>
+			<tr>
+				<th>META 키워드</th>
+				<td colspan="3">
+					<input type="text" name="meta_keywords" value="<?v. CM::Config(App::$Data['Code'], 'meta_keywords') ?>" class="w100p">
+				</td>
+			</tr>
+			<tr>
+				<th>추가 HEAD</th>
+				<td colspan="3">
+					<textarea name="addHead"><?v. CM::Config(App::$Data['Code'], 'addHead') ?></textarea>
+				</td>
+			</tr>
+			<tr>
+				<th>네이버 CLIENT ID</th>
+				<td>
+					<input type="text" name="NaverClientId" value="<?v. CM::Config(App::$Data['Code'], 'NaverClientId') ?>" class="w100p">
+				</td>
+				<th>네이버 SECRET KEY</th>
+				<td>
+					<input type="text" name="NaverSKey" value="<?v. CM::Config(App::$Data['Code'], 'NaverSKey') ?>" class="w100p">
+				</td>
+			</tr>
+			<tr>
+				<th>인스타그램</th>
+				<td colspan="3">
+					<p>
+						client id : <input type="text" name="InstagramCID" value="<?v. CM::Config(App::$Data['Code'], 'InstagramCID') ?>" class="w30p">
+						redirect uri : <input type="text" name="InstagramRUri" value="<?v. CM::Config(App::$Data['Code'], 'InstagramRUri') ?>" class="w50p">
+					</p>
+					<p>access token : <input type="text" name="InstagramToken" value="<?v. CM::Config(App::$Data['Code'], 'InstagramToken') ?>" class="w30p">
+
+						<a href="#" id="getIgAccessToken" class="sBtn">access token 받기</a>
+					<p class="guide">*'client id'항목과 'redirect uri'항목을 먼저 먼저 입력 후 토큰받기를 시도하세요.</p>
+					</p>
+
+					<script>
+						$(document).ready(function(){
+							$('#getIgAccessToken').on('click', function(e){
+								e.preventDefault();
+								var ig_cid = $('input[name=InstagramCID]').val();
+								var ig_uri = $('input[name=InstagramRUri]').val();
+								window.open('https://api.instagram.com/oauth/authorize/?client_id=' + ig_cid + '&redirect_uri=' + ig_uri + '&scope=public_content&response_type=token');
+							});
+						});
+					</script>
 				</td>
 			</tr>
 		</table>
@@ -52,13 +249,46 @@ use \BH_Application as App;
 		<a href="#" class="backbtn bBtn">뒤로</a>
 	</div>
 </form>
-
 <script>
-	SE2_paste('Privacy', '<?php _URL ?>', true);
-	SE2_paste('Terms', '<?php _URL ?>', true);
+	$('#insertLocBtn').on('click', function(){
+		$('#defaultLocInp').val('<?p. App::$SettingData['koreaDo'] ?>');
+	});
 
 	$(document).on('submit', '#ConfigForm', function(e){
-		SE2_update('Privacy');
-		SE2_update('Terms');
+		if(this.hasAttribute('data-ready')){
+			return true;
+		}
+		e.preventDefault();
+		var form = this;
+		var res = $(this).validCheck();
+		if(!res) return false;
+
+		var addr1 = $.trim($('#MD_address1').val());
+		var addr2 = $.trim($('#MD_address2').val());
+
+		if(addr1 === '' || addr2 === ''){
+			$('#MD_lat').val('');
+			$('#MD_lng').val('');
+			$(form).attr('data-ready', 'y');
+			$('#ConfigForm').submit();
+			return;
+		}
+
+		<?php if(strlen($NaverClientId)){ ?>
+		var addressToLoc = App.AddressToLocByNaver;
+		<?php }else{ ?>
+		var addressToLoc = App.AddressToLocByGoogle;
+		<?php } ?>
+		addressToLoc(addr1, addr2, function(lat, lng){
+			if(lat === false){
+				CMAlert('입력하신 주소로 위도와 경도의 확인이 불가능합니다.');
+				return;
+			}
+			$('#MD_lat').val(lat);
+			$('#MD_lng').val(lng);
+			$(form).attr('data-ready', 'y');
+			$('#ConfigForm').submit();
+		});
 	});
+	$(document).on('click', '#findAddressBtn1', App.FindDaumAddress);
 </script>

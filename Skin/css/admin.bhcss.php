@@ -11,7 +11,7 @@ BHCss::$variable['$c2'] = 'rgb(90, 115, 140)';
 BHCss::$variable['$c3'] = 'rgb(40, 60, 80)';
 BHCss::$variable['$c4'] = 'rgb(10, 25, 40)';
 ?>
-<style>
+<style type="text/scss">
 	/* ---------------------------------------------
 	*	adminStyle.css LIST
 	* 0. Commeon
@@ -61,6 +61,26 @@ BHCss::$variable['$c4'] = 'rgb(10, 25, 40)';
 	.modalConfirm form{ position:absolute; top:50%; left:50%; width:300px; padding:20px; margin:-80px 0 0 -150px; border:2px solid #333; background:#fff; text-align:center;}
 	.modalConfirm p{ font-weight:700; padding-bottom:15px;}
 
+	td select + select{margin-left:5px;}
+
+	.searchForm{
+	{$pr; padding:4px 5px 5px; margin-bottom:10px; border:2px solid $c1; background:#fff;}
+		form:after{$cb;}
+		dl{display:table; table-layout:fixed; width:100%; margin:1px 0;}
+		dt{$dtc; width:150px; padding:2px 10px; $vam; $fw7; color:$c1; background:#f8f8f8;}
+		dd{$dtc; padding:2px 10px; $vam;}
+		dl.field50{$fll; width:50%;}
+		dl.field33{$fll; width:33%;}
+		footer{clear:both;margin-top:5px; padding:10px; $tac; border-top:1px solid #ddd;}
+		footer.fl{clear:none;padding:5px 10px; $fll; $tal; margin:1px 0;}
+		select + select{margin-left:5px;}
+		~.rFooter{
+		{padding-right:100px;}
+			footer{$pa; top:0; right:0; margin:0; width:100px; height:100%; padding:5px; border:0;}
+			footer button{width:100%; height:100%; margin:0;}
+		}
+	}
+
 	/* ---------------------------------------------
 	* 1. Header & Footer
 	--------------------------------------------- */
@@ -79,7 +99,7 @@ BHCss::$variable['$c4'] = 'rgb(10, 25, 40)';
 	#gnb li.home a:before{font-family:'FontAwesome'; content:'\f015'; margin-right:5px; color:white; font-weight:normal;}
 
 	#tnb{
-		{ position:relative; z-index:5; $fw7; padding-left:20px;}
+	{ position:relative; z-index:5; $fw7; padding-left:20px;}
 		ul{position:relative; margin:0 auto;}
 		ul:after{content:' '; display:block; clear:both;}
 		ul > li{float:left; border-left:1px solid rgba(186, 229, 255, 0.2); color:#E8EAEE; line-height:30px;}
@@ -102,7 +122,7 @@ BHCss::$variable['$c4'] = 'rgb(10, 25, 40)';
 	#wrap.sideHidden #header_wrap{ width:$w;}
 
 	#sideMenu{
-		{ position:absolute; top:0; left:0; z-index:1; width:200px; height:100%; background:rgb(233, 240, 253); background:linear-gradient(180deg, rgb(34, 34, 34), rgb(68, 68, 68)); color:#fff; transition:transform 0.3s; $fw7; box-shadow:2px 0 3px rgba(0,0,0,0.4);}
+	{ position:absolute; top:0; left:0; z-index:1; width:200px; height:100%; background:rgb(233, 240, 253); background:linear-gradient(180deg, rgb(34, 34, 34), rgb(68, 68, 68)); color:#fff; transition:transform 0.3s; $fw7; box-shadow:2px 0 3px rgba(0,0,0,0.4);}
 		h2{$tac; line-height:100px; font-size:18px; background:#111; background:linear-gradient(0deg, rgb(51, 51, 51), rgb(85, 85, 85)); margin:0;}
 		ul{ padding-top:10px;}
 		li{ border-bottom:1px solid rgba(255, 255, 255, 0.07);}
@@ -114,7 +134,7 @@ BHCss::$variable['$c4'] = 'rgb(10, 25, 40)';
 
 	}
 	#wrap.sideHidden #sideMenu{
-		{ transform:translate3d(-200px, 0, 0);}
+	{ transform:translate3d(-200px, 0, 0);}
 		#sideClose i{transform:rotate(180deg);}
 	}
 
@@ -126,19 +146,22 @@ BHCss::$variable['$c4'] = 'rgb(10, 25, 40)';
 	#BHCategory{float:left;}
 	#BHMenuConfig{float:right; width:500px;}
 
+	.writeField{ border-top:2px solid $c3; font-size:12px; background:#fff; box-shadow:0 0 4px rgba(0,0,0,0.1);}
+
 	table{
-		{box-shadow:0 0 4px rgba(0,0,0,0.1);}
-		.guide{ color:#89a; font-size:12px; line-height:1.5em;}
+	{box-shadow:0 0 4px rgba(0,0,0,0.1);}
 	}
+	.guide{ color:#89a; font-size:12px; line-height:1.5em;}
 
 	table.write{
-		{ width:100%; table-layout:fixed; border-top:2px solid $c3; font-size:12px;}
+	{ width:100%; table-layout:fixed; border-top:2px solid $c3; font-size:12px;}
 		th{ width:150px; padding:15px 10px; border:1px solid rgb(215, 220, 225); border-width:1px 0; text-align:left; background:rgb(240, 245, 250); color:$c2;}
 		td{padding:5px 10px; border:1px solid rgb(220, 225, 230); border-width:1px 0; text-align:left; background:#fff;}
+		td p + p{margin-top:5px;}
 	}
 
 	table.list{
-		{ width:100%; font-size:12px;}
+	{ width:100%; font-size:12px;}
 		thead tr{ background:rgb(50, 70, 80); background:linear-gradient(0deg, rgb(10, 25, 40), rgb(20, 40, 60));}
 		th{padding:10px; text-align:center; color:rgb(220, 230, 240);}
 		td{padding:15px 10px; border:1px solid rgb(220, 225, 230); border-width:1px 0; text-align:center; background:#fff;}
@@ -211,22 +234,30 @@ BHCss::$variable['$c4'] = 'rgb(10, 25, 40)';
 	.repLayer fieldset.pwd p{ font-weight:700; padding:1.5rem 0 0.5rem;}
 
 	/* 모달창 */
-	.modal_layer{position:fixed; top:0; left:0; z-index:5000; display:none;  width:100%; height:100%; background:rgba(0,0,0,0.3) url('../images/bg01.png');}
+	.modal_layer{position:fixed; top:0; left:0; z-index:5000; display:none;  width:100%; height:100%; background:rgba(0,0,0,0.3);}
 	.modal_layer .modal_wrap{position:fixed; top:50%; left:50%; z-index:2; width:400px; height:300px; padding-top:50px; max-width:90%; max-height:90%; background:#F7F7F7;}
 	.modal_layer .modal_header{position:absolute; top:0; left:0; width:100%; height:50px; background:#2C3E50;}
 	.modal_layer .modal_header h1{padding:0 80px 0 20px; height:100%; font-size:16px; color:white; overflow:hidden; line-height:50px;}
 	.modal_layer .modal_header .close_modal_btn{position:absolute; top:16px; left:100%; margin-left:-38px; line-height:16px; font-size:18px; color:white; cursor:pointer;}
+	.modal_layer .modal_header .close_modal_btn i{$cross; $cross--; $--cross;}
+	.modal_layer .modal_header .close_modal_btn i:before,
+	.modal_layer .modal_header .close_modal_btn i:after{background-color:#fff;}
+
 	.modal_layer .submit_btn button{height:40px; font-size:14px; width:100px;}
 	.modal_layer .modal_contents{height:100%; overflow-y:auto;}
+	.modal_layer .modal_contents .modal_inner{padding:20px;}
 
 	#loading_layer{position:fixed; top:0; left:0; z-index:6000; display:none;  width:100%; height:100%; background:rgba(0,0,0,0.1);}
 
-	fieldset h3{ padding:20px 0 10px 10px; font-size:14px; color:#8391a1;}
+	h3{ padding:20px 0 10px 10px; font-size:14px; color:#8391a1;}
+	header.hasR{$pr; padding-bottom:10px;}
+	header.hasR h3{line-height:26px; padding-bottom:0;}
+	header.hasR .right{$pa; right:0; bottom:10px;}
 	fieldset{ padding-bottom:30px;}
 	/* ---------------------------------------------
 	* 3. Login
 	--------------------------------------------- */
-	#contents.login{ position:fixed; top:0; left:0; width:100%; height:100%; background:#ccc url('../images/bg01.png');}
+	#contents.login{ position:fixed; top:0; left:0; width:100%; height:100%; background:#ccc;}
 	#login_wrap{ position:fixed; top:50%; left:50%; width:600px; height:300px; margin:-150px 0 0 -300px; border:2px solid #0E5579; background:#fff; overflow:hidden; border-radius:15px; box-shadow:2px 2px 4px rgba(0,0,0,0.3);}
 	#login_wrap h2{ padding:10px 20px; background:#0E5579; background:#0E5579; font-weight:800; color:#fff; font-size:21px;}
 	#login_wrap form{ padding:20px 100px; font-size:16px;}
@@ -254,4 +285,13 @@ BHCss::$variable['$c4'] = 'rgb(10, 25, 40)';
 
 	.menuSelectArea .menuSelect{ margin-bottom:5px;}
 	a.menuSelectAddBtn{ margin-top:5px;}
+
+
+	.topTab{
+		ul{}
+		ul:after{$cb;}
+		li{$fll; height:30px; width:20%; margin-top:-1px; line-height:30px; border:1px solid #ccc; background:#fff; $tac; border-left-width:0;}
+		li:nth-child(5n+1){border-left-width:1px;}
+		li.active{background:#333; color:#fff;}
+	}
 </style>

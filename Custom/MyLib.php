@@ -21,4 +21,7 @@ App::$ExtendMethod['BeforeLoadController'] = function(){
 App::$ExtendMethod['AfterSetView'] = function(){
 
 };
+
+App::$SettingData['noImg'] = _UPLOAD_URL . CM::Config('Default', 'noImg');
+
 */

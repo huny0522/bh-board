@@ -22,7 +22,7 @@ class DB{
 	public static $bindNum = 0;
 
 	private function __construct(){
-		require _COMMONDIR.'/db.info.php';
+		require _DIR . '/Custom/db.info.php';
 	}
 
 	public function __destruct(){

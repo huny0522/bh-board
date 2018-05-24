@@ -1,0 +1,41 @@
+<?php
+if(_BH_ !== true) exit;
+use \BH_Common as CM;
+use \BH_Application as App;
+
+?>
+
+<h2><?p. AdminTitleSet() ?></h2>
+<div class="topTab">
+	<ul>
+		<?php foreach(App::$Data['menu'] as $k => $v){ ?>
+			<li<?php if($k == App::$ID) echo ' class="active"'; ?>><a href="<?a. App::$Action.'/'. $k ?>"><?p. $v ?></a></li>
+		<?php } ?>
+	</ul>
+</div>
+
+<form name="ConfigForm" id="ConfigForm" method="post" action="<?a. 'Write' ?>?redirect_url=<?a. App::$Action.'/'.App::$ID ?>">
+	<input type="hidden" name="Code" value="<?v. App::$Data['Code'] ?>">
+	<fieldset>
+		<h3><?p. App::$Data['menu'][App::$ID] ?></h3>
+		<div class="writeField">
+			<article>
+				<textarea name="text" id="text"><?v. CustomText(CM::Config(App::$Data['Code'], 'text')) ?></textarea>
+			</article>
+		</div>
+	</fieldset>
+
+	<div class="bottomBtn">
+		<button type="submit" class="bBtn">확인</button>
+		<button type="reset" class="bBtn">취소</button>
+		<a href="#" class="backbtn bBtn">뒤로</a>
+	</div>
+</form>
+
+<script>
+	SE2_paste('text', '<?php _URL ?>', true);
+
+	$(document).on('submit', '#ConfigForm', function(e){
+		SE2_update('text');
+	});
+</script>

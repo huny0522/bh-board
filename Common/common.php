@@ -674,4 +674,8 @@ function &Get($param){
 	return $_GET[$param];
 }
 
-require _COMMONDIR . '/MyLib.php';
+function CustomText($str){
+	return preg_replace('/\<font[^\>]*?\>\s*\<\/font\>/is', '', $str);
+}
+
+require _DIR . '/Custom/MyLib.php';

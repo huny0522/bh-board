@@ -25,44 +25,8 @@ switch(App::$SettingData['GetUrl'][1]){
 			App::$CtrlUrl = _URL.App::$BaseDir.'/'.App::$ControllerName;
 		}
 
-		App::$SettingData['AdminMenu'] = array(
-			'001' => array(
-				'Category' => 'Config',
-				'Name' => '사이트관리'
-			),
-			'001001' => array(
-				'Category' => 'Config',
-				'Name' => '환경설정'
-			),
-			'001002' => array(
-				'Category' => 'BannerManager',
-				'Name' => '배너관리'
-			),
-			'001003' => array(
-				'Category' => 'PopupManager',
-				'Name' => '팝업관리'
-			),
-			'002' => array(
-				'Category' => 'BoardManager',
-				'Name' => '게시판관리'
-			),
-			'002001' => array(
-				'Category' => 'BoardManager',
-				'Name' => '게시판관리'
-			),
-			'003' => array(
-				'Category' => 'ContentManager',
-				'Name' => '컨텐츠관리'
-			),
-			'004' => array(
-				'Category' => 'MenuManager',
-				'Name' => '메뉴관리'
-			),
-			'005' => array(
-				'Category' => 'Member',
-				'Name' => '회원관리'
-			)
-		);
+		require _DIR . '/Custom/admin.common.php';
+
 		if(_AJAXIS === true) App::$Layout = null;
 		else App::$Layout = '_Admin';
 	break;
