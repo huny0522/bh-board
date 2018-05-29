@@ -482,6 +482,7 @@ function my_bcmod($x, $y){
 }
 
 function toBase($num, $b = 62, $base = ENG_NUM){
+	if(_USE_BC_TO === true) return bc_toBase($num, $b, $base);
 	if(!isset($num) || !strlen($num)) return '';
 	$r = my_bcmod($num, $b);
 	$res = $base[$r];
@@ -495,6 +496,7 @@ function toBase($num, $b = 62, $base = ENG_NUM){
 }
 
 function to10($num, $b = 62, $base = ENG_NUM){
+	if(_USE_BC_TO === true) return bc_to10($num, $b, $base);
 	if(!isset($num) || !strlen($num)) return '';
 	$limit = strlen($num);
 	$res = strpos($base, $num[0]);

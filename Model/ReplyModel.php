@@ -33,7 +33,8 @@ use \BH_Application as App;
  * @property BH_ModelData $_pwd
  * @property BH_ModelData $_comment
  */
-class ReplyModel extends \BH_Model{
+class ReplyModel extends \BH_Model
+{
 	public $bid = '';
 	public $boardTable = '';
 	public function __Init(){
@@ -44,7 +45,6 @@ class ReplyModel extends \BH_Model{
 		$this->boardTable = TABLE_FIRST.'bbs_'.$this->bid;
 
 		$this->data['seq'] = new \BH_ModelData(ModelType::Int, false, '');
-		$this->data['seq']->AutoDecrement = true;
 		$this->data['sort1'] = new \BH_ModelData(ModelType::Int, false, '');
 		$this->data['sort2'] = new \BH_ModelData(ModelType::Int, false, '');
 		$this->data['article_seq'] = new \BH_ModelData(ModelType::Int, false, '');

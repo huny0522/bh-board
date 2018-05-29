@@ -158,7 +158,8 @@ class Board{
 		if((!isset($_GET['page']) || $_GET['page'] < 2) && !strlen($_GET['searchKeyword'])){
 			$qry = $this->model->NewQryName('notice')->GetSetListQry('A');
 			$qry->AddWhere('A.delis=\'n\'')
-				->AddWhere('A.notice=\'y\'');
+				->AddWhere('A.notice=\'y\'')
+				->SetSort('A.seq DESC');
 			$this->_CommonQry($qry);
 			$qry->DrawRows();
 			$this->_RowSet($qry->data);
@@ -218,7 +219,8 @@ class Board{
 		if((!isset($_GET['seq']) || !strlen($_GET['seq'])) && (!isset($_GET['lastSeq']) || !strlen($_GET['lastSeq'])) && !strlen($_GET['searchKeyword'])){
 			$qry = $this->model->NewQryName('notice')->GetSetListQry('A');
 			$qry->AddWhere('A.delis=\'n\'')
-				->AddWhere('A.notice=\'y\'');
+				->AddWhere('A.notice=\'y\'')
+				->SetSort('A.seq DESC');
 			$this->_CommonQry($qry);
 			App::$Data['notice'] = &$qry->GetRows();
 			$this->_RowSet(App::$Data['notice']);

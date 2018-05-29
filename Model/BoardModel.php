@@ -43,7 +43,8 @@ use \BH_Application as App;
  * @property BH_ModelData $_filenm1
  * @property BH_ModelData $_filenm2
  */
-class BoardModel extends \BH_Model{
+class BoardModel extends \BH_Model
+{
 	public $imageTable = '';
 	public $bid = '';
 	public function __Init(){
@@ -59,7 +60,6 @@ class BoardModel extends \BH_Model{
 		}
 
 		$this->data['seq'] = new \BH_ModelData(ModelType::Int, false, '');
-		$this->data['seq']->AutoDecrement = true;
 		$this->data['sort1'] = new \BH_ModelData(ModelType::Int, false, '');
 		$this->data['sort2'] = new \BH_ModelData(ModelType::Int, false, '');
 		$this->data['depth'] = new \BH_ModelData(ModelType::Int, false, '');

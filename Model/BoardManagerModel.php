@@ -126,7 +126,7 @@ class BoardManagerModel extends \BH_Model{
 
 	public function CreateTableBoard($board_nm){
 		$sql = "CREATE TABLE `{$board_nm}` (
-					`seq` INT(10) NOT NULL DEFAULT '0',
+					`seq` BIGINT(10) NOT NULL AUTO_INCREMENT,
 					`sort1` INT(10) NOT NULL DEFAULT '0',
 					`sort2` INT(10) NOT NULL DEFAULT '0',
 					`depth` TINYINT(1) NOT NULL DEFAULT '0',
@@ -167,10 +167,10 @@ class BoardManagerModel extends \BH_Model{
 
 	public function CreateTableReply($reply_nm){
 		$sql = "CREATE TABLE `{$reply_nm}` (
-					`seq` INT(10) NOT NULL DEFAULT '0',
+					`seq` BIGINT(10) NOT NULL AUTO_INCREMENT,
 					`sort1` INT(11) NOT NULL DEFAULT '0',
 					`sort2` INT(11) NOT NULL DEFAULT '0',
-					`article_seq` INT(10) NOT NULL DEFAULT '0',
+					`article_seq` BIGINT(10) NOT NULL DEFAULT '0',
 					`depth` TINYINT(1) NOT NULL DEFAULT '0',
 					`secret` ENUM('y','n') NOT NULL DEFAULT 'n',
 					`mlevel` TINYINT(1) NOT NULL DEFAULT '0',
@@ -185,19 +185,22 @@ class BoardManagerModel extends \BH_Model{
 					`reg_date` DATETIME NOT NULL,
 					`file` VARCHAR(128) NOT NULL DEFAULT '' COMMENT '파일',
 					`delis` ENUM('y','n') NOT NULL DEFAULT 'n',
-					PRIMARY KEY (`article_seq`, `seq`),
+					PRIMARY KEY (`seq`),
+					INDEX `article_seq` (`article_seq`, `seq`),
 					INDEX `sort` (`sort1`, `sort2`),
 					INDEX `delis` (`delis`)
 				)
 				COLLATE='utf8_general_ci'
-				ENGINE=InnoDB";
+				ENGINE=InnoDB
+				AUTO_INCREMENT=10000
+				";
 		$res = \DB::SQL()->Query($sql);
 		return $res;
 	}
 
 	public function CreateTableImg($board_nm){
 		$sql = "CREATE TABLE `{$board_nm}` (
-					`article_seq` INT(10) NOT NULL DEFAULT '0',
+					`article_seq` BIGINT(10) NOT NULL DEFAULT '0',
 					`seq` INT(10) NOT NULL DEFAULT '0',
 					`image` VARCHAR(128) NOT NULL DEFAULT '',
 					`imagename` VARCHAR(128) NOT NULL DEFAULT '',

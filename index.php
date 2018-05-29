@@ -57,6 +57,7 @@ define('_REMOVE_SPACE', false);
 define('_VIEW_MICROTIME', true);
 define('_USE_OLD_PASSWORD', false);
 define('_SHOW_CREATE_GUIDE', true);
+define('_USE_BC_TO', false);
 
 define('_STYLEFILE', '_bhinline.bhcss.php');
 define('_FILE_PUT_GUIDE', true);

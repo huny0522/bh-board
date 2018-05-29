@@ -1,13 +1,21 @@
 <?php
+use BH\BHCss\BHCss;
 
 if (strpos(php_sapi_name(), 'cli') === false)  exit;
+$second = 0;
 
 global $argc, $argv;
 if(sizeof($argv) < 2) exit;
 if(in_array('-loop', $argv)){
 	while(1){
-		if(in_array('-property-update', $argv)) _ModelDirUpdate();
-		sleep(3);
+		if($second % 3 === 0){
+			if(in_array('-property-update', $argv)) _ModelDirUpdate();
+		}
+		if($second % 1 === 0){
+			if(in_array('-bhcss', $argv)) convertBHCssDir(_SKINDIR . '/css');
+		}
+		sleep(1);
+		$second++;
 	}
 }
 else _ModelDirUpdate();
@@ -60,4 +68,56 @@ function _PropertyUpdate($file){
 	if($source === $data) return \BH_Result::Init(false);
 	file_put_contents(_DIR . '/Model/' . $modelName . '.php', $data);
 	return \BH_Result::Init(true, $file . ' 수정완료');
+}
+
+function convertBHCssDir($tempfile_path, $beginIs = true){
+	if($beginIs)
+		BHCss::$convDirMessage = array('success' => array(), 'fail' => array());
+
+	if(!is_dir($tempfile_path)) return;
+
+	if($dh = opendir($tempfile_path)){
+		while(($file = readdir($dh)) !== false){
+			if($file != '.' && $file != '..'){
+				$dest_path = $tempfile_path . '/' . $file;
+				if(is_dir($dest_path)) convertBHCssDir($dest_path, false);
+				else{
+					if(substr($dest_path, strlen(BHCss::$fileExtension) * (-1)) == BHCss::$fileExtension){
+						if(!isset(BHCss::$modifyFilesTime[$dest_path]))
+							BHCss::$modifyFilesTime[$dest_path] = 0;
+
+						BHCss::reset();
+						$res = _cssConvTimeCheck(BHCss::$modifyFilesTime[$dest_path], $dest_path);
+						if(!is_null($res)){
+							if($res->result){
+								echo '['.date('Y-m-d H:i:s').'] '.$dest_path.' convert success' .PHP_EOL;
+							}
+							else{
+								echo '['.date('Y-m-d H:i:s').'] '.$dest_path.' convert faild' .PHP_EOL;
+							}
+						}
+					}
+				}
+			}
+		}
+		closedir($dh);
+	}
+}
+
+// 파일 변경 시간 체크 후 컨버팅
+function _cssConvTimeCheck(&$beforeTime, $path){
+	$path = str_replace('\\', '/', $path);
+
+	if(in_array($path, BHCss::$passFiles)) return null;
+
+	if(file_exists($path)){
+		$targetTime = filemtime($path);
+		if($beforeTime != $targetTime){
+			$res = BHCSS::conv($path);
+			$beforeTime = $targetTime;
+			if($res->result) return (object) array('result' => true, 'message' => '');
+			return (object) array('result' => false, 'message' => $res->message);
+		}
+	}
+	return null;
 }
