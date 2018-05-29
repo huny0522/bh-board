@@ -50,7 +50,7 @@ class MenuModel extends \BH_Model{
 
 		$this->data['parent_enabled'] = new \BH_ModelData(ModelType::Enum, false, '부모사용여부');
 		$this->data['parent_enabled']->EnumValues = array('y' => '사용', 'n' => '사용안함');
-	}
+	} // __Init
 
 
 	// 자식레벨 가져오기

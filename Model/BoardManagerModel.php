@@ -122,7 +122,7 @@ class BoardManagerModel extends \BH_Model{
 		$this->data['attach_type']->DefaultValue = 'normal';
 
 		$this->data['reg_date'] = new \BH_ModelData(ModelType::Datetime, false, '등록일');
-	}
+	} // __Init
 
 	public function CreateTableBoard($board_nm){
 		$sql = "CREATE TABLE `{$board_nm}` (

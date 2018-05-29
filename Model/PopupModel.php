@@ -74,6 +74,6 @@ class PopupModel extends \BH_Model{
 		$this->data['sort'] = new \BH_ModelData(ModelType::Int, true, '정렬');
 		$this->data['sort']->DefaultValue = '0';
 
-	}
+	} // __Init
 
 }

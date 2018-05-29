@@ -71,6 +71,6 @@ class MemberModel extends \BH_Model{
 
 		$this->data['approve'] = new \BH_ModelData(ModelType::Enum, false, '승인여부', HTMLType::InputRadio);
 		$this->data['approve']->EnumValues = array('y'=>'승인','n'=>'미승인');
-	}
+	} // __Init
 
 }

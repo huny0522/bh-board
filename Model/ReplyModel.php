@@ -74,7 +74,7 @@ class ReplyModel extends \BH_Model{
 		$this->data['pwd']->MaxLength = 16;
 
 		$this->data['comment'] = new \BH_ModelData(ModelType::String, false, '내용', HTMLType::Textarea);
-	}
+	} // 자동생성불가
 
 
 	// 게시물의 리플 수 갱신

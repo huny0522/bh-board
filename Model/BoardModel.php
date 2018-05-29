@@ -117,6 +117,6 @@ class BoardModel extends \BH_Model{
 		if(method_exists($this, '__Init2')){
 			$this->__Init2();
 		}
-	}
+	} // 자동생성불가
 
 }

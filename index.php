@@ -18,6 +18,7 @@ define('_BH_', true);
 //			Directory & URL Set
 //
 // -------------------------------------
+define('PHP_RUN_CLI', strpos(php_sapi_name(), 'cli') !== false);
 define('_DIR', str_replace('\\', '/', dirname(__FILE__)));
 define('_MODELDIR', _DIR . '/Model');
 define('_CONTROLLERDIR', _DIR . '/Controller');
@@ -37,7 +38,7 @@ define('_ADMINURL', _URL . '/' . _ADMINURLNAME);
 define('_IMGURL', _SKINURL . '/images');
 define('_UPLOAD_URL', _DATAURL . '/' . _UPLOAD_DIRNAME);
 
-define('_DOMAIN', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']);
+define('_DOMAIN', isset($_SERVER['HTTP_HOST']) ? ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']) : '');
 
 // -------------------------------------
 //
@@ -45,10 +46,13 @@ define('_DOMAIN', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'http
 //
 // -------------------------------------
 $_DEVELOPER_IP = array('127.0.0.1');
-define('_DEVELOPERIS', true && in_array($_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP));
+if(PHP_RUN_CLI === true){
+	define('_DEVELOPERIS', true);
+}
+else define('_DEVELOPERIS', true && in_array($_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP));
 define('_CREATE_HTML_ALL', false && _DEVELOPERIS === true);
 define('_REFRESH_HTML_ALL', true && _DEVELOPERIS === true);
-define('_REFRESH_BTN', _DEVELOPERIS === true ? '<a id="_BH_RefreshBtn" href="' . _URL . '/_Refresh?r_url=' . urlencode($_SERVER['REQUEST_URI']) . '">새로고침</a>' : '');
+define('_REFRESH_BTN', PHP_RUN_CLI ? '' : (_DEVELOPERIS === true ? '<a id="_BH_RefreshBtn" href="' . _URL . '/_Refresh?r_url=' . urlencode($_SERVER['REQUEST_URI']) . '">새로고침</a>' : ''));
 define('_REMOVE_SPACE', false);
 define('_VIEW_MICROTIME', true);
 define('_USE_OLD_PASSWORD', false);

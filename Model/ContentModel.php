@@ -44,6 +44,6 @@ class ContentModel extends \BH_Model{
 
 		$this->data['recommend'] = new \BH_ModelData(ModelType::Int, false, '추천수');
 		$this->data['reg_date'] = new \BH_ModelData(ModelType::Datetime, false, '등록일');
-	}
+	} // __Init
 
 }

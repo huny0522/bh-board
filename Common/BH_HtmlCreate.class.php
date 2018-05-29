@@ -152,6 +152,10 @@ class {$ModelName}Model extends \\BH_Model{
 
 	public static function ModifyModel($f){
 		if(_DEVELOPERIS !== true) return;
+		$oClass = new ReflectionClass('ModelType');
+		$mTypeKeys = array_keys($oClass->getConstants());
+		$oClass = new ReflectionClass('HTMLType');
+		$hTypeKeys = array_keys($oClass->getConstants());
 		/*$modelPath = _MODELDIR.'/'.$ModelName.'.model.php';
 		if(!file_exists($modelPath)) $modelPath = _DATADIR.'/'.$ModelName.'.model.php';
 		if(!file_exists($modelPath)) exit;
@@ -179,48 +183,70 @@ class {$ModelName}Model extends \\BH_Model{
 		$propertyDoc = '';
 		while($row = \DB::SQL()->Fetch($qry)){
 			//$tData[$row['Field']] = $row;
-			$findIs = preg_match('/\$this\-\>data\[\'' . $row['Field'] . '\'\]\s*=\s*new\s*BH_ModelData/is', $initFuncText);
+			$findIs = preg_match('/\$this\-\>data\[\'' . $row['Field'] . '\'\]\s*=\s*new\s*[\\\]*BH_ModelData/is', $initFuncText);
 			$propertyDoc .= " * @property \\BH_ModelData \$_{$row['Field']}\n";
 			if(strtolower($row['Key']) == 'pri') $primaryKey[] = "'{$row['Field']}'";
 
 			if(!$findIs){
-				$modelType = 'ModelType::String';
+
+				$modelType = '';
 				$htmlType = '';
+				$cmt = '';
+				$enumValues = array();
+
+				$comment = explode(';', $row['Comment']);
+				foreach($comment as $v){
+					$v = trim($v);
+					if(in_array($v, $mTypeKeys)) $modelType = 'ModelType::'.$v;
+					else if(in_array($v, $hTypeKeys)) $htmlType = ', HTMLType::'.$v;
+					else if(substr($v, 0, 1) == '[' && substr($v, -1) == ']'){
+						$temp = explode(',', substr($v, 1, -1));
+						foreach($temp as $v2){
+							$temp2 = explode(':', $v2);
+							if(sizeof($temp2) > 1) $enumValues[$temp2[0]] = $temp2[1];
+						}
+					}
+					else $cmt = $v;
+				}
+
 				$addOption = '';
-				$row['Type'] = strtolower($row['Type']);
-				if(strpos($row['Type'], 'int(') !== false){
-					$modelType = 'ModelType::Int';
+				$type = strtolower($row['Type']);
+				if(strpos($type, 'int(') !== false){
+					if($modelType === '') $modelType = 'ModelType::Int';
 					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->DefaultValue = ' . (int)$row['Default'] . ';';
 				}
-				else if(strpos($row['Type'], 'date') !== false){
-					$modelType = 'ModelType::Date';
-					$htmlType = ', HTMLType::InputDatePicker';
+				else if(strpos($type, 'date') !== false){
+					if($modelType === '') $modelType = 'ModelType::Date';
+					if($htmlType === '') $htmlType = ', HTMLType::InputDatePicker';
 				}
-				else if(strpos($row['Type'], 'datetime') !== false){
-					$modelType = 'ModelType::Datetime';
-					$htmlType = ', HTMLType::InputDatePicker';
+				else if(strpos($type, 'datetime') !== false){
+					if($modelType === '') $modelType = 'ModelType::Datetime';
+					if($htmlType === '') $htmlType = ', HTMLType::InputDatePicker';
 				}
-				else if(strpos($row['Type'], 'enum(') !== false){
-					$modelType = 'ModelType::Enum';
-					$htmlType = ', HTMLType::Select';
+				else if(strpos($type, 'enum(') !== false){
+					if($modelType === '') $modelType = 'ModelType::Enum';
+					if($htmlType === '') $htmlType = ', HTMLType::Select';
 					preg_match('/\((.*?)\)/', $row['Type'], $matches);
 					$enum = explode(',', $matches[1]);
 					$enum_t = array();
 					foreach($enum as $v){
-						$enum_t[] = $v . ' => ' . $v;
+						$v2 = substr($v, 1, -1);
+						$enum_t[] = $v . ' => ' . (isset($enumValues[$v2]) ? '"'.$enumValues[$v2].'"' : $v);
 					}
 					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->EnumValues = array(' . implode(',', $enum_t) . ');';
 					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->DefaultValue = \'' . $row['Default'] . '\';';
 				}
-				else if(strpos($row['Type'], 'varchar(') !== false){
-					preg_match('/\(([0-9]*?)\)/', $row['Type'], $matches);
+				else if(strpos($type, 'varchar(') !== false){
+					preg_match('/\(([0-9]*?)\)/', $type, $matches);
 					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->MaxLength = \'' . $matches[1] . '\';';
 				}
 				else if(strpos($row['Type'], 'text') !== false){
-					$htmlType = ', HTMLType::Textarea';
+					if($htmlType === '') $htmlType = ', HTMLType::Textarea';
 				}
 
-				$initFuncText .= chr(10) . chr(10) . '$this->data[\'' . $row['Field'] . '\'] = new \\BH_ModelData(' . $modelType . ', false, \'' . ($row['Comment'] ? $row['Comment'] : $row['Field']) . '\'' . $htmlType . ');' . $addOption;
+				if($modelType === '') $modelType = 'ModelType::String';
+
+				$initFuncText .= chr(10) . chr(10) . '$this->data[\'' . $row['Field'] . '\'] = new \\BH_ModelData(' . $modelType . ', false, \'' . ($cmt ? $cmt : $row['Field']) . '\'' . $htmlType . ');' . $addOption;
 			}
 
 		}
@@ -228,12 +254,15 @@ class {$ModelName}Model extends \\BH_Model{
 
 		$pattern = '/\$this\-\>Key\s*=\s*array/i';
 		preg_match($pattern, $initFuncText, $matches);
-		if(!sizeof($matches)){
+		$pattern = '/\$this\-\>Key\s*\[\s*\]/';
+		preg_match($pattern, $initFuncText, $matches2);
+		if(!sizeof($matches) && !sizeof($matches2)){
 			$initFuncText = '$this->Key = array(' . implode(',', $primaryKey) . ');' . chr(10) . $initFuncText;
 		}
 
 		$initFuncText = str_replace(chr(11), '', $initFuncText);
 		$initFuncText = str_replace(chr(10), chr(10) . chr(9) . chr(9), $initFuncText);
+		$initFuncText = str_replace(array("\t\t\n", "\t\t\r"), array("\n", "\r"), $initFuncText);
 		$pattern = '/function\s+__Init\s*\(\s*\)\s*\{\s*(.*?)\s*\}\s*\/\/\s*__Init/is';
 		$res = preg_replace($pattern, 'function __Init(){' . chr(10) . chr(9) . chr(9) . $initFuncText . chr(10) . chr(9) . '} // __Init', $f);
 

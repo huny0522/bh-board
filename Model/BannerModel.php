@@ -68,5 +68,5 @@ class BannerModel extends \BH_Model{
 		$this->data['sort']->DefaultValue = '0';
 
 		$this->data['link_url'] = new \BH_ModelData(ModelType::String, false, '링크주소');
-	}
+	} // __Init
 }

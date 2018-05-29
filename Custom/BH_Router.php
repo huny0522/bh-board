@@ -6,6 +6,11 @@
 use \BH_Common as CM;
 use \BH_Application as App;
 
+if(PHP_RUN_CLI){
+	require _DIR . '/Custom/cli_func.php';
+	exit;
+}
+
 switch(App::$SettingData['GetUrl'][1]){
 	case _ADMINURLNAME: // 관리자
 		App::$NativeDir = 'Admin';
