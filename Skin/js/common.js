@@ -714,6 +714,10 @@ var EventLink = {
 			});
 
 			if(this === arg1){
+				$(this).on('click', function(e){
+					e.preventDefault();
+				});
+
 				$(this).on('e_drag', arg2);
 				$(this).on('e_drag_end', arg3);
 				$(this).on('touchstart mousedown', function(e){
@@ -722,6 +726,10 @@ var EventLink = {
 				});
 			}
 			else{
+				$(this).on('click', arg1, function(e){
+					e.preventDefault();
+				});
+
 				$(this).on('e_drag', arg1, arg2);
 				$(this).on('e_drag_end', arg1, arg3);
 				$(this).on('touchstart mousedown', arg1, function(e){
@@ -755,20 +763,20 @@ var EventLink = {
 			if(clickIs && JCM.hasClass(node, 'bh-event-touch-visible')){
 				e.preventDefault();
 				e.stopImmediatePropagation();
-				$(node).trigger('e_touch_visible');
+				$(node).trigger('e_touch_visible').off('click').on('click', function(e){e.preventDefault()});
 			}
 
 			if(!clickIs && EventLink.dragObj !== null){
 				e.preventDefault();
 				e.stopImmediatePropagation();
-				$(EventLink.dragObj).trigger('e_drag_end', [EventLink.startPos, EventLink.endPos]);
+				$(EventLink.dragObj).trigger('e_drag_end', [EventLink.startPos, EventLink.endPos]).off('click').on('click', function(e){e.preventDefault()});
 			}
 
 			while(node !== this && node){
 				if(clickIs && JCM.hasClass(node, 'bh-event-touch')){
 					e.preventDefault();
 					e.stopImmediatePropagation();
-					$(node).trigger('e_touch');
+					$(node).trigger('e_touch').off('click').on('click', function(e){e.preventDefault()});
 				}
 				node = node.parentNode;
 			}
@@ -967,8 +975,9 @@ function SelectBox($){
 		var selVal = $(this).val();
 		$(this).children('option').each(function(){
 			var value = this.hasAttribute('value') ? $(this).attr('value') : $(this).text();
+			var view = this.hasAttribute('data-view') ? $(this).attr('data-view') : $(this).text();
 			var selected = selVal == value ? ' class="selected"' : '';
-			html += '<li><button type="button" data-value="' + value + '"' + selected + '>' + $(this).text() + '</button></li>';
+			html += '<li><button type="button" data-value="' + value + '"' + selected + '>' + view + '</button></li>';
 		});
 		html += '</ul></div>';
 
