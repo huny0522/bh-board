@@ -13,9 +13,9 @@ App::CSSAdd('admin.bhcss.php'.CM::RefreshParam(), 10);
 App::JSAdd('jquery-1.11.3.min.js', 10);
 App::JSAdd('jquery.form.min.js', 10);
 App::JSAdd('jquery-ui.min.js', 10);
-App::JSAdd('common.js', 10);
-App::JSAdd('contents.js', 10);
-App::JSAdd('admin.js', 10);
+App::JSAdd('/Common/common.js' . CM::RefreshParam(), 10);
+App::JSAdd('contents.js' . CM::RefreshParam(), 10);
+App::JSAdd('admin.js' . CM::RefreshParam(), 10);
 ?>
 
 <div id="wrap"<?php if(isset($_COOKIE['managerSideView']) && $_COOKIE['managerSideView'] == 'no') echo ' class="sideHidden"'; ?>>

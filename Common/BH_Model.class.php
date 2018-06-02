@@ -369,7 +369,10 @@ class BH_Model{
 			$this->{$name} = $value;
 			if(!isset($this->data[substr($name, 1)]) || is_null($this->data[substr($name, 1)])) $this->data[substr($name, 1)] = $this->{$name};
 		}
-		else if($name === 'Need') call_user_func_array(array($this, 'SetNeedData'), $value);
+		else if($name === 'Need'){
+			if(!is_array($value)) $value = array($value);
+			call_user_func_array(array($this, 'SetNeedData'), $value);
+		}
 	}
 
 	/**
@@ -391,7 +394,7 @@ class BH_Model{
 	}
 
 	public function SetNeedData($str){
-		$args = func_get_args();
+		$args = is_array($str) ? $str : func_get_args();
 		for($i = 0, $i2 = sizeof($args); $i < $i2; $i++){
 			if(isset($this->data[$args[$i]])) $this->data[$args[$i]]->NeedIs = true;
 		}
@@ -932,16 +935,23 @@ class _ModelFunc{
 
 					else if(self::IsFileType($v->HtmlType)){
 						$fileUpIs = false;
-						if(strlen($post[$k])){
+						$fPath = $post[$k];
+						$fName = '';
+						if($v->HtmlType === HTMLType::InputFileWithName || $v->HtmlType === HTMLType::InputFile){
+							$m = explode('*', $post[$k]);
+							$fPath = $m[0];
+							if($v->HtmlType === HTMLType::InputFileWithName && isset($m[1]) && strlen($m[1])) $fName = '*' . $m[1];
+						}
+						if(strlen($fPath) && file_exists(_UPLOAD_DIR . $fPath)){
 							$fileUpIs = true;
-							$newpath = self::ReservedMoveFile($post[$k], $model->table);
+							$newpath = self::ReservedMoveFile($fPath, $model->table);
 
 							if(is_string($newpath)){
-								$v->__moveFile[]= array('source' => $post[$k], 'dest' => $newpath);
+								$v->__moveFile[]= array('source' => $fPath, 'dest' => $newpath);
 								// 기존 파일
 								if(strlen($v->Value)) $v->__deleteFile[]= $v->Value;
 
-								$v->Value = $newpath;
+								$v->Value = $newpath.$fName;
 								$v->NeedIs = true;
 							}
 							else{
@@ -1260,12 +1270,15 @@ class _ModelFunc{
 				return '<span class="dateInput"><input type="text" name="'.$Name.'" id="'.$firstIDName.$Name.'" '.(isset($val) ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'></span>';
 			break;
 			case HTMLType::InputFileWithName:
-				$h = '';
+				$h = '<div class="fileUploadArea2"><input type="hidden" name="' . $Name . '" class="fileUploadInput" value="">';
 				if(strlen($data->Value)){
 					$f = explode('*', $data->Value);
-					$h = ' <span class="uploadedFile">' . (isset($f[1]) ? GetDBText($f[1]) : '') . ' <label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><span> 파일삭제</span></label></span>';
+					$h .= ' <p><span class="fileName">' . (isset($f[1]) ? GetDBText($f[1]) : '') . '</span> <label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><span> 파일삭제</span></label></p>';
 				}
-				return $h . ' <input type="file" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+				else{
+					$h .= '<p><span class="fileName"></span></p>';
+				}
+				return $h . ' <button type="button" class="fileUploadBtn sBtn">첨부파일</button></div><script>JCM.fileForm();</script>';
 			break;
 			case HTMLType::InputFile:
 				$h = '';

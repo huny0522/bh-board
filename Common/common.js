@@ -362,7 +362,7 @@ function Common($){
 
 	/* -------------------------------------------
 	 *
-	 *   파일업로드
+	 *   이미지 파일업로드
 	 *   파일 업로드 영역 : .fileUploadArea
 	 *   파일 업로드 file hidden type input : input.fileUploadInput
 	 *   파일 업로드 미리보기 : .fileUploadImage
@@ -414,6 +414,65 @@ function Common($){
 				var img = area.find('.fileUploadImage');
 				if(img.length){
 					img.html('<i style="background-image:url(' + result.uploadDir + result.path  + ')"></i>');
+				}
+			});
+		});
+	};
+
+	/* -------------------------------------------
+	 *
+	 *   일반 파일업로드
+	 *   파일 업로드 영역 : .fileUploadArea2
+	 *   파일 업로드 file hidden type input : input.fileUploadInput
+	 *   파일 업로드 미리보기 : .fileName
+	 *   파일 업로드 버튼 : .fileUploadBtn
+	 *
+	 ------------------------------------------- */
+
+	this.fileFormRunIs = false;
+	this.fileForm = function(){
+		if(this.fileFormRunIs) return;
+		this.fileFormRunIs = true;
+
+		if($('#_uploadFileFrm').length) return;
+		var frm = '<form id="_uploadFileFrm" method="post" action="/Upload/FileUpload/" enctype="multipart/form-data" style="display:block; width:0; height:0; opacity:0; overflow:hidden;">' +
+			'<input type="file" name="Filedata" value="" data-sname="" id="_uploadFileInp" style="display:block; width:0; height:0; opacity:0;" />' +
+			'</form>';
+		$('body').append(frm);
+
+		$(document).on('click','.fileUploadArea2 button.fileUploadBtn',function(e){
+			e.preventDefault();
+			$('#_uploadFileFrm').data({
+				obj : $(this).closest('.fileUploadArea2').find('input.fileUploadInput')[0]
+			});
+			$('#_uploadFileInp').click();
+		});
+		$(document).on('click','.fileUploadArea2 button.fileUploadAreaAddBtn',function(e){
+			var area = $(this).closest('.fileUploadArea2');
+			var inHtml = '<div class="fileUploadArea2">' + area.html().replace(/\<span.+?class\=\"fileName\"\>.*?\<\/span\>/ig, '<span class="fileName"></span>').replace(/value\=\".*?\"/ig, 'value=""') + '</div>';
+			area.after(inHtml);
+			e.preventDefault();
+		});
+		$(document).on('click','.fileUploadArea2 button.fileUploadAreaRmBtn',function(e){
+			e.preventDefault();
+			var area = $(this).closest('.fileUploadArea2');
+			if(area.siblings('.fileUploadArea2').length) area.remove();
+		});
+		$(document).on('change', '#_uploadFileInp', function(e){
+			e.preventDefault();
+			$('#_uploadFileFrm').submit();
+		});
+
+		$(document).on('submit','#_uploadFileFrm',function(e){
+			e.preventDefault();
+			_this.ajaxForm(this, function(result){
+				$('#_uploadFileFrm')[0].reset();
+				var obj = $('#_uploadFileFrm').data().obj;
+				var area = $(obj).closest('.fileUploadArea2');
+				$(obj).val(result.path + '*' + result.fname);
+				var file = area.find('.fileName');
+				if(file.length){
+					file.html(result.fname);
 				}
 			});
 		});

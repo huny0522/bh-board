@@ -165,4 +165,7 @@ BHCss::$variable['$fw'] = 'font-weight';
 	.fileUploadImage{$dib; $vam;}
 	.fileUploadImage img{$db; max-width:100px; max-height:100px;}
 	.fileUploadImage i{$db; width:100px; height:100px; background-repeat:no-repeat; background-size:contain; background-position:center center;}
+	.fileUploadArea2{padding:10px 0;}
+	.fileUploadArea2 + .fileUploadArea2{padding-top:0;}
+	.fileUploadArea2 p{$dib;}
 </style>
