@@ -28,6 +28,11 @@ class HTMLType{
 	const InputTel = 'tel';
 	const InputFile = 'file';
 	const InputFileWithName = 'filewithname';
+	/**
+	 * 아래 플러그인이 필요합니다.
+	 * composer require blueimp/jquery-file-upload
+	 */
+	const InputFileJQuery = 'jqueryfile';
 	const InputImageFile = 'imagefile';
 	const InputImageFileArray = 'imagefilearray';
 	const Select = 'select';
@@ -58,6 +63,12 @@ class BH_ModelData{
 	public $BlankIsNull = false;
 	public $possibleExt;
 	public $KeyName = null;
+	/**
+	 * @var array
+	 * @option string maxFileSize : InputFileJQuery 에서 파일 최대 용량
+	 * @option array possibleExt : InputFileJQuery 에서 허용 확장자
+	 */
+	public $AddOption = array();
 
 	public $NeedIs = false;
 	public $IdFirst = 'MD_';
@@ -303,6 +314,11 @@ class BH_ModelData{
 
 	public function &SetBlankIsNull($bool = true){
 		$this->BlankIsNull = $bool;
+		return $this;
+	}
+
+	public function &SetFileSize($mb){
+		$this->MaxFileSize = $mb;
 		return $this;
 	}
 
@@ -868,7 +884,7 @@ class _ModelFunc{
 	}
 
 	public static function IsFileType($type){
-		return in_array($type, array(HTMLType::InputFile, HTMLType::InputFileWithName, HTMLType::InputImageFile, HTMLType::InputImageFileArray));
+		return in_array($type, array(HTMLType::InputFile, HTMLType::InputFileWithName, HTMLType::InputImageFile, HTMLType::InputImageFileArray, HTMLType::InputFileJQuery));
 	}
 
 	public static function SetPostValues(&$model, &$post, $withFile = false){
@@ -935,15 +951,60 @@ class _ModelFunc{
 
 					else if(self::IsFileType($v->HtmlType)){
 						$fileUpIs = false;
-						$fPath = $post[$k];
+						$m = explode('*', $post[$k]);
+						$fPath = $m[0];
+
 						$fName = '';
-						if($v->HtmlType === HTMLType::InputFileWithName || $v->HtmlType === HTMLType::InputFile){
-							$m = explode('*', $post[$k]);
-							$fPath = $m[0];
-							if($v->HtmlType === HTMLType::InputFileWithName && isset($m[1]) && strlen($m[1])) $fName = '*' . $m[1];
+						if($v->HtmlType === HTMLType::InputFileWithName || $v->HtmlType === HTMLType::InputFile || $v->HtmlType === HTMLType::InputFileJQuery){
+							if(($v->HtmlType === HTMLType::InputFileWithName || $v->HtmlType === HTMLType::InputFileJQuery) && isset($m[1]) && strlen($m[1])) $fName = '*' . $m[1];
 						}
+
 						if(strlen($fPath) && file_exists(_UPLOAD_DIR . $fPath)){
+							$ext = explode('.', $fPath);
+							$ext = array_pop($ext);
+
+							if(isset($v->AddOption['possibleExt']) && is_array($v->AddOption['possibleExt']) && sizeof($v->AddOption['possibleExt'])){
+								if(!in_array($ext, $v->AddOption['possibleExt'])){
+									$ret->message = $v->ModelErrorMsg = $v->DisplayName . '항목에 업로드 불가능한 파일을 등록하였습니다.';
+									$ret->result = false;
+									return $ret;
+								}
+							}
+							else if(!in_array($ext, BH_Application::$SettingData['POSSIBLE_EXT'])){
+								$ret->message = $v->ModelErrorMsg = $v->DisplayName . '항목에 업로드 불가능한 파일을 등록하였습니다.';
+								$ret->result = false;
+								return $ret;
+							}
+
+							// 파일 용량검사
+							if(isset($v->AddOption['maxFileSize']) && $v->AddOption['maxFileSize']){
+								$s = preg_replace('/[^0-9\.]/', '', $v->AddOption['maxFileSize']);
+								$type = strtolower(substr($v->AddOption['maxFileSize'], -2));
+
+								if($type === 'mb') $s = $s * 1024 * 1024;
+								else if($type === 'kb') $s = $s * 1024;
+
+								if($s < filesize(_UPLOAD_DIR . $fPath)){
+									$ret->message = $v->ModelErrorMsg = $v->DisplayName . '항목에 파일용량을 초과하였습니다.';
+									$ret->result = false;
+									return $ret;
+								}
+							}
+
 							$fileUpIs = true;
+
+							// 파일명 변경
+							if($v->HtmlType === HTMLType::InputFileJQuery){
+								$tempPath = explode('/', $fPath);
+								array_pop($tempPath);
+
+								$newFileName = '';
+								while($newFileName == '' || file_exists(_UPLOAD_DIR . implode('/', $tempPath) . '/' . $newFileName . '.' . $ext)) $newFileName = self::RandomFileName();
+								$old = $fPath;
+								$fPath = implode('/', $tempPath) . '/' . $newFileName . '.' . $ext;
+								rename(_UPLOAD_DIR . $old, _UPLOAD_DIR . $fPath);
+							}
+
 							$newpath = self::ReservedMoveFile($fPath, $model->table);
 
 							if(is_string($newpath)){
@@ -1269,6 +1330,37 @@ class _ModelFunc{
 			case HTMLType::InputDate:
 				return '<span class="dateInput"><input type="text" name="'.$Name.'" id="'.$firstIDName.$Name.'" '.(isset($val) ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'></span>';
 			break;
+			case HTMLType::InputFileJQuery:
+				if(!isset(BH_Application::$SettingData['_JQUERY_FILE_UPLOAD'])){
+					BH_Application::$SettingData['_JQUERY_FILE_UPLOAD'] = true;
+					BH_Application::JSAdd('/vendor/blueimp/jquery-file-upload/js/vendor/jquery.ui.widget.js', 150);
+					BH_Application::JSAdd('/vendor/blueimp/jquery-file-upload/js/jquery.fileupload.js', 150);
+					BH_Application::CSSAdd('/vendor/blueimp/jquery-file-upload/css/jquery.fileupload.css', 150);
+					BH_Application::CSSAdd('/vendor/blueimp/jquery-file-upload/css/jquery.fileupload-ui.css', 150);
+				}
+
+
+				if(isset($data->AddOption['maxFileSize'])) $Attribute .= ' data-max-size="' . $data->AddOption['maxFileSize'] . '"';
+				if(isset($data->AddOption['possibleExt']) && is_array($data->AddOption['possibleExt'])) $Attribute .= ' data-ext="' .  implode(',', $data->AddOption['possibleExt']) . '"';
+
+				$f = explode('*', $data->Value);
+
+				$h = '<div class="jqFileUploadArea"' . $Attribute . '>
+				<input type="hidden" name="' . $Name . '" value="" id="MD_'.$firstIDName.$Name.'" class="fileUploadPath">
+				<div style="padding-bottom:10px;">';
+				if(strlen($data->Value)) $h .= '<p><b class="upload_file_name">'.(isset($f[1]) ? GetDBText($f[1]) : '').'</b> <label class="checkbox"><input type="checkbox" name="del_file_'.$Name.'" value="y"><span> 파일삭제</span></label></p>';
+				else $h .= '<p><b class="upload_file_name"></b></p>';
+				$h .= '</div>
+						<div style="display:block; width: 0; height: 0; overflow: hidden; opacity: 0; filter:alpha(0);">
+							<input type="file" name="temp_upload_file" class="fileUploadInp">
+						</div>
+						<button type="button" class="mBtn fileUploadBtn">' . (isset($HtmlAttribute['button']) ? $HtmlAttribute['button'] : '파일등록') . '</button>
+						<div class="progress progress-animated">
+							<div class="bar"></div>
+						</div>
+					</div>';
+				return $h;
+			break;
 			case HTMLType::InputFileWithName:
 				$h = '<div class="fileUploadArea2"><input type="hidden" name="' . $Name . '" class="fileUploadInput" value="">';
 				if(strlen($data->Value)){
@@ -1278,7 +1370,7 @@ class _ModelFunc{
 				else{
 					$h .= '<p><span class="fileName"></span></p>';
 				}
-				return $h . ' <button type="button" class="fileUploadBtn sBtn">첨부파일</button></div><script>JCM.fileForm();</script>';
+				return $h . ' <button type="button" class="fileUploadBtn sBtn">' . (isset($HtmlAttribute['button']) ? $HtmlAttribute['button'] : '첨부파일') . '</button></div><script>JCM.fileForm();</script>';
 			break;
 			case HTMLType::InputFile:
 				$h = '';
@@ -1613,7 +1705,7 @@ class _ModelFunc{
 		}
 
 		// 단일 파일, 업로드 시 기존 파일 삭제
-		if(in_array($model->data[$key]->HtmlType, array(HTMLType::InputImageFile, HTMLType::InputFileWithName, HTMLType::InputFile))){
+		if(in_array($model->data[$key]->HtmlType, array(HTMLType::InputImageFile, HTMLType::InputFileWithName, HTMLType::InputFile, HTMLType::InputFileJQuery))){
 			if(isset($model->data[$key]->Value) && strlen($model->data[$key]->Value) && Post('del_file_' . $key) == 'y'){
 				$temp = explode('*', $model->data[$key]->Value);
 				$model->data[$key]->__deleteFile[]= $temp[0];
@@ -1632,7 +1724,7 @@ class _ModelFunc{
 						$model->data[$key]->__deleteFile[]= $temp[0];
 					}
 
-					$model->SetValue($key, $newpath . (($model->data[$key]->HtmlType === HTMLType::InputFileWithName) ? '*' . $value[0]['original'] : ''));
+					$model->SetValue($key, $newpath . (($model->data[$key]->HtmlType === HTMLType::InputFileWithName || $model->data[$key]->HtmlType === HTMLType::InputFileJQuery) ? '*' . $value[0]['original'] : ''));
 				}
 				else{
 					if($newpath->result === -1){

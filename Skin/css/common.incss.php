@@ -168,4 +168,9 @@ BHCss::$variable['$fw'] = 'font-weight';
 	.fileUploadArea2{padding:10px 0;}
 	.fileUploadArea2 + .fileUploadArea2{padding-top:0;}
 	.fileUploadArea2 p{$dib;}
+
+	.jqFileUploadArea{
+		.progress{display: inline-block; height: 20px; width: 100px; overflow: hidden; border-radius:5px; background:#eee;vertical-align: middle;}
+		.progress .bar{width: 0%; height: 100%;}
+	}
 </style>

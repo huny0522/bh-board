@@ -377,7 +377,7 @@ function Common($){
 
 		if($('#_uploadImgFrm').length) return;
 		var frm = '<form id="_uploadImgFrm" method="post" action="/Upload/ImageUpload/" enctype="multipart/form-data" style="display:block; width:0; height:0; opacity:0; overflow:hidden;">' +
-			'<input type="file" name="Filedata" value="" data-sname="" id="_uploadImgInp" style="display:block; width:0; height:0; opacity:0;" />' +
+			'<input type="file" name="Filedata" value="" data-sname="" id="_uploadImgInp" accept="image/*" style="display:block; width:0; height:0; opacity:0;" />' +
 			'</form>';
 		$('body').append(frm);
 
@@ -477,6 +477,44 @@ function Common($){
 			});
 		});
 	};
+
+	/* -------------------------------------------
+	 *
+	 *   JQuery 파일업로드
+	 *
+	 ------------------------------------------- */
+	this.NewJQFile = function(obj){
+		var area = $(obj).closest('div.jqFileUploadArea');
+		$(obj).fileupload({
+			url :  '/JQUpload?maxfilesize=' + (area[0].hasAttribute('data-max-size') ? $(area).attr('data-max-size') : '') + '&ext=' + (area[0].hasAttribute('data-ext') ? $(area).attr('data-ext') : ''),
+			maxChunkSize: 2000000,
+			dataType: 'json',
+			done: function (e, data) {
+				$.each(data.result, function (index, file) {
+					if(typeof file[0].error !== 'undefined') CMAlert(file[0].error);
+					else{
+						area.find('input.fileUploadPath').val('/temp/' + file[0].name + '*' + file[0].name);
+						area.find('b.upload_file_name').text(file[0].name);
+					}
+				});
+				area.find('div.progress div.bar').fadeOut(1000);
+			},
+			progressall: function (e, data) {
+				var progress = parseInt(data.loaded / data.total * 100, 10);
+				area.find('div.progress div.bar').fadeIn(100);
+				area.find('div.progress div.bar').css({ 'width' : progress + '%'});
+			}
+		});
+	};
+
+	$(document).on('click', 'div.jqFileUploadArea button.fileUploadBtn', function(){
+		var area = $(this).closest('div.jqFileUploadArea');
+		if(!area[0].hasAttribute('data-jquery-file-loading')){
+			_this.NewJQFile(area);
+			area.attr('data-jquery-file-loading', 'yes');
+		}
+		area.find('input.fileUploadInp').trigger('click');
+	});
 
 	/* -------------------------------------------
 	 *
