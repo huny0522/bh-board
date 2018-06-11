@@ -35,7 +35,8 @@ use \BH_Application as App;
  * @property BH_ModelData $_attach_type
  * @property BH_ModelData $_reg_date
  */
-class BoardManagerModel extends \BH_Model{
+class BoardManagerModel extends \BH_Model
+{
 
 	public function __Init(){
 		$this->Key[] = 'bid';
@@ -208,6 +209,21 @@ class BoardManagerModel extends \BH_Model{
 				)
 				COLLATE='utf8_general_ci'
 				ENGINE=InnoDB";
+		$res = \DB::SQL()->Query($sql);
+		return $res;
+	}
+
+	public function CreateTableAction($board_nm){
+		$sql = "CREATE TABLE `{$board_nm}` (
+				`action_type` ENUM('read','recommend') NOT NULL DEFAULT 'read',
+				`article_seq` BIGINT(20) NOT NULL DEFAULT '0',
+				`muid` INT(11) NOT NULL DEFAULT '0',
+				`action_is` ENUM('y','n') NOT NULL DEFAULT 'n',
+				`reg_date` DATETIME NOT NULL DEFAULT '0000-01-01 00:00:00',
+				PRIMARY KEY (`action_type`, `article_seq`, `muid`)
+			)
+			COLLATE='utf8_general_ci'
+			ENGINE=InnoDB";
 		$res = \DB::SQL()->Query($sql);
 		return $res;
 	}

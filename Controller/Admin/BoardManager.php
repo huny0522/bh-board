@@ -98,6 +98,7 @@ class BoardManager
 					$r3 = $this->model->CreateTableImg(TABLE_FIRST.'bbs_'.$this->model->GetValue('bid').'_images');
 					if($r3){
 						CM::MenuConnect($this->model->GetValue('bid'), 'board');
+						$r4 = $this->model->CreateTableAction(TABLE_FIRST.'bbs_'.$this->model->GetValue('bid').'_action');
 					}
 				}
 			}
@@ -134,6 +135,7 @@ class BoardManager
 				@\DB::SQL()->Query("DROP TABLE `{$board_nm}`");
 				@\DB::SQL()->Query("DROP TABLE `{$board_nm}_reply`");
 				@\DB::SQL()->Query("DROP TABLE `{$board_nm}_images`");
+				@\DB::SQL()->Query("DROP TABLE `{$board_nm}_action`");
 
 				URLReplace(App::URLAction('').App::GetFollowQuery(), '삭제되었습니다.');
 			}else{

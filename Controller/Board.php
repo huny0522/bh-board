@@ -31,6 +31,8 @@ class Board{
 	public $uploadImageDir = '';
 	public static $loginUrl = _DEFAULT_BOARD_LOGIN_URL;
 
+	public $userActionTable;
+
 	/** @param \BH_DB_GetListWithPage $qry */
 	protected function _GetListQuery(&$qry){}
 	/** @param \BH_DB_GetList $qry */
@@ -47,6 +49,11 @@ class Board{
 	protected function _CommonQry(&$qry, $opt = null){}
 
 	public function __construct(){
+		$this->_Auth();
+		$this->_ModelInit('Board');
+	}
+
+	protected function _Auth(){
 		if(App::$SettingData['GetUrl'][1] == _ADMINURLNAME){
 			if(CM::GetAdminIs()) $this->AdminPathIs = true;
 			else{
@@ -54,8 +61,14 @@ class Board{
 				URLReplace(App::URLBase('Login'), _MSG_WRONG_CONNECTED);
 			}
 		}
-		$this->model = App::InitModel('Board');
-		$this->boardManger = App::InitModel('BoardManager');
+	}
+
+	protected function _ModelInit($modelName, $tid = ''){
+		if(strlen($tid)) App::$TID = $tid;
+		if(substr($modelName, -5) === 'Model') $modelName = substr($modelName, 0, -5);
+		$this->model = App::InitModel($modelName);
+		$this->boardManger = new \BoardManagerModel();
+		$this->userActionTable = $this->model->table . '_action';
 	}
 
 	public function __init(){
