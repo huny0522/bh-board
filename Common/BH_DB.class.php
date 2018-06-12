@@ -68,7 +68,15 @@ class DB{
 	}
 
 	public function Query($str, $dieIs = true){
-		$sql = StrToSql(is_array($str) ? $str : func_get_args());
+		if(is_array($str)) $sql = self::StrToSql($str);
+		else{
+			$args = func_get_args();
+			$end = end($args);
+			if($end === true || $end === false) $dieIs = array_pop($args);
+			else $dieIs = true;
+			$sql = self::StrToSql($args);
+		}
+
 		if(_DEVELOPERIS === true) $res = mysqli_query(self::$Conn[self::$ConnName], $sql) or ($dieIs ? die('ERROR SQL : '.$sql) : false);
 		else $res = mysqli_query(self::$Conn[self::$ConnName], $sql) or ($dieIs ? die('ERROR') : false);
 		return $res;
@@ -279,6 +287,7 @@ class BH_DB_GetList extends BH_DB_Get{
 		while($row = $this->Get()){
 			$this->data[]= $row;
 		}
+		return $this;
 	}
 
 	public function &GetRows(){
@@ -400,6 +409,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	public function DrawRows(){
 		if(!$this->RunIs) $this->Run();
 		while($row = $this->Get()) $this->data[]= $row;
+		return $this;
 	}
 
 	public function &GetRows(){

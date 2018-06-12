@@ -96,10 +96,14 @@ class DB{
 	 * @return PDOStatement
 	 */
 	public function Query($str, $dieIs = true){
-		$res = self::StrToPDO(is_array($str) ? $str : func_get_args());
-		$end = end($res);
-		if($end === true || $end === false) $dieIs = array_pop($res);
-		else $dieIs = true;
+		if(is_array($str)) $res = self::StrToPDO($str);
+		else{
+			$args = func_get_args();
+			$end = end($args);
+			if($end === true || $end === false) $dieIs = array_pop($args);
+			else $dieIs = true;
+			$res = self::StrToPDO($args);
+		}
 
 		$qry = self::$conn[self::$connName]->prepare($res[0]);
 		foreach($res[1] as $k => $v){
