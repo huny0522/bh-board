@@ -85,8 +85,8 @@ class BH_ModelData{
 		if($HtmlType) $this->HtmlType = $HtmlType;
 
 		$d_b = phpversion() < 5.6 ? debug_backtrace() : debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3);
-		if(get_parent_class($d_b[1]['object']) === 'BH_Model') $this->parent = &$d_b[1]['object'];
-		else if(get_parent_class($d_b[2]['object']) === 'BH_Model') $this->parent = &$d_b[2]['object'];
+		if(isset($d_b[1]['object']) && get_parent_class($d_b[1]['object']) === 'BH_Model') $this->parent = &$d_b[1]['object'];
+		else if(isset($d_b[2]['object']) && get_parent_class($d_b[2]['object']) === 'BH_Model') $this->parent = &$d_b[2]['object'];
 	}
 
 	public function __debugInfo() {
