@@ -377,7 +377,7 @@ class BH_Application
 		$ex = explode('.', $css);
 		$ext = array_pop($ex);
 		if($ext == 'css'){
-			self::$CSS[$idx][] = $css;
+			self::$CSS[$idx][] = $css . $queryParam;
 			return;
 		}
 
