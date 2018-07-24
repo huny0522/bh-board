@@ -729,18 +729,20 @@ var EventLink = {
 	touchStart : function(e){
 		EventLink.startPos = (typeof(e.originalEvent) === 'undefined' || typeof(e.originalEvent.touches) === 'undefined') ? {
 			'pageX': e.pageX,
-			'pageY': e.pageY
+			'pageY': e.pageY,
+			'clientX' : e.clientX,
+			'clientY' : e.clientY
 		} : e.originalEvent.touches[0];
 
 		var node = document.elementFromPoint(EventLink.startPos.pageX - $(window).scrollLeft(), EventLink.startPos.pageY - $(window).scrollTop());
 
 		while(node){
-			if(JCM.hasClass(node, 'bh-event-touch')){
+			if($(node).hasClass('bh-event-touch')){
 				if (this.tagName === 'SELECT'){
 					e.preventDefault();
 				}
 			}
-			if(JCM.hasClass(node, 'bh-event-drag')){
+			if($(node).hasClass('bh-event-drag')){
 				EventLink.dragObj = node;
 			}
 			node = node.parentNode;
@@ -811,9 +813,6 @@ var EventLink = {
 			});
 
 			if(this === arg1){
-				$(this).on('click', function(e){
-					e.preventDefault();
-				});
 
 				$(this).on('e_drag', arg2);
 				$(this).on('e_drag_end', arg3);
@@ -823,9 +822,6 @@ var EventLink = {
 				});
 			}
 			else{
-				$(this).on('click', arg1, function(e){
-					e.preventDefault();
-				});
 
 				$(this).on('e_drag', arg1, arg2);
 				$(this).on('e_drag_end', arg1, arg3);
@@ -840,40 +836,52 @@ var EventLink = {
 			if(EventLink.startPos === null) return;
 			EventLink.endPos = (typeof(e.originalEvent) === 'undefined' || typeof(e.originalEvent.touches) === 'undefined') ? {
 				'pageX': e.pageX,
-				'pageY': e.pageY
+				'pageY': e.pageY,
+				'clientX' : e.clientX,
+				'clientY' : e.clientY
 			} : e.originalEvent.touches[0];
 
 			if(EventLink.dragObj !== null) $(EventLink.dragObj).trigger('e_drag', [EventLink.startPos, EventLink.endPos]);
 		});
 
 		$(document).on('touchend mouseup', 'body', function(e){
-			if(EventLink.startPos === null) return;
+			if(EventLink.startPos === null) return true;
 			if(EventLink.endPos === null) EventLink.endPos = EventLink.startPos;
 
-			var node = document.elementFromPoint(EventLink.endPos.pageX - $(window).scrollLeft(), EventLink.endPos.pageY - $(window).scrollTop());
+			var node = document.elementFromPoint(EventLink.endPos.clientX - $(window).scrollLeft(), EventLink.endPos.clientY - $(window).scrollTop());
 
-			var x = EventLink.endPos.pageX - EventLink.startPos.pageX;
-			var y = EventLink.endPos.pageY - EventLink.startPos.pageY;
+			var x = EventLink.endPos.clientX - EventLink.startPos.clientX;
+			var y = EventLink.endPos.clientY - EventLink.startPos.clientY;
 
 			var clickIs = (Math.abs(x) < 5 && Math.abs(y) < 5);
 
-			if(clickIs && JCM.hasClass(node, 'bh-event-touch-visible')){
+			if(clickIs && $(node).hasClass('bh-event-touch-visible')){
+				e.cancelable=false;
 				e.preventDefault();
 				e.stopImmediatePropagation();
-				$(node).trigger('e_touch_visible').off('click').on('click', function(e){e.preventDefault()});
+				if(node.tagName === 'A') node.off('click').on('click', function(e){e.preventDefault()});
+				$(node).trigger('e_touch_visible');
 			}
 
 			if(!clickIs && EventLink.dragObj !== null){
+				if(typeof(e.originalEvent) !== 'undefined' && e.originalEvent.type == 'touchend'){
+					e.cancelable=true;
+				}
 				e.preventDefault();
 				e.stopImmediatePropagation();
-				$(EventLink.dragObj).trigger('e_drag_end', [EventLink.startPos, EventLink.endPos]).off('click').on('click', function(e){e.preventDefault()});
+				if($(EventLink.dragObj)[0].tagName === 'A') $(EventLink.dragObj).off('click').on('click', function(e){e.preventDefault()});
+				$(EventLink.dragObj).trigger('e_drag_end', [EventLink.startPos, EventLink.endPos]);
 			}
 
 			while(node !== this && node){
-				if(clickIs && JCM.hasClass(node, 'bh-event-touch')){
+				if(clickIs && $(node).hasClass('bh-event-touch')){
+					if(typeof(e.originalEvent) !== 'undefined' && e.originalEvent.type == 'touchend'){
+						e.cancelable=true;
+					}
 					e.preventDefault();
 					e.stopImmediatePropagation();
-					$(node).trigger('e_touch').off('click').on('click', function(e){e.preventDefault()});
+					if(node.tagName === 'A') $(node).off('click').on('click', function(e){e.preventDefault()});
+					$(node).trigger('e_touch');
 				}
 				node = node.parentNode;
 			}
@@ -882,6 +890,7 @@ var EventLink = {
 			EventLink.startPos = null;
 			EventLink.endPos = null;
 			EventLink.dragObj = null;
+			return true;
 		});
 	}
 }

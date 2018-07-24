@@ -3,6 +3,8 @@ if(BHCSS !== true) exit;
 
 use BH\BHCss\BHCss;
 
+include_once 'common.func.php';
+
 // 치환값들을 설정합니다.
 BHCss::$variable['$cb'] = 'content:\' \'; display:block; clear:both';
 BHCss::$variable['$db'] = 'display:block';
@@ -33,9 +35,9 @@ BHCss::$variable['$flr'] = 'float:right;';
 BHCss::$variable['$fz'] = 'font-size';
 BHCss::$variable['$fw'] = 'font-weight';
 ?>
+@charset "utf-8";
 <style type="text/scss">
-	@charset "utf-8";
-	
+
 	html, body, div, span, applet, object, iframe,
 	h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 	a, abbr, acronym, address, big, cite, code,

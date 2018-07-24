@@ -29,6 +29,14 @@ class BHCss{
 	public static $passFiles = array();
 	public static $convDirMessage = array();
 
+	public static $patterns = array();
+	public static $replace = array();
+
+	/**
+	 * @var array['callback' => '','pattern' => function]
+	 */
+	public static $callbackPatterns = array();
+
 	private function __construct(){
 
 	}
@@ -109,7 +117,36 @@ class BHCss{
 	}
 
 	// 컨버팅
-	public static function conv($path, $target = ''){
+	public static function conv($path, $target = '', $parentCheckDisable = false){
+		if(!$parentCheckDisable){
+			$data = file_get_contents($path);
+			preg_match_all('/\/\/\s*parent\s*\:\s*(.*?)\.bhcss\.php/', $data, $matches);
+			if($matches && $matches[1]){
+
+				$targets = array();
+				$sources = array();
+
+				foreach($matches[1] as $v){
+					$t = 0;
+					$source2 = explode('/', $path);
+					array_pop($source2);
+					$source2 = implode('/', $source2) . '/' . $v . '.bhcss.php';
+					if($target){
+						$targetPath = explode('/', $target);
+						array_pop($targetPath);
+						$targetPath .= '/' . $v . '.bhcss.php';
+					}
+					else $targetPath = '';
+					if(file_exists($source2)){
+						$sources[] = $source2;
+						$targets[] = $targetPath;
+						self::conv($source2, $targetPath);
+					}
+				}
+				return (object) array('result' => 'parent convert', 'message' => array('source' => $sources, 'target' => $targets));
+			}
+		}
+
 		$path = str_replace('\\', '/', $path);
 
 		if(!$target) $target = self::getTargetPath($path);
@@ -416,41 +453,14 @@ class BHCss{
 			'/([a-zA-Z\-]+?)\s*[:]\s*\-(webkit\-|moz\-|o\-)(linear\-|radial\-)gradient\s*\((.*?)\)\s*;/',
 		), '', self::$cssBody);
 
-		$patterns = array(
-			'/(border-radius)\s*[:]\s*(.*?)([\}|;])/',
-			'/([^-])(transition)\s*[:]\s*(.*?)([\}|;])/',
-			'/([^-])(transform)\s*[:]\s*(.*?)([\}|;])/',
-			'/(box-shadow)\s*[:]\s*(.*?)([\}|;])/',
-			'/(box-sizing)\s*[:]\s*(.*?)([\}|;])/',
-			'/(background-size)\s*[:]\s*(.*?)([\}|;])/',
-			'/(text-overflow)\s*[:]\s*(.*?)([\}|;])/',
-			'/([a-zA-Z]+?)\s*[:]\s*(linear\-|radial\-)gradient\s*\((.*?)\)\s*([\}|;])/',
-			'/(\r\n){3,}/is',
-			'/\{\r\n+/',
-			'/\}\s*\}/is',
-			'/url\(([\"|\'])(\/html\/)/',
-			'/\}(\S)/',
-			'/\;\s*\}/',
-		);
 
-		$replace = array(
-			'border-radius:$2; -webkit-border-radius:$2; -moz-border-radius:$2$3',
-			'$1-moz-transition:$3; -webkit-transition:$3; -ms-transition:$3; -o-transition:$3; transition:$3$4',
-			'$1-moz-transform:$3; -webkit-transform:$3; -ms-transform:$3; -o-transform:$3; transform:$3$4',
-			'-webkit-box-shadow:$2; -moz-box-shadow:$2; box-shadow:$2$3',
-			'-webkit-box-sizing:$2; -moz-box-sizing:$2; box-sizing:$2$3',
-			'-webkit-background-size:$2; background-size:$2$3',
-			'-ms-text-overflow:$2; text-overflow:$2$3',
-			'$1:-webkit-$2gradient($3); $1:-moz-$2gradient($3); $1:-o-$2gradient($3); $1:$2gradient($3)$4',
-			"\r\n",
-			"{\r\n",
-			"}\r\n}",
-			'url($1../',
-			"}\r\n$1",
-			';}',
-		);
-
-		self::$cssBody = preg_replace($patterns, $replace, self::$cssBody);
+		self::$cssBody = preg_replace(self::$patterns, self::$replace, self::$cssBody);
+		if(sizeof(self::$callbackPatterns)){
+			foreach(self::$callbackPatterns as $v){
+				if(isset($v['pattern']) && isset($v['callback']))
+					self::$cssBody = preg_replace_callback($v['pattern'], $v['callback'], self::$cssBody);
+			}
+		}
 	}
 
 	// 주석 추출
@@ -514,3 +524,39 @@ class BHCss{
 	}
 
 }
+
+BHCss::$patterns = array(
+	'/(border-radius)\s*[:]\s*(.*?)([\}|;])/',
+	'/([^-])(transition)\s*[:]\s*(.*?)([\}|;])/',
+	'/([^-])(transform)\s*[:]\s*(.*?)([\}|;])/',
+	'/(box-shadow)\s*[:]\s*(.*?)([\}|;])/',
+	'/(box-sizing)\s*[:]\s*(.*?)([\}|;])/',
+	'/(background-size)\s*[:]\s*(.*?)([\}|;])/',
+	'/(text-overflow)\s*[:]\s*(.*?)([\}|;])/',
+	'/([a-zA-Z]+?)\s*[:]\s*(linear\-|radial\-)gradient\s*\((.*?)\)\s*([\}|;])/',
+	'/([a-zA-Z\.\+\~\#\(\)\-\_\s\:]+?)\s*\:+\s*placeholder\s*\{(.*?)\}/',
+	'/(\r\n){3,}/is',
+	'/\{\r\n+/',
+	'/\}\s*\}/is',
+	'/url\(([\"|\'])(\/html\/)/',
+	'/\}(\S)/',
+	'/\;\s*\}/',
+);
+
+BHCss::$replace = array(
+	'border-radius:$2; -webkit-border-radius:$2; -moz-border-radius:$2$3',
+	'$1-moz-transition:$3; -webkit-transition:$3; -ms-transition:$3; -o-transition:$3; transition:$3$4',
+	'$1-moz-transform:$3; -webkit-transform:$3; -ms-transform:$3; -o-transform:$3; transform:$3$4',
+	'-webkit-box-shadow:$2; -moz-box-shadow:$2; box-shadow:$2$3',
+	'-webkit-box-sizing:$2; -moz-box-sizing:$2; box-sizing:$2$3',
+	'-webkit-background-size:$2; background-size:$2$3',
+	'-ms-text-overflow:$2; text-overflow:$2$3',
+	'$1:-webkit-$2gradient($3); $1:-moz-$2gradient($3); $1:-o-$2gradient($3); $1:$2gradient($3)$4',
+	'$1::placeholder{$2}$1::-ms-input-placeholder{$2}$1::-webkit-input-placeholder{$2}',
+	"\r\n",
+	"{\r\n",
+	"}\r\n}",
+	'url($1../',
+	"}\r\n$1",
+	';}',
+);

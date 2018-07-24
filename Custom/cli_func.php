@@ -2,7 +2,31 @@
 use BH\BHCss\BHCss;
 
 if (strpos(php_sapi_name(), 'cli') === false)  exit;
+
+define('_CF_FTP_USE', false);
+define('_CF_FTP_USER', '');
+define('_CF_FTP_PASS', '');
+define('_CF_FTP_URL', '');
+define('_CF_FTP_PORT', '21');
+define('_CF_FTP_REMOTE_DIR', '/');
+
 $second = 0;
+function _CF_Connect(){
+	if(_CF_FTP_USE !== true) return false;
+	$GLOBALS['_cli_ftp'] = ftp_connect(_CF_FTP_URL, _CF_FTP_PORT);
+
+	if($GLOBALS['_cli_ftp'] && $GLOBALS['_cli_ftp_login_is'] = ftp_login($GLOBALS['_cli_ftp'], _CF_FTP_USER, _CF_FTP_PASS)){
+	}
+	else {
+		echo 'FTP CONNECTED FAILD'.PHP_EOL;
+	}
+	return $GLOBALS['_cli_ftp_login_is'];
+}
+
+function _CF_Disconnect(){
+	if(_CF_FTP_USE !== true) return;
+	if($GLOBALS['_cli_ftp']) ftp_close($GLOBALS['_cli_ftp']);
+}
 
 global $argc, $argv;
 if(sizeof($argv) < 2) exit;
@@ -14,6 +38,7 @@ if(in_array('-loop', $argv)){
 		if($second % 1 === 0){
 			if(in_array('-bhcss', $argv)) convertBHCssDir(_SKINDIR . '/css');
 		}
+
 		sleep(1);
 		$second++;
 	}
@@ -67,6 +92,11 @@ function _PropertyUpdate($file){
 	// if($modelName === 'BannerModel') echo $data;
 	if($source === $data) return \BH_Result::Init(false);
 	file_put_contents(_DIR . '/Model/' . $modelName . '.php', $data);
+	if(_CF_Connect()){
+		ftp_put ($GLOBALS['_cli_ftp'], _CF_FTP_REMOTE_DIR . '/Model/' . $modelName . '.php', _DIR . '/Model/' . $modelName . '.php', FTP_ASCII);
+		echo '          ftp : '._DIR . '/Model/' . $modelName . '.php' . ' -> '.  _CF_FTP_REMOTE_DIR . '/Model/' . $modelName . '.php' .PHP_EOL;
+		_CF_Disconnect();
+	}
 	return \BH_Result::Init(true, $file . ' 수정완료');
 }
 
@@ -113,9 +143,34 @@ function _cssConvTimeCheck(&$beforeTime, $path){
 	if(file_exists($path)){
 		$targetTime = filemtime($path);
 		if($beforeTime != $targetTime){
-			$res = BHCSS::conv($path);
+
+			$data = file_get_contents($path);
+			preg_match_all('/\/\/\s*parent\s*\:\s*(.*?)\.bhcss\.php/', $data, $matches);
+			if($matches && $matches[1]){
+				foreach($matches[1] as $v){
+					$t = 0;
+					$source2 = explode('/', $path);
+					array_pop($source2);
+					$source2 = implode('/', $source2) . '/' . $v . '.bhcss.php';
+					if(file_exists($source2)) _cssConvTimeCheck($t, $source2);
+				}
+				$beforeTime = $targetTime;
+				return (object) array('result' => true, 'message' => '');
+			}
+
+			$target = BHCSS::getTargetPath($path);
+			$res = BHCSS::conv($path, '', true);
 			$beforeTime = $targetTime;
-			if($res->result) return (object) array('result' => true, 'message' => '');
+			if($res->result){
+				$path2 = substr($target, strlen(_DIR));
+				if(_CF_Connect()){
+					// print_r(array(_CF_FTP_REMOTE_DIR . $path2, $target));exit;
+					ftp_put ($GLOBALS['_cli_ftp'], _CF_FTP_REMOTE_DIR . $path2, $target, FTP_ASCII);
+					echo '          ftp : '.$target . ' -> '.  _CF_FTP_REMOTE_DIR . $path2 .PHP_EOL;
+					_CF_Disconnect();
+				}
+				return (object) array('result' => true, 'message' => '');
+			}
 			return (object) array('result' => false, 'message' => $res->message);
 		}
 	}
