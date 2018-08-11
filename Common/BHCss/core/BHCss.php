@@ -32,8 +32,15 @@ class BHCss{
 	public static $patterns = array();
 	public static $replace = array();
 
+	public static $responseMinWidth = 320;
+	public static $responseMaxWidth = 600;
+	public static $responseMinFontSize = 100;
+	public static $responseMaxFontSize = 375;
+	public static $responseUsingCalc = false;
+	public static $responseStepUnit = 200;
+
 	/**
-	 * @var array['callback' => '','pattern' => function]
+	 * @var array['callback' => function,'pattern' => '']
 	 */
 	public static $callbackPatterns = array();
 
@@ -43,6 +50,156 @@ class BHCss{
 
 	private function __clone(){
 
+	}
+
+	public static function setResponseFontSizeByMin($minPixel = 0, $screenMaxWidth = 0, $screenMinWidth = 0){
+		if($minPixel) self::$responseMinFontSize = $minPixel;
+		if($screenMaxWidth) self::$responseMaxWidth = $screenMaxWidth;
+		if($screenMinWidth) self::$responseMinWidth = $screenMinWidth;
+
+		self::$responseMaxFontSize = (self::$responseMaxWidth / self::$responseMinWidth) * self::$responseMinFontSize;
+		$css = 'html{font-size:calc(100vw / ' .(self::$responseMinWidth/self::$responseMinFontSize). ');}
+			@media (min-width:' . self::$responseMaxWidth . 'px){
+				html{font-size:' . self::$responseMaxFontSize . 'px;}
+			}
+			@media (max-width:' . self::$responseMinWidth . 'px){
+				html{font-size:'. self::$responseMinFontSize . 'px;}
+			}';
+		return $css;
+	}
+
+	public static function setResponseFontSizeByMax($maxPixel = 0, $screenMaxWidth = 0, $screenMinWidth = 0){
+		if($maxPixel) self::$responseMaxFontSize = $maxPixel;
+		if($screenMaxWidth) self::$responseMaxWidth = $screenMaxWidth;
+		if($screenMinWidth) self::$responseMinWidth = $screenMinWidth;
+
+		self::$responseMinFontSize = (self::$responseMinWidth / self::$responseMaxWidth) * self::$responseMaxFontSize;
+		$css = 'html{font-size:calc(100vw / ' .(self::$responseMinWidth/self::$responseMinFontSize). ');}
+			@media (min-width:' . self::$responseMaxWidth . 'px){
+				html{font-size:' . self::$responseMaxFontSize . 'px;}
+			}
+			@media (max-width:' . self::$responseMinWidth . 'px){
+				html{font-size:'. self::$responseMinFontSize . 'px;}
+			}';
+		return $css;
+	}
+
+	public static function px2rem($pixel){
+		return (floor(($pixel/self::$responseMaxFontSize) * 1000) / 1000).'rem';
+	}
+
+	public static function calc($max, $min, $minusIs = false){
+		$x = 99999;
+		$choice = false;
+
+		for($b = 0; $b <= $max; $b+= 0.01){
+			$temp = abs(($max - ($b*(self::$responseMaxFontSize/100))) - ($min - ($b*(self::$responseMinFontSize/100))));
+			if($temp < $x){
+				$x = $temp;
+				$choice = $b;
+			}
+			else if($choice !== false){
+				// echo 'test{' . $choice .'}' . PHP_EOL;
+				break;
+			}
+		}
+
+		$base = floor(($max - ($choice * (self::$responseMaxFontSize/100))) * 10000);
+		$rem = $choice / self::$responseMinFontSize;
+
+
+		if($minusIs) $res = 'calc(((' . $base . 'px + ' . floor($rem * 10000) . 'rem) * (-1)) / 10000)';
+		else $res = 'calc((' . $base . 'px + ' . floor($rem * 10000) . 'rem) / 10000)';
+		return $res;
+	}
+
+	private static $responseData = array();
+
+	public static function setResponseData($selector, &$data){
+		$pattern = '/([a-zA-Z0-9\-\_]+?)\s*\:([^\:\;]*?)(c|cc)\=(\-*)\((\s*[0-9\.\-]+\s*\,\s*[0-9\.\-].*?)\)([^\;\}]*)/i';
+		while(preg_match($pattern, $data, $match)){
+
+			if($match[3] == 'cc' || self::$responseUsingCalc){
+				$temp = $match[0];
+				$pattern2 = '/(c|cc)\=(\-*)\((\s*[0-9\.\-]+\s*\,\s*[0-9\.\-].*?)\)/i';
+				while(preg_match($pattern2, $temp, $match2)){
+					$vals = explode(',', $match2[3]);
+					$max = trim($vals[0]);
+					$min = trim($vals[1]);
+					$mp = trim($match2[2]);
+
+					$temp = preg_replace($pattern2, self::calc($max, $min, $mp == '-'), $temp, 1);;
+				}
+				$data = preg_replace($pattern, $temp, $data, 1);
+				// $data = preg_replace($pattern, $match[1] . ':' . $match[2] . self::calc($max, $min, $match[4] == '-'), $data, 1);
+			}
+			else{
+				$temp = $match[0];
+				self::$responseData[$selector][] = $temp;
+				$pattern2 = '/c\=(\-*)\((\s*[0-9\.\-]+\s*\,\s*[0-9\.\-].*?)\)/i';
+				while(preg_match($pattern2, $temp, $match2)){
+					$vals = explode(',', $match2[2]);
+					$max = trim($vals[0]);
+					$maxWidth = isset($vals[2]) ? preg_replace('/[^0-9\.\-]/', '', $vals[2]) : '';
+					$minWidth = isset($vals[3]) ? preg_replace('/[^0-9\.\-]/', '', $vals[3]) : '';
+
+					if($maxWidth || $minWidth) $temp = preg_replace($pattern2, '', $temp, 1);
+
+					else $temp = preg_replace($pattern2, $match2[1] . $max . 'px' . ' ', $temp, 1);
+				}
+				$temp_e = explode(':', $temp);
+				if(sizeof($temp_e) < 2 || trim($temp_e[1]) == '') $data = preg_replace($pattern, '', $data, 1);
+				else $data = preg_replace($pattern, $temp, $data, 1);
+			}
+		}
+	}
+
+	public static function printResponseData(){
+		$pattern = '/c\=(\-*)\((\s*[0-9\.\-]+\s*\,\s*[0-9\.\-].*?)\)/i';
+		$css = PHP_EOL;
+		$s = self::$responseMaxWidth;
+		while($s > self::$responseMinWidth){
+			$s2 = $s - self::$responseStepUnit;
+
+			$minMedia = '';
+			if($s2 <= self::$responseMinWidth) $s2 = self::$responseMinWidth;
+			else $minMedia = ' and (min-width:'.$s2.'px)';
+			$css .= '@media(max-width:'.($s-1).'px)'. $minMedia .'{'.PHP_EOL;
+			foreach(self::$responseData as $selector => $v){
+				$cssInner = '';
+				foreach($v as $v2){
+
+					while(preg_match($pattern, $v2, $match)){
+						$vals = explode(',', $match[2]);
+						$max = trim($vals[0]);
+						$min = trim($vals[1]);
+						$maxWidth = isset($vals[2]) ? preg_replace('/[^0-9]/', '', $vals[2]) : '';
+						$minWidth = isset($vals[3]) ? preg_replace('/[^0-9]/', '', $vals[3]) : '';
+
+						if(($minWidth && $minWidth >= $s) || ($maxWidth && $maxWidth < $s)){
+							$v2 = '';
+							continue;
+						}
+
+						$px = floor((($max - $min) * (($s2 - self::$responseMinWidth) / (self::$responseMaxWidth - self::$responseMinWidth))) + $min);
+
+						$v2 = preg_replace($pattern, $match[1] . $px . 'px' . ' ', $v2, 1);
+					}
+					$cssInner .= $v2 . ';';
+				}
+
+				if($cssInner){
+					$css .= "\t".$selector.'{';
+					$css .= $cssInner;
+					$css .= '}'.PHP_EOL;
+				}
+			}
+			$css .= '}'.PHP_EOL;
+
+			$s -= self::$responseStepUnit;
+		}
+		self::$responseData = array();
+		self::$cssBody .= $css;
 	}
 
 	public static function reset(){
@@ -100,6 +257,8 @@ class BHCss{
 		self::$cssBody = self::node2css(self::$node);
 
 		self::convertVariable();
+
+		self::printResponseData();
 
 		self::crossCss();
 
@@ -182,6 +341,8 @@ class BHCss{
 		self::$cssBody = self::node2css(self::$node);
 
 		self::convertVariable();
+
+		self::printResponseData();
 
 		self::crossCss();
 
@@ -319,29 +480,42 @@ class BHCss{
 					else
 						$v = $groups . ($v[0] == '~' ? trim(substr($v, 1)) : ($v[0] == ':' ? '' : ' ') . $v);
 				}
-				$txt .= implode(',', $s) . '{' . $node->data . '}';
+
+				$sel = implode(',', $s);
+				self::setResponseData($sel, $node->data);
+				$txt .= $sel . '{' . $node->data . '}';
 				if(sizeof($after)){
 					$temp = $s;
 					foreach($temp as $k => $v){
 						$temp[$k] = trim($v) . ':after';
 					}
-					$txt .= implode(',', $temp) . '{' . implode(';', $after) . '}';
+					$sel = implode(',', $temp);
+					$css = implode(';', $after);
+					self::setResponseData($sel, $css);
+					$txt .= $sel . '{' . $css . '}';
 				}
 				if(sizeof($before)){
 					$temp = $s;
 					foreach($temp as $k => $v){
 						$temp[$k] = trim($v) . ':before';
 					}
-					$txt .= implode(',', $temp) . '{' . implode(';', $before) . '}';
+					$sel = implode(',', $temp);
+					$css = implode(';', $before);
+					self::setResponseData($sel, $css);
+					$txt .= $sel . '{' . $css . '}';
 				}
 			}
 			else if(strlen($node->selector)){
 				$txt .= $node->selector . '{' . $node->data . '}';
 				if(sizeof($after)){
-					$txt .= $node->selector . ':after' . '{' . implode(';', $after) . '}';
+					$css = implode(';', $after);
+					self::setResponseData($node->selector . ':after', $css);
+					$txt .= $node->selector . ':after' . '{' . $css . '}';
 				}
 				if(sizeof($before)){
-					$txt .= $node->selector . ':after' . '{' . implode(';', $before) . '}';
+					$css = implode(';', $before);
+					self::setResponseData($node->selector . ':before', $css);
+					$txt .= $node->selector . ':before' . '{' . $css . '}';
 				}
 			}
 			else{
@@ -541,6 +715,8 @@ BHCss::$patterns = array(
 	'/url\(([\"|\'])(\/html\/)/',
 	'/\}(\S)/',
 	'/\;\s*\}/',
+	'/\;\s*\;/',
+	'/px\s*\;/',
 );
 
 BHCss::$replace = array(
@@ -559,4 +735,6 @@ BHCss::$replace = array(
 	'url($1../',
 	"}\r\n$1",
 	';}',
+	';',
+	'px;',
 );
