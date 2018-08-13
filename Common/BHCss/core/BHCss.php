@@ -506,6 +506,7 @@ class BHCss{
 				}
 			}
 			else if(strlen($node->selector)){
+				self::setResponseData($node->selector, $node->data);
 				$txt .= $node->selector . '{' . $node->data . '}';
 				if(sizeof($after)){
 					$css = implode(';', $after);
