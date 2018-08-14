@@ -382,7 +382,7 @@ class BH_Application
 		}
 
 		$convCss = (substr($css, strlen(BH\BHCss\BHCss::$fileExtension) * (-1)) === BH\BHCss\BHCss::$fileExtension) ? substr($css, 0, strlen(BH\BHCss\BHCss::$fileExtension) * (-1)) . '.css' : implode('.', $ex) . '.css';
-		$target = _HTMLURL . '/css' . ($convCss[0] == '/' ? $convCss : '/' . $convCss);
+		$target = '/css' . ($convCss[0] == '/' ? $convCss : '/' . $convCss);
 
 		if(_DEVELOPERIS === true){
 			$css2 = '/css' . ($css[0] == '/' ? $css : '/' . $css);
@@ -391,10 +391,10 @@ class BH_Application
 			else if(!file_exists(_SKINDIR . $css2)) $dir = false;
 
 			if($dir !== false){
-				$res = BH\BHCss\BHCss::conv($dir . $css2, _DIR . $target);
+				$res = BH\BHCss\BHCss::conv($dir . $css2, _HTMLDIR . $target);
 			}
 		}
-		self::$CSS[$idx][] = $target . $queryParam;
+		self::$CSS[$idx][] = _HTMLURL . $target . $queryParam;
 	}
 
 	public static function URLAction($Action = ''){
