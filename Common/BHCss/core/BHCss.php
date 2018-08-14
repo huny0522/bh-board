@@ -148,7 +148,7 @@ class BHCss{
 					else $temp = preg_replace($pattern2, $match2[1] . $max . 'px' . ' ', $temp, 1);
 				}
 				$temp_e = explode(':', $temp);
-				if(sizeof($temp_e) < 2 || trim($temp_e[1]) == '') $data = preg_replace($pattern, '', $data, 1);
+				if(sizeof($temp_e) < 2 || trim($temp_e[1]) == '' || trim($temp_e[1]) == ';') $data = preg_replace($pattern, '', $data, 1);
 				else $data = preg_replace($pattern, $temp, $data, 1);
 			}
 		}
@@ -185,7 +185,7 @@ class BHCss{
 
 						$v2 = preg_replace($pattern, $match[1] . $px . 'px' . ' ', $v2, 1);
 					}
-					$cssInner .= $v2 . ';';
+					if($v2) $cssInner .= $v2 . ';';
 				}
 
 				if($cssInner){
@@ -718,6 +718,7 @@ BHCss::$patterns = array(
 	'/\;\s*\}/',
 	'/\;\s*\;/',
 	'/px\s*\;/',
+	'/\{\s*[\;]\s*/',
 );
 
 BHCss::$replace = array(
@@ -738,4 +739,5 @@ BHCss::$replace = array(
 	';}',
 	';',
 	'px;',
+	'{',
 );
