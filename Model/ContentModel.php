@@ -34,7 +34,7 @@ class ContentModel extends \BH_Model{
 
 		$this->data['html'] = new \BH_ModelData(ModelType::String, true, '컨텐츠파일');
 		$this->data['html']->MinLength = '1';
-		$this->data['html']->MaxLength = '20';
+		$this->data['html']->MaxLength = '256';
 
 		$this->data['layout'] = new \BH_ModelData(ModelType::String, false, '레이아웃');
 		$this->data['layout']->MinLength = '1';

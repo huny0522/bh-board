@@ -101,14 +101,18 @@ class Board{
 		$action = App::$Action;
 		if($action == 'Answer' || $action == 'Modify') $action = 'Write';
 		if($action == '_DirectView') $action = 'View';
-		$this->Path = '/Board/'.App::$NativeDir.'/'.$this->boardManger->GetValue('skin').'/';
+		$this->Path = '/Board/'.App::$NativeSkinDir.'/'.$this->boardManger->GetValue('skin').'/';
 		if(file_exists(_SKINDIR.$this->Path.$action.'.html')) App::$Html = $this->Path.$action.'.html';
 		else{
-			$this->Path = '/Board/'.$this->boardManger->GetValue('skin').'/';
+			$this->Path = '/Board/'.App::$NativeSkinDir.'/';
 			if(file_exists(_SKINDIR.$this->Path.$action.'.html')) App::$Html = $this->Path.$action.'.html';
 			else{
-				$this->Path = '/Board/';
-				App::$Html = '/Board/' . $action.'.html';
+				$this->Path = '/Board/'.$this->boardManger->GetValue('skin').'/';
+				if(file_exists(_SKINDIR.$this->Path.$action.'.html')) App::$Html = $this->Path.$action.'.html';
+				else{
+					$this->Path = '/Board/';
+					App::$Html = '/Board/' . $action.'.html';
+				}
 			}
 		}
 
@@ -129,8 +133,17 @@ class Board{
 			$this->boardManger->SetValue('article_count', 20);
 		}
 		else if($layout){
-			if(substr($layout, -5) != '.html') $layout .= '.html';
-			$layoutPath = App::$NativeDir.'/'.$layout;
+			$layoutPath = App::$NativeSkinDir.'/'.$layout;
+
+			$e = explode('.', $layoutPath);
+			if(sizeof($e) > 1){
+				$ext = array_pop($e);
+				if($ext !== 'html' && $ext !== 'php') $layoutPath = implode('.', $e) . '.html';
+			}
+			else{
+				$layoutPath .= '.html';
+			}
+
 			if(file_exists(_SKINDIR.'/Layout/'.$layoutPath)) $layout = $layoutPath;
 			App::$Layout = $layout;
 		}

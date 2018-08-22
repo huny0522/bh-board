@@ -31,15 +31,24 @@ class Contents{
 
 		$layout = $this->model->GetValue('layout');
 		if($layout){
-			$layoutPath = App::$NativeDir.'/'.$layout;
-			if(file_exists(_SKINDIR.'/Layout/'.$layoutPath.'.html')) $layout = $layoutPath;
+			$layoutPath = App::$NativeSkinDir.'/'.$layout;
+			$e = explode('.', $layoutPath);
+			if(sizeof($e) > 1){
+				$ext = array_pop($e);
+				if($ext !== 'html' && $ext !== 'php') $layoutPath = implode('.', $e) . '.html';
+			}
+			else{
+				$layoutPath .= '.html';
+			}
+
+			if(file_exists(_SKINDIR.'/Layout/'.$layoutPath)) $layout = $layoutPath;
 			App::$Layout = $layout;
 		}
 
 		$html = $this->model->GetValue('html');
 		if($html){
 			if(substr($html, -5) != '.html') $html .= '.html';
-			$htmlPath = App::$NativeDir.'/'.$html;
+			$htmlPath = App::$NativeSkinDir.'/'.$html;
 			if(file_exists(_SKINDIR.'/Contents/'.$htmlPath)) $html = $htmlPath;
 			App::$Html = '/Contents/'.$html;
 		}

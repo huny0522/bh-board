@@ -61,15 +61,21 @@ class Reply{
 		$action = App::$Action;
 		if($action == 'Answer' || $action == 'Modify') $action = 'Write';
 		if($action == '_DirectView') $action = 'View';
-		$this->Path = '/Reply/'.App::$NativeDir.'/'.$this->boardManger->GetValue('reply_skin').'/';
+		$this->Path = '/Reply/'.App::$NativeSkinDir.'/'.$this->boardManger->GetValue('reply_skin').'/';
 		if(file_exists(_SKINDIR.$this->Path.$action.'.html')) App::$Html = $this->Path.$action.'.html';
 		else{
-			$this->Path = '/Reply/'.$this->boardManger->GetValue('reply_skin').'/';
+
+			$this->Path = '/Reply/'.App::$NativeSkinDir.'/';
 			if(file_exists(_SKINDIR.$this->Path.$action.'.html')) App::$Html = $this->Path.$action.'.html';
 			else{
-				$this->Path = '/Reply/';
-				App::$Html = '/Reply/' . $action.'.html';
+				$this->Path = '/Reply/'.$this->boardManger->GetValue('reply_skin').'/';
+				if(file_exists(_SKINDIR.$this->Path.$action.'.html')) App::$Html = $this->Path.$action.'.html';
+				else{
+					$this->Path = '/Reply/';
+					App::$Html = '/Reply/' . $action.'.html';
+				}
 			}
+
 		}
 
 		if(file_exists(_SKINDIR.$this->Path.'MoreList.html')) $this->MoreListIs = true;

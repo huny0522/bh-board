@@ -78,7 +78,7 @@ CREATE TABLE `".TABLE_CONTENT."` (
 	`bid` VARCHAR(20) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
 	`subject` VARCHAR(128) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
 	`layout` VARCHAR(50) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
-	`html` VARCHAR(64) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
+	`html` VARCHAR(256) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',
 	`hit` INT(11) NOT NULL DEFAULT '0',
 	`recommend` INT(11) NOT NULL DEFAULT '0',
 	`reg_date` DATETIME NOT NULL,
