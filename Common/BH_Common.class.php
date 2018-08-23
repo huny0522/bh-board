@@ -59,6 +59,11 @@ class BH_Common
 		}
 	}
 
+	public static function StripSlashes($data){
+		if(is_array($data)) return array_map('self::StripSlashes', $data);
+		else return stripslashes($data);
+	}
+
 	public static function Config($code, $key){
 		// 설정불러오기
 		if(!isset(App::$CFG[$code])){
@@ -210,6 +215,10 @@ class BH_Common
 				$mUpdate->SetDataStr('bid', '');
 				$mUpdate->Run();
 			}
+		}
+		if(isset(App::$ExtendMethod['menuChangeAfter']) && is_callable(App::$ExtendMethod['menuChangeAfter'])){
+			$func = App::$ExtendMethod['menuChangeAfter'];
+			$func();
 		}
 	}
 

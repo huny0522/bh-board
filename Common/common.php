@@ -40,6 +40,11 @@ require _COMMONDIR . '/BH_Model.class.php';
 require _COMMONDIR . '/BH_Common.class.php';
 require _COMMONDIR . '/BHCss/core/BHCss.php';
 
+if(get_magic_quotes_gpc()){
+	$_POST = BH_Common::StripSlashes($_POST);
+	$_GET = BH_Common::StripSlashes($_GET);
+}
+
 App::$SettingData['LevelArray'] = array(0 => '비회원', 1 => '일반회원', 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8,
 	9 => 9, 10 => 10, 15 => '매니저', 18 => '관리자', 20 => '최고관리자');
 App::$SettingData['noext'] = array('php', 'htm', 'html', 'cfg', 'inc', 'phtml', 'php5', 'asp', 'jsp');

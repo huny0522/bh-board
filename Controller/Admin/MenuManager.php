@@ -13,19 +13,17 @@ use \DB as DB;
 
 class MenuManager extends BH_Category{
 
-	/**
-	 * @var \MenuModel
-	 */
-	public $model;
-
-	public function __construct(){
-	}
-
 	public function __init(){
 		App::$Data['NowMenu'] = '004';
 		CM::AdminAuth();
 		App::$Layout = '_Admin';
-		parent::__init();
+	}
+
+	protected function _MenuChangeAfter(){
+		if(isset(App::$ExtendMethod['menuChangeAfter']) && is_callable(App::$ExtendMethod['menuChangeAfter'])){
+			$func = App::$ExtendMethod['menuChangeAfter'];
+			$func();
+		}
 	}
 
 	public function PostGetBidList(){

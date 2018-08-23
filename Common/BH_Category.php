@@ -17,9 +17,11 @@ class BH_Category{
 	public $model;
 	public $Name;
 
-	public function __Init(){
+	public function __construct(){
 		$this->model = new \MenuModel();
 	}
+
+	protected function _MenuChangeAfter(){}
 
 	public function Index(){
 		App::View($this->model, $this->model->GetChild());
@@ -41,6 +43,7 @@ class BH_Category{
 		if(!$res->result) JSON(false, $res->message);
 		else{
 			$res = $this->model->DBUpdate();
+			if($res->result) $this->_MenuChangeAfter();
 			$dt = $this->model->GetParent($this->model->GetValue('category'));
 			$this->model->SetChildEnabled($_POST['category'], $_POST['enabled'] == 'y' && (!$dt || ($dt['enabled'] == 'y' && $dt['parent_enabled'] == 'y')) ? 'y' : 'n');
 			JSON($res->result, $res->message);
@@ -93,6 +96,7 @@ class BH_Category{
 		$this->model->SetValue('parent_enabled', $parent['parent_enabled'] == 'n' || $parent['enabled'] == 'n' ? 'n' : 'y');
 
 		$res = $this->model->DBInsert();
+		if($res->result) $this->_MenuChangeAfter();
 
 		$res->id = $pCategory.$newCategory;
 		return $res;
@@ -112,6 +116,7 @@ class BH_Category{
 			JSON(false, $res->message);
 		}
 		$res = $this->model->DBUpdate();
+		if($res->result) $this->_MenuChangeAfter();
 		JSON($res->result, $res->message);
 	}
 
@@ -149,6 +154,7 @@ class BH_Category{
 				$qry->AddWhere($parentWhere);
 				$result = $qry->Run();
 				$res = $result->result;
+				if($res) $this->_MenuChangeAfter();
 			}
 			JSON($res);
 		}else JSON(true, '', $data);
@@ -176,6 +182,7 @@ class BH_Category{
 				$qry->AddWhere('sort > %d', $data['sort']);
 				$result = $qry->Run();
 				$res = $result->result;
+				if($res) $this->_MenuChangeAfter();
 			}
 			JSON($res);
 		}
@@ -193,6 +200,8 @@ class BH_Category{
 			if(strlen($this->model->GetValue('category')) == $this->model->CategoryLength) $dt = null;
 			else $dt = $this->model->GetParent($this->model->GetValue('category'));
 			$this->model->SetChildEnabled($this->model->GetValue('category'), $enabled == 'y' && (!$dt || ($dt['enabled'] == 'y' && $dt['parent_enabled'] == 'y')) ? 'y' : 'n');
+
+			if($res->result) $this->_MenuChangeAfter();
 
 			if(!$res->result) JSON(false, 'ERROR#102');
 			else JSON(true, '', array('enabled' => $enabled));
