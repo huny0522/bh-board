@@ -17,6 +17,7 @@ class ModelType{
 	const Datetime = 7;
 	const Date = 8;
 	const Enum = 9;
+	const Text = 10;
 }
 
 class HTMLType{
@@ -366,11 +367,13 @@ class BH_Model{
 	 */
 	public $qry = array('default' => null);
 	public $qryName = 'default';
+	public $uploadDir = '';
 	protected $connName = '';
 
 	public function __construct(){
 		$this->connName = \DB::DefaultConnName;
 		if(method_exists($this, '__Init')) $this->__Init();
+		$this->uploadDir = '/modelData/' . $this->table . '/' . date('Ym') . '/';
 		foreach($this->data as $k => $v) if(!isset($this->{'_'.$k})) $this->{'_'.$k} = $v;
 	}
 
@@ -921,7 +924,7 @@ class _ModelFunc{
 
 						foreach($post[$k] as $path){
 							if($path){
-								$newpath = self::ReservedMoveFile($path, $model->table);
+								$newpath = self::ReservedMoveFile($path, $model->uploadDir);
 								if(is_string($newpath)){
 									$values[]= $newpath;
 									$v->__moveFile[]= array('source' => $path, 'dest' => $newpath);
@@ -1005,7 +1008,7 @@ class _ModelFunc{
 								rename(_UPLOAD_DIR . $old, _UPLOAD_DIR . $fPath);
 							}
 
-							$newpath = self::ReservedMoveFile($fPath, $model->table);
+							$newpath = self::ReservedMoveFile($fPath, $model->uploadDir);
 
 							if(is_string($newpath)){
 								$v->__moveFile[]= array('source' => $fPath, 'dest' => $newpath);
@@ -1067,7 +1070,7 @@ class _ModelFunc{
 
 		$path = preg_replace('/[^0-9a-zA-Z\/\_\-\!\@\.]/', '', $path);
 		if(file_exists(_UPLOAD_DIR . $path)){
-			$upDir = '/modelData/' . $dir . '/' . date('Ym') . '/';
+			$upDir = $dir;
 			$newpath = substr_replace($path, $upDir, 0, 6);
 			if(!is_dir(_UPLOAD_DIR . $upDir)) mkdir(_UPLOAD_DIR . $upDir, 0777, true);
 
@@ -1099,6 +1102,7 @@ class _ModelFunc{
 
 	public static function GetErrorMessage(&$model, &$ret){
 		foreach($model->data as $k=>$v){
+			if($v->NeedIs !== true) continue;
 			self::ValueCheck($model, $k);
 			if($v->ModelErrorMsg) $ret[] =$v->ModelErrorMsg;
 		}
@@ -1229,7 +1233,7 @@ class _ModelFunc{
 	}
 
 	public static function CheckLength($key, &$Data){
-		if($Data->Type == ModelType::String){
+		if($Data->Type == ModelType::String || $Data->Type == ModelType::Text){
 			if($Data->MinLength !== false && $Data->MinLength > mb_strlen($Data->Value, 'UTF-8')){
 				$Data->ModelErrorMsg = $Data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 '.$Data->MinLength.'자 이상 입력하여 주세요.';
 				return false;
@@ -1362,15 +1366,15 @@ class _ModelFunc{
 				return $h;
 			break;
 			case HTMLType::InputFileWithName:
-				$h = '<div class="fileUploadArea2"><input type="hidden" name="' . $Name . '" class="fileUploadInput" value="">';
+				$h = '<div class="fileUploadArea2"><input type="hidden" name="' . $Name . '" class="fileUploadInput" value=""> <button type="button" class="fileUploadBtn sBtn"><i></i>' . (isset($HtmlAttribute['button']) ? $HtmlAttribute['button'] : '첨부파일') . '</button>';
 				if(strlen($data->Value)){
 					$f = explode('*', $data->Value);
 					$h .= ' <p><span class="fileName">' . (isset($f[1]) ? GetDBText($f[1]) : '') . '</span> <label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><span> 파일삭제</span></label></p>';
 				}
 				else{
-					$h .= '<p><span class="fileName"></span></p>';
+					$h .= '<p></p>';
 				}
-				return $h . ' <button type="button" class="fileUploadBtn sBtn">' . (isset($HtmlAttribute['button']) ? $HtmlAttribute['button'] : '첨부파일') . '</button></div><script>JCM.fileForm();</script>';
+				return $h . '</div><script>JCM.fileForm();</script>';
 			break;
 			case HTMLType::InputFile:
 				$h = '';
@@ -1450,6 +1454,10 @@ class _ModelFunc{
 				$result->result = false;
 				$result->message = 'ERROR#101';
 				return $result;
+			}
+			else if(!isset($v->Value) && !$v->NeedIs && $v->Type === ModelType::Text && !$v->BlankIsNull){
+				$v->Value = '';
+				$v->NeedIs = true;
 			}
 
 			// 예외 패스, 셋이 없거나 셋에 있는것
@@ -1714,7 +1722,7 @@ class _ModelFunc{
 			}
 
 			if(sizeof($value)){
-				$newpath = self::ReservedMoveFile($value[0]['file'], $model->table);
+				$newpath = self::ReservedMoveFile($value[0]['file'], $model->uploadDir);
 
 				if(is_string($newpath)){
 					$model->data[$key]->__moveFile[]= array('source' => $value[0]['file'], 'dest' => $newpath);
@@ -1748,7 +1756,7 @@ class _ModelFunc{
 				}
 
 				foreach($value as $path){
-					$newpath = self::ReservedMoveFile($path['file'], $model->table);
+					$newpath = self::ReservedMoveFile($path['file'], $model->uploadDir);
 					if(is_string($newpath)){
 						$model->data[$key]->__moveFile[]= array('source' => $path['file'], 'dest' => $newpath);
 						$valuePath[] = $newpath;

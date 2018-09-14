@@ -1,0 +1,104 @@
+<?php if(_BH_ !== true) exit;
+use \BH_Common as CM;
+use \BH_Application as App;
+
+/**
+ * @var $Model \BoardModel
+ * @var $Data \BH_DB_GetListWithPage
+ * @var $Ctrl \Controller\Board
+ */
+App::JSAdd('board.js', 200);
+?>
+
+<?p. $Ctrl->_CategoryHtml() ?>
+<div id="boardArea">
+	<div id="boardListArea"></div>
+	<div class="moreViewBtn"><a href="#" id="moreViewBtn">더보기</a></div>
+</div>
+
+<?php if($Ctrl->managerIs){ ?>
+	<div class="leftSysBtn">
+		선택한 게시물을
+		<button type="button" class="sBtn btn2" id="moveSelItemBtn">이동</button>
+		<button type="button" class="sBtn btn2" id="copySelItemBtn">복사</button>
+		<a href="<?a. 'SysDel' ?>" class="sBtn btn3" id="delSelItemBtn">삭제</a>
+	</div>
+<?php } ?>
+
+<form id="bbsSchForm" name="bbsSchForm" method="get" action="<?a. 'MoreList' ?>" class="boardSearch leftBoardSearch">
+	<input type="hidden" name="cate" value="<?v. Get('cate') ?>">
+	<input type="hidden" name="scate" value="<?v. Get('scate') ?>">
+	<input type="hidden" name="lastSeq" value="<?v. isset($_GET['lastSeq']) ? $_GET['lastSeq'] : '' ?>" class="lastSeq">
+
+	<select name="stype">
+		<?p. SelectOption(array('snc' => '제목+내용', 's' => '제목', 'c' => '내용'), isset($_GET['stype']) ? $_GET['stype'] : '') ?>
+	</select>
+	<input type="text" name="keyword" value="<?v. isset($_GET['keyword']) ? $_GET['keyword'] : '' ?>">
+	<button type="submit" class="mBtn btn2">검색</button>
+</form>
+
+<?php if($Ctrl->GetAuth('Write')){ ?>
+	<div class="right_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn btn2 boardWriteBtn">글쓰기</a></div>
+	<?php if(sizeof($Ctrl->additionalSubId)){ ?>
+		<?inc. '/Board/SubSelect.html' ?>
+	<?php } ?>
+<?php } ?>
+
+<div id="secretViewForm" class="hidden boardPassword modalConfirm">
+	<form id="viewForm" name="viewForm" method="post" action="">
+		<input type="password" name="pwd" required="required">
+		<span>비밀번호를 입력하여 주세요.</span>
+		<div class="sPopBtns">
+			<button type="submit" class="btn2">확인</button>
+			<button type="reset" class="btn2">취소</button>
+		</div>
+	</form>
+</div>
+
+<?php
+if($Ctrl->managerIs){
+	$bmList = BoardManagerModel::GetList($Ctrl->bid, $Ctrl->subid);
+	?>
+	<div id="checkActionModal" class="modal_layer" data-close-type="hidden">
+		<div class="modal_wrap">
+			<header class="modal_header">
+				<h1>123</h1>
+				<button type="button" class="close"><i class="cross"></i></button>
+			</header>
+			<div class="modal_contents">
+				<form id="cActForm" name="cActForm" method="post" action="" data-move-url="<?a. 'SysMove' ?>" data-copy-url="<?a. 'SysCopy' ?>">
+					<input type="hidden" name="bid" value="">
+					<input type="hidden" name="subid" value="">
+					<input type="hidden" name="seq" value="">
+					<div class="selected" id="boardActionSelected"><span>선택게시판 : </span><b></b></div>
+					<div class="selectedCategory" id="boardActionCategory"></div>
+					<ul>
+						<?php foreach($bmList as $v){ ?>
+							<li>
+								<button type="button" class="boardActionArticleBtn" data-bid="<?v. $v['bid'] ?>" data-subid="<?v. $v['subid'] ?>" id="btn-<?v. $v['bid'] . '-' . $v['subid'] ?>" data-category="<?v. $v['category'] ?>" data-sub-category="<?v. $v['sub_category'] ?>"><?v. $v['bid'] ?> - <?v. $v['subject'] ?></button>
+							</li>
+						<?php } ?>
+					</ul>
+					<div class="bottomBtn">
+						<button type="submit" class="mBtn btn2">확인</button>
+						<button type="button" class="mBtn close">닫기</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		AppBoard.CheckActionInit();
+	</script>
+	<?php
+}
+?>
+
+<script>
+	AppBoard.boardWrap = '#boardArea';
+	AppBoard.listWrap = '#boardListArea';
+	AppBoard.article = 'article';
+	AppBoard.moreBtn = 'div.moreViewBtn';
+	AppBoard.MoreListInit();
+</script>

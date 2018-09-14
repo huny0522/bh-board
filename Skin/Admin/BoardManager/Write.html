@@ -5,40 +5,87 @@ use \BH_Application as App;
 /**
  * @var $Model \BoardManagerModel
  */
+App::$Data['category'] = explode(',', $Model->_category->txt());
+if(App::$Action === 'Copy'){
+	App::$Data['selectedMenu'] = array();
+	$tt = '복사';
+}
+else if(App::$Action === 'Write'){
+	$tt = '등록';
+}
+else if(App::$Action === 'Modify'){
+	$tt = '수정';
+}
 ?>
 
-<h2>게시판관리</h2>
+<h2>게시판관리(<?p. $tt ?>)</h2>
 
-<form name="BoardManagerWriteForm" id="BoardManagerWriteForm" method="post" action="<?a. App::$Action ?><?fq. '' ?>">
-	<input type="hidden" name="bid" value="<?mv('bid') ?>">
+<?php if(isset(App::$Data['error'])) echo '<p class="alert">' . App::$Data['error'] . '</p>'; ?>
+
+<form name="BoardManagerWriteForm" id="BoardManagerWriteForm" method="post" action="<?a. App::$Action == 'Copy' ? 'Write' : App::$Action ?><?fq. '' ?>">
+	<?php if(App::$Action == 'Modify'){?>
+		<input type="hidden" name="bid" value="<?mv('bid') ?>">
+		<input type="hidden" name="subid" value="<?mv('subid') ?>">
+	<?php } ?>
 	<input type="hidden" name="select_menu" value="" id="select_menu">
+
+	<h3>기본설정</h3>
 	<table class="write">
 		<tr>
 			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('subject')?></th>
 			<td colspan="3">
-				<?minp('subject') ?>
-				<ul class="guide">
-					<li>256자 이하로 입력하여주세요.</li>
-				</ul>
+				<?minp('subject', array('class' => 'w40p')) ?>
 			</td>
 		</tr>
-		<?php if(App::$Action == 'Write'){?>
+		<?php if(App::$Action != 'Modify'){?>
 			<tr>
 				<th><i class="requiredBullet" title="필수항목">*</i> <?mt('bid')?></th>
-				<td colspan="3">
-					<?minp('bid') ?>
+				<td>
+					<select id="bid_choice">
+						<option value="">선택</option>
+						<?p. SelectOption(App::$Data['bids'], $Model->GetValue('bid')) ?>
+						<option value="x">새로운 테이블 생성</option>
+					</select>
+					<span class="hidden" id="bid_real"><input type="text" name="bid" value="<?mv('bid') ?>" id="category"></span>
+
 					<ul class="guide">
 						<li>1자 이상, 20자 이하로 입력하여주세요.</li>
-						<li>영문과 숫자만 입력하여 주세요.</li>
+						<li>영문 소문자와 숫자, 언더바(_)만 입력하여 주세요.</li>
+						<li>대문자를 입력시 자동으로 소문자로 변경됩니다.</li>
+					</ul>
+				</td>
+				<th><?mt('subid')?></th>
+				<td>
+					<?minp('subid') ?>
+					<ul class="guide">
+						<li>1자 이상, 20자 이하로 입력하여주세요.</li>
+						<li>영문 소문자와 숫자, 언더바(_)만 입력하여 주세요.</li>
+						<li>대문자를 입력시 자동으로 소문자로 변경됩니다.</li>
 					</ul>
 				</td>
 			</tr>
 		<?php }else{?>
 			<tr>
 				<th><?mt('bid')?></th>
-				<td colspan="3"><?mv('bid') ?></td>
+				<td><?mv('bid') ?></td>
+				<th><?mt('subid')?></th>
+				<td><?v. strlen($Model->_subid->Value) ? $Model->_subid->Value : '없음' ?></td>
 			</tr>
 		<?php }?>
+
+
+		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('group_name')?></th>
+			<td colspan="3">
+				<select id="group_name_choice">
+					<option value="">선택</option>
+					<?p. SelectOption(App::$Data['group_name'], $Model->GetValue('group_name')) ?>
+					<option value="x">추가</option>
+				</select>
+				<span class="hidden" id="group_name_real"><input type="text" name="group_name" value="<?mv('group_name') ?>" id="group_name"></span>
+			</td>
+		</tr>
+
 		<?php if(App::$Data['menuAuth']){?>
 			<tr>
 				<th>연결메뉴</th>
@@ -78,36 +125,17 @@ use \BH_Application as App;
 		<tr>
 			<th><?mt('manager')?></th>
 			<td colspan="3">
-				<?minp('manager') ?>
+				<?minp('manager', array('class' => 'w100p')) ?>
 				<ul class="guide">
 					<li>게시판 관리자의 아이디를 입력하여 주세요. 콤마(,)로 구분</li>
 				</ul>
 			</td>
 		</tr>
 		<tr>
-			<th><?mt('skin')?></th>
+			<th><?mt('category')?> 및 <?mt('sub_category')?></th>
 			<td colspan="3">
-				<?minp('skin') ?>
-				<ul class="guide">
-					<li>1자 이상, 20자 이하로 입력하여주세요.</li>
-					<li>영문과 숫자만 입력하여 주세요.</li>
-				</ul>
-			</td>
-		</tr>
-		<tr>
-			<th><?mt('reply_skin')?></th>
-			<td colspan="3">
-				<?minp('reply_skin') ?>
-				<ul class="guide">
-					<li>1자 이상, 20자 이하로 입력하여주세요.</li>
-					<li>영문과 숫자만 입력하여 주세요.</li>
-				</ul>
-			</td>
-		</tr>
-		<tr>
-			<th><?mt('category')?></th>
-			<td colspan="3">
-				<?minp('category') ?>
+				<?minp('category', array('class' => 'w60p')) ?>&nbsp;&nbsp;세부분류 : <?minp('use_sub_category') ?><br>
+				<div id="subCategoryArea"></div>
 			</td>
 		</tr>
 		<tr>
@@ -126,6 +154,89 @@ use \BH_Application as App;
 				</ul>
 			</td>
 		</tr>
+		<tr>
+			<th><?mt('list_in_view')?></th>
+			<td>
+				<?minp('list_in_view') ?>
+			</td>
+			<th><?mt('man_to_man')?></th>
+			<td>
+				<?minp('man_to_man') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?mt('list_show_notice')?></th>
+			<td>
+				<?minp('list_show_notice') ?>
+			</td>
+			<th><?mt('use_secret')?></th>
+			<td>
+				<?minp('use_secret') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?mt('use_reply')?></th>
+			<td>
+				<?minp('use_reply') ?>
+			</td>
+			<th><?mt('attach_type')?></th>
+			<td>
+				<?minp('attach_type') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?mt('new_view_day')?></th>
+			<td colspan="3">
+				<?minp('new_view_day') ?>
+				<ul class="guide">
+					<li>1 이상, 50 이하의 값을 입력하여주세요.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<th><?mt('use_html')?></th>
+			<td colspan="3">
+				<?minp('use_html') ?>
+			</td>
+		</tr>
+	</table>
+
+	<h3>디자인경로설정</h3>
+	<table class="write">
+		<tr>
+			<th><?mt('layout')?></th>
+			<td colspan="3">
+				<?minp('layout', array('class' => 'w100p')) ?>
+				<ul class="guide">
+					<li>1자 이상, 50자 이하로 입력하여주세요.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<th><?mt('skin')?></th>
+			<td colspan="3">
+				<?minp('skin', array('class' => 'w30p')) ?>
+				<ul class="guide">
+					<li>1자 이상, 20자 이하로 입력하여주세요.</li>
+					<li>영문과 숫자만 입력하여 주세요.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<th><?mt('reply_skin')?></th>
+			<td colspan="3">
+				<?minp('reply_skin', array('class' => 'w30p')) ?>
+				<ul class="guide">
+					<li>1자 이상, 20자 이하로 입력하여주세요.</li>
+					<li>영문과 숫자만 입력하여 주세요.</li>
+				</ul>
+			</td>
+		</tr>
+	</table>
+
+	<h3>권한설정</h3>
+	<table class="write">
+
 		<tr>
 			<th><?mt('auth_list_level')?></th>
 			<td>
@@ -148,60 +259,16 @@ use \BH_Application as App;
 		</tr>
 		<tr>
 			<th><?mt('auth_answer_level')?></th>
-			<td>
+			<td colspan="3">
 				<?minp('auth_answer_level') ?>
-			</td>
-			<th><?mt('use_reply')?></th>
-			<td>
-				<?minp('use_reply') ?>
-			</td>
-		</tr>
-		<tr>
-			<th><?mt('list_in_view')?></th>
-			<td>
-				<?minp('list_in_view') ?>
-			</td>
-			<th><?mt('man_to_man')?></th>
-			<td>
-				<?minp('man_to_man') ?>
-			</td>
-		</tr>
-		<tr>
-			<th><?mt('use_secret')?></th>
-			<td colspan="3">
-				<?minp('use_secret') ?>
-			</td>
-		</tr>
-		<tr>
-			<th><?mt('attach_type')?></th>
-			<td colspan="3">
-				<?minp('attach_type') ?>
-			</td>
-		</tr>
-		<tr>
-			<th><?mt('layout')?></th>
-			<td colspan="3">
-				<?minp('layout') ?>
-				<ul class="guide">
-					<li>1자 이상, 50자 이하로 입력하여주세요.</li>
-				</ul>
-			</td>
-		</tr>
-		<tr>
-			<th><?mt('new_view_day')?></th>
-			<td colspan="3">
-				<?minp('new_view_day') ?>
-				<ul class="guide">
-					<li>1 이상, 50 이하의 값을 입력하여주세요.</li>
-				</ul>
 			</td>
 		</tr>
 	</table>
 
 	<div class="bottomBtn">
 		<button type="submit" class="bBtn"><?php echo App::$Action == 'Modify' ? '수정' : '등록'; ?></button>
-		<button type="reset" class="bBtn">취소</button>
-		<a href="#" class="backbtn bBtn">뒤로</a>
+		<a href="#" id="deleteArticle" class="bBtn btn3">삭제</a>
+		<a href="<?a. '' ?><?fq. '' ?>" class="bBtn">목록</a>
 	</div>
 </form>
 
@@ -276,4 +343,116 @@ use \BH_Application as App;
 	});
 
 	<?php } ?>
+
+	// ------------------ 서브 카테고리 ------------------
+
+	var subCategoryData = [];
+
+	function categoryShow(){
+		var cate = $('#MD_category').val().split(',');
+		var html = '';
+		for(var i = 0; i < cate.length; i++){
+			var c = $.trim(cate[i]);
+			if(c == '') continue;
+
+			var sub_category_data = findSubCategoryData(c);
+			html += '<dl class="subCategoryArticle">' +
+				'<dt>' + JCM.html2txt(c) + '</dt>' +
+				'<dd>' +
+				'<input type="hidden" name="sub_category_name[]" class="sub-category-name" value="' + JCM.html2txt(c) + '">' +
+				'<input type="text" name="sub_category_data[]" class="sub-category-data" value= "' + JCM.html2txt(sub_category_data) + '">' +
+				'</dd>' +
+				'</dl>';
+		}
+		$('#subCategoryArea').html(html);
+	}
+
+	function findSubCategoryData(cate){
+		for(var i=0; i < subCategoryData.length; i++){
+			if(subCategoryData[i].title == cate){
+				return subCategoryData[i].data;
+			}
+		}
+		return '';
+	}
+
+	function InsertCaregoryData(cate, data){
+		cate = $.trim(cate);
+		data = $.trim(data);
+		if(cate == '') return;
+		for(var i=0; i < subCategoryData.length; i++){
+			if(subCategoryData[i].title == cate){
+				subCategoryData[i].data = data;
+				return;
+			}
+		}
+
+		subCategoryData.push({title : cate, data : data});
+
+		console.log(subCategoryData);
+	}
+
+	$(document).on('focusout', 'input.sub-category-data', function(){
+		var cate = $(this).closest('dl.subCategoryArticle').find('input.sub-category-name').val();
+		InsertCaregoryData(cate, $(this).val());
+	});
+
+	$(document).on('focusout', '#MD_category', function(){
+		categoryShow();
+	});
+
+	$(document).ready(function(){
+		<?php
+		if(App::$Action === 'Modify' && isset(App::$Data['subCategoryData'])){
+			foreach(App::$Data['subCategoryData'] as $k => $v){
+				echo 'InsertCaregoryData(\'' . GetDBText($k) . '\', \'' . GetDBText(implode(',', $v)) . '\');';
+			}
+			echo 'categoryShow()';
+		}
+		?>
+	});
+</script>
+
+
+
+<div id="deleteForm" class="hidden modalConfirm">
+	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete' ?><?fq. '' ?>">
+		<input type="hidden" name="bid" value="<?v. $Model->_bid->Value ?>">
+		<input type="hidden" name="subid" value="<?v. $Model->_subid->Value ?>">
+		<p>정말 삭제하시겠습니까?</p>
+		<div class="sPopBtns">
+			<button type="submit" class="mBtn">삭제하기</button>
+			<button type="reset" class="mBtn">취소</button>
+		</div>
+	</form>
+</div>
+<script>
+	$('#deleteArticle').on('click', function(e){
+		e.preventDefault();
+		$('#deleteForm').show();
+	});
+	$('#deleteForm button[type=reset]').on('click', function(e){
+		e.preventDefault();
+		$('#deleteForm').hide();
+	});
+
+	$(document).on('change', '#bid_choice', function(){
+		if($(this).val() == 'x'){
+			$('#bid_real input').val('');
+			$('#bid_real').show();
+		}else{
+			$('#bid_real input').val($(this).val());
+			$('#bid_real').hide();
+		}
+	});
+
+	$(document).on('change', '#group_name_choice', function(){
+		if($(this).val() == 'x'){
+			$('#group_name_real input').val('');
+			$('#group_name_real').show();
+		}else{
+			$('#group_name_real input').val($(this).val());
+			$('#group_name_real').hide();
+		}
+	});
 </script>

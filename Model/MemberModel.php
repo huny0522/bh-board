@@ -26,8 +26,12 @@ use \BH_Application as App;
  * @property BH_ModelData $_phone
  * @property BH_ModelData $_reg_date
  * @property BH_ModelData $_approve
+ * @property BH_ModelData $_withdraw
+ * @property BH_ModelData $_admin_auth
+ * @property BH_ModelData $_login_date
  */
-class MemberModel extends \BH_Model{
+class MemberModel extends \BH_Model
+{
 
 	public function __Init(){
 		$this->Key = array('muid');
@@ -71,6 +75,13 @@ class MemberModel extends \BH_Model{
 
 		$this->data['approve'] = new \BH_ModelData(ModelType::Enum, false, '승인여부', HTMLType::InputRadio);
 		$this->data['approve']->EnumValues = array('y'=>'승인','n'=>'미승인');
+
+		$this->data['withdraw'] = new \BH_ModelData(ModelType::Enum, false, '탈퇴여부', HTMLType::InputRadio);
+		$this->data['withdraw']->EnumValues = array('y'=>'탈퇴','n'=>'가입');
+
+		$this->data['admin_auth'] = new \BH_ModelData(ModelType::Text, false, 'admin_auth', HTMLType::Textarea);
+
+		$this->data['login_date'] = new \BH_ModelData(ModelType::Date, false, '로그인날짜');
 	} // __Init
 
 }

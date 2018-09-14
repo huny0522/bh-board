@@ -19,6 +19,7 @@ define('_BH_', true);
 //
 // -------------------------------------
 define('PHP_RUN_CLI', strpos(php_sapi_name(), 'cli') !== false);
+if(0) define('_DIR', __DIR__);
 define('_DIR', str_replace('\\', '/', dirname(__FILE__)));
 define('_MODELDIR', _DIR . '/Model');
 define('_CONTROLLERDIR', _DIR . '/Controller');
@@ -38,6 +39,8 @@ define('_ADMINURL', _URL . '/' . _ADMINURLNAME);
 define('_IMGURL', _SKINURL . '/images');
 define('_UPLOAD_URL', _DATAURL . '/' . _UPLOAD_DIRNAME);
 
+define('_DEFAULT_BOARD_LOGIN_URL', _URL . '/Login');
+
 define('_DOMAIN', isset($_SERVER['HTTP_HOST']) ? ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']) : '');
 
 // -------------------------------------
@@ -52,12 +55,14 @@ if(PHP_RUN_CLI === true){
 else define('_DEVELOPERIS', true && in_array($_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP));
 define('_CREATE_HTML_ALL', false && _DEVELOPERIS === true);
 define('_REFRESH_HTML_ALL', true && _DEVELOPERIS === true);
-define('_REFRESH_BTN', PHP_RUN_CLI ? '' : (_DEVELOPERIS === true ? '<a id="_BH_RefreshBtn" href="' . _URL . '/_Refresh?r_url=' . urlencode($_SERVER['REQUEST_URI']) . '">새로고침</a>' : ''));
-define('_REMOVE_SPACE', false);
+define('_REFRESH_BTN', PHP_RUN_CLI ? '' : (_DEVELOPERIS === true ? '<a id="_BH_RefreshBtn" href="' . _URL . '/_Refresh?r_url=' . urlencode($_SERVER['REQUEST_URI']) . '" style="position:fixed; bottom:10px; right:10px; z-index:9999; display:block; height:30px; line-height:30px; padding:0 15px; font-size:12px; background:rgba(0,0,0,0.5); color:#fff; border-radius:15px;">새로고침</a>' : ''));
+
+define('_REMOVE_SPACE', true);
 define('_VIEW_MICROTIME', true);
+define('_USE_DB_PASSWORD', false);
 define('_USE_OLD_PASSWORD', false);
 define('_SHOW_CREATE_GUIDE', true);
-define('_USE_BC_TO', false);
+define('_USE_BC_TO', true);
 
 define('_STYLEFILE', '_bhinline.bhcss.php');
 define('_FILE_PUT_GUIDE', true);
@@ -67,6 +72,8 @@ define('_MAX_IMAGE_WIDTH', '1024');
 define('_DBMAXINT', 2147483647);
 define('_CATEGORY_LENGTH', 5);
 define('_NO_IMG', '');
+
+define('_MENU_CACHE_FILE', true);
 
 // -------------------------------------
 //
@@ -102,11 +109,14 @@ define('TABLE_MEMBER', TABLE_FIRST . 'member');
 define('TABLE_WITHDRAW_MEMBER', TABLE_FIRST . 'w_member');
 define('TABLE_MENU', TABLE_FIRST . 'menu');
 define('TABLE_CONTENT', TABLE_FIRST . 'content');
+define('TABLE_CONTENT_ACTION', TABLE_FIRST . 'contents_action');
 define('TABLE_BANNER', TABLE_FIRST . 'banner');
 define('TABLE_POPUP', TABLE_FIRST . 'popup');
 define('TABLE_IMAGES', TABLE_FIRST . 'images');
+define('TABLE_FRAMEWORK_SETTING', TABLE_FIRST . 'framework_setting');
+define('TABLE_VISIT', TABLE_FIRST . 'visit');
+define('TABLE_VISIT_COUNTER', TABLE_FIRST . 'visit_counter');
 
-define('_MEMBERIS', isset($_SESSION['member']) && strlen($_SESSION['member']['muid']));
 define('_MEMBER_LEVEL', 1);
 define('_MANAGER_LEVEL', 15);
 define('_ADMIN_LEVEL', 18);
@@ -121,6 +131,9 @@ define('_DEFAULT_CONTROLLER', 'Home');
 define('_DEFAULT_LAYOUT', '_Default');
 
 require _COMMONDIR . '/common.php';
+
+define('_MEMBERIS', isset($_SESSION['member']) && strlen($_SESSION['member']['muid']));
+
 BH_Application::run();
 
 if(_VIEW_MICROTIME === true && _AJAXIS !== true){

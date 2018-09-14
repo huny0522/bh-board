@@ -27,9 +27,13 @@ use \BH_Application as App;
 			</td>
 		</tr>
 		<tr>
+			<th><?mt('kind') ?></th>
+			<td><?minp('kind') ?></td>
+		</tr>
+		<tr>
 			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('subject')?></th>
 			<td>
-				<?minp('subject') ?>
+				<?minp('subject', array('class' => 'w100p')) ?>
 				<ul class="guide">
 					<li>50자 이하로 입력하여주세요.</li>
 				</ul>
@@ -56,15 +60,17 @@ use \BH_Application as App;
 		<tr id="typeFieldI">
 			<th><?mt('img')?></th>
 			<td>
+				<p>
 				<?minp('img') ?>
-				<div>
-					<?p. $Model->HTMLPrintLabel('link_url') ?>
-					<span><?minp('link_url') ?></span>
-				</div>
-				<div>
-					<?p. $Model->HTMLPrintLabel('new_window') ?>
+				</p>
+				<p>
+					<?p. $Model->HTMLPrintLabel('link_url') ?> :
+					<span><?minp('link_url', array('class' => 'w70p')) ?></span>
+				</p>
+				<p>
+					<?p. $Model->HTMLPrintLabel('new_window') ?> :
 					<span><?minp('new_window') ?></span>
-				</div>
+				</p>
 			</td>
 		</tr>
 		<tr id="typeFieldC">
@@ -107,7 +113,7 @@ use \BH_Application as App;
 
 <script>
 	$(document).ready(function(){
-		typeView('<?$Model->data['type']->txt() ?>');
+		typeView('<?p. $Model->data['type']->txt() ?>');
 	});
 
 	var contentsViewIs = false;

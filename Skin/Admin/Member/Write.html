@@ -74,22 +74,13 @@ use \BH_Application as App;
 				</select>
 			</td>
 		</tr>
-		<tr>
+		<tr class="daumAddress">
 			<th><?mt('address1')?></th>
 			<td>
-				<?minp('address1') ?>
-			</td>
-		</tr>
-		<tr>
-			<th><?mt('address2')?></th>
-			<td>
-				<?minp('address2') ?>
-			</td>
-		</tr>
-		<tr>
-			<th><?mt('zipcode')?></th>
-			<td>
-				<?minp('zipcode') ?>
+				<p><?minp('zipcode', array('class' => 'zipcode')) ?> <button type="button" class="mBtn find_address">우편번호 찾기</button></p>
+				<p><?minp('address1', array('class' => 'address1 w70p')) ?></p>
+				<p>상세주소 : <?minp('address2', array('class' => 'address2 w70p')) ?></p>
+
 			</td>
 		</tr>
 		<tr>
@@ -104,7 +95,7 @@ use \BH_Application as App;
 				<?minp('phone') ?>
 			</td>
 		</tr>
-<?php if(0 && $Model->GetValue('level') < 20){ ?>
+<?php if($_SESSION['member']['level'] > $Model->GetValue('level') && $Model->GetValue('level') < 20){ ?>
 		<tr>
 			<th><?mt('approve')?></th>
 			<td>

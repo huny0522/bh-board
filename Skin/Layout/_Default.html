@@ -8,119 +8,128 @@ App::$parentLayout = '_Common';
 App::CSSAdd('jquery-ui-1.10.1.css', 10);
 App::CSSAdd('font-awesome/css/font-awesome.min.css', 10);
 App::CSSAdd('nanumgothic.css', 10);
-App::CSSAdd('style.bhcss.php' . CM::RefreshParam(), 10);
-App::CSSAdd(_STYLEFILE . CM::RefreshParam(), 10);
+App::CSSAdd('style.css' . CM::RefreshParam(), 10);
 
 App::JSAdd('jquery-1.11.3.min.js', 10);
 App::JSAdd('jquery.form.min.js', 10);
 App::JSAdd('jquery-ui.min.js', 10);
 App::JSAdd(_URL . '/Common/common.js' . CM::RefreshParam(), 10);
 App::JSAdd('contents.js' . CM::RefreshParam(), 11);
+
+App::$SettingData['headMeta'] = '';
+
+$menuHelp = \Common\MenuHelp::GetInstance();
+$activeCategory = $menuHelp->GetActiveCategory();
+if($activeCategory){
+	$menus = $menuHelp->GetParentsMenuByCate($activeCategory);
+	$firstActiveMenu = reset($menus);
+}
 ?>
 
 <div id="wrap">
 	<header id="header">
 		<div id="header_wrap">
-			<h1><a href="<?p. _URL ?>/"><i><img src="/Skin/images/logo.png"></i> <span>BH BOARD</span></a></h1>
+			<h1>
+				<a href="<?p. _URL ?>/">
+					<?php if(CM::Config('Default', 'LogoUrl')){ ?>
+						<img src="<? p._UPLOAD_URL.CM::Config('Default', 'LogoUrl') ?>" alt="로고">
+					<?php }else{ ?>
+						<i><img src="/Skin/images/logo.png"></i> <span>BH BOARD</span>
+					<?php } ?>
+				</a>
+			</h1>
 
 			<nav id="gnb">
 				<ul>
-<?php if(_MEMBERIS === true){ ?>
+					<?php if(_MEMBERIS === true){ ?>
 						<li><a href="<?p. _URL ?>/Login/Logout">로그아웃</a></li>
-						<li><a href="<?p. _URL ?>/Mypage">마이페이지</a></li>
-<?php }
-else{ ?>
+						<li><a href="<?p. _URL ?>/MyPage">마이페이지</a></li>
+						<?php if($_SESSION['member']['level'] >= _ADMIN_LEVEL){ ?><li class="admin"><a href="<?p. _ADMINURL ?>" target="_blank">Admin</a></li><?php } ?>
+					<?php }
+					else{ ?>
 						<li><a href="<?p. _URL ?>/Login/Register">회원가입</a></li>
 						<li><a href="<?p. _URL ?>/Login">로그인</a></li>
-<?php } ?>
+						<li><a href="<?p. _URL ?>/Login/FindID">ID/PW 찾기</a></li>
+					<?php } ?>
 				</ul>
 			</nav>
-
-			<style>
-				#tnb{
-					{ $pa; top:3.0rem; left:0; z-index:1; width:100%; padding-left:28%; font-weight:700; font-size:1.4em;}
-					ol, ul{ $cb--; }
-					ul{
-						> li{ $fll; height:1.2em; padding:0 1.8em;}
-						> li > a{ display:block; height:2.8rem; color:#222; letter-spacing:0em; transition:0.4s;}
-						> li:hover > a{ letter-spacing:0.2em; color:#555;}
-						> li.Active > a{ color:#37b;}
-						> li.Active ol{ -webkit-transition:0.3s; -moz-transition:0.3s; -ms-transition:0.3s; -o-transition:0.3s; transition:0.3s;}
-						> li.Active ol li{ background:#369 url('../images/bg02.png');}
-						ol{
-							{ position:absolute; top:100%; line-height:1.2em; padding-top:0; margin-left:-0.5rem;}
-							li{ position:relative; float:left; font-size:0.7em; font-weight:700; color:#ccc; letter-spacing:0; transition:0.3s; padding:0 1.0rem; background:#222; transition:0.3s;overflow:hidden; height:0;}
-							li:first-child{border-radius:0.85em 0 0 0.85em; padding-left:1.5rem;}
-							li:last-child{border-radius:0 0.85em 0.85em 0; padding-right:1.5rem;}
-							li:first-child:last-child{border-radius:0.85em;}
-							li:hover{ color:#fff; letter-spacing:0.1em;}
-							li.Active{ color:#fff;}
-							li:before{ content:''; position:absolute; top:0.5rem; left:0; width:1px; height:1em; background:#ccc;}
-							li:first-child:before{ content:none;}
-						} //ol
-						> li:hover ol li{ height:1.7em; border-top-width:0.1em;}
-						> li.Active ol li{ height:1.7em; border-top-width:0.1em;}
-						+:hover > li ol li{ height:0; border-top-width:0;}
-						+:hover > li:hover ol li{ height:1.7em; border-top-width:0.1em;}
-					} //ul
-				} //#tnb
-			</style>
 			<nav id="tnb">
-				<ul>
-							<?php foreach(App::$SettingData['MainMenu'] as $row){ ?>
-						<li<?p. isset(App::$SettingData['AdminMenu']['category']) && substr(App::$SettingData['AdminMenu']['category'], 0, strlen($row['category'])) === $row['category'] ? ' class="Active"' : '' ?>>
-							<a href="<?p. _URL ?>/<?v. $row['controller'] ?>"><?v. $row['title'] ?></a>
-								<?php
-								if(isset(App::$SettingData['SubMenu'][$row['category']]) && sizeof(App::$SettingData['SubMenu'][$row['category']])){
-									echo '<ol>';
-									foreach(App::$SettingData['SubMenu'][$row['category']] as $subMenu){
-										echo '<li' . (isset(App::$SettingData['AdminMenu']['category']) && substr(App::$SettingData['AdminMenu']['category'], 0, strlen($subMenu['category'])) === $subMenu['category'] ? ' class="Active"' : '') . '><a href="' . _URL . '/' . $subMenu['controller'] . '">' . GetDBText($subMenu['title']) . '</a></li>';
-									}
-									echo '</ol>';
-								}
-								?>
-						</li>
-<?php } ?>
+					<?php echo $menuHelp->SetHead('<ul>')->SetTail('</ul>')->Html($menuHelp->GetRootCategory(), function($subCategory) use ($menuHelp){
+						return $menuHelp->SetHead('<ol>')->SetTail('</ol>')->Html($subCategory);
+					});
+					?>
 				</ul>
 			</nav>
 		</div>
 	</header>
 
-	<div id="container">
+	<div id="container" class="<?p. App::$ControllerName ?>Container <?p. App::$ControllerName.App::$Action ?>Container">
 		<div id="container_wrap">
+
+			<?php
+			if($activeCategory){
+				echo $menuHelp->SetHead('<div id="lnb"><h2>' . GetDBText($firstActiveMenu['title']) . '</h2><nav><ul>')
+					->SetTail('</ul></nav></div>')
+					->Html($firstActiveMenu['category']);
+			}
+			?>
+
 			<?p. App::$BodyHtml ?>
 		</div>
 	</div>
 
 	<footer id="footer">
-		<div id="footer_wrap">
-			<div id="">
-			</div>
-			<div id="">
+		<nav id="fnb">
+			<ul>
+				<li><a href="<?p. _URL ?>/Contents/introduce">회사소개</a></li>
+				<li><a href="<?p. _URL ?>/Contents/privacy">개인정보보호정책</a></li>
+				<li><a href="<?p. _URL ?>/Contents/terms">이용약관</a></li>
+			</ul>
+		</nav>
+
+		<div id="footerInfo">
+			<h1 class="footerLogo">
+				<?php if(CM::Config('Default', 'FootLogoUrl')){ ?>
+					<img src="<? p._UPLOAD_URL.CM::Config('Default', 'FootLogoUrl') ?>" alt="로고">
+				<?php }else echo CM::Config('Default', 'SiteName'); ?>
+			</h1>
+			<dl class="company">
+				<dt>회사명</dt>
+				<dd><?v. CM::Config('Default', 'Company') ?></dd>
+			</dl>
+			<dl class="ceo">
+				<dt>대표</dt>
+				<dd><?v. CM::Config('Default', 'CEO') ?></dd>
+			</dl>
+			<dl class="tel">
+				<dt>연락처</dt>
+				<dd><?v. CM::Config('Default', 'Tel') ?></dd>
+			</dl>
+			<dl class="fax">
+				<dt>팩스</dt>
+				<dd><?v. CM::Config('Default', 'Fax') ?></dd>
+			</dl>
+			<dl class="email">
+				<dt>이메일</dt>
+				<dd><?v. CM::Config('Default', 'Email') ?></dd>
+			</dl>
+			<dl class="address">
+				<dt>주소</dt>
+				<dd><?v. CM::Config('Default', 'Address1') ?>&nbsp;<?v. CM::Config('Default', 'Address2') ?></dd>
+			</dl>
+			<dl class="bNum">
+				<dt>사업자등록번호</dt>
+				<dd><?v. CM::Config('Default', 'bNumber') ?></dd>
+			</dl>
+			<dl class="oNum">
+				<dt>통신판매업 신고번호</dt>
+				<dd><?p. CM::Config('Default', 'oNumber') ?></dd>
+			</dl>
+			<div class="copyright">
+				<?p. CM::Config('Default', 'Copyright') ? CM::Config('Default', 'Copyright') : '2018 &copy; <b>BH Board</b> All Right Reserved.' ?>
 			</div>
 		</div>
 	</footer>
 </div>
-<script>
-	jQuery(function ($) {
-		$(document).ready(function () {
-			$('#tnb ul > li').each(function () {
-				tnbAlign(this);
-			});
-		});
-
-		$(document).on('mouseenter', '#tnb ul > li', function () {
-			tnbAlign(this);
-		});
-	});
-	function tnbAlign(obj) {
-		var sub = $(obj).find('ol');
-		if (!sub.length)
-			return;
-		var thisCenter = $(obj).offset().left + ($(obj).outerWidth() / 2);
-		var subCenter = sub.offset().left + (sub.outerWidth() / 2) - parseInt(sub.css('margin-left'));
-		sub.css({'margin-left': (thisCenter - subCenter) + 'px'});
-	}
-</script>
 
 <?p. _REFRESH_BTN ?>

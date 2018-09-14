@@ -18,7 +18,7 @@ class BannerManager
 	public $model = null;
 
 	public function __construct(){
-		$this->model = App::InitModel('Banner');
+		$this->model = new \BannerModel();
 
 		$dbGetList = new \BH_DB_GetList($this->model->table);
 		$dbGetList->SetKey('DISTINCT category');
@@ -34,17 +34,21 @@ class BannerManager
 		App::$Data['NowMenu'] = '001002';
 		CM::AdminAuth();
 		App::$Layout = '_Admin';
+		App::SetFollowQuery(array('category', 'page', 'keyword', 'kind'));
 	}
 
 	public function Index(){
 		// 리스트를 불러온다.
-		$dbGetList = new \BH_DB_GetListWithPage($this->model->table);
-		$dbGetList->page = isset($_GET['page']) ? $_GET['page'] : 1;
-		$dbGetList->pageUrl = App::URLAction().App::GetFollowQuery('page');
-		$dbGetList->articleCount = 20;
-		$dbGetList->Run();
+		$qry = DB::GetListPageQryObj($this->model->table)
+			->SetPage(Get('page'))
+			->SetPageUrl(App::URLAction().App::GetFollowQuery('page'))
+			->SetArticleCount(20);
 
-		App::View($this->model, $dbGetList);
+		if(!EmptyGet('keyword')) $qry->AddWhere('INSTR(`subject`, %s)', Get('keyword'));
+		if(!EmptyGet('category')) $qry->AddWhere('`category` = %s', Get('category'));
+		if(!EmptyGet('kind')) $qry->AddWhere('FIND_IN_SET(%s, `kind`)', Get('kind'));
+
+		App::View($this->model, $qry->Run());
 	}
 
 	public function Write(){
@@ -83,7 +87,7 @@ class BannerManager
 			}else{
 				$res = $this->model->DBInsert();
 				if($res->result){
-					CM::ContentImageUpate($this->model->table, array('seq' => $res->id), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
+					CM::ContentImageUpdate($this->model->table, array('seq' => $res->id), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
 
 					URLReplace(App::URLAction().App::GetFollowQuery());
 				}else{
@@ -118,7 +122,7 @@ class BannerManager
 
 			$res = $this->model->DBUpdate();
 			if($res->result){
-				CM::ContentImageUpate($this->model->table, array('seq' => to10(App::$ID)), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
+				CM::ContentImageUpdate($this->model->table, array('seq' => to10(App::$ID)), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
 				$url = App::URLAction().App::GetFollowQuery();
 				URLReplace($url, '수정완료');
 			}else{

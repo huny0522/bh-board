@@ -52,6 +52,7 @@ App::$SettingData['IMAGE_EXT'] = array('jpg', 'jpeg', 'png', 'gif', 'bmp');
 App::$SettingData['POSSIBLE_EXT'] = array('jpg', 'jpeg', 'png', 'gif', 'bmp', 'zip', '7z', 'gz', 'xz', 'tar', 'xls',
 	'xlsx', 'ppt', 'doc', 'hwp', 'pdf', 'docx', 'pptx', 'avi', 'mov', 'mkv', 'mpg', 'mpeg', 'wmv', 'asf', 'asx', 'flv',
 	'm4v', 'mp4', 'mp3', 'txt');
+App::$SettingData['iframePossibleUrl'] = array('https://www.youtube.com');
 
 if(_DEVELOPERIS === true){
 	if(!file_exists(_DATADIR) || !is_dir(_DATADIR)) @mkdir(_DATADIR, 0755, true);
@@ -209,13 +210,15 @@ function OptionEmailAddress($find = ''){
 /**
  * @param array $OptionValues
  * @param string $SelectValue
+ * @param bool $noOptValue
  * @return string
  */
-function SelectOption($OptionValues, $SelectValue = ''){
+function SelectOption($OptionValues, $SelectValue = '', $noOptValue = false){
 	$str = '';
 	if(!isset($OptionValues) || !is_array($OptionValues)) return $str;
 	foreach($OptionValues as $k => $v){
-		$str .= '<option value="' . $k . '"' . (isset($SelectValue) && $SelectValue === (string)$k ? ' selected="selected"' : '') . '>' . $v . '</option>';
+		$key = $noOptValue ? $v : $k;
+		$str .= '<option' . ($noOptValue ? '' : ' value="' . $k . '"') . ($SelectValue === (string)$key ? ' selected="selected"' : '') . '>' . GetDBText($v) . '</option>';
 	}
 	return $str;
 }
@@ -259,6 +262,56 @@ function GetLastDay($month, $year = false){
 		$month = $temp[1];
 	}
 	return date('t', mktime(0, 0, 0, $month, 1, $year));
+}
+
+/**
+ * @param $month 월 (숫자 두자리 또는 '2015-10-11'형식으로 $year 생략)
+ * @param false|int $year 년
+ * @return bool|false|string
+ */
+function GetBeforeMonth($month, $year = false){
+	if(!strlen($month)){
+		echo 'Error';
+		exit;
+	}
+
+	if($year === false){
+		$temp = explode('-', $month);
+		if(sizeof($temp) < 2) return false;
+		$year = $temp[0];
+		$month = $temp[1];
+	}
+	$month -= 1;
+	if($month < 1){
+		$year -= 1;
+		$month = 12;
+	}
+	return sprintf('%04d-%02d', $year, $month);
+}
+
+/**
+ * @param $month 월 (숫자 두자리 또는 '2015-10-11'형식으로 $year 생략)
+ * @param false|int $year 년
+ * @return bool|false|string
+ */
+function GetNextMonth($month, $year = false){
+	if(!strlen($month)){
+		echo 'Error';
+		exit;
+	}
+
+	if($year === false){
+		$temp = explode('-', $month);
+		if(sizeof($temp) < 2) return false;
+		$year = $temp[0];
+		$month = $temp[1];
+	}
+	$month += 1;
+	if($month > 12){
+		$year += 1;
+		$month = 1;
+	}
+	return sprintf('%04d-%02d', $year, $month);
 }
 
 function Download($path, $fname){
@@ -348,7 +401,26 @@ function ToFloat($s){
 }
 
 function RemoveScriptTag($str){
-	return preg_replace(array('/\<\/*\s*(script|form|input|select|button|textarea).*?\>/is', '/\<\s*(\S+?)(\s+.*?\s+on|\s+on).*?\>/is'), array('', '<$1>'), $str);
+	return preg_replace(array('/\<\/*\s*(script|form|input|select|button|textarea).*?\>/is', '/\<\s*(\S+?)(\s+.*?\s+on|\s+on).*?\>/is', '/\<a.*?src\s*\=\s*.*?javascript\s*\:[^\>]*\>/'), array('', '<$1>', ''), $str);
+}
+
+function RemoveIFrame($str){
+	return preg_replace_callback('/\<\s*iframe\s*(.*?)\>([^\<]*)(\<\/\s*iframe\s*\>|)/is', function($matches){
+		if(is_array($matches) && sizeof($matches) > 1){
+			preg_replace_callback('/.*?src\s*\=\s*[\'\"]*(.*?)[\'\"\s].*?/is', function($matches2) use(&$matches){
+				$r = false;
+				foreach(App::$SettingData['iframePossibleUrl'] as $v){
+					if(substr($matches2[1], 0, strlen($v)) !== $v) $r = true;
+				}
+				if($r) $matches[0] = '';
+				return '';
+			}, $matches[1]);
+			return $matches[0];
+		}
+		else return '';
+		//
+		//if(substr($matches[1]) === 'https://www.youtube.com')
+	}, $str);
 }
 
 function SetDBTrimText($txt){
@@ -451,7 +523,7 @@ function GetDBText($txt){
 		foreach($txt as $k => &$v) $v = GetDBText($v);
 		return $txt;
 	}
-	else return htmlspecialchars($txt);
+	else return str_replace(array('\'', '"'), array('&#39;', '&quot;'), htmlspecialchars($txt));
 }
 
 function GetDBRaw($txt){
@@ -629,13 +701,21 @@ function SqlPassword($input){
 
 function _password_hash($str){
 	if(_USE_OLD_PASSWORD === true) return '*' . SqlPassword($str);
+	if(_USE_DB_PASSWORD === true){
+		$qry = DB::SQL()->Fetch('SELECT PASSWORD(%s) as txt', $str);
+		return $qry['txt'];
+	}
 	if(phpversion() < '5.3.7') return hash('sha256', hash('sha512', sha1(sha1($str, true))));
 	else if(phpversion() < '5.5') require_once _COMMONDIR . '/password.php';
 	return password_hash(hash('sha256', $str), PASSWORD_BCRYPT);
 }
 
 function _password_verify($str, $hash){
-	if(_USE_OLD_PASSWORD === true) return '*' . SqlPassword($str) == $hash;
+	if(_USE_OLD_PASSWORD === true) return '*' . SqlPassword($str) === $hash;
+	if(_USE_DB_PASSWORD === true){
+		$qry = DB::SQL()->Fetch('SELECT PASSWORD(%s) as txt', $str);
+		return $qry['txt'] === $hash;
+	}
 	if(phpversion() < '5.3.7') return $hash === hash('sha256', hash('sha512', sha1(sha1($str, true))));
 	else if(phpversion() < '5.5') require_once _COMMONDIR . '/password.php';
 	if(password_verify(hash('sha256', $str), $hash)) return true;
@@ -672,6 +752,13 @@ function &Post($param){
 	return $_POST[$param];
 }
 
+function EmptyPost($param){
+	if(!isset($_POST[$param])) return true;
+	else if(is_string($_POST[$param])) return (strlen(trim($_POST[$param])) === 0);
+	else if(is_array($_POST[$param])) return (sizeof($_POST[$param]) === 0);
+	return false;
+}
+
 function &Get($param){
 	if(!isset(App::$SettingData['_BH_GetData'][$param])){
 		App::$SettingData['_BH_GetData'][$param] = true;
@@ -681,8 +768,21 @@ function &Get($param){
 	return $_GET[$param];
 }
 
+function EmptyGet($param){
+	if(!isset($_GET[$param])) return true;
+	else if(is_string($_GET[$param])) return (strlen(trim($_GET[$param])) === 0);
+	else if(is_array($_GET[$param])) return (sizeof($_GET[$param]) === 0);
+	return false;
+}
+
 function CustomText($str){
 	return preg_replace('/\<font[^\>]*?\>\s*\<\/font\>/is', '', $str);
+}
+
+function IsImageFileName($path){
+	$p = explode('.', $path);
+	$ext = end($p);
+	return in_array(strtolower($ext), array('png','jpg','jpeg','gif'));
 }
 
 require _DIR . '/Custom/MyLib.php';

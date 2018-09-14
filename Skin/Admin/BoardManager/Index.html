@@ -10,6 +10,23 @@ use \BH_Application as App;
 
 <h2>게시판관리</h2>
 
+<div class="boardSearch">
+	<form id="SearchForm" name="SearchForm" method="get" action="<?a. '' ?>">
+		<label>
+			<span class="tt">카테고리</span>
+			<select id="SearchLevel" name="gn">
+				<option value="">선택</option>
+				<?p. SelectOption(App::$Data['group_name'], GetDBText(Get('gn'))) ?>
+			</select>
+		</label>
+		<label for="Keyword">
+			<span class="tt">검색어</span>
+			<input type="text" id="Keyword" name="keyword" value="<?v. Get('keyword') ?>">
+		</label>
+		<button type="submit" class="mBtn">검색</button>
+	</form>
+</div>
+
 <?php if($Data->result && $Data->totalRecord){ ?>
 	<table class="list">
 		<colgroup>
@@ -41,11 +58,15 @@ use \BH_Application as App;
 		</tr>
 		</thead>
 		<tbody>
-		<?php while($row = $Data->Get()){?>
+		<?php
+		while($row = $Data->Get()){
+			$bid = GetDBText($row['bid']);
+			$subid = GetDBText($row['subid']);
+			?>
 			<tr>
 				<td><?p. $Data->beginNum-- ?></td>
 				<td><?v. $row['subject']; ?></td>
-				<td><?v. $row['bid']; ?></td>
+				<td><?p. $bid ?></td>
 				<td><?menum('auth_list_level', $row['auth_list_level']) ?></td>
 				<td><?menum('auth_write_level', $row['auth_write_level']) ?></td>
 				<td><?menum('auth_view_level', $row['auth_view_level']) ?></td>
@@ -53,7 +74,7 @@ use \BH_Application as App;
 				<td><?menum('auth_answer_level', $row['auth_answer_level']) ?></td>
 				<td><?menum('use_reply', $row['use_reply']) ?></td>
 				<td><?v. $row['title'] ?></td>
-				<td><a href="<?a. 'View' ?>?bid=<?p. $row['bid'] ?><?fn. '' ?>">관리</a> | <a href="<?c. 'Board/'.$row['bid'] ?>">보기</a></td>
+				<td><a href="<?a. 'Modify/' . $bid . '/' . $subid ?><?fn. '' ?>">관리</a> | <a href="<?a. 'Copy/' . $bid . '/' . $subid ?><?fn. '' ?>">복사</a> | <a href="<?c. 'Board/'.$bid.(strlen($subid) ? '-' : '').$row['subid'] ?>">보기</a> | <a href="<?a. 'CategoryChange/' . $bid . '/' . $subid ?>">분류변경</a></td>
 			</tr>
 		<?php } ?>
 		</tbody>

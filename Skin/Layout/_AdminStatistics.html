@@ -1,0 +1,42 @@
+<?php if(_BH_ !== true) exit;
+
+use \BH_Common as CM;
+use \BH_Application as App;
+
+/**
+ * @var $Model
+ * @var $Ctrl
+ * @var $Data
+ */
+
+App::$parentLayout = '_Admin';
+
+$tab = array(
+	'' => '접속자별통계',
+	'Day' => '일별통계',
+	'Month' => '월별통계',
+	'Year' => '년도별통계',
+	'Week' => '요일별통계',
+	'Hour' => '시간별통계',
+	'Browser' => '브라우저별통계',
+	'Device' => '장치별통계',
+	'URI' => '접속경로별통계',
+	'OS' => '운영체제별통계',
+);
+$act = App::$Action == 'Index' ? '' : App::$Action;
+?>
+
+<div id="contents" class="statistics">
+	<h2><?v. $tab[$act] ?> 통계</h2>
+
+	<ul class="BMGroupCategory">
+		<?php foreach($tab as $k=>$v){
+			echo '<li' . ($act === $k ? ' class="active"' : ''). '>';
+			echo '<a href="' . App::URLAction($k) . '">' . $v . '</a>';
+			echo '</li>';
+		}
+		?>
+	</ul>
+
+	<?p. App::$BodyHtml ?>
+</div>

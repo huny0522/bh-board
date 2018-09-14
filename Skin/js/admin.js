@@ -1,74 +1,83 @@
 var AppAdmin = {
-	BoardViewInit : function(){
-		AppBoard.View.AdminInit = function(){
+	BoardView : {
+		Init : function(){
 			AppBoard.View.Init();
 
-			$(document).on('click', '#removeBtn', AppBoard.View.ClickRemoveBtn);
-			$(document).on('click', '#removeForm button[type=reset]', AppBoard.View.ResetRemoveForm);
-		};
+			$(document).on('click', '#removeBtn', AppAdmin.BoardView.ClickRemoveBtn);
+			$(document).on('click', '#removeForm button[type=reset]', AppAdmin.BoardView.ResetRemoveForm);
+		},
 
-		AppBoard.View.ClickRemoveBtn = function(e){
+		ClickRemoveBtn : function(e){
 			e.preventDefault();
 			$('#removeForm').show();
-		};
+		},
 
-		AppBoard.View.ResetRemoveForm = function(e){
+		ResetRemoveForm : function(e){
 			document.querySelector('#removeForm').reset();
 			$('#removeForm').hide();
-		};
-
-		AppBoard.View.AdminInit();
+		}
 	},
-	BoardListInit : function(){
-		AppBoard.AdminList = {
-			Init : function(){
-				$('a.deleteArticle').on('click', AppBoard.AdminList.ClickDeleteBtn);
 
-				$('#deleteForm button[type=reset]').on('click', AppBoard.AdminList.ResetDeleteForm);
+	BoardList : {
+		Init : function(){
+			AppBoard.boardWrapElement = $(AppBoard.boardWrap);
+			AppBoard.listWrapElement = AppBoard.boardWrapElement.find(AppBoard.listWrap);
+			$('a.deleteArticle').on('click', AppAdmin.BoardList.ClickDeleteBtn);
 
-				$('a.removeArticle').on('click', AppBoard.AdminList.ClickRemoveBtn);
+			$('#listDeleteForm button[type=reset]').on('click', AppAdmin.BoardList.ResetDeleteForm);
 
-				$('#removeForm button[type=reset]').on('click', AppBoard.AdminList.ResetRemoveForm);
+			$('a.removeArticle').on('click', AppAdmin.BoardList.ClickRemoveBtn);
 
-				$('.passwordView').on('click', AppBoard.AdminList.ClickPwdBtn);
+			$('#listRemoveForm button[type=reset]').on('click', AppAdmin.BoardList.ResetRemoveForm);
 
-				$('#secretViewForm button[type=reset]').on('click', AppBoard.AdminList.ResetPwdForm);
-			},
+			$('.passwordView').on('click', AppAdmin.BoardList.ClickPwdBtn);
 
-			ClickDeleteBtn : function(e){
-				e.preventDefault();
-				$('#delForm').attr('action', this.href);
-				$('#deleteForm').show();
-			},
+			$('#secretViewForm button[type=reset]').on('click', AppAdmin.BoardList.ResetPwdForm);
 
-			ResetDeleteForm : function(e){
-				document.querySelector('#deleteForm').reset();
-				$('#deleteForm').hide();
-			},
+			$('#schDelViewChk').on('click', function(){
+				$(this).closest('form')[0].submit();
+			});
 
-			ClickRemoveBtn : function(e){
-				e.preventDefault();
-				$('#remForm').attr('action', this.href);
-				$('#removeForm').show();
-			},
+			$('#moveSelItemBtn').on('click', AppBoard.CheckedMoveArticles);
 
-			ResetRemoveForm : function(e){
-				document.querySelector('#removeForm').reset();
-				$('#removeForm').hide();
-			},
+			$('#copySelItemBtn').on('click', AppBoard.CheckedCopyArticles);
 
-			ClickPwdBtn : function(e){
-				e.preventDefault();
-				$('#viewForm').attr('action', this.href);
-				$('#secretViewForm').show();
-			},
+			$('#delSelItemBtn').on('click', AppBoard.CheckedDelArticles);
 
-			ResetPwdForm : function(e){
-				document.querySelector('#viewForm').reset();
-				$('#secretViewForm').hide();
-			}
-		};
+			$('#unDelSelItemBtn').on('click', AppBoard.CheckedUnDelArticles);
+		},
 
-		AppBoard.AdminList.Init();
+		ClickDeleteBtn : function(e){
+			e.preventDefault();
+			$('#listDelForm').attr('action', this.href);
+			$('#listDeleteForm').show();
+		},
+
+		ResetDeleteForm : function(e){
+			$('#listDelForm')[0].reset();
+			$('#listDeleteForm').hide();
+		},
+
+		ClickRemoveBtn : function(e){
+			e.preventDefault();
+			$('#listRemForm').attr('action', this.href);
+			$('#listRemoveForm').show();
+		},
+
+		ResetRemoveForm : function(e){
+			$('#listRemForm')[0].reset();
+			$('#listRemoveForm').hide();
+		},
+
+		ClickPwdBtn : function(e){
+			e.preventDefault();
+			$('#viewForm').attr('action', this.href);
+			$('#secretViewForm').show();
+		},
+
+		ResetPwdForm : function(e){
+			document.querySelector('#viewForm').reset();
+			$('#secretViewForm').hide();
+		},
 	}
 };

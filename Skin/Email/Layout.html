@@ -1,0 +1,40 @@
+<?php
+if(_BH_ !== true) exit;
+
+use \BH_Common as CM;
+use \BH_Application as App;
+
+?>
+
+<!-- Start::Wrap -->
+<div style="border:1px solid #eee; padding:30px; min-height:100%;">
+	<!-- Start::Box -->
+	<div style="width:700px; margin:0 auto;">
+		<div style="">
+			<span style="display: block; padding-bottom:10px;"><a href="{=DATA.HomeUrl}" target="_blank"><img ! src="{=DATA.LogoUrl}" style="display: block;"></a></span>
+			<!-- bar -->
+			<span style="display: block; height:2px; background:#db0515;"></span>
+			<!-- subject -->
+			<div style="text-align: center; padding:70px 0 40px; font-weight:700; font-size:30px; color: #333333;">{=DATA.subject}</div>
+		</div>
+
+		<div>
+			{=BODY}
+		</div>
+
+		<div style="padding-top:50px;">
+			<div style="border:1px solid #ddd; padding:20px; font-size:12px; color: #888; line-height:18px; background:#f4f4f4;">
+				궁금하신 내용이 있으신가요? {=INFO.SiteName} 고객센터에 문의하여 주시기 바랍니다.<br>
+				통합고객센터 : {=INFO.csTel}<br>
+			</div>
+			<div style="padding:20px 0; font-size:12px; color: #999999; line-height:18px;">
+				본 메일은 발신전용 메일입니다. 궁금하신 점이나 불편하신 사항은 고객센터를 통해 문의해 주시기 바랍니다.<br>
+				{=INFO.Company}   |   대표이사 : {=INFO.CEO}   |   사업자등록번호 : {=INFO.bNumber}<br>
+				{=INFO.Copyright}<br>
+			</div>
+		</div>
+
+	</div>
+	<!-- End::Box -->
+</div>
+<!-- End::Wrap -->

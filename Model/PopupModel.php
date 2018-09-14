@@ -14,6 +14,8 @@ use \BH_Application as App;
  *
  * @property BH_ModelData[] $data
  * @property BH_ModelData $_seq
+ * @property BH_ModelData $_kind
+ * @property BH_ModelData $_category
  * @property BH_ModelData $_subject
  * @property BH_ModelData $_img
  * @property BH_ModelData $_contents
@@ -27,21 +29,32 @@ use \BH_Application as App;
  * @property BH_ModelData $_width
  * @property BH_ModelData $_height
  * @property BH_ModelData $_sort
+ * @property BH_ModelData $_pos_x
+ * @property BH_ModelData $_pos_y
  */
-class PopupModel extends \BH_Model{
+class PopupModel extends \BH_Model
+{
 	public function __Init(){
 		$this->Key[] = 'seq';
 		$this->table = TABLE_POPUP;
 
 		$this->data['seq'] = new \BH_ModelData(ModelType::Int, false, '');
-		$this->data['seq']->AutoDecrement = true;
+
+		$this->data['kind'] = new \BH_ModelData(ModelType::Enum, false, '접속장치별 표시', HTMLType::InputCheckbox);
+		$this->data['kind']->EnumValues = array(
+		'pc' => 'PC',
+		'mobile' => '모바일'
+		);
+
+		$this->data['category'] = new \BH_ModelData(ModelType::String, true, '분류');
+		$this->data['category']->MaxLength = 20;
 
 		$this->data['subject'] = new \BH_ModelData(ModelType::String, true, '제목');
 		$this->data['subject']->MaxLength = 50;
 
 		$this->data['img'] = new \BH_ModelData(ModelType::String, false, '이미지', HTMLType::InputImageFile);
 
-		$this->data['contents'] = new \BH_ModelData(ModelType::String, false, '내용', HTMLType::Textarea);
+		$this->data['contents'] = new \BH_ModelData(ModelType::Text, false, '내용', HTMLType::Textarea);
 
 		$this->data['type'] = new \BH_ModelData(ModelType::Enum, true, '타입', HTMLType::InputRadio);
 		$this->data['type']->EnumValues = array('i'=>'이미지','c'=>'컨텐츠');
@@ -74,6 +87,11 @@ class PopupModel extends \BH_Model{
 		$this->data['sort'] = new \BH_ModelData(ModelType::Int, true, '정렬');
 		$this->data['sort']->DefaultValue = '0';
 
+		$this->data['pos_x'] = new \BH_ModelData(ModelType::Int, false, 'X좌표');
+		$this->data['pos_x']->DefaultValue = 0;
+
+		$this->data['pos_y'] = new \BH_ModelData(ModelType::Int, false, 'Y좌표');
+		$this->data['pos_y']->DefaultValue = 0;
 	} // __Init
 
 }

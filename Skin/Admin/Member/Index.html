@@ -12,17 +12,17 @@ use \BH_Application as App;
 
 <div class="boardSearch">
 	<form id="SearchForm" name="SearchForm" method="get" action="<?a. '' ?>">
-		<label for="SearchLevel">등급</label>
-		<span>
+		<label>
+			<span class="tt">등급</span>
 			<select id="SearchLevel" name="SLevel">
 				<option value="">선택</option>
 				<?p. SelectOption(array(_MEMBER_LEVEL => '일반회원', _MANAGER_LEVEL => '매니저', _ADMIN_LEVEL => '관리자', _SADMIN_LEVEL => '최고관리자'), GetDBText(isset($_GET['SLevel']) ? $_GET['SLevel'] : '')) ?>
 			</select>
-		</span>
-		<label for="Keyword">검색어</label>
-		<span>
+		</label>
+		<label>
+			<span class="tt">검색어</span>
 			<input type="text" id="Keyword" name="Keyword" value="<?v. isset($_GET['Keyword']) ? GetDBText($_GET['Keyword']) : '' ?>">
-		</span>
+		</label>
 		<button type="submit" class="mBtn">검색</button>
 	</form>
 </div>

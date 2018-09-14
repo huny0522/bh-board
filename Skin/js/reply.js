@@ -19,10 +19,16 @@ var AppReply = {
 	},
 
 	ClickReset : function(){
-		AppReply.RemoveFormBox();
+		AppReply.RemoveFormBox.call(this);
 	},
 
 	RemoveFormBox : function(){
+		var form = $(this).closest('form');
+		if(form.length && form[0].id === 'repPwdForm'){
+			$('#replyPwdLayer').hide();
+			form[0].reset();
+			return;
+		}
 		var obj = $('#replyFormBox');
 		if(obj.hasClass('modifyForm')){
 			obj.closest('article').find('div.comment').show();
@@ -58,7 +64,7 @@ var AppReply = {
 		if(article.children('.repDeleteForm').length) return;
 
 		AppReply.RemoveFormBox();
-		article.append('<div id="replyFormBox">' + $('#replyDeleteLayer').html() + '</div>');
+		article.append('<div id="replyFormBox" class="replyWrite replyDelete">' + $('#replyDeleteLayer').html() + '</div>');
 		var form = article.find('form');
 
 		var seq = $(this).closest('article').attr('data-seq');
@@ -89,7 +95,7 @@ var AppReply = {
 		var article = $(this).closest('article');
 
 		AppReply.RemoveFormBox();
-		article.append('<div id="replyFormBox" class="modifyForm">' + $('#replyModifyLayer').html() + '</div>');
+		article.append('<div id="replyFormBox" class="replyWrite modifyForm">' + $('#replyModifyLayer').html() + '</div>');
 		article.find('div.comment').hide();
 
 		var form = article.find('form');
@@ -121,7 +127,7 @@ var AppReply = {
 		$('#replyAnswerLayer input[name=target_seq]').val(seq);
 
 		AppReply.RemoveFormBox();
-		article.after('<article class="replyAnswer" id="replyFormBox">' + $('#replyAnswerLayer').html() + '</article>');
+		article.after('<article class="replyWrite replyAnswer" id="replyFormBox">' + $('#replyAnswerLayer').html() + '</article>');
 	},
 
 	SubmitAnswerForm : function(e){

@@ -9,18 +9,28 @@ use \BH_Application as App;
  */
 App::JSAdd('board.js', 200);
 ?>
+
+<?p. $Ctrl->_CategoryHtml() ?>
+
 <div id="bhBoardList">
 	<form id="bbsSchForm" name="bbsSchForm" method="get" action="<?a. 'MoreList' ?>" class="boardSearch leftBoardSearch">
+		<input type="hidden" name="cate" value="<?v. Get('cate') ?>">
+		<input type="hidden" name="scate" value="<?v. Get('scate') ?>">
 		<input type="hidden" name="lastSeq" value="<?v. isset($_GET['lastSeq']) ? $_GET['lastSeq'] : '' ?>" class="lastSeq">
-		<input type="hidden" name="searchKeyword" value="">
-		<select name="searchType">
-			<?p. SelectOption(array('snc' => '제목+내용', 's' => '제목', 'c' => '내용'), isset($_GET['searchType']) ? $_GET['searchType'] : '') ?>
+		<input type="hidden" name="keyword" value="">
+		<select name="stype">
+			<?p. SelectOption(array('snc' => '제목+내용', 's' => '제목', 'c' => '내용'), isset($_GET['stype']) ? $_GET['stype'] : '') ?>
 		</select>
 		<input type="text" name="searchInput" value="">
 		<button type="submit" class="mBtn btn2">검색</button>
 	</form>
 
-	<?php if($Ctrl->GetAuth('Write')){ ?><div class="right_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn btn2">글쓰기</a></div><?php } ?>
+	<?php if($Ctrl->GetAuth('Write')){ ?>
+		<div class="right_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn btn2 boardWriteBtn">글쓰기</a></div>
+		<?php if(sizeof($Ctrl->additionalSubId)){ ?>
+			<?inc. '/Board/SubSelect.html' ?>
+		<?php } ?>
+	<?php } ?>
 
 	<table class="list">
 		<colgroup>

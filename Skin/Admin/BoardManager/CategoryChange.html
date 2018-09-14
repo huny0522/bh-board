@@ -1,0 +1,104 @@
+<?php if(_BH_ !== true) exit;
+
+use \BH_Common as CM;
+use \BH_Application as App;
+
+/**
+ * @var $Model \BoardManagerModel
+ */
+?>
+
+<h2><?v. $Model->_subject->txt() ?> 분류명 변경</h2>
+
+<div class="categoryChEx">
+	<h3>1차 카테고리</h3>
+	<div><?mv('category') ?></div>
+	<h3>2차 카테고리</h3>
+	<div>
+		<?php
+		if(isset(App::$Data['subCategoryData'])) foreach(App::$Data['subCategoryData'] as $k => $v){
+			echo '<dl><dt>' . GetDBText($k) . '</dt>';
+			echo '<dd>' . GetDBText(implode(',', $v)) . '</dd>';
+			echo '</dl>';
+		}
+		?>
+	</div>
+</div>
+
+<?php if(sizeof(App::$Data['category'])){ ?>
+	<h3>카테고리명 변경</h3>
+	<form id="ctchForm" name="ctchForm" method="post" action="<?a. 'CategoryChange' ?>">
+		<input type="hidden" name="bid" value="<?p. $Model->_bid->v() ?>">
+		<fieldset class="writeField">
+			<dl>
+				<dt>카테고리명</dt>
+				<dd>
+					<select name="before_cate" id="before_cate">
+						<option value="">메인 카테고리명</option>
+						<?p. SelectOption(App::$Data['category'], $Model->_category->txt() ? $Model->_category->txt() : Get('cate'), true) ?>
+					</select>&nbsp;
+					<?php if($Model->_use_sub_category->txt() == 'y'){ ?>
+					<select name="before_sub_cate" id="before_sub_cate">
+						<option value="">메인 카테고리명을 선택하여 주세요.</option>
+					</select>
+					<?php } ?>
+				</dd>
+			</dl>
+
+				<dl>
+					<dt>변경할 카테고리명</dt>
+					<dd>
+						<select name="after_cate" id="after_cate" required>
+							<option value="">변경할 카테고리명</option>
+							<?p. SelectOption(App::$Data['category'], $Model->_category->txt() ? $Model->_category->txt() : Get('cate'), true) ?>
+						</select>&nbsp;
+						<?php if($Model->_use_sub_category->txt() == 'y'){ ?>
+						<select name="after_sub_cate" id="after_sub_cate" required>
+							<option value="">변경할 메인 카테고리명을 선택하여 주세요.</option>
+						</select>
+						<?php } ?>
+					</dd>
+				</dl>
+
+		</fieldset>
+		<footer class="bottomBtn">
+			<button type="submit" class="mBtn">변경</button>
+		</footer>
+	</form>
+<?php } ?>
+
+<script>
+	var sub = JSON.parse("<?p. addslashes($Model->_sub_category->Value) ?>");
+	console.log(sub);
+	$('#ctchForm').on('submit', function(e){
+		e.preventDefault();
+		var obj = this;
+
+		CMConfirm('변경하시겠습니까?', function(){
+			JCM.ajaxForm(obj, function(){
+				CMAlert('변경되었습니다.');
+			});
+		});
+	});
+
+	$('#before_cate, #after_cate').on('change', function(){
+		var beforeIs = this.id == 'before_cate';
+		var subEl = beforeIs ? $('#before_sub_cate') : $('#after_sub_cate');
+		if(!subEl.length) return;
+		if($(this).val() === ''){
+			subEl.html('<option value="">' + (beforeIs ? '메인 카테고리명을 선택하여 주세요.' : '변경할 메인 카테고리명을 선택하여 주세요.') + '</option>');
+			return;
+		}
+		for(var i = 0; i < sub.length; i++){
+			if(sub[i].category == $(this).val()){
+				if(typeof(sub[i].sub_category) === 'undefined') return;
+				var html = '<option value="">선택</option>';
+				for(var y = 0; y < sub[i].sub_category.length; y++){
+					html += '<option>' + sub[i].sub_category[y] + '</option>';
+				}
+				subEl.html(html);
+				return;
+			}
+		}
+	});
+</script>

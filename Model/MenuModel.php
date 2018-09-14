@@ -19,8 +19,13 @@ use \BH_Application as App;
  * @property BH_ModelData $_controller
  * @property BH_ModelData $_enabled
  * @property BH_ModelData $_parent_enabled
+ * @property BH_ModelData $_subid
+ * @property BH_ModelData $_addi_subid
+ * @property BH_ModelData $_board_category
+ * @property BH_ModelData $_board_sub_category
  */
-class MenuModel extends \BH_Model{
+class MenuModel extends \BH_Model
+{
 
 	public $CategoryLength = _CATEGORY_LENGTH;
 
@@ -50,6 +55,18 @@ class MenuModel extends \BH_Model{
 
 		$this->data['parent_enabled'] = new \BH_ModelData(ModelType::Enum, false, '부모사용여부');
 		$this->data['parent_enabled']->EnumValues = array('y' => '사용', 'n' => '사용안함');
+
+		$this->data['subid'] = new \BH_ModelData(ModelType::String, false, '서브아이디');
+		$this->data['subid']->MaxLength = '20';
+
+		$this->data['addi_subid'] = new \BH_ModelData(ModelType::String, false, '추가 서브아이디');
+		$this->data['addi_subid']->MaxLength = '256';
+
+		$this->data['board_category'] = new \BH_ModelData(ModelType::String, false, '게시판 분류');
+		$this->data['board_category']->MaxLength = '32';
+
+		$this->data['board_sub_category'] = new \BH_ModelData(ModelType::String, false, '게시판 세부분류');
+		$this->data['board_sub_category']->MaxLength = '256';
 	} // __Init
 
 

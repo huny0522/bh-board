@@ -1,0 +1,36 @@
+<?php if(_BH_ !== true) exit;
+use \BH_Common as CM;
+use \BH_Application as App;
+
+?>
+<h3>회원탈퇴</h3>
+<div id="WithdrawForm">
+	<form name="WDForm" id="WDForm" method="post" action="<?a. App::$Action ?>">
+		<p>탈퇴하시겠습니까? 탈퇴사유를 입력하여 주세요.</p>
+		<ul>
+			<li><label class="radio"><input type="radio" name="reason" id="reason1"><span>유용한 정보가 없다.</span></label></li>
+			<li><label class="radio"><input type="radio" name="reason" id="reason2"><span>사용이 불편하다.</span></label></li>
+			<li><label class="radio"><input type="radio" name="reason" id="reason3"><span>재가입을 위해서</span></label></li>
+			<li><label class="radio"><input type="radio" name="reason" id="reason4"><span>그냥</span></label></li>
+			<li><label class="radio"><input type="radio" name="reason" id="reason5" class="etc"><span>기타</span></label></li>
+		</ul>
+		<div class="reason_etc">
+			<label for="withdraw_reason">기타</label>
+			<span class="inp"><textarea name="withdraw_reason" id="withdraw_reason"></textarea></span>
+		</div>
+		<div class="bottomBtn">
+			<button type="submit" class="mBtn btn2">탈퇴하기</button>
+			<a href="<?a. '' ?><?fq. '' ?>" class="mBtn btn1">취소</a>
+		</div>
+	</form>
+</div>
+<script>
+	$(document).on('click', '#WDForm input[name=reason]', function(){
+		if($(this).hasClass('etc')){
+			$('#withdraw_reason').val('');
+			$('#withdraw_reason').focus();
+		}else{
+			$('#withdraw_reason').val($(this).next().text());
+		}
+	});
+</script>

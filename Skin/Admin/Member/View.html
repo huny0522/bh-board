@@ -4,94 +4,94 @@ use \BH_Application as App;
 
 /**
  * @var $Model \MemberModel
-*/
+ */
 ?>
 
 <h2>회원관리</h2>
 
 <table class="view">
-<tr>
-	<th><?mt('mid')?></th>
-	<td>
-		<?mv('mid') ?>
-	</td>
-</tr>
-<tr>
-	<th><?mt('mname')?></th>
-	<td>
-		<?mv('mname') ?>
-	</td>
-</tr>
-<tr>
-	<th><?mt('email')?></th>
-	<td>
-		<?mv('email') ?>
-	</td>
-</tr>
-<tr>
-	<th><?mt('cname')?></th>
-	<td>
-		<?mv('cname') ?>
-	</td>
-</tr>
-<tr>
-	<th><?mt('nickname')?></th>
-	<td>
-		<?mv('nickname') ?>
-	</td>
-</tr>
-<tr>
-	<th><?mt('level')?></th>
-	<td><?menum('level') ?></td>
-</tr>
-<tr>
-	<th><?mt('address1')?></th>
-	<td>
-		<?mv('address1') ?>
-	</td>
-</tr>
-<tr>
-	<th><?mt('address2')?></th>
-	<td>
-		<?mv('address2') ?>
-	</td>
-</tr>
-<tr>
-	<th><?mt('zipcode')?></th>
-	<td>
-		<?mv('zipcode') ?>
-	</td>
-</tr>
-<tr>
-	<th><?mt('tel')?></th>
-	<td>
-		<?mv('tel') ?>
-	</td>
-</tr>
-<tr>
-	<th><?mt('phone')?></th>
-	<td>
-		<?mv('phone') ?>
-	</td>
-</tr>
-<tr>
-	<th><?mt('reg_date')?></th>
-	<td>
-		<?mv('reg_date') ?>
-	</td>
-</tr>
-<tr>
-	<th><?mt('approve')?></th>
-	<td><?menum('approve') ?></td>
-</tr>
+	<tr>
+		<th><?mt('mid')?></th>
+		<td>
+			<?mv('mid') ?>
+		</td>
+	</tr>
+	<tr>
+		<th><?mt('mname')?></th>
+		<td>
+			<?mv('mname') ?>
+		</td>
+	</tr>
+	<tr>
+		<th><?mt('email')?></th>
+		<td>
+			<?mv('email') ?>
+		</td>
+	</tr>
+	<tr>
+		<th><?mt('cname')?></th>
+		<td>
+			<?mv('cname') ?>
+		</td>
+	</tr>
+	<tr>
+		<th><?mt('nickname')?></th>
+		<td>
+			<?mv('nickname') ?>
+		</td>
+	</tr>
+	<tr>
+		<th><?mt('level')?></th>
+		<td><?menum('level') ?></td>
+	</tr>
+	<tr>
+		<th><?mt('address1')?></th>
+		<td>
+			<?mv('address1') ?>
+		</td>
+	</tr>
+	<tr>
+		<th><?mt('address2')?></th>
+		<td>
+			<?mv('address2') ?>
+		</td>
+	</tr>
+	<tr>
+		<th><?mt('zipcode')?></th>
+		<td>
+			<?mv('zipcode') ?>
+		</td>
+	</tr>
+	<tr>
+		<th><?mt('tel')?></th>
+		<td>
+			<?mv('tel') ?>
+		</td>
+	</tr>
+	<tr>
+		<th><?mt('phone')?></th>
+		<td>
+			<?mv('phone') ?>
+		</td>
+	</tr>
+	<tr>
+		<th><?mt('reg_date')?></th>
+		<td>
+			<?mv('reg_date') ?>
+		</td>
+	</tr>
+	<tr>
+		<th><?mt('approve')?></th>
+		<td><?menum('approve') ?></td>
+	</tr>
 </table>
-<div class="bottomBtn"><a href="<?a. '' ?><?fq. '' ?>" class="bBtn">리스트</a><a href="<?a. 'Modify' ?>?muid=<?v. $_GET['muid'] ?><?fn. '' ?>" class="bBtn">수정</a><a href="#" id="deleteArticle" data-muid="<?v. $_GET['muid'] ?>" class="bBtn">삭제</a><a href="#" class="backbtn bBtn">뒤로</a></div>
+<div class="bottomBtn"><a href="<?a. '' ?><?fq. '' ?>" class="bBtn">리스트</a><a href="<?a. 'Modify' ?>?muid=<?v. $_GET['muid'] ?><?fn. '' ?>" class="bBtn">수정</a><a href="#" id="deleteArticle" data-muid="<?v. $_GET['muid'] ?>" class="bBtn">탈퇴처리</a><a href="#" class="backbtn bBtn">뒤로</a></div>
 <div id="deleteForm" class="hidden modalConfirm">
-	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete' ?><?fq. '' ?>">
+	<form id="delForm" name="delForm" method="post" action="<?a. 'Withdraw' ?><?fq. '' ?>">
 		<input type="hidden" name="muid" value="<?v. $_GET['muid'] ?>">
-		<p>정말 삭제하시겠습니까?</p>
+		<p>정말 탈퇴처리하시겠습니까? 한번 탈퇴처리하면 복구되지 않습니다.</p>
 		<div class="sPopBtns">
-			<button type="submit" class="mBtn">삭제하기</button>
+			<button type="submit" class="mBtn">탈퇴처리</button>
 			<button type="reset" class="mBtn">취소</button>
 		</div>
 	</form>

@@ -3,41 +3,84 @@ use \BH_Common as CM;
 use \BH_Application as App;
 
 /**
- * @var $Model \BannerModel
+ * @var $Model \PopupModel
  * @var $Data \BH_DB_GetListWithPage
-*/
+ */
 ?>
 
-<table class="list">
-<thead>
-<tr>
-	<th>번호</th>
-	<th><?mt('img')?></th>
-	<th><?mt('subject')?></th>
-	<th>기간</th>
-	<th><?mt('enabled')?></th>
-	<th><?mt('sort')?></th>
-	<th></th>
-</tr>
-</thead>
-<tbody>
-<?php if($Data->result && $Data->totalRecord){ ?>
-<?php while($row = $Data->Get()){?>
-<tr>
-	<td><?p. $Data->beginNum-- ?></td>
-	<td><img src="<?v. _UPLOAD_URL.$Model->GetFilePathByValue($row['img']); ?>" alt=""></td>
-	<td><?v. $row['subject']; ?></td>
-	<td><?v. $row['begin_date']; ?> ~ <?v. $row['end_date']; ?></td>
-	<td><?menum('enabled', $row['enabled']) ?></td>
-	<td><?v. $row['sort']; ?></td>
-	<td><a href="<?a. 'Modify' ?>/<?p. toBase($row['seq']) ?><?fn. '' ?>">수정</a></td>
-</tr>
-<?php } ?>
-<?php } else{ ?>
-<tr><td colspan="6" class="nothing">등록된 게시물이 없습니다.</td></tr>
-<?php } ?>
-</tbody>
-</table>
+<h2><?p. AdminTitleSet() ?></h2>
 
-<div class="left_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn">글쓰기</a></div>
+
+<div class="boardSearch">
+	<form id="SearchForm" name="SearchForm" method="get" action="<?a. '' ?>">
+		<label>
+			<span class="tt">접속장치</span>
+			<select name="kind">
+				<option value="">전체</option>
+				<?p. SelectOption($Model->_kind->EnumValues, Get('kind')) ?>
+			</select>
+		</label>
+		<label>
+			<span class="tt">카테고리</span>
+			<select id="SearchLevel" name="category">
+				<option value="">선택</option>
+				<?p. SelectOption(App::$Data['category'], GetDBText(Get('category'))) ?>
+			</select>
+		</label>
+		<label>
+			<span class="tt">검색어</span>
+			<input type="text" id="Keyword" name="keyword" value="<?v. Get('keyword') ?>">
+		</label>
+		<button type="submit" class="mBtn">검색</button>
+	</form>
+</div>
+
+<?php if($Data->result && $Data->totalRecord){ ?>
+	<table class="list">
+	<thead>
+	<tr>
+		<th>번호</th>
+		<th><?mt('category')?></th>
+		<th><?mt('img')?></th>
+		<th><?mt('subject')?></th>
+		<th>기간</th>
+		<th><?mt('kind')?></th>
+		<th><?mt('enabled')?></th>
+		<th><?mt('sort')?></th>
+		<th></th>
+	</tr>
+	</thead>
+	<tbody>
+	<?php while($row = $Data->Get()){?>
+		<tr>
+			<td><?p. $Data->beginNum-- ?></td>
+			<td><?v. $row['category']; ?></td>
+			<td>
+				<?php if($row['type'] == 'i'){ ?>
+					<img src="<?v. _UPLOAD_URL . $Model->GetFilePathByValue($row['img']); ?>" alt="">
+				<?php }else{ ?>
+					직접등록
+				<?php } ?>
+			</td>
+			<td><?v. $row['subject']; ?></td>
+			<td><?v. $row['begin_date']; ?> ~ <?v. $row['end_date']; ?></td>
+			<td><?menum('kind', $row['kind']) ?></td>
+			<td><?menum('enabled', $row['enabled']) ?></td>
+			<td><?v. $row['sort']; ?></td>
+			<td><a href="<?a. 'Modify' ?>/<?p. toBase($row['seq']) ?><?fn. '' ?>">수정</a></td>
+		</tr>
+	<?php } ?>
+	</tbody>
+	</table>
+<?php } else{ ?>
+	<p class="nothing">등록된 팝업이 없습니다.</p>
+<?php } ?>
+
+<div class="left_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn">팝업등록</a></div>
 <div class="paging"><?p. $Data->pageHtml ?></div>
+
+<script>
+	$(document).on('change', '#SearchForm select', function(){
+		$(this).closest('form').submit();
+	});
+</script>

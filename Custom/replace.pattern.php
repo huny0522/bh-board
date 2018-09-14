@@ -17,6 +17,8 @@ BH_Application::$SettingData['_replace_patterns'] = array(
 	'/<\?\s*v\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
 	'/<\?\s*vr\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
 	'/<\?\s*vb\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+	'/<\?\s*vstag\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+	'/<\?\s*vbstag\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
 
 	//fn,fq
 	'/<\?\s*fn\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
@@ -75,6 +77,8 @@ BH_Application::$SettingData['_replace_replace'] = array(
 	'<?php echo GetDBText($1); ?>',
 	'<?php echo GetDBRaw($1); ?>',
 	'<?php echo nl2br(GetDBText($1)); ?>',
+	'<?php echo strip_tags(GetDBText($1)); ?>',
+	'<?php echo nl2br(GetDBText(strip_tags($1))); ?>',
 
 	// fq, fn
 	'<?php echo \BH_Application::GetFollowQuery($1, \'&\'); ?>',

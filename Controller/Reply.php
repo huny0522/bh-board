@@ -8,6 +8,7 @@ namespace Controller;
 
 use \BH_Application as App;
 use \BH_Common as CM;
+use Common\ArticleAction;
 use \DB as DB;
 
 class Reply{
@@ -19,6 +20,7 @@ class Reply{
 	public $boardManger;
 	public $managerIs = false;
 	public $bid = '';
+	public $subid = '';
 	protected $MoreListIs = false;
 	protected $Path = '';
 	public $uploadUrl = '';
@@ -35,17 +37,23 @@ class Reply{
 
 	public function __construct(){
 		$this->model = App::InitModel('Reply');
-		$this->boardModel = App::InitModel('Board');
-		$this->boardManger = App::InitModel('BoardManager');
-		$this->uploadUrl = '/reply/' .$this->bid.'/' . date('ym') . '/';
+		$this->boardModel = new \BoardModel();
+		$this->boardManger = new \BoardManagerModel();
+
+		$this->bid = App::$TID;
+		$this->subid = App::$SUB_TID;
+
+		$this->uploadUrl = '/reply/' .$this->bid.(strlen($this->subid) ? '-' . $this->subid  : '').'/' . date('ym') . '/';
+		$this->model->uploadDir = $this->uploadUrl;
 	}
 
 	public function __init(){
 		if(_POSTIS !== true) exit;
-		$this->bid = App::$TID;
-		App::$Data['article_seq'] = SetDBInt((string)$_POST['article_seq']);
-		$this->boardManger->DBGet($this->bid);
-		$this->_ReplySetting();
+		if(!in_array(App::$Action, array('JSONAction', 'JSONCancelAction'))){
+			App::$Data['article_seq'] = SetDBInt((string)$_POST['article_seq']);
+			$this->boardManger->DBGet($this->bid, $this->subid);
+			$this->_ReplySetting();
+		}
 	}
 
 	protected function _ReplySetting(){
@@ -138,6 +146,8 @@ class Reply{
 			$row['kdate'] = krDate($row['reg_date'],'mdhi');
 		}
 
+		$this->GetMemberAction($dbList->data);
+
 		JSON(true, '', App::GetView(null, $dbList));
 	}
 
@@ -203,6 +213,8 @@ class Reply{
 					}
 				}
 			}
+
+			$this->GetMemberAction($dbList->data);
 
 			$row['kdate'] = krDate($row['reg_date'],'mdhi');
 		}
@@ -452,5 +464,83 @@ class Reply{
 		else if(isset($this->boardModel->data['target_muid']) && strlen($this->boardModel->GetValue('target_muid')))
 			$myArticleIs = (_MEMBERIS === true && $this->boardModel->GetValue('target_muid') == $_SESSION['member']['muid']);
 		return $myArticleIs;
+	}
+
+	public function PostJSONAction(){
+		if(_MEMBERIS !== true) JSON(false, _MSG_NEED_LOGIN);
+
+		$articleAction = $this->GetArticleAction();
+		switch(Post('type')){
+			case 'recommend':
+				$res = $articleAction->Recommend();
+				echo json_encode($res);
+			break;
+			case 'oppose':
+				$res = $articleAction->Oppose();
+				echo json_encode($res);
+			break;
+			case 'report':
+				$res = $articleAction->Report();
+				echo json_encode($res);
+			break;
+			default:
+				JSON(false, _MSG_WRONG_CONNECTED);
+			break;
+		}
+	}
+
+	public function PostJSONCancelAction(){
+		if(_MEMBERIS !== true) JSON(false, _MSG_NEED_LOGIN);
+
+		$articleAction = $this->GetArticleAction();
+		switch(Post('type')){
+			case 'recommend':
+				$res = $articleAction->CancelRecommend();
+				echo json_encode($res);
+			break;
+			case 'oppose':
+				$res = $articleAction->CancelOppose();
+				echo json_encode($res);
+			break;
+			case 'report':
+				$res = $articleAction->CancelReport();
+				echo json_encode($res);
+			break;
+			default:
+				JSON(false, _MSG_WRONG_CONNECTED);
+			break;
+		}
+	}
+
+	protected function GetArticleAction(){
+		if(!strlen(App::$ID)) JSON(false,  _MSG_WRONG_CONNECTED);
+
+		$seq = ToInt(App::$ID);
+		return ArticleAction::GetInstance($this->bid)
+			->SetReplyIs(true)
+			->SetArticleSeq($seq)
+			->SetMUid($_SESSION['member']['muid'])
+			->SetParentTable($this->model->table, true);
+	}
+
+	protected function GetMemberAction(&$rows){
+		if(_MEMBERIS === true){
+			$arrays = array();
+			foreach($rows as $v) $arrays[] = $v['seq'];
+
+			$replyActionData = array();
+			$res = ArticleAction::GetInstance($this->bid)->SetMUid($_SESSION['member']['muid'])->GetReplyActions($arrays);
+
+			if($res->result) $replyActionData = $res->data;
+		}
+
+		foreach($rows as $k => $v){
+
+			$rows[$k]['recommendBtn'] = '<a href="' . App::URLAction('JSONAction') . '/' .  $v['seq'] . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . $v['seq'] . '" data-type="recommend" class="replyActionBtn replyRecommendActionBtn' .(isset($replyActionData[$v['seq']]['rp_recommend']) ? ' already' : ''). '"><b>추천</b> <span class="num">' . ($v['recommend']) . '</span></a>';
+
+			$rows[$k]['opposeButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  $v['seq'] . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . $v['seq'] . '" data-type="oppose" class="replyActionBtn replyOpposeActionBtn' .(isset($replyActionData[$v['seq']]['rp_oppose']) ? ' already' : ''). '"><b>반대</b> <span class="num">' . ($v['oppose']) . '</span></a>';
+
+			$rows[$k]['reportButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  $v['seq'] . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . $v['seq'] . '" data-type="report" class="replyActionBtn replyReportActionBtn' .(isset($replyActionData[$v['seq']]['rp_report']) ? ' already' : ''). '"><b>신고</b> <span class="num">' . ($v['report']) . '</span></a>';
+		}
 	}
 }

@@ -1,0 +1,34 @@
+<?php if(_BH_ !== true) exit;
+
+use \BH_Common as CM;
+use \BH_Application as App;
+
+App::$parentLayout = '_Admin';
+
+/**
+ * @var $Model
+ * @var $Ctrl
+ * @var $Data
+ */
+
+$g_n = DB::GetQryObj(TABLE_BOARD_MNG)
+	->SetKey('group_name')
+	->AddWhere('bid = %s', App::$TID)
+	->AddWhere('subid = %s', App::$SUB_TID)
+	->Get();
+
+if($g_n){
+	$groupBM = DB::GetListQryObj(TABLE_BOARD_MNG)
+		->SetKey('bid', 'subid', 'subject')
+		->AddWhere('group_name = %s', $g_n['group_name'])
+		->GetRows();
+
+	echo '<ul class="BMGroupCategory">';
+	foreach($groupBM as $k => $row){
+		echo '<li '.($row['bid'] == App::$TID && $row['subid'] == App::$SUB_TID ? ' class="active"' : '').'>'
+			.'<span><a href="'. _ADMINURL.'/Board/'.$row['bid'].(strlen($row['bid']) ? '-' : '').$row['subid'].'">'.$row['subject'].'</a></span>';
+	}
+	echo '</ul>';
+}
+
+echo App::$BodyHtml;

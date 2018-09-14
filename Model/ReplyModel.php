@@ -17,7 +17,6 @@ use \BH_Application as App;
  * @property BH_ModelData $_sort1
  * @property BH_ModelData $_sort2
  * @property BH_ModelData $_article_seq
- * @property BH_ModelData $_article_sort
  * @property BH_ModelData $_depth
  * @property BH_ModelData $_mlevel
  * @property BH_ModelData $_muid
@@ -32,6 +31,9 @@ use \BH_Application as App;
  * @property BH_ModelData $_mname
  * @property BH_ModelData $_pwd
  * @property BH_ModelData $_comment
+ * @property BH_ModelData $_recommend
+ * @property BH_ModelData $_report
+ * @property BH_ModelData $_oppose
  */
 class ReplyModel extends \BH_Model
 {
@@ -48,7 +50,6 @@ class ReplyModel extends \BH_Model
 		$this->data['sort1'] = new \BH_ModelData(ModelType::Int, false, '');
 		$this->data['sort2'] = new \BH_ModelData(ModelType::Int, false, '');
 		$this->data['article_seq'] = new \BH_ModelData(ModelType::Int, false, '');
-		$this->data['article_sort'] = new \BH_ModelData(ModelType::Int, false, '');
 		$this->data['depth'] = new \BH_ModelData(ModelType::Int, false, '');
 		$this->data['mlevel'] = new \BH_ModelData(ModelType::Int, false, '');
 		$this->data['muid'] = new \BH_ModelData(ModelType::String, false, '');
@@ -58,7 +59,7 @@ class ReplyModel extends \BH_Model
 		$this->data['target_muid'] = new \BH_ModelData(ModelType::String, false, '');
 		$this->data['target_mname'] = new \BH_ModelData(ModelType::String, false, '');
 		$this->data['reg_date'] = new \BH_ModelData(ModelType::Datetime, false, '등록일');
-		$this->data['file'] = new \BH_ModelData(ModelType::String, false, 'FILE');
+		$this->data['file'] = new \BH_ModelData(ModelType::String, false, 'FILE', HTMLType::InputFileWithName);
 		$this->data['delis'] = new \BH_ModelData(ModelType::String, false, '삭제여부');
 		$this->data['delis']->DefaultValue = 'n';
 
@@ -73,7 +74,11 @@ class ReplyModel extends \BH_Model
 		$this->data['pwd']->MaxLength = 8;
 		$this->data['pwd']->MaxLength = 16;
 
-		$this->data['comment'] = new \BH_ModelData(ModelType::String, false, '내용', HTMLType::Textarea);
+		$this->data['comment'] = new \BH_ModelData(ModelType::Text, false, '내용', HTMLType::Textarea);
+
+		$this->data['recommend'] = new \BH_ModelData(ModelType::Int, false, '추천수');
+		$this->data['report'] = new \BH_ModelData(ModelType::Int, false, '신고수');
+		$this->data['oppose'] = new \BH_ModelData(ModelType::Int, false, '반대수');
 	} // 자동생성불가
 
 

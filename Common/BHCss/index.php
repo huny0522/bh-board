@@ -3,13 +3,13 @@
 error_reporting(E_ALL);
 
 define('_BH_', true);
-define('_DIR', str_replace(chr(92), '/', dirname(__FILE__)));
+define('_BHCSS_DIR', str_replace(chr(92), '/', dirname(__FILE__)));
 
-require _DIR . '/core/BHCss.php';
+require _BHCSS_DIR . '/core/BHCss.php';
 
 use BH\BHCss\BHCss;
 
-$getphpfile = _DIR . '/getphp.php';
+$getphpfile = _BHCSS_DIR . '/getphp.php';
 
 $setNL = false;
 
@@ -24,7 +24,7 @@ if(!file_exists($dir) || !is_dir($dir)){
 	exit;
 }
 
-echo _DIR . ' : Begin Convert(path : ' . $dir . ')' . chr(10) . chr(10);
+echo _BHCSS_DIR . ' : Begin Convert(path : ' . $dir . ')' . chr(10) . chr(10);
 while(1){
 	$msg = convertBHCssDir($dir);
 

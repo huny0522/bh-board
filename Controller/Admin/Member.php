@@ -36,6 +36,7 @@ class Member{
 			->SetPage(Get('page'))
 			->SetPageUrl(App::URLAction('').App::GetFollowQuery('page'))
 			->SetArticleCount(20)
+			->AddWhere('withdraw = \'n\'')
 			->AddWhere('level < %d OR muid = %d', $_SESSION['member']['level'], $_SESSION['member']['muid']);
 		$keyword = trim(Get('Keyword'));
 		$slevel = Get('SLevel');
@@ -159,20 +160,10 @@ class Member{
 		}
 	}
 
-	public function PostDelete(){
-		$this->model->DBGet($_POST['muid']);
-
-		if($this->model->GetValue('level') >= $_SESSION['member']['level']){
-			URLReplace('-1', '관리자는 삭제가 불가능합니다.');
-		}
-		if(isset($_POST['muid']) && $_POST['muid'] != ''){
-			$res = $this->model->DBDelete($_POST['muid']);
-			if($res->result){
-				URLReplace(App::URLAction('').App::GetFollowQuery(), '삭제되었습니다.');
-			}else{
-				URLReplace('-1', $res->message);
-			}
-		}
+	public function PostWithdraw(){
+		$res = Member::_Withdraw($_SESSION['member']['muid'], '관리자 권한 회원 탈퇴처리');
+		if(!$res->result) URLRedirect(-1, $res->message ? $res->message : '탈퇴 오류');
+		else URLRedirect(App::URLAction('').App::GetFollowQuery(), '탈퇴처리되었습니다.');
 	}
 
 	public function AuthAdmin(){
@@ -209,6 +200,58 @@ class Member{
 		$qry->AddWhere('muid = %d', $_POST['muid']);
 		$qry->Run();
 		echo json_encode(array('result' => true));
+	}
+
+	/**
+	 * @param int $muid
+	 * @param string $reason
+	 * @return \BH_InsertResult|\BH_Result
+	 */
+	public static function _Withdraw($muid, $reason){
+		$model = new \MemberModel();
+		$model->DBGet($muid);
+		$dbInsert = new \BH_DB_Insert(TABLE_WITHDRAW_MEMBER);
+		$dbInsert->SetData('muid', $model->GetValue('muid'));
+		$dbInsert->SetDataStr('mid', $model->GetValue('mid'));
+		$dbInsert->SetDataStr('mname', $model->GetValue('mname'));
+		$dbInsert->SetDataStr('cname', $model->GetValue('cname'));
+		$dbInsert->SetDataStr('nickname', $model->GetValue('nickname'));
+		$dbInsert->SetDataStr('level', $model->GetValue('level'));
+		$dbInsert->SetDataStr('email', $model->GetValue('email'));
+		$dbInsert->SetDataStr('reg_date', $model->GetValue('reg_date'));
+		$dbInsert->SetDataStr('reason', $reason);
+		$dbInsert->SetData('w_date', 'NOW()');
+
+		foreach($model->data as $k => $v){
+			if($k == 'muid') continue;
+			$v->SetMinLength(false);
+			$v->SetMinValue(false);
+			$v->SetRequired(false);
+			if($v->Type == \ModelType::Int || $v->Type == \ModelType::Float){
+				$v->SetValue(0);
+			}
+			else if($v->Type == \ModelType::Enum){
+				if(is_array($v->EnumValues) && sizeof($v->EnumValues)){
+					reset($v->EnumValues);
+					$v->SetValue(key($v->EnumValues));
+				}
+			}
+			else if($v->Type == \ModelType::Date || $v->Type == \ModelType::Datetime){
+				continue;
+			}
+			else{
+				$v->SetValue('');
+			}
+		}
+
+		$model->_withdraw->SetValue('y');
+
+		$err = $model->GetErrorMessage();
+		if(sizeof($err)) return (object)array('result' => false, 'message' => $err[0]);
+		$res = $dbInsert->Run();
+		if($res->result) $res = $model->DBUpdate();
+
+		return $res;
 	}
 
 }

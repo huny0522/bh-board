@@ -1,0 +1,103 @@
+<?php
+if(_BH_ !== true) exit;
+use \BH_Common as CM;
+use \BH_Application as App;
+
+$popup = CM::GetPopup(function($qry){
+	/** @var $qry \BH_DB_GetList */
+	$qry->AddWhere('FIND_IN_SET(%s, `kind`)', 'pc');
+});
+?>
+
+<section id="contents" class="main">
+	<section id="mainNotice" class="boardArticles">
+		<header>
+			<h2>공지사항</h2>
+			<a href="<?p. _URL ?>/Notice" class="more">더보기<i></i></a>
+		</header>
+		<?php if(sizeof(App::$Data['notice'])){ ?>
+			<ul class="articles">
+				<?php foreach(App::$Data['notice'] as $row){ ?>
+					<li>
+						<a href="<?p. _URL . '/Notice/View/' . toBase($row['seq']) ?>">
+							<div class="title">
+								<b><?vstag. $row['subject'] ?></b>
+								<?p. $row['replyCount'] ?> <?p. $row['secretIcon']. $row['newtIcon'] ?>
+							</div>
+							<div class="date"><?p. DotDate($row['reg_date']) ?></div>
+						</a>
+					</li>
+				<?php } ?>
+			</ul>
+		<?php }else{ ?>
+			<p class="nothing">새로운 공지사항이 없습니다.</p>
+		<?php } ?>
+	</section>
+
+	<section id="mainFreeBoard" class="boardArticles">
+		<header>
+			<h2>자유게시판</h2>
+			<a href="<?p. _URL ?>/FreeBoard" class="more">더보기<i></i></a>
+		</header>
+		<?php if(sizeof(App::$Data['freeBoard'])){ ?>
+			<ul class="articles">
+				<?php foreach(App::$Data['freeBoard'] as $row){ ?>
+					<li>
+						<a href="<?p. _URL . '/FreeBoard/View/' . toBase($row['seq']) ?>">
+							<div class="title">
+								<b><?vstag. $row['subject'] ?></b>
+								<?p. $row['replyCount'] ?> <?p. $row['secretIcon']. $row['newtIcon'] ?>
+							</div>
+							<div class="name"><b><?v. $row['mname'] ?></b></div>
+							<div class="date"><?p. DotDate($row['reg_date']) ?></div>
+						</a>
+					</li>
+				<?php } ?>
+			</ul>
+		<?php }else{ ?>
+			<p class="nothing">새로운 글이 없습니다.</p>
+		<?php } ?>
+	</section>
+
+	<section id="mainGalleryBoard" class="galleryArticles">
+		<header>
+			<h2>갤러리 게시판</h2>
+			<a href="<?p. _URL ?>/Gallery" class="more">더보기<i></i></a>
+		</header>
+		<?php if(sizeof(App::$Data['gallery'])){ ?>
+			<ul class="articles">
+				<?php foreach(App::$Data['gallery'] as $row){ ?>
+					<li>
+						<a href="<?p. _URL . '/FreeBoard/View/' . toBase($row['seq']) ?>">
+							<div class="thumb">
+								<i style="background-image:url('<? p.ResizeImage($row['thumbnail'], 300) ?>');"></i>
+							</div>
+							<div class="info">
+								<div class="title">
+									<b><?vstag. $row['subject'] ?></b>
+									<?p. $row['replyCount'] ?> <?p. $row['secretIcon']. $row['newtIcon'] ?>
+								</div>
+								<div class="name"><b><?v. $row['mname'] ?></b></div>
+								<div class="date"><?p. DotDate($row['reg_date']) ?></div>
+							</div>
+						</a>
+					</li>
+				<?php } ?>
+			</ul>
+		<?php }else{ ?>
+			<p class="nothing">새로운 글이 없습니다.</p>
+		<?php } ?>
+	</section>
+
+</section>
+
+<script>
+	<?php
+	foreach($popup as $row){
+	echo 'var html = \''.str_replace(array("'", "\r", "\n"), array('&#39;', '', ''), $row['html']).'\';';
+	?>
+	JCM.popup('body', <?p. $row['seq'] ?>, <?p. $row['pos_y'] ?>, <?p. $row['pos_x'] ?>, <?p. $row['width'] ?>, <?p. $row['height'] ?>, html);
+	<?php
+	}
+	?>
+</script>

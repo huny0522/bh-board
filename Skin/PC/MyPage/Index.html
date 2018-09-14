@@ -1,0 +1,40 @@
+<?php if(_BH_ !== true) exit;
+use \BH_Common as CM;
+use \BH_Application as App;
+
+/**
+ */
+?>
+<h2>마이페이지</h2>
+
+<div class="MyPageMain">
+
+	<?php
+	foreach($Data as $row){
+		if(isset($row['list']) && sizeof($row['list'])){
+			?>
+			<h3><?v. $row['subject'] ?></h3>
+			<section class="boardList">
+				<header>
+					<ul>
+						<li class="subject">제목</li>
+						<li class="num hit">조회수</li>
+						<li class="date">등록일</li>
+					</ul>
+				</header>
+				<div class="articles">
+					<?php foreach($row['list'] as $article){ ?>
+						<ul>
+							<li class="subject"><a href="<?v. _URL.'/'.$row['controller'] ?>/View/<?p. toBase($article['seq']) ?>"><?v. $article['subject'] ?></a></li>
+							<li class="num hit"><?v. $article['hit'] ?></li>
+							<li class="date"><?v. $article['reg_date'] ?></li>
+						</ul>
+					<?php } ?>
+				</div>
+			</section>
+			<?php
+		}
+	}
+	?>
+
+</div>

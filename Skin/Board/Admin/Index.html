@@ -2,6 +2,8 @@
 use \BH_Common as CM;
 use \BH_Application as App;
 
+App::$Layout = '_AdminBoard';
+
 /**
  * @var $Model \BoardModel
  * @var $Data \BH_DB_GetListWithPage
@@ -12,11 +14,15 @@ App::JSAdd('board.js', 200);
 <h2><?p. $Ctrl->boardManger->GetValue('subject') ?> 게시물관리</h2>
 <div class="right_btn"><a href="<?c. 'BoardManager' ?>" class="sBtn">게시판 관리로 이동</a></div>
 
-<?php if($Data->result && $Data->totalRecord){ ?>
+<?p. $Ctrl->_CategoryHtml() ?>
 
-	<table class="list">
+<?php if(($Data->result && $Data->totalRecord) || sizeof(App::$Data['notice'])){ ?>
+<section class="boardList checkAllArea" id="bhBoardList">
+	<table class="list checkAllArea">
 		<colgroup>
+			<col style="width:3%;">
 			<col style="width:7%;">
+			<col style="width:12%;">
 			<col style="">
 			<col style="width:15%;">
 			<col style="width:7%;">
@@ -26,7 +32,9 @@ App::JSAdd('board.js', 200);
 		</colgroup>
 		<thead>
 		<tr>
+			<th><input type="checkbox" class="checkAll"></th>
 			<th>번호</th>
+			<th><?mt('category')?></th>
 			<th><?mt('subject')?></th>
 			<th><?mt('mname')?></th>
 			<th><?mt('hit')?></th>
@@ -39,12 +47,16 @@ App::JSAdd('board.js', 200);
 		<?php
 		foreach(App::$Data['notice'] as $row){
 			$secretIcon = $row['secret'] == 'y' ? '<span class="secretDoc">[비밀글]</span> ' : '';
+			$newtIcon = $row['newArticleIs'] ? '<span class="newDoc">[새글]</span> ' : '';
+			$repIcon = $row['depth'] ? '<span class="answer">[답변글]</span> ' : '';
 			?>
 			<tr class="notice">
+				<td></td>
 				<td>공지</td>
+				<td><?v. $row['category'] ? '[' . $row['category'] . ']' : '' ?><?v. $row['sub_category'] ? '[' . $row['sub_category'] . ']' : '' ?></td>
 				<td class="left">
-					<a href="<?p. $row['viewUrl'] ?>"<?php if(!$row['possibleView']){ ?> class="passwordView"<?php } ?>>
-						[공지] <?v. $row['subject'] ?> <?p. $row['replyCount'] ?> <?p. $secretIcon ?>
+					<?p. $repIcon ?><a href="<?p. $row['viewUrl'] ?>"<?php if(!$row['possibleView']){ ?> class="passwordView"<?php } ?>>
+						[공지] <?v. $row['subject'] ?> <?p. $row['replyCount'] ?> <?p. $secretIcon . $newtIcon ?>
 					</a>
 				</td>
 				<td><?v. $row['mname']; ?></td>
@@ -65,13 +77,17 @@ App::JSAdd('board.js', 200);
 		<?php
 		foreach($Data->data as $row){
 			$secretIcon = $row['secret'] == 'y' ? '<span class="secretDoc">[비밀글]</span> ' : '';
+			$newtIcon = $row['newArticleIs'] ? '<span class="newDoc">[새글]</span> ' : '';
+			$repIcon = $row['depth'] ? '<span class="answerDoc">[답변글]</span> ' : '';
 			?>
 			<tr>
+				<td><input type="checkbox" class="checkItem boardCheckBox" name="checkItem" value="<?p. $row['seq'] ?>"></td>
 				<td><?p. $Data->beginNum-- ?></td>
+				<td><?v. $row['category'] ? '[' . $row['category'] . ']' : '' ?><?v. $row['sub_category'] ? '[' . $row['sub_category'] . ']' : '' ?></td>
 				<td class="left">
 					<?php if($row['delis'] == 'y'){ ?><span class="alert">[삭제됨]</span><?php } ?>
 					<a href="<?p. $row['viewUrl'] ?>"<?php if(!$row['possibleView']){ ?> class="passwordView"<?php } ?>>
-						<?v. $row['subject'] ?> <?p. $row['replyCount'] ?> <?p. $secretIcon ?>
+						<?p. $repIcon ?><?v. $row['subject'] ?> <?p. $row['replyCount'] ?> <?p. $secretIcon . $newtIcon ?>
 					</a>
 				</td>
 
@@ -91,26 +107,43 @@ App::JSAdd('board.js', 200);
 		<?php } ?>
 		</tbody>
 	</table>
+</section>
 <?php } else{ ?>
 	<p class="nothing">등록된 게시물이 없습니다.</p>
 <?php } ?>
 
+<div class="leftSysBtn">
+	선택한 게시물을
+	<button type="button" class="sBtn btn2" id="moveSelItemBtn">이동</button>
+	<button type="button" class="sBtn btn2" id="copySelItemBtn">복사</button>
+	<a href="<?a. 'SysDel' ?>" class="sBtn btn3" id="delSelItemBtn">삭제</a>
+	<a href="<?a. 'SysUnDel' ?>" class="sBtn" id="unDelSelItemBtn">복구</a>
+</div>
+
 <form id="bbsSchForm" name="bbsSchForm" method="get" action="<?a. '' ?>" class="boardSearch leftBoardSearch">
-	<select name="searchType">
-		<?p. SelectOption(array('snc' => '제목+내용', 's' => '제목', 'c' => '내용'), isset($_GET['searchType']) ? $_GET['searchType'] : '') ?>
+	<input type="hidden" name="cate" value="<?v. Get('cate') ?>">
+	<input type="hidden" name="scate" value="<?v. Get('scate') ?>">
+	<select name="stype">
+		<?p. SelectOption(array('snc' => '제목+내용', 's' => '제목', 'c' => '내용'), isset($_GET['stype']) ? $_GET['stype'] : '') ?>
 	</select>
-	<input type="text" name="searchKeyword" value="<?v. isset($_GET['searchKeyword']) ? $_GET['searchKeyword'] : '' ?>">
+	<input type="text" name="keyword" value="<?v. isset($_GET['keyword']) ? $_GET['keyword'] : '' ?>">
 	<button type="submit" class="mBtn btn2">검색</button>
+	<label><input type="checkbox" name="dv" id="schDelViewChk" value="y"<?p. Get('dv') === 'y' ? ' checked' : '' ?>><span>삭제된 게시물 보기</span></label>
 </form>
 
-<?php if($Ctrl->GetAuth('Write')){ ?><div class="right_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn btn2">글쓰기</a></div><?php } ?>
+<?php if($Ctrl->GetAuth('Write')){ ?>
+	<div class="right_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn btn2 boardWriteBtn">글쓰기</a></div>
+	<?php if(sizeof($Ctrl->additionalSubId)){ ?>
+		<?inc. '/Board/SubSelect.html' ?>
+	<?php } ?>
+<?php } ?>
 
 <div class="paging"><?p. $Data->pageHtml ?></div>
 
 <div id="secretViewForm" class="hidden boardPassword modalConfirm">
 	<form id="viewForm" name="viewForm" method="post" action="">
 		<input type="password" name="pwd" required="required">
-		<span>비밀번호를 입력하여 주세요.</span>
+		<p>비밀번호를 입력하여 주세요.</p>
 		<div class="sPopBtns">
 			<button type="submit" class="btn2">확인</button>
 			<button type="reset" class="btn2">취소</button>
@@ -118,8 +151,8 @@ App::JSAdd('board.js', 200);
 	</form>
 </div>
 
-<div id="removeForm" class="hidden boardPassword modalConfirm">
-	<form id="remForm" name="remForm" method="post" action="">
+<div id="listRemoveForm" class="hidden boardPassword modalConfirm">
+	<form id="listRemForm" name="listRemForm" method="post" action="">
 		<p>정말 완전히 삭제하시겠습니까?</p>
 		<div class="sPopBtns">
 			<button type="submit" class="sBtn btn2">완전삭제</button>
@@ -128,9 +161,8 @@ App::JSAdd('board.js', 200);
 	</form>
 </div>
 
-
-<div id="deleteForm" class="hidden boardPassword modalConfirm">
-	<form id="delForm" name="delForm" method="post" action="">
+<div id="listDeleteForm" class="hidden boardPassword modalConfirm">
+	<form id="listDelForm" name="listDelForm" method="post" action="">
 		<p>정말 삭제하시겠습니까?</p>
 		<div class="sPopBtns">
 			<button type="submit" class="sBtn btn2">삭제하기</button>
@@ -139,6 +171,44 @@ App::JSAdd('board.js', 200);
 	</form>
 </div>
 
+<?php
+if(CM::GetAdminIs()){
+	$bmList = BoardManagerModel::GetList($Ctrl->bid, $Ctrl->subid);
+	?>
+	<div id="checkActionModal" class="modal_layer" data-close-type="hidden">
+		<div class="modal_wrap">
+			<header class="modal_header">
+				<h1>123</h1>
+				<button type="button" class="close"><i class="cross"></i></button>
+			</header>
+			<div class="modal_contents">
+				<form id="cActForm" name="cActForm" method="post" action="" data-move-url="<?a. 'SysMove' ?>" data-copy-url="<?a. 'SysCopy' ?>">
+					<input type="hidden" name="bid" value="">
+					<input type="hidden" name="subid" value="">
+					<input type="hidden" name="seq" value="">
+					<div class="selected" id="boardActionSelected"><span>선택게시판 : </span><b></b></div>
+					<ul>
+						<?php foreach($bmList as $v){ ?>
+							<li><button type="button" class="boardActionArticleBtn" data-bid="<?v. $v['bid'] ?>" data-subid="<?v. $v['subid'] ?>"><?v. $v['bid'] ?> - <?v. $v['subject'] ?></button></li>
+						<?php } ?>
+					</ul>
+					<div class="bottomBtn">
+						<button type="submit" class="mBtn btn2">확인</button>
+						<button type="button" class="mBtn close">닫기</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		AppBoard.CheckActionInit();
+	</script>
+	<?php
+}
+?>
+
 <script>
-	AppAdmin.BoardListInit();
+	AppBoard.listWrap = 'table.list tr';
+	AppAdmin.BoardList.Init();
 </script>

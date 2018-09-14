@@ -1,3 +1,109 @@
 <?php if(_BH_ !== true) exit;
 use \BH_Common as CM;
 use \BH_Application as App;
+?>
+
+
+<section id="mainContents" class="contents">
+	<section id="mainNotice" class="boardArticles">
+		<header>
+			<h2>공지사항</h2>
+			<a href="<?p. _ADMINURL ?>/Board/board-notice" class="more">더보기<i></i></a>
+		</header>
+		<?php if(sizeof(App::$Data['notice'])){ ?>
+			<ul class="articles">
+				<?php foreach(App::$Data['notice'] as $row){ ?>
+					<li>
+						<a href="<?p. _ADMINURL ?>/Board/board-notice/View/<?p. toBase($row['seq']) ?>">
+							<b class="title"><?vstag. $row['subject'] ?></b>
+							<span class="date"><?p. DotDate($row['reg_date']) ?></span>
+						</a>
+					</li>
+				<?php } ?>
+			</ul>
+		<?php }else{ ?>
+			<p class="nothing">새로운 공지사항이 없습니다.</p>
+		<?php } ?>
+	</section>
+
+	<section id="mainFreeBoard" class="boardArticles">
+		<header>
+			<h2>자유게시판</h2>
+			<a href="<?p. _ADMINURL ?>/Board/board-free_board" class="more">더보기<i></i></a>
+		</header>
+		<?php if(sizeof(App::$Data['freeBoard'])){ ?>
+			<ul class="articles">
+				<?php foreach(App::$Data['freeBoard'] as $row){ ?>
+					<li>
+						<a href="<?p. _ADMINURL ?>/Board/board-free_board/View/<?p. toBase($row['seq']) ?>">
+							<b class="title"><?vstag. $row['subject'] ?></b>
+							<span class="name"><?v. $row['mname'] ?></span>
+							<span class="date"><?p. DotDate($row['reg_date']) ?></span>
+						</a>
+					</li>
+				<?php } ?>
+			</ul>
+		<?php }else{ ?>
+			<p class="nothing">새로운 글이 없습니다.</p>
+		<?php } ?>
+	</section>
+
+
+	<section id="mainRegUser" class="memberArticles">
+		<header>
+			<h2>최근등록회원</h2>
+			<a href="<?p. _ADMINURL ?>/Member" class="more">더보기<i></i></a>
+		</header>
+		<ul class="list">
+			<li class="name">이름(아이디)</li>
+			<li class="regDate">등록일</li>
+			<li class="loginDate">로그인날짜</li>
+		</ul>
+		<?php if(sizeof(App::$Data['user'])){ ?>
+			<ul class="articles">
+				<?php foreach(App::$Data['user'] as $row){ ?>
+					<li>
+						<a href="<?p. _ADMINURL ?>/Member/View?muid=<?p. $row['muid'] ?>">
+							<b class="name"><?v. $row['mname'] ? $row['mname'] : $row['nickname'] ?>(<?v. $row['mid'] ?>)</b>
+							<span class="regDate"><?p. $row['reg_date'] ?></span>
+							<span class="loginDate"><?p. substr($row['login_date'], 0, 4) == '0000' ? '' : $row['login_date'] ?></span>
+						</a>
+					</li>
+				<?php } ?>
+			</ul>
+		<?php }else{ ?>
+			<p class="nothing">새로운 회원이 없습니다.</p>
+		<?php } ?>
+
+
+	</section>
+
+	<section id="mainLoginUser" class="memberArticles">
+		<header>
+			<h2>최근로그인회원</h2>
+			<a href="<?p. _ADMINURL ?>/Member" class="more">더보기<i></i></a>
+		</header>
+		<ul class="list">
+			<li class="name">이름(아이디)</li>
+			<li class="regDate">등록일</li>
+			<li class="loginDate">로그인날짜</li>
+		</ul>
+		<?php if(sizeof(App::$Data['loginUser'])){ ?>
+			<ul class="articles">
+				<?php foreach(App::$Data['loginUser'] as $row){ ?>
+					<li>
+						<a href="<?p. _ADMINURL ?>/Member/View?muid=<?p. $row['muid'] ?>">
+							<b class="name"><?v. $row['mname'] ? $row['mname'] : $row['nickname'] ?>(<?v. $row['mid'] ?>)</b>
+							<span class="regDate"><?p. $row['reg_date'] ?></span>
+							<span class="loginDate"><?p. substr($row['login_date'], 0, 4) == '0000' ? '' : $row['login_date'] ?></span>
+						</a>
+					</li>
+				<?php } ?>
+			</ul>
+		<?php }else{ ?>
+			<p class="nothing">새로운 회원이 없습니다.</p>
+		<?php } ?>
+	</section>
+
+</section>
+

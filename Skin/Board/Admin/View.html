@@ -2,6 +2,8 @@
 use \BH_Common as CM;
 use \BH_Application as App;
 
+App::$Layout = '_AdminBoard';
+
 /**
  * @var $Model \BoardModel
  */
@@ -14,9 +16,10 @@ App::JSAdd('reply.js', 200);
 <div class="BoardView">
 	<header>
 		<div>
-			<?php if($Model->GetValue('category')){ ?>
-				<b>[<?mv('category') ?>]</b>
-			<?php } ?>
+			<?php
+			if($Model->GetValue('sub_category')) echo '<b>[' . $Model->_sub_category->v() . ']</b>';
+			else if($Model->GetValue('category')) echo '<b>[' . $Model->_category->v() . ']</b>';
+			?>
 			<?mv('subject') ?>
 		</div>
 		<ul>
@@ -28,17 +31,53 @@ App::JSAdd('reply.js', 200);
 	</header>
 
 	<?php if($Model->GetValue('file1')){ ?>
-		<div class="files">
-			<a href="<?a . 'Download/' . App::$ID ?>"><?p. $Model->GetFileName('file1') ?></a>
-		</div>
+		<dl class="links files">
+			<dt>FILE : </dt>
+			<dd><a href="<?a . 'Download/' . App::$ID ?>"><?p. $Model->GetFileName('file1') ?></a></dd>
+		</dl>
+	<?php } ?>
+
+	<?php if($Model->GetValue('link1')){ ?>
+		<dl class="links">
+			<dt>LINK :</dt>
+			<dd><a href="<?v . $Model->GetValue('link1') ?>" target="_blank"><?v . $Model->GetValue('link1') ?></a></dd>
+		</dl>
+	<?php } ?>
+
+	<?php if($Model->GetValue('link2')){ ?>
+		<dl class="links">
+			<dt>LINK : </dt>
+			<dd><a href="<?v . $Model->GetValue('link2') ?>" target="_blank"><?v . $Model->GetValue('link2') ?></a></dd>
+		</dl>
 	<?php } ?>
 
 	<div class="contents">
+		<?php if($Model->GetValue('youtube')){ ?>
+			<div class="youtube">
+				<?p. CM::Youtube($Model->_youtube->Value) ?>
+			</div>
+		<?php } ?>
+
+		<?php if(IsImageFileName($Model->GetFilePath('file1'))){ ?>
+			<div class="image">
+				<img src="<?p. _UPLOAD_URL . $Model->GetFilePath('file1') ?>">
+			</div>
+		<?php } ?>
+
 		<?php if($Model->GetValue('htmlis') == 'y'){ ?>
 			<?mvr('content') ?>
 		<?php }else{ ?>
 			<?mvb('content') ?>
 		<?php } ?>
+	</div>
+
+	<div class="articleAction">
+		<ul>
+			<li><?p. App::$Data['recommendButton'] ?></li>
+			<li><?p. App::$Data['opposeButton'] ?></li>
+			<li><?p. App::$Data['scrapButton'] ?></li>
+			<li><?p. App::$Data['reportButton'] ?></li>
+		</ul>
 	</div>
 
 	<div class="bottomBtn">
@@ -95,12 +134,12 @@ App::JSAdd('reply.js', 200);
 <?php } ?>
 
 <script>
-	AppAdmin.BoardViewInit();
+	AppAdmin.BoardView.Init();
 </script>
 
 <?php
 if($Ctrl->boardManger->GetValue('use_reply') == 'y'){
-	$Controller = 'Reply/'.App::$TID;
+	$Controller = 'Reply/'.$Ctrl->bid . (strlen($Ctrl->subid) ? '-' . $Ctrl->subid  : '');
 	$ArticleSeq = to10(App::$ID);
 	?>
 	<div id="Reply">

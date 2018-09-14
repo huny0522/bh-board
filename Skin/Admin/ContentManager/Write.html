@@ -10,10 +10,27 @@ use \BH_Application as App;
 <h2>컨텐츠관리</h2>
 
 <form name="ContentWriteForm" id="ContentWriteForm" method="post" action="<?a. App::$Action ?><?fq. '' ?>">
+	<?php if(App::$Action == 'Modify'){?>
 	<input type="hidden" name="bid" value="<?mv('bid') ?>">
+	<?php } ?>
 	<input type="hidden" name="select_menu" value="" id="select_menu">
 
 	<table class="write">
+		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('category')?></th>
+			<td>
+				<select id="category_choice">
+					<option value="">선택</option>
+					<?p. SelectOption(App::$Data['category'], $Model->GetValue('category')) ?>
+					<option value="x">추가</option>
+				</select>
+				<span class="hidden" id="category_real"><input type="text" name="category" value="<?mv('category') ?>" id="category"></span>
+
+				<ul class="guide">
+					<li>20자 이하로 입력하여주세요.</li>
+				</ul>
+			</td>
+		</tr>
 		<tr>
 			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('subject')?></th>
 			<td>
@@ -29,7 +46,8 @@ use \BH_Application as App;
 				<?minp('bid') ?>
 				<ul class="guide">
 					<li>1자 이상, 20자 이하로 입력하여주세요.</li>
-					<li>영문과 숫자만 입력하여 주세요.</li>
+					<li>영문 소문자와 숫자, 언더바(_)만 입력하여 주세요.</li>
+					<li>대문자를 입력시 자동으로 소문자로 변경됩니다.</li>
 				</ul>
 			</td>
 		</tr>
@@ -160,5 +178,16 @@ use \BH_Application as App;
 		$(this).closest('.menuSelect').remove();
 	});
 
+
+
+	$(document).on('change', '#category_choice', function(){
+		if($(this).val() == 'x'){
+			$('#category_real input').val('');
+			$('#category_real').show();
+		}else{
+			$('#category_real input').val($(this).val());
+			$('#category_real').hide();
+		}
+	});
 	<?php } ?>
 </script>

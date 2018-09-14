@@ -13,7 +13,7 @@ App::JSAdd('reply.js', 200);
 	<header>
 		<div>
 			<?php if($Model->GetValue('category')){ ?>
-				<b>[<?mv('category') ?>]</b>
+				<b>[<?p. $Model->_category->v() . ($Model->_sub_category->Value ? ' - ' . $Model->_sub_category->v() : '') ?>]</b>
 			<?php } ?>
 			<?mv('subject') ?>
 		</div>
@@ -26,23 +26,60 @@ App::JSAdd('reply.js', 200);
 	</header>
 
 	<?php if($Model->GetValue('file1')){ ?>
-		<div class="files">
-			<a href="<?a . 'Download/' . App::$ID ?>"><?p. $Model->GetFileName('file1') ?></a>
-		</div>
+		<dl class="links files">
+			<dt>FILE : </dt>
+			<dd><a href="<?a . 'Download/' . App::$ID ?>"><?p. $Model->GetFileName('file1') ?></a></dd>
+		</dl>
+	<?php } ?>
+
+	<?php if($Model->GetValue('link1')){ ?>
+		<dl class="links">
+			<dt>LINK :</dt>
+			<dd><a href="<?v . $Model->GetValue('link1') ?>" target="_blank"><?v . $Model->GetValue('link1') ?></a></dd>
+		</dl>
+	<?php } ?>
+
+	<?php if($Model->GetValue('link2')){ ?>
+		<dl class="links">
+			<dt>LINK : </dt>
+			<dd><a href="<?v . $Model->GetValue('link2') ?>" target="_blank"><?v . $Model->GetValue('link2') ?></a></dd>
+		</dl>
 	<?php } ?>
 
 	<div class="contents">
+		<?php if($Model->GetValue('youtube')){ ?>
+			<div class="youtube">
+				<?p. CM::Youtube($Model->_youtube->Value) ?>
+			</div>
+		<?php } ?>
+
+		<?php if(IsImageFileName($Model->GetFilePath('file1'))){ ?>
+			<div class="image">
+				<img src="<?p. _UPLOAD_URL . $Model->GetFilePath('file1') ?>">
+			</div>
+		<?php } ?>
+
+
 		<?php if($Model->GetValue('htmlis') == 'y'){ ?>
 			<?mvr('content') ?>
 		<?php }else{ ?>
-			<?mv('content') ?>
+			<?mvb('content') ?>
 		<?php } ?>
+	</div>
+
+	<div class="articleAction">
+		<ul>
+			<li><?p. App::$Data['recommendButton'] ?></li>
+			<li><?p. App::$Data['opposeButton'] ?></li>
+			<li><?p. App::$Data['scrapButton'] ?></li>
+			<li><?p. App::$Data['reportButton'] ?></li>
+		</ul>
 	</div>
 
 	<div class="bottomBtn">
 		<?php if($Ctrl->GetAuth('Write') && (!strlen($Model->GetValue('muid')) || $Data['modifyAuthDirect'] || $Ctrl->managerIs)){ ?>
 			<a href="<?a. 'Modify/' ?><?v. App::$ID ?><?fq. '' ?>" class="mBtn btn2" <?php if(!$Data['modifyAuthDirect']){ ?>id="modifyBtn"<?php } ?>>수정</a>
-			<a href="#" id="deleteArticle" data-seq="<?v. App::$ID ?>" class="mBtn btn2">삭제</a>
+			<a href="#" id="deleteArticle" data-seq="<?v. App::$ID ?>" class="mBtn btn3">삭제</a>
 		<?php } ?>
 		<?php if($Ctrl->GetAuth('Answer')){ ?>
 			<a href="<?a. 'Answer/' ?>?target=<?v. App::$ID ?><?fn. '' ?>" class="mBtn btn2" id="AnswerBtn">답변</a>
@@ -82,7 +119,7 @@ App::JSAdd('reply.js', 200);
 
 <?php
 if($Ctrl->boardManger->GetValue('use_reply') == 'y'){
-	$Controller = 'Reply/'.App::$TID;
+	$Controller = 'Reply/'.$Ctrl->bid . (strlen($Ctrl->subid) ? '-' . $Ctrl->subid  : '');
 	$ArticleSeq = to10(App::$ID);
 	?>
 	<div id="Reply">

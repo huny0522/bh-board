@@ -166,7 +166,22 @@ class {$ModelName}Model extends \\BH_Model{
 		if(!sizeof($matches) || $matches[1] == ''){
 			$pattern = '/\$this\-\>table\s*=\s*(.*?)\;/i';
 			preg_match($pattern, $f, $matches);
-			if(sizeof($matches) > 1 && $matches[1]) $TableName = constant($matches[1]);
+			if(sizeof($matches) > 1 && $matches[1]){
+				if(!defined($matches[1])){
+					if(PHP_RUN_CLI === true){
+						if(!isset(App::$SettingData['_NO_CONSTANT'][$matches[1]])){
+							echo '[' . date('Y-m-d H:i:s') .']'. $matches[1] . mb_convert_encoding(' 상수가 정의되지 않았습니다.', 'euc-kr','utf-8');
+							App::$SettingData['_NO_CONSTANT'][$matches[1]] = true;
+						}
+						return '';
+					}
+					else{
+						echo $matches[1] . ' 상수가 정의되지 않았습니다.';
+						exit;
+					}
+				}
+				$TableName = constant($matches[1]);
+			}
 		}
 		else $TableName = $matches[1];
 
@@ -241,6 +256,7 @@ class {$ModelName}Model extends \\BH_Model{
 					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->MaxLength = \'' . $matches[1] . '\';';
 				}
 				else if(strpos($row['Type'], 'text') !== false){
+					if($modelType === '') $modelType = 'ModelType::Text';
 					if($htmlType === '') $htmlType = ', HTMLType::Textarea';
 				}
 

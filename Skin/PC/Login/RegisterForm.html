@@ -1,0 +1,209 @@
+<?php if(_BH_ !== true) exit;
+use \BH_Common as CM;
+use \BH_Application as App;
+
+/**
+ * @var \MemberModel $Model
+ * @var $Ctrl \Controller\Login
+ */
+?>
+
+<div id="contents" class="registerForm">
+	<h2>회원정보 입력</h2>
+	<form name="RegisterForm" id="RegisterForm" method="post" action="<?a. App::$Action ?>Process">
+
+		<?php if(isset(App::$Data['alertMsg'])) echo '<p class="alert">'.App::$Data['alertMsg'].'</p>'; ?>
+		<table class="write">
+			<?php if($Ctrl->useMailId){ ?>
+				<tr>
+					<th><i class="requiredBullet" title="필수항목">*</i> <?mt('email')?></th>
+					<?php if($Ctrl->mailIdAddrSelection){ ?>
+						<td class="selectMail">
+							<input type="text" name="email1" value="<?v. App::$Data['email1'] ?>" required> @ <input type="text" name="email2" value="<?v. App::$Data['email2'] ?>" required class="emailAddr">
+							<select name="selectMail">
+								<option value="">선택하세요.</option>
+								<?p. OptionEmailAddress() ?>
+								<option value="x">직접입력</option>
+							</select>
+							<button type="button" id="sameCheckEmail" class="mBtn btn2">중복체크</button>
+						</td>
+					<?php }else{ ?>
+						<td>
+							<?minp('email') ?>
+							<button type="button" id="sameCheckEmail2" class="mBtn btn2">중복체크</button>
+						</td>
+					<?php } ?>
+				</tr>
+			<?php }else{ ?>
+				<tr>
+					<th><i class="requiredBullet" title="필수항목">*</i> <?mt('mid')?></th>
+					<td>
+						<?minp('mid') ?> <button type="button" id="sameCheckMid" class="mBtn btn2">중복체크</button>
+					</td>
+				</tr>
+				<tr>
+					<th><i class="requiredBullet" title="필수항목">*</i> <?mt('email')?></th>
+					<td>
+						<?minp('email') ?>
+					</td>
+				</tr>
+			<?php } ?>
+			<tr>
+				<th><i class="requiredBullet" title="필수항목">*</i> <?mt('nickname')?></th>
+				<td>
+					<?minp('nickname') ?>
+					<button type="button" id="sameCheckNick" class="mBtn btn2">중복체크</button>
+				</td>
+			</tr>
+			<tr>
+				<th><i class="requiredBullet" title="필수항목">*</i> <?mt('pwd')?></th>
+				<td>
+					<?minp('pwd') ?>
+					<ul class="guide">
+						<li>8자 이상, 16자 이하로 입력하여주세요.</li>
+					</ul>
+				</td>
+			</tr>
+			<tr>
+				<th><i class="requiredBullet" title="필수항목">*</i> 패스워드 확인</th>
+				<td>
+					<input type="password" name="chkpwd" value="" data-same="pwd" required>
+					<ul class="guide">
+						<li>비밀번호 확인을 위해 한번 더 입력하여 주세요.</li>
+					</ul>
+				</td>
+			</tr>
+		</table>
+
+		<div class="bottomBtn">
+			<button type="submit" class="bBtn btn2">확인</button>
+			<button type="reset" class="bBtn">취소</button>
+		</div>
+	</form>
+</div>
+
+<script>
+	$(document).on('change', '#RegisterForm select[name=selectmail]', function(e){
+		$('#sameCheckEmail').addClass('btn2');
+	});
+
+	$(document).on('keyup', '#RegisterForm input[name=email1], #RegisterForm input[name=email2]', function(e){
+		if($(this).attr('data-val') != $(this).val()){
+			$(this).attr('data-val', $(this).val());
+			$('#sameCheckEmail').addClass('btn2');
+		}
+	});
+
+	$(document).on('keyup', '#RegisterForm input[name=email]', function(e){
+		if(!this.hasAttribute('data-val') || $(this).attr('data-val') != $(this).val()){
+			$(this).attr('data-val', $(this).val());
+			$('#sameCheckEmail2').addClass('btn2');
+		}
+	});
+
+	$(document).on('keyup', '#RegisterForm input[name=mid]', function(e){
+		if(!this.hasAttribute('data-val') || $(this).attr('data-val') != $(this).val()){
+			$(this).attr('data-val', $(this).val());
+			$('#sameCheckMid').addClass('btn2');
+		}
+	});
+
+	$(document).on('keyup', '#RegisterForm input[name=nickname]', function(e){
+		if($(this).attr('data-val') != $(this).val()){
+			$(this).attr('data-val', $(this).val());
+			$('#sameCheckNick').addClass('btn2');
+		}
+	});
+
+	$(document).on('click', '#sameCheckEmail', function(){
+		if(!$('#sameCheckEmail').hasClass('btn2')) return;
+		if($.trim($('input[name=email1]').val()) == '' || $.trim($('input[name=email2]').val()) == ''){
+			CMAlert('이메일을 입력하여주세요.');
+			return;
+		}
+		JCM.get('<?a. 'EmailCheck' ?>', {'email1' : $('input[name=email1]').val(), 'email2' : $('input[name=email2]').val()}, function(data){
+			if(data){
+				$('#sameCheckEmail').removeClass('btn2');
+				CMAlert('사용 가능한 이메일입니다.');
+			}else{
+				CMAlert('이미 사용중인 이메일입니다.');
+			}
+		})
+	});
+
+	$(document).on('click', '#sameCheckEmail2', function(){
+		if(!$('#sameCheckEmail2').hasClass('btn2')) return;
+		if($.trim($('input[name=email]').val()) == ''){
+			CMAlert('이메일을 입력하여주세요.');
+			return;
+		}
+		JCM.get('<?a. 'EmailCheck' ?>', {'email1' : $('input[name=email]').val(), 'email2' : ''}, function(data){
+			if(data){
+				$('#sameCheckEmail2').removeClass('btn2');
+				CMAlert('사용 가능한 이메일입니다.');
+			}else{
+				CMAlert('이미 사용중인 이메일입니다.');
+			}
+		})
+	});
+
+	$(document).on('click', '#sameCheckMid', function(){
+		if(!$('#sameCheckMid').hasClass('btn2')) return;
+		if($.trim($('input[name=mid]').val()) == ''){
+			CMAlert('아이디를 입력하여주세요.');
+			return;
+		}
+		JCM.get('<?a. 'MidCheck' ?>', {'mid' : $('input[name=mid]').val()}, function(data){
+			if(data){
+				$('#sameCheckMid').removeClass('btn2');
+				CMAlert('사용 가능한 아이디입니다.');
+			}else{
+				CMAlert('이미 사용중인 아이디입니다.');
+			}
+		})
+	});
+
+	$(document).on('click', '#sameCheckNick', function(){
+		if(!$('#sameCheckNick').hasClass('btn2')) return;
+		if($.trim($('input[name=nickname]').val()) == ''){
+			CMAlert('닉네임을 입력하여주세요.');
+			return;
+		}
+		JCM.get('<?a. 'NicknameCheck' ?>', {'nickname' : $('input[name=nickname]').val()}, function(data){
+			if(data){
+				$('#sameCheckNick').removeClass('btn2');
+				CMAlert('사용 가능한 닉네임입니다.');
+			}else{
+				CMAlert('이미 사용중인 닉네임입니다.');
+			}
+		})
+	});
+
+	$(document).on('submit', '#RegisterForm', function(e){
+		var res = $(this).validCheck();
+		if(!res){
+			e.preventDefault();
+			return false;
+		}
+		<?php if($Ctrl->useMailId){ ?>
+		var em = $('#sameCheckEmail2').length ? $('#sameCheckEmail2') : $('#sameCheckEmail');
+		if(em.hasClass('btn2')){
+			e.preventDefault();
+			CMAlert('이메일 중복체크를 해주시기 바랍니다.');
+			return false;
+		}
+		<?php }else{ ?>
+		if($('#sameCheckMid').hasClass('btn2')){
+			e.preventDefault();
+			CMAlert('아이디 중복체크를 해주시기 바랍니다.');
+			return false;
+		}
+		<?php } ?>
+		if($('#sameCheckNick').length && $('#sameCheckNick').hasClass('btn2')){
+			e.preventDefault();
+			CMAlert('닉네임 중복체크를 해주시기 바랍니다.');
+			return false;
+		}
+	});
+	<?php if(isset(App::$Data['alertMsg'])){ ?>CMAlert('<?p. App::$Data['alertMsg'] ?>');<?php } ?>
+</script>

@@ -46,6 +46,14 @@ App::$SettingData['AdminMenu'] = array(
 	'005' => array(
 		'Category' => 'Member',
 		'Name' => '회원관리'
+	),
+	'006' => array(
+		'Category' => 'Statistics',
+		'Name' => '통계'
+	),
+	'006001' => array(
+		'Category' => 'Statistics',
+		'Name' => '접속통계'
 	)
 );
 

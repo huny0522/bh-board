@@ -58,7 +58,7 @@ class BHCss{
 		if($screenMinWidth) self::$responseMinWidth = $screenMinWidth;
 
 		self::$responseMaxFontSize = (self::$responseMaxWidth / self::$responseMinWidth) * self::$responseMinFontSize;
-		$css = 'html{font-size:calc(100vw / ' .(self::$responseMinWidth/self::$responseMinFontSize). ');}
+		$css = 'html{font-size:'.(100/(self::$responseMinWidth/self::$responseMinFontSize)). 'vw;}
 			@media (min-width:' . self::$responseMaxWidth . 'px){
 				html{font-size:' . self::$responseMaxFontSize . 'px;}
 			}
@@ -291,9 +291,9 @@ class BHCss{
 					array_pop($source2);
 					$source2 = implode('/', $source2) . '/' . $v . '.bhcss.php';
 					if($target){
-						$targetPath = explode('/', $target);
-						array_pop($targetPath);
-						$targetPath .= '/' . $v . '.bhcss.php';
+						$temp = explode('/', $target);
+						array_pop($temp);
+						$targetPath = implode('/', $temp) . '/' . $v . '.bhcss.php';
 					}
 					else $targetPath = '';
 					if(file_exists($source2)){
@@ -486,8 +486,8 @@ class BHCss{
 				$txt .= $sel . '{' . $node->data . '}';
 				if(sizeof($after)){
 					$temp = $s;
-					foreach($temp as $k => $v){
-						$temp[$k] = trim($v) . ':after';
+					for($k = 0; $k < sizeof($temp); $k++){
+						$temp[$k] = trim($temp[$k]) . ':after';
 					}
 					$sel = implode(',', $temp);
 					$css = implode(';', $after);
@@ -496,8 +496,8 @@ class BHCss{
 				}
 				if(sizeof($before)){
 					$temp = $s;
-					foreach($temp as $k => $v){
-						$temp[$k] = trim($v) . ':before';
+					for($k = 0; $k < sizeof($temp); $k++){
+						$temp[$k] = trim($temp[$k]) . ':after';
 					}
 					$sel = implode(',', $temp);
 					$css = implode(';', $before);
@@ -618,15 +618,20 @@ class BHCss{
 	// 브라우저별 셀렉터 변환
 	private static function crossCss(){
 		self::$cssBody = preg_replace(array(
-			'/(-[a-zA-Z\-]+-transition)\s*[:]\s*(.*?);\s*/',
-			'/(-[a-zA-Z\-]+-transform)\s*[:]\s*(.*?);\s*/',
+			'/(-[a-zA-Z\-]+-transition.*?)\s*[:]\s*(.*?);\s*/',
+			'/(-[a-zA-Z\-]+-transform.*?)\s*[:]\s*(.*?);\s*/',
 			'/(-[a-zA-Z\-]+-border-radius)\s*[:]\s*(.*?);\s*/',
 			'/(-[a-zA-Z\-]+-box-shadow)\s*[:]\s*(.*?);\s*/',
 			'/(-[a-zA-Z\-]+-box-sizing)\s*[:]\s*(.*?);\s*/',
+			'/(-[a-zA-Z\-]+-animation.*?)\s*[:]\s*(.*?);\s*/',
 			'/(-[a-zA-Z\-]+-background-size)\s*[:]\s*(.*?);\s*/',
 			'/(-[a-zA-Z\-]+-text-overflow)\s*[:]\s*(.*?);\s*/',
 			'/([a-zA-Z\-]+?)\s*[:]\s*\-(webkit\-|moz\-|o\-)(linear\-|radial\-)gradient\s*\((.*?)\)\s*;/',
 		), '', self::$cssBody);
+
+		self::$cssBody = preg_replace(array(
+			'/@keyframes\s*([a-zA-Z0-9\-\_]+)\{(([^\{\}]*[\{].*?[}])*)[^\}]*\}/',
+		), '@keyframes $1{$2}' . PHP_EOL . '@-webkit-keyframes $1{$2}', self::$cssBody);
 
 
 		self::$cssBody = preg_replace(self::$patterns, self::$replace, self::$cssBody);
@@ -702,10 +707,11 @@ class BHCss{
 
 BHCss::$patterns = array(
 	'/(border-radius)\s*[:]\s*(.*?)([\}|;])/',
-	'/([^-])(transition)\s*[:]\s*(.*?)([\}|;])/',
-	'/([^-])(transform)\s*[:]\s*(.*?)([\}|;])/',
+	'/([^\-\:])transition(.*?)\s*[:]\s*(.*?)([\}|;])/',
+	'/([^\-\:])transform(.*?)\s*[:]\s*(.*?)([\}|;])/',
 	'/(box-shadow)\s*[:]\s*(.*?)([\}|;])/',
 	'/(box-sizing)\s*[:]\s*(.*?)([\}|;])/',
+	'/animation(.*?)\s*[:]\s*(.*?)([\}|;])/',
 	'/(background-size)\s*[:]\s*(.*?)([\}|;])/',
 	'/(text-overflow)\s*[:]\s*(.*?)([\}|;])/',
 	'/([a-zA-Z]+?)\s*[:]\s*(linear\-|radial\-)gradient\s*\((.*?)\)\s*([\}|;])/',
@@ -723,10 +729,11 @@ BHCss::$patterns = array(
 
 BHCss::$replace = array(
 	'border-radius:$2; -webkit-border-radius:$2; -moz-border-radius:$2$3',
-	'$1-moz-transition:$3; -webkit-transition:$3; -ms-transition:$3; -o-transition:$3; transition:$3$4',
-	'$1-moz-transform:$3; -webkit-transform:$3; -ms-transform:$3; -o-transform:$3; transform:$3$4',
+	'$1-moz-transition$2:$3; -webkit-transition$2:$3; -ms-transition$2:$3; -o-transition$2:$3; transition$2:$3$4',
+	'$1-moz-transform$2:$3; -webkit-transform$2:$3; -ms-transform$2:$3; -o-transform$2:$3; transform$2:$3$4',
 	'-webkit-box-shadow:$2; -moz-box-shadow:$2; box-shadow:$2$3',
 	'-webkit-box-sizing:$2; -moz-box-sizing:$2; box-sizing:$2$3',
+	'-webkit-animation$1:$2; -moz-animation$1:$2; animation$1:$2$3',
 	'-webkit-background-size:$2; background-size:$2$3',
 	'-ms-text-overflow:$2; text-overflow:$2$3',
 	'$1:-webkit-$2gradient($3); $1:-moz-$2gradient($3); $1:-o-$2gradient($3); $1:$2gradient($3)$4',

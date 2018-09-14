@@ -20,7 +20,7 @@ App::CSSAdd('admin.bhcss.php'.CM::RefreshParam());
 					<span><?minp('pwd') ?></span>
 				</fieldset>
 				<div id="LoginConfirm"><button type="submit" class="bBtn">로그인</button></div>
-				<div id="LoginRemember"><a href="#" id="RemberIDBtn"><i></i>아이디 저장</a></div>
+				<div id="LoginRemember"><a href="#" id="RememberIDBtn"><i></i>아이디 저장</a></div>
 				<div id="link"><a href="/">메인으로</a></div>
 			</form>
 		</div>
@@ -32,12 +32,12 @@ App::CSSAdd('admin.bhcss.php'.CM::RefreshParam());
 			var mid = JCM.getCookie('adminMid');
 			if(mid != ''){
 				$('input[name=mid]').val(mid);
-				$('#RemberIDBtn').addClass('active');
+				$('#RememberIDBtn').addClass('active');
 				$('input[name=pwd]').focus();
 			}else $('input[name=mid]').focus();
 
 
-			if(jQuery.trim($('input[name=email1]').val()) == '') $('input[name=email1]').focus();
+			if($.trim($('input[name=email1]').val()) == '') $('input[name=email1]').focus();
 			else $('input[name=pwd]').focus();
 		});
 
@@ -48,14 +48,14 @@ App::CSSAdd('admin.bhcss.php'.CM::RefreshParam());
 			var mid = $('input[name=mid]');
 			var pwd = $('input[name=pwd]');
 
-			if($('#RemberIDBtn').hasClass('active')){
+			if($('#RememberIDBtn').hasClass('active')){
 				JCM.setCookie('adminMid', $('input[name=mid]').val(), 9999);
 			}else{
 				JCM.setCookie('adminMid', '1',0);
 			}
 		});
 
-		$(document).on('click', '#RemberIDBtn', function(e){
+		$(document).on('click', '#RememberIDBtn', function(e){
 			e.preventDefault();
 			$(this).toggleClass('active');
 		});

@@ -3,10 +3,16 @@ if(_BH_ !== true) exit;
 use \BH_Common as CM;
 use \BH_Application as App;
 
+/**
+ * @var $Ctrl \Controller\Admin\Config
+ */
+
 $NaverClientId = CM::Config('Default', 'NaverClientId');
+$useLatLng = true;
 if(strlen($NaverClientId)){
 	App::JSAdd('https://openapi.map.naver.com/openapi/v3/maps.js?clientId='. $NaverClientId . '&submodules=geocoder');
 }
+else $useLatLng = false;
 ?>
 
 <h2><?p. AdminTitleSet() ?></h2>
@@ -107,70 +113,47 @@ if(strlen($NaverClientId)){
 	</fieldset>
 
 	<fieldset>
-		<h3>사이트설정</h3>
+		<h3>사이트내용설정</h3>
 
 		<table class="write">
 			<tr>
-				<th>지역설정</th>
-				<td colspan="3"><input type="text" name="loc" id="defaultLocInp" value="<?v. CM::Config(App::$Data['Code'], 'loc') ?>" class="w80p"><button type="button" class="sBtn" id="insertLocBtn">기본값 삽입</button>
-					<p class="guide">* 세미콜론(;)으로 구분하여 입력해 주세요.</p>
-				</td>
-			</tr>
-			<tr>
 				<th>로고</th>
 				<td colspan="3">
-					<input type="hidden" name="file_field[]" value="LogoUrl">
-					<?php if(CM::Config(App::$Data['Code'], 'LogoUrl')){ ?>
-						<img src="<?p. _UPLOAD_URL.CM::Config(App::$Data['Code'], 'LogoUrl') ?>" style="max-width:100px; max-height:100px;">
-					<?php } ?>
-					<input type="file" name="LogoUrl" value="<?v. CM::Config(App::$Data['Code'], 'LogoUrl') ?>">
-					<label class="checkbox"><input type="checkbox" name="_delFile[]" value="LogoUrl"><span>삭제</span></label>
+					<?p. $Ctrl->_ImageInput(App::$Data['Code'], 'LogoUrl') ?>
 				</td>
 			</tr>
 			<tr>
 				<th>하단로고</th>
 				<td colspan="3">
-					<input type="hidden" name="file_field[]" value="FootLogoUrl">
-					<?php if(CM::Config(App::$Data['Code'], 'FootLogoUrl')){ ?>
-						<img src="<?p. _UPLOAD_URL.CM::Config(App::$Data['Code'], 'FootLogoUrl') ?>" style="max-width:100px; max-height:100px;">
-					<?php } ?>
-					<input type="file" name="FootLogoUrl" value="<?v. CM::Config(App::$Data['Code'], 'FootLogoUrl') ?>">
-					<label class="checkbox"><input type="checkbox" name="_delFile[]" value="FootLogoUrl"><span>삭제</span></label>
+					<?p. $Ctrl->_ImageInput(App::$Data['Code'], 'FootLogoUrl') ?>
 				</td>
 			</tr>
 			<tr>
 				<th>모바일 로고</th>
 				<td colspan="3">
-					<input type="hidden" name="file_field[]" value="MobileLogoUrl">
-					<?php if(CM::Config(App::$Data['Code'], 'MobileLogoUrl')){ ?>
-						<img src="<?p. _UPLOAD_URL.CM::Config(App::$Data['Code'], 'MobileLogoUrl') ?>" style="max-width:100px; max-height:100px;">
-					<?php } ?>
-					<input type="file" name="MobileLogoUrl" value="<?v. CM::Config(App::$Data['Code'], 'MobileLogoUrl') ?>">
-					<label class="checkbox"><input type="checkbox" name="_delFile[]" value="MobileLogoUrl"><span>삭제</span></label>
+					<?p. $Ctrl->_ImageInput(App::$Data['Code'], 'MobileLogoUrl') ?>
 				</td>
 			</tr>
 			<tr>
 				<th>이메일 상단로고</th>
 				<td colspan="3">
-					<input type="hidden" name="file_field[]" value="EmailLogoUrl">
-					<?php if(CM::Config(App::$Data['Code'], 'EmailLogoUrl')){ ?>
-						<img src="<?p. _UPLOAD_URL.CM::Config(App::$Data['Code'], 'EmailLogoUrl') ?>" style="max-width:100px; max-height:100px;">
-					<?php } ?>
-					<input type="file" name="EmailLogoUrl" value="<?v. CM::Config(App::$Data['Code'], 'EmailLogoUrl') ?>">
-					<label class="checkbox"><input type="checkbox" name="_delFile[]" value="EmailLogoUrl"><span>삭제</span></label>
+					<?p. $Ctrl->_ImageInput(App::$Data['Code'], 'EmailLogoUrl') ?>
 				</td>
 			</tr>
 			<tr>
 				<th>이미지 없음</th>
 				<td colspan="3">
-					<input type="hidden" name="file_field[]" value="noImg">
-					<?php if(CM::Config(App::$Data['Code'], 'noImg')){ ?>
-						<img src="<?p. _UPLOAD_URL.CM::Config(App::$Data['Code'], 'noImg') ?>" style="max-width:100px; max-height:100px;">
-					<?php } ?>
-					<input type="file" name="noImg" value="<?v. CM::Config(App::$Data['Code'], 'noImg') ?>">
-					<label class="checkbox"><input type="checkbox" name="_delFile[]" value="noImg"><span>삭제</span></label>
+					<?p. $Ctrl->_ImageInput(App::$Data['Code'], 'noImg') ?>
 				</td>
 			</tr>
+			<?php if(class_exists('\\PHP_ICO')){ ?>
+			<tr>
+				<th>Favicon</th>
+				<td colspan="3">
+					<?p. $Ctrl->_ImageInput(App::$Data['Code'], 'FaviconPng') ?>
+				</td>
+			</tr>
+			<?php } ?>
 			<tr>
 				<th>COPYRIGHT</th>
 				<td colspan="3">
@@ -178,31 +161,48 @@ if(strlen($NaverClientId)){
 				</td>
 			</tr>
 			<tr>
+				<th>추가 HEAD</th>
+				<td colspan="3">
+					<textarea name="addHead"><?v. CM::Config(App::$Data['Code'], 'addHead') ?></textarea>
+				</td>
+			</tr>
+			<tr>
+				<th>새글 표시기간</th>
+				<td colspan="3">
+					<input type="text" name="NewIconDay" value="<?v. CM::Config(App::$Data['Code'], 'NewIconDay') ?>" class="w5p">
+				</td>
+			</tr>
+		</table>
+	</fieldset>
+
+	<fieldset>
+		<h3>사이트환경설정</h3>
+
+		<table class="write">
+			<tr>
+				<th>메일아이디 사용</th>
+				<td colspan="3">
+					<label class="checkbox"><input type="checkbox" name="useMailId" value="y" <?p. CM::Config(App::$Data['Code'], 'useMailId') == 'y' ? 'checked' : '' ?>><span>사용</span></label>
+
+					<label class="checkbox"><input type="checkbox" name="mailIdAddrSelection" value="y" <?p. CM::Config(App::$Data['Code'], 'mailIdAddrSelection') == 'y' ? 'checked' : '' ?>><span>메일주소 선택 표시</span></label>
+				</td>
+			</tr>
+			<tr>
+				<th>가입 즉시 사용</th>
+				<td colspan="3">
+					<label class="radio"><input type="radio" name="joinApprove" value="n" <?p. CM::Config(App::$Data['Code'], 'joinApprove') == 'n' ? 'checked' : '' ?>><span>가입 후 관리자 승인 필요</span></label>
+
+					<label class="radio"><input type="radio" name="joinApprove" value="y" <?p. CM::Config(App::$Data['Code'], 'joinApprove') != 'n' ? 'checked' : '' ?>><span>가입즉시 로그인 가능</span></label>
+				</td>
+			</tr>
+			<tr>
 				<th>발송메일주소</th>
 				<td>
-					<input type="text" name="Email" value="<?v. CM::Config(App::$Data['Code'], 'Email') ?>" class="w100p">
+					<input type="text" name="SendEmail" value="<?v. CM::Config(App::$Data['Code'], 'SendEmail') ?>" class="w100p">
 				</td>
 				<th>발송메일표시명</th>
 				<td>
 					<input type="text" name="EmailName" value="<?v. CM::Config(App::$Data['Code'], 'EmailName') ?>" class="w100p">
-				</td>
-			</tr>
-			<tr>
-				<th>META 설명</th>
-				<td colspan="3">
-					<input type="text" name="meta_description" value="<?v. CM::Config(App::$Data['Code'], 'meta_description') ?>" class="w100p">
-				</td>
-			</tr>
-			<tr>
-				<th>META 키워드</th>
-				<td colspan="3">
-					<input type="text" name="meta_keywords" value="<?v. CM::Config(App::$Data['Code'], 'meta_keywords') ?>" class="w100p">
-				</td>
-			</tr>
-			<tr>
-				<th>추가 HEAD</th>
-				<td colspan="3">
-					<textarea name="addHead"><?v. CM::Config(App::$Data['Code'], 'addHead') ?></textarea>
 				</td>
 			</tr>
 			<tr>
@@ -266,6 +266,7 @@ if(strlen($NaverClientId)){
 		var addr1 = $.trim($('#MD_address1').val());
 		var addr2 = $.trim($('#MD_address2').val());
 
+		<?php if($useLatLng){ ?>
 		if(addr1 === '' || addr2 === ''){
 			$('#MD_lat').val('');
 			$('#MD_lng').val('');
@@ -289,6 +290,10 @@ if(strlen($NaverClientId)){
 			$(form).attr('data-ready', 'y');
 			$('#ConfigForm').submit();
 		});
+		<?php }else{ ?>
+		$(form).attr('data-ready', 'y');
+		$('#ConfigForm').submit();
+		<?php } ?>
 	});
 	$(document).on('click', '#findAddressBtn1', App.FindDaumAddress);
 </script>

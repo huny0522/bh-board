@@ -11,9 +11,11 @@ use \BH_Application as App;
 
 /**
  * Class BannerModel
+ *
  * @property BH_ModelData[] $data
  * @property BH_ModelData $_seq
  * @property BH_ModelData $_category
+ * @property BH_ModelData $_kind
  * @property BH_ModelData $_subject
  * @property BH_ModelData $_img
  * @property BH_ModelData $_contents
@@ -26,23 +28,29 @@ use \BH_Application as App;
  * @property BH_ModelData $_sort
  * @property BH_ModelData $_link_url
  */
-class BannerModel extends \BH_Model{
+class BannerModel extends \BH_Model
+{
 	public function __Init(){
 		$this->Key[] = 'seq';
 		$this->table = TABLE_BANNER;
 
 		$this->data['seq'] = new \BH_ModelData(ModelType::Int, false, '');
-		$this->data['seq']->AutoDecrement = true;
 
 		$this->data['category'] = new \BH_ModelData(ModelType::String, true, '분류');
 		$this->data['category']->MaxLength = 20;
+
+		$this->data['kind'] = new \BH_ModelData(ModelType::Enum, false, '접속장치별 표시', HTMLType::InputCheckbox);
+		$this->data['kind']->EnumValues = array(
+		'pc' => 'PC',
+		'mobile' => '모바일'
+		);
 
 		$this->data['subject'] = new \BH_ModelData(ModelType::String, true, '제목');
 		$this->data['subject']->MaxLength = 50;
 
 		$this->data['img'] = new \BH_ModelData(ModelType::String, false, '이미지', HTMLType::InputFile);
 
-		$this->data['contents'] = new \BH_ModelData(ModelType::String, false, '내용', HTMLType::Textarea);
+		$this->data['contents'] = new \BH_ModelData(ModelType::Text, false, '내용', HTMLType::Textarea);
 
 		$this->data['type'] = new \BH_ModelData(ModelType::Enum, true, '타입', HTMLType::InputRadio);
 		$this->data['type']->EnumValues = array('i'=>'이미지','c'=>'컨텐츠');

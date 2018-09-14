@@ -1,0 +1,40 @@
+<?php if(_BH_ !== true) exit;
+
+use \BH_Common as CM;
+use \BH_Application as App;
+
+/**
+ * @var $Ctrl \Controller\Board
+ */
+?>
+
+<?php
+$arr = $Ctrl->_GetAdditionalSubidList();
+if(sizeof($arr)){
+	?>
+	<article class="modal_layer" id="boardSelectModal" data-close-type="hidden">
+		<div class="modal_wrap">
+			<header class="modal_header">
+				<h1>작성할 게시판을 선택하여 주세요.</h1>
+				<button class="close" type="button"><i class="cross"></i></button>
+			</header>
+			<div class="modal_contents">
+				<ul class="boardSelectForW">
+					<?php
+					foreach($arr as $k => $v){
+						echo '<li><a href="'.App::URLAction('Write').'?subid='.GetDBText($k).'">'.GetDBText($v).'</a></li>';
+					}
+					?>
+				</ul>
+			</div>
+		</div>
+	</article>
+	<script>
+		$('a.boardWriteBtn').on('click', function(e){
+			e.preventDefault();
+			JCM.showModal('boardSelectModal');
+		});
+	</script>
+	<?php
+}
+?>

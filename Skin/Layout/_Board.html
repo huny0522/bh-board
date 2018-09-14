@@ -5,16 +5,8 @@ use \BH_Application as App;
 
 App::$parentLayout = '_Default';
 ?>
-<div class="Board">
+<div id="contents" class="board">
 	<h2><?v. $Ctrl->boardManger->GetValue('subject') ?></h2>
-	<?php if(App::$Data['categorys']){ ?>
-		<ul class="category">
-			<li<?php if(!isset($_GET['category'])) echo ' class="Active"'; ?>><a href="<?a. '' ?>">전체</a></li>
-		<?php foreach(App::$Data['categorys'] as $row){ ?>
-			<li<?php if(isset($_GET['category']) && $row == $_GET['category']) echo ' class="Active"'; ?>><a href="<?a. '' ?>?category=<?v. $row ?>"><?p. $row ?></a></li>
-		<?php } ?>
-		</ul>
-	<?php } ?>
 
 	<?p. App::$BodyHtml ?>
 </div>

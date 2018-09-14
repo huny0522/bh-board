@@ -1,0 +1,59 @@
+<?php if(_BH_ !== true) exit;
+
+use \BH_Common as CM;
+use \BH_Application as App;
+
+/**
+ * @var \Controller\Admin\Statistics $Ctrl
+ * @var array $Data
+ */
+?>
+
+<div class="searchForm">
+	<form id="schForm" name="schForm" method="get" action="<?a. App::$Action ?>">
+		<dl>
+			<dt>기간 검색</dt>
+			<dd>
+				<div class="dateInput"><input type="text" name="bd" value="<?v. App::$Data['beginDate'] ?>" class="date datePicker"></div>
+				~
+				<div class="dateInput"><input type="text" name="ed" value="<?v. App::$Data['endDate'] ?>" class="date datePicker"></div>
+				<button type="submit" class="mBtn">검색</button>
+			</dd>
+		</dl>
+	</form>
+</div>
+
+<section>
+	<table class="graph">
+		<thead>
+		<tr>
+			<th>운영체제</th>
+			<th>접속자수</th>
+			<th>로그인수</th>
+		</tr>
+		</thead>
+		<tbody>
+		<?php
+		foreach(App::$Data['sData'] as $row){
+			echo '<tr>';
+			echo '<th>';
+			echo GetDBText($row['keyword']);
+			echo '</th>';
+			echo '<td>';
+			echo '<div class="numBar visit"><span class="bar"><i style="width:' .$row['visitPer']. '%;"></i></span><div>';
+			echo '<b>'.$row['visit'].'</b>';
+			echo '<span class="percent">('.$row['visitPer'].'%)</span>';
+			echo '</div></div>';
+			echo '</td>';
+			echo '<td>';
+			echo '<div class="numBar login"><span class="bar"><i style="width:' .$row['loginPer']. '%;"></i></span><div>';
+			echo '<b>'.$row['login'].'</b>';
+			echo '<span class="percent">('.$row['loginPer'].'%)</span>';
+			echo '</div></div>';
+			echo '</td>';
+			echo '</tr>';
+		}
+		?>
+		</tbody>
+	</table>
+</section>

@@ -1,0 +1,94 @@
+<?php if(_BH_ !== true) exit;
+use \BH_Common as CM;
+use \BH_Application as App;
+
+/**
+* @var $Model \MemberModel
+*/
+?>
+
+<h2>회원정보수정</h2>
+
+<form name="MemberWriteForm" id="MemberWriteForm" method="post" action="<?a. App::$Action ?><?fq. '' ?>">
+	<?php if(isset(App::$Data['error'])) echo '<p class="alert">'.App::$Data['error'].'</p>'; ?>
+
+	<table class="write">
+		<tr>
+			<th><?mt('mid')?></th>
+			<td>
+				<?mv('mid') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?mt('pwd')?></th>
+			<td>
+				<?minp('pwd') ?>
+				<ul class="guide">
+					<li>수정하시려면 입력하여 주세요.</li>
+					<li>8자 이상, 16자 이하로 입력하여주세요.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<th><?mt('pwd')?>확인</th>
+			<td>
+				<input type="password" name="pwdchk" data-same="pwd">
+			</td>
+		</tr>
+		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('email')?></th>
+			<td>
+				<?minp('email') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?mt('nickname')?></th>
+			<td>
+				<?mv('nickname') ?>
+			</td>
+		</tr>
+		<tr class="daumAddress">
+			<th><?mt('address1')?></th>
+			<td>
+				<p><?minp('zipcode', array('class' => 'zipcode')) ?> <button type="button" class="mBtn find_address">우편번호 찾기</button></p>
+				<p><?minp('address1', array('class' => 'address1 w70p')) ?></p>
+				<p>상세주소 : <?minp('address2', array('class' => 'address2 w70p')) ?></p>
+
+			</td>
+		</tr>
+		<tr>
+			<th><?mt('tel')?></th>
+			<td>
+				<?minp('tel') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?mt('phone')?></th>
+			<td>
+				<?minp('phone') ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?mt('reg_date')?></th>
+			<td>
+				<?mv('reg_date') ?>
+			</td>
+		</tr>
+	</table>
+
+	<div class="bottomBtn">
+		<button type="submit" class="mBtn btn2">수정</button>
+		<button type="reset" class="mBtn btn1">취소</button>
+		<a href="<?a. 'MyInfo' ?><?fq. '' ?>" class="mBtn btn1">뒤로</a>
+	</div>
+</form>
+
+<script>
+	$(document).on('submit', '#MemberWriteForm', function(e){
+		var res = $(this).validCheck();
+		if(!res){
+			e.preventDefault(); 
+			return false; 
+		} 
+	});
+</script>

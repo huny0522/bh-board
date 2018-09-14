@@ -358,4 +358,6 @@ CSS 작성 편의 기능.
 - function DBDelete($keyData) : 키값 인자에 해당하는 데이터를 DB에서 삭제.
 
 
+## 내장 외부 플러그인
+- smarteditor2 
 

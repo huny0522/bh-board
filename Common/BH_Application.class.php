@@ -11,10 +11,12 @@ class BH_Application
 	public static $ControllerName = '';
 	public static $Action = '';
 	public static $ID = '';
+	public static $ID2 = '';
 	public static $NativeDir = '';
 	public static $NativeSkinDir = '';
 	public static $BaseDir = '';
 	public static $TID = '';
+	public static $SUB_TID = '';
 	public static $CtrlUrl = '';
 	public static $InstallIs = true;
 	public static $CFG = array();
@@ -37,7 +39,7 @@ class BH_Application
 	public static function AutoLoad($class){
 		if(substr($class, -5) === 'Model') $file = _MODELDIR . '/' . $class . '.php';
 		else $file = _DIR . '/' . str_replace('\\', '/', $class) . '.php';
-		require $file;
+		if(file_exists($file)) require $file;
 	}
 
 	public static function run(){
@@ -49,8 +51,6 @@ class BH_Application
 
 		if(_DEVELOPERIS === true) self::$InstallIs = \DB::SQL()->TableExists(TABLE_MEMBER);
 
-		self::$SettingData['MainMenu'] = array();
-		self::$SettingData['SubMenu'] = array();
 		// ----------------------
 		//
 		//    라우팅 초기화
@@ -155,6 +155,12 @@ class BH_Application
 
 			if(method_exists($controller, $action) && is_callable(array($controller, $action))){
 				self::$ControllerInstance = new $controller();
+
+				if(isset(self::$ExtendMethod['createControllerInstance'])){
+					$beforeLoadController = self::$ExtendMethod['createControllerInstance'];
+					$beforeLoadController();
+				}
+
 				if(method_exists(self::$ControllerInstance, '__Init')) self::$ControllerInstance->__Init();
 				self::$ControllerInstance->{$action}();
 			}
@@ -186,10 +192,9 @@ class BH_Application
 	 * @return string
 	 */
 	public static function GetFollowQuery($ar = '', $begin = '?'){
-		$ar = trim($ar);
 		$fq = self::$FollowQuery;
 		if($ar){
-			if(is_string($ar)) $ar = explode(',', $ar);
+			if(is_string($ar)) $ar = explode(',', trim($ar));
 			if(is_array($ar) && sizeof($ar)) foreach($ar as $v) unset($fq[trim($v)]);
 		}
 

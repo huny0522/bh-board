@@ -1,0 +1,67 @@
+<?php if(_BH_ !== true) exit;
+
+use \BH_Common as CM;
+use \BH_Application as App;
+
+/**
+ * @var \Controller\Admin\Statistics $Ctrl
+ * @var array $Data
+ */
+?>
+
+<div class="searchForm">
+	<form id="schForm" name="schForm" method="get" action="<?a. App::$Action ?>">
+		<dl>
+			<dt>기간 검색</dt>
+			<dd>
+				<div class="selectBox">
+					<select name="by">
+						<?p. SelectOption(App::$Data['optYearArr'], Get('by')) ?>
+					</select>
+				</div>
+				<div class="selectBox">
+					<select name="bm">
+						<?p. SelectOption(App::$Data['optMonthArr'], Get('bm')) ?>
+					</select>
+				</div>
+				<button type="submit" class="mBtn">검색</button>
+			</dd>
+		</dl>
+	</form>
+</div>
+
+<section>
+	<table class="graph">
+		<thead>
+		<tr>
+			<th>IP</th>
+			<th>접속수</th>
+			<th>접속경로</th>
+			<th>장치</th>
+			<th>운영체제</th>
+			<th>브라우저</th>
+		</tr>
+		</thead>
+		<tbody>
+		<?php
+		foreach(App::$Data['sData'] as $k => $row){
+			echo '<tr>';
+			echo '<th>' . $k . '</th>';
+			echo '<td>';
+			echo '<div class="numBar visit"><span class="bar"><i style="width:' .$row['per']. '%;"></i></span><div>';
+			echo '<b>'.$row['cnt'].'</b>';
+			echo '<span class="percent">('.$row['per'].'%)</span>';
+			echo '</div></div>';
+			echo '</td>';
+			echo '<td>' . GetDBText($row['uri']) . '</td>';
+			echo '<td>' . GetDBText($row['device']) . '</td>';
+			echo '<td>' . GetDBText($row['os']) . '</td>';
+			echo '<td>' . GetDBText($row['browser']) . '</td>';
+			echo '</tr>';
+		}
+		?>
+		</tbody>
+	</table>
+
+	<?p. $Data->GetPageHtml() ?>
+</section>

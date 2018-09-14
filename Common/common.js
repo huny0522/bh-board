@@ -167,7 +167,7 @@ function Common($){
 		//return;
 		var html = '';
 		html += '<div class="BH_Popup" id="BH_Popup' + seq + '" style="top:' + top + 'px; left:' + left + 'px;">'
-			+ '<div class="BH_PopupContent" style="width:'+ width + 'px; height:'+ height + 'px;">' + data + '</div>'
+			+ '<div class="BH_PopupContent" style="width:'+ width + 'px; height:'+ height + 'px; background:#fff;">' + data + '</div>'
 			+ '<div class="BH_PopupBtns">'
 			+ '<span class="BH_PopupTodayClose"><a onclick="JCM.todayPopupClose(' + seq + ');">오늘하루 이창 열지 않기</a></span>'
 			+ '<span class="BH_PopupClose"><a onclick="jQuery(this).closest(\'.BH_Popup\').hide();">닫기</a></span>'
@@ -309,7 +309,7 @@ function Common($){
 		if (!w) w = 400;
 		if (!h) h = 300;
 		var html = '<div id="' + modal_id + '" class="modal_layer"><div class="modal_wrap">';
-		if (title && title !== '') html += '<div class="modal_header"><h1 class="modal_title">' + title + '</h1><p class="close_modal_btn"><i title="닫기" onclick="JCM.removeModal(\'#' + modal_id + '\')"></i></p></div>';
+		if (title && title !== '') html += '<div class="modal_header"><h1 class="modal_title">' + title + '</h1><button class="close"><i class="cross" title="닫기"></i></button></div>';
 		html += '<div class="modal_contents">' + data + '</div>';
 		html += '</div></div>';
 		$('body').append(html);
@@ -317,20 +317,14 @@ function Common($){
 	};
 
 	this.showModal = function(modal_id, w, h){
-		if (!w) w = 400;
-		if (!h) h = 300;
-		$('#' + modal_id).children('.modal_wrap').css({
-			'width': w + 'px'
-			, 'height': h + 'px'
-		});
+		var wrap = $('#' + modal_id).children('.modal_wrap');
+		if (typeof(w) !== 'undefined') wrap.css({'width': w + 'px'});
+		if (typeof(h) !== 'undefined') wrap.css({'height': h + 'px'});
+
 		if (_this.ie8) {
 			$('#' + modal_id).append('<div style="position:absolute; top:0; left:0; z-index:1; width:100%; height:100%; filter:alpha(opacity:70); background:black;" class="background"></div>');
 		}
 		$('#' + modal_id).css("display", "block");
-		var box = $('#' + modal_id).children('.modal_wrap');
-		box.css({
-			'margin': '-' + (box.outerHeight() / 2) + 'px' + ' 0 0 -' + (box.outerWidth() / 2) + 'px'
-		});
 		var beforeW = $('body').width();
 		if(!$('body')[0].hasAttribute('data-ovy')) $('body').attr('data-ovy', $('body').css('overflow-y'));
 		$('body').css('overflow-y', 'hidden');
@@ -449,7 +443,7 @@ function Common($){
 		});
 		$(document).on('click','.fileUploadArea2 button.fileUploadAreaAddBtn',function(e){
 			var area = $(this).closest('.fileUploadArea2');
-			var inHtml = '<div class="fileUploadArea2">' + area.html().replace(/\<span.+?class\=\"fileName\"\>.*?\<\/span\>/ig, '<span class="fileName"></span>').replace(/value\=\".*?\"/ig, 'value=""') + '</div>';
+			var inHtml = '<div class="fileUploadArea2">' + area.html().replace(/\<span.+?class\=\"fileName\"\>.*?\<\/span\>/ig, '').replace(/value\=\".*?\"/ig, 'value=""') + '</div>';
 			area.after(inHtml);
 			e.preventDefault();
 		});
@@ -470,9 +464,9 @@ function Common($){
 				var obj = $('#_uploadFileFrm').data().obj;
 				var area = $(obj).closest('.fileUploadArea2');
 				$(obj).val(result.path + '*' + result.fname);
-				var file = area.find('.fileName');
+				var file = area.find('p');
 				if(file.length){
-					file.html(result.fname);
+					file.html('<span class="fileName">' + result.fname + '</span>');
 				}
 			});
 		});
@@ -581,6 +575,24 @@ function Common($){
 				width: (w - 10) + 'px',
 				height: (h - 10) + 'px'
 			}).embed($('#DaumPostCodeWrap')[0]);
+		});
+	};
+
+	this.FindDaumAddress = function(e){
+		e.preventDefault();
+		var area = $(this).closest('.daumAddress');
+		_this.popPostCode(function(data) {
+			//console.log(data);
+			area.find('input.zipcode').val(data.zonecode);
+			area.find('input.address1').val(data.address);
+			var sido = area.find('input.address_sido');
+			var sigungu = area.find('input.address_sigungu');
+			var bname = area.find('input.address_bname');
+			var code = area.find('input.address_bcode');
+			if(sido.length) sido.val(data.sido);
+			if(sigungu.length) sigungu.val(data.sigungu);
+			if(bname.length) bname.val(data.bname);
+			if(code.length) code.val(data.bcode.substr(0, 8));
 		});
 	};
 
@@ -698,21 +710,6 @@ var MessageModal = {
 			var func = buttons[i].onclick;
 			$('#MessageModal' + this.alertNumber + ' footer a').eq(i).data({'onclick' : func});
 		}
-
-		MessageModal.Move('#MessageModal' + MessageModal.alertNumber);
-		for(var i = 1; i < 11; i++){
-			setTimeout(function(){
-				MessageModal.Move('#MessageModal' + MessageModal.alertNumber);
-			}, i*100);
-		}
-	},
-
-	Move : function(obj){
-		var MessageModalWrap = $(obj).find('.MessageModalWrap');
-		MessageModalWrap.css({
-			'margin-top' : '-' + (MessageModalWrap.outerHeight() / 2) + 'px',
-			'margin-left' : '-' + (MessageModalWrap.outerWidth() / 2) + 'px'
-		});
 	},
 
 	Remove : function(){
@@ -1651,37 +1648,47 @@ function datepicker() {
  ------------------------------------------- */
 var oEditors = [];
 var SE2LoadIs = false;
-function SE2_paste(id, defaultfolder, hiddenimage){
+function SE2_paste(id, defaultfolder, hiddenBtns){
 	var scriptLoadIs = typeof(nhn) !== 'undefined' && typeof(nhn.husky) !== 'undefined' && typeof(nhn.husky.EZCreator) !== 'undefined';
 	if(scriptLoadIs){
 		SE2LoadIs = true;
-		spaste(id, defaultfolder, hiddenimage);
+		spaste(id, defaultfolder, hiddenBtns);
 	}
 	else{
 		if(!SE2LoadIs){
 			SE2LoadIs = true;
-			$.getScript('/Common/smart_editor/js/HuskyEZCreator.js').done(function( s, Status ) {
-				spaste(id, defaultfolder, hiddenimage);
+			$.getScript('/Common/smarteditor2/dist/js/service/HuskyEZCreator.js').done(function( s, Status ) {
+				spaste(id, defaultfolder, hiddenBtns);
 			});
 		}
 		else{
 			setTimeout(function(){
-				SE2_paste(id, defaultfolder, hiddenimage);
+				SE2_paste(id, defaultfolder, hiddenBtns);
 			}, 200);
 		}
 	}
 
 
-	function spaste(id, defaultfolder, hiddenimage){
-		var imgbox = hiddenimage ? '' : '<div class="se2_add_img" data-sname="'+id+'">' +
-			'<span><button class="upbtn">이미지첨부</button></span>' +
-			'<div></div>' +
+	function spaste(id, defaultfolder, hiddenBtns){
+		if(!hiddenBtns){
+			var additionalBtns = '<div class="se2_add_img" data-sname="'+id+'">' +
+				'<span><button type="button" class="upbtn"><i></i><span>이미지</span></button></span>' +
+				'<div></div>' +
+				'</div>';
+
+			additionalBtns += '<div class="se2_add_youtube">' +
+				'<span><button type="button" data-sname="'+id+'"><i></i><span>유튜브</span></button></span>' +
 			'</div>';
 
-		$('#'+id).after(imgbox);
+			additionalBtns += '<div class="se2_add_link">' +
+				'<span><button type="button" data-sname="'+id+'"><i></i><span>링크</span></button></span>' +
+			'</div>';
+
+			$('#'+id).before('<div class="se2_addi_btns">' + additionalBtns + '</div>');
+		}
 		if(!$('#fileupfrm').length){
-			var imgfrm = '<form id="fileupfrm" method="post" action="/Upload/ImageUpload/" enctype="multipart/form-data">' +
-				'<input type="file" name="Filedata" value="" data-sname="" id="fileupinp" style="display:block; width:0; height:0;" />' +
+			var imgfrm = '<form id="fileupfrm" method="post" action="/Upload/ImageUpload/" enctype="multipart/form-data" style="display:block; width:0; height:0; overflow: hidden;">' +
+				'<input type="file" name="Filedata" value="" data-sname="" accept="image/*" id="fileupinp" />' +
 				'</form>';
 			$('body').append(imgfrm);
 		}
@@ -1689,12 +1696,14 @@ function SE2_paste(id, defaultfolder, hiddenimage){
 		nhn.husky.EZCreator.createInIFrame({
 			oAppRef: oEditors,
 			elPlaceHolder: id,
-			sSkinURI: defaultfolder + "/Common/smart_editor/SmartEditor2Skin.html",
+			sSkinURI: defaultfolder + "/Common/smarteditor2/dist/SmartEditor2Skin.html",
 			htParams : {
 				bUseToolbar : true,				// 툴바 사용 여부 (true:사용/ false:사용하지 않음)
 				bUseVerticalResizer : true,		// 입력창 크기 조절바 사용 여부 (true:사용/ false:사용하지 않음)
 				bUseModeChanger : true,			// 모드 탭(Editor | HTML | TEXT) 사용 여부 (true:사용/ false:사용하지 않음)
 				//aAdditionalFontList : aAdditionalFontSet,		// 추가 글꼴 목록
+				// bSkipXssFilter : true,		// client-side xss filter 무시 여부 (true:사용하지 않음 / 그외:사용)
+				bSkipXssFilter : true,
 				fOnBeforeUnload : function(){
 					//CMAlert("완료!");
 				}
@@ -1714,6 +1723,82 @@ $(document).on('click','.se2_add_img button.upbtn',function(e){
 	e.preventDefault();
 	$('#fileupinp').attr('data-sname', $(this).parents('.se2_add_img').attr('data-sname'));
 	$('#fileupinp').click();
+});
+
+$(document).on('click','.se2_add_youtube button',function(e){
+	e.preventDefault();
+	var sname = $(this).attr('data-sname');
+	if($('#youtubeLinkModal').length) return;
+	var html = '<article id="youtubeLinkModal" class="modal_layer" data-sname="' + sname + '"><div class="modal_wrap">' +
+		'<header class="modal_header"><h1>유튜브 링크</h1><button type="button" class="close"><i class="cross"></i></button></header><div class="modal_contents">' +
+		'<dl><dt>링크주소</dt><dd><textarea id="youtubeText"></textarea></dd></dl>' +
+		'<dl><dt>크기</dt><dd>넓이 : <input type="text" class="num" id="youtubeWidthInp" value="720"> * 높이 : <input type="text" id="youtubeHeightInp" class="num" value="405"></dd></dl>' +
+		'<footer><button type="button" id="youtubeSubmitBtn" class="mBtn btn2">삽입</button></footer>' +
+		'</div></div></article>';
+	$('body').append(html);
+	JCM.showModal('youtubeLinkModal');
+
+	$('#youtubeSubmitBtn').on('click', function(){
+
+		var w = $('#youtubeWidthInp').val();
+		var h = $('#youtubeHeightInp').val();
+		if(!w.match(/[^0-9]/)) w = w + 'px';
+		if(!h.match(/[^0-9]/)) h = h + 'px';
+		var html = Youtube($('#youtubeText').val(), w, h);
+		oEditors.getById[sname].exec('PASTE_HTML', [html]);
+		JCM.removeModal('#youtubeLinkModal');
+	});
+
+
+
+	function Youtube(urlOrId, width, height){
+		urlOrId = GetYoutubeId(urlOrId);
+		if(typeof(height) !== 'undefined') height = 'height : ' + height + ';';
+		if(typeof(width) !== 'undefined') width = 'width : ' + width + ';';
+		if(urlOrId !== false) return '<iframe src="https://www.youtube.com/embed/' + urlOrId + '?rel=0&amp;showinfo=0&amp;autohide=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="' + width + height + '" autohide="1"></iframe>';
+		return '';
+	}
+
+	function GetYoutubeId(urlOrId){
+		urlOrId = $.trim(urlOrId);
+		var find = urlOrId.match(/youtu\.be\/([a-zA-Z0-9\-\_]+)/);
+		if(find !== null && find.length > 1){
+			return find[1];
+		}
+
+		var find = urlOrId.match(/youtube\.com\/embed\/([a-zA-Z0-9\-\_]+)/);
+		if(find !== null && find.length > 1){
+			return find[1];
+		}
+
+		var find = urlOrId.match(/youtube\.com\/watch.*?v=([a-zA-Z0-9\-\_]+)/);
+		if(find !== null && find.length > 1){
+			return find[1];
+		}
+		return false;
+	}
+});
+
+$(document).on('click','.se2_add_link button',function(e){
+	e.preventDefault();
+	var sname = $(this).attr('data-sname');
+	if($('#urlLinkModal').length) return;
+	var html = '<article id="urlLinkModal" class="modal_layer" data-sname="' + sname + '"><div class="modal_wrap">' +
+		'<header class="modal_header"><h1>링크 삽입</h1><button type="button" class="close"><i class="cross"></i></button></header><div class="modal_contents">' +
+		'<dl><dt>링크주소</dt><dd><input type="text" id="urlLinkInp" class="w100p"></dd></dl>' +
+		'<footer><button type="button" id="urlLinkSubmitBtn" class="mBtn btn2">삽입</button></footer>' +
+		'</div></div></article>';
+	$('body').append(html);
+	JCM.showModal('urlLinkModal');
+
+	$('#urlLinkSubmitBtn').on('click', function(){
+		var url = $.trim($('#urlLinkInp').val());
+		if(url !== ''){
+			var html = '<a href="' + url + '" target="_blank">' + url + '</a>';
+			oEditors.getById[sname].exec('PASTE_HTML', [html]);
+		}
+		JCM.removeModal('#urlLinkModal');
+	});
 });
 
 $(document).on('change', '#fileupinp', function(e){
@@ -1880,17 +1965,17 @@ $(document).ready(function(){
 		});
 	}
 
-	$(document).ready(function(){
-		if(JCM.getInternetExplorerVersion >= 0){
-			document.body.attachEvent('DOMNodeInserted', DomInserted);
-			document.body.attachEvent('DomNodeInsertedIntoDocument', DomInserted);
-			document.body.attachEvent('DOMSubtreeModified', DomModified);
-		}
-		else{
-			document.body.addEventListener('DOMNodeInserted', DomInserted);
-			document.body.addEventListener('DomNodeInsertedIntoDocument', DomInserted);
-			document.body.addEventListener('DOMSubtreeModified', DomModified);
-		}
-	});
+	if(JCM.getInternetExplorerVersion >= 0){
+		document.body.attachEvent('DOMNodeInserted', DomInserted);
+		document.body.attachEvent('DomNodeInsertedIntoDocument', DomInserted);
+		document.body.attachEvent('DOMSubtreeModified', DomModified);
+	}
+	else{
+		document.body.addEventListener('DOMNodeInserted', DomInserted);
+		document.body.addEventListener('DomNodeInsertedIntoDocument', DomInserted);
+		document.body.addEventListener('DOMSubtreeModified', DomModified);
+	}
+
+	$(document).on('click', '.daumAddress .find_address', JCM.FindDaumAddress);
 });
 

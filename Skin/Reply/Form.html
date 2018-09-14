@@ -15,9 +15,9 @@
 				<input type="password" name="pwd" required>
 			</fieldset>
 
-			<div>
+			<div class="btn">
 				<button type="submit" class="sBtn btn2">확인</button>
-				<button type="reset" class="sBtn">취소</button>
+				<button type="reset" class="sBtn close">취소</button>
 			</div>
 		</form>
 	</div>
@@ -28,12 +28,12 @@
 		<input type="hidden" name="article_seq" value="<?p. $ArticleSeq ?>">
 		<input type="hidden" name="seq" value="">
 		<fieldset class="pwd">
-			<p>정말 삭제하시겠습니까?<br><span class="pwdinp">삭제하시려면 비밀번호를 입력하여 주세요.</span></p>
+			<p>정말 삭제하시겠습니까?<br><span>삭제하시려면 비밀번호를 입력하여 주세요.</span></p>
 			<span class="pwdinp"><input type="password" name="pwd" required></span>
 		</fieldset>
 		<div class="btn">
 			<button type="submit" class="sBtn btn2">확인</button>
-			<button type="reset" class="sBtn">취소</button>
+			<button type="reset" class="sBtn close">취소</button>
 		</div>
 	</form>
 </div>
@@ -53,8 +53,8 @@
 		</fieldset>
 
 		<div class="btn">
-			<span><button type="submit" class="sBtn btn2">등록</button></span>
-			<span><button type="reset" class="sBtn">취소</button></span>
+			<button type="submit" class="sBtn btn2">등록</button>
+			<button type="reset" class="sBtn close">취소</button>
 		</div>
 	</form>
 </div>
@@ -65,13 +65,6 @@
 		<input type="hidden" name="seq" value="">
 		<input type="hidden" name="target_seq" value="">
 
-		<div class="targetContent">
-			<header>
-				<b></b>
-				<span></span>
-			</header>
-			<p></p>
-		</div>
 		<?php if(_MEMBERIS !== true){ ?>
 			<fieldset class="user">
 				<dl>
@@ -90,8 +83,8 @@
 		</fieldset>
 
 		<div class="btn">
-			<span><button type="submit" class="sBtn btn2">등록</button></span>
-			<span><button type="reset" class="sBtn btn">취소</button></span>
+			<button type="submit" class="sBtn btn2">등록</button>
+			<button type="reset" class="sBtn btn close">취소</button>
 		</div>
 	</form>
 </div>

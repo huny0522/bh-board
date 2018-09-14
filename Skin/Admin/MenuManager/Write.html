@@ -34,10 +34,34 @@ use \BH_Application as App;
 				<?minp('enabled') ?>
 			</td>
 		</tr>
-		<tr class="bid">
+		<tr class="optVisible boardVisible contentVisible">
 			<th><?mt('bid')?></th>
 			<td>
 				<select id="bid" name="bid" data-default="<?mv('bid') ?>"></select>
+			</td>
+		</tr>
+		<tr class="optVisible boardVisible">
+			<th><?mt('subid')?></th>
+			<td>
+				<select id="subid" name="subid" data-default="<?mv('subid') ?>"></select>
+			</td>
+		</tr>
+		<tr class="optVisible boardVisible">
+			<th><?mt('addi_subid')?></th>
+			<td>
+				<?minp('addi_subid', array('class' => 'w100p'))?>
+			</td>
+		</tr>
+		<tr class="optVisible boardVisible">
+			<th><?mt('board_category')?></th>
+			<td>
+				<?minp('board_category', array('class' => 'w100p'))?>
+			</td>
+		</tr>
+		<tr class="optVisible boardVisible">
+			<th><?mt('board_sub_category')?></th>
+			<td>
+				<?minp('board_sub_category', array('class' => 'w100p'))?>
 			</td>
 		</tr>
 	</table>
@@ -77,17 +101,43 @@ use \BH_Application as App;
 		var def = $('#bid').attr('data-default');
 		var type = $('#MenuWriteForm input[name=type]:checked').val();
 		if(type == 'board' || type == 'content'){
-			$('tr.bid').show();
+			$('tr.' + type + 'Visible').show();
+			$('tr.optVisible').not('tr.' + type + 'Visible').hide();
 			JCM.post('<?a. 'GetBidList' ?>', {'type' : type}, function(data){
 				var opt = '<option value="">선택</opt>';
 				for(var i=0; i < data.length; i++){
 					opt += '<option value="' + data[i].bid + '"' + (data[i].bid == def ? ' selected="selected"' : '') + '>' + data[i].subject + '(' + data[i].bid + ')</option>';
 				}
 				$('#bid').html(opt);
+
+				getSubidList();
 			});
 		}else{
 			$('#bid').val('');
-			$('tr.bid').hide();
+			$('tr.optVisible').hide();
 		}
 	}
+	function getSubidList(){
+		var def = $('#subid').attr('data-default');
+		var type = $('#MenuWriteForm input[name=type]:checked').val();
+
+		if($('#bid').val() == ''){
+			var opt = '<option value="">선택</opt>';
+			$('#subid').html(opt);
+			return;
+		}
+
+		JCM.post('<?a. 'GetSubidList' ?>', {'type' : type, 'bid' : $('#bid').val()}, function(data){
+			var opt = '<option value="">선택</opt>';
+			for(var i=0; i < data.length; i++){
+				opt += '<option value="' + data[i].subid + '"' + (data[i].subid == def ? ' selected="selected"' : '') + '>' + data[i].subject + '(' + data[i].subid + ')</option>';
+			}
+			$('#subid').html(opt);
+		});
+	}
+
+	$(document).on('change', '#bid', function(){
+		var type = $('#MenuWriteForm input[name=type]:checked').val();
+		if(type == 'board') getSubidList();
+	});
 </script>

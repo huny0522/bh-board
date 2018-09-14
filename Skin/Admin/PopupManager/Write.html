@@ -11,21 +11,40 @@ use \BH_Application as App;
 
 	<table class="write">
 		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('category')?></th>
+			<td>
+				<select id="category_choice">
+					<option value="">선택</option>
+					<?p. SelectOption(App::$Data['category'], $Model->GetValue('category')) ?>
+					<option value="x">추가</option>
+				</select>
+				<span class="hidden" id="category_real"><input type="text" name="category" value="<?mv('category') ?>" id="category"></span>
+
+				<ul class="guide">
+					<li>20자 이하로 입력하여주세요.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('subject')?></th>
 			<td>
-				<?minp('subject') ?>
+				<?minp('subject', array('class' => 'w100p')) ?>
 			</td>
 		</tr>
 		<tr>
-			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('width')?></th>
+			<th><?mt('kind') ?></th>
+			<td><?minp('kind') ?></td>
+		</tr>
+		<tr>
+			<th><i class="requiredBullet" title="필수항목">*</i> 크기</th>
 			<td>
-				<?minp('width') ?>
+				넓이 : <?minp('width', array('class' => 'w5p')) ?>&nbsp;&nbsp;x&nbsp;&nbsp;높이 : <?minp('height', array('class' => 'w5p')) ?>
 			</td>
 		</tr>
 		<tr>
-			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('height')?></th>
+			<th><i class="requiredBullet" title="필수항목">*</i> 좌표</th>
 			<td>
-				<?minp('height') ?>
+				X : <?minp('pos_x', array('class' => 'w5p')) ?>&nbsp;&nbsp;&nbsp;&nbsp;Y : <?minp('pos_y', array('class' => 'w5p')) ?>
 			</td>
 		</tr>
 		<tr>
@@ -49,15 +68,17 @@ use \BH_Application as App;
 		<tr id="typeFieldI">
 			<th><?mt('img')?></th>
 			<td>
+				<p>
 				<?minp('img') ?>
-				<div>
-					<?p. $Model->HTMLPrintLabel('link_url') ?>
-					<span><?minp('link_url') ?></span>
-				</div>
-				<div>
-					<?p. $Model->HTMLPrintLabel('new_window') ?>
+				</p>
+				<p>
+					<?p. $Model->HTMLPrintLabel('link_url') ?> :
+					<span><?minp('link_url', array('class' => 'w70p')) ?></span>
+				</p>
+				<p>
+					<?p. $Model->HTMLPrintLabel('new_window') ?> :
 					<span><?minp('new_window') ?></span>
-				</div>
+				</p>
 			</td>
 		</tr>
 		<tr id="typeFieldC">
@@ -100,7 +121,7 @@ use \BH_Application as App;
 
 <script>
 	$(document).ready(function(){
-		typeView('<?$Model->data['type']->txt() ?>');
+		typeView('<?p. $Model->data['type']->txt() ?>');
 	});
 
 	var contentsViewIs = false;

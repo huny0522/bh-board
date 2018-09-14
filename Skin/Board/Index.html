@@ -9,94 +9,164 @@ use \BH_Application as App;
  */
 App::JSAdd('board.js', 200);
 ?>
-<?php if($Data->result && $Data->totalRecord){ ?>
 
-	<table class="list">
-		<colgroup>
-			<col style="width:7%;">
-			<col style="">
-			<col style="width:15%;">
-			<col style="width:7%;">
-			<col style="width:7%;">
-			<col style="width:18%;">
-		</colgroup>
-		<thead>
-		<tr>
-			<th>번호</th>
-			<th><?mt('subject')?></th>
-			<th><?mt('mname')?></th>
-			<th><?mt('hit')?></th>
-			<th><?mt('recommend')?></th>
-			<th><?mt('reg_date')?></th>
-		</tr>
-		</thead>
-		<tbody>
-		<?php
-		foreach(App::$Data['notice'] as $row){
-			$secretIcon = $row['secret'] == 'y' ? '<span class="secretDoc">[비밀글]</span> ' : '';
-			$newtIcon = $row['newArticleIs'] ? '<span class="newDoc">[새글]</span> ' : '';
-			?>
-			<tr class="notice">
-				<td>공지</td>
-				<td class="left">
-					<a href="<?p. $row['viewUrl'] ?>"<?php if(!$row['possibleView']){ ?> class="passwordView"<?php } ?>>
-						[공지] <?v. $row['subject'] ?> <?p. $row['replyCount'] ?> <?p. $secretIcon . $newtIcon ?>
-					</a>
-				</td>
-				<td><?v. $row['mname']; ?></td>
-				<td><?v. $row['hit']; ?></td>
-				<td><?v. $row['recommend']; ?></td>
-				<td><?v. KrDate($row['reg_date'],'ymd', 24) ?></td>
-			</tr>
-		<?php } ?>
-		<?php
-		foreach($Data->data as $row){
-			$secretIcon = $row['secret'] == 'y' ? '<span class="secretDoc">[비밀글]</span> ' : '';
-			$newtIcon = $row['newArticleIs'] ? '<span class="newDoc">[새글]</span> ' : '';
-			?>
-			<tr>
-				<td><?p. $Data->beginNum-- ?></td>
-				<td class="left">
-					<a href="<?p. $row['viewUrl'] ?>"<?php if(!$row['possibleView']){ ?> class="passwordView"<?php } ?>>
-						<?v. $row['subject'] ?> <?p. $row['replyCount'] ?> <?p. $secretIcon . $newtIcon ?>
-					</a>
-				</td>
+<?p. $Ctrl->_CategoryHtml() ?>
 
-				<td><?v. $row['mname']; ?></td>
-				<td><?v. $row['hit']; ?></td>
-				<td><?v. $row['recommend']; ?></td>
-				<td><?v. KrDate($row['reg_date'],'ymd', 24) ?></td>
-			</tr>
-		<?php } ?>
-		</tbody>
-	</table>
+<?php if(($Data->result && $Data->totalRecord) || sizeof(App::$Data['notice'])){ ?>
+
+	<section class="boardList checkAllArea" id="bhBoardList">
+		<header>
+			<ul>
+				<?php if($Ctrl->managerIs){ ?><li class="check"><input type="checkbox" class="checkAll"></li><?php } ?>
+				<li class="num">번호</li>
+				<?php if(sizeof(App::$Data['category'])){ ?>
+					<li class="category">분류</li>
+				<?php } ?>
+				<li class="subject"><?mt('subject')?></li>
+				<li class="name"><?mt('mname')?></li>
+				<li class="num"><?mt('hit')?></li>
+				<li class="num"><?mt('recommend')?></li>
+				<li class="date"><?mt('reg_date')?></li>
+			</ul>
+		</header>
+		<div class="articles">
+			<?php
+			foreach(App::$Data['notice'] as $row){
+				$secretIcon = $row['secret'] == 'y' ? '<span class="secretDoc">[비밀글]</span> ' : '';
+				$newtIcon = $row['newArticleIs'] ? '<span class="newDoc">[새글]</span> ' : '';
+				$repIcon = $row['depth'] ? '<span class="answer">[답변글]</span> ' : '';
+				?>
+				<article class="notice">
+					<ul>
+						<?php if($Ctrl->managerIs){ ?><li class="check"></li><?php } ?>
+						<li class="num">공지</li>
+						<?php if(sizeof(App::$Data['category'])){ ?>
+							<li class="category"><?v. $row['viewCategory'] ?></li>
+						<?php } ?>
+						<li class="subject">
+							<a href="<?p. $row['viewUrl'] ?>"<?php if(!$row['possibleView']){ ?> class="passwordView"<?php } ?>>
+								<?p. $repIcon ?><?v. $row['subject'] ?> <?p. $row['replyCount'] ?> <?p. $secretIcon . $newtIcon ?>
+							</a>
+						</li>
+						<li class="name"><?v. $row['mname']; ?></li>
+						<li class="num hit"><?v. $row['hit']; ?></li>
+						<li class="num recommend"><?v. $row['recommend']; ?></li>
+						<li class="date"><?v. KrDate($row['reg_date'],'ymd', 24) ?></li>
+					</ul>
+				</article>
+			<?php } ?>
+			<?php
+			foreach($Data->data as $row){
+				$secretIcon = $row['secret'] == 'y' ? '<span class="secretDoc">[비밀글]</span> ' : '';
+				$newtIcon = $row['newArticleIs'] ? '<span class="newDoc">[새글]</span> ' : '';
+				$repIcon = $row['depth'] ? '<span class="answerDoc">[답변글]</span> ' : '';
+				?>
+				<article>
+					<ul>
+						<?php if($Ctrl->managerIs){ ?><li class="check"><input type="checkbox" class="checkItem boardCheckBox" name="checkItem" value="<?p. $row['seq'] ?>"></li><?php } ?>
+						<li class="num"><?p. $Data->beginNum-- ?></li>
+						<?php if(sizeof(App::$Data['category'])){ ?>
+							<li class="category"><?v. $row['viewCategory'] ?></li>
+						<?php } ?>
+						<li class="subject">
+							<a href="<?p. $row['viewUrl'] ?>"<?php if(!$row['possibleView']){ ?> class="passwordView"<?php } ?>>
+								<?p. $repIcon ?><?v. $row['subject'] ?> <?p. $row['replyCount'] ?> <?p. $secretIcon . $newtIcon ?>
+							</a>
+						</li>
+
+						<li class="name"><?v. $row['mname']; ?></li>
+						<li class="num"><?v. $row['hit']; ?></li>
+						<li class="num"><?v. $row['recommend']; ?></li>
+						<li class="date"><?v. KrDate($row['reg_date'],'ymd', 24) ?></li>
+					</ul>
+				</article>
+			<?php } ?>
+		</div>
+	</section>
 <?php } else{ ?>
 	<p class="nothing">등록된 게시물이 없습니다.</p>
 <?php } ?>
 
+<?php if($Ctrl->managerIs){ ?>
+	<div class="leftSysBtn">
+		선택한 게시물을
+		<button type="button" class="sBtn btn2" id="moveSelItemBtn">이동</button>
+		<button type="button" class="sBtn btn2" id="copySelItemBtn">복사</button>
+		<a href="<?a. 'SysDel' ?>" class="sBtn btn3" id="delSelItemBtn">삭제</a>
+	</div>
+<?php } ?>
+
 <form id="bbsSchForm" name="bbsSchForm" method="get" action="<?a. '' ?>" class="boardSearch leftBoardSearch">
-	<select name="searchType">
-		<?p. SelectOption(array('snc' => '제목+내용', 's' => '제목', 'c' => '내용'), isset($_GET['searchType']) ? $_GET['searchType'] : '') ?>
+	<input type="hidden" name="cate" value="<?v. Get('cate') ?>">
+	<input type="hidden" name="scate" value="<?v. Get('scate') ?>">
+	<select name="stype">
+		<?p. SelectOption(array('snc' => '제목+내용', 's' => '제목', 'c' => '내용'), isset($_GET['stype']) ? $_GET['stype'] : '') ?>
 	</select>
-	<input type="text" name="searchKeyword" value="<?v. isset($_GET['searchKeyword']) ? $_GET['searchKeyword'] : '' ?>">
+	<input type="text" name="keyword" value="<?v. isset($_GET['keyword']) ? $_GET['keyword'] : '' ?>">
 	<button type="submit" class="mBtn btn2">검색</button>
 </form>
 
-<?php if($Ctrl->GetAuth('Write')){ ?><div class="right_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn btn2">글쓰기</a></div><?php } ?>
+<?php if($Ctrl->GetAuth('Write')){ ?>
+	<div class="right_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn btn2 boardWriteBtn">글쓰기</a></div>
+	<?php if(sizeof($Ctrl->additionalSubId)){ ?>
+		<?inc. '/Board/SubSelect.html' ?>
+	<?php } ?>
+<?php } ?>
 
 <div class="paging"><?p. $Data->pageHtml ?></div>
 
 <div id="secretViewForm" class="hidden boardPassword modalConfirm">
 	<form id="viewForm" name="viewForm" method="post" action="">
+		<p>비밀번호를 입력하여 주세요.</p>
 		<input type="password" name="pwd" required="required">
-		<span>비밀번호를 입력하여 주세요.</span>
 		<div class="sPopBtns">
-			<button type="submit" class="btn2">확인</button>
-			<button type="reset" class="btn2">취소</button>
+			<button type="submit" class="sBtn btn2">확인</button>
+			<button type="reset" class="sBtn btn2">취소</button>
 		</div>
 	</form>
 </div>
 
+<?php
+if($Ctrl->managerIs){
+	$bmList = BoardManagerModel::GetList($Ctrl->bid, $Ctrl->subid);
+	?>
+	<div id="checkActionModal" class="modal_layer" data-close-type="hidden">
+		<div class="modal_wrap">
+			<header class="modal_header">
+				<h1>123</h1>
+				<button type="button" class="close"><i class="cross"></i></button>
+			</header>
+			<div class="modal_contents">
+				<form id="cActForm" name="cActForm" method="post" action="" data-move-url="<?a. 'SysMove' ?>" data-copy-url="<?a. 'SysCopy' ?>">
+					<input type="hidden" name="bid" value="">
+					<input type="hidden" name="subid" value="">
+					<input type="hidden" name="seq" value="">
+					<div class="selected" id="boardActionSelected"><span>선택게시판 : </span><b></b></div>
+					<div class="selectedCategory" id="boardActionCategory"></div>
+					<ul>
+						<?php foreach($bmList as $v){ ?>
+							<li>
+								<button type="button" class="boardActionArticleBtn" data-bid="<?v. $v['bid'] ?>" data-subid="<?v. $v['subid'] ?>" id="btn-<?v. $v['bid'] . '-' . $v['subid'] ?>" data-category="<?v. $v['category'] ?>" data-sub-category="<?v. $v['sub_category'] ?>"><?v. $v['bid'] ?> - <?v. $v['subject'] ?></button>
+							</li>
+						<?php } ?>
+					</ul>
+					<div class="bottomBtn">
+						<button type="submit" class="mBtn btn2">확인</button>
+						<button type="button" class="mBtn close">닫기</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		AppBoard.CheckActionInit();
+	</script>
+	<?php
+}
+?>
+
 <script>
+	AppBoard.listWrap = '.articles article';
 	AppBoard.ListInit();
 </script>

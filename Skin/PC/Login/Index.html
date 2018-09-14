@@ -1,0 +1,169 @@
+<?php if(_BH_ !== true) exit;
+use \BH_Common as CM;
+use \BH_Application as App;
+
+/**
+ * @var \MemberModel $Model
+ * @var $Ctrl \Controller\Login
+ */
+App::$Title = '로그인';
+?>
+<div id="contents" class="login2">
+	<div id="login_wrap2">
+		<h2>로그인</h2>
+		<form id="LoginFrm" name="LoginFrm" action="<?a. 'Login' ?>" method="post">
+			<fieldset>
+				<?php if($Ctrl->useMailId){ ?>
+					<label>
+						<span class="tt"><?v. $Model->_email->DisplayName ?></span>
+						<?php if($Ctrl->mailIdAddrSelection){ ?>
+							<input type="text" name="email1" value="" required>
+							<input type="text" name="email2" value="" required class="emailAddr">
+							<select name="selectMail">
+								<option value="">선택하세요.</option>
+								<?p. OptionEmailAddress() ?>
+								<option value="x">직접입력</option>
+							</select>
+						<?php }else{ ?>
+							<span><?minp('email') ?></span>
+						<?php } ?>
+					</label>
+				<?php }else{ ?>
+					<label>
+						<span class="tt"><?v. $Model->_mid->DisplayName ?></span>
+						<?minp('mid') ?>
+					</label>
+				<?php } ?>
+				<label>
+					<span class="tt"><?v. $Model->_pwd->DisplayName ?></span>
+					<?minp('pwd') ?>
+				</label>
+			</fieldset>
+			<label id="LoginRemember" class="radio"><input type="checkbox" id="RememberIDBtn"><span>아이디 저장</span></label>
+			<div id="LoginConfirm"><button type="submit" class="mBtn btn2">로그인</button></div>
+			<div id="link">
+				<a href="<?p. _URL ?>/" class="mBtn btn1">메인으로</a>
+				<a href="<?p. App::URLAction('Register') ?>" class="regbtn mBtn">회원가입</a>
+				<a href="<?p. App::URLAction('FindID') ?>" class="mBtn">아이디/비밀번호 찾기</a>
+			</div>
+		</form>
+	</div>
+</div>
+<?php if($Ctrl->useMailId){ ?>
+	<?php if($Ctrl->mailIdAddrSelection){ ?>
+		<script>
+			jQuery(function($){
+				$(document).ready(function(){
+					var email1 = JCM.getCookie('email1');
+					if(email1 != ''){
+						$('input[name=email1]').val(email1);
+						$('input[name=email2]').val(JCM.getCookie('email2'));
+						$('#RememberIDBtn')[0].checked = true;
+					}
+
+					if($.trim($('input[name=email1]').val()) == '') $('input[name=email1]').focus();
+					else $('input[name=pwd]').focus();
+				});
+
+				$(document).on('submit', '#LoginFrm', function(e){
+					var res = $(this).validCheck();
+					if(!res) e.preventDefault();
+
+					var email1 = $('input[name=email1]');
+					var email2 = $('input[name=email2]');
+
+					if($.trim(email1.val()) == ''){
+						e.preventDefault();
+						CMAlert('메일을 입력하여 주세요.', function(){
+							email1.focus();
+						});
+						return false;
+					}
+					if($.trim(email2.val()) == ''){
+						e.preventDefault();
+						CMAlert('메일을 입력하여 주세요.');
+						return false;
+					}
+
+					if($('#RememberIDBtn')[0].checked){
+						JCM.setCookie('email1', $('input[name=email1]').val(), 9999);
+						JCM.setCookie('email2', $('input[name=email2]').val(), 9999);
+					}else{
+						JCM.setCookie('email1', '1',0);
+						JCM.setCookie('email2', '1',0);
+					}
+				});
+			});
+		</script>
+	<?php }else{ ?>
+		<script>
+			jQuery(function($){
+				$(document).ready(function(){
+					var email = JCM.getCookie('email');
+					if(email != ''){
+						$('input[name=email]').val(email);
+						$('#RememberIDBtn')[0].checked = true;
+					}
+
+					if($.trim($('input[name=email]').val()) == '') $('input[name=email]').focus();
+					else $('input[name=pwd]').focus();
+				});
+
+				$(document).on('submit', '#LoginFrm', function(e){
+					var res = $(this).validCheck();
+					if(!res) e.preventDefault();
+
+					var email = $('input[name=email]');
+
+					if($.trim(email.val()) == ''){
+						e.preventDefault();
+						CMAlert('메일을 입력하여 주세요.', function(){
+							email.focus();
+						});
+						return false;
+					}
+
+					if($('#RememberIDBtn')[0].checked){
+						JCM.setCookie('email', $('input[name=email]').val(), 9999);
+					}else{
+						JCM.setCookie('email', '1',0);
+					}
+				});
+			});
+		</script>
+	<?php } ?>
+
+<?php }else{ ?>
+	<script>
+		jQuery(function($){
+			$(document).ready(function(){
+				var mid = JCM.getCookie('mid');
+				if(mid != ''){
+					$('input[name=mid]').val(mid);
+					$('#RememberIDBtn')[0].checked = true;
+				}
+
+				if($.trim($('input[name=mid]').val()) == '') $('input[name=mid]').focus();
+				else $('input[name=pwd]').focus();
+			});
+
+			$(document).on('submit', '#LoginFrm', function(e){
+				var res = $(this).validCheck();
+				if(!res) e.preventDefault();
+
+				var mid = $('input[name=mid]');
+				if($.trim(mid.val()) == ''){
+					e.preventDefault();
+					CMAlert('아이디를 입력하여 주세요.');
+					return false;
+				}
+
+				if($('#RememberIDBtn')[0].checked){
+					JCM.setCookie('mid', $('input[name=mid]').val(), 9999);
+				}else{
+					JCM.setCookie('mid', '1',0);
+				}
+			});
+		});
+	</script>
+<?php } ?>

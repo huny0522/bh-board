@@ -19,6 +19,15 @@ class ContentManager{
 
 	public function __construct(){
 		$this->model = App::InitModel('Content');
+
+		$dbGetList = new \BH_DB_GetList($this->model->table);
+		$dbGetList->SetKey('DISTINCT category');
+		App::$Data['category'] = array();
+		if(isset(App::$SettingData['contentCategory'])) foreach(App::$SettingData['contentCategory'] as $v){
+			App::$Data['category'][$v] = $v;
+		}
+
+		while($row = $dbGetList->Get()) App::$Data['category'][$row['category']] = $row['category'];
 	}
 
 	public function __init(){
@@ -26,7 +35,7 @@ class ContentManager{
 		CM::AdminAuth();
 
 		// 항상 따라다닐 URL 쿼리 파라미터를 지정
-		App::SetFollowQuery(array('where', 'keyword','page'));
+		App::SetFollowQuery(array('category', 'page', 'keyword'));
 		App::$Layout = '_Admin';
 
 		$AdminAuth = explode(',', CM::GetMember('admin_auth'));
@@ -35,16 +44,21 @@ class ContentManager{
 
 	public function Index(){
 		// 리스트를 불러온다.
-		$dbGetList = new \BH_DB_GetListWithPage($this->model->table.' A LEFT JOIN '.TABLE_MENU.' B ON A.bid = B.bid AND B.type=\'content\'');
-		$dbGetList->page = isset($_GET['page']) ? $_GET['page'] : 1;
-		$dbGetList->pageUrl = App::URLAction('').App::GetFollowQuery('page');
-		$dbGetList->articleCount = 20;
-		$dbGetList->sort = 'A.reg_date DESC';
-		$dbGetList->group = 'A.bid';
-		$dbGetList->SetKey('A.*, group_concat(B.title SEPARATOR \', \') as title');
-		$dbGetList->Run();
+		$qry = DB::GetListPageQryObj($this->model->table.' A LEFT JOIN '.TABLE_MENU.' B ON A.bid = B.bid AND B.type=\'content\'')
+			->SetPageUrl(App::URLAction('').App::GetFollowQuery('page'))
 
-		App::View($this->model, $dbGetList);
+			->SetPage(Get('page'))
+			->SetArticleCount(20)
+			->SetSort('A.reg_date DESC')
+			->SetGroup('A.bid')
+			->SetKey('A.*, group_concat(B.title SEPARATOR \', \') as title');
+
+		if($category = trim(Get('category'))) $qry->AddWhere('`A`.`category` = %s', $category);
+		if($keyword = trim(Get('keyword'))) $qry->AddWhere('INSTR(`A`.`subject`, %s)', $keyword);
+
+		$qry->Run();
+
+		App::View($this->model, $qry);
 	}
 	public function View(){
 		$res = $this->model->DBGet($_GET['bid']);
@@ -84,6 +98,15 @@ class ContentManager{
 		App::View($this->model);
 	}
 	public function PostWrite(){
+		$_POST['bid'] = strtolower(Post('bid'));
+		$temp = preg_replace('/[^a-z0-9\_]/', '', Post('bid'));
+		if($temp !== Post('bid')){
+			$this->model->SetPostValues();
+			$this->_ErrorView('게시판 ID는 영문 소문자와 숫자, 언더바(_)만 입력하여 주세요.');
+		}
+
+		$_POST['bid'] = $temp;
+
 		$res = $this->model->SetPostValues();
 		if(!$res->result){
 			URLReplace('-1',$res->message);

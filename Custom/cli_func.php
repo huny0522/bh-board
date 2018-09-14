@@ -77,6 +77,7 @@ function _PropertyUpdate($file){
 	if(strpos($data, $temp) === false) return \BH_Result::Init(false, $file . ' 파일에서 클래스를 찾지 못했습니다.('.$modelName.')');
 
 	if(strpos($data, '} // __Init') !== false) $data = BH_HtmlCreate::ModifyModel($data);
+	if(!$data) return BH_Result::Init(false);
 
 
 	preg_match_all('/\$this\-\>data\[[\'|\"]([a-zA-Z0-9_]+)[\'|\"]\]/', $data, $matches);

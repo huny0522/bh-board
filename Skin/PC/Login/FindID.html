@@ -1,0 +1,93 @@
+<?php if(_BH_ !== true) exit;
+
+use \BH_Common as CM;
+use \BH_Application as App;
+
+/**
+ * @var $Model
+ * @var $Ctrl
+ * @var $Data
+ */
+$fid = (App::$Action === 'FindID');
+$fTxt = $fid ? '아이디' : '비밀번호';
+App::$Title = $fTxt . ' 찾기';
+?>
+
+<div id="contents" class="findIDPW">
+	<?php if(1 || $fid){ ?>
+		<div class="findWrap">
+			<h2>아이디찾기</h2>
+			<p class="title">아이디를 찾으시려면 아래 내용을 제출하여 주세요.</p>
+			<form id="findIDForm" name="findIDForm" action="<?a. 'FindID/ID' ?>" method="post">
+				<fieldset>
+					<dl>
+						<dt>사용자 이름</dt>
+						<dd><?minp('mname') ?></dd>
+					</dl>
+					<dl>
+						<dt>이메일주소</dt>
+						<dd><?minp('email', array('required' => 'required'))?></dd>
+					</dl>
+				</fieldset>
+				<div class="bottomBtn">
+					<button type="submit" class="bBtn btn2">확인</button>
+					<a href="#" class="backbtn bBtn">취소</a>
+				</div>
+			</form>
+		</div>
+
+		<script>
+			$(document).on('submit', '#findIDForm', function(e){
+				e.preventDefault();
+				if(!$(this).validCheck()){
+					return;
+				}
+				var _this = this;
+				JCM.ajaxForm(this, function(){
+					_this.reset();
+				});
+			});
+		</script>
+	<?php } ?>
+	<?php if(1 || !$fid){ ?>
+
+		<div class="findWrap">
+			<h2>비밀번호찾기</h2>
+			<p class="title">비밀번호를 찾으시려면 아래 내용을 제출하여 주세요.</p>
+			<form id="findPWForm" name="findPWForm" action="<?a. 'FindID/PW' ?>" method="post">
+				<fieldset>
+					<dl>
+						<dt>사용자 이름</dt>
+						<dd><?minp('mname') ?></dd>
+					</dl>
+					<dl>
+						<dt>아이디</dt>
+						<dd><?minp('mid') ?></dd>
+					</dl>
+					<dl>
+						<dt>이메일주소</dt>
+						<dd><?minp('email', array('required' => 'required'))?></dd>
+					</dl>
+				</fieldset>
+				<div class="bottomBtn">
+					<button type="submit" class="bBtn btn2">확인</button>
+					<a href="#" class="backbtn bBtn">취소</a>
+				</div>
+			</form>
+		</div>
+
+		<script>
+			$(document).on('submit', '#findPWForm', function(e){
+				e.preventDefault();
+				if(!$(this).validCheck()){
+					return;
+				}
+				var _this = this;
+				JCM.ajaxForm(this, function(){
+					_this.reset();
+				});
+			});
+		</script>
+	<?php } ?>
+</div>
+

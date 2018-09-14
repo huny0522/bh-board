@@ -3,7 +3,8 @@ use \BH_Common as CM;
 use \BH_Application as App;
 
 /**
- * @var $Data \BH_DB_GetListWithPage
+ * @var \BH_DB_GetListWithPage $Data
+ * @var \Controller\Reply $Ctrl
  */
 ?>
 <?php if($Ctrl->GetAuth()){ ?>
@@ -27,7 +28,6 @@ use \BH_Application as App;
 
 			<fieldset class="text">
 				<textarea name="comment" placeholder="내용을 입력해 주세요."required ></textarea>
-
 				<div class="btn">
 					<span><button type="submit">등록</button></span>
 				</div>
@@ -35,6 +35,7 @@ use \BH_Application as App;
 
 			<div class="option">
 				<span><input type="checkbox" name="secret" value="y" id="reply_secret" /><label for="reply_secret">비밀글</label></span>
+				<?p. $Ctrl->model->_file->HTMLPrintInput() ?>
 			</div>
 
 
@@ -45,33 +46,62 @@ use \BH_Application as App;
 <div id="replyListContents">
 
 	<?php if($Data->result && $Data->totalRecord){ ?>
-			<?php foreach($Data->data as $row){?>
-			<article data-seq="<?p. $row['seq'] ?>" id="repArticle<?p. $row['seq'] ?>">
+		<?php
+		foreach($Data->data as $row){
+			$md = new ReplyModel();
+			$md->SetDBValues($row);
+			$newCommentBtnIs = $row['secretIs'] && $row['first_member_is'] != 'y' && _MEMBERIS !== true;
+			$repIcon = $row['depth'] ? '<span class="answerDoc">[답변글]</span> ' : '';
+			?>
+			<article data-seq="<?p. $row['seq'] ?>" id="repArticle<?p. $row['seq'] ?>" data-file-name="<?v. $newCommentBtnIs ? '' : $md->GetFileName('file') ?>">
 				<header>
 					<b><?v. $row['mname']; ?></b>
 					<span><?p. $row['kdate']; ?></span>
 					<div class="btns">
 						<?php if(!$row['secretIs'] && $row['delis'] != 'y'){ ?>
+							<?p. $row['recommendBtn'] ?>
+							<?p. $row['opposeButton'] ?>
+							<?p. $row['reportButton'] ?>
 							<?php if($Ctrl->GetAuth()){ ?>
 								<a href="#" class="answerBtn">답변</a>
-								<?php if($row['modifyAuth']){ ?> <a href="#" class="modifyBtn<?php if($row['modifyAuthDirect']){ ?> myDoc<?php } ?>">수정</a><?php } ?>
-								<?php if($row['deleteAuth']){ ?> <a href="#" class="deleteBtn<?php if($row['modifyAuthDirect']){ ?> myDoc<?php } ?>">삭제</a><?php } ?>
+								<?php if($row['modifyAuth']){ ?><a href="#" class="modifyBtn<?php if($row['modifyAuthDirect']){ ?> myDoc<?php } ?>">수정</a><?php } ?>
+								<?php if($row['deleteAuth']){ ?><a href="#" class="deleteBtn<?php if($row['modifyAuthDirect']){ ?> myDoc<?php } ?>">삭제</a><?php } ?>
 							<?php } ?>
 						<?php } ?>
 					</div>
 				</header>
 				<div class="comment">
-					<?php if($row['file']){ ?>
-						<div>
-							<span><img src="<?p. _UPLOAD_URL ?><?v. $row['file'] ?>" alt=""></span>
-						</div>
-					<?php } ?>
+					<?php
+					if($row['delis'] == 'n'){
+						if($row['file']){
+							$fn = $md->GetFileName('file');
+							$fp = $md->GetFilePath('file');
+							$d = explode('.', $Ctrl->model->GetFileNameByValue($row['file']));
+							$ext = strtolower(end($d));
+							if(in_array($ext, array('jpeg', 'jpg', 'gif', 'png'))){
+								?>
+								<div class="repAttach repAttachImg">
+									<span><a href="<?p. _URL . '/Board/' . App::$TID . '/RepAttachDownload/' . toBase($row['seq']) ?>" alt=""><img src="<?p. ResizeImage($fp, 300) ?>" alt=""></a></span>
+								</div>
+								<?php
+							}
+							else{
+								?>
+								<div class="repAttach repAttachFile">
+									<span><a href="<?p. _UPLOAD_URL ?><?v. $fp ?>" alt=""><?v. $fn ?></span>
+								</div>
+								<?php
+							}
+						}
+					}
+					?>
 					<p>
+						<?p. $repIcon ?>
 						<?php if($row['target_mname']){ ?>
 							<b><?v. $row['target_mname'] ?></b>
 						<?php } ?>
 						<?php if($row['secret'] == 'y'){ ?><span class="secretDoc">[비밀글]</span><?php } ?>
-						<span class="commentText"><?p. nl2br(GetDBText($row['comment'])) ?><?php if($row['secretIs'] && $row['first_member_is'] != 'y' && _MEMBERIS !== true){ ?> <a href="#" class="pwdView">글보기</a><?php } ?></span>
+						<span class="commentText"><?p. nl2br(GetDBText($row['comment'])) ?><?php if($newCommentBtnIs){ ?> <a href="#" class="pwdView">[글보기]</a><?php } ?></span>
 					</p>
 				</div>
 			</article>

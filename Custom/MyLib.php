@@ -21,7 +21,21 @@ App::$ExtendMethod['BeforeLoadController'] = function(){
 App::$ExtendMethod['AfterSetView'] = function(){
 
 };
+*/
 
 App::$SettingData['noImg'] = _UPLOAD_URL . CM::Config('Default', 'noImg');
 
-*/
+// 컨트롤러 생성 바로 다음
+App::$ExtendMethod['createControllerInstance'] = function(){
+
+	// 접속 카운터
+	$vcnt = \Common\VisitCounter::GetInstance();
+	$vcnt->InsertVisitCounter();
+
+	// 회원 정보 수정 비밀번호 입력 초기화
+	if(_MEMBERIS === true && App::$SettingData['GetUrl'][1] != 'MyPage'){
+		$_SESSION['MyInfoView'] = false;
+		unset($_SESSION['MyInfoView']);
+	}
+
+};

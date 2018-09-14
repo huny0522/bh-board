@@ -1,0 +1,46 @@
+<?php if(_BH_ !== true) exit;
+use \BH_Common as CM;
+use \BH_Application as App;
+
+/**
+ * @var $Model \MemberModel
+ */
+?>
+<div id="contents" class="register checkAllArea">
+	<h2>약관동의</h2>
+	<form name="RegisterAgreeForm" id="RegisterAgreeForm" method="post" action="<?a. App::$Action ?><?fq. '' ?>">
+
+		<fieldset>
+			<h3>이용약관</h3>
+			<div class="txt"><?vr. CM::Config('Terms_Default', 'text') ?></div>
+			<p class="chk"><label class="checkbox"><input type="checkbox" name="agree2" id="agree2" class="checkItem"><span>이용약관에 동의합니다.</span></label></p>
+		</fieldset>
+
+		<fieldset>
+			<h3>개인정보보호정책</h3>
+			<div class="txt"><?vr. CM::Config('Terms_Privacy', 'text') ?></div>
+			<p class="chk"><label class="checkbox"><input type="checkbox" name="agree1" id="agree1" class="checkItem"><span>개인정보보호정책에 동의합니다.</span></label></p>
+		</fieldset>
+
+		<p><label class="checkbox"><input type="checkbox" class="checkAll"><span>전체 동의</span></label></p>
+
+		<div class="bottomBtn">
+			<button type="submit" class="bBtn btn2">동의</button>
+			<a href="#" class="backbtn bBtn">뒤로</a>
+		</div>
+	</form>
+</div>
+<script>
+	$(document).on('submit', '#RegisterAgreeForm', function(e){
+		if(!$('#agree1')[0].checked){
+			e.preventDefault();
+			CMAlert('개인정보보호정책에 동의주시기 바랍니다.');
+			return false;
+		}
+		if(!$('#agree2')[0].checked){
+			e.preventDefault();
+			CMAlert('이용약관에 동의해주시기 바랍니다.');
+			return false;
+		}
+	});
+</script>

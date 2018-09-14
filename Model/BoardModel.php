@@ -26,22 +26,28 @@ use \BH_Application as App;
  * @property BH_ModelData $_reg_date
  * @property BH_ModelData $_hit
  * @property BH_ModelData $_recommend
+ * @property BH_ModelData $_report
+ * @property BH_ModelData $_read
+ * @property BH_ModelData $_scrap
+ * @property BH_ModelData $_oppose
  * @property BH_ModelData $_reply_cnt
  * @property BH_ModelData $_delis
  * @property BH_ModelData $_htmlis
- * @property BH_ModelData $_manager
  * @property BH_ModelData $_notice
  * @property BH_ModelData $_category
+ * @property BH_ModelData $_sub_category
+ * @property BH_ModelData $_subid
  * @property BH_ModelData $_secret
  * @property BH_ModelData $_mname
  * @property BH_ModelData $_pwd
  * @property BH_ModelData $_subject
  * @property BH_ModelData $_content
- * @property BH_ModelData $_thumnail
+ * @property BH_ModelData $_thumbnail
  * @property BH_ModelData $_file1
  * @property BH_ModelData $_file2
- * @property BH_ModelData $_filenm1
- * @property BH_ModelData $_filenm2
+ * @property BH_ModelData $_youtube
+ * @property BH_ModelData $_link1
+ * @property BH_ModelData $_link2
  */
 class BoardModel extends \BH_Model
 {
@@ -73,6 +79,10 @@ class BoardModel extends \BH_Model
 		$this->data['reg_date'] = new \BH_ModelData(ModelType::Datetime, false, '등록일');
 		$this->data['hit'] = new \BH_ModelData(ModelType::Int, false, '조회수');
 		$this->data['recommend'] = new \BH_ModelData(ModelType::Int, false, '추천수');
+		$this->data['report'] = new \BH_ModelData(ModelType::Int, false, '신고수');
+		$this->data['read'] = new \BH_ModelData(ModelType::Int, false, '회원읽음');
+		$this->data['scrap'] = new \BH_ModelData(ModelType::Int, false, '스크랩수');
+		$this->data['oppose'] = new \BH_ModelData(ModelType::Int, false, '반대수');
 		$this->data['reply_cnt'] = new \BH_ModelData(ModelType::Int, false, '댓글수');
 		$this->data['delis'] = new \BH_ModelData(ModelType::String, false, '삭제여부', HTMLType::InputRadio);
 		$this->data['delis']->EnumValues = array('n'=>'미삭제', 'y'=>'삭제');
@@ -80,14 +90,17 @@ class BoardModel extends \BH_Model
 		$this->data['htmlis'] = new \BH_ModelData(ModelType::String, false, 'HTML 여부');
 		$this->data['htmlis']->DefaultValue = 'n';
 
-		$this->data['manager'] = new \BH_ModelData(ModelType::String, false, '게시판관리자');
-
 		$this->data['notice'] = new \BH_ModelData(ModelType::Enum, false, '공지글', HTMLType::InputRadio);
 		$this->data['notice']->EnumValues = array('y'=>'사용','n'=>'사용안함');
 		$this->data['notice']->DefaultValue = 'n';
 
 		$this->data['category'] = new \BH_ModelData(ModelType::String, false, '분류');
 		$this->data['category']->MaxLength = 128;
+
+		$this->data['sub_category'] = new \BH_ModelData(ModelType::String, false, '하위분류');
+		$this->data['sub_category']->MaxLength = 128;
+
+		$this->data['subid'] = new \BH_ModelData(ModelType::String, false, '게시판 서브아이디');
 
 		$this->data['secret'] = new \BH_ModelData(ModelType::String, false, '비밀글', HTMLType::InputRadio);
 		$this->data['secret']->EnumValues = array('y'=>'사용','n'=>'사용안함');
@@ -103,20 +116,65 @@ class BoardModel extends \BH_Model
 		$this->data['subject'] = new \BH_ModelData(ModelType::String, true, '제목');
 		$this->data['subject']->MaxLength = 128;
 
-		$this->data['content'] = new \BH_ModelData(ModelType::String, false, '내용', HTMLType::Textarea);
+		$this->data['content'] = new \BH_ModelData(ModelType::Text, false, '내용', HTMLType::Textarea);
 
-		$this->data['thumnail'] = new \BH_ModelData(ModelType::String, false, '섬네일이미지', HTMLType::InputFile);
+		$this->data['thumbnail'] = new \BH_ModelData(ModelType::String, false, '섬네일이미지', HTMLType::InputFile);
 
 		$this->data['file1'] = new \BH_ModelData(ModelType::String, false, '파일#1', HTMLType::InputFileWithName);
 
 		$this->data['file2'] = new \BH_ModelData(ModelType::String, false, '파일#2', HTMLType::InputFileWithName);
 
-		$this->data['filenm1'] = new \BH_ModelData(ModelType::String, false, '파일명#1');
-		$this->data['filenm2'] = new \BH_ModelData(ModelType::String, false, '파일명#2');
+		$this->data['youtube'] = new \BH_ModelData(ModelType::String, false, '유튜브');
+
+		$this->data['link1'] = new \BH_ModelData(ModelType::String, false, '링크#1');
+
+		$this->data['link2'] = new \BH_ModelData(ModelType::String, false, '링크#2');
 
 		if(method_exists($this, '__Init2')){
 			$this->__Init2();
 		}
 	} // 자동생성불가
 
+	public function GetPrevPage($func = null){
+		$sort1 = $this->data['sort1']->txt();
+		$sort2 = $this->data['sort2']->txt();
+		$qry = DB::GetQryObj($this->table)
+			->AddWhere('secret = \'n\'')
+			->AddWhere('delis = \'n\'')
+			->AddWhere('(sort1 = %d AND sort2 > %d) OR sort1 > %d', $sort1, $sort2, $sort1)
+			->SetSort('sort1 ASC, sort2 ASC')
+			->SetKey('seq, subject');
+		if(is_callable($func)) $func($qry);
+		$data = $qry->Get();
+		if($data) $data['linkUrl'] = App::URLAction('View/' . toBase($data['seq'])) . App::GetFollowQuery();
+
+		return $data;
+	}
+
+	public function GetNextPage($func = null){
+		$sort1 = $this->data['sort1']->txt();
+		$sort2 = $this->data['sort2']->txt();
+		$qry = DB::GetQryObj($this->table)
+			->AddWhere('secret = \'n\'')
+			->AddWhere('delis = \'n\'')
+			->AddWhere('(sort1 = %d AND sort2 < %d) OR sort1 < %d', $sort1, $sort2, $sort1)
+			->SetSort('sort1 DESC, sort2 DESC')
+			->SetKey('seq, subject');
+		if(is_callable($func)) $func($qry);
+		$data = $qry->Get();
+		if($data) $data['linkUrl'] = App::URLAction('View/' . toBase($data['seq'])) . App::GetFollowQuery();
+
+		return $data;
+	}
+
+	/**
+	 * @return BH_DB_GetList
+	 */
+	public function GetNoticeQuery(){
+		return $this->NewQryName('notice')
+			->GetSetListQry('A')
+			->AddWhere('A.delis=\'n\'')
+			->AddWhere('A.notice=\'y\'')
+			->SetSort('A.seq DESC');
+	}
 }

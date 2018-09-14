@@ -39,6 +39,10 @@ class Login{
 		if($res === false){
 			URLReplace('-1', '일치하는 회원이 없습니다.');
 		}else{
+			DB::UpdateQryObj(TABLE_MEMBER)
+				->AddWhere('muid = %d', $res['muid'])
+				->SetDataStr('login_date', date('Y-m-d H:i:s'))
+				->Run();
 			$_SESSION['member'] = array();
 			$_SESSION['member']['muid'] = $res['muid'];
 			$_SESSION['member']['level'] = $res['level'];

@@ -70,7 +70,7 @@ class BH_Common
 			$path = _DATADIR.'/CFG/'.$code.'.php';
 			if(file_exists($path)){
 				$data = file_get_contents($path);
-				if(substr($data, 0, 15) == '<?php return;/*') App::$CFG[$code] = unserialize(substr($data, 15));
+				if(substr($data, 0, 15) == '<?php return;/*') App::$CFG[$code] = json_decode(substr($data, 15), true);
 				else require $path;
 			}else App::$CFG[$code] = array();
 		}
@@ -91,13 +91,13 @@ class BH_Common
 		if(!isset(App::$CFG[$code])){
 			$path = _DATADIR.'/CFG/'.$code.'.php';
 			if(file_exists($path)){
-				App::$CFG[$code] = unserialize(substr(file_get_contents($path), 15));
+				App::$CFG[$code] = json_decode(substr(file_get_contents($path), 15), true);
 			}else App::$CFG[$code] = array();
 		}
 
 		App::$CFG[$code][$key] = $val;
 		$path = _DATADIR.'/CFG/'.$code.'.php';
-		$txt = '<?php return;/*'.serialize(App::$CFG[$code]);
+		$txt = '<?php return;/*'.json_encode(App::$CFG[$code]);
 		file_put_contents($path, $txt);
 		$res->result = true;
 		return $res;
@@ -108,7 +108,7 @@ class BH_Common
 	}
 
 	// 이미지 등록
-	public static function ContentImageUpate($tid, $keyValue, $content, $mode = 'write'){
+	public static function ContentImageUpdate($tid, $keyValue, $content, $mode = 'write'){
 		$newcontent = $content['contents'];
 		$maxImage = _MAX_IMAGE_COUNT;
 		$dbKeyValue = implode('|',$keyValue);
@@ -187,8 +187,14 @@ class BH_Common
 		return true;
 	}
 
-	// 메뉴 카테고리와 컨텐츠를 연결
-	public static function MenuConnect($bid, $type){
+	/**
+	 * 메뉴 카테고리와 컨텐츠 또는 게시판을 연결
+	 *
+	 * @param $bid
+	 * @param $type
+	 * @param string $subid
+	 */
+	public static function MenuConnect($bid, $type, $subid = ''){
 		$AdminAuth = explode(',', self::GetMember('admin_auth'));
 		if(in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL){
 			if(strlen($_POST['select_menu'])){
@@ -197,40 +203,53 @@ class BH_Common
 				$mUpdate->AddWhere('category IN (%s)', $selectmenu);
 				$mUpdate->SetDataStr('type', $type);
 				$mUpdate->SetDataStr('bid', $bid);
+				$mUpdate->SetDataStr('subid', $subid);
 				$mUpdate->Run();
 
 				$mUpdate = new \BH_DB_Update(TABLE_MENU);
 				$mUpdate->AddWhere('bid = %s', $bid);
+				$mUpdate->AddWhere('subid = %s', $subid);
 				$mUpdate->AddWhere('category NOT IN (%s)', $selectmenu);
 				$mUpdate->AddWhere('type = %s', $type);
 				$mUpdate->SetDataStr('type', 'customize');
 				$mUpdate->SetDataStr('bid', '');
+				$mUpdate->SetDataStr('subid', '');
 				$mUpdate->Run();
 
 			}else{
 				$mUpdate = new \BH_DB_Update(TABLE_MENU);
 				$mUpdate->AddWhere('bid = %s', $bid);
+				$mUpdate->AddWhere('subid = %s', $subid);
 				$mUpdate->AddWhere('type = %s', $type);
 				$mUpdate->SetDataStr('type', 'customize');
 				$mUpdate->SetDataStr('bid', '');
+				$mUpdate->SetDataStr('subid', '');
 				$mUpdate->Run();
 			}
 		}
-		if(isset(App::$ExtendMethod['menuChangeAfter']) && is_callable(App::$ExtendMethod['menuChangeAfter'])){
-			$func = App::$ExtendMethod['menuChangeAfter'];
-			$func();
-		}
+		\Common\MenuHelp::GetInstance()->MenusToFile();
 	}
 
-	// 게시물 가져오기
-	public static function GetBoardArticle($bid, $category = '', $limit = 10){
+	/**
+	 * 게시물 쿼리 가져오기.
+	 * 5번째 인자부터는 배열로 where 구문을 호출할 수 있습니다.
+	 * ex) array('INSTR(mname, %s)', '홍길동')
+	 *
+	 * @param string $bid
+	 * @param string $subid
+	 * @param string $category
+	 * @param int $limit
+	 * @return BH_DB_GetList
+	 */
+	public static function GetBoardArticleQuery($bid, $subid, $category = '', $limit = 10){
 		// 리스트를 불러온다.
 		$dbList = new \BH_DB_GetList(TABLE_FIRST.'bbs_'.$bid);
+		$dbList->AddWhere('subid = %s', $subid);
 		$dbList->AddWhere('delis=\'n\'');
 		$n = func_num_args();
-		if($n > 3){
+		if($n > 4){
 			$args = func_get_args();
-			for($i = 3; $i < $n; $i++) $dbList->AddWhere($args[$i]);
+			for($i = 4; $i < $n; $i++) $dbList->AddWhere($args[$i]);
 		}
 		$dbList->sort = 'sort1, sort2';
 		$dbList->limit = $limit;
@@ -241,20 +260,48 @@ class BH_Common
 	}
 
 	/**
-	 * 배너 가져오기
+	 * 게시물 가져오기.
+	 * 5번째 인자부터는 배열로 where 구문을 호출할 수 있습니다.
+	 * ex) array('INSTR(mname, %s)', '홍길동')
+	 *
+	 * @param string $bid
+	 * @param string $subid
 	 * @param string $category
-	 * @param int $number
-	 * @param string $sort
+	 * @param int $limit
 	 * @return array
 	 */
-	public static function GetBanner($category, $number = 5, $sort = 'sort DESC, seq ASC'){
+	public static function GetBoardArticle($bid, $subid, $category = '', $limit = 10){
+		$qry = call_user_func_array('self::GetBoardArticleQuery', func_get_args());
+		$data = array();
+		$d = (self::Config('Default', 'NewIconDay')? self::Config('Default', 'NewIconDay') : 1) * 86400;
+
+		while($row = $qry->Get()){
+			if($row['secret'] == 'y') $row['subject'] = '비밀글입니다.';
+			$row['replyCount'] = $row['reply_cnt'] ? '<span class="ReplyCount">['.$row['reply_cnt'].']</span>' : '';
+			$newArticleIs = (time() - strtotime($row['reg_date']) < $d);
+			$row['secretIcon']= $row['secret'] == 'y' ? '<span class="secretDoc">[비밀글]</span> ' : '';
+			$row['newtIcon'] = $newArticleIs ? '<span class="newDoc">[새글]</span> ' : '';
+			$data[] = $row;
+		}
+		return $data;
+	}
+
+	/**
+	 * 배너 가져오기
+	 * @param string $category
+	 * @param callable $queryFunction(\BH_DB_GetList)
+	 * @return array
+	 */
+	public static function GetBanner($category, $queryFunction = null){
 		$banner = new \BH_DB_GetList(TABLE_BANNER);
 		$banner->AddWhere('begin_date <= \''.date('Y-m-d').'\'')
 			->AddWhere('end_date >= \''.date('Y-m-d').'\'')
 			->AddWhere('enabled = \'y\'')
 			->AddWhere('category = %s', $category)
-			->SetSort($sort)
-			->SetLimit($number);
+			->SetSort('sort DESC, seq ASC')
+			->SetLimit(5);
+
+		if(is_callable($queryFunction)) $queryFunction($banner);
 
 		$mlevel = _MEMBERIS === true ? $_SESSION['member']['level'] : 0;
 		$banner->AddWhere('mlevel <= '.$mlevel)
@@ -273,18 +320,19 @@ class BH_Common
 
 	/**
 	 * 팝업 가져오기
-	 * @param int $number
-	 * @param string $sort
+	 * @param callable $queryFunction
 	 * @return array
 	 */
-	public static function GetPopup($number = 5, $sort = 'sort DESC, seq ASC'){
+	public static function GetPopup($queryFunction = null){
 
 		$banner = new \BH_DB_GetList(TABLE_POPUP);
 		$banner->AddWhere('begin_date <= \''.date('Y-m-d').'\'')
 			->AddWhere('end_date >= \''.date('Y-m-d').'\'')
 			->AddWhere('enabled = \'y\'')
-			->SetSort($sort)
-			->SetLimit($number);
+			->SetSort('sort DESC, seq ASC')
+			->SetLimit(5);
+
+		if(is_callable($queryFunction)) $queryFunction($banner);
 
 		$mlevel = _MEMBERIS === true ? $_SESSION['member']['level'] : 0;
 		$banner->AddWhere('mlevel <= '.$mlevel)
@@ -303,6 +351,37 @@ class BH_Common
 			$banner->data[$k]['html'] = $html;
 		}
 		return $banner->data;
+	}
+
+	public static function Youtube($urlOrId, $width='100%', $height = '100%',  $opt = 'autoplay'){
+		$urlOrId = self::GetYoutubeId($urlOrId);
+		if($urlOrId !== false) return '<div class="youtubeFrameWrap"><iframe src="https://www.youtube.com/embed/'. $urlOrId . '?rel=0&amp;showinfo=0&amp;autohide=1" frameborder="0" allow="' . $opt .'; encrypted-media" allowfullscreen style="width:' . $width . '; height:' . $height . ';" autohide="1"></iframe></div>';
+		return '';
+	}
+
+	public static function GetYoutubeId($urlOrId){
+		$urlOrId = trim($urlOrId);
+		preg_match('/youtu\.be\/([a-zA-Z0-9\-\_]+)/', $urlOrId, $matches);
+		if(is_array($matches) && sizeof($matches) > 1){
+			$temp = explode('/', $matches[1]);
+			return end($temp);
+		}
+
+		preg_match('/youtube\.com\/embed\/([a-zA-Z0-9\-\_]+)/', $urlOrId, $matches);
+		if(is_array($matches) && sizeof($matches) > 1){
+			$temp = explode('/', $matches[1]);
+			return end($temp);
+		}
+		preg_match('/youtube\.com\/watch.*?v\=([a-zA-Z0-9\-\_]+)/', $urlOrId, $matches);
+		if(is_array($matches) && sizeof($matches) > 1){
+			$temp = explode('/', $matches[1]);
+			return end($temp);
+		}
+		return $urlOrId;
+	}
+
+	public static function SafeHtml(){
+
 	}
 
 	/* -------------------------------------------------
@@ -335,86 +414,6 @@ class BH_Common
 		$dbGet = new \BH_DB_Get($table);
 		$dbGet->AddWhere('category = %s', $parent);
 		return $dbGet->Get();
-	}
-
-	/* -------------------------------------------------
-	 *
-	 *       Menu
-	 *
-	------------------------------------------------- */
-
-	// App::$SettingData['MainMenu'], App::$SettingData['SubMenu'] 에 메인메뉴, 서브메뉴를 셋팅
-	public static function _SetMenu($Title = 'Home'){
-		if(isset(App::$SettingData['MainMenu']) && sizeof(App::$SettingData['MainMenu'])) return;
-		$Menu = self::_GetRootMenu($Title);
-		if($Menu){
-			App::$SettingData['RootC'] = $Menu['category'];
-			$menu = self::_GetSubMenu(App::$SettingData['RootC']);
-			foreach($menu as $row){
-				if(strlen($row['category']) == strlen(App::$SettingData['RootC']) + _CATEGORY_LENGTH) App::$SettingData['MainMenu'][] = $row;
-				else App::$SettingData['SubMenu'][substr($row['category'], 0, strlen($row['category']) - _CATEGORY_LENGTH)][] = $row;
-			}
-		}
-	}
-
-	public static function _GetRootMenu($title = ''){
-		$dbGet = DB::GetQryObj(TABLE_MENU)
-			->AddWhere('LENGTH(category) = '._CATEGORY_LENGTH)
-			->AddWhere('enabled = \'y\'')
-			->AddWhere('parent_enabled = \'y\'');
-		if($title) $dbGet->AddWhere('controller = %s', $title);
-		return $dbGet->Get();
-	}
-
-	public static function _GetSubMenu($key){
-		$dbGetList = DB::GetListQryObj(TABLE_MENU)
-			->AddWhere('LEFT(category, %d) = %s', strlen($key), $key)
-			->AddWhere('LENGTH(category) IN (%s)', array(strlen($key) + _CATEGORY_LENGTH, strlen($key) + _CATEGORY_LENGTH + _CATEGORY_LENGTH))
-			->AddWhere('enabled = \'y\'')
-			->AddWhere('parent_enabled = \'y\'')
-			->SetSort('sort');
-		$menu = array();
-		while($row = $dbGetList->Get()) $menu[$row['category']] = $row;
-		return $menu;
-	}
-
-	// 접근가능 메뉴인지 체크하고 라우팅함
-	public static function _SetMenuRouter($url, $start = 1){
-		if(!isset(App::$SettingData['RootC']) || !App::$SettingData['RootC']) return false;
-		$cont = App::$SettingData['GetUrl'][$start];
-		if(!$cont) $cont = _DEFAULT_CONTROLLER;
-
-		$qry = DB::GetListQryObj(TABLE_MENU)
-			->AddWhere('controller = %s', $cont)
-			->AddWhere('LEFT(category, %d) = %s', strlen(App::$SettingData['RootC']), App::$SettingData['RootC'])
-			->SetSort('LENGTH(category) DESC');
-
-		$cnt = 0;
-		while($row = $qry->Get()){
-			if($row['parent_enabled'] == 'y' && $row['enabled'] == 'y'){
-				App::$SettingData['ActiveMenu'] = $row;
-				break;
-			}
-			$cnt ++;
-		}
-
-		if(!isset(App::$SettingData['ActiveMenu']) && $cnt){
-			if(_DEVELOPERIS === true) URLReplace(-1, '접근이 불가능한 메뉴입니다.');
-			URLReplace(-1);
-		}
-
-		if(isset(App::$SettingData['ActiveMenu'])){
-			if(App::$SettingData['ActiveMenu']['type'] == 'board') App::$ControllerName = 'Board';
-			else if(App::$SettingData['ActiveMenu']['type'] == 'content') App::$ControllerName = 'Contents';
-			else App::$ControllerName = App::$SettingData['GetUrl'][$start];
-
-			App::$TID = App::$SettingData['ActiveMenu']['bid'];
-			App::$Action = App::$SettingData['GetUrl'][$start + 1];
-			App::$ID = App::$SettingData['GetUrl'][$start + 2];
-			App::$CtrlUrl = $url.'/'.App::$SettingData['GetUrl'][$start];
-			return true;
-		}
-		return false;
 	}
 
 }
