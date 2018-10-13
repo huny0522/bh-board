@@ -262,7 +262,7 @@ class {$ModelName}Model extends \\BH_Model{
 
 				if($modelType === '') $modelType = 'ModelType::String';
 
-				$initFuncText .= chr(10) . chr(10) . '$this->data[\'' . $row['Field'] . '\'] = new \\BH_ModelData(' . $modelType . ', false, \'' . ($cmt ? $cmt : $row['Field']) . '\'' . $htmlType . ');' . $addOption;
+				$initFuncText .= chr(10) . chr(10) . '$this->data[\'' . $row['Field'] . '\'] = new \\BH_ModelData(' . $modelType . ', \'' . ($cmt ? $cmt : $row['Field']) . '\'' . $htmlType . ');' . $addOption;
 			}
 
 		}

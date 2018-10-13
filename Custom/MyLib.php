@@ -33,7 +33,7 @@ App::$ExtendMethod['createControllerInstance'] = function(){
 	$vcnt->InsertVisitCounter();
 
 	// 회원 정보 수정 비밀번호 입력 초기화
-	if(_MEMBERIS === true && App::$SettingData['GetUrl'][1] != 'MyPage'){
+	if(_MEMBERIS === true && App::$SettingData['GetUrl'][1] != 'MyPage' && App::$SettingData['GetUrl'][1] != 'Upload'){
 		$_SESSION['MyInfoView'] = false;
 		unset($_SESSION['MyInfoView']);
 	}

@@ -79,9 +79,8 @@ class BH_ModelData{
 	 */
 	public $parent = null;
 
-	public function __construct($Type = ModelType::String, $Required = false, $DisplayName = '', $HtmlType = HTMLType::InputText){
+	public function __construct($Type = ModelType::String, $DisplayName = '', $HtmlType = HTMLType::InputText){
 		$this->Type = $Type;
-		$this->Required = $Required;
 		$this->DisplayName = $DisplayName;
 		if($HtmlType) $this->HtmlType = $HtmlType;
 

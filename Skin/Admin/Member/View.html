@@ -17,6 +17,14 @@ use \BH_Application as App;
 		</td>
 	</tr>
 	<tr>
+		<th><?mt('photo1')?></th>
+		<td>
+			<?php if($Model->_photo1->Value){ ?>
+				<img src="<?p. _UPLOAD_URL . $Model->_photo1->v() ?>" style="max-width:100px; max-height:100px;">
+			<?php } ?>
+		</td>
+	</tr>
+	<tr>
 		<th><?mt('mname')?></th>
 		<td>
 			<?mv('mname') ?>

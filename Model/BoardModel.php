@@ -65,70 +65,73 @@ class BoardModel extends \BH_Model
 			URLReplace(_URL.'/', '존재하지 않는 게시판입니다.');
 		}
 
-		$this->data['seq'] = new \BH_ModelData(ModelType::Int, false, '');
-		$this->data['sort1'] = new \BH_ModelData(ModelType::Int, false, '');
-		$this->data['sort2'] = new \BH_ModelData(ModelType::Int, false, '');
-		$this->data['depth'] = new \BH_ModelData(ModelType::Int, false, '');
-		$this->data['muid'] = new \BH_ModelData(ModelType::String, false, '');
-		$this->data['mlevel'] = new \BH_ModelData(ModelType::Int, false, '');
-		$this->data['target_mname'] = new \BH_ModelData(ModelType::String, false, '');
-		$this->data['target_muid'] = new \BH_ModelData(ModelType::String, false, '');
-		$this->data['first_seq'] = new \BH_ModelData(ModelType::Int, false, '');
-		$this->data['first_member_is'] = new \BH_ModelData(ModelType::String, false, '');
+		$this->data['seq'] = new \BH_ModelData(ModelType::Int, '');
+		$this->data['sort1'] = new \BH_ModelData(ModelType::Int, '');
+		$this->data['sort2'] = new \BH_ModelData(ModelType::Int, '');
+		$this->data['depth'] = new \BH_ModelData(ModelType::Int, '');
+		$this->data['muid'] = new \BH_ModelData(ModelType::String, '');
+		$this->data['mlevel'] = new \BH_ModelData(ModelType::Int, '');
+		$this->data['target_mname'] = new \BH_ModelData(ModelType::String, '');
+		$this->data['target_muid'] = new \BH_ModelData(ModelType::String, '');
+		$this->data['first_seq'] = new \BH_ModelData(ModelType::Int, '');
+		$this->data['first_member_is'] = new \BH_ModelData(ModelType::String, '');
 		$this->data['first_member_is']->EnumValues = array('y'=>'회원','n'=>'비회원');
-		$this->data['reg_date'] = new \BH_ModelData(ModelType::Datetime, false, '등록일');
-		$this->data['hit'] = new \BH_ModelData(ModelType::Int, false, '조회수');
-		$this->data['recommend'] = new \BH_ModelData(ModelType::Int, false, '추천수');
-		$this->data['report'] = new \BH_ModelData(ModelType::Int, false, '신고수');
-		$this->data['read'] = new \BH_ModelData(ModelType::Int, false, '회원읽음');
-		$this->data['scrap'] = new \BH_ModelData(ModelType::Int, false, '스크랩수');
-		$this->data['oppose'] = new \BH_ModelData(ModelType::Int, false, '반대수');
-		$this->data['reply_cnt'] = new \BH_ModelData(ModelType::Int, false, '댓글수');
-		$this->data['delis'] = new \BH_ModelData(ModelType::String, false, '삭제여부', HTMLType::InputRadio);
+		$this->data['reg_date'] = new \BH_ModelData(ModelType::Datetime, '등록일');
+		$this->data['hit'] = new \BH_ModelData(ModelType::Int, '조회수');
+		$this->data['recommend'] = new \BH_ModelData(ModelType::Int, '추천수');
+		$this->data['report'] = new \BH_ModelData(ModelType::Int, '신고수');
+		$this->data['read'] = new \BH_ModelData(ModelType::Int, '회원읽음');
+		$this->data['scrap'] = new \BH_ModelData(ModelType::Int, '스크랩수');
+		$this->data['oppose'] = new \BH_ModelData(ModelType::Int, '반대수');
+		$this->data['reply_cnt'] = new \BH_ModelData(ModelType::Int, '댓글수');
+		$this->data['delis'] = new \BH_ModelData(ModelType::String, '삭제여부', HTMLType::InputRadio);
 		$this->data['delis']->EnumValues = array('n'=>'미삭제', 'y'=>'삭제');
 		$this->data['delis']->DefaultValue = 'n';
-		$this->data['htmlis'] = new \BH_ModelData(ModelType::String, false, 'HTML 여부');
+		$this->data['htmlis'] = new \BH_ModelData(ModelType::String, 'HTML 여부');
 		$this->data['htmlis']->DefaultValue = 'n';
 
-		$this->data['notice'] = new \BH_ModelData(ModelType::Enum, false, '공지글', HTMLType::InputRadio);
+		$this->data['notice'] = new \BH_ModelData(ModelType::Enum, '공지글', HTMLType::InputRadio);
 		$this->data['notice']->EnumValues = array('y'=>'사용','n'=>'사용안함');
 		$this->data['notice']->DefaultValue = 'n';
 
-		$this->data['category'] = new \BH_ModelData(ModelType::String, false, '분류');
+		$this->data['category'] = new \BH_ModelData(ModelType::String, '분류');
 		$this->data['category']->MaxLength = 128;
 
-		$this->data['sub_category'] = new \BH_ModelData(ModelType::String, false, '하위분류');
+		$this->data['sub_category'] = new \BH_ModelData(ModelType::String, '하위분류');
 		$this->data['sub_category']->MaxLength = 128;
 
-		$this->data['subid'] = new \BH_ModelData(ModelType::String, false, '게시판 서브아이디');
+		$this->data['subid'] = new \BH_ModelData(ModelType::String, '게시판 서브아이디');
 
-		$this->data['secret'] = new \BH_ModelData(ModelType::String, false, '비밀글', HTMLType::InputRadio);
+		$this->data['secret'] = new \BH_ModelData(ModelType::String, '비밀글', HTMLType::InputRadio);
 		$this->data['secret']->EnumValues = array('y'=>'사용','n'=>'사용안함');
 		$this->data['secret']->DefaultValue = 'n';
 
-		$this->data['mname'] = new \BH_ModelData(ModelType::String, true, '이름');
+		$this->data['mname'] = new \BH_ModelData(ModelType::String, '이름');
 		$this->data['mname']->MaxLength = 32;
+		$this->data['mname']->Required = true;
 
-		$this->data['pwd'] = new \BH_ModelData(ModelType::String, true, '패스워드', HTMLType::InputPassword);
+		$this->data['pwd'] = new \BH_ModelData(ModelType::String, '패스워드', HTMLType::InputPassword);
 		$this->data['pwd']->MinLength = 6;
 		$this->data['pwd']->MaxLength = 16;
+		$this->data['pwd']->Required = true;
 
-		$this->data['subject'] = new \BH_ModelData(ModelType::String, true, '제목');
+		$this->data['subject'] = new \BH_ModelData(ModelType::String, '제목');
 		$this->data['subject']->MaxLength = 128;
+		$this->data['subject']->Required = true;
 
-		$this->data['content'] = new \BH_ModelData(ModelType::Text, false, '내용', HTMLType::Textarea);
+		$this->data['content'] = new \BH_ModelData(ModelType::Text, '내용', HTMLType::Textarea);
 
-		$this->data['thumbnail'] = new \BH_ModelData(ModelType::String, false, '섬네일이미지', HTMLType::InputFile);
+		$this->data['thumbnail'] = new \BH_ModelData(ModelType::String, '섬네일이미지', HTMLType::InputFile);
 
-		$this->data['file1'] = new \BH_ModelData(ModelType::String, false, '파일#1', HTMLType::InputFileWithName);
+		$this->data['file1'] = new \BH_ModelData(ModelType::String, '파일#1', HTMLType::InputFileWithName);
 
-		$this->data['file2'] = new \BH_ModelData(ModelType::String, false, '파일#2', HTMLType::InputFileWithName);
+		$this->data['file2'] = new \BH_ModelData(ModelType::String, '파일#2', HTMLType::InputFileWithName);
 
-		$this->data['youtube'] = new \BH_ModelData(ModelType::String, false, '유튜브');
+		$this->data['youtube'] = new \BH_ModelData(ModelType::String, '유튜브');
 
-		$this->data['link1'] = new \BH_ModelData(ModelType::String, false, '링크#1');
+		$this->data['link1'] = new \BH_ModelData(ModelType::String, '링크#1');
 
-		$this->data['link2'] = new \BH_ModelData(ModelType::String, false, '링크#2');
+		$this->data['link2'] = new \BH_ModelData(ModelType::String, '링크#2');
 
 		if(method_exists($this, '__Init2')){
 			$this->__Init2();

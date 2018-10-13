@@ -33,39 +33,42 @@ class MenuModel extends \BH_Model
 		$this->Key[] = 'category';
 		$this->table = TABLE_MENU;
 
-		$this->data['category'] = new \BH_ModelData(ModelType::String, false, '키값');
+		$this->data['category'] = new \BH_ModelData(ModelType::String, '키값');
 
-		$this->data['title'] = new \BH_ModelData(ModelType::String, true, '타이틀');
+		$this->data['title'] = new \BH_ModelData(ModelType::String, '타이틀');
 		$this->data['title']->MinLength = '1';
 		$this->data['title']->MaxLength = '64';
+		$this->data['title']->Required = true;
 
-		$this->data['sort'] = new \BH_ModelData(ModelType::Int, false, '정렬');
+		$this->data['sort'] = new \BH_ModelData(ModelType::Int, '정렬');
 
-		$this->data['type'] = new \BH_ModelData(ModelType::Enum, true, '타입', HTMLType::InputRadio);
+		$this->data['type'] = new \BH_ModelData(ModelType::Enum, '타입', HTMLType::InputRadio);
 		$this->data['type']->EnumValues = array('board' => '게시판', 'content' => '컨텐츠', 'customize' => '제작메뉴');
 		$this->data['type']->DefaultValue = 'customize';
+		$this->data['type']->Required = true;
 
-		$this->data['bid'] = new \BH_ModelData(ModelType::String, false, '아이디');
+		$this->data['bid'] = new \BH_ModelData(ModelType::String, '아이디');
 		$this->data['bid']->MaxLength = '20';
 
-		$this->data['controller'] = new \BH_ModelData(ModelType::String, false, '컨트롤명');
+		$this->data['controller'] = new \BH_ModelData(ModelType::String, '컨트롤명');
 
-		$this->data['enabled'] = new \BH_ModelData(ModelType::Enum, true, '사용여부', HTMLType::InputRadio);
+		$this->data['enabled'] = new \BH_ModelData(ModelType::Enum, '사용여부', HTMLType::InputRadio);
 		$this->data['enabled']->EnumValues = array('y' => '사용', 'n' => '사용안함');
+		$this->data['enabled']->Required = true;
 
-		$this->data['parent_enabled'] = new \BH_ModelData(ModelType::Enum, false, '부모사용여부');
+		$this->data['parent_enabled'] = new \BH_ModelData(ModelType::Enum, '부모사용여부');
 		$this->data['parent_enabled']->EnumValues = array('y' => '사용', 'n' => '사용안함');
 
-		$this->data['subid'] = new \BH_ModelData(ModelType::String, false, '서브아이디');
+		$this->data['subid'] = new \BH_ModelData(ModelType::String, '서브아이디');
 		$this->data['subid']->MaxLength = '20';
 
-		$this->data['addi_subid'] = new \BH_ModelData(ModelType::String, false, '추가 서브아이디');
+		$this->data['addi_subid'] = new \BH_ModelData(ModelType::String, '추가 서브아이디');
 		$this->data['addi_subid']->MaxLength = '256';
 
-		$this->data['board_category'] = new \BH_ModelData(ModelType::String, false, '게시판 분류');
+		$this->data['board_category'] = new \BH_ModelData(ModelType::String, '게시판 분류');
 		$this->data['board_category']->MaxLength = '32';
 
-		$this->data['board_sub_category'] = new \BH_ModelData(ModelType::String, false, '게시판 세부분류');
+		$this->data['board_sub_category'] = new \BH_ModelData(ModelType::String, '게시판 세부분류');
 		$this->data['board_sub_category']->MaxLength = '256';
 	} // __Init
 

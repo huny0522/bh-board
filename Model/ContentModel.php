@@ -31,33 +31,37 @@ class ContentModel extends \BH_Model
 		$this->Key[] = 'bid';
 		$this->table = TABLE_CONTENT;
 
-		$this->data['subject'] = new \BH_ModelData(ModelType::String, true, '제목');
+		$this->data['subject'] = new \BH_ModelData(ModelType::String, '제목');
 		$this->data['subject']->MaxLength = 128;
+		$this->data['subject']->Required = true;
 
-		$this->data['category'] = new \BH_ModelData(ModelType::String, true, '분류');
+		$this->data['category'] = new \BH_ModelData(ModelType::String, '분류');
 		$this->data['category']->MaxLength = 128;
+		$this->data['category']->Required = true;
 
-		$this->data['bid'] = new \BH_ModelData(ModelType::String, true, '아이디', HTMLType::InputEngSpecial);
+		$this->data['bid'] = new \BH_ModelData(ModelType::String, '아이디', HTMLType::InputEngSpecial);
 		$this->data['bid']->MinLength = '1';
 		$this->data['bid']->MaxLength = '20';
+		$this->data['bid']->Required = true;
 
-		$this->data['html'] = new \BH_ModelData(ModelType::String, true, '컨텐츠파일');
+		$this->data['html'] = new \BH_ModelData(ModelType::String, '컨텐츠파일');
 		$this->data['html']->MinLength = '1';
 		$this->data['html']->MaxLength = '256';
+		$this->data['html']->Required = true;
 
-		$this->data['layout'] = new \BH_ModelData(ModelType::String, false, '레이아웃');
+		$this->data['layout'] = new \BH_ModelData(ModelType::String, '레이아웃');
 		$this->data['layout']->MinLength = '1';
 		$this->data['layout']->MaxLength = '50';
 
-		$this->data['hit'] = new \BH_ModelData(ModelType::Int, false, '조회수');
+		$this->data['hit'] = new \BH_ModelData(ModelType::Int, '조회수');
 
-		$this->data['read'] = new \BH_ModelData(ModelType::Int, false, '읽음수');
-		$this->data['recommend'] = new \BH_ModelData(ModelType::Int, false, '추천수');
-		$this->data['oppose'] = new \BH_ModelData(ModelType::Int, false, '반대수');
-		$this->data['scrap'] = new \BH_ModelData(ModelType::Int, false, '스크랩수');
-		$this->data['reg_date'] = new \BH_ModelData(ModelType::Datetime, false, '등록일');
+		$this->data['read'] = new \BH_ModelData(ModelType::Int, '읽음수');
+		$this->data['recommend'] = new \BH_ModelData(ModelType::Int, '추천수');
+		$this->data['oppose'] = new \BH_ModelData(ModelType::Int, '반대수');
+		$this->data['scrap'] = new \BH_ModelData(ModelType::Int, '스크랩수');
+		$this->data['reg_date'] = new \BH_ModelData(ModelType::Datetime, '등록일');
 
-		$this->data['subscribe'] = new \BH_ModelData(ModelType::Int, false, 'subscribe');
+		$this->data['subscribe'] = new \BH_ModelData(ModelType::Int, 'subscribe');
 		$this->data['subscribe']->DefaultValue = 0;
 	} // __Init
 
