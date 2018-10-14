@@ -190,9 +190,21 @@ else $useLatLng = false;
 			<tr>
 				<th>가입 즉시 사용</th>
 				<td colspan="3">
-					<label class="radio"><input type="radio" name="joinApprove" value="n" <?p. CM::Config(App::$Data['Code'], 'joinApprove') == 'n' ? 'checked' : '' ?>><span>가입 후 관리자 승인 필요</span></label>
+					<label class="radio"><input type="radio" name="joinApprove" value="n" <?p. CM::Config(App::$Data['Code'], 'joinApprove') != 'y' ? 'checked' : '' ?>><span>가입 후 승인 필요</span></label>
 
-					<label class="radio"><input type="radio" name="joinApprove" value="y" <?p. CM::Config(App::$Data['Code'], 'joinApprove') != 'n' ? 'checked' : '' ?>><span>가입즉시 로그인 가능</span></label>
+					<label class="radio"><input type="radio" name="joinApprove" value="y" <?p. CM::Config(App::$Data['Code'], 'joinApprove') == 'y' ? 'checked' : '' ?>><span>가입즉시 로그인 가능</span></label>
+				</td>
+			</tr>
+			<tr>
+				<th>이메일 인증 사용</th>
+				<td colspan="3">
+					<label class="radio"><input type="radio" name="EmailCer" value="y" <?p. CM::Config(App::$Data['Code'], 'EmailCer') != 'n' ? 'checked' : '' ?>><span>이메일 인증 사용</span></label>
+
+					<label class="radio"><input type="radio" name="EmailCer" value="n" <?p. CM::Config(App::$Data['Code'], 'EmailCer') == 'n' ? 'checked' : '' ?>><span>이메일 인증 사용안함</span></label>
+					<ul class="guide">
+						<li>* 이메일 인증을 사용하려면 '가입 후 승인 필요'로 설정하셔야합니다.</li>
+						<li>* 이메일 인증시 승인이 자동으로 됩니다.</li>
+					</ul>
 				</td>
 			</tr>
 			<tr>

@@ -382,7 +382,9 @@ echo \BH\BHCss\BHCss::setResponseFontSizeByMin(100, 1000);
 
 	#contents.registerForm{
 		~{ width:600px; margin:50px auto; padding:20px; $box;}
+		p.alert{margin-top:20px;}
 		table.write{margin-top:20px;}
+		p.alert + table.write{margin-top:0;}
 		input{
 			~[type=text],~[type=password],~[type=tel],~[type=email],~[type=number]{width:60%;}
 			+ button{margin-left:5px;}

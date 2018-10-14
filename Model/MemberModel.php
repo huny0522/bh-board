@@ -30,6 +30,8 @@ use \BH_Application as App;
  * @property BH_ModelData $_admin_auth
  * @property BH_ModelData $_login_date
  * @property BH_ModelData $_photo1
+ * @property BH_ModelData $_pw_reset_code
+ * @property BH_ModelData $_email_code
  */
 class MemberModel extends \BH_Model
 {
@@ -89,6 +91,10 @@ class MemberModel extends \BH_Model
 		$this->data['login_date'] = new \BH_ModelData(ModelType::Date, '로그인날짜');
 
 		$this->data['photo1'] = new \BH_ModelData(ModelType::String, '사진', HTMLType::InputImageFile);
+
+		$this->data['pw_reset_code'] = new \BH_ModelData(ModelType::String, '비밀번호 변경 코드');
+
+		$this->data['email_code'] = new \BH_ModelData(ModelType::String, '이메일 인증 코드');
 	} // __Init
 
 }

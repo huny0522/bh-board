@@ -19,7 +19,7 @@ class Email
 	}
 
 	public function __construct(){
-		$this->mailer = new Mailer();
+		$this->mailer = new Mailer(_DEVELOPERIS === true ? 4 : 0);
 		App::$Data['LogoUrl'] = _UPLOAD_URL.CM::Config('Default', 'EmailLogoUrl');
 		App::$Data['HomeUrl'] = _DOMAIN;
 	}
@@ -42,6 +42,16 @@ class Email
 		$this->mailer->Send();
 	}
 
+	public function SendMailByEmailCertification($mid, $name, $code){
+		App::$Data['id'] = $mid;
+		App::$Data['name'] = $name;
+		App::$Data['code'] = $code;
+		App::$Data['subject'] = '이메일 인증';
+		$subject = '['.CM::Config('Default', 'SiteName').'] '.App::$Data['subject'];
+		$this->SetMailer($subject, $this->SetBody('CertifyEmail'));
+		$this->mailer->Send();
+	}
+
 	public function SendMailByFindPW($name, $id, $code){
 		App::$Data['id'] = $id;
 		App::$Data['code'] = $code;
@@ -61,60 +71,21 @@ class Email
 		$this->mailer->Send();
 	}
 
-	/**
-	 * @param string $email
-	 * @param string $code
-	 * @return \BH_Result
-	 */
-	public function SendMailByRegCode($email, $code){
-		$res = DB::InsertQryObj(TABLE_REGISTER_CODE)
-			->SetDataStr('email', $email)
-			->SetDataStr('code', $code)
-			->SetData('reg_date', 'NOW()')
-			->SetDataStr('reg_fin', 'n')
-			->Run();
-
-		if(!$res->result) return \BH_Result::Init(false, _DEVELOPERIS === true ? 'DB 생성 실패' : 'Error#601');
-
-		App::$Data['email'] = $email;
-		App::$Data['code'] = $code;
-		App::$Data['subject'] = '회원가입 코드입니다.';
-		$this->AddMail($email, $email);
+	public function SendMailByAnswerAlarm($name, $url, $answerName, $subject, $content){
+		App::$Data['name'] = $name;
+		App::$Data['url'] = _DOMAIN . $url;
+		App::$Data['answerName'] = $answerName;
+		App::$Data['boardsubject'] = $subject;
+		App::$Data['content'] = $content;
+		App::$Data['subject'] = $name . '님께서 작성한 게시물에 답글이 등록되었습니다.';
 		$subject = '['.CM::Config('Default', 'SiteName').'] '.App::$Data['subject'];
-		$this->SetMailer($subject, $this->SetBody('RegCode'));
-		$res = $this->mailer->Send();
-		return \BH_Result::Init($res, $res ? '' : 'ERROR#603');
-	}
-
-	public function SendMailByOrder(&$order, &$orderItem){
-		foreach($orderItem as $k => $v){
-			$orderItem[$k]['opt_name'] = str_replace('|', ' > ', $v['opt_name']);
-			$orderItem[$k]['image_s'] = _DOMAIN . _UPLOAD_URL . $orderItem[$k]['image_s'];
-		}
-
-		App::$Data['order'] = $order;
-		App::$Data['orderItem'] = $orderItem;
-		App::$Data['subject'] = '주문이 완료되었습니다.';
-
-		App::$Data['order']['order_no'] = Mall::OrderNumber(App::$Data['order']['order_seq']);
-		App::$Data['order']['order_step'] = \OrdStep::$Name[App::$Data['order']['step']];
-		if(App::$Data['order']['settle_kind'] == 'pg_vbank'){
-			App::$Data['order']['bank'] = App::$Data['order']['pg_finance_nm'].' '.
-				App::$Data['order']['pg_bank_number'].
-				' (예금주 : '.App::$Data['order']['pg_deposit_nm'].')';
-		}
-		else{
-			App::$Data['order']['bank'] = CM::Config('Default', 'bank').' '.CM::Config('Default', 'bankNumber').'(예금주:'.CM::Config('Default', 'bankName').')';
-		}
-
-		$subject = '['.CM::Config('Default', 'SiteName').'] '.App::$Data['subject'];
-		$this->SetMailer($subject, $this->SetBody('Order'));
-		$this->AddMail($order['from_email'], $order['from_name'])->mailer->Send();
+		$this->SetMailer($subject, $this->SetBody('AnswerAlarm'));
+		$this->mailer->Send();
 	}
 
 	public function &SetMailer($subject, $body){
 		$this->mailer->senderName = CM::Config('Default', 'EmailName') ? CM::Config('Default', 'EmailName') : 'mail@' . _DOMAIN;
-		$this->mailer->senderMail = CM::Config('Default', 'SendEmail') ? CM::Config('Default', 'Email') : 'mail@' . _DOMAIN;
+		$this->mailer->senderMail = CM::Config('Default', 'SendEmail') ? CM::Config('Default', 'SendEmail') : 'mail@' . _DOMAIN;
 		$this->mailer->subject = $subject;
 		$this->mailer->body = $body;
 
@@ -151,8 +122,13 @@ class Email
 
 					'/\{\=DATA\.([a-zA-Z0-9_]+?)\}/',
 					'/\{\=DATA\.([a-zA-Z0-9_]+?)\.([a-zA-Z0-9_]+?)\}/',
+
+					'/\{\==DATA\.([a-zA-Z0-9_]+?)\}/',
+					'/\{\==DATA\.([a-zA-Z0-9_]+?)\.([a-zA-Z0-9_]+?)\}/',
+
 					'/\{\=NUM_DATA\.([a-zA-Z0-9_]+?)\}/',
 					'/\{\=NUM_DATA\.([a-zA-Z0-9_]+?)\.([a-zA-Z0-9_]+?)\}/',
+
 					'/<img\s*\!\s*(.*?)\s*src=\"(.*?)\"(.*?)>/is',
 				);
 
@@ -172,9 +148,13 @@ class Email
 
 					'<?php if(isset(BH_Application::$Data[\'$1\'])) echo GetDBText(BH_Application::$Data[\'$1\']) ?>',
 					'<?php if(isset(BH_Application::$Data[\'$1\'][\'$2\'])) echo GetDBText(BH_Application::$Data[\'$1\'][\'$2\']) ?>',
-					'<?php if(isset(BH_Application::$Data[\'$1\'])) echo number_format(GetDBText(BH_Application::$Data[\'$1\'])) ?>',
 
+					'<?php if(isset(BH_Application::$Data[\'$1\'])) echo BH_Application::$Data[\'$1\'] ?>',
+					'<?php if(isset(BH_Application::$Data[\'$1\'][\'$2\'])) echo BH_Application::$Data[\'$1\'][\'$2\'] ?>',
+
+					'<?php if(isset(BH_Application::$Data[\'$1\'])) echo number_format(GetDBText(BH_Application::$Data[\'$1\'])) ?>',
 					'<?php if(isset(BH_Application::$Data[\'$1\'][\'$2\'])) echo number_format(GetDBText(BH_Application::$Data[\'$1\'][\'$2\'])) ?>',
+
 					'<img $1 src="' . _DOMAIN . _URL . '$2" $3>',
 				);
 				file_put_contents($convertHtml, preg_replace($patterns, $replace, $body));

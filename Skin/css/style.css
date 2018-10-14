@@ -458,7 +458,9 @@ ul.boardSelectForW li a:hover{background:#3c4155; border-color:#828b99; color:#f
 #contents.register form > p{padding:10px 0; margin-top:20px; border:1px solid #b8c2cc; border-width:1px 0; text-align:center; font-weight:700; font-size:13px;}
 
 #contents.registerForm{width:600px; margin:50px auto; padding:20px; background:#fff; -webkit-box-shadow:2px 2px 3px rgba(0,0,0,0.2); -moz-box-shadow:2px 2px 3px rgba(0,0,0,0.2); box-shadow:2px 2px 3px rgba(0,0,0,0.2);}
+#contents.registerForm p.alert{margin-top:20px;}
 #contents.registerForm table.write{margin-top:20px;}
+#contents.registerForm p.alert + table.write{margin-top:0;}
 #contents.registerForm input[type=text],#contents.registerForm input[type=password],#contents.registerForm input[type=tel],#contents.registerForm input[type=email],#contents.registerForm input[type=number]{width:60%;}
 #contents.registerForm input + button{margin-left:5px;}
 

@@ -99,6 +99,8 @@ class MyPage{
 	}
 
 	public function PostMyInfo(){
+		if($_SESSION['member']['level'] >= _ADMIN_LEVEL) URLRedirect(-1, '관리자는 관리자페이지에서 수정이 가능합니다.');
+
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
 			URLReplace(_URL.'/', _MSG_WRONG_CONNECTED);
 		}
@@ -133,6 +135,8 @@ class MyPage{
 	}
 
 	public function WithDraw(){
+		if($_SESSION['member']['level'] >= _ADMIN_LEVEL) URLRedirect(-1, '관리자는 탈퇴가 불가능합니다.');
+
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
 			App::$Html = 'Password.html';
 			App::View();
@@ -142,8 +146,10 @@ class MyPage{
 	}
 
 	public function PostWithDraw(){
+		if($_SESSION['member']['level'] >= _ADMIN_LEVEL) URLRedirect(-1, '관리자는 탈퇴가 불가능합니다.');
+
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
-			URLReplace(_URL.'/', _MSG_WRONG_CONNECTED . '?');
+			URLReplace(_URL.'/', _MSG_WRONG_CONNECTED);
 		}
 
 		$res = Member::_Withdraw($_SESSION['member']['muid'], Post('withdraw_reason'));

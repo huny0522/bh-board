@@ -4,37 +4,34 @@ use \BH_Common as CM;
 use \BH_Application as App;
 
 /**
- * @var $Model
+ * @var $Model MemberModel
  * @var $Ctrl
  * @var $Data
  */
 App::$Title = '비밀번호 변경';
+$Model->_pw_reset_code->Value = Get('code');
 ?>
-
-<div class="contents findIDPW resetPW">
-	<header class="contentsHeader">
-		<h2><?p. App::$Title ?></h2>
-		<div class="contentsNav">홈 &gt; <?p. App::$Title ?></div>
-	</header>
+<div id="contents" class="registerForm">
+	<h2><?p. App::$Title ?></h2>
 	<form id="resetPWForm" name="resetPWForm" action="<?a. App::$Action ?>" method="post">
-		<fieldset>
-			<dl>
-				<dt>사용자 아이디</dt>
-				<dd><?minp('mid', array('required' => 'required', 'placeholder' => '본인 계정의 아이디를 입력하여 주세요.')) ?></dd>
-			</dl>
-			<dl>
-				<dt>암호 변경 코드</dt>
-				<dd><?minp('pw_reset_code', array('required' => 'required', 'placeholder' => '발급받은 코드를 입력하여 주세요.')) ?></dd>
-			</dl>
-			<dl>
-				<dt>새로운 비밀번호</dt>
-				<dd><?minp('pwd', array('required' => 'required', 'placeholder' => '새로운 비밀번호를 입력하여 주세요.'))?></dd>
-			</dl>
-			<dl>
-				<dt>비밀번호 확인</dt>
-				<dd><input type="password" name="chkpwd" value="" data-same="pwd" placeholder="비밀번호를 다시 한번 입력해 주세요." required></dd>
-			</dl>
-		</fieldset>
+		<table class="write">
+			<tr>
+				<th>사용자 아이디</th>
+				<td><?minp('mid', array('required' => 'required', 'placeholder' => '본인 계정의 아이디를 입력하여 주세요.')) ?></td>
+			</tr>
+			<tr>
+				<th>암호 변경 코드</th>
+				<td><?minp('pw_reset_code', array('required' => 'required', 'placeholder' => '발급받은 코드를 입력하여 주세요.')) ?></td>
+			</tr>
+			<tr>
+				<th>새로운 비밀번호</th>
+				<td><?minp('pwd', array('required' => 'required', 'placeholder' => '새로운 비밀번호를 입력하여 주세요.'))?></td>
+			</tr>
+			<tr>
+				<th>비밀번호 확인</th>
+				<td><input type="password" name="chkpwd" value="" data-same="pwd" placeholder="비밀번호를 다시 한번 입력해 주세요." required></td>
+			</tr>
+		</table>
 		<div class="bottomBtn"><button type="submit" class="bBtn btn2">확인</button></div>
 	</form>
 </div>

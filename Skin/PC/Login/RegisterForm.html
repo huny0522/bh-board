@@ -10,7 +10,7 @@ use \BH_Application as App;
 
 <div id="contents" class="registerForm">
 	<h2>회원정보 입력</h2>
-	<form name="RegisterForm" id="RegisterForm" method="post" action="<?a. App::$Action ?>Process">
+	<form name="RegisterForm" id="RegisterForm" method="post" action="RegisterProcess">
 
 		<?php if(isset(App::$Data['alertMsg'])) echo '<p class="alert">'.App::$Data['alertMsg'].'</p>'; ?>
 		<table class="write">

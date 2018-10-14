@@ -10,6 +10,7 @@ use \BH_Application as App;
 use \BH_Common as CM;
 use Common\ArticleAction;
 use Common\MenuHelp;
+use Custom\Email;
 use \DB as DB;
 
 class Board{
@@ -744,7 +745,7 @@ class Board{
 
 			$qry = DB::GetQryObj($this->model->table)
 				->AddWhere('seq=%d', to10(Post('target')))
-				->SetKey('mname, depth, muid, target_muid, sort1, sort2', 'seq', 'first_seq', 'first_member_is', 'category', 'sub_category', 'delis', 'subid');
+				->SetKey('mname, email, email_alarm, depth, muid, target_muid, sort1, sort2', 'seq', 'first_seq', 'first_member_is', 'category', 'sub_category', 'delis', 'subid');
 			$this->_CommonQry($qry);
 			App::$Data['targetData'] = $qry->Get();
 			if(!$this->AdminPathIs){
@@ -787,6 +788,7 @@ class Board{
 		if(_MEMBERIS === true){
 			$this->model->SetValue('muid', $_SESSION['member']['muid']);
 			$this->model->SetValue('mlevel', $member['level']);
+			$this->model->SetValue('email', $member['email']);
 			$this->model->SetValue('mname', $member['nickname'] ? $member['nickname'] : ($member['mname'] ? $member['mname'] : $member['mid']));
 		}
 
@@ -848,7 +850,19 @@ class Board{
 		if($result->result){
 			$this->_ContentImageUpdate(Post('content'), $res->id);
 			$this->_PostWriteInsertAfter($res->id);  // Reserved
-			if(_AJAXIS === true) JSON(true, '', '등록되었습니다.');
+
+			// 알람
+			if(class_exists('PHPMailer\\PHPMailer\\PHPMailer') && App::$Action == 'Answer' && App::$Data['targetData']['email_alarm'] == 'y' && strlen(App::$Data['targetData']['email'])){
+				$mail = new Email();
+				$mail->AddMail(App::$Data['targetData']['email'], App::$Data['targetData']['mname']);
+				if($this->AdminPathIs) $url = _URL . '/Board/' . $this->bid . '-'. $this->subid . '/View/' . toBase($res->id);
+				else $url = App::URLAction('View/' . toBase($res->id));
+				$mail->SendMailByAnswerAlarm(App::$Data['targetData']['mname'], $url, $this->model->_mname->Value, $this->model->_subject->Value, ($this->model->_htmlis->Value === 'y' ? $this->model->_content->vRaw() : $this->model->_content->vBr()));
+			}
+
+			if(_AJAXIS === true){
+				JSON(true, '', '등록되었습니다.');
+			}
 			else URLReplace(App::URLAction(), '등록되었습니다.');
 		}else{
 			if(_AJAXIS === true) JSON(false, $result->message ? $result->message : 'ERROR');

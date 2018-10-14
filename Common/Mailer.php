@@ -32,7 +32,6 @@ class Mailer
 	public function __construct($debug = 0){
 		$this->mailer = new PHPMailer();
 		$this->mailer->SMTPDebug = $debug;
-		$this->mailer->isSMTP();
 		$this->mailer->isHTML(true);
 		$this->mailer->CharSet = 'UTF-8';
 	}
@@ -44,6 +43,7 @@ class Mailer
 	}
 
 	public function SendGMail(){
+		$this->mailer->isSMTP();
 		$this->mailer->Host = 'smtp.gmail.com';
 		$this->mailer->Port = 587;
 		$this->mailer->SMTPAuth = true;
@@ -57,6 +57,7 @@ class Mailer
 	public function DefaultSendMail(){
 		$this->mailer->Username = $this->senderName;
 		$this->mailer->CharSet="UTF-8";
+		$this->mailer->isMail();
 		return $this->SendMail();
 	}
 
@@ -82,6 +83,10 @@ class Mailer
 		$this->mailer->Body = $this->body;
 
 		if(!$this->mailer->send()) {
+			if(_DEVELOPERIS === true){
+				echo var_dump($this->mailer->ErrorInfo);
+				exit;
+			}
 			return false;
 		}
 		return true;

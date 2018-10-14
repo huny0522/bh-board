@@ -1,6 +1,7 @@
 {
     "require": {
         "blueimp/jquery-file-upload": "^9.21",
-        "chrisjean/php-ico": "1.0.4"
+        "chrisjean/php-ico": "1.0.4",
+        "phpmailer/phpmailer": "~6.0"
     }
 }

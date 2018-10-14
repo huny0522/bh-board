@@ -161,7 +161,7 @@ class Member{
 	}
 
 	public function PostWithdraw(){
-		$res = Member::_Withdraw($_SESSION['member']['muid'], '관리자 권한 회원 탈퇴처리');
+		$res = Member::_Withdraw(Post('muid'), '관리자 권한 회원 탈퇴처리');
 		if(!$res->result) URLRedirect(-1, $res->message ? $res->message : '탈퇴 오류');
 		else URLRedirect(App::URLAction('').App::GetFollowQuery(), '탈퇴처리되었습니다.');
 	}
@@ -210,6 +210,10 @@ class Member{
 	public static function _Withdraw($muid, $reason){
 		$model = new \MemberModel();
 		$model->DBGet($muid);
+		if($model->_level->Value >= _ADMIN_LEVEL && $model->_level->Value >= $_SESSION['member']['level']){
+			return \BH_Result::Init(false, '관리자는 탈퇴가 불가능합니다.');
+		}
+
 		$dbInsert = new \BH_DB_Insert(TABLE_WITHDRAW_MEMBER);
 		$dbInsert->SetData('muid', $model->GetValue('muid'));
 		$dbInsert->SetDataStr('mid', $model->GetValue('mid'));
@@ -223,7 +227,7 @@ class Member{
 		$dbInsert->SetData('w_date', 'NOW()');
 
 		foreach($model->data as $k => $v){
-			if($k == 'muid') continue;
+			if($k == 'muid' || $k == 'nickname' || $k == 'email' || $k == 'mid') continue;
 			$v->SetMinLength(false);
 			$v->SetMinValue(false);
 			$v->SetRequired(false);
@@ -245,6 +249,12 @@ class Member{
 		}
 
 		$model->_withdraw->SetValue('y');
+		$model->_email->SetValueIsQuery(true);
+		$model->_email->SetValue('NULL');
+		$model->_mid->SetValueIsQuery(true);
+		$model->_mid->SetValue('NULL');
+		$model->_nickname->SetValueIsQuery(true);
+		$model->_nickname->SetValue('NULL');
 
 		$err = $model->GetErrorMessage();
 		if(sizeof($err)) return (object)array('result' => false, 'message' => $err[0]);

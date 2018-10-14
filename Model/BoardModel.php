@@ -33,6 +33,8 @@ use \BH_Application as App;
  * @property BH_ModelData $_reply_cnt
  * @property BH_ModelData $_delis
  * @property BH_ModelData $_htmlis
+ * @property BH_ModelData $_email_alarm
+ * @property BH_ModelData $_email
  * @property BH_ModelData $_notice
  * @property BH_ModelData $_category
  * @property BH_ModelData $_sub_category
@@ -87,8 +89,16 @@ class BoardModel extends \BH_Model
 		$this->data['delis'] = new \BH_ModelData(ModelType::String, '삭제여부', HTMLType::InputRadio);
 		$this->data['delis']->EnumValues = array('n'=>'미삭제', 'y'=>'삭제');
 		$this->data['delis']->DefaultValue = 'n';
-		$this->data['htmlis'] = new \BH_ModelData(ModelType::String, 'HTML 여부');
+
+		$this->data['htmlis'] = new \BH_ModelData(ModelType::Enum, 'HTML 여부');
 		$this->data['htmlis']->DefaultValue = 'n';
+		$this->data['htmlis']->EnumValues = array('y'=>'사용','n'=>'사용안함');
+
+		$this->data['email_alarm'] = new \BH_ModelData(ModelType::Enum, '이메일 알림 여부', HTMLType::InputRadio);
+		$this->data['email_alarm']->EnumValues = array('y'=>'알림 받음','n'=>'알림 받지 않음');
+		$this->data['email_alarm']->DefaultValue = 'y';
+
+		$this->data['email'] = new \BH_ModelData(ModelType::String, '이메일', HTMLType::InputEmail);
 
 		$this->data['notice'] = new \BH_ModelData(ModelType::Enum, '공지글', HTMLType::InputRadio);
 		$this->data['notice']->EnumValues = array('y'=>'사용','n'=>'사용안함');
