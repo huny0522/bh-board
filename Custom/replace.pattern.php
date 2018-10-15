@@ -94,7 +94,7 @@ BH_Application::$SettingData['_replace_replace'] = array(
 	// mv()
 	'<?php echo $Model->data[$1]->DisplayName; ?>',
 	'<?php echo $Model->data[$1]->txt(); ?>',
-	'<?php echo $Model->data[$1]->sv(); ?>',
+	'<?php echo $Model->data[$1]->safe(); ?>',
 	'<?php echo $Model->data[$1]->num(); ?>',
 	'<?php echo $Model->data[$1]->vRaw(); ?>',
 
@@ -106,7 +106,7 @@ BH_Application::$SettingData['_replace_replace'] = array(
 	// mv.modelName()
 	'<?php echo $Ctrl->$1->data[$2]->DisplayName; ?>',
 	'<?php echo $Ctrl->$1->data[$2]->txt(); ?>',
-	'<?php echo $Ctrl->$1->data[$2]->sv(); ?>',
+	'<?php echo $Ctrl->$1->data[$2]->safe(); ?>',
 	'<?php echo $Ctrl->$1->data[$2]->num(); ?>',
 	'<?php echo $Ctrl->$1->data[$2]->vRaw(); ?>',
 

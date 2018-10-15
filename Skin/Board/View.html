@@ -13,7 +13,7 @@ App::JSAdd('reply.js', 200);
 	<header>
 		<div>
 			<?php if($Model->GetValue('category')){ ?>
-				<b>[<?p. $Model->_category->v() . ($Model->_sub_category->Value ? ' - ' . $Model->_sub_category->v() : '') ?>]</b>
+				<b>[<?p. $Model->_category->safe() . ($Model->_sub_category->Value ? ' - ' . $Model->_sub_category->safe() : '') ?>]</b>
 			<?php } ?>
 			<?mv('subject') ?>
 		</div>

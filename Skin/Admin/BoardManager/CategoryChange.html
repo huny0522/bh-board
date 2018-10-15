@@ -28,7 +28,7 @@ use \BH_Application as App;
 <?php if(sizeof(App::$Data['category'])){ ?>
 	<h3>카테고리명 변경</h3>
 	<form id="ctchForm" name="ctchForm" method="post" action="<?a. 'CategoryChange' ?>">
-		<input type="hidden" name="bid" value="<?p. $Model->_bid->v() ?>">
+		<input type="hidden" name="bid" value="<?p. $Model->_bid->safe() ?>">
 		<fieldset class="writeField">
 			<dl>
 				<dt>카테고리명</dt>

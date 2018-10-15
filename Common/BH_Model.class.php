@@ -22,6 +22,7 @@ class ModelType{
 
 class HTMLType{
 	const InputText = 'text';
+	const InputNumber = 'number';
 	const InputPassword = 'password';
 	const InputRadio = 'radio';
 	const InputCheckbox = 'checkbox';
@@ -113,7 +114,7 @@ class BH_ModelData{
 	 *
 	 * @return string
 	 */
-	public function sv(){
+	public function safe(){
 		if(!isset($this->Value)) return '';
 		if($this->Type == ModelType::Enum) return GetDBText($this->GetEnumValues());
 		return GetDBText($this->Value);
@@ -135,15 +136,6 @@ class BH_ModelData{
 	 */
 	public function num(){
 		return isset($this->Value) ? number_format($this->Value) : 0;
-	}
-
-	/**
-	 * 실제 등록된 원본값을 반환(htmlspecialchars)
-	 *
-	 * @return string|null
-	 */
-	public function sTxt(){
-		return isset($this->Value) ? GetDBText($this->Value) : NULL;
 	}
 
 	/**
@@ -180,59 +172,6 @@ class BH_ModelData{
 		}
 		else if(isset($this->EnumValues[$val])) return $this->EnumValues[$val];
 		else return '';
-	}
-
-	/**
-	 * 값을 반환(enum은 해당 값을 반환)
-	 *
-	 * @return string
-	 */
-	public function GetValue(){
-		if(!isset($this->Value)) return '';
-		if($this->Type == ModelType::Enum) return $this->GetEnumValues();
-		return $this->Value;
-	}
-
-	/**
-	 * 값을 반환(enum은 해당 값을 반환, htmlspecialchars)
-	 *
-	 * @return string
-	 */
-	public function GetSafeValue(){
-		if(!isset($this->Value)) return '';
-		if($this->Type == ModelType::Enum) return GetDBText($this->GetEnumValues());
-		return GetDBText($this->Value);
-	}
-
-	/**
-	 * 값을 반환(html 태그 출력)
-	 *
-	 * @return string
-	 */
-	public function GetSafeRawValue(){
-		if(!isset($this->Value)) return '';
-		if($this->Type == ModelType::Enum) return GetDBRaw($this->GetEnumValues());
-		return GetDBRaw($this->Value);
-	}
-
-	/**
-	 * 값을 반환(htmlspecialchars, nl2br)
-	 *
-	 * @return string
-	 */
-	public function GetSafeBRValue(){
-		if(!isset($this->Value)) return '';
-		if($this->Type == ModelType::Enum) return nl2br(GetDBText($this->GetEnumValues()));
-		return nl2br(GetDBText($this->Value));
-	}
-
-	/**
-	 * 실제 등록된 원본값을 반환
-	 *
-	 * @return string|null
-	 */
-	public function GetNativeValue(){
-		return isset($this->Value) ? $this->Value : NULL;
 	}
 
 	public function &SetValue($v){

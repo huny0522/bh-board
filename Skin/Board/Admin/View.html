@@ -17,8 +17,8 @@ App::JSAdd('reply.js', 200);
 	<header>
 		<div>
 			<?php
-			if($Model->GetValue('sub_category')) echo '<b>[' . $Model->_sub_category->v() . ']</b>';
-			else if($Model->GetValue('category')) echo '<b>[' . $Model->_category->v() . ']</b>';
+			if($Model->GetValue('sub_category')) echo '<b>[' . $Model->_sub_category->safe() . ']</b>';
+			else if($Model->GetValue('category')) echo '<b>[' . $Model->_category->safe() . ']</b>';
 			?>
 			<?mv('subject') ?>
 		</div>
