@@ -33,6 +33,7 @@ use \BH_Application as App;
 </form>
 
 <script>
+	<?p. CM::TinyMCEScript() ?>
 	SE2_paste('text', '<?php _URL ?>', true);
 
 	$(document).on('submit', '#ConfigForm', function(e){

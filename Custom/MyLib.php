@@ -21,6 +21,9 @@ App::$ExtendMethod['BeforeLoadController'] = function(){
 App::$ExtendMethod['AfterSetView'] = function(){
 
 };
+
+// tinymce 에디터 경로
+App::$SettingData['tinyMCEPath'] = _SKINURL . '/js/tinymce/tinymce.min.js';
 */
 
 App::$SettingData['noImg'] = _UPLOAD_URL . CM::Config('Default', 'noImg');

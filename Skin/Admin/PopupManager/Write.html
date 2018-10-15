@@ -120,6 +120,7 @@ use \BH_Application as App;
 </form>
 
 <script>
+	<?p. CM::TinyMCEScript() ?>
 	$(document).ready(function(){
 		typeView('<?p. $Model->data['type']->txt() ?>');
 	});

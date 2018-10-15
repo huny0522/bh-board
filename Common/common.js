@@ -1649,6 +1649,10 @@ function datepicker() {
 var oEditors = [];
 var SE2LoadIs = false;
 function SE2_paste(id, defaultfolder, hiddenBtns){
+	if(tinyMCEHelper.useTinyMce){
+		tinyMCEHelper.Paste(id, defaultfolder, hiddenBtns);
+		return;
+	}
 	var scriptLoadIs = typeof(nhn) !== 'undefined' && typeof(nhn.husky) !== 'undefined' && typeof(nhn.husky.EZCreator) !== 'undefined';
 	if(scriptLoadIs){
 		SE2LoadIs = true;
@@ -1818,8 +1822,99 @@ $(document).on('submit','#fileupfrm',function(e){
 });
 
 function SE2_update(id){
+	if(tinyMCEHelper.useTinyMce) return;
 	oEditors.getById[id].exec("UPDATE_CONTENTS_FIELD", []);	// 에디터의 내용이 textarea에 적용됩니다.
 }
+
+/* -------------------------------------------
+ *
+ *   tinymce
+ *
+ ------------------------------------------- */
+var tinyMCEHelper = {
+	useTinyMce : false,
+	tinyMCELoadIs : false,
+	tinyMCEPath : '',
+	plugin : 'advlist autolink link image lists charmap print preview media emoticons',
+	toolbar : 'undo redo | styleselect | bold italic | alignleft aligncenter alignright | bulllist numlist outdent indent | link image media emoticons',
+	mobileToolbar : 'undo bold italic link image bullist styleselect forecolor',
+	language : 'ko_KR',
+	Paste : function(id, defaultfolder, hiddenimage){
+		var _this = this;
+		var scriptLoadIs = typeof(tinymce) !== 'undefined';
+		if(scriptLoadIs){
+			_this.tinyMCELoadIs = true;
+			_tmPaste(id, defaultfolder, hiddenimage);
+		}
+		else{
+			if(!_this.tinyMCELoadIs){
+				_this.tinyMCELoadIs = true;
+				$('body').append('<script src="' + _this.tinyMCEPath + '"></script>');
+			}
+			setTimeout(function(){
+				_this.Paste(id, defaultfolder, hiddenimage);
+			}, 200);
+		}
+
+		function _tmPaste(id, defaultfolder, hiddenimage){
+			var p = _this.plugin;
+			var t = _this.toolbar;
+			var mt = _this.mobileToolbar;
+			if(hiddenimage === true){
+				p = p.replace(/image/, '');
+				t = t.replace(/image/, '');
+				mt = mt.replace(/image/, '');
+				mt = mt.replace(/\s\s/, ' ').split(' ');
+			}
+			tinymce.init({
+				selector: "#" + id,  // change this value according to your HTML
+				language: _this.language,
+				relative_urls : false,
+				plugins: p,
+				toolbar : t,
+				mobile: {
+					theme: 'mobile',
+					toolbar: mt
+				},
+				images_upload_credentials: true,
+				images_upload_handler: function (blobInfo, success, failure) {
+					var xhr, formData;
+
+					xhr = new XMLHttpRequest();
+					xhr.withCredentials = false;
+					xhr.open('POST', defaultfolder + '/Upload/ImageUpload');
+
+					xhr.onload = function() {
+						var json;
+
+						if (xhr.status < 200 || xhr.status >= 300) {
+							failure('HTTP Error: ' + xhr.status);
+							return;
+						}
+
+						json = JSON.parse(xhr.responseText);
+
+						if (!json || !json.result || typeof json.data.path != 'string') {
+							failure('Invalid JSON: ' + xhr.responseText);
+							return;
+						}
+
+						var hinp = '<input type="hidden" name="addimg[]" value="'+json.data.path+'|'+json.data.fname+'">';
+						$("#" + id).after(hinp);
+						success(json.data.uploadDir + json.data.path);
+					};
+
+					formData = new FormData();
+					var fileName = ( typeof(blobInfo.blob().name) !== undefined ) ? blobInfo.blob().name : blobInfo.filename();
+					formData.append('Filedata', blobInfo.blob(), fileName);
+
+					xhr.send(formData);
+				}
+			});
+		}
+	}
+};
+
 
 /* -------------------------------------------
  *

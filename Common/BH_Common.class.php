@@ -380,8 +380,13 @@ class BH_Common
 		return $urlOrId;
 	}
 
-	public static function SafeHtml(){
+	public static function TinyMCEScript(){
+		if(self::TinyMCEUseIs()) return 'tinyMCEHelper.tinyMCEPath = \'' . App::$SettingData['tinyMCEPath'] . '\'; tinyMCEHelper.useTinyMce = true;';
+		else return '';
+	}
 
+	public static function TinyMCEUseIs(){
+		return (isset(App::$SettingData['tinyMCEPath']) && strlen(App::$SettingData['tinyMCEPath']) && file_exists(_DIR . App::$SettingData['tinyMCEPath']) && self::Config('Default', 'htmlEditor') == 'tinymce');
 	}
 
 	/* -------------------------------------------------
