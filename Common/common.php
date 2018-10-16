@@ -317,6 +317,7 @@ function GetNextMonth($month, $year = false){
 function Download($path, $fname){
 	$temp = explode('/', $path);
 	if(!$fname) $fname = $temp[sizeof($temp) - 1];
+	$fname = mb_convert_encoding($fname, 'cp949', 'utf-8');
 
 	App::$Layout = null;
 
