@@ -12,7 +12,6 @@ $useLatLng = true;
 if(strlen($NaverClientId)){
 	App::JSAdd('https://openapi.map.naver.com/openapi/v3/maps.js?clientId='. $NaverClientId . '&submodules=geocoder');
 }
-else $useLatLng = false;
 ?>
 
 <h2><?p. AdminTitleSet() ?></h2>
@@ -272,50 +271,45 @@ else $useLatLng = false;
 	</div>
 </form>
 <script>
-	$('#insertLocBtn').on('click', function(){
-		$('#defaultLocInp').val('<?p. App::$SettingData['koreaDo'] ?>');
+	$(document).on('submit', '#ConfigForm', function(e){
+		var res = $(this).validCheck();
+		if(!res){
+			e.preventDefault();
+			return false;
+		}
 	});
 
-	$(document).on('submit', '#ConfigForm', function(e){
-		if(this.hasAttribute('data-ready')){
-			return true;
-		}
-		e.preventDefault();
-		var form = this;
-		var res = $(this).validCheck();
-		if(!res) return false;
+	$(document).on('click', '#findAddressBtn1', App.FindDaumAddress);
 
-		var addr1 = $.trim($('#MD_address1').val());
-		var addr2 = $.trim($('#MD_address2').val());
+	<?php if($useLatLng){ ?>
+	$('#MD_address2, #MD_address2').on('focusout', function(){
+		if(!this.hasAttribute('data-before') || $(this).attr('data-before') !== $(this).val()){
 
-		<?php if($useLatLng){ ?>
-		if(addr1 === '' || addr2 === ''){
-			$('#MD_lat').val('');
-			$('#MD_lng').val('');
-			$(form).attr('data-ready', 'y');
-			$('#ConfigForm').submit();
-			return;
-		}
+			var addr1 = $.trim($('#MD_address1').val());
+			var addr2 = $.trim($('#MD_address2').val());
 
-		<?php if(strlen($NaverClientId)){ ?>
-		var addressToLoc = App.AddressToLocByNaver;
-		<?php }else{ ?>
-		var addressToLoc = App.AddressToLocByGoogle;
-		<?php } ?>
-		addressToLoc(addr1, addr2, function(lat, lng){
-			if(lat === false){
-				CMAlert('입력하신 주소로 위도와 경도의 확인이 불가능합니다.');
+			if(addr1 === '' || addr2 === ''){
+				$('#MD_lat').val('');
+				$('#MD_lng').val('');
 				return;
 			}
-			$('#MD_lat').val(lat);
-			$('#MD_lng').val(lng);
-			$(form).attr('data-ready', 'y');
-			$('#ConfigForm').submit();
-		});
-		<?php }else{ ?>
-		$(form).attr('data-ready', 'y');
-		$('#ConfigForm').submit();
-		<?php } ?>
+
+			<?php if(strlen($NaverClientId)){ ?>
+			var addressToLoc = App.AddressToLocByNaver;
+			<?php }else{ ?>
+			var addressToLoc = App.AddressToLocByGoogle;
+			<?php } ?>
+			addressToLoc(addr1, addr2, function(lat, lng){
+				console.log(lat,lng);
+				if(lat === false){
+					$('#MD_lat').val('');
+					$('#MD_lng').val('');
+					return;
+				}
+				$('#MD_lat').val(lat);
+				$('#MD_lng').val(lng);
+			});
+		}
 	});
-	$(document).on('click', '#findAddressBtn1', App.FindDaumAddress);
+	<?php } ?>
 </script>

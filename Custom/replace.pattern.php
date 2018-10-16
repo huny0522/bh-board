@@ -96,9 +96,9 @@ BH_Application::$SettingData['_replace_replace'] = array(
 	'<?php echo $Model->data[$1]->txt(); ?>',
 	'<?php echo $Model->data[$1]->safe(); ?>',
 	'<?php echo $Model->data[$1]->num(); ?>',
-	'<?php echo $Model->data[$1]->vRaw(); ?>',
+	'<?php echo $Model->data[$1]->safeRaw(); ?>',
 
-	'<?php echo $Model->data[$1]->vBr(); ?>',
+	'<?php echo $Model->data[$1]->safeBr(); ?>',
 
 	'<?php echo $Model->HTMLPrintInput($1); ?>',
 	'<?php echo $Model->HTMLPrintEnum($1); ?>',
@@ -108,9 +108,9 @@ BH_Application::$SettingData['_replace_replace'] = array(
 	'<?php echo $Ctrl->$1->data[$2]->txt(); ?>',
 	'<?php echo $Ctrl->$1->data[$2]->safe(); ?>',
 	'<?php echo $Ctrl->$1->data[$2]->num(); ?>',
-	'<?php echo $Ctrl->$1->data[$2]->vRaw(); ?>',
+	'<?php echo $Ctrl->$1->data[$2]->safeRaw(); ?>',
 
-	'<?php echo $Ctrl->$1->data[$2]->vBr(); ?>',
+	'<?php echo $Ctrl->$1->data[$2]->safeBr(); ?>',
 	'<?php echo $Ctrl->$1->HTMLPrintInput($2); ?>',
 	'<?php echo $Ctrl->$1->HTMLPrintEnum($2); ?>',
 

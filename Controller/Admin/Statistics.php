@@ -186,8 +186,8 @@ class Statistics
 			App::$Data['loginTotal'] += $row['login'];
 		}
 		foreach(App::$Data['sData'] as $k => $row){
-			App::$Data['sData'][$k]['visitPer'] = round(($row['visit'] / App::$Data['visitTotal']) * 100);
-			App::$Data['sData'][$k]['loginPer'] = round(($row['login'] / App::$Data['loginTotal']) * 100);
+			App::$Data['sData'][$k]['visitPer'] = App::$Data['visitTotal'] ? round(($row['visit'] / App::$Data['visitTotal']) * 100) : 0;
+			App::$Data['sData'][$k]['loginPer'] = App::$Data['loginTotal'] ? round(($row['login'] / App::$Data['loginTotal']) * 100) : 0;
 		}
 	}
 

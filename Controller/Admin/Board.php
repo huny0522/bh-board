@@ -15,11 +15,11 @@ class Board extends \Controller\Board{
 	}
 
 	/** @param \BH_DB_GetListWithPage $qry */
-	protected function _GetListQuery(&$qry){
+	protected function _R_GetListQuery(&$qry){
 		if(Get('dv') == 'y') $qry->AddWhere('delis = \'y\'');
 	}
 	/** @param \BH_DB_GetList $qry */
-	protected function _MoreListQuery(&$qry){
+	protected function _R_MoreListQuery(&$qry){
 		if(Get('dv') == 'y') $qry->AddWhere('delis = \'y\'');
 	}
 }

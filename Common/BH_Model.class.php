@@ -143,7 +143,7 @@ class BH_ModelData{
 	 *
 	 * @return string
 	 */
-	public function vRaw(){
+	public function safeRaw(){
 		if(!isset($this->Value)) return '';
 		if($this->Type == ModelType::Enum) return GetDBRaw($this->GetEnumValues());
 		return GetDBRaw($this->Value);
@@ -154,7 +154,7 @@ class BH_ModelData{
 	 *
 	 * @return string
 	 */
-	public function vBr(){
+	public function safeBr(){
 		if(!isset($this->Value)) return '';
 		if($this->Type == ModelType::Enum) return nl2br(GetDBText($this->GetEnumValues()));
 		return nl2br(GetDBText($this->Value));

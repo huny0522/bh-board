@@ -39,27 +39,27 @@ class Board{
 	public $userActionTable;
 
 	/** @param \BH_DB_GetListWithPage $qry */
-	protected function _GetListQuery(&$qry){}
+	protected function _R_GetListQuery(&$qry){}
 	/** @param \BH_DB_GetList $qry */
-	protected function _MoreListQuery(&$qry){}
+	protected function _R_MoreListQuery(&$qry){}
 	/** @param \BH_DB_GetList $qry */
-	protected function _NoticeQuery(&$qry){}
+	protected function _R_NoticeQuery(&$qry){}
 	/** @param array $data */
-	protected function _ViewEnd($data){}
-	protected function _WriteEnd(){}
-	protected function _AnswerEnd(){}
-	protected function _ModifyEnd(){}
-	protected function _PostModifyUpdateBefore(){}
-	protected function _PostModifyUpdateAfter(){}
-	protected function _PostWriteInsertBefore(){}
-	protected function _PostWriteInsertAfter($insertId){}
-	protected function _CommonQry(&$qry, $opt = null){}
+	protected function _R_ViewEnd($data){}
+	protected function _R_WriteEnd(){}
+	protected function _R_AnswerEnd(){}
+	protected function _R_ModifyEnd(){}
+	protected function _R_PostModifyUpdateBefore(){}
+	protected function _R_PostModifyUpdateAfter(){}
+	protected function _R_PostWriteInsertBefore(){}
+	protected function _R_PostWriteInsertAfter($insertId){}
+	protected function _R_CommonQry(&$qry, $opt = null){}
 	/** @param \BH_Model */
-	protected function _CheckArticleCopyInsBefore($model){}
-	protected function _CheckArticleCopyInsAfter($article_seq, $bid){}
-	protected function _CheckArticleReplyCopyInsBefore($model){}
-	protected function _CheckArticleReplyCopyInsAfter($article_seq, $bid){}
-	protected function _CheckArticleRemoveAfter($article_seq){}
+	protected function _R_CheckArticleCopyInsBefore($model){}
+	protected function _R_CheckArticleCopyInsAfter($type, $before_article_seq, $before_bid, $before_subid, $after_article_seq, $after_bid, $after_subid){}
+	protected function _R_CheckArticleReplyCopyInsBefore($model){}
+	protected function _R_CheckArticleReplyCopyInsAfter($type, $before_reply_seq, $before_bid, $before_subid, $after_reply_seq, $after_bid, $after_subid){}
+	protected function _R_CheckArticleRemoveAfter($article_seq, $bid, $subid){}
 
 
 	public function __construct(){
@@ -321,8 +321,8 @@ class Board{
 
 			$this->_SearchQuery($qry);
 
-			$this->_CommonQry($qry);
-			$this->_NoticeQuery($qry);
+			$this->_R_CommonQry($qry);
+			$this->_R_NoticeQuery($qry);
 
 			App::$Data['notice'] = $qry->GetRows();
 			$this->_RowSet(App::$Data['notice']);
@@ -337,7 +337,7 @@ class Board{
 			->SetPage($s_page)
 			->SetPageUrl(App::URLAction('').App::GetFollowQuery('page'))
 			->SetArticleCount($this->boardManger->GetValue('article_count'));
-		$this->_CommonQry($dbList);
+		$this->_R_CommonQry($dbList);
 
 		if(!$this->AdminPathIs){
 			$dbList->AddWhere('A.delis=\'n\'');
@@ -346,7 +346,7 @@ class Board{
 
 		$this->_SearchQuery($dbList);
 
-		$this->_GetListQuery($dbList); // Reserved
+		$this->_R_GetListQuery($dbList); // Reserved
 		$dbList->DrawRows();
 		$this->_RowSet($dbList->data);
 
@@ -376,8 +376,8 @@ class Board{
 
 			$this->_SearchQuery($qry);
 
-			$this->_CommonQry($qry);
-			$this->_NoticeQuery($qry);
+			$this->_R_CommonQry($qry);
+			$this->_R_NoticeQuery($qry);
 
 			App::$Data['notice'] = $qry->GetRows();
 			$this->_RowSet(App::$Data['notice']);
@@ -390,7 +390,7 @@ class Board{
 
 		$dbList->SetLimit($this->boardManger->GetValue('article_count'))
 			->SetSort('A.sort1, A.sort2');
-		$this->_CommonQry($dbList);
+		$this->_R_CommonQry($dbList);
 
 		if(!$this->AdminPathIs){
 			$dbList->AddWhere('A.delis=\'n\'');
@@ -406,7 +406,7 @@ class Board{
 				$qry = DB::GetQryObj($this->model->table.' A')
 					->AddWhere('A.seq = %d', $s_last_seq)
 					->SetKey('A.sort1, A.sort2');
-				$this->_CommonQry($qry);
+				$this->_R_CommonQry($qry);
 				$last = $qry->Get();
 
 				if($last) $dbList->AddWhere('A.sort1 > %d OR (A.sort1 = %d AND A.sort2 > %d)', $last['sort1'], $last['sort1'], $last['sort2']);
@@ -416,7 +416,7 @@ class Board{
 			$this->_SearchQuery($dbList);
 		}
 
-		$this->_MoreListQuery($dbList);  // Reserved
+		$this->_R_MoreListQuery($dbList);  // Reserved
 		$dbList->DrawRows();
 		$this->_RowSet($dbList->data);
 
@@ -485,7 +485,7 @@ class Board{
 			if(strlen($this->model->GetValue('first_seq'))){
 				$qry = DB::GetQryObj($this->model->table)
 					->AddWhere('seq=' . $this->model->GetValue('first_seq'));
-				$this->_CommonQry($qry);
+				$this->_R_CommonQry($qry);
 				$firstDoc = $qry->Get();
 
 			}
@@ -515,7 +515,7 @@ class Board{
 			$dbUpdate = DB::UpdateQryObj($this->model->table)
 				->SetData('hit', 'hit + 1')
 				->AddWhere('seq='.$seq);
-			$this->_CommonQry($dbUpdate);
+			$this->_R_CommonQry($dbUpdate);
 			$dbUpdate->Run();
 
 			setcookie($cookieName, 'y');
@@ -550,7 +550,7 @@ class Board{
 		$_SESSION['boardView']['bid'] = $this->bid;
 		$_SESSION['boardView']['seq'] = App::$ID;
 
-		$this->_ViewEnd($data);  // Reserved
+		$this->_R_ViewEnd($data);  // Reserved
 
 		if(_JSONIS === true) JSON(true, '', App::GetView($this->model, $data));
 		else App::View($this->model, $data);
@@ -575,7 +575,7 @@ class Board{
 			}
 		}
 
-		$this->_WriteEnd();  // Reserved
+		$this->_R_WriteEnd();  // Reserved
 		if(_JSONIS === true) JSON(true, '', App::GetView($this->model));
 		else App::View($this->model);
 	}
@@ -591,7 +591,7 @@ class Board{
 
 		$qry = DB::GetQryObj($this->model->table)
 			->AddWhere('seq = %d', $seq);
-		$this->_CommonQry($qry);
+		$this->_R_CommonQry($qry);
 		$data = $qry->Get();
 		if(!$this->AdminPathIs){
 			if($data['delis'] == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
@@ -601,7 +601,7 @@ class Board{
 		$this->model->SetValue('subject', strpos('[답변]', $data['subject']) === false ? '[답변] '.$data['subject'] : $data['subject']);
 		$this->model->SetValue('secret', $data['secret']);
 
-		$this->_AnswerEnd();  // Reserved
+		$this->_R_AnswerEnd();  // Reserved
 
 		if(_JSONIS === true) JSON(true, '', App::GetView($this->model));
 		else App::View($this->model);
@@ -631,7 +631,7 @@ class Board{
 			if($res !== true) URLReplace('-1', $res);
 		}
 
-		$this->_ModifyEnd();  // Reserved
+		$this->_R_ModifyEnd();  // Reserved
 
 		if(_JSONIS === true) JSON(true, '', App::GetView($this->model));
 		else App::View($this->model);
@@ -690,7 +690,7 @@ class Board{
 			$this->model->_thumbnail->SetValue($this->model->GetFilePath('file1'));
 		}
 
-		$this->_PostModifyUpdateBefore();  // Reserved
+		$this->_R_PostModifyUpdateBefore();  // Reserved
 
 		$error = $this->model->GetErrorMessage();
 		if(sizeof($error)){
@@ -707,7 +707,7 @@ class Board{
 
 
 		if($res2->result){
-			$this->_PostModifyUpdateAfter();  // Reserved
+			$this->_R_PostModifyUpdateAfter();  // Reserved
 			if(_AJAXIS === true) JSON(true, '',_MSG_COMPLETE_MODIFY);
 			else URLReplace(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), _MSG_COMPLETE_MODIFY);
 		}
@@ -738,7 +738,7 @@ class Board{
 
 		if(App::$Action == 'Answer'){
 			$auth = $this->GetAuth('Answer');
-			if(!$res){
+			if(!$auth){
 				if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
 				URLReplace('-1', _MSG_NO_AUTH);
 			}
@@ -746,7 +746,7 @@ class Board{
 			$qry = DB::GetQryObj($this->model->table)
 				->AddWhere('seq=%d', to10(Post('target')))
 				->SetKey('mname, email, email_alarm, depth, muid, target_muid, sort1, sort2', 'seq', 'first_seq', 'first_member_is', 'category', 'sub_category', 'delis', 'subid');
-			$this->_CommonQry($qry);
+			$this->_R_CommonQry($qry);
 			App::$Data['targetData'] = $qry->Get();
 			if(!$this->AdminPathIs){
 				if(App::$Data['targetData']['delis'] == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
@@ -799,7 +799,7 @@ class Board{
 				->AddWhere('sort1 = %d', App::$Data['targetData']['sort1'])
 				->AddWhere('sort2 > %d', App::$Data['targetData']['sort2'])
 				->SetSort('sort2 DESC');
-			$this->_CommonQry($qry);
+			$this->_R_CommonQry($qry);
 			$res = $qry->Run();
 
 			if(!$res->result){
@@ -826,7 +826,7 @@ class Board{
 			}
 		}
 
-		$this->_PostWriteInsertBefore();  // Reserved
+		$this->_R_PostWriteInsertBefore();  // Reserved
 
 		$error = $this->model->GetErrorMessage();
 		if(sizeof($error)){
@@ -849,7 +849,7 @@ class Board{
 
 		if($result->result){
 			$this->_ContentImageUpdate(Post('content'), $res->id);
-			$this->_PostWriteInsertAfter($res->id);  // Reserved
+			$this->_R_PostWriteInsertAfter($res->id);  // Reserved
 
 			// 알람
 			if(class_exists('PHPMailer\\PHPMailer\\PHPMailer') && App::$Action == 'Answer' && App::$Data['targetData']['email_alarm'] == 'y' && strlen(App::$Data['targetData']['email'])){
@@ -857,7 +857,7 @@ class Board{
 				$mail->AddMail(App::$Data['targetData']['email'], App::$Data['targetData']['mname']);
 				if($this->AdminPathIs) $url = _URL . '/Board/' . $this->bid . '-'. $this->subid . '/View/' . toBase($res->id);
 				else $url = App::URLAction('View/' . toBase($res->id));
-				$mail->SendMailByAnswerAlarm(App::$Data['targetData']['mname'], $url, $this->model->_mname->Value, $this->model->_subject->Value, ($this->model->_htmlis->Value === 'y' ? $this->model->_content->vRaw() : $this->model->_content->vBr()));
+				$mail->SendMailByAnswerAlarm(App::$Data['targetData']['mname'], $url, $this->model->_mname->Value, $this->model->_subject->Value, ($this->model->_htmlis->Value === 'y' ? $this->model->_content->safeRaw() : $this->model->_content->safeBr()));
 			}
 
 			if(_AJAXIS === true){
@@ -936,6 +936,20 @@ class Board{
 		else URLRedirect(-1, '파일이 존재하지 않습니다.');
 	}
 
+	public function RepAttachDownload(){
+		$repData = DB::GetQryObj($this->model->table . '_reply')
+			->AddWhere('seq = %d', to10(App::$ID))
+			->SetKey('`file`')
+			->Get();
+		$file = explode('*', $repData['file']);
+		if(sizeof($file) < 2){
+			$name = explode('/', $file[0]);
+			$file[1] = end($name);
+		}
+		if(file_exists(_UPLOAD_DIR . $file[0]) && !is_dir(_UPLOAD_DIR . $file[0])) Download(_UPLOAD_DIR . $file[0], $file[1]);
+		else URLRedirect(-1, '파일이 존재하지 않습니다.');
+	}
+
 	/**
 	 * 게시물을 DB에서 완전히 삭제
 	 */
@@ -962,7 +976,7 @@ class Board{
 		if($mode == 'modify'){
 			$dbGetList = DB::GetListQryObj($this->model->imageTable)
 				->AddWhere('article_seq='.$seq);
-			$this->_CommonQry($dbGetList);
+			$this->_R_CommonQry($dbGetList);
 			while($img = $dbGetList->Get()){
 				if(strpos($content,$img['image']) === false){
 					// 파일이 없으면 삭제
@@ -973,7 +987,7 @@ class Board{
 					$qry = DB::DeleteQryObj($this->model->table.'_images')
 						->AddWhere('article_seq = '.$img['article_seq'])
 						->AddWhere('seq = '.$img['seq']);
-					$this->_CommonQry($qry);
+					$this->_R_CommonQry($qry);
 					$qry->Run();
 				}
 			}
@@ -982,7 +996,7 @@ class Board{
 		$qry = DB::GetQryObj($this->model->imageTable)
 			->AddWhere('article_seq='.$seq)
 			->SetKey('COUNT(*) as cnt');
-		$this->_CommonQry($qry);
+		$this->_R_CommonQry($qry);
 		$cnt = $qry->Get();
 		$imageCount = $cnt['cnt'];
 
@@ -1013,7 +1027,7 @@ class Board{
 						->SetDataStr('imagename', $exp[1])
 						->SetDecrementKey('seq')
 						->AddWhere('article_seq = %d', $seq);
-					$this->_CommonQry($dbInsert, 'ImageInsert');
+					$this->_R_CommonQry($dbInsert, 'ImageInsert');
 					$dbInsert->Run();
 					$imageCount++;
 				}
@@ -1025,7 +1039,7 @@ class Board{
 					$qry = DB::GetQryObj($this->model->imageTable)
 						->AddWhere('article_seq='.$seq)
 						->SetSort('seq');
-					$this->_CommonQry($qry);
+					$this->_R_CommonQry($qry);
 					$new = $qry->Get();
 					$this->model->SetValue('thumbnail', $new['image']);
 				}
@@ -1033,7 +1047,7 @@ class Board{
 					->SetDataStr('thumbnail', $this->model->GetValue('thumbnail'))
 					->SetDataStr('content', $newContent)
 					->AddWhere('seq = '.$seq);
-				$this->_CommonQry($qry);
+				$this->_R_CommonQry($qry);
 				$qry->Run();
 			}
 		}
@@ -1055,7 +1069,7 @@ class Board{
 			if(!isset($_POST['pwd'])) return _MSG_WRONG_CONNECTED;
 
 			$qry = DB::GetQryObj($this->model->table)->AddWhere('seq = %d', $this->model->GetValue('seq'))->SetKey('pwd');
-			$this->_CommonQry($qry);
+			$this->_R_CommonQry($qry);
 			$pwd = $qry->Get();
 			if(!_password_verify(Post('pwd'), $pwd['pwd'])){
 				return _MSG_WRONG_PASSWORD;
@@ -1218,26 +1232,10 @@ class Board{
 		if(EmptyPost('bid') || EmptyPost('subid')) JSON(false, '이동할 게시판을 선택하여 주세요.');
 		$chk = explode(',', Post('seq'));
 
-		/*if(Post('bid') == $this->bid){
-			$qry = DB::GetListQryObj($this->model->table)
-				->AddWhere('seq IN (%d)', $chk)
-				->SetSort('sort1 DESC, sort2')
-				->SetKey('seq, sort1, sort2');
-			while($row = $qry->Get()){
-				DB::UpdateQryObj($this->model->table)
-					->SetData('sort1', '(SELECT sort1 FROM (SELECT IF(COUNT(B.sort1) < 1, 0, MIN(B.sort1)) -1 as sort1 FROM ' . $this->model->table . ' as B) as C)')
-					->SetDataStr('subid', Post('subid'))
-					->AddWhere('sort1 = %d', $row['sort1'])
-					->Run();
-			}
+		$resChk = $this->_CheckArticleCopy($chk, Post('bid'), Post('subid'), 'move');
+		if(sizeof($resChk)){
+			$this->_CheckArticleRemove($resChk);
 		}
-
-		else{*/
-			$resChk = $this->_CheckArticleCopy($chk, Post('bid'), Post('subid'), 'move');
-			if(sizeof($resChk)){
-				$this->_CheckArticleRemove($resChk);
-			}
-		//}
 
 		JSON(true);
 	}
@@ -1287,7 +1285,7 @@ class Board{
 			$qry = DB::GetQryObj($this->model->table)
 				->AddWhere('seq = %d', $seq)
 				->SetSort('sort1 DESC, sort2 DESC');
-			$this->_CommonQry($qry);
+			$this->_R_CommonQry($qry);
 			$row = $qry->Get();
 
 			// 게시물 복사
@@ -1316,7 +1314,7 @@ class Board{
 			$boardModel->SetValue('reg_date', date('Y-m-d H:i:s'));
 
 
-			$this->_CheckArticleCopyInsBefore($boardModel); // Reserved
+			$this->_R_CheckArticleCopyInsBefore($boardModel); // Reserved
 
 			$res = $boardModel->DBInsert();
 			if(!$res->result) return $returnArray;
@@ -1334,7 +1332,7 @@ class Board{
 			// 이미지 복사
 			$dbGetList = DB::GetListQryObj($this->model->imageTable)
 				->AddWhere('article_seq='.$seq);
-			$this->_CommonQry($dbGetList);
+			$this->_R_CommonQry($dbGetList);
 			$imgCopyCnt = 0;
 			while($img = $dbGetList->Get()){
 				$fcRes = $this->_FileCopy($newUploadImageDir, $img['image']);
@@ -1361,7 +1359,7 @@ class Board{
 					->Run();
 			}
 
-			$this->_CheckArticleCopyInsAfter($article_seq, $bid); // Reserved
+			$this->_R_CheckArticleCopyInsAfter($type, $row['seq'], $row['bid'], $row['subid'], $article_seq, $bid, $subid); // Reserved
 
 			if($type == 'move'){
 				// 액션 복사
@@ -1370,7 +1368,7 @@ class Board{
 				// 리플 복사
 				$dbGetList = DB::GetListQryObj($this->model->table.'_reply')
 					->AddWhere('article_seq='.$seq);
-				$this->_CommonQry($dbGetList);
+				$this->_R_CommonQry($dbGetList);
 				while($rep = $dbGetList->Get()){
 
 
@@ -1388,9 +1386,9 @@ class Board{
 					}
 
 					$replyModel->SetValue('article_seq', $article_seq);
-					$this->_CheckArticleReplyCopyInsBefore($replyModel); // Reserved
+					$this->_R_CheckArticleReplyCopyInsBefore($replyModel); // Reserved
 					$res = $replyModel->DBInsert();
-					if($res->result) $this->_CheckArticleReplyCopyInsAfter($res->id, $bid); // Reserved
+					if($res->result) $this->_R_CheckArticleReplyCopyInsAfter($type, $rep['seq'], $row['bid'], $row['subid'], $res->id, $bid, $subid); // Reserved
 				}
 			}
 		}
@@ -1423,26 +1421,26 @@ class Board{
 		foreach($arr as $seq){
 			$qry = DB::GetQryObj($this->model->table)
 				->AddWhere('seq = %d', $seq);
-			$this->_CommonQry($qry);
+			$this->_R_CommonQry($qry);
 			$row = $qry->Get();
 
 			// 이미지 삭제
 			$dbGetList = DB::GetListQryObj($this->model->imageTable)
 				->AddWhere('article_seq='.$seq);
-			$this->_CommonQry($dbGetList);
+			$this->_R_CommonQry($dbGetList);
 			while($img = $dbGetList->Get()){
 				if(file_exists(_UPLOAD_DIR.$img['image'])) @UnlinkImage(_UPLOAD_DIR.$img['image']);
 				$qry = DB::DeleteQryObj($this->model->table.'_images')
 					->AddWhere('article_seq = '.$img['article_seq'])
 					->AddWhere('seq = '.$img['seq']);
-				$this->_CommonQry($qry);
+				$this->_R_CommonQry($qry);
 				$qry->Run();
 			}
 
 			// 댓글 삭제
 			$dbGetList = DB::GetListQryObj($this->model->table.'_reply')
 				->AddWhere('article_seq='.$seq);
-			$this->_CommonQry($dbGetList);
+			$this->_R_CommonQry($dbGetList);
 			while($rep = $dbGetList->Get()){
 				$f = $this->model->GetFilePathByValue($rep['file']);
 				if(file_exists(_UPLOAD_DIR.$f)) @UnlinkImage(_UPLOAD_DIR.$f);
@@ -1469,10 +1467,10 @@ class Board{
 			}
 			$qry = DB::DeleteQryObj($this->model->table)
 				->AddWhere('seq = '.$row['seq']);
-			$this->_CommonQry($qry);
+			$this->_R_CommonQry($qry);
 			$qry->Run();
 
-			$this->_CheckArticleRemoveAfter($seq);
+			$this->_R_CheckArticleRemoveAfter($seq, $row['bid'], $row['subid']);
 		}
 	}
 
