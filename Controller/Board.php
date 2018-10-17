@@ -971,7 +971,6 @@ class Board{
 	 */
 	protected function _ContentImageUpdate($content, $seq, $mode = 'write'){
 		$newContent = $content;
-		$maxImage = _MAX_IMAGE_COUNT;
 
 		if($mode == 'modify'){
 			$dbGetList = DB::GetListQryObj($this->model->imageTable)
@@ -1005,16 +1004,14 @@ class Board{
 				$exp = explode('|', $img);
 
 				if(strpos($content, $exp[0]) !== false){
-					if($imageCount >= $maxImage){
-						@UnlinkImage(_UPLOAD_DIR.$exp[0]);
-						continue;
-					}
 
 					$newpath = str_replace('/temp/', $this->uploadImageDir, $exp[0]);
 					$uploadDir = _UPLOAD_DIR.$this->uploadImageDir;
 					if(!is_dir($uploadDir)){
 						mkdir($uploadDir, 0777, true);
 					}
+
+					// 복사 전에 파일의 용량 체크 여기서 가능
 					@copy(_UPLOAD_DIR.$exp[0],_UPLOAD_DIR.$newpath);
 					$newContent = str_replace($exp[0],$newpath, $newContent);
 					// 파일이 있으면 등록
@@ -1359,7 +1356,7 @@ class Board{
 					->Run();
 			}
 
-			$this->_R_CheckArticleCopyInsAfter($type, $row['seq'], $row['bid'], $row['subid'], $article_seq, $bid, $subid); // Reserved
+			$this->_R_CheckArticleCopyInsAfter($type, $row['seq'], $this->bid, $row['subid'], $article_seq, $bid, $subid); // Reserved
 
 			if($type == 'move'){
 				// 액션 복사
@@ -1388,7 +1385,7 @@ class Board{
 					$replyModel->SetValue('article_seq', $article_seq);
 					$this->_R_CheckArticleReplyCopyInsBefore($replyModel); // Reserved
 					$res = $replyModel->DBInsert();
-					if($res->result) $this->_R_CheckArticleReplyCopyInsAfter($type, $rep['seq'], $row['bid'], $row['subid'], $res->id, $bid, $subid); // Reserved
+					if($res->result) $this->_R_CheckArticleReplyCopyInsAfter($type, $rep['seq'], $this->bid, $row['subid'], $res->id, $bid, $subid); // Reserved
 				}
 			}
 		}
@@ -1470,7 +1467,7 @@ class Board{
 			$this->_R_CommonQry($qry);
 			$qry->Run();
 
-			$this->_R_CheckArticleRemoveAfter($seq, $row['bid'], $row['subid']);
+			$this->_R_CheckArticleRemoveAfter($seq, $this->bid, $row['subid']);
 		}
 	}
 
@@ -1517,5 +1514,46 @@ class Board{
 			return $data;
 		}
 		return array();
+	}
+
+	public function _CheckActionModal(){
+		if($this->managerIs){
+			$bmList = \BoardManagerModel::GetList($this->bid, $this->subid);
+			$html = '<div id="checkActionModal" class="modal_layer" data-close-type="hidden">
+		<div class="modal_wrap">
+			<header class="modal_header">
+				<h1>123</h1>
+				<button type="button" class="close"><i class="cross"></i></button>
+			</header>
+			<div class="modal_contents">
+				<form id="cActForm" name="cActForm" method="post" action="" data-move-url="' . App::URLAction('SysMove') . '" data-copy-url="' . App::URLAction('SysCopy') . '">
+					<input type="hidden" name="bid" value="">
+					<input type="hidden" name="subid" value="">
+					<input type="hidden" name="seq" value="">
+					<div class="selected" id="boardActionSelected"><span>선택게시판 : </span><b></b></div>
+					<div class="selectedCategory" id="boardActionCategory"></div>
+					<ul>';
+			foreach($bmList as $v){
+				$html .= '<li>
+								<button type="button" class="boardActionArticleBtn" data-bid="' . GetDBText($v['bid']) .'" data-subid="' . GetDBText($v['subid']) .'" id="btn-' . GetDBText($v['bid']) .'-'. GetDBText($v['subid']) . '" data-category="'. GetDBText($v['category']) . '" data-sub-category="'. GetDBText($v['sub_category']) . '">'. GetDBText($v['bid']) . ' - '. GetDBText($v['subject']) . '</button>
+							</li>';
+			}
+
+			$html .= '</ul>
+							<div class="bottomBtn">
+								<button type="submit" class="mBtn btn2">확인</button>
+								<button type="button" class="mBtn close">닫기</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		
+			<script>
+				AppBoard.CheckActionInit();
+			</script>';
+			return $html;
+		}
+		return '';
 	}
 }

@@ -110,7 +110,7 @@ use \BH_Application as App;
 				}
 				$('#bid').html(opt);
 
-				getSubidList();
+				if(type === 'board') getSubidList();
 			});
 		}else{
 			$('#bid').val('');

@@ -55,45 +55,7 @@ App::JSAdd('board.js', 200);
 	</form>
 </div>
 
-<?php
-if($Ctrl->managerIs){
-	$bmList = BoardManagerModel::GetList($Ctrl->bid, $Ctrl->subid);
-	?>
-	<div id="checkActionModal" class="modal_layer" data-close-type="hidden">
-		<div class="modal_wrap">
-			<header class="modal_header">
-				<h1>123</h1>
-				<button type="button" class="close"><i class="cross"></i></button>
-			</header>
-			<div class="modal_contents">
-				<form id="cActForm" name="cActForm" method="post" action="" data-move-url="<?a. 'SysMove' ?>" data-copy-url="<?a. 'SysCopy' ?>">
-					<input type="hidden" name="bid" value="">
-					<input type="hidden" name="subid" value="">
-					<input type="hidden" name="seq" value="">
-					<div class="selected" id="boardActionSelected"><span>선택게시판 : </span><b></b></div>
-					<div class="selectedCategory" id="boardActionCategory"></div>
-					<ul>
-						<?php foreach($bmList as $v){ ?>
-							<li>
-								<button type="button" class="boardActionArticleBtn" data-bid="<?v. $v['bid'] ?>" data-subid="<?v. $v['subid'] ?>" id="btn-<?v. $v['bid'] . '-' . $v['subid'] ?>" data-category="<?v. $v['category'] ?>" data-sub-category="<?v. $v['sub_category'] ?>"><?v. $v['bid'] ?> - <?v. $v['subject'] ?></button>
-							</li>
-						<?php } ?>
-					</ul>
-					<div class="bottomBtn">
-						<button type="submit" class="mBtn btn2">확인</button>
-						<button type="button" class="mBtn close">닫기</button>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
-
-	<script>
-		AppBoard.CheckActionInit();
-	</script>
-	<?php
-}
-?>
+<?p. $Ctrl->_CheckActionModal() ?>
 
 <script>
 	AppBoard.boardWrap = '#boardArea';

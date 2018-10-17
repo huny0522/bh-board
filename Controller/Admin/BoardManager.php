@@ -49,7 +49,7 @@ class BoardManager
 	public function Index(){
 
 		// 리스트를 불러온다.
-		$dbGetList = DB::GetListPageQryObj($this->model->table.' A LEFT JOIN '.TABLE_MENU.' B ON A.bid = B.bid AND B.type=\'board\'')
+		$dbGetList = DB::GetListPageQryObj($this->model->table.' A LEFT JOIN '.TABLE_MENU.' B ON A.bid = B.bid AND A.subid = B.subid AND B.type=\'board\'')
 			->SetPage(Get('page'))
 			->SetPageUrl(App::URLAction('').App::GetFollowQuery('page'))
 			->SetArticleCount(20)
@@ -58,7 +58,7 @@ class BoardManager
 			->SetKey('A.*, group_concat(B.title SEPARATOR \', \') as title');
 
 		if(!EmptyGet('gn')) $dbGetList->AddWhere('A.group_name = %s', Get('gn'));
-		if(!EmptyGet('keyword')) $dbGetList->AddWhere('INSTR(A.subject, %s)', Get('keyword'));
+		if(!EmptyGet('keyword')) $dbGetList->AddWhere('INSTR(A.subject, %s) OR INSTR(A.subid, %s) OR INSTR(A.bid, %s)', Get('keyword'), Get('keyword'), Get('keyword'));
 
 		$dbGetList->Run();
 

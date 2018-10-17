@@ -62,6 +62,17 @@ class MenuHelp
 		return self::$instance[$table];
 	}
 
+	public function Reset(){
+		$this->tagName = 'li';
+		$this->class = '';
+		$this->attr = '';
+		$this->activeClass = 'active';
+		$this->linkWrapTag = '';
+		$this->head = '';
+		$this->tail = '';
+		return $this;
+	}
+
 	/**
 	 * 항목의 태그명을 설정.
 	 * 기본값 : li
@@ -337,7 +348,7 @@ class MenuHelp
 		foreach($this->menus as $v){
 			if($v['controller'] == $urlControllerName && substr($v['category'], 0, strlen($this->rootCategory)) === $this->rootCategory && $v['category'] !== $this->rootCategory){
 				if(!is_null($this->activeMenu)){
-					if(strlen($this->activeMenu['category']) > strlen($v['category'])) $this->activeMenu = $v;
+					if(strlen($this->activeMenu['category']) < strlen($v['category'])) $this->activeMenu = $v;
 				}
 				else $this->activeMenu = $v;
 			}
@@ -406,14 +417,15 @@ class MenuHelp
 	 * 게시판 카테고리와 bid 를 이용하여 메뉴 가져오기
 	 *
 	 * @param string $bid
+	 * @param string $subid
 	 * @param string $category
 	 * @return null|array
 	 */
-	public function GetBoardMenuByBid($bid, $category = ''){
+	public function GetBoardMenuByBid($bid, $subid, $category = ''){
 		$temp = null;
 		foreach($this->menus as $v){
 			if($v['type'] == 'board'){
-				if($v['bid'] === $bid){
+				if($v['bid'] === $bid && $v['subid'] === $subid){
 					if($category && $v['board_category'] == $category) return $v;
 					else if(!$category) return $v;
 					$temp = $v;
@@ -428,14 +440,15 @@ class MenuHelp
 	 * 게시판 카테고리와 bid 를 이용하여 하위 메뉴 가져오기
 	 *
 	 * @param string $bid
+	 * @param string $subid
 	 * @param string $category
 	 * @param bool $thisCateThenEmpty
 	 * @return null|array
 	 */
-	public function GetSubMenusByBid($bid, $category, $thisCateThenEmpty = true){
+	public function GetSubMenusByBid($bid, $subid, $category, $thisCateThenEmpty = true){
 		$temp = array();
 		foreach($this->menus as $v){
-			if($v['type'] == 'board' && $v['bid'] === $bid && substr($v['category'], 0, strlen($category)) === $category && strlen($v['category']) === strlen($category) + _CATEGORY_LENGTH){
+			if($v['type'] == 'board' && $v['bid'] === $bid && $v['subid'] === $subid && substr($v['category'], 0, strlen($category)) === $category && strlen($v['category']) === strlen($category) + _CATEGORY_LENGTH){
 				$temp[$v['category']] = $v;
 			}
 		}
@@ -443,7 +456,7 @@ class MenuHelp
 		if($thisCateThenEmpty && !sizeof($temp) && strlen($category)){
 			$category = substr($category, 0, -_CATEGORY_LENGTH);
 			foreach($this->menus as $v){
-				if($v['type'] == 'board' && $v['bid'] === $bid && substr($v['category'], 0, strlen($category)) === $category && strlen($v['category']) === strlen($category) + _CATEGORY_LENGTH){
+				if($v['type'] == 'board' && $v['bid'] === $bid && $v['subid'] === $subid && substr($v['category'], 0, strlen($category)) === $category && strlen($v['category']) === strlen($category) + _CATEGORY_LENGTH){
 					$temp[$v['category']] = $v;
 				}
 			}
@@ -456,13 +469,14 @@ class MenuHelp
 	 * 게시판 카테고리와 bid 를 이용하여 하위 메뉴 가져오기
 	 *
 	 * @param string $bid
+	 * @param string $subid
 	 * @param string $category
 	 * @return null|array
 	 */
-	public function GetSubMenusAllByBid($bid, $category){
+	public function GetSubMenusAllByBid($bid, $subid, $category){
 		$temp = array();
 		foreach($this->menus as $v){
-			if($v['type'] == 'board' && $v['bid'] === $bid && substr($v['category'], 0, strlen($category)) === $category){
+			if($v['type'] == 'board' && $v['bid'] === $bid && $v['subid'] === $subid && substr($v['category'], 0, strlen($category)) === $category){
 				$temp[$v['category']] = $v;
 			}
 		}

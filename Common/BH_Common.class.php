@@ -110,7 +110,6 @@ class BH_Common
 	// 이미지 등록
 	public static function ContentImageUpdate($tid, $keyValue, $content, $mode = 'write'){
 		$newcontent = $content['contents'];
-		$maxImage = _MAX_IMAGE_COUNT;
 		$dbKeyValue = implode('|',$keyValue);
 
 		if($mode == 'modify'){
@@ -143,10 +142,6 @@ class BH_Common
 				$exp = explode('|', $img);
 
 				if(strpos($content['contents'], $exp[0]) !== false){
-					if($imageCount >= $maxImage){
-						@unlink(_UPLOAD_DIR.$exp[0]);
-						continue;
-					}
 
 					$newpath = str_replace('/temp/', '/image/'.$ym.'/', $exp[0]);
 					$uploadDir = _UPLOAD_DIR.'/image/'.$ym;
@@ -244,7 +239,7 @@ class BH_Common
 	public static function GetBoardArticleQuery($bid, $subid, $category = '', $limit = 10){
 		// 리스트를 불러온다.
 		$dbList = new \BH_DB_GetList(TABLE_FIRST.'bbs_'.$bid);
-		$dbList->AddWhere('subid = %s', $subid);
+		$dbList->AddWhere('subid IN (%s)', is_array($subid) ? $subid : explode(',', $subid));
 		$dbList->AddWhere('delis=\'n\'');
 		$n = func_num_args();
 		if($n > 4){
@@ -367,9 +362,9 @@ class BH_Common
 			return end($temp);
 		}
 
-		preg_match('/youtube\.com\/embed\/([a-zA-Z0-9\-\_]+)/', $urlOrId, $matches);
-		if(is_array($matches) && sizeof($matches) > 1){
-			$temp = explode('/', $matches[1]);
+		preg_match('/youtube\.com\/(.*?)\/([a-zA-Z0-9\-\_]+)/', $urlOrId, $matches);
+		if(is_array($matches) && sizeof($matches) > 2){
+			$temp = explode('/', $matches[2]);
 			return end($temp);
 		}
 		preg_match('/youtube\.com\/watch.*?v\=([a-zA-Z0-9\-\_]+)/', $urlOrId, $matches);

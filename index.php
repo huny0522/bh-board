@@ -67,7 +67,6 @@ define('_USE_BC_TO', true);
 define('_STYLEFILE', '_bhinline.bhcss.php');
 define('_FILE_PUT_GUIDE', true);
 
-define('_MAX_IMAGE_COUNT', 10);
 define('_MAX_IMAGE_WIDTH', '1024');
 define('_DBMAXINT', 2147483647);
 define('_CATEGORY_LENGTH', 5);

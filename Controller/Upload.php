@@ -41,8 +41,7 @@ class Upload{
 
 			$newFileName = \_ModelFunc::RandomFileName().'.'.$filename_ext;
 
-			if($type == 'image' && $filename_ext != 'gif') \_ModelFunc::Thumbnail($tmp_name, $uploadDir.$newFileName, _MAX_IMAGE_WIDTH);
-			else @move_uploaded_file($tmp_name, $uploadDir.$newFileName);
+			@move_uploaded_file($tmp_name, $uploadDir.$newFileName);
 
 			$data['uploadDir'] = _UPLOAD_URL;
 			$data['path'] = $path.$newFileName;
