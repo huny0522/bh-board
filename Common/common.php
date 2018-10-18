@@ -511,12 +511,39 @@ function SetDBFloat($txt){
 		return $txt;
 	}
 
-	if(!strlen($txt)) URLReplace('-1', '숫자값이 비어있습니다.');
+	if(!strlen($txt)){
+		if(_DEVELOPERIS === true) PrintError('숫자값이 비어있습니다.');
+		URLReplace('-1', '숫자값이 비어있습니다.');
+	}
 
 	$val = ToFloat($txt);
-	if((string)$val !== (string)$txt) URLReplace('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+	if((string)$val !== (string)$txt){
+		if(_DEVELOPERIS === true) PrintError('숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+		URLReplace('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+	}
 
 	return $val;
+}
+
+function PrintError($message){
+	echo '<b style="color:#c00;">' . $message . '</b><br>';
+	$d_b = phpversion() < 5.6 ? debug_backtrace() : debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 4);
+	for($k = 1; isset($d_b[$k]) && $k < 4;$k++){
+		echo '<h1>#'. $k.'</h1>';
+		echo '<b>file : ' . $d_b[$k]['file'].'('.$d_b[$k]['line'].')</b><br>';
+		if(isset($d_b[$k]['class'])){
+			echo 'Class : ' . $d_b[$k]['class'].'<br>';
+		}
+		if(isset($d_b[$k]['function'])) echo 'Function : ' . $d_b[$k]['function'].'(' . (isset($d_b[$k]['args']) ?  (is_array($d_b[$k]['args']) ? implode(',', $d_b[$k]['args']) : print_r($d_b[$k]['args'], true) ) : '') . ')<br>';
+		if(isset($d_b[$k]['class']) && in_array($d_b[$k]['class'], array('BH_DB_Get', 'BH_DB_GetList', 'BH_DB_GetListWithPage', 'BH_DB_Update', 'BH_DB_Insert', 'BH_DB_Delete')) && $d_b[$k]['object']){
+			echo '<br><b style="color:#06c;">';
+			$d_b[$k]['object']->PrintTest();
+			echo '</b><br>';
+		}
+
+		echo '<br>';
+	}
+	exit;
 }
 
 function GetDBText($txt){

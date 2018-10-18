@@ -303,6 +303,8 @@ class DB{
 
 class BH_DB_Get{
 	public $table = '';
+	public $sql = '';
+	public $showError = false;
 	public $test = false;
 	public $sort = '';
 	public $group = '';
@@ -432,21 +434,21 @@ class BH_DB_Get{
 		else $key = '*';
 
 
-		$sql = 'SELECT '.$key.' FROM '.$this->table.' '.$where;
-		if($this->group) $sql .= ' GROUP BY ' . $this->group;
-		$sql .= $having;
-		if($this->sort) $sql .= ' ORDER BY ' . $this->sort;
-		$sql .= ' LIMIT 1';
+		$this->sql = 'SELECT '.$key.' FROM '.$this->table.' '.$where;
+		if($this->group) $this->sql .= ' GROUP BY ' . $this->group;
+		$this->sql .= $having;
+		if($this->sort) $this->sql .= ' ORDER BY ' . $this->sort;
+		$this->sql .= ' LIMIT 1';
 		if($this->test && _DEVELOPERIS === true){
-			foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.$v[0].'\'', $sql);
-			echo $sql;
+			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
+			echo $this->sql;
 			exit;
 		}
 
-		$sql = $sql2 = trim($sql);
+		$this->sql = $sql2 = trim($this->sql);
 		foreach($this->bindParam as $k => $v) $sql2 .= '['.$v[0].']';
 
-		$this->query = DB::PDO($this->connName)->prepare($sql);
+		$this->query = DB::PDO($this->connName)->prepare($this->sql);
 		foreach($this->bindParam as $k => $v) $this->query->bindParam($k, $v[0], $v[1]);
 
 		if($this->query->execute()){
@@ -456,7 +458,15 @@ class BH_DB_Get{
 				return $row;
 			}
 		}
+		else if(_DEVELOPERIS === true && ($this->showError || (isset(BH_Application::$SettingData['showError']) && BH_Application::$SettingData['showError'] == true))) PrintError('Error');
 		return false;
+	}
+
+	public function PrintTest(){
+		if(_DEVELOPERIS === true){
+			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
+			echo $this->sql;
+		}
 	}
 
 	/**
@@ -465,6 +475,15 @@ class BH_DB_Get{
 	 */
 	public function &SetTest($bool = false){
 		$this->test = $bool;
+		return $this;
+	}
+
+	/**
+	 * @param bool $bool
+	 * @return $this
+	 */
+	public function &SetShowError($bool = false){
+		$this->showError = $bool;
 		return $this;
 	}
 }
@@ -533,27 +552,30 @@ class BH_DB_GetList extends BH_DB_Get{
 		}
 
 
-		$sql = 'SELECT '.$key.' FROM '.$this->table.' '.$where;
+		$this->sql = 'SELECT '.$key.' FROM '.$this->table.' '.$where;
 
-		if($this->group) $sql .= ' GROUP BY ' . $this->group;
-		$sql .= $having;
-		if($this->sort) $sql .= ' ORDER BY ' . $this->sort;
-		if($this->limit) $sql .= ' LIMIT ' . $this->limit;
+		if($this->group) $this->sql .= ' GROUP BY ' . $this->group;
+		$this->sql .= $having;
+		if($this->sort) $this->sql .= ' ORDER BY ' . $this->sort;
+		if($this->limit) $this->sql .= ' LIMIT ' . $this->limit;
 
 		if($this->test && _DEVELOPERIS === true){
-			foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.$v[0].'\'', $sql);
-			echo $sql;
+			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
+			echo $this->sql;
 			exit;
 		}
 
-		$sql = $sql2 = trim($sql);
+		$this->sql = $sql2 = trim($this->sql);
 		foreach($this->bindParam as $k => $v) $sql2 .= '['.$v[0].']';
 
-		$this->query = DB::PDO($this->connName)->prepare($sql);
+		$this->query = DB::PDO($this->connName)->prepare($this->sql);
 		foreach($this->bindParam as $k => $v) $this->query->bindParam($k, $v[0], $v[1]);
 
 		if($this->query->execute()) $this->result = true;
-		else $this->result = false;
+		else{
+			if(_DEVELOPERIS === true && ($this->showError || (isset(BH_Application::$SettingData['showError']) && BH_Application::$SettingData['showError'] == true))) PrintError('Error');
+			$this->result = false;
+		}
 
 		return $this;
 	}
@@ -704,30 +726,30 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		}
 
 		$sql_cnt = 'SELECT COUNT('.($this->CountKey ? $this->CountKey : '*').') as cnt'.$subCnt_sql.' FROM '.$this->table.' '.$where;
-		$sql = 'SELECT '.$key.' FROM '.$this->table.' '.$where;
+		$this->sql = 'SELECT '.$key.' FROM '.$this->table.' '.$where;
 		if($this->group){
-			$sql .= ' GROUP BY ' . $this->group;
+			$this->sql .= ' GROUP BY ' . $this->group;
 			$sql_cnt .= ' GROUP BY ' . $this->group;
 		}
 
 		$sql_cnt .= $having;
-		$sql .= $having;
+		$this->sql .= $having;
 
 		if($this->sort)
-			$sql .= ' ORDER BY ' . $this->sort;
+			$this->sql .= ' ORDER BY ' . $this->sort;
 
 		if($this->limit)
-			$sql .= ' LIMIT ' . $this->limit;
+			$this->sql .= ' LIMIT ' . $this->limit;
 		else if($this->articleCount)
-			$sql .= ' LIMIT '.$beginPage.', ' . $this->articleCount;
+			$this->sql .= ' LIMIT '.$beginPage.', ' . $this->articleCount;
 
 		if($this->test && _DEVELOPERIS === true){
-			foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.$v[0].'\'', $sql);
-			echo $sql;
+			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
+			echo $this->sql;
 			exit;
 		}
 
-		$sql = $sql2 = trim($sql);
+		$this->sql = $sql2 = trim($this->sql);
 		foreach($this->bindParam as $v) $sql2 .= '['.$v[0].']';
 
 		$qry = DB::PDO($this->connName)->prepare($this->group ? 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x' : $sql_cnt);
@@ -741,7 +763,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		$this->totalRecord = $totalRecord;
 		$this->beginNum = $totalRecord - ($nowPage * $this->articleCount);
 
-		$this->query = DB::PDO($this->connName)->prepare($sql);
+		$this->query = DB::PDO($this->connName)->prepare($this->sql);
 		foreach($this->bindParam as $k => $v) $this->query->bindParam($k, $v[0], $v[1]);
 
 		if($this->query->execute()){
@@ -756,6 +778,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 			$this->result = true;
 		}
 		else{
+			if(_DEVELOPERIS === true && ($this->showError || (isset(BH_Application::$SettingData['showError']) && BH_Application::$SettingData['showError'] == true))) PrintError('Error');
 			$this->result = false;
 		}
 		return $this;
@@ -862,6 +885,8 @@ class BH_DB_Insert{
 	public $table = '';
 	public $decrement = '';
 	public $data = array();
+	public $sql = '';
+	public $showError = false;
 	public $test = false;
 	public $MAXInt = _DBMAXINT;
 	private $where = array();
@@ -1028,15 +1053,17 @@ class BH_DB_Insert{
 			return $res;
 		}
 
-		$sql = 'INSERT INTO ' . $this->table . '(' . $this->MultiNames . ') VALUES '.implode(',', $this->MultiValues);
+		$this->sql = 'INSERT INTO ' . $this->table . '(' . $this->MultiNames . ') VALUES '.implode(',', $this->MultiValues);
 		if($this->test && _DEVELOPERIS === true){
-			foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.$v[0].'\'', $sql);
-			echo $sql;
+			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
+			echo $this->sql;
 			exit;
 		}
-		$qry = DB::PDO($this->connName)->prepare($sql);
+		$qry = DB::PDO($this->connName)->prepare($this->sql);
 		foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
 		$res->result = $qry->execute();
+		if(!$res->result && _DEVELOPERIS === true && ($this->showError || (isset(BH_Application::$SettingData['showError']) && BH_Application::$SettingData['showError'] == true))) PrintError('Error');
+
 		return $res;
 	}
 
@@ -1080,36 +1107,46 @@ class BH_DB_Insert{
 				if(!strlen($minseq['seq'])) $minseq['seq'] = $this->MAXInt;
 
 				$minseq['seq'] --;
-				$sql = 'INSERT INTO ' . $this->table . '(' . $names . ', `' . $this->decrement . '`) VALUES (' . $values . ',' . $minseq['seq'] . ')';
+				$this->sql = 'INSERT INTO ' . $this->table . '(' . $names . ', `' . $this->decrement . '`) VALUES (' . $values . ',' . $minseq['seq'] . ')';
 				if($this->test && _DEVELOPERIS === true){
-					foreach($this->tableBindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
-					foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.$v[0].'\'', $sql);
-					echo $sql;
+					foreach($this->tableBindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
+					foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
+					echo $this->sql;
 					exit;
 				}
-				$qry = DB::PDO($this->connName)->prepare($sql.(isset($duplicateSql) ? ' '.$duplicateSql : ''));
+				$qry = DB::PDO($this->connName)->prepare($this->sql.(isset($duplicateSql) ? ' '.$duplicateSql : ''));
 				foreach($this->tableBindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
 				foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
 				$r = $qry->execute();
+				if(!$r && _DEVELOPERIS === true && ($this->showError || (isset(BH_Application::$SettingData['showError']) && BH_Application::$SettingData['showError'] == true))) PrintError('Error');
 				$cnt --;
 			}
 			$res->result = $r ? true : false;
 			$res->id = $minseq['seq'];
 		}
 		else{
-			$sql = 'INSERT INTO ' . $this->table . '(' . $names . ') VALUES (' . $values . ')'.(isset($duplicateSql) ? ' '.$duplicateSql : '');
+			$this->sql = 'INSERT INTO ' . $this->table . '(' . $names . ') VALUES (' . $values . ')'.(isset($duplicateSql) ? ' '.$duplicateSql : '');
 			if($this->test && _DEVELOPERIS === true){
-				foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.$v[0].'\'', $sql);
-				echo $sql;
+				foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
+				echo $this->sql;
 				exit;
 			}
 
-			$qry = DB::PDO($this->connName)->prepare($sql);
+			$qry = DB::PDO($this->connName)->prepare($this->sql);
 			foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
 			$res->result = $qry->execute();
 			if($res->result) $res->id = DB::PDO($this->connName)->lastInsertId();
+			else if(_DEVELOPERIS === true && ($this->showError || (isset(BH_Application::$SettingData['showError']) && BH_Application::$SettingData['showError'] == true))) PrintError('Error');
 		}
 		return $res;
+	}
+
+	public function PrintTest(){
+		if(_DEVELOPERIS === true){
+			foreach($this->tableBindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
+			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
+			echo $this->sql;
+		}
 	}
 
 	/**
@@ -1120,12 +1157,23 @@ class BH_DB_Insert{
 		$this->test = $bool;
 		return $this;
 	}
+
+	/**
+	 * @param bool $bool
+	 * @return $this
+	 */
+	public function &SetShowError($bool = false){
+		$this->showError = $bool;
+		return $this;
+	}
 }
 
 class BH_DB_Update{
 	public $table = '';
 	public $where = array();
 	public $data = array();
+	public $sql = '';
+	public $showError = false;
 	public $test = false;
 	public $sort = '';
 	private $connName = '';
@@ -1232,17 +1280,25 @@ class BH_DB_Update{
 			return $res;
 		}
 
-		$sql = 'UPDATE ' . $this->table . ' SET ' . $set . $where;
-		if($this->sort) $sql .= ' ORDER BY ' . $this->sort;
+		$this->sql = 'UPDATE ' . $this->table . ' SET ' . $set . $where;
+		if($this->sort) $this->sql .= ' ORDER BY ' . $this->sort;
 		if($this->test && _DEVELOPERIS === true){
-			foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.$v[0].'\'', $sql);
-			echo $sql;
+			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
+			echo $this->sql;
 			exit;
 		}
-		$qry = DB::PDO($this->connName)->prepare($sql);
+		$qry = DB::PDO($this->connName)->prepare($this->sql);
 		foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
 		$res->result = $qry->execute();
+		if(!$res->result && _DEVELOPERIS === true && ($this->showError || (isset(BH_Application::$SettingData['showError']) && BH_Application::$SettingData['showError'] == true))) PrintError('Error');
 		return $res;
+	}
+
+	public function PrintTest(){
+		if(_DEVELOPERIS === true){
+			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
+			echo $this->sql;
+		}
 	}
 
 	/**
@@ -1253,10 +1309,21 @@ class BH_DB_Update{
 		$this->test = $bool;
 		return $this;
 	}
+
+	/**
+	 * @param bool $bool
+	 * @return $this
+	 */
+	public function &SetShowError($bool = false){
+		$this->showError = $bool;
+		return $this;
+	}
 }
 
 class BH_DB_Delete{
 	public $table = '';
+	public $sql = '';
+	public $showError = false;
 	public $test = false;
 	private $where = array();
 	private $connName = '';
@@ -1310,18 +1377,26 @@ class BH_DB_Delete{
 		$where = '';
 		if(isset($this->where) && is_array($this->where) && sizeof($this->where)) $where = ' WHERE ' . implode(' AND ', $this->where);
 
-		$sql = 'DELETE FROM '.$this->table.' '.$where;
+		$this->sql = 'DELETE FROM '.$this->table.' '.$where;
 		if($this->test && _DEVELOPERIS === true){
-			foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.$v[0].'\'', $sql);
-			echo $sql;
+			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
+			echo $this->sql;
 			exit;
 
 		}
 
-		$qry = DB::PDO($this->connName)->prepare($sql);
+		$qry = DB::PDO($this->connName)->prepare($this->sql);
 		foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
 		$res = $qry->execute();
+		if(!$res && _DEVELOPERIS === true && ($this->showError || (isset(BH_Application::$SettingData['showError']) && BH_Application::$SettingData['showError'] == true))) PrintError('Error');
 		return $res;
+	}
+
+	public function PrintTest(){
+		if(_DEVELOPERIS === true){
+			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
+			echo $this->sql;
+		}
 	}
 
 	/**
@@ -1330,6 +1405,15 @@ class BH_DB_Delete{
 	 */
 	public function &SetTest($bool = false){
 		$this->test = $bool;
+		return $this;
+	}
+
+	/**
+	 * @param bool $bool
+	 * @return $this
+	 */
+	public function &SetShowError($bool = false){
+		$this->showError = $bool;
 		return $this;
 	}
 }
