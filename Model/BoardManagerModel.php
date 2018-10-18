@@ -294,13 +294,6 @@ class BoardManagerModel extends \BH_Model
 		return array();
 	}
 
-	public static function GetList($except_bid, $except_subid){
-		$qry = DB::GetListQryObj(TABLE_BOARD_MNG)
-			->SetSort('`bid`, `subject`');
-		$qry->AddWhere('`bid` <> %s OR (`bid` = %s AND `subid` <> %s)', $except_bid, $except_bid, $except_subid);
-		return $qry->GetRows();
-	}
-
 	/**
 	 * @return BH_DB_GetList
 	 */

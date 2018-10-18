@@ -19,16 +19,10 @@ var AppReply = {
 	},
 
 	ClickReset : function(){
-		AppReply.RemoveFormBox.call(this);
+		AppReply.RemoveFormBox();
 	},
 
 	RemoveFormBox : function(){
-		var form = $(this).closest('form');
-		if(form.length && form[0].id === 'repPwdForm'){
-			$('#replyPwdLayer').hide();
-			form[0].reset();
-			return;
-		}
 		var obj = $('#replyFormBox');
 		if(obj.hasClass('modifyForm')){
 			obj.closest('article').find('div.comment').show();
@@ -51,11 +45,17 @@ var AppReply = {
 		var seq = $('#repPwdForm input[name=seq]').val();
 		JCM.ajaxForm(this, function(data){
 			var btns = '<a href="#" class="answerBtn">답변</a><a href="#" class="modifyBtn">수정</a><a href="#" class="deleteBtn">삭제</a>';
-			$('#repArticle'+seq+' .commentText').html(data);
+			$('#repArticle'+seq).attr(data.file_name);
+			$('#repArticle'+seq+' .commentText').html(data.comment);
 			$('#repArticle'+seq+' .btns').html(btns);
 			$('#replyPwdLayer form')[0].reset();
 			$('#replyPwdLayer').hide();
 		});
+	},
+
+	ClickRepLayerReset : function(){
+		$(this).closest('form')[0].reset();
+		$(this).closest('div.repLayer').hide();
 	},
 
 	ClickDeleteBtn : function(e){
@@ -64,7 +64,7 @@ var AppReply = {
 		if(article.children('.repDeleteForm').length) return;
 
 		AppReply.RemoveFormBox();
-		article.append('<div id="replyFormBox" class="replyWrite replyDelete">' + $('#replyDeleteLayer').html() + '</div>');
+		article.find('header').after('<div id="replyFormBox" class="replyWrite replyDelete">' + $('#replyDeleteLayer').html() + '</div>');
 		var form = article.find('form');
 
 		var seq = $(this).closest('article').attr('data-seq');
@@ -93,6 +93,7 @@ var AppReply = {
 		var txt = $(this).closest('article').find('.commentText').text();
 
 		var article = $(this).closest('article');
+		var file_inp = AppReply.GetFileInput(article.attr('data-file-name'));
 
 		AppReply.RemoveFormBox();
 		article.append('<div id="replyFormBox" class="replyWrite modifyForm">' + $('#replyModifyLayer').html() + '</div>');
@@ -102,6 +103,8 @@ var AppReply = {
 		form[0].reset();
 		form.find('input[name=seq]').val(seq);
 		form.find('textarea[name=comment]').val(txt);
+		form.find('div.file_inp').remove();
+		form.find('.attachFileArea').html('<div class="file_inp">' + file_inp + '</div>');
 		if($(this).hasClass('myDoc')){
 			form.find('.pwdinp').hide();
 			form.find('.pwdinp input').attr('disabled', 'disabled');
@@ -128,6 +131,7 @@ var AppReply = {
 
 		AppReply.RemoveFormBox();
 		article.after('<article class="replyWrite replyAnswer" id="replyFormBox">' + $('#replyAnswerLayer').html() + '</article>');
+		article.next().find('.attachFileArea').html('<div class="file_inp">' + AppReply.GetFileInput('') + '</div>');
 	},
 
 	SubmitAnswerForm : function(e){
@@ -155,6 +159,8 @@ var AppReply = {
 
 			$(document).on('submit', '#repPwdForm', AppReply.SubmitPwdForm);
 
+			$(document).on('click', 'div.repLayer button[type=reset]', AppReply.ClickRepLayerReset);
+
 			// -------------------------------------
 			// Delete Reply
 			$(document).on('click', '#replyListContents a.deleteBtn', AppReply.ClickDeleteBtn);
@@ -172,6 +178,8 @@ var AppReply = {
 			$(document).on('click', '#replyListContents a.answerBtn', AppReply.ClickAnswerBtn);
 
 			$(document).on('submit', '#repAnswerForm', AppReply.SubmitAnswerForm);
+
+			JCM.fileForm();
 		}
 	},
 
@@ -179,5 +187,37 @@ var AppReply = {
 		JCM.ajaxForm('#replyGetForm', function(data){
 			$('#ReplyList').html(data);
 		});
+	},
+
+	GetMoreListInitIs : false,
+
+	GetMoreList : function(){
+		var article = $('#replyListContents > article');
+		if(article.length){
+			$('#replyGetMoreForm input[name=lastSeq]').val(article.last().attr('data-seq'));
+		}
+
+		JCM.ajaxForm('#replyGetMoreForm', function(data){
+			$('#replyListContents').append(data);
+		});
+
+		if(!AppReply.GetMoreListInitIs){
+			AppReply.GetMoreListInitIs = true;
+			$('#replyMoreViewBtn').on('click', function(e){
+				e.preventDefault();
+				AppReply.GetMoreList();
+			});
+		}
+	},
+
+	GetFileInput : function(fname){
+		fname = $.trim(fname);
+		var html = '<div class="fileUploadArea2"><input type="hidden" name="file" class="fileUploadInput" value=""><button type="button" class="fileUploadBtn sBtn">첨부파일</button>' +
+			'<p>' +
+			'<span class="fileName">' + fname + '</span>' +
+			(fname !== '' ? ' <label class="checkbox"><input type="checkbox" name="del_file_file" value="y"><span> 파일삭제</span></label>' : '') +
+			' </p>' +
+			'</div><script></script>';
+		return html;
 	}
 };

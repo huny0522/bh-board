@@ -12,11 +12,11 @@ use Common\ArticleAction;
 use \DB as DB;
 
 class Reply{
-	/* @var ReplyModel */
+	/* @var \ReplyModel */
 	public $model;
-	/* @var BoardModel */
+	/* @var \BoardModel */
 	public $boardModel;
-	/* @var BoardManagerModel */
+	/* @var \BoardManagerModel */
 	public $boardManger;
 	public $managerIs = false;
 	public $bid = '';
@@ -25,15 +25,15 @@ class Reply{
 	protected $Path = '';
 	public $uploadUrl = '';
 
-	protected function _PostModifyUpdateBefore(){}
-	protected function _PostModifyUpdateAfter(){}
-	protected function _PostWriteInsertBefore(){}
-	protected function _PostWriteInsertAfter($insertId){}
+	protected function _R_PostModifyUpdateBefore(){}
+	protected function _R_PostModifyUpdateAfter(){}
+	protected function _R_PostWriteInsertBefore(){}
+	protected function _R_PostWriteInsertAfter($insertId){}
 	/** @param \BH_DB_GetListWithPage $qry */
-	protected function _GetListQuery(&$qry){}
+	protected function _R_GetListQuery(&$qry){}
 	/** @param \BH_DB_GetList $qry */
-	protected function _MoreListQuery(&$qry){}
-	protected function _CommonQry(&$qry, $opt = null){}
+	protected function _R_MoreListQuery(&$qry){}
+	protected function _R_CommonQry(&$qry, $opt = null){}
 
 	public function __construct(){
 		$this->model = App::InitModel('Reply');
@@ -109,8 +109,8 @@ class Reply{
 			->SetPage(isset($_POST['page']) ? $_POST['page'] : 1)
 			->AddWhere('article_seq='.App::$Data['article_seq'])
 			->SetArticleCount(isset($this->boardManger) ? $this->boardManger->GetValue('reply_count') : 20);
-		$this->_CommonQry($dbList);
-		$this->_GetListQuery($dbList);
+		$this->_R_CommonQry($dbList);
+		$this->_R_GetListQuery($dbList);
 		$dbList->DrawRows();
 		foreach($dbList->data as &$row){
 			// 비밀번호없이 수정권한
@@ -164,11 +164,11 @@ class Reply{
 			->SetSort('sort1, sort2')
 			->AddWhere('article_seq= %d', App::$Data['article_seq'])
 			->SetLimit(isset($this->boardManger) ? $this->boardManger->GetValue('reply_count') : 20);
-		$this->_CommonQry($dbList);
-		$this->_GetListQuery($dbList);
+		$this->_R_CommonQry($dbList);
+		$this->_R_MoreListQuery($dbList);
 
-		if(isset($_POST['seq']) && strlen($_POST['seq'])){
-			$seq = to10($_POST['seq']);
+		if(strlen(Post('seq'))){
+			$seq = to10(Post('seq'));
 			$dbList->AddWhere('seq = %d', $seq);
 		}
 		else{
@@ -177,7 +177,7 @@ class Reply{
 					->AddWhere('article_seq = %d', App::$Data['article_seq'])
 					->AddWhere('seq = %d', $_POST['lastSeq'])
 					->SetKey('sort1, sort2');
-				$this->_CommonQry($qry);
+				$this->_R_CommonQry($qry);
 				$last = $qry->Get();
 
 				if($last) $dbList->AddWhere('sort1 > %d OR (sort1 = %d AND sort2 > %d)', $last['sort1'], $last['sort1'], $last['sort2']);
@@ -219,7 +219,7 @@ class Reply{
 			$row['kdate'] = krDate($row['reg_date'],'mdhi');
 		}
 
-		JSON(true, '', App::GetView(null, $dbList));
+		JSON(true, '', App::GetView($dbList));
 	}
 
 	public function PostWrite($answerIs = false){
@@ -233,7 +233,7 @@ class Reply{
 			$this->model->Need = 'pwd';
 		}
 
-		$res = $this->model->SetPostValues();
+		$res = $this->model->SetPostValuesWithFile();
 		if(!$res->result) JSON(false, $res->message);
 
 		$first_seq = '';
@@ -246,7 +246,7 @@ class Reply{
 				->AddWhere('article_seq='.$_POST['article_seq'])
 				->AddWhere('seq='.$target)
 				->SetKey(array('seq', 'first_seq', 'first_member_is', 'secret'));
-			$this->_CommonQry($dbGet);
+			$this->_R_CommonQry($dbGet);
 			$targetData = $dbGet->Get();
 			$first_seq = strlen($targetData['first_seq']) ? $targetData['first_seq'] : $targetData['seq'];
 			$first_member_is = $targetData['first_member_is'];
@@ -283,7 +283,7 @@ class Reply{
 				->SetKey('mname, depth, muid, sort1, sort2')
 				->AddWhere('article_seq = %d', App::$Data['article_seq'])
 				->AddWhere('seq = %d', $target);
-			$this->_CommonQry($qry);
+			$this->_R_CommonQry($qry);
 			$row = $qry->Get();
 
 			$qry = DB::UpdateQryObj($this->model->table)
@@ -292,7 +292,7 @@ class Reply{
 				->AddWhere('sort1 = %d', $row['sort1'])
 				->AddWhere('sort2 > %d', $row['sort2'])
 				->SetSort('sort2 DESC');
-			$this->_CommonQry($qry);
+			$this->_R_CommonQry($qry);
 			$res = $qry->Run();
 			if(!$res->result) JSON(false, 'ERROR#201');
 
@@ -308,7 +308,7 @@ class Reply{
 			$this->model->SetQueryValue('sort1', '(SELECT IF(COUNT(s.sort1) = 0, 0, MIN(s.sort1))-1 FROM '.$this->model->table.' as s WHERE s.article_seq='.App::$Data['article_seq'].')');
 		}
 
-		$this->_PostWriteInsertBefore();
+		$this->_R_PostWriteInsertBefore();
 
 		$error = $this->model->GetErrorMessage();
 		if(sizeof($error)) JSON(false, $error[0]);
@@ -316,7 +316,7 @@ class Reply{
 		$res = $this->model->DBInsert();
 
 		if($res->result){
-			$this->_PostWriteInsertAfter($res->id);
+			$this->_R_PostWriteInsertAfter($res->id);
 			// 댓글갯수 업데이트
 			$this->model->article_count_set($this->model->GetValue('article_seq'));
 			JSON(true, _MSG_COMPLETE_REGISTER);
@@ -329,7 +329,7 @@ class Reply{
 	}
 
 	public function PostViewSecret(){
-		$this->_GetData(App::$Data['article_seq'], $_POST['seq']);
+		$this->_GetData(App::$Data['article_seq'], Post('seq'));
 
 		if(!_password_verify($_POST['pwd'], $this->model->GetValue('pwd'))){
 			$same = false;
@@ -338,14 +338,14 @@ class Reply{
 					->AddWhere('article_seq = %d', $_POST['article_seq'])
 					->AddWhere('seq = %d', $this->model->GetValue('first_seq'))
 					->SetKey('pwd');
-				$this->_CommonQry($dbGet);
+				$this->_R_CommonQry($dbGet);
 				$first = $dbGet->Get();
 				if(_password_verify($_POST['pwd'], $first['pwd'])) $same = true;
 			}
 			if(!$same) JSON(false, _MSG_WRONG_PASSWORD);
 		}
 
-		JSON(true, '', nl2br(GetDBText($this->model->GetValue('comment'))));
+		JSON(true, '', array('comment' => nl2br(GetDBText($this->model->GetValue('comment'))), 'file_name' => $this->model->GetFileName('file')));
 	}
 
 	public function PostModify(){
@@ -357,22 +357,22 @@ class Reply{
 			$this->model->Need = 'mnane';
 		}
 
-		$this->_GetData(App::$Data['article_seq'], $_POST['seq']);
+		$this->_GetData(App::$Data['article_seq'], Post('seq'));
 
-		$res = $this->model->SetPostValues();
+		$res = $this->model->SetPostValuesWithFile();
 		if(!$res->result) JSON(false, $res->message);
 
 		// 회원 글 체크
 		if(strlen($this->model->GetValue('muid'))){
 			if(_MEMBERIS !== true) JSON(false, '#ERROR#101');
-			else if($this->model->GetValue('muid') != $_SESSION['member']['muid'] && CM::GetAdminIs()) JSON(false, 'ERROR#102');
+			else if($this->model->GetValue('muid') != $_SESSION['member']['muid'] && !CM::GetAdminIs()) JSON(false, 'ERROR#102');
 		}
 		else if(_MEMBERIS !== true || !CM::GetAdminIs()){
 			$qry = DB::GetQryObj($this->model->table, false)
 				->SetKey('pwd')
 				->AddWhere('article_seq = %d', $_POST['article_seq'])
-				->AddWhere('seq = %d', $_POST['seq']);
-			$this->_CommonQry($qry);
+				->AddWhere('seq = %d', Post('seq'));
+			$this->_R_CommonQry($qry);
 			$pwd = $qry->Get();
 			if(!_password_verify($_POST['pwd'], $pwd['pwd'])) JSON(false, _MSG_WRONG_PASSWORD);
 		}
@@ -389,7 +389,7 @@ class Reply{
 			}
 		}
 
-		$this->_PostModifyUpdateBefore();  // Reserved
+		$this->_R_PostModifyUpdateBefore();  // Reserved
 
 		$error = $this->model->GetErrorMessage();
 		if(sizeof($error)) JSON(false, $error[0]);
@@ -398,7 +398,7 @@ class Reply{
 		$res = $this->model->DBUpdate();
 
 		if($res->result){
-			$this->_PostModifyUpdateAfter();  // Reserved
+			$this->_R_PostModifyUpdateAfter();  // Reserved
 			JSON(true, _MSG_COMPLETE_MODIFY);
 		}
 		else JSON(false, $res->message ? $res->message : 'ERROR');
@@ -409,10 +409,10 @@ class Reply{
 		$res = $this->GetAuth('Write');
 		if(!$res) JSON(false, _MSG_NO_AUTH);
 
-		$seq = SetDBInt($_POST['seq']);
+		$seq = SetDBInt(Post('seq'));
 		$article_seq = SetDBInt($_POST['article_seq']);
 
-		$res = $this->_GetData(App::$Data['article_seq'], $_POST['seq']);
+		$res = $this->_GetData(App::$Data['article_seq'], Post('seq'));
 		if(!$res->result) JSON(false, $res->message ? $res->message : 'ERROR#201');
 
 		// 회원 글 체크
@@ -424,8 +424,8 @@ class Reply{
 			$qry = DB::GetQryObj($this->model->table, false)
 				->SetKey('pwd')
 				->AddWhere('article_seq = %d', $_POST['article_seq'])
-				->AddWhere('seq = %d', $_POST['seq']);
-			$this->_CommonQry($qry);
+				->AddWhere('seq = %d', Post('seq'));
+			$this->_R_CommonQry($qry);
 			$getpwd = $qry->Get();
 			if(!_password_verify($_POST['pwd'], $getpwd['pwd'])) JSON(false, _MSG_WRONG_PASSWORD);
 		}

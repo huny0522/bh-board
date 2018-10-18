@@ -2,8 +2,6 @@
 
 namespace Common;
 
-use \BH_Application as App;
-use \BH_Common as CM;
 use \DB as DB;
 
 class VisitCounter
@@ -29,11 +27,15 @@ class VisitCounter
 		$y = date('Y');
 		$m = date('m');
 		$d = date('d');
+		$h = date('H');
+		$w = date('w');
 
 		$this->today = array(
 			'y' => $y,
 			'm' => $m,
 			'd' => $d,
+			'h' => $h,
+			'w' => $w,
 			'ym' => $y.'-'.$m,
 			'ymd' => $y.'-'.$m.'-'.$d
 		);
@@ -56,6 +58,9 @@ class VisitCounter
 
 	/**
 	 * 접속 등록
+	 * 등록이 되면 true 반환
+	 *
+	 * @return bool
 	 */
 	public function InsertVisitCounter(){
 		if($this->_SessionEmptyCheck()){
@@ -63,7 +68,9 @@ class VisitCounter
 			$this->_InsertVisit();
 			$this->_InsertCounters('visit');
 			$this->_CreateSession();
+			return true;
 		}
+		return false;
 	}
 
 	public function GetTotal(){
@@ -74,6 +81,34 @@ class VisitCounter
 			->AddWhere('`d_h` = -1')
 			->AddWhere('`d_w` = -1')
 			->AddWhere('`type` = \'total\'' )
+			->Get();
+		if(!$res) $res = array('visit' => 0, 'login' => 0);
+		return $res;
+	}
+
+	public function GetToday(){
+		$res = DB::GetQryObj(TABLE_VISIT_COUNTER)
+			->AddWhere('`d_y` = %d', $this->today['y'])
+			->AddWhere('`d_m` = %d', $this->today['m'])
+			->AddWhere('`d_d` = %d', $this->today['d'])
+			->AddWhere('`d_h` = -1')
+			->AddWhere('`d_w` = -1')
+			->AddWhere('`type` = \'total\'' )
+			->SetKey('`d_y`,`d_m`,`d_d`, `visit`, `login`')
+			->Get();
+		if(!$res) $res = array('visit' => 0, 'login' => 0);
+		return $res;
+	}
+
+	public function GetDayMax(){
+		$res = DB::GetQryObj(TABLE_VISIT_COUNTER)
+			->AddWhere('`d_y` = %d', $this->today['y'])
+			->AddWhere('`d_m` = %d', $this->today['m'])
+			->AddWhere('`d_d` = %d', $this->today['d'])
+			->AddWhere('`d_h` = -1')
+			->AddWhere('`d_w` = -1')
+			->AddWhere('`type` = \'total\'' )
+			->SetKey('MAX(`visit`) as `visit`,MAX(`login`) as `login`')
 			->Get();
 		if(!$res) $res = array('visit' => 0, 'login' => 0);
 		return $res;
@@ -312,7 +347,7 @@ class VisitCounter
 	}
 
 	// 년도별
-	private function _GetStatisticsYear($beginY, $endY){
+	public function _GetStatisticsYear($beginY, $endY){
 		if($endY >= $this->today['y']) $endY = $this->today['y'];
 
 		if($beginY > $endY) $beginY = $endY;
@@ -360,7 +395,7 @@ class VisitCounter
 	}
 
 	// 월별
-	private function _GetStatisticsMonth($beginY, $beginM, $endY, $endM){
+	public function _GetStatisticsMonth($beginY, $beginM, $endY, $endM){
 		$endMonth = $endY.'-'.sprintf('%02d', $endM);
 		if($endMonth >= $this->today['ym']){
 			$endY = $this->today['y'];
@@ -422,7 +457,7 @@ class VisitCounter
 	}
 
 	// 일별
-	private function _GetStatisticsDay($beginY, $beginM, $beginD, $endY, $endM, $endD, $getPagingQry = false){
+	public function _GetStatisticsDay($beginY, $beginM, $beginD, $endY, $endM, $endD, $getPagingQry = false){
 		$endDay = $endY.'-'.sprintf('%02d', $endM).'-'.sprintf('%02d', $endD);
 		if($endDay >= $this->today['ymd']){
 			$endY = $this->today['y'];
@@ -443,10 +478,11 @@ class VisitCounter
 			->AddWhere('`d_y` < %d OR (`d_y` = %d AND `d_m` < %d) OR (`d_y` = %d AND `d_m` = %d AND `d_d` <= %d)', $endY, $endY, $endM, $endY, $endM, $endD)
 			->AddWhere('`d_m` > 0')
 			->AddWhere('`d_d` > 0')
+			->AddWhere('`d_h` = -1')
+			->AddWhere('`d_w` = -1')
 			->AddWhere('`type` = \'total\'')
-			->SetGroup('`d_y`, `d_m`, `d_d`')
 			->SetSort('`d_y` DESC, `d_m` DESC, `d_d` DESC')
-			->SetKey('`d_y`,`d_m`,`d_d`,SUM(`visit`) as `visit`,SUM(`login`) as `login`');
+			->SetKey('`d_y`,`d_m`,`d_d`,`visit`, `login`');
 
 		if($getPagingQry) return $qry;
 
@@ -519,7 +555,7 @@ class VisitCounter
 	}
 
 	// 종류별 통계 가져오기
-	private function _GetStatisticsByType($beginY, $beginM, $beginD, $endY, $endM, $endD, $type = 'hour'){
+	public function _GetStatisticsByType($beginY, $beginM, $beginD, $endY, $endM, $endD, $type = 'hour'){
 		$res = array();
 
 		$endDay = $endY.'-'.sprintf('%02d', $endM).'-'.sprintf('%02d', $endD);
@@ -786,6 +822,39 @@ class VisitCounter
 				->SetDataNum($countField , 1)
 				->Run();
 		}
+
+		$dd = DB::GetQryObj(TABLE_VISIT_COUNTER)
+			->AddWhere('`d_y` = %d', $this->today['y'])
+			->AddWhere('`d_m` = %d', $this->today['m'])
+			->AddWhere('`d_d` = %d', $this->today['d'])
+			->AddWhere('`d_h` = -1')
+			->AddWhere('`d_w` = -1')
+			->AddWhere('`type` = \'total\'' )
+			->SetKey('type')
+			->Get();
+
+		if($dd){
+			DB::UpdateQryObj(TABLE_VISIT_COUNTER)
+				->AddWhere('`d_y` = %d', $this->today['y'])
+				->AddWhere('`d_m` = %d', $this->today['m'])
+				->AddWhere('`d_d` = %d', $this->today['d'])
+				->AddWhere('`d_h` = -1')
+				->AddWhere('`d_w` = -1')
+				->AddWhere('`type` = \'total\'')
+				->SetData($countField , '`' . $countField  .'` + 1')
+				->Run();
+		}
+		else{
+			DB::InsertQryObj(TABLE_VISIT_COUNTER)
+				->SetDataStr('d_y', $this->today['y'])
+				->SetDataStr('d_m', $this->today['m'])
+				->SetDataStr('d_d', $this->today['d'])
+				->SetDataStr('d_h', -1)
+				->SetDataStr('d_w', -1)
+				->SetDataStr('type', 'total')
+				->SetDataNum($countField , 1)
+				->Run();
+		}
 	}
 
 	private function _InsertVisit(){
@@ -800,11 +869,11 @@ class VisitCounter
 	}
 
 	private function _InsertCounter($countField, $type = 'total', $type_detail = ''){
-		$y = date('Y');
-		$m = date('m');
-		$d = date('d');
-		$h = date('h');
-		$w = date('w');
+		$y = $this->today['y'];
+		$m = $this->today['m'];
+		$d = $this->today['d'];
+		$h = $this->today['h'];
+		$w = $this->today['w'];
 
 		$dt = DB::GetQryObj(TABLE_VISIT_COUNTER)
 			->AddWhere('`d_y` = %d', $y)

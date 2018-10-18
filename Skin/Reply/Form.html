@@ -4,6 +4,13 @@
 	<input type="hidden" name="article_pwd" value="<?v. isset($_POST['pwd']) ? $_POST['pwd'] : '' ?>">
 </form>
 
+<form id="replyGetMoreForm" name="replyGetMoreForm" action="<?c. $Controller . '/MoreList' ?>" method="post">
+	<input type="hidden" name="page" value="0">
+	<input type="hidden" name="lastSeq" value="">
+	<input type="hidden" name="article_seq" value="<?p. $ArticleSeq ?>">
+	<input type="hidden" name="article_pwd" value="<?v. isset($_POST['pwd']) ? $_POST['pwd'] : '' ?>">
+</form>
+
 <?php if(_MEMBERIS !== true){ ?>
 	<div id="replyPwdLayer" class="repLayer hidden">
 		<form id="repPwdForm" name="repPwdForm" method="post" action="<?c. $Controller.'/ViewSecret' ?>">
@@ -28,7 +35,7 @@
 		<input type="hidden" name="article_seq" value="<?p. $ArticleSeq ?>">
 		<input type="hidden" name="seq" value="">
 		<fieldset class="pwd">
-			<p>정말 삭제하시겠습니까?<br><span>삭제하시려면 비밀번호를 입력하여 주세요.</span></p>
+			<p>정말 삭제하시겠습니까?<br><span class="pwdinp">삭제하시려면 비밀번호를 입력하여 주세요.</span></p>
 			<span class="pwdinp"><input type="password" name="pwd" required></span>
 		</fieldset>
 		<div class="btn">
@@ -52,6 +59,7 @@
 			<input type="password" name="pwd" required>
 		</fieldset>
 
+		<div class="attachFileArea"></div>
 		<div class="btn">
 			<button type="submit" class="sBtn btn2">등록</button>
 			<button type="reset" class="sBtn close">취소</button>
@@ -81,10 +89,10 @@
 		<fieldset class="text">
 			<textarea name="comment" placeholder="내용을 입력해 주세요." required></textarea>
 		</fieldset>
-
+		<div class="attachFileArea"></div>
 		<div class="btn">
 			<button type="submit" class="sBtn btn2">등록</button>
-			<button type="reset" class="sBtn btn close">취소</button>
+			<button type="reset" class="sBtn close">취소</button>
 		</div>
 	</form>
 </div>

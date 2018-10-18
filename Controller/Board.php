@@ -331,7 +331,7 @@ class Board{
 		// 리스트를 불러온다.
 		$dbList = $this->model->NewQryName('default')->GetSetPageListQry('A');
 
-		if($this->boardManger->_list_show_notice->txt() == 'n') $dbList->AddWhere('A.notice=\'n\'');
+		if($this->boardManger->_list_show_notice->txt() == 'n' && ($s_page < 2) && !strlen($s_keyword)) $dbList->AddWhere('A.notice=\'n\'');
 
 		$dbList->SetSort('A.sort1, A.sort2')
 			->SetPage($s_page)
@@ -386,7 +386,7 @@ class Board{
 		// 리스트를 불러온다.
 		$dbList = $this->model->NewQryName('default')->GetSetListQry('A');
 
-		if($this->boardManger->_list_show_notice->txt() == 'n') $dbList->AddWhere('A.notice=\'n\'');
+		if($this->boardManger->_list_show_notice->txt() == 'n' && !strlen($s_keyword)) $dbList->AddWhere('A.notice=\'n\'');
 
 		$dbList->SetLimit($this->boardManger->GetValue('article_count'))
 			->SetSort('A.sort1, A.sort2');
@@ -852,7 +852,7 @@ class Board{
 			$this->_R_PostWriteInsertAfter($res->id);  // Reserved
 
 			// 알람
-			if(class_exists('PHPMailer\\PHPMailer\\PHPMailer') && App::$Action == 'Answer' && App::$Data['targetData']['email_alarm'] == 'y' && strlen(App::$Data['targetData']['email'])){
+			if(class_exists('PHPMailer\\PHPMailer\\PHPMailer') && App::$Action == 'Answer' && App::$Data['targetData']['email_alarm'] == 'y' && strlen(App::$Data['targetData']['email']) && CM::Config('Default', 'SendEmail')){
 				$mail = new Email();
 				$mail->AddMail(App::$Data['targetData']['email'], App::$Data['targetData']['mname']);
 				if($this->AdminPathIs) $url = _URL . '/Board/' . $this->bid . '-'. $this->subid . '/View/' . toBase($res->id);
@@ -1518,7 +1518,9 @@ class Board{
 
 	public function _CheckActionModal(){
 		if($this->managerIs){
-			$bmList = \BoardManagerModel::GetList($this->bid, $this->subid);
+			$bmList = DB::GetListQryObj(TABLE_BOARD_MNG)
+				->SetSort('`bid`, `subject`')
+				->GetRows();
 			$html = '<div id="checkActionModal" class="modal_layer" data-close-type="hidden">
 		<div class="modal_wrap">
 			<header class="modal_header">
@@ -1535,7 +1537,7 @@ class Board{
 					<ul>';
 			foreach($bmList as $v){
 				$html .= '<li>
-								<button type="button" class="boardActionArticleBtn" data-bid="' . GetDBText($v['bid']) .'" data-subid="' . GetDBText($v['subid']) .'" id="btn-' . GetDBText($v['bid']) .'-'. GetDBText($v['subid']) . '" data-category="'. GetDBText($v['category']) . '" data-sub-category="'. GetDBText($v['sub_category']) . '">'. GetDBText($v['bid']) . ' - '. GetDBText($v['subject']) . '</button>
+								<button type="button" class="boardActionArticleBtn" data-bid="' . GetDBText($v['bid']) .'" data-subid="' . GetDBText($v['subid']) .'" id="btn-' . GetDBText($v['bid']) .'-'. GetDBText($v['subid']) . '" data-category="'. GetDBText($v['category']) . '" data-sub-category="'. GetDBText($v['sub_category']) . '">'. GetDBText($v['bid']) . ' - '. GetDBText($v['subject']) .'('. GetDBText($v['subid']).')' . '</button>
 							</li>';
 			}
 
