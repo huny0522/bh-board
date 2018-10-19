@@ -45,7 +45,7 @@ class Statistics
 
 		$qry = DB::GetListPageQryObj(TABLE_VISIT)
 			->SetGroup('`ip`')
-			->SetKey('*, COUNT(*) as `cnt`')
+			->SetKey('*, SUM(visit) as `cnt`')
 			->SetSort('`cnt` DESC, `dt` DESC')
 			->AddWhere('`dt` BETWEEN %s AND %s', $y.'-'.$m.'-01', $y.'-'.$m.'-' . $l)
 			->SetPage(Get('page'))

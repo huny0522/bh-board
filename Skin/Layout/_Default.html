@@ -54,7 +54,7 @@ if($activeCategory){
 				</ul>
 			</nav>
 			<nav id="tnb">
-					<?php echo $menuHelp->SetHead('<ul>')->SetTail('</ul>')->Html($menuHelp->GetRootCategory(), function($subCategory) use ($menuHelp){
+					<?php echo $menuHelp->Reset()->SetHead('<ul>')->SetTail('</ul>')->Html($menuHelp->GetRootCategory(), function($subCategory) use ($menuHelp){
 						return $menuHelp->SetHead('<ol>')->SetTail('</ol>')->Html($subCategory);
 					});
 					?>
@@ -67,8 +67,8 @@ if($activeCategory){
 		<div id="container_wrap">
 
 			<?php
-			if($activeCategory){
-				echo $menuHelp->SetHead('<div id="lnb"><h2>' . GetDBText($firstActiveMenu['title']) . '</h2><nav><ul>')
+			if(strlen($activeCategory)){
+				echo $menuHelp->Reset()->SetHead('<div id="lnb"><h2>' . GetDBText($firstActiveMenu['title']) . '</h2><nav><ul>')
 					->SetTail('</ul></nav></div>')
 					->Html($firstActiveMenu['category']);
 			}

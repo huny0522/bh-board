@@ -243,6 +243,7 @@ ENGINE=InnoDB";
 	`os` VARCHAR(64) NOT NULL DEFAULT '' COLLATE 'utf8_unicode_ci',
 	`device` VARCHAR(64) NOT NULL DEFAULT '' COLLATE 'utf8_unicode_ci',
 	`uri` VARCHAR(256) NOT NULL DEFAULT '' COLLATE 'utf8_unicode_ci',
+	`visit` SMALLINT(6) NOT NULL DEFAULT '1',
 	PRIMARY KEY (`ip`, `dt`)
 )
 COLLATE='utf8_unicode_ci'

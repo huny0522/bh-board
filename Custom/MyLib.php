@@ -26,14 +26,20 @@ App::$ExtendMethod['AfterSetView'] = function(){
 App::$SettingData['tinyMCEPath'] = _SKINURL . '/js/tinymce/tinymce.min.js';
 */
 
+// 에러 출력 여부
+App::$SettingData['showError'] = false;
+
 App::$SettingData['noImg'] = _UPLOAD_URL . CM::Config('Default', 'noImg');
 
 // 컨트롤러 생성 바로 다음
 App::$ExtendMethod['createControllerInstance'] = function(){
 
-	// 접속 카운터
-	$vcnt = \Common\VisitCounter::GetInstance();
-	$vcnt->InsertVisitCounter();
+	if(App::$ControllerName !== 'Install'){
+
+		// 접속 카운터
+		$vcnt = \Common\VisitCounter::GetInstance();
+		$vcnt->InsertVisitCounter();
+	}
 
 	// 회원 정보 수정 비밀번호 입력 초기화
 	if(_MEMBERIS === true && App::$SettingData['GetUrl'][1] != 'MyPage' && App::$SettingData['GetUrl'][1] != 'Upload'){

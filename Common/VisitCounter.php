@@ -780,7 +780,7 @@ class VisitCounter
 		$this->device = $this->GetDevice();
 		$this->os = $this->GetOS();
 		$this->browser = $this->GetBrowser();
-		$this->http_referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+		$this->http_referer = (isset($_SERVER['HTTP_REFERER']) && strlen($_SERVER['HTTP_REFERER']) && substr($_SERVER['HTTP_REFERER'], 0, strlen(_DOMAIN) !== _DOMAIN)) ? $_SERVER['HTTP_REFERER'] : 'Direct';
 	}
 
 	private function _InsertCounters($countField){

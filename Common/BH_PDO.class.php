@@ -1083,7 +1083,7 @@ class BH_DB_Insert{
 
 		if(sizeof($this->duplicateData)){
 			$set = array();
-			foreach($this->data as $k => $v) $set[]= '`' . $k . '` = ' . $v;
+			foreach($this->duplicateData as $k => $v) $set[]= '`' . $k . '` = ' . $v;
 			$duplicateSql = 'ON DUPLICATE KEY UPDATE '.implode(', ', $set);
 		}
 
