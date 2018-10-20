@@ -27,9 +27,9 @@ App::$SettingData['tinyMCEPath'] = _SKINURL . '/js/tinymce/tinymce.min.js';
 */
 
 // 에러 출력 여부
-App::$SettingData['showError'] = false;
+App::$SettingData['showError'] = true;
 
-App::$SettingData['noImg'] = _UPLOAD_URL . CM::Config('Default', 'noImg');
+App::$SettingData['noImg'] = _UPLOAD_URL . App::$CFG->Def()->noImg->value;
 
 // 컨트롤러 생성 바로 다음
 App::$ExtendMethod['createControllerInstance'] = function(){

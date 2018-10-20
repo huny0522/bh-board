@@ -6,8 +6,9 @@ use \BH_Application as App;
 /**
  * @var $Ctrl \Controller\Admin\Config
  */
+$cfg = App::$CFG->Def();
 
-$NaverClientId = CM::Config('Default', 'NaverClientId');
+$NaverClientId = $cfg->naverClientId->value;
 $useLatLng = true;
 if(strlen($NaverClientId)){
 	App::JSAdd('https://openapi.map.naver.com/openapi/v3/maps.js?clientId='. $NaverClientId . '&submodules=geocoder');
@@ -17,9 +18,9 @@ if(strlen($NaverClientId)){
 <h2><?p. AdminTitleSet() ?></h2>
 
 <form name="ConfigForm" id="ConfigForm" method="post" action="<?a. 'Write' ?>" enctype="multipart/form-data">
-	<input type="hidden" name="Code" value="<?v. App::$Data['Code'] ?>">
-	<input type="hidden" name="lat" value="<?v. CM::Config(App::$Data['Code'], 'lat') ?>" id="MD_lat">
-	<input type="hidden" name="lng" value="<?v. CM::Config(App::$Data['Code'], 'lng') ?>" id="MD_lng">
+	<input type="hidden" name="Code" value="<?v. $cfg->GetCode() ?>">
+	<?p. $cfg->lat->PrintHidden() ?>
+	<?p. $cfg->lng->PrintHidden() ?>
 
 	<fieldset>
 		<h3>기본설정</h3>
@@ -32,80 +33,80 @@ if(strlen($NaverClientId)){
 				<col>
 			</colgroup>
 			<tr>
-				<th>회사명</th>
+				<th><?v. $cfg->company->title ?></th>
 				<td colspan="3">
-					<input type="text" name="Company" value="<?v. CM::Config(App::$Data['Code'], 'Company') ?>" class="w30p">
+					<?p. $cfg->company->PrintInput('w30p') ?>
 				</td>
 			</tr>
 			<tr>
-				<th>사이트명</th>
+				<th><?v. $cfg->siteName->title ?></th>
 				<td colspan="3">
-					<input type="text" name="SiteName" value="<?v. CM::Config(App::$Data['Code'], 'SiteName') ?>" class="w100p">
+					<?p. $cfg->siteName->PrintInput('w100p') ?>
 				</td>
 			</tr>
 			<tr>
 				<th>회사주소</th>
 				<td colspan="3" class="daumAddress">
 					<p>
-						<input type="text" name="zipcode" value="<?v. CM::Config(App::$Data['Code'], 'zipcode') ?>" class="zipcode w10p">
+						<?p. $cfg->zipCode->PrintInput('zipcode w10p') ?>
 						<button type="button" class="sBtn" id="findAddressBtn1">우편번호 찾기</button>
 					</p>
 					<p>
-						<input type="text" id="MD_address1" name="Address1" value="<?v. CM::Config(App::$Data['Code'], 'Address1') ?>" class="address1 w40p">&nbsp;&nbsp;&nbsp;
-						상세주소 : <input type="text" id="MD_address2" name="Address2" value="<?v. CM::Config(App::$Data['Code'], 'Address2') ?>" class="address2 w40p"><br>
+						<?p. $cfg->address1->PrintInput('address1 w40p') ?>&nbsp;
+						상세주소 : <?p. $cfg->address1->PrintInput('address2 w40p') ?><br>
 					</p>
 				</td>
 			</tr>
 			<tr>
-				<th>대표자명</th>
+				<th><?v. $cfg->ceo->title ?></th>
 				<td>
-					<input type="text" name="CEO" value="<?v. CM::Config(App::$Data['Code'], 'CEO') ?>" class="w40p">
+					<?p. $cfg->ceo->PrintInput('w40p') ?>
 				</td>
-				<th>이메일</th>
+				<th><?v. $cfg->email->title ?></th>
 				<td>
-					<input type="text" name="Email" value="<?v. CM::Config(App::$Data['Code'], 'Email') ?>" class="w100p">
-				</td>
-			</tr>
-			<tr>
-				<th>연락처</th>
-				<td>
-					<input type="text" name="Tel" value="<?v. CM::Config(App::$Data['Code'], 'Tel') ?>" class="w60p">
-				</td>
-				<th>팩스</th>
-				<td>
-					<input type="text" name="Fax" value="<?v. CM::Config(App::$Data['Code'], 'Fax') ?>" class="w60p">
+					<?p. $cfg->email->PrintInput('w100p') ?>
 				</td>
 			</tr>
 			<tr>
-				<th>사업자등록번호</th>
+				<th><?v. $cfg->tel->title ?></th>
 				<td>
-					<input type="text" name="bNumber" value="<?v. CM::Config(App::$Data['Code'], 'bNumber') ?>" class="w60p">
+					<?p. $cfg->tel->PrintInput('w60p') ?>
 				</td>
-				<th>통신판매업 신고번호</th>
+				<th><?v. $cfg->fax->title ?></th>
 				<td>
-					<input type="text" name="oNumber" value="<?v. CM::Config(App::$Data['Code'], 'oNumber') ?>" class="w60p">
-				</td>
-			</tr>
-			<tr>
-				<th>개인정보책임자 연락처</th>
-				<td>
-					<input type="text" name="privacyTel" value="<?v. CM::Config(App::$Data['Code'], 'privacyTel') ?>" class="w40p">
-				</td>
-				<th>개인정보책임자 이메일</th>
-				<td>
-					<input type="text" name="privacyEmail" value="<?v. CM::Config(App::$Data['Code'], 'privacyEmail') ?>" class="w40p">
+					<?p. $cfg->fax->PrintInput('w60p') ?>
 				</td>
 			</tr>
 			<tr>
-				<th>통합고객센터</th>
+				<th><?v. $cfg->bNumber->title ?></th>
+				<td>
+					<?p. $cfg->bNumber->PrintInput('w60p') ?>
+				</td>
+				<th><?v. $cfg->oNumber->title ?></th>
+				<td>
+					<?p. $cfg->oNumber->PrintInput('w60p') ?>
+				</td>
+			</tr>
+			<tr>
+				<th><?v. $cfg->privacyTel->title ?></th>
+				<td>
+					<?p. $cfg->privacyTel->PrintInput('w40p') ?>
+				</td>
+				<th><?v. $cfg->privacyEmail->title ?></th>
+				<td>
+					<?p. $cfg->privacyEmail->PrintInput('w40p') ?>
+				</td>
+			</tr>
+			<tr>
+				<th><?v. $cfg->csTel->title ?></th>
 				<td colspan="3">
-					<input type="text" name="csTel" value="<?v. CM::Config(App::$Data['Code'], 'csTel') ?>" class="w40p">
+					<?p. $cfg->csTel->PrintInput('w40p') ?>
 				</td>
 			</tr>
 			<tr>
-				<th>통합고객센터 시간</th>
+				<th><?v. $cfg->csTelTime->title ?></th>
 				<td colspan="3">
-					<textarea name="csTelTime"><?v. CM::Config(App::$Data['Code'], 'csTelTime') ?></textarea>
+					<?p. $cfg->csTelTime->PrintInput() ?>
 				</td>
 			</tr>
 		</table>
@@ -116,59 +117,59 @@ if(strlen($NaverClientId)){
 
 		<table class="write">
 			<tr>
-				<th>로고</th>
+				<th><?v. $cfg->logoUrl->title ?></th>
 				<td colspan="3">
-					<?p. $Ctrl->_ImageInput(App::$Data['Code'], 'LogoUrl') ?>
+					<?p. $cfg->logoUrl->PrintInput() ?>
 				</td>
 			</tr>
 			<tr>
-				<th>하단로고</th>
+				<th><?v. $cfg->footLogoUrl->title ?></th>
 				<td colspan="3">
-					<?p. $Ctrl->_ImageInput(App::$Data['Code'], 'FootLogoUrl') ?>
+					<?p. $cfg->footLogoUrl->PrintInput() ?>
 				</td>
 			</tr>
 			<tr>
-				<th>모바일 로고</th>
+				<th><?v. $cfg->mobileLogoUrl->title ?></th>
 				<td colspan="3">
-					<?p. $Ctrl->_ImageInput(App::$Data['Code'], 'MobileLogoUrl') ?>
+					<?p. $cfg->mobileLogoUrl->PrintInput() ?>
 				</td>
 			</tr>
 			<tr>
-				<th>이메일 상단로고</th>
+				<th><?v. $cfg->emailLogoUrl->title ?></th>
 				<td colspan="3">
-					<?p. $Ctrl->_ImageInput(App::$Data['Code'], 'EmailLogoUrl') ?>
+					<?p. $cfg->emailLogoUrl->PrintInput() ?>
 				</td>
 			</tr>
 			<tr>
-				<th>이미지 없음</th>
+				<th><?v. $cfg->noImg->title ?></th>
 				<td colspan="3">
-					<?p. $Ctrl->_ImageInput(App::$Data['Code'], 'noImg') ?>
+					<?p. $cfg->noImg->PrintInput() ?>
 				</td>
 			</tr>
 			<?php if(class_exists('\\PHP_ICO')){ ?>
 			<tr>
-				<th>Favicon</th>
+				<th><?v. $cfg->faviconPng->title ?></th>
 				<td colspan="3">
-					<?p. $Ctrl->_ImageInput(App::$Data['Code'], 'FaviconPng') ?>
+					<?p. $cfg->faviconPng->PrintInput() ?>
 				</td>
 			</tr>
 			<?php } ?>
 			<tr>
-				<th>COPYRIGHT</th>
+				<th><?v. $cfg->copyright->title ?></th>
 				<td colspan="3">
-					<input type="text" name="Copyright" value="<?v. CM::Config(App::$Data['Code'], 'Copyright') ?>" class="w100p">
+					<?p. $cfg->copyright->PrintInput('w100p') ?>
 				</td>
 			</tr>
 			<tr>
-				<th>추가 HEAD</th>
+				<th><?v. $cfg->addHead->title ?></th>
 				<td colspan="3">
-					<textarea name="addHead"><?v. CM::Config(App::$Data['Code'], 'addHead') ?></textarea>
+					<?p. $cfg->addHead->PrintInput() ?>
 				</td>
 			</tr>
 			<tr>
-				<th>새글 표시기간</th>
+				<th><?v. $cfg->newIconDay->title ?></th>
 				<td colspan="3">
-					<input type="text" name="NewIconDay" value="<?v. CM::Config(App::$Data['Code'], 'NewIconDay') ?>" class="w5p">
+					<?p. $cfg->newIconDay->PrintInput('w5p') ?>
 				</td>
 			</tr>
 		</table>
@@ -180,36 +181,30 @@ if(strlen($NaverClientId)){
 		<table class="write">
 			<?php if(isset(App::$SettingData['tinyMCEPath']) && strlen(App::$SettingData['tinyMCEPath']) && file_exists(_DIR . App::$SettingData['tinyMCEPath'])){ ?>
 			<tr>
-				<th>HTML 에디터</th>
+				<th><?v. $cfg->htmlEditor->title ?></th>
 				<td colspan="3">
-					<label class="radio"><input type="radio" name="htmlEditor" value="smarteditor2" <?p. CM::Config(App::$Data['Code'], 'htmlEditor') != 'tinymce' ? 'checked' : '' ?>><span>SmartEditor2</span></label>
-
-					<label class="radio"><input type="radio" name="htmlEditor" value="tinymce" <?p. CM::Config(App::$Data['Code'], 'htmlEditor') == 'tinymce' ? 'checked' : '' ?>><span>TinyMCE</span></label>
+					<?p. $cfg->htmlEditor->PrintInput() ?>
 				</td>
 			</tr>
 			<?php } ?>
 			<tr>
-				<th>메일아이디 사용</th>
+				<th><?v. $cfg->useMailId->title ?></th>
 				<td colspan="3">
-					<label class="checkbox"><input type="checkbox" name="useMailId" value="y" <?p. CM::Config(App::$Data['Code'], 'useMailId') == 'y' ? 'checked' : '' ?>><span>사용</span></label>
+					<?p. $cfg->useMailId->PrintInput() ?>
 
-					<label class="checkbox"><input type="checkbox" name="mailIdAddrSelection" value="y" <?p. CM::Config(App::$Data['Code'], 'mailIdAddrSelection') == 'y' ? 'checked' : '' ?>><span>메일주소 선택 표시</span></label>
+					<?p. $cfg->mailIdAddrSelection->PrintInput() ?>
 				</td>
 			</tr>
 			<tr>
-				<th>가입 즉시 사용</th>
+				<th><?v. $cfg->joinApprove->title ?></th>
 				<td colspan="3">
-					<label class="radio"><input type="radio" name="joinApprove" value="n" <?p. CM::Config(App::$Data['Code'], 'joinApprove') != 'y' ? 'checked' : '' ?>><span>가입 후 승인 필요</span></label>
-
-					<label class="radio"><input type="radio" name="joinApprove" value="y" <?p. CM::Config(App::$Data['Code'], 'joinApprove') == 'y' ? 'checked' : '' ?>><span>가입즉시 로그인 가능</span></label>
+					<?p. $cfg->joinApprove->PrintInput() ?>
 				</td>
 			</tr>
 			<tr>
-				<th>이메일 인증 사용</th>
+				<th><?v. $cfg->emailCer->title ?></th>
 				<td colspan="3">
-					<label class="radio"><input type="radio" name="EmailCer" value="y" <?p. CM::Config(App::$Data['Code'], 'EmailCer') != 'n' ? 'checked' : '' ?>><span>이메일 인증 사용</span></label>
-
-					<label class="radio"><input type="radio" name="EmailCer" value="n" <?p. CM::Config(App::$Data['Code'], 'EmailCer') == 'n' ? 'checked' : '' ?>><span>이메일 인증 사용안함</span></label>
+					<?p. $cfg->emailCer->PrintInput() ?>
 					<ul class="guide">
 						<li>* 이메일 인증을 사용하려면 '가입 후 승인 필요'로 설정하셔야합니다.</li>
 						<li>* 이메일 인증시 승인이 자동으로 됩니다.</li>
@@ -217,33 +212,33 @@ if(strlen($NaverClientId)){
 				</td>
 			</tr>
 			<tr>
-				<th>발송메일주소</th>
+				<th><?v. $cfg->sendEmail->title ?></th>
 				<td>
-					<input type="text" name="SendEmail" value="<?v. CM::Config(App::$Data['Code'], 'SendEmail') ?>" class="w100p">
+					<?p. $cfg->sendEmail->PrintInput('w100p') ?>
 				</td>
-				<th>발송메일표시명</th>
+				<th><?v. $cfg->emailName->title ?></th>
 				<td>
-					<input type="text" name="EmailName" value="<?v. CM::Config(App::$Data['Code'], 'EmailName') ?>" class="w100p">
+					<?p. $cfg->emailName->PrintInput('w100p') ?>
 				</td>
 			</tr>
 			<tr>
-				<th>네이버 CLIENT ID</th>
+				<th><?v. $cfg->naverClientId->title ?></th>
 				<td>
-					<input type="text" name="NaverClientId" value="<?v. CM::Config(App::$Data['Code'], 'NaverClientId') ?>" class="w100p">
+					<?p. $cfg->naverClientId->PrintInput('w100p') ?>
 				</td>
-				<th>네이버 SECRET KEY</th>
+				<th><?v. $cfg->naverSKey->title ?></th>
 				<td>
-					<input type="text" name="NaverSKey" value="<?v. CM::Config(App::$Data['Code'], 'NaverSKey') ?>" class="w100p">
+					<?p. $cfg->naverSKey->PrintInput('w100p') ?>
 				</td>
 			</tr>
 			<tr>
 				<th>인스타그램</th>
 				<td colspan="3">
 					<p>
-						client id : <input type="text" name="InstagramCID" value="<?v. CM::Config(App::$Data['Code'], 'InstagramCID') ?>" class="w30p">
-						redirect uri : <input type="text" name="InstagramRUri" value="<?v. CM::Config(App::$Data['Code'], 'InstagramRUri') ?>" class="w50p">
+						client id : <?p. $cfg->instagramCID->PrintInput('w30p') ?>
+						redirect uri : <?p. $cfg->instagramRUri->PrintInput('w50p') ?>
 					</p>
-					<p>access token : <input type="text" name="InstagramToken" value="<?v. CM::Config(App::$Data['Code'], 'InstagramToken') ?>" class="w30p">
+					<p>access token : <?p. $cfg->instagramToken->PrintInput('w30p') ?>
 
 						<a href="#" id="getIgAccessToken" class="sBtn">access token 받기</a>
 					<p class="guide">*'client id'항목과 'redirect uri'항목을 먼저 먼저 입력 후 토큰받기를 시도하세요.</p>
@@ -282,15 +277,15 @@ if(strlen($NaverClientId)){
 	$(document).on('click', '#findAddressBtn1', App.FindDaumAddress);
 
 	<?php if($useLatLng){ ?>
-	$('#MD_address2, #MD_address2').on('focusout', function(){
+	$('#CFG_address2, #CFG_address2').on('focusout', function(){
 		if(!this.hasAttribute('data-before') || $(this).attr('data-before') !== $(this).val()){
 
-			var addr1 = $.trim($('#MD_address1').val());
-			var addr2 = $.trim($('#MD_address2').val());
+			var addr1 = $.trim($('#CFG_address1').val());
+			var addr2 = $.trim($('#CFG_address2').val());
 
 			if(addr1 === '' || addr2 === ''){
-				$('#MD_lat').val('');
-				$('#MD_lng').val('');
+				$('#CFG_lat').val('');
+				$('#CFG_lng').val('');
 				return;
 			}
 
@@ -302,12 +297,12 @@ if(strlen($NaverClientId)){
 			addressToLoc(addr1, addr2, function(lat, lng){
 				console.log(lat,lng);
 				if(lat === false){
-					$('#MD_lat').val('');
-					$('#MD_lng').val('');
+					$('#CFG_lat').val('');
+					$('#CFG_lng').val('');
 					return;
 				}
-				$('#MD_lat').val(lat);
-				$('#MD_lng').val(lng);
+				$('#CFG_lat').val(lat);
+				$('#CFG_lng').val(lng);
 			});
 		}
 	});

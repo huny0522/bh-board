@@ -19,13 +19,19 @@ class Login{
 	public $useMailId = false;
 	public $mailIdAddrSelection = false;
 
+	/**
+	 * @var \ConfigDefault
+	 */
+	public $defCfg;
+
 	public function __construct(){
+		$this->defCfg = App::$CFG->Def();
 	}
 
 	public function __init(){
 		$this->model = App::InitModel('Member');
-		$this->useMailId = (CM::Config('Default', 'useMailId') == 'y');
-		$this->mailIdAddrSelection = (CM::Config('Default', 'mailIdAddrSelection') == 'y');
+		$this->useMailId = ($this->defCfg->useMailId->Val() == 'y');
+		$this->mailIdAddrSelection = ($this->defCfg->mailIdAddrSelection->Val() == 'y');
 		if(_MEMBERIS === true && !in_array(App::$Action, array('Logout'))) URLRedirect(_URL . '/');
 	}
 
@@ -51,7 +57,7 @@ class Login{
 			URLReplace('-1', '일치하는 회원이 없습니다.');
 		}else{
 			if($res['approve'] !== 'y'){
-				if(CM::Config('Default', 'joinApprove') !== 'y' && CM::Config('Default', 'EmailCer') !== 'n') URLRedirect(-1, '이메일 인증이 되지 않았습니다. 가입시 입력한 이메일을 확인해주세요.');
+				if($this->defCfg->joinApprove->Val() !== 'y' && $this->defCfg->emailCer->Val() !== 'n') URLRedirect(-1, '이메일 인증이 되지 않았습니다. 가입시 입력한 이메일을 확인해주세요.');
 				else URLRedirect(-1, '승인되지 않은 아이디입니다.');
 			}
 			else{
@@ -131,7 +137,7 @@ class Login{
 		}else{
 			$this->model->SetValue('mid', Post('mid'));
 		}
-		if(CM::Config('Default', 'joinApprove') != 'y') $this->model->SetValue('approve', 'n');
+		if($this->defCfg->joinApprove->Val() != 'y') $this->model->SetValue('approve', 'n');
 		else $this->model->SetValue('approve', 'y');
 
 		$this->model->SetValue('level', 1);
@@ -150,7 +156,7 @@ class Login{
 		}
 		else $this->model->_muid->Value = $res->id;
 
-		if(CM::Config('Default', 'joinApprove') !== 'y' && CM::Config('Default', 'EmailCer') !== 'n'){
+		if($this->defCfg->joinApprove->Val() !== 'y' && $this->defCfg->emailCer->Val() !== 'n'){
 			$this->_SendEmailCode($this->model);
 			URLReplace(_URL.'/', '등록되었습니다. 이용하시려면 이메일 인증을 해주셔야합니다. 입력하신 이메일을 확인 바랍니다.');
 		}
@@ -333,7 +339,7 @@ class Login{
 	}
 
 	public function EmailCertification(){
-		if(CM::Config('Default', 'joinApprove') === 'y' || CM::Config('Default', 'EmailCer') === 'n'){
+		if($this->defCfg->joinApprove->Val() === 'y' || $this->defCfg->emailCer->Val() === 'n'){
 			URLRedirect(-1, _MSG_WRONG_CONNECTED.'(1)');
 		}
 		if(EmptyGet('code')) URLRedirect(-1, _MSG_WRONG_CONNECTED.'(2)');

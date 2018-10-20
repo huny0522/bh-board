@@ -19,7 +19,11 @@ class BH_Application
 	public static $SUB_TID = '';
 	public static $CtrlUrl = '';
 	public static $InstallIs = true;
+	/**
+	 * @var _ConfigMap
+	 */
 	public static $CFG = array();
+	public static $ShowError = false;
 	public static $Layout = null;
 	public static $parentLayout = '';
 	public static $Html;
@@ -43,6 +47,7 @@ class BH_Application
 	}
 
 	public static function run(){
+		self::$ShowError = (_DEVELOPERIS === true && isset(self::$SettingData['showError']) && self::$SettingData['showError'] === true);
 		self::$SettingData['URLFirst'] = '';
 		spl_autoload_register(array('BH_Application', 'AutoLoad'));
 
@@ -73,8 +78,8 @@ class BH_Application
 
 		if(self::$SettingData['GetUrl'][1] == '_Refresh'){
 			if(_DEVELOPERIS === true){
-				$s = \BH_Common::Config('Refresh', 'Refresh');
-				$res = \BH_Common::SetConfig('Refresh', 'Refresh', $s + 1);
+				self::$CFG->Sys()->refresh->value++;
+				$res = self::$CFG->Sys()->DataWrite();
 
 				if($res->result){
 					if(_REFRESH_HTML_ALL === true){

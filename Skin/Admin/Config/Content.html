@@ -15,12 +15,12 @@ use \BH_Application as App;
 </div>
 
 <form name="ConfigForm" id="ConfigForm" method="post" action="<?a. 'Write' ?>?redirect_url=<?a. App::$Action.'/'.App::$ID ?>">
-	<input type="hidden" name="Code" value="<?v. App::$Data['Code'] ?>">
+	<input type="hidden" name="Code" value="<?v. App::$Data['class']->GetCode() ?>">
 	<fieldset>
-		<h3><?p. App::$Data['menu'][App::$ID] ?></h3>
+		<h3><?p. App::$Data['class']->text->title ?></h3>
 		<div class="writeField">
 			<article>
-				<textarea name="text" id="text"><?v. CustomText(CM::Config(App::$Data['Code'], 'text')) ?></textarea>
+				<textarea name="text" id="text"><?v. CustomText(App::$Data['class']->text->value) ?></textarea>
 			</article>
 		</div>
 	</fieldset>

@@ -865,6 +865,7 @@ class VisitCounter
 			->SetDataStr('os', $this->os)
 			->SetDataStr('device', $this->device)
 			->SetDataStr('uri', $this->http_referer)
+			->SetOnDuplicateData('visit', '`visit` + 1')
 			->Run();
 	}
 

@@ -1838,3 +1838,262 @@ class _ModelFunc{
 	}
 }
 
+class CfgEmptyClass
+{
+	public function __call($name, $arguments){
+		if(class_exists('_ConfigMap')) _ConfigMap::{$name}();
+		return _ConfigModel::GetInstance();
+	}
+}
+
+BH_Application::$CFG = new CfgEmptyClass();
+
+class _CfgData
+{
+	public $value = '';
+	public $defaultValue = '';
+	public $key = '';
+	public $title = '';
+	public $type = \HTMLType::InputText;
+	public $enumValues = array();
+
+	/**
+	 * @param string $k
+	 * @return _CfgData
+	 */
+	public static function GetInstance($k = ''){
+		$static = new static();
+		$static->key = $k;
+		return $static;
+	}
+
+	public function __toString(){
+		return $this->value;
+	}
+
+	public function Val(){
+		return strlen($this->value) ? $this->value : $this->defaultValue;
+	}
+
+	/**
+	 * @param string $k
+	 * @return _CfgData
+	 */
+	public function SetKey($k){
+		$this->key = $k;
+		return $this;
+	}
+
+	/**
+	 * @param string $t
+	 * @return _CfgData
+	 */
+	public function SetTitle($t){
+		$this->title = $t;
+		return $this;
+	}
+
+	/**
+	 * @param string $v
+	 * @return _CfgData
+	 */
+	public function SetValue($v){
+		$this->value = $v;
+		return $this;
+	}
+
+	/**
+	 * @param array $arr
+	 * @return _CfgData
+	 */
+	public function SetEnumValues($arr){
+		$this->enumValues = $arr;
+		return $this;
+	}
+
+	/**
+	 * @param string $v
+	 * @return _CfgData
+	 */
+	public function SetDefaultValue($v){
+		$this->defaultValue = $v;
+		return $this;
+	}
+
+	/**
+	 * @param string $t
+	 * @return _CfgData
+	 */
+	public function SetType($t){
+		$this->type = $t;
+		return $this;
+	}
+
+	public function PrintInput($class = '', $attr = ''){
+		$h = '';
+		switch($this->type){
+			case \HTMLType::InputText:
+				$h = '<input type="text" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->value) . '" class="'. $class .'" ' . $attr .'>';
+			break;
+			case \HTMLType::InputTel:
+				$h = '<input type="tel" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->value) . '" class="'. $class .'" ' . $attr .'>';
+			break;
+			case \HTMLType::InputEmail:
+				$h = '<input type="email" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->value) . '" class="'. $class .'" ' . $attr .'>';
+			break;
+			case \HTMLType::InputNumber:
+				$h = '<input type="number" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->value) . '" class="'. $class .'" ' . $attr .'>';
+			break;
+			case \HTMLType::InputEngSpecial:
+				$class .= ' ' . \HTMLType::InputEngSpecial;
+				$h = '<input type="text" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->value) . '" class="'. $class .'" ' . $attr .'>';
+			break;
+			case \HTMLType::Textarea:
+				$h = '<textarea id="CFG_' . $this->key . '" name="' . $this->key .'">' .  GetDBText($this->value) . '</textarea>';
+			break;
+			case \HTMLType::InputImageFile:
+				$h = '<input type="hidden" name="file_field[]" value="'. $this->key . '">';
+				if($this->value){
+					$h .= '<img src="' . _UPLOAD_URL. GetDBText($this->value) . '" style="max-width:100px; max-height:100px;">';
+				}
+				$h .= '<input type="file" name="' . $this->key .'" accept="image/*" ' . $attr . '> <label class="checkbox"><input type="checkbox" name="_delFile[]" value="' . GetDBText($this->value) . '"><span>삭제</span></label>';
+			break;
+			case \HTMLType::InputRadio:
+				$h = InputRadio($this->key, $this->enumValues, strlen($this->value) ? $this->value : $this->defaultValue);
+			break;
+			case \HTMLType::InputCheckbox:
+				$h = InputCheckbox($this->key, $this->enumValues, strlen($this->value) ? $this->value : $this->defaultValue);
+			break;
+		}
+
+		return $h;
+	}
+
+	public function PrintHidden(){
+		return '<input type="hidden" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->value) . '">';
+	}
+}
+
+class _ConfigModel{
+	protected $_code = '';
+
+	/**
+	 * @return static
+	 */
+	public static function GetInstance(){
+		static $instance;
+		if(!$instance) $instance = new static();
+		return $instance;
+	}
+
+	protected function __construct(){ }
+
+	private function __clone(){}
+
+	public function __get($name){
+		if(BH_Application::$ShowError) PrintError('존재하지 않는 환경설정값입니다.');
+		return _CfgData::GetInstance($name);
+	}
+
+	protected function GetFileSetting(){
+		if(!strlen($this->_code)){
+			if(BH_Application::$ShowError) PrintError('환경설정의 코드명이 빠졌습니다.');
+			exit;
+		}
+		// 설정불러오기
+		$path = _DATADIR.'/CFG/'.$this->_code.'.php';
+		if(file_exists($path)){
+			$data = file_get_contents($path);
+			if(substr($data, 0, 15) == '<?php return;/*'){
+				$temp = json_decode(substr($data, 15), true);
+				foreach($temp as $k => $v){
+					if(isset($this->{$k})) $this->{$k}->SetValue($v);
+					else if(_DEVELOPERIS === true){
+						$k = strtolower($k[0]) . substr($k, 1);
+						if(isset($this->{$k})) $this->{$k}->SetValue($v);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 *
+	 * @param $data
+	 * @param null $files
+	 * @return BH_Result
+	 */
+	public function DataWrite($data = array(), $files = null){
+		$fileNames = isset($data['file_field']) ? $data['file_field'] : array();
+
+		if(!file_exists( _DATADIR.'/CFG') || !is_dir(_DATADIR.'/CFG')) mkdir(_DATADIR.'/CFG', 0755);
+		foreach($data as $k => $v){
+			if(!isset($this->{$k}) || $k === '_delFile') continue;
+			$this->{$k}->value = $v;
+		}
+
+		if(isset($data['_delFile']) && is_array($data['_delFile'])){
+			foreach($data['_delFile'] as $v){
+				preg_match('/([a-zA-Z0-9_]+)\[([0-9]*?)\]/', $v, $matches);
+				if(isset($matches[2])){
+					if(isset($this->{$matches[1]}[$matches[2]])){
+						@unlink(_UPLOAD_DIR.$this->{$matches[1]}[$matches[2]]->value);
+						$this->{$matches[1]}[$matches[2]]->value = '';
+					}
+
+				}
+				else{
+					@unlink(_UPLOAD_DIR.$this->{$v}->value);
+					if(isset($this->{$v})) $this->{$v}->value = '';
+				}
+			}
+		}
+
+		if(!is_null($files)){
+			foreach($files as $k => $file){
+				if(!isset($this->{$k})) continue;
+				if(in_array($k, $fileNames)){
+					if(is_array($file['name'])){
+						$fres_em = \_ModelFunc::FileUploadArray($file, null, '/CFG/files/');
+						foreach($fres_em as $row){
+							if(is_array($row)){
+								$this->{$k}->value[] = $row['file'];
+							}
+						}
+					}
+					else{
+						$fres_em = \_ModelFunc::FileUpload($file, null, '/CFG/files/');
+
+						if(is_string($fres_em)) URLRedirect(-1, $fres_em);
+						else if(is_array($fres_em)){
+							if(strlen($this->{$k}->value)) @unlink(_UPLOAD_DIR.$this->{$k}->value);
+							$this->{$k}->value = $fres_em['file'];
+							if(class_exists('\\PHP_ICO')){
+								if($this->_code === 'Default' && $k == 'FaviconPng'){
+									$temp = explode('.', $fres_em['file']);
+									array_pop($temp);
+									$pico = new \PHP_ICO(_UPLOAD_DIR . $fres_em['file'], array( array( 16, 16 ), array( 32, 32 ), array( 64, 64 ) ));
+									$pico->save_ico(_DIR . '/favicon.ico');
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		$path = _DATADIR.'/CFG/'.$this->_code.'.php';
+		$arr = get_object_vars($this);
+		$saveData = array();
+		foreach($arr as $k => $v){
+			if($k[0] !== '_') $saveData[$k] = $v->value;
+		}
+		$txt = '<?php return;/*'.json_encode($saveData);
+		file_put_contents($path, $txt);
+		return BH_Result::Init(true);
+	}
+
+	public function GetCode(){
+		return $this->_code;
+	}
+}

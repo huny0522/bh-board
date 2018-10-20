@@ -13,14 +13,20 @@ class Email
 	private $mailer;
 	private $layout = 'Layout';
 
+	/**
+	 * @var \ConfigDefault
+	 */
+	private $defCfg;
+
 	public static function GetInstance(){
 		$res = new self();
 		return $res;
 	}
 
 	public function __construct(){
+		$this->defCfg = App::$CFG->Def();
 		$this->mailer = new Mailer(_DEVELOPERIS === true ? 4 : 0);
-		App::$Data['LogoUrl'] = _UPLOAD_URL.CM::Config('Default', 'EmailLogoUrl');
+		App::$Data['LogoUrl'] = _UPLOAD_URL.$this->defCfg->emailLogoUrl->value;
 		App::$Data['HomeUrl'] = _DOMAIN;
 	}
 
@@ -37,7 +43,7 @@ class Email
 	public function SendMailByDefault($subject, $body){
 		App::$Data['subject'] = $subject;
 		App::$Data['body'] = $body;
-		$subject = '['.CM::Config('Default', 'SiteName').'] '.App::$Data['subject'];
+		$subject = '['.$this->defCfg->siteName->value.'] '.App::$Data['subject'];
 		$this->SetMailer($subject, $this->SetBody('Default'));
 		$this->mailer->Send();
 	}
@@ -47,7 +53,7 @@ class Email
 		App::$Data['name'] = $name;
 		App::$Data['code'] = $code;
 		App::$Data['subject'] = '이메일 인증';
-		$subject = '['.CM::Config('Default', 'SiteName').'] '.App::$Data['subject'];
+		$subject = '['.$this->defCfg->siteName->value.'] '.App::$Data['subject'];
 		$this->SetMailer($subject, $this->SetBody('CertifyEmail'));
 		$this->mailer->Send();
 	}
@@ -57,7 +63,7 @@ class Email
 		App::$Data['code'] = $code;
 		App::$Data['name'] = $name;
 		App::$Data['subject'] = '계정 비밀번호 변경 코드';
-		$subject = '['.CM::Config('Default', 'SiteName').'] '.App::$Data['subject'];
+		$subject = '['.$this->defCfg->siteName->value.'] '.App::$Data['subject'];
 		$this->SetMailer($subject, $this->SetBody('FindPW'));
 		$this->mailer->Send();
 	}
@@ -66,7 +72,7 @@ class Email
 		App::$Data['id'] = $id;
 		App::$Data['name'] = $name;
 		App::$Data['subject'] = '요청하신 아이디입니다.';
-		$subject = '['.CM::Config('Default', 'SiteName').'] '.App::$Data['subject'];
+		$subject = '['.$this->defCfg->siteName->value.'] '.App::$Data['subject'];
 		$this->SetMailer($subject, $this->SetBody('FindID'));
 		$this->mailer->Send();
 	}
@@ -78,14 +84,14 @@ class Email
 		App::$Data['boardsubject'] = $subject;
 		App::$Data['content'] = $content;
 		App::$Data['subject'] = $name . '님께서 작성한 게시물에 답글이 등록되었습니다.';
-		$subject = '['.CM::Config('Default', 'SiteName').'] '.App::$Data['subject'];
+		$subject = '['.$this->defCfg->siteName->value.'] '.App::$Data['subject'];
 		$this->SetMailer($subject, $this->SetBody('AnswerAlarm'));
 		$this->mailer->Send();
 	}
 
 	public function &SetMailer($subject, $body){
-		$this->mailer->senderName = CM::Config('Default', 'EmailName') ? CM::Config('Default', 'EmailName') : 'mail@' . _DOMAIN;
-		$this->mailer->senderMail = CM::Config('Default', 'SendEmail') ? CM::Config('Default', 'SendEmail') : 'mail@' . _DOMAIN;
+		$this->mailer->senderName = $this->defCfg->emailName->value ? $this->defCfg->emailName->value : 'mail@' . _DOMAIN;
+		$this->mailer->senderMail = $this->defCfg->sendEmail->value ? $this->defCfg->sendEmail->value : 'mail@' . _DOMAIN;
 		$this->mailer->subject = $subject;
 		$this->mailer->body = $body;
 

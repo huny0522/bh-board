@@ -66,45 +66,24 @@ class BH_Common
 
 	public static function Config($code, $key){
 		// 설정불러오기
-		if(!isset(App::$CFG[$code])){
-			$path = _DATADIR.'/CFG/'.$code.'.php';
-			if(file_exists($path)){
-				$data = file_get_contents($path);
-				if(substr($data, 0, 15) == '<?php return;/*') App::$CFG[$code] = json_decode(substr($data, 15), true);
-				else require $path;
-			}else App::$CFG[$code] = array();
-		}
-		return isset(App::$CFG[$code][$key]) ? App::$CFG[$code][$key] : null;
+		$class = 'Config'.$code;
+		if(!class_exists($class)) return '';
+		$cfg = $class::GetInstance();
+		if(!isset($cfg->{$key})) return '';
+		return $cfg->{$key}->value;
 	}
 
 	public static function SetConfig($code, $key, $val){
-		$res = new \BH_Result();
-		if(_DEVELOPERIS !== true){
-			$res->result = false;
-			$res->message = _MSG_WRONG_CONNECTED;
-			return;
-		}
+		// 설정불러오기
+		$class = 'Config'.$code;
+		if(!class_exists($class)) return '';
+		$cfg = $class::GetInstance();
 
-		$dirPath = _DATADIR.'/CFG';
-		if(!file_exists($dirPath) && !is_dir($dirPath)) mkdir($dirPath, 0700, true);
-
-		if(!isset(App::$CFG[$code])){
-			$path = _DATADIR.'/CFG/'.$code.'.php';
-			if(file_exists($path)){
-				App::$CFG[$code] = json_decode(substr(file_get_contents($path), 15), true);
-			}else App::$CFG[$code] = array();
-		}
-
-		App::$CFG[$code][$key] = $val;
-		$path = _DATADIR.'/CFG/'.$code.'.php';
-		$txt = '<?php return;/*'.json_encode(App::$CFG[$code]);
-		file_put_contents($path, $txt);
-		$res->result = true;
-		return $res;
+		return $cfg->DataWrite(array($key => $val));
 	}
 
 	public static function RefreshParam($beginMark = '?'){
-		return $beginMark.'r='.self::Config('Refresh', 'Refresh');
+		return $beginMark.'r='.App::$CFG->Sys()->refresh->value;
 	}
 
 	// 이미지 등록
@@ -268,7 +247,7 @@ class BH_Common
 	public static function GetBoardArticle($bid, $subid, $category = '', $limit = 10){
 		$qry = call_user_func_array('self::GetBoardArticleQuery', func_get_args());
 		$data = array();
-		$d = (self::Config('Default', 'NewIconDay')? self::Config('Default', 'NewIconDay') : 1) * 86400;
+		$d = App::$CFG->Def()->newIconDay->Val() * 86400;
 
 		while($row = $qry->Get()){
 			if($row['secret'] == 'y') $row['subject'] = '비밀글입니다.';
@@ -381,7 +360,7 @@ class BH_Common
 	}
 
 	public static function TinyMCEUseIs(){
-		return (isset(App::$SettingData['tinyMCEPath']) && strlen(App::$SettingData['tinyMCEPath']) && file_exists(_DIR . App::$SettingData['tinyMCEPath']) && self::Config('Default', 'htmlEditor') == 'tinymce');
+		return (isset(App::$SettingData['tinyMCEPath']) && strlen(App::$SettingData['tinyMCEPath']) && file_exists(_DIR . App::$SettingData['tinyMCEPath']) && App::$CFG->Def()->htmlEditor->value == 'tinymce');
 	}
 
 	/* -------------------------------------------------

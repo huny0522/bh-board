@@ -852,7 +852,7 @@ class Board{
 			$this->_R_PostWriteInsertAfter($res->id);  // Reserved
 
 			// 알람
-			if(class_exists('PHPMailer\\PHPMailer\\PHPMailer') && App::$Action == 'Answer' && App::$Data['targetData']['email_alarm'] == 'y' && strlen(App::$Data['targetData']['email']) && CM::Config('Default', 'SendEmail')){
+			if(class_exists('PHPMailer\\PHPMailer\\PHPMailer') && App::$Action == 'Answer' && App::$Data['targetData']['email_alarm'] == 'y' && strlen(App::$Data['targetData']['email']) && App::$CFG->Def()->sendEmail->value){
 				$mail = new Email();
 				$mail->AddMail(App::$Data['targetData']['email'], App::$Data['targetData']['mname']);
 				if($this->AdminPathIs) $url = _URL . '/Board/' . $this->bid . '-'. $this->subid . '/View/' . toBase($res->id);

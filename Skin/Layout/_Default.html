@@ -16,7 +16,9 @@ App::JSAdd('jquery-ui.min.js', 10);
 App::JSAdd(_URL . '/Common/common.js' . CM::RefreshParam(), 10);
 App::JSAdd('contents.js' . CM::RefreshParam(), 11);
 
-App::$SettingData['headMeta'] = '';
+$cfg = App::$CFG->Def();
+
+App::$SettingData['headMeta'] = '' . $cfg->addHead->value;
 
 $menuHelp = \Common\MenuHelp::GetInstance();
 $activeCategory = $menuHelp->GetActiveCategory();
@@ -31,8 +33,8 @@ if($activeCategory){
 		<div id="header_wrap">
 			<h1>
 				<a href="<?p. _URL ?>/">
-					<?php if(CM::Config('Default', 'LogoUrl')){ ?>
-						<img src="<? p._UPLOAD_URL.CM::Config('Default', 'LogoUrl') ?>" alt="로고">
+					<?php if($cfg->logoUrl->value){ ?>
+						<img src="<? p._UPLOAD_URL.$cfg->logoUrl->value ?>" alt="로고">
 					<?php }else{ ?>
 						<i><img src="/Skin/images/logo.png"></i> <span>BH BOARD</span>
 					<?php } ?>
@@ -89,44 +91,44 @@ if($activeCategory){
 
 		<div id="footerInfo">
 			<h1 class="footerLogo">
-				<?php if(CM::Config('Default', 'FootLogoUrl')){ ?>
-					<img src="<? p._UPLOAD_URL.CM::Config('Default', 'FootLogoUrl') ?>" alt="로고">
-				<?php }else echo CM::Config('Default', 'SiteName'); ?>
+				<?php if($cfg->footLogoUrl->value){ ?>
+					<img src="<? p._UPLOAD_URL.$cfg->footLogoUrl->value ?>" alt="로고">
+				<?php }else echo $cfg->siteName->value; ?>
 			</h1>
 			<dl class="company">
 				<dt>회사명</dt>
-				<dd><?v. CM::Config('Default', 'Company') ?></dd>
+				<dd><?v. $cfg->company->value ?></dd>
 			</dl>
 			<dl class="ceo">
 				<dt>대표</dt>
-				<dd><?v. CM::Config('Default', 'CEO') ?></dd>
+				<dd><?v. $cfg->ceo->value ?></dd>
 			</dl>
 			<dl class="tel">
 				<dt>연락처</dt>
-				<dd><?v. CM::Config('Default', 'Tel') ?></dd>
+				<dd><?v. $cfg->tel->value ?></dd>
 			</dl>
 			<dl class="fax">
 				<dt>팩스</dt>
-				<dd><?v. CM::Config('Default', 'Fax') ?></dd>
+				<dd><?v. $cfg->fax->value ?></dd>
 			</dl>
 			<dl class="email">
 				<dt>이메일</dt>
-				<dd><?v. CM::Config('Default', 'Email') ?></dd>
+				<dd><?v. $cfg->email->value ?></dd>
 			</dl>
 			<dl class="address">
 				<dt>주소</dt>
-				<dd><?v. CM::Config('Default', 'Address1') ?>&nbsp;<?v. CM::Config('Default', 'Address2') ?></dd>
+				<dd><?v. $cfg->address1->value ?>&nbsp;<?v. $cfg->address2->value ?></dd>
 			</dl>
 			<dl class="bNum">
 				<dt>사업자등록번호</dt>
-				<dd><?v. CM::Config('Default', 'bNumber') ?></dd>
+				<dd><?v. $cfg->bNumber->value ?></dd>
 			</dl>
 			<dl class="oNum">
 				<dt>통신판매업 신고번호</dt>
-				<dd><?p. CM::Config('Default', 'oNumber') ?></dd>
+				<dd><?p. $cfg->oNumber->value ?></dd>
 			</dl>
 			<div class="copyright">
-				<?p. CM::Config('Default', 'Copyright') ? CM::Config('Default', 'Copyright') : '2018 &copy; <b>BH Board</b> All Right Reserved.' ?>
+				<?p. $cfg->copyright->value ? $cfg->copyright->value : '2018 &copy; <b>BH Board</b> All Right Reserved.' ?>
 			</div>
 		</div>
 	</footer>

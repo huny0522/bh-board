@@ -38,6 +38,7 @@ require _COMMONDIR . '/BH_PDO.class.php';
 require _COMMONDIR . '/BH_Application.class.php';
 require _COMMONDIR . '/BH_Model.class.php';
 require _COMMONDIR . '/BH_Common.class.php';
+if(file_exists(_DIR . '/Custom/ConfigSetting.php')) require _DIR . '/Custom/ConfigSetting.php';
 require _COMMONDIR . '/BHCss/core/BHCss.php';
 
 if(get_magic_quotes_gpc()){
@@ -234,6 +235,20 @@ function InputRadio($name, $OptionValues, $SelectValue = ''){
 	$str = '';
 	if(!isset($OptionValues) || !is_array($OptionValues)) return $str;
 	foreach($OptionValues as $k => $v) $str .= '<label class="radio"><input type="radio" name="' . $name . '" value="' . $k . '"' . (isset($SelectValue) && $SelectValue === (string)$k ? ' checked' : '') . '><span>' . $v . '</span></label>';
+	return $str;
+}
+
+/**
+ * @param string $name
+ * @param array $OptionValues
+ * @param string $SelectValue
+ * @return string
+ */
+function InputCheckbox($name, $OptionValues, $SelectValue = ''){
+	if(is_null($SelectValue)) $SelectValue = '';
+	$str = '';
+	if(!isset($OptionValues) || !is_array($OptionValues)) return $str;
+	foreach($OptionValues as $k => $v) $str .= '<label class="checkbox"><input type="checkbox" name="' . $name . '" value="' . $k . '"' . (isset($SelectValue) && $SelectValue === (string)$k ? ' checked' : '') . '><span>' . $v . '</span></label>';
 	return $str;
 }
 

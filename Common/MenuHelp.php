@@ -163,8 +163,8 @@ class MenuHelp
 				$this->DBToMenus();
 			}
 			else{
-				if(!file_exists(_DATADIR . '/CFG/MenuCache_'.$this->table.'.php')) $this->MenusToFile();
-				$temp = CM::Config('MenuCache_' . $this->table, 'menus');
+				$temp = App::$CFG->Sys()->menuCache->value;
+				if(!file_exists(_DATADIR . '/CFG/System.php')) $this->MenusToFile();
 				if(!is_array($temp)) $this->menus = array();
 				else{
 					foreach($temp as $v) $this->menus[$v['category']] = $v;
@@ -187,7 +187,8 @@ class MenuHelp
 		if($this->useDB) return;
 		$this->menus = array();
 		$this->DBToMenus();
-		CM::SetConfig('MenuCache_' . $this->table, 'menus', $this->menus);
+		App::$CFG->Sys()->menuCache->value = $this->menus;
+		App::$CFG->Sys()->DataWrite();
 	}
 
 	/* -------------------------------------------------
