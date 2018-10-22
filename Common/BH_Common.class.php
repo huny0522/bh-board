@@ -122,8 +122,8 @@ class BH_Common
 
 				if(strpos($content['contents'], $exp[0]) !== false){
 
-					$newpath = str_replace('/temp/', '/image/'.$ym.'/', $exp[0]);
-					$uploadDir = _UPLOAD_DIR.'/image/'.$ym;
+					$newpath = str_replace('/temp/', '/image/' . $tid . '/' .$ym.'/', $exp[0]);
+					$uploadDir = _UPLOAD_DIR.'/image/' . $tid . '/' . $ym;
 					if(!is_dir($uploadDir)){
 						mkdir($uploadDir, 0777, true);
 					}

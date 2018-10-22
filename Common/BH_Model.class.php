@@ -1872,7 +1872,7 @@ class _CfgData
 	}
 
 	public function Val(){
-		return strlen($this->value) ? $this->value : $this->defaultValue;
+		return ((is_string($this->value) && strlen($this->value)) || !is_string($this->value)) ? $this->value : $this->defaultValue;
 	}
 
 	/**
@@ -1933,23 +1933,23 @@ class _CfgData
 		$h = '';
 		switch($this->type){
 			case \HTMLType::InputText:
-				$h = '<input type="text" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->value) . '" class="'. $class .'" ' . $attr .'>';
+				$h = '<input type="text" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->Val()) . '" class="'. $class .'" ' . $attr .'>';
 			break;
 			case \HTMLType::InputTel:
-				$h = '<input type="tel" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->value) . '" class="'. $class .'" ' . $attr .'>';
+				$h = '<input type="tel" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->Val()) . '" class="'. $class .'" ' . $attr .'>';
 			break;
 			case \HTMLType::InputEmail:
-				$h = '<input type="email" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->value) . '" class="'. $class .'" ' . $attr .'>';
+				$h = '<input type="email" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->Val()) . '" class="'. $class .'" ' . $attr .'>';
 			break;
 			case \HTMLType::InputNumber:
-				$h = '<input type="number" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->value) . '" class="'. $class .'" ' . $attr .'>';
+				$h = '<input type="number" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->Val()) . '" class="'. $class .'" ' . $attr .'>';
 			break;
 			case \HTMLType::InputEngSpecial:
 				$class .= ' ' . \HTMLType::InputEngSpecial;
-				$h = '<input type="text" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->value) . '" class="'. $class .'" ' . $attr .'>';
+				$h = '<input type="text" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->Val()) . '" class="'. $class .'" ' . $attr .'>';
 			break;
 			case \HTMLType::Textarea:
-				$h = '<textarea id="CFG_' . $this->key . '" name="' . $this->key .'">' .  GetDBText($this->value) . '</textarea>';
+				$h = '<textarea id="CFG_' . $this->key . '" name="' . $this->key .'">' .  GetDBText($this->Val()) . '</textarea>';
 			break;
 			case \HTMLType::InputImageFile:
 				$h = '<input type="hidden" name="file_field[]" value="'. $this->key . '">';
@@ -1959,10 +1959,10 @@ class _CfgData
 				$h .= '<input type="file" name="' . $this->key .'" accept="image/*" ' . $attr . '> <label class="checkbox"><input type="checkbox" name="_delFile[]" value="' . GetDBText($this->value) . '"><span>삭제</span></label>';
 			break;
 			case \HTMLType::InputRadio:
-				$h = InputRadio($this->key, $this->enumValues, strlen($this->value) ? $this->value : $this->defaultValue);
+				$h = InputRadio($this->key, $this->enumValues, strlen($this->Val()) ? $this->Val() : $this->defaultValue);
 			break;
 			case \HTMLType::InputCheckbox:
-				$h = InputCheckbox($this->key, $this->enumValues, strlen($this->value) ? $this->value : $this->defaultValue);
+				$h = InputCheckbox($this->key, $this->enumValues, strlen($this->Val()) ? $this->Val() : $this->defaultValue);
 			break;
 		}
 
@@ -1970,7 +1970,7 @@ class _CfgData
 	}
 
 	public function PrintHidden(){
-		return '<input type="hidden" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->value) . '">';
+		return '<input type="hidden" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->Val()) . '">';
 	}
 }
 

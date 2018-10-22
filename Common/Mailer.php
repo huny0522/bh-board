@@ -38,8 +38,8 @@ class Mailer
 
 	// sendHost 가 구글일 경우 구글메일발송, 아니면 서버메일발송
 	public function Send(){
-		if($this->sendHost == 'google') $this->SendGMail();
-		else $this->DefaultSendMail();
+		if($this->sendHost == 'google') return $this->SendGMail();
+		else return $this->DefaultSendMail();
 	}
 
 	public function SendGMail(){
