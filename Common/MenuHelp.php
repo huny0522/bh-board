@@ -197,11 +197,19 @@ class MenuHelp
 	 *
 	------------------------------------------------- */
 	/**
+	 * @param string $category
+	 * @return array
+	 */
+	public function GetMenu($category = ''){
+		if(isset($this->menus[$category])) return $this->menus[$category];
+		else return null;
+	}
+	/**
 	 * 하위 메뉴전체를 반환
 	 * @param string $category
 	 * @return array
 	 */
-	public function GetMenus($category = ''){
+	public function GetChildMenus($category = ''){
 		$len = strlen($category);
 		if(!$len) return $this->menus;
 
@@ -420,21 +428,34 @@ class MenuHelp
 	 * @param string $bid
 	 * @param string $subid
 	 * @param string $category
+	 * @param string $category2
 	 * @return null|array
 	 */
-	public function GetBoardMenuByBid($bid, $subid, $category = ''){
-		$temp = null;
+	public function GetBoardMenuByBid($bid, $subid, $category = '', $category2 = ''){
+		$find1 = null;
+		$find2 = null;
 		foreach($this->menus as $v){
 			if($v['type'] == 'board'){
 				if($v['bid'] === $bid && $v['subid'] === $subid){
-					if($category && $v['board_category'] == $category) return $v;
-					else if(!$category) return $v;
-					$temp = $v;
+					if($v['board_category'] == $category && $v['board_sub_category'] == $category2) return $v;
+					else if($v['board_category'] && $category){
+						$bc = explode(',', $v['board_category']);
+						if(in_array($category, $bc)){
+							if($v['board_sub_category'] && $category2){
+								$bsc = explode(',', $v['board_sub_category']);
+								if(in_array($category2, $bsc)) $find1 = $v;
+							}
+							if(!$v['board_sub_category'] && !$category2) $find1 = $v;
+						}
+					}
+					else if(!$v['board_category'] && !$v['board_sub_category']){
+						$find2 = $v;
+					}
 				}
 			}
 		}
 
-		return $temp;
+		return is_null($find1) ? $find2 : $find1;
 	}
 
 	/**

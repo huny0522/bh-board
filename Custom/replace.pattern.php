@@ -1,119 +1,173 @@
 <?php
-BH_Application::$SettingData['_replace_patterns'] = array(
-	// if()
-	'/<\?\s*if\((.*?)\)\s*[p|e]\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-	'/<\?\s*if\((.*?)\)\s*v\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-	'/<\?\s*if\((.*?)\)\s*vr\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-	'/<\?\s*if\((.*?)\)\s*vb\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-
+$_rpData = array(
 	// ifp.
-	'/<\?\s*if[p|e]\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-	'/<\?\s*ifv\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-	'/<\?\s*ifvr\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-	'/<\?\s*ifvb\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+	array(
+		'pattern' => '/<\?\s*if[p|e]\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'replace' => '<?php if(isset($1)) echo $1; ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*ifv\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'replace' => '<?php if(isset($1)) echo GetDBText($1); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*ifvr\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'replace' => '<?php if(isset($1)) echo GetDBRaw($1); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*ifvb\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'replace' => '<?php if(isset($1)) echo nl2br(GetDBText($1)); ?>'
+	),
 
 	// p.
-	'/<\?\s*[p|e]\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-	'/<\?\s*v\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-	'/<\?\s*vr\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-	'/<\?\s*vb\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-	'/<\?\s*vstag\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-	'/<\?\s*vbstag\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+	array(
+		'pattern' => '/<\?\s*[p|e]\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'replace' => '<?php echo $1; ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*v\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'replace' => '<?php echo GetDBText($1); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*vr\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'replace' => '<?php echo GetDBRaw($1); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*vb\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'replace' => '<?php echo nl2br(GetDBText($1)); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*vstag\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'replace' => '<?php echo strip_tags(GetDBText($1)); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*vbstag\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'replace' => '<?php echo nl2br(GetDBText(strip_tags($1))); ?>'
+	),
 
 	//fn,fq
-	'/<\?\s*fn\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-	'/<\?\s*fq\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+	array(
+		'pattern' => '/<\?\s*fn\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'replace' => '<?php echo \BH_Application::GetFollowQuery($1, \'&\'); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*fq\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'replace' => '<?php echo \BH_Application::GetFollowQuery($1, \'?\'); ?>'
+	),
 
 	// a. c.
-	'/<\?\s*a\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-	'/<\?\s*c\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+	array(
+		'pattern' => '/<\?\s*a\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'replace' => '<?php echo \BH_Application::URLAction($1); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*c\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'replace' => '<?php echo \BH_Application::URLBase($1); ?>'
+	),
 
 	// inc
-	'/<\?\s*inc\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+	array(
+		'pattern' => '/<\?\s*inc\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'replace' => '<?php if(_DEVELOPERIS === true) ReplaceHTMLFile(_SKINDIR.$1, _HTMLDIR.$1); require _HTMLDIR.$1; ?>'
+	),
 
 	// mv()
-	'/<\?\s*mt\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-	'/<\?\s*mp\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-	'/<\?\s*mv\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-	'/<\?\s*mvn\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-	'/<\?\s*mvr\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-
-	'/<\?\s*mvb\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-
-	'/<\?\s*minp\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-	'/<\?\s*menum\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-
-	// mv.modelName()
-	'/<\?\s*mt\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-	'/<\?\s*mp\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-	'/<\?\s*mv\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-	'/<\?\s*mvn\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-	'/<\?\s*mvr\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-
-	'/<\?\s*mvb\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-
-	'/<\?\s*minp\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-	'/<\?\s*menum\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-
-	// img
-	'/<img\s*\!\s*(.*?)\s*src=\"(.*?)\"(.*?)>/is',
-);
-
-BH_Application::$SettingData['_replace_replace'] = array(
-	// if()
-	'<?php if($1) echo $2; ?>',
-	'<?php if($1) echo GetDBText($2); ?>',
-	'<?php if($1) echo GetDBRaw($2); ?>',
-	'<?php if($1) echo nl2br(GetDBText($2)); ?>',
-
-	// ifp.
-	'<?php if(isset($1)) echo $1; ?>',
-	'<?php if(isset($1)) echo GetDBText($1); ?>',
-	'<?php if(isset($1)) echo GetDBRaw($1); ?>',
-	'<?php if(isset($1)) echo nl2br(GetDBText($1)); ?>',
-
-	// p.
-	'<?php echo $1; ?>',
-	'<?php echo GetDBText($1); ?>',
-	'<?php echo GetDBRaw($1); ?>',
-	'<?php echo nl2br(GetDBText($1)); ?>',
-	'<?php echo strip_tags(GetDBText($1)); ?>',
-	'<?php echo nl2br(GetDBText(strip_tags($1))); ?>',
-
-	// fq, fn
-	'<?php echo \BH_Application::GetFollowQuery($1, \'&\'); ?>',
-	'<?php echo \BH_Application::GetFollowQuery($1, \'?\'); ?>',
-
-	// a, c
-	'<?php echo \BH_Application::URLAction($1); ?>',
-	'<?php echo \BH_Application::URLBase($1); ?>',
-
-	// inc
-	'<?php if(_DEVELOPERIS === true) ReplaceHTMLFile(_SKINDIR.$1, _HTMLDIR.$1); require _HTMLDIR.$1; ?>',
-
-	// mv()
-	'<?php echo $Model->data[$1]->DisplayName; ?>',
-	'<?php echo $Model->data[$1]->txt(); ?>',
-	'<?php echo $Model->data[$1]->safe(); ?>',
-	'<?php echo $Model->data[$1]->num(); ?>',
-	'<?php echo $Model->data[$1]->safeRaw(); ?>',
-
-	'<?php echo $Model->data[$1]->safeBr(); ?>',
-
-	'<?php echo $Model->HTMLPrintInput($1); ?>',
-	'<?php echo $Model->HTMLPrintEnum($1); ?>',
+	array(
+		'pattern' => '/<\?\s*mt\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'replace' => '<?php echo $Model->data[$1]->DisplayName; ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*mp\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'replace' => '<?php echo $Model->data[$1]->txt(); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*mv\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'replace' => '<?php echo $Model->data[$1]->safe(); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*mvn\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'replace' => '<?php echo $Model->data[$1]->num(); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*mvr\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'replace' => '<?php echo $Model->data[$1]->safeRaw(); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*mvb\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'replace' => '<?php echo $Model->data[$1]->safeBr(); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*minp\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'replace' => '<?php echo $Model->HTMLPrintInput($1); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*menum\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'replace' => '<?php echo $Model->HTMLPrintEnum($1); ?>'
+	),
 
 	// mv.modelName()
-	'<?php echo $Ctrl->$1->data[$2]->DisplayName; ?>',
-	'<?php echo $Ctrl->$1->data[$2]->txt(); ?>',
-	'<?php echo $Ctrl->$1->data[$2]->safe(); ?>',
-	'<?php echo $Ctrl->$1->data[$2]->num(); ?>',
-	'<?php echo $Ctrl->$1->data[$2]->safeRaw(); ?>',
-
-	'<?php echo $Ctrl->$1->data[$2]->safeBr(); ?>',
-	'<?php echo $Ctrl->$1->HTMLPrintInput($2); ?>',
-	'<?php echo $Ctrl->$1->HTMLPrintEnum($2); ?>',
+	array(
+		'pattern' => '/<\?\s*mt\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'replace' => '<?php echo $Ctrl->$1->data[$2]->DisplayName; ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*mp\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'replace' => '<?php echo $Ctrl->$1->data[$2]->txt(); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*mv\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'replace' => '<?php echo $Ctrl->$1->data[$2]->safe(); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*mvn\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'replace' => '<?php echo $Ctrl->$1->data[$2]->num(); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*mvr\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'replace' => '<?php echo $Ctrl->$1->data[$2]->safeRaw(); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*mvb\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'replace' => '<?php echo $Ctrl->$1->data[$2]->safeBr(); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*minp\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'replace' => '<?php echo $Ctrl->$1->HTMLPrintInput($2); ?>'
+	),
+	array(
+		'pattern' => '/<\?\s*menum\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
+		'replace' => '<?php echo $Ctrl->$1->HTMLPrintEnum($2); ?>'
+	),
 
 	// img
-	'<img $1 src="' . _DOMAIN . _URL . '$2" $3>',
+	array(
+		'pattern' => '/<img\s*\!\s*(.*?)\s*src=\"(.*?)\"(.*?)>/is',
+		'replace' => '<img $1 src="' . _DOMAIN . _URL . '$2" $3>'
+	),
+
+	// '<?=' -> '<?php echo'
+	// '<?' -> '<?php'
+	array(
+		'pattern' => '#<\?(?!php|=)(.*?)\?>#is',
+		'replace' => '<?php $1 ?>'
+	),
+	array(
+		'pattern' => '#<\?=(.*?)\?>#is',
+		'replace' => '<?php echo ($1); ?>'
+	),
+	array(
+		'pattern' => '#<\?php\s*(.*?)(\s*[^\s\}\;\{])\s*\?>#is',
+		'replace' => '<?php $1$2; ?>'
+	),
+	array(
+		'pattern' => '#\?>(\r\n|\n|)<\?php#is',
+		'replace' => ''
+	),
 );
+BH_Application::$SettingData['_replace_patterns'] = array();
+
+BH_Application::$SettingData['_replace_replace'] = array();
+
+for($i = 0, $m = sizeof($_rpData); $i < $m; $i++){
+	BH_Application::$SettingData['_replace_patterns'][] = $_rpData[$i]['pattern'];
+	BH_Application::$SettingData['_replace_replace'][] = $_rpData[$i]['replace'];
+}

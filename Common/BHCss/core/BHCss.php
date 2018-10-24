@@ -293,7 +293,7 @@ class BHCss{
 					if($target){
 						$temp = explode('/', $target);
 						array_pop($temp);
-						$targetPath = implode('/', $temp) . '/' . $v . '.bhcss.php';
+						$targetPath = implode('/', $temp) . '/' . $v . '.css';
 					}
 					else $targetPath = '';
 					if(file_exists($source2)){
