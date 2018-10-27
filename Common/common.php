@@ -46,14 +46,14 @@ if(get_magic_quotes_gpc()){
 	$_GET = BH_Common::StripSlashes($_GET);
 }
 
-App::$SettingData['LevelArray'] = array(0 => '비회원', 1 => '일반회원', 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8,
+App::$settingData['LevelArray'] = array(0 => '비회원', 1 => '일반회원', 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8,
 	9 => 9, 10 => 10, 15 => '매니저', 18 => '관리자', 20 => '최고관리자');
-App::$SettingData['noext'] = array('php', 'htm', 'html', 'cfg', 'inc', 'phtml', 'php5', 'asp', 'jsp');
-App::$SettingData['IMAGE_EXT'] = array('jpg', 'jpeg', 'png', 'gif', 'bmp');
-App::$SettingData['POSSIBLE_EXT'] = array('jpg', 'jpeg', 'png', 'gif', 'bmp', 'zip', '7z', 'gz', 'xz', 'tar', 'xls',
+App::$settingData['noext'] = array('php', 'htm', 'html', 'cfg', 'inc', 'phtml', 'php5', 'asp', 'jsp');
+App::$settingData['IMAGE_EXT'] = array('jpg', 'jpeg', 'png', 'gif', 'bmp');
+App::$settingData['POSSIBLE_EXT'] = array('jpg', 'jpeg', 'png', 'gif', 'bmp', 'zip', '7z', 'gz', 'xz', 'tar', 'xls',
 	'xlsx', 'ppt', 'doc', 'hwp', 'pdf', 'docx', 'pptx', 'avi', 'mov', 'mkv', 'mpg', 'mpeg', 'wmv', 'asf', 'asx', 'flv',
 	'm4v', 'mp4', 'mp3', 'txt');
-App::$SettingData['iframePossibleUrl'] = array('https://www.youtube.com');
+App::$settingData['iframePossibleUrl'] = array('https://www.youtube.com');
 
 if(_DEVELOPERIS === true){
 	if(!file_exists(_DATADIR) || !is_dir(_DATADIR)) @mkdir(_DATADIR, 0755, true);
@@ -334,7 +334,7 @@ function Download($path, $fname){
 	if(!$fname) $fname = $temp[sizeof($temp) - 1];
 	$fname = mb_convert_encoding($fname, 'cp949', 'utf-8');
 
-	App::$Layout = null;
+	App::$layout = null;
 
 	ignore_user_abort(true);
 	set_time_limit(0); // disable the time limit for this script
@@ -372,7 +372,7 @@ function Download($path, $fname){
 }
 
 function ResizeImage($path, $width, $noext = ''){
-	if(!strlen($noext)) $noext = (isset(App::$SettingData['noImg']) && strlen(App::$SettingData['noImg'])) ? App::$SettingData['noImg'] : _NO_IMG;
+	if(!strlen($noext)) $noext = (isset(App::$settingData['noImg']) && strlen(App::$settingData['noImg'])) ? App::$settingData['noImg'] : _NO_IMG;
 	if(!file_exists(_UPLOAD_DIR . $path) || is_dir(_UPLOAD_DIR . $path)) return $noext ? _URL . $noext : '';
 	$temp = explode('/', $path);
 	$temp[sizeof($temp) - 1] = $width . '_' . $temp[sizeof($temp) - 1];
@@ -425,7 +425,7 @@ function RemoveIFrame($str){
 		if(is_array($matches) && sizeof($matches) > 1){
 			preg_replace_callback('/.*?src\s*\=\s*[\'\"]*(.*?)[\'\"\s].*?/is', function($matches2) use(&$matches){
 				$r = false;
-				foreach(App::$SettingData['iframePossibleUrl'] as $v){
+				foreach(App::$settingData['iframePossibleUrl'] as $v){
 					if(substr($matches2[1], 0, strlen($v)) !== $v) $r = true;
 				}
 				if($r) $matches[0] = '';
@@ -787,8 +787,8 @@ function modifyFileTime($file, $group = 'default'){
 }
 
 function &Post($param){
-	if(!isset(App::$SettingData['_BH_PostData'][$param])){
-		App::$SettingData['_BH_PostData'][$param] = true;
+	if(!isset(App::$settingData['_BH_PostData'][$param])){
+		App::$settingData['_BH_PostData'][$param] = true;
 		if(!isset($_POST[$param])) $_POST[$param] = null;
 		else if(is_string($_POST[$param])) $_POST[$param] = trim($_POST[$param]);
 	}
@@ -803,8 +803,8 @@ function EmptyPost($param){
 }
 
 function &Get($param){
-	if(!isset(App::$SettingData['_BH_GetData'][$param])){
-		App::$SettingData['_BH_GetData'][$param] = true;
+	if(!isset(App::$settingData['_BH_GetData'][$param])){
+		App::$settingData['_BH_GetData'][$param] = true;
 		if(!isset($_GET[$param])) $_GET[$param] = null;
 		else if(is_string($_GET[$param])) $_GET[$param] = trim($_GET[$param]);
 	}

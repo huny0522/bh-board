@@ -28,7 +28,7 @@ class BH_Category{
 	}
 
 	public function Write(){
-		App::$Layout = null;
+		App::$layout = null;
 		if(!isset($_GET['category']) || $_GET['category'] == '') exit;
 		$data = $this->ModelDBGet();
 		JSON(true, '', App::GetView($this->model, $data));
@@ -38,7 +38,7 @@ class BH_Category{
 		if(!isset($_POST['category']) || $_POST['category'] == '') exit;
 
 		$this->ModelDBGet();
-		$this->model->Need = array('title', 'type',  'controller', 'enabled');
+		$this->model->need = array('title', 'type',  'controller', 'enabled');
 		$res = $this->model->SetPostValues();
 		if(!$res->result) JSON(false, $res->message);
 		else{
@@ -53,7 +53,7 @@ class BH_Category{
 
 	public function PostInsertMenu()
 	{
-		$this->model->Need = array('title', 'sort', 'enabled');
+		$this->model->need = array('title', 'sort', 'enabled');
 		$res = $this->model->SetPostValues();
 		if(!$res->result) JSON(false, $res->message);
 		else {
@@ -109,7 +109,7 @@ class BH_Category{
 
 	public function PostModifyTitle(){
 		$this->ModelDBGet();
-		$this->model->Need = array('title');
+		$this->model->need = array('title');
 		if(isset($_POST['title'])) $_POST['title'] = preg_replace('/\|/is', '', $_POST['title']);
 		$res = $this->model->SetPostValues();
 		if(!$res->result){

@@ -9,8 +9,8 @@ use \BH_Application as App;
 
 <h2>회원정보수정</h2>
 
-<form name="MemberWriteForm" id="MemberWriteForm" method="post" action="<?a. App::$Action ?><?fq. '' ?>">
-	<?php if(isset(App::$Data['error'])) echo '<p class="alert">'.App::$Data['error'].'</p>'; ?>
+<form name="MemberWriteForm" id="MemberWriteForm" method="post" action="<?a. App::$action ?><?fq. '' ?>">
+	<?php if(isset(App::$data['error'])) echo '<p class="alert">'.App::$data['error'].'</p>'; ?>
 
 	<table class="write">
 		<tr>

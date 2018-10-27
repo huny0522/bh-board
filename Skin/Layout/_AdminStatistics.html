@@ -23,7 +23,7 @@ $tab = array(
 	'URI' => '접속경로별통계',
 	'OS' => '운영체제별통계',
 );
-$act = App::$Action == 'Index' ? '' : App::$Action;
+$act = App::$action == 'Index' ? '' : App::$action;
 ?>
 
 <div id="contents" class="statistics">
@@ -38,5 +38,5 @@ $act = App::$Action == 'Index' ? '' : App::$Action;
 		?>
 	</ul>
 
-	<?p. App::$BodyHtml ?>
+	<?p. App::$bodyHtml ?>
 </div>

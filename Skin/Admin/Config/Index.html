@@ -6,7 +6,7 @@ use \BH_Application as App;
 /**
  * @var $Ctrl \Controller\Admin\Config
  */
-$cfg = App::$CFG->Def();
+$cfg = App::$cfg->Def();
 
 $NaverClientId = $cfg->naverClientId->value;
 $useLatLng = true;
@@ -179,7 +179,7 @@ if(strlen($NaverClientId)){
 		<h3>사이트환경설정</h3>
 
 		<table class="write">
-			<?php if(isset(App::$SettingData['tinyMCEPath']) && strlen(App::$SettingData['tinyMCEPath']) && file_exists(_DIR . App::$SettingData['tinyMCEPath'])){ ?>
+			<?php if(isset(App::$settingData['tinyMCEPath']) && strlen(App::$settingData['tinyMCEPath']) && file_exists(_DIR . App::$settingData['tinyMCEPath'])){ ?>
 			<tr>
 				<th><?v. $cfg->htmlEditor->title ?></th>
 				<td colspan="3">

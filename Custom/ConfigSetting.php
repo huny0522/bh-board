@@ -37,7 +37,7 @@ class _ConfigMap
 	}
 }
 
-BH_Application::$CFG = new _ConfigMap();
+BH_Application::$cfg = new _ConfigMap();
 
 /**
  * @property _CfgData lat
@@ -100,21 +100,21 @@ class ConfigDefault extends _ConfigModel
 		$this->privacyTel = _CfgData::GetInstance('privacyTel')->SetTitle('개인정보책임자 연락처');
 		$this->privacyEmail = _CfgData::GetInstance('privacyEmail')->SetTitle('개인정보책임자 이메일');
 		$this->csTel = _CfgData::GetInstance('csTel')->SetTitle('통합고객센터');
-		$this->csTelTime = _CfgData::GetInstance('csTelTime')->SetTitle('통합고객센터 시간')->SetType(HTMLType::Textarea);
-		$this->logoUrl = _CfgData::GetInstance('logoUrl')->SetTitle('로고')->SetType(HTMLType::InputImageFile);
-		$this->footLogoUrl = _CfgData::GetInstance('footLogoUrl')->SetTitle('하단로고')->SetType(HTMLType::InputImageFile);
-		$this->mobileLogoUrl = _CfgData::GetInstance('mobileLogoUrl')->SetTitle('모바일 로고')->SetType(HTMLType::InputImageFile);
-		$this->emailLogoUrl = _CfgData::GetInstance('emailLogoUrl')->SetTitle('이메일 상단로고')->SetType(HTMLType::InputImageFile);
-		$this->noImg = _CfgData::GetInstance('noImg')->SetTitle('이미지 없음')->SetType(HTMLType::InputImageFile);
-		$this->faviconPng = _CfgData::GetInstance('faviconPng')->SetTitle('Favicon')->SetType(HTMLType::InputImageFile);
+		$this->csTelTime = _CfgData::GetInstance('csTelTime')->SetTitle('통합고객센터 시간')->SetType(HTMLType::TEXTAREA);
+		$this->logoUrl = _CfgData::GetInstance('logoUrl')->SetTitle('로고')->SetType(HTMLType::FILE_IMAGE);
+		$this->footLogoUrl = _CfgData::GetInstance('footLogoUrl')->SetTitle('하단로고')->SetType(HTMLType::FILE_IMAGE);
+		$this->mobileLogoUrl = _CfgData::GetInstance('mobileLogoUrl')->SetTitle('모바일 로고')->SetType(HTMLType::FILE_IMAGE);
+		$this->emailLogoUrl = _CfgData::GetInstance('emailLogoUrl')->SetTitle('이메일 상단로고')->SetType(HTMLType::FILE_IMAGE);
+		$this->noImg = _CfgData::GetInstance('noImg')->SetTitle('이미지 없음')->SetType(HTMLType::FILE_IMAGE);
+		$this->faviconPng = _CfgData::GetInstance('faviconPng')->SetTitle('Favicon')->SetType(HTMLType::FILE_IMAGE);
 		$this->copyright = _CfgData::GetInstance('copyright')->SetTitle('COPYRIGHT');
 		$this->newIconDay = _CfgData::GetInstance('newIconDay')->SetTitle('새글 표시기간')->SetDefaultValue(1);
-		$this->addHead = _CfgData::GetInstance('addHead')->SetTitle('추가 HEAD')->SetType(HTMLType::Textarea);
-		$this->htmlEditor = _CfgData::GetInstance('htmlEditor')->SetTitle('HTML 에디터')->SetType(HTMLType::InputRadio)->SetEnumValues(array('smarteditor2' => 'SmartEditor2', 'tinymce' => 'TinyMCE'))->SetDefaultValue('smarteditor2');
-		$this->useMailId = _CfgData::GetInstance('useMailId')->SetTitle('메일아이디 사용')->SetType(HTMLType::InputCheckbox)->SetEnumValues(array('y' => '사용'));
-		$this->mailIdAddrSelection = _CfgData::GetInstance('mailIdAddrSelection')->SetTitle('메일주소 선택 표시')->SetType(HTMLType::InputCheckbox)->SetEnumValues(array('y' => '메일주소 선택 표시'));
-		$this->joinApprove = _CfgData::GetInstance('joinApprove')->SetTitle('가입 즉시 사용')->SetType(HTMLType::InputRadio)->SetEnumValues(array('n' => '가입 후 승인 필요', 'y' => '가입즉시 로그인 가능'))->SetDefaultValue('y');
-		$this->emailCer = _CfgData::GetInstance('emailCer')->SetTitle('이메일 인증 사용')->SetType(HTMLType::InputRadio)->SetEnumValues(array('y' => '이메일 인증 사용', 'n' => '이메일 인증 사용안함'))->SetDefaultValue('y');
+		$this->addHead = _CfgData::GetInstance('addHead')->SetTitle('추가 HEAD')->SetType(HTMLType::TEXTAREA);
+		$this->htmlEditor = _CfgData::GetInstance('htmlEditor')->SetTitle('HTML 에디터')->SetType(HTMLType::RADIO)->SetEnumValues(array('smarteditor2' => 'SmartEditor2', 'tinymce' => 'TinyMCE'))->SetDefaultValue('smarteditor2');
+		$this->useMailId = _CfgData::GetInstance('useMailId')->SetTitle('메일아이디 사용')->SetType(HTMLType::CHECKBOX)->SetEnumValues(array('y' => '사용'));
+		$this->mailIdAddrSelection = _CfgData::GetInstance('mailIdAddrSelection')->SetTitle('메일주소 선택 표시')->SetType(HTMLType::CHECKBOX)->SetEnumValues(array('y' => '메일주소 선택 표시'));
+		$this->joinApprove = _CfgData::GetInstance('joinApprove')->SetTitle('가입 즉시 사용')->SetType(HTMLType::RADIO)->SetEnumValues(array('n' => '가입 후 승인 필요', 'y' => '가입즉시 로그인 가능'))->SetDefaultValue('y');
+		$this->emailCer = _CfgData::GetInstance('emailCer')->SetTitle('이메일 인증 사용')->SetType(HTMLType::RADIO)->SetEnumValues(array('y' => '이메일 인증 사용', 'n' => '이메일 인증 사용안함'))->SetDefaultValue('y');
 		$this->sendEmail = _CfgData::GetInstance('sendEmail')->SetTitle('발송메일주소');
 		$this->emailName = _CfgData::GetInstance('emailName')->SetTitle('발송메일표시명');
 		$this->naverClientId = _CfgData::GetInstance('naverClientId')->SetTitle('네이버 CLIENT ID');

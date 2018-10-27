@@ -7,34 +7,34 @@
 class BH_Application
 {
 
-	public static $ControllerInstance = null;
-	public static $ControllerName = '';
-	public static $Action = '';
-	public static $ID = '';
-	public static $ID2 = '';
-	public static $NativeDir = '';
-	public static $NativeSkinDir = '';
-	public static $BaseDir = '';
-	public static $TID = '';
-	public static $SUB_TID = '';
-	public static $CtrlUrl = '';
-	public static $InstallIs = true;
+	public static $controllerInstance = null;
+	public static $controllerName = '';
+	public static $action = '';
+	public static $id = '';
+	public static $id2 = '';
+	public static $nativeDir = '';
+	public static $nativeSkinDir = '';
+	public static $baseDir = '';
+	public static $tid = '';
+	public static $sub_tid = '';
+	public static $ctrlUrl = '';
+	public static $installIs = true;
 	/**
 	 * @var _ConfigMap
 	 */
-	public static $CFG = array();
-	public static $ShowError = false;
-	public static $Layout = null;
+	public static $cfg = array();
+	public static $showError = false;
+	public static $layout = null;
 	public static $parentLayout = '';
-	public static $Html;
-	public static $Title;
-	public static $CSS = array();
-	public static $JS = array();
-	public static $FollowQuery = array();
-	public static $SettingData = array();
-	public static $Data = array();
-	public static $BodyHtml = '';
-	public static $ExtendMethod = array();
+	public static $html;
+	public static $title;
+	public static $css = array();
+	public static $js = array();
+	public static $followQuery = array();
+	public static $settingData = array();
+	public static $data = array();
+	public static $bodyHtml = '';
+	public static $extendMethod = array();
 
 	private function __construct(){
 
@@ -47,28 +47,28 @@ class BH_Application
 	}
 
 	public static function run(){
-		self::$ShowError = (_DEVELOPERIS === true && isset(self::$SettingData['showError']) && self::$SettingData['showError'] === true);
-		self::$SettingData['URLFirst'] = '';
+		self::$showError = (_DEVELOPERIS === true && isset(self::$settingData['showError']) && self::$settingData['showError'] === true);
+		self::$settingData['URLFirst'] = '';
 		spl_autoload_register(array('BH_Application', 'AutoLoad'));
 
 		$composerFile = _DIR . '/vendor/autoload.php';
 		if(file_exists($composerFile)) require $composerFile;
 
-		if(_DEVELOPERIS === true) self::$InstallIs = \DB::SQL()->TableExists(TABLE_MEMBER);
+		if(_DEVELOPERIS === true) self::$installIs = \DB::SQL()->TableExists(TABLE_MEMBER);
 
 		// ----------------------
 		//
 		//    라우팅 초기화
 		//
-		self::$SettingData['GetUrl'] = explode('/', isset($_GET['_bh_url']) ? $_GET['_bh_url'] : '');
-		for($i = 0; $i < 10; $i++) if(!isset(self::$SettingData['GetUrl'][$i])) self::$SettingData['GetUrl'][$i] = '';
+		self::$settingData['GetUrl'] = explode('/', isset($_GET['_bh_url']) ? $_GET['_bh_url'] : '');
+		for($i = 0; $i < 10; $i++) if(!isset(self::$settingData['GetUrl'][$i])) self::$settingData['GetUrl'][$i] = '';
 
-		if(self::$SettingData['GetUrl'][1] == 'MyIp'){
+		if(self::$settingData['GetUrl'][1] == 'MyIp'){
 			echo $_SERVER['REMOTE_ADDR'];
 			exit;
 		}
 
-		if(self::$SettingData['GetUrl'][1] == '~Create'){
+		if(self::$settingData['GetUrl'][1] == '~Create'){
 			if(_DEVELOPERIS === true && _POSTIS === true){
 				if(!isset($_POST['const']) || $_POST['const'] != 'y') $_POST['table_name'] = "'{$_POST['table_name']}'";
 				BH_HtmlCreate::CreateController($_POST['controller_name'], $_POST['model_name'], $_POST['table_name']);
@@ -76,10 +76,10 @@ class BH_Application
 			exit;
 		}
 
-		if(self::$SettingData['GetUrl'][1] == '_Refresh'){
+		if(self::$settingData['GetUrl'][1] == '_Refresh'){
 			if(_DEVELOPERIS === true){
-				self::$CFG->Sys()->refresh->value++;
-				$res = self::$CFG->Sys()->DataWrite();
+				self::$cfg->Sys()->refresh->value++;
+				$res = self::$cfg->Sys()->DataWrite();
 
 				if($res->result){
 					if(_REFRESH_HTML_ALL === true){
@@ -89,8 +89,8 @@ class BH_Application
 						ReplaceBHCSSALL(_SKINDIR, _HTMLDIR);
 					}
 
-					if(isset(self::$ExtendMethod['refreshExtend'])){
-						$RefreshExtend = self::$ExtendMethod['refreshExtend'];
+					if(isset(self::$extendMethod['refreshExtend'])){
+						$RefreshExtend = self::$extendMethod['refreshExtend'];
 						$RefreshExtend();
 					}
 					URLReplace($_GET['r_url']);
@@ -100,18 +100,18 @@ class BH_Application
 			exit;
 		}
 
-		if(!isset(self::$SettingData['GetUrl'][1]) || !strlen(self::$SettingData['GetUrl'][1])) self::$SettingData['GetUrl'][1] = _DEFAULT_CONTROLLER;
+		if(!isset(self::$settingData['GetUrl'][1]) || !strlen(self::$settingData['GetUrl'][1])) self::$settingData['GetUrl'][1] = _DEFAULT_CONTROLLER;
 
 
-		self::$BaseDir = _URL;
-		self::$NativeDir = '';
+		self::$baseDir = _URL;
+		self::$nativeDir = '';
 
-		if(!self::$InstallIs){
-			if(self::$SettingData['GetUrl'][1] == 'Install'){
-				self::$ControllerName = self::$SettingData['GetUrl'][1];
-				self::$Action = self::$SettingData['GetUrl'][2];
-				self::$ID = self::$SettingData['GetUrl'][3];
-				self::$CtrlUrl = _URL . '/' . self::$ControllerName;
+		if(!self::$installIs){
+			if(self::$settingData['GetUrl'][1] == 'Install'){
+				self::$controllerName = self::$settingData['GetUrl'][1];
+				self::$action = self::$settingData['GetUrl'][2];
+				self::$id = self::$settingData['GetUrl'][3];
+				self::$ctrlUrl = _URL . '/' . self::$controllerName;
 			}
 			else exit;
 		}
@@ -123,51 +123,51 @@ class BH_Application
 		// ----------------------
 
 
-		if(!self::$ControllerName) self::$ControllerName = _DEFAULT_CONTROLLER;
-		if(!strlen(self::$Action)) self::$Action = 'Index';
-		else if(strtolower(substr(self::$Action, 0, 4)) == 'post') self::$Action = preg_replace('/^(Post)+(.*)/i', '$2', self::$Action);
+		if(!self::$controllerName) self::$controllerName = _DEFAULT_CONTROLLER;
+		if(!strlen(self::$action)) self::$action = 'Index';
+		else if(strtolower(substr(self::$action, 0, 4)) == 'post') self::$action = preg_replace('/^(Post)+(.*)/i', '$2', self::$action);
 
-		if(substr(self::$Action, 0, 1) == '_') self::$Action = preg_replace('/_+(.*+)/', '$1', self::$Action);
+		if(substr(self::$action, 0, 1) == '_') self::$action = preg_replace('/_+(.*+)/', '$1', self::$action);
 
-		if(substr(self::$Action, 0, 1) == '~'){
-			self::$ID = substr(self::$Action, 1);
-			self::$Action = '_DirectView';
+		if(substr(self::$action, 0, 1) == '~'){
+			self::$id = substr(self::$action, 1);
+			self::$action = '_DirectView';
 		}
 
-		else if(substr(self::$ControllerName, 0, 1) == '~'){
-			self::$ID = substr(self::$ControllerName, 1);
-			self::$ControllerName = _DEFAULT_CONTROLLER;
-			self::$Action = '_DirectView';
+		else if(substr(self::$controllerName, 0, 1) == '~'){
+			self::$id = substr(self::$controllerName, 1);
+			self::$controllerName = _DEFAULT_CONTROLLER;
+			self::$action = '_DirectView';
 		}
 
-		$path = _DIR . '/Controller/' . (self::$NativeDir ? self::$NativeDir . '/' : '') . self::$ControllerName . '.php';
+		$path = _DIR . '/Controller/' . (self::$nativeDir ? self::$nativeDir . '/' : '') . self::$controllerName . '.php';
 
 		if(file_exists($path)){
 
-			if(isset(self::$ExtendMethod['BeforeLoadController'])){
-				$beforeLoadController = self::$ExtendMethod['BeforeLoadController'];
+			if(isset(self::$extendMethod['BeforeLoadController'])){
+				$beforeLoadController = self::$extendMethod['BeforeLoadController'];
 				$beforeLoadController();
 			}
 
 			require $path;
-			$controller = '\\Controller\\' . (self::$NativeDir ? str_replace('/', '\\', self::$NativeDir) . '\\' : '') . self::$ControllerName;
+			$controller = '\\Controller\\' . (self::$nativeDir ? str_replace('/', '\\', self::$nativeDir) . '\\' : '') . self::$controllerName;
 			if(!class_exists($controller)){
 				if(_DEVELOPERIS === true) echo '클래스(' . $controller . ')가 존재하지 않습니다.';
 				exit;
 			}
 
-			$action = _POSTIS === true ? 'Post' . self::$Action : self::$Action;
+			$action = _POSTIS === true ? 'Post' . self::$action : self::$action;
 
 			if(method_exists($controller, $action) && is_callable(array($controller, $action))){
-				self::$ControllerInstance = new $controller();
+				self::$controllerInstance = new $controller();
 
-				if(isset(self::$ExtendMethod['createControllerInstance'])){
-					$beforeLoadController = self::$ExtendMethod['createControllerInstance'];
+				if(isset(self::$extendMethod['createControllerInstance'])){
+					$beforeLoadController = self::$extendMethod['createControllerInstance'];
 					$beforeLoadController();
 				}
 
-				if(method_exists(self::$ControllerInstance, '__Init')) self::$ControllerInstance->__Init();
-				self::$ControllerInstance->{$action}();
+				if(method_exists(self::$controllerInstance, '__Init')) self::$controllerInstance->__Init();
+				self::$controllerInstance->{$action}();
 			}
 			else{
 				if(_DEVELOPERIS === true) echo '메소드가 존재하지 않습니다.(#2)';
@@ -186,7 +186,7 @@ class BH_Application
 	 */
 	public static function SetFollowQuery($ar){
 		if(!is_array($ar)) $ar = func_get_args();
-		foreach($ar as $v) if(isset($_GET[$v]) && !empty($_GET[$v])) self::$FollowQuery[$v] = $_GET[$v];
+		foreach($ar as $v) if(isset($_GET[$v]) && !empty($_GET[$v])) self::$followQuery[$v] = $_GET[$v];
 	}
 
 	/**
@@ -197,7 +197,7 @@ class BH_Application
 	 * @return string
 	 */
 	public static function GetFollowQuery($ar = '', $begin = '?'){
-		$fq = self::$FollowQuery;
+		$fq = self::$followQuery;
 		if($ar){
 			if(is_string($ar)) $ar = explode(',', trim($ar));
 			if(is_array($ar) && sizeof($ar)) foreach($ar as $v) unset($fq[trim($v)]);
@@ -218,7 +218,7 @@ class BH_Application
 	 */
 	public static function GetFollowQueryInput($ar = ''){
 		$ar = trim($ar);
-		$fq = self::$FollowQuery;
+		$fq = self::$followQuery;
 		if($ar){
 			if(is_string($ar)) $ar = explode(',', $ar);
 			if(is_array($ar) && sizeof($ar)) foreach($ar as $v) unset($fq[trim($v)]);
@@ -230,22 +230,22 @@ class BH_Application
 	}
 
 	/*
-	 * html : self::$Html 를 지정하면 그 파일을 찾고 아니라면 액션명의 파일을 찾는다.
-	 * layout : /Layout 디렉토리에서 self::$Layout 의 파일을 찾아 레이아웃을 생성
+	 * html : self::$html 를 지정하면 그 파일을 찾고 아니라면 액션명의 파일을 찾는다.
+	 * layout : /Layout 디렉토리에서 self::$layout 의 파일을 찾아 레이아웃을 생성
 	 */
-	private static function SetViewHtml(&$Model, &$Data, $DisableLayout = false, $htmlPath = ''){
+	private static function SetViewHtml(&$Model, &$Data, $disableLayout = false, $htmlPath = ''){
 		$d_b = phpversion() < 5.6 ? debug_backtrace() : debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3);
 
 		$Ctrl = &$d_b[2]['object'];
 
 		if(strlen($htmlPath)) $viewAction = $htmlPath;
-		else if(isset($Ctrl->Html) && strlen($Ctrl->Html)) $viewAction = $Ctrl->Html;
-		else if(self::$Html) $viewAction = self::$Html;
-		else if(self::$Action) $viewAction = self::$Action;
+		else if(isset($Ctrl->html) && strlen($Ctrl->html)) $viewAction = $Ctrl->html;
+		else if(self::$html) $viewAction = self::$html;
+		else if(self::$action) $viewAction = self::$action;
 		else $viewAction = 'Index';
 
-		if(!self::$NativeSkinDir) self::$NativeSkinDir = self::$NativeDir;
-		$html = substr($viewAction, 0, 1) == '/' ? $viewAction : (self::$NativeSkinDir ? '/' . self::$NativeSkinDir : '') . '/' . self::$ControllerName . '/' . $viewAction;
+		if(!self::$nativeSkinDir) self::$nativeSkinDir = self::$nativeDir;
+		$html = substr($viewAction, 0, 1) == '/' ? $viewAction : (self::$nativeSkinDir ? '/' . self::$nativeSkinDir : '') . '/' . self::$controllerName . '/' . $viewAction;
 		if(substr($html, -5) != '.html') $html .= '.html';
 
 		if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR . $html, _HTMLDIR . $html);
@@ -256,27 +256,27 @@ class BH_Application
 			if(_DEVELOPERIS !== true) echo 'ERROR : NOT EXISTS TEMPLATE';
 			else echo 'ERROR : NOT EXISTS TEMPLATE : ' . _HTMLDIR . $html;
 		}
-		self::$BodyHtml = ob_get_clean();
+		self::$bodyHtml = ob_get_clean();
 
-		if(!$DisableLayout && !is_null(self::$Layout)){
-			self::$parentLayout = self::$Layout;
+		if(!$disableLayout && !is_null(self::$layout)){
+			self::$parentLayout = self::$layout;
 			while(strlen(self::$parentLayout)){
-				self::$Layout = self::$parentLayout;
+				self::$layout = self::$parentLayout;
 				self::$parentLayout = '';
 
-				$layout = '/Layout/' . self::$Layout;
+				$layout = '/Layout/' . self::$layout;
 				if(substr($layout, -5) != '.html') $layout .= '.html';
 				if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR . $layout, _HTMLDIR . $layout);
 				if($layout && file_exists(_HTMLDIR . $layout)){
 					ob_start();
 					require _HTMLDIR . $layout;
-					self::$BodyHtml = ob_get_clean();
+					self::$bodyHtml = ob_get_clean();
 				}
 			}
 		}
 
-		if(isset(self::$ExtendMethod['AfterSetView'])){
-			$AfterSetView = self::$ExtendMethod['AfterSetView'];
+		if(isset(self::$extendMethod['AfterSetView'])){
+			$AfterSetView = self::$extendMethod['AfterSetView'];
 			$AfterSetView();
 		}
 	}
@@ -292,8 +292,8 @@ class BH_Application
 		}
 		if(is_null($html)) self::SetViewHtml($Model, $Data);
 		else self::SetViewHtml($Model, $Data, false, $html);
-		if(_JSONIS === true) JSON(true, '', self::$BodyHtml);
-		else echo self::$BodyHtml;
+		if(_JSONIS === true) JSON(true, '', self::$bodyHtml);
+		else echo self::$bodyHtml;
 	}
 
 	// 레이아웃을 제외한 HTML을 출력한다.
@@ -308,8 +308,8 @@ class BH_Application
 
 		if(is_null($html)) self::SetViewHtml($Model, $Data, true);
 		else self::SetViewHtml($Model, $Data, true, $html);
-		if(_JSONIS === true) JSON(true, '', self::$BodyHtml);
-		else echo self::$BodyHtml;
+		if(_JSONIS === true) JSON(true, '', self::$bodyHtml);
+		else echo self::$bodyHtml;
 	}
 
 	// 레이아웃을 포함한 HTML을 가져온다.
@@ -324,7 +324,7 @@ class BH_Application
 
 		if(is_null($html)) self::SetViewHtml($Model, $Data);
 		else self::SetViewHtml($Model, $Data, false, $html);
-		return self::$BodyHtml;
+		return self::$bodyHtml;
 	}
 
 	// 레이아웃을 제외한 HTML을 가져온다.
@@ -339,14 +339,14 @@ class BH_Application
 
 		if(is_null($html)) self::SetViewHtml($Model, $Data, true);
 		else self::SetViewHtml($Model, $Data, true, $html);
-		return self::$BodyHtml;
+		return self::$bodyHtml;
 	}
 
 	public static function JSPrint(){
 		$html = '';
-		if(isset(self::$JS) && is_array(self::$JS)){
-			ksort(self::$JS);
-			foreach(self::$JS as $v){
+		if(isset(self::$js) && is_array(self::$js)){
+			ksort(self::$js);
+			foreach(self::$js as $v){
 				foreach($v as $row){
 					if(substr($row, 0, 4) == 'http' || substr($row, 0, 1) == '/') $html .= chr(9) . '<script src="' . $row . '" charset="utf8"></script>' . chr(10);
 					else
@@ -358,14 +358,14 @@ class BH_Application
 	}
 
 	public static function JSAdd($js, $idx = 100){
-		self::$JS[$idx][] = $js;
+		self::$js[$idx][] = $js;
 	}
 
 	public static function CSSPrint(){
 		$html = '';
-		if(isset(self::$CSS) && is_array(self::$CSS)){
-			ksort(self::$CSS);
-			foreach(self::$CSS as $v){
+		if(isset(self::$css) && is_array(self::$css)){
+			ksort(self::$css);
+			foreach(self::$css as $v){
 				foreach($v as $row){
 					if(substr($row, 0, 4) == 'http' || substr($row, 0, 1) == '/') $html .= chr(9) . '<link rel="stylesheet" href="' . $row . '">' . chr(10);
 					else
@@ -387,7 +387,7 @@ class BH_Application
 		$ex = explode('.', $css);
 		$ext = array_pop($ex);
 		if($ext == 'css'){
-			self::$CSS[$idx][] = $css . $queryParam;
+			self::$css[$idx][] = $css . $queryParam;
 			return;
 		}
 
@@ -404,15 +404,15 @@ class BH_Application
 				$res = BH\BHCss\BHCss::conv($dir . $css2, _HTMLDIR . $target);
 			}
 		}
-		self::$CSS[$idx][] = _HTMLURL . $target . $queryParam;
+		self::$css[$idx][] = _HTMLURL . $target . $queryParam;
 	}
 
 	public static function URLAction($Action = ''){
-		return self::$SettingData['URLFirst'] . self::$CtrlUrl . '/' . $Action;
+		return self::$settingData['URLFirst'] . self::$ctrlUrl . '/' . $Action;
 	}
 
 	public static function URLBase($Controller = ''){
-		return self::$SettingData['URLFirst'] . self::$BaseDir . '/' . $Controller;
+		return self::$settingData['URLFirst'] . self::$baseDir . '/' . $Controller;
 	}
 
 	/**

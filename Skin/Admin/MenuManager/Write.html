@@ -7,7 +7,7 @@ use \BH_Application as App;
  */
 ?>
 
-<form name="MenuWriteForm" id="MenuWriteForm" method="post" action="<?a. App::$Action ?><?fq. '' ?>">
+<form name="MenuWriteForm" id="MenuWriteForm" method="post" action="<?a. App::$action ?><?fq. '' ?>">
 	<input type="hidden" name="category" value="<?mv('category') ?>">
 	<table class="write">
 		<tr>
@@ -67,7 +67,7 @@ use \BH_Application as App;
 	</table>
 
 	<div class="bottomBtn">
-		<button type="submit" class="bBtn"><?php echo App::$Action == 'Modify' ? '수정' : '등록'; ?></button>
+		<button type="submit" class="bBtn"><?php echo App::$action == 'Modify' ? '수정' : '등록'; ?></button>
 		<button type="reset" class="bBtn">취소</button>
 	</div>
 </form>

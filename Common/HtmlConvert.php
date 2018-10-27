@@ -42,7 +42,7 @@ function ReplaceHTMLFile($source, $target){
 				'><'
 			), $f);
 		}
-		$f = preg_replace(BH_Application::$SettingData['_replace_patterns'], BH_Application::$SettingData['_replace_replace'], $f);
+		$f = preg_replace(BH_Application::$settingData['_replace_patterns'], BH_Application::$settingData['_replace_replace'], $f);
 
 
 		file_put_contents($target, $f);

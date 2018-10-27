@@ -15,9 +15,9 @@ $popup = CM::GetPopup(function($qry){
 			<h2>공지사항</h2>
 			<a href="<?p. _URL ?>/Notice" class="more">더보기<i></i></a>
 		</header>
-		<?php if(sizeof(App::$Data['notice'])){ ?>
+		<?php if(sizeof(App::$data['notice'])){ ?>
 			<ul class="articles">
-				<?php foreach(App::$Data['notice'] as $row){ ?>
+				<?php foreach(App::$data['notice'] as $row){ ?>
 					<li>
 						<a href="<?p. _URL . '/Notice/View/' . toBase($row['seq']) ?>">
 							<div class="title">
@@ -39,9 +39,9 @@ $popup = CM::GetPopup(function($qry){
 			<h2>자유게시판</h2>
 			<a href="<?p. _URL ?>/FreeBoard" class="more">더보기<i></i></a>
 		</header>
-		<?php if(sizeof(App::$Data['freeBoard'])){ ?>
+		<?php if(sizeof(App::$data['freeBoard'])){ ?>
 			<ul class="articles">
-				<?php foreach(App::$Data['freeBoard'] as $row){ ?>
+				<?php foreach(App::$data['freeBoard'] as $row){ ?>
 					<li>
 						<a href="<?p. _URL . '/FreeBoard/View/' . toBase($row['seq']) ?>">
 							<div class="title">
@@ -64,9 +64,9 @@ $popup = CM::GetPopup(function($qry){
 			<h2>갤러리 게시판</h2>
 			<a href="<?p. _URL ?>/Gallery" class="more">더보기<i></i></a>
 		</header>
-		<?php if(sizeof(App::$Data['gallery'])){ ?>
+		<?php if(sizeof(App::$data['gallery'])){ ?>
 			<ul class="articles">
-				<?php foreach(App::$Data['gallery'] as $row){ ?>
+				<?php foreach(App::$data['gallery'] as $row){ ?>
 					<li>
 						<a href="<?p. _URL . '/FreeBoard/View/' . toBase($row['seq']) ?>">
 							<div class="thumb">

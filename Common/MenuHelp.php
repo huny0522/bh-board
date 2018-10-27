@@ -163,7 +163,7 @@ class MenuHelp
 				$this->DBToMenus();
 			}
 			else{
-				$temp = App::$CFG->Sys()->menuCache->value;
+				$temp = App::$cfg->Sys()->menuCache->value;
 				if(!file_exists(_DATADIR . '/CFG/System.php')) $this->MenusToFile();
 				if(!is_array($temp)) $this->menus = array();
 				else{
@@ -187,8 +187,8 @@ class MenuHelp
 		if($this->useDB) return;
 		$this->menus = array();
 		$this->DBToMenus();
-		App::$CFG->Sys()->menuCache->value = $this->menus;
-		App::$CFG->Sys()->DataWrite();
+		App::$cfg->Sys()->menuCache->value = $this->menus;
+		App::$cfg->Sys()->DataWrite();
 	}
 
 	/* -------------------------------------------------
@@ -350,7 +350,7 @@ class MenuHelp
 	 */
 	public function SetDBMenuRouter($url, $start = 1){
 		$this->FindRootMenuByTitle();
-		$urlControllerName = App::$SettingData['GetUrl'][$start];
+		$urlControllerName = App::$settingData['GetUrl'][$start];
 		if(!$urlControllerName) $urlControllerName = _DEFAULT_CONTROLLER;
 
 		// 활성메뉴 찾기
@@ -383,18 +383,18 @@ class MenuHelp
 				return $this->routingSuccess;
 			}
 
-			if($this->activeMenu['type'] == 'board') App::$ControllerName = 'Board';
-			else if($this->activeMenu['type'] == 'content') App::$ControllerName = 'Contents';
-			else App::$ControllerName = App::$SettingData['GetUrl'][$start];
+			if($this->activeMenu['type'] == 'board') App::$controllerName = 'Board';
+			else if($this->activeMenu['type'] == 'content') App::$controllerName = 'Contents';
+			else App::$controllerName = App::$settingData['GetUrl'][$start];
 
-			App::$TID = $this->activeMenu['bid'];
-			App::$SUB_TID = $this->activeMenu['subid'];
-			App::$SettingData['additionalSubid'] = $this->activeMenu['addi_subid'];
-			if(strlen($this->activeMenu['board_category'])) App::$SettingData['boardCategory'] = $this->activeMenu['board_category'];
-			if(strlen($this->activeMenu['board_sub_category'])) App::$SettingData['boardSubCategory'] = $this->activeMenu['board_sub_category'];
-			App::$Action = App::$SettingData['GetUrl'][$start + 1];
-			App::$ID = App::$SettingData['GetUrl'][$start + 2];
-			App::$CtrlUrl = $url.'/'.App::$SettingData['GetUrl'][$start];
+			App::$tid = $this->activeMenu['bid'];
+			App::$sub_tid = $this->activeMenu['subid'];
+			App::$settingData['additionalSubid'] = $this->activeMenu['addi_subid'];
+			if(strlen($this->activeMenu['board_category'])) App::$settingData['boardCategory'] = $this->activeMenu['board_category'];
+			if(strlen($this->activeMenu['board_sub_category'])) App::$settingData['boardSubCategory'] = $this->activeMenu['board_sub_category'];
+			App::$action = App::$settingData['GetUrl'][$start + 1];
+			App::$id = App::$settingData['GetUrl'][$start + 2];
+			App::$ctrlUrl = $url.'/'.App::$settingData['GetUrl'][$start];
 			$this->routingSuccess = true;
 			return $this->routingSuccess;
 		}

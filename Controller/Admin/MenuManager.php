@@ -15,9 +15,9 @@ use \DB as DB;
 class MenuManager extends BH_Category{
 
 	public function __init(){
-		App::$Data['NowMenu'] = '004';
+		App::$data['NowMenu'] = '004';
 		CM::AdminAuth();
-		App::$Layout = '_Admin';
+		App::$layout = '_Admin';
 	}
 
 	protected function _MenuChangeAfter(){

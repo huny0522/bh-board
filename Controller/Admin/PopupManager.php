@@ -22,19 +22,19 @@ class PopupManager
 
 		$dbGetList = new \BH_DB_GetList($this->model->table);
 		$dbGetList->SetKey('DISTINCT category');
-		App::$Data['category'] = array();
-		if(isset(App::$SettingData['popupCategory'])) foreach(App::$SettingData['popupCategory'] as $v){
-			App::$Data['category'][$v] = $v;
+		App::$data['category'] = array();
+		if(isset(App::$settingData['popupCategory'])) foreach(App::$settingData['popupCategory'] as $v){
+			App::$data['category'][$v] = $v;
 		}
 
-		while($row = $dbGetList->Get()) App::$Data['category'][$row['category']] = $row['category'];
+		while($row = $dbGetList->Get()) App::$data['category'][$row['category']] = $row['category'];
 	}
 
 	public function __init(){
-		App::$Data['NowMenu'] = '001003';
+		App::$data['NowMenu'] = '001003';
 		CM::AdminAuth();
 
-		App::$Layout = '_Admin';
+		App::$layout = '_Admin';
 		App::SetFollowQuery(array('category', 'page', 'keyword', 'kind'));
 	}
 
@@ -58,12 +58,12 @@ class PopupManager
 	}
 
 	public function Modify(){
-		$res = $this->model->DBGet(to10(App::$ID));
+		$res = $this->model->DBGet(to10(App::$id));
 
 		if(!$res->result){
 			URLReplace('-1', $res->message);
 		}
-		App::$Html = 'Write';
+		App::$html = 'Write';
 		App::View($this->model);
 	}
 	public function PostWrite(){
@@ -74,7 +74,7 @@ class PopupManager
 		else{
 			/*if(isset($_FILES['img'])){
 				require_once _COMMONDIR.'/FileUpload.php';
-				$fres_em = FileUpload($_FILES['img'], App::$SettingData['POSSIBLE_EXT'], '/board/'.date('ym').'/');
+				$fres_em = FileUpload($_FILES['img'], App::$settingData['POSSIBLE_EXT'], '/board/'.date('ym').'/');
 
 				if(is_string($fres_em)) URLReplace('-1', $fres_em);
 				else if(is_array($fres_em)){
@@ -99,7 +99,7 @@ class PopupManager
 	}
 
 	public function PostModify(){
-		$res = $this->model->DBGet(to10(App::$ID));
+		$res = $this->model->DBGet(to10(App::$id));
 		$res = $this->model->SetPostValuesWithFile();
 		if(!$res->result){
 			URLReplace('-1',$res->message);
@@ -107,7 +107,7 @@ class PopupManager
 		else{
 			/*if(isset($_FILES['img'])){
 				require_once _COMMONDIR.'/FileUpload.php';
-				$fres_em = FileUpload($_FILES['img'], App::$SettingData['POSSIBLE_EXT'], '/board/'.date('ym').'/');
+				$fres_em = FileUpload($_FILES['img'], App::$settingData['POSSIBLE_EXT'], '/board/'.date('ym').'/');
 
 				if(is_string($fres_em)) URLReplace('-1', $fres_em);
 				else if(is_array($fres_em)){
@@ -123,7 +123,7 @@ class PopupManager
 
 			$res = $this->model->DBUpdate();
 			if($res->result){
-				CM::ContentImageUpdate($this->model->table, array('seq' => to10(App::$ID)), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
+				CM::ContentImageUpdate($this->model->table, array('seq' => to10(App::$id)), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
 				$url = App::URLAction().App::GetFollowQuery();
 				URLReplace($url, '수정완료');
 			}else{

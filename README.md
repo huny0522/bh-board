@@ -105,7 +105,7 @@ CSS 작성 편의 기능.
 
 - *\<?mt('Title')' ?>* : 모델 데이타명
 
-    변환 후 : *\<?php echo $Model->data['Title']->DisplayName; ?>*
+    변환 후 : *\<?php echo $Model->data['Title']->displayName; ?>*
     
 - *\<?mv('Name')' ?>* : 모델 데이타값
 	

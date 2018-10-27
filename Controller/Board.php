@@ -23,10 +23,10 @@ class Board{
 	 */
 	public $boardManger;
 	public $managerIs = false;
-	public $MoreListIs = false;
-	public $GetListIs = false;
-	public $Path = '';
-	public $AdminPathIs = false;
+	public $moreListIs = false;
+	public $getListIs = false;
+	public $path = '';
+	public $adminPathIs = false;
 	public $bid = '';
 	public $subid = '';
 	public $additionalSubId = array();
@@ -79,8 +79,8 @@ class Board{
 	 * 관리자 경로일때 권한 체크
 	 */
 	protected function _AdminPathAuth(){
-		if(App::$SettingData['GetUrl'][1] == _ADMINURLNAME){
-			if(CM::GetAdminIs()) $this->AdminPathIs = true;
+		if(App::$settingData['GetUrl'][1] == _ADMINURLNAME){
+			if(CM::GetAdminIs()) $this->adminPathIs = true;
 			else{
 				if(_JSONIS === true) JSON(false, _MSG_WRONG_CONNECTED);
 				URLReplace(App::URLBase('Login'), _MSG_WRONG_CONNECTED);
@@ -89,43 +89,43 @@ class Board{
 	}
 
 	protected function _ModelInit($modelName, $tid = ''){
-		if(strlen($tid)) App::$TID = $tid;
+		if(strlen($tid)) App::$tid = $tid;
 		if(substr($modelName, -5) === 'Model') $modelName = substr($modelName, 0, -5);
 		$this->model = App::InitModel($modelName);
 		$this->boardManger = new \BoardManagerModel();
 	}
 
 	protected function _IdSet(){
-		$this->bid = App::$TID;
-		$this->subid = App::$SUB_TID;
+		$this->bid = App::$tid;
+		$this->subid = App::$sub_tid;
 
-		if(isset(App::$SettingData['additionalSubid'])){
-			if(is_string(App::$SettingData['additionalSubid']) && strlen(App::$SettingData['additionalSubid'])){
-				App::$SettingData['additionalSubid'] = explode(',', App::$SettingData['additionalSubid']);
+		if(isset(App::$settingData['additionalSubid'])){
+			if(is_string(App::$settingData['additionalSubid']) && strlen(App::$settingData['additionalSubid'])){
+				App::$settingData['additionalSubid'] = explode(',', App::$settingData['additionalSubid']);
 			}
-			if(is_array(App::$SettingData['additionalSubid']) && sizeof(App::$SettingData['additionalSubid'])){
-				$this->additionalSubId = App::$SettingData['additionalSubid'];
+			if(is_array(App::$settingData['additionalSubid']) && sizeof(App::$settingData['additionalSubid'])){
+				$this->additionalSubId = App::$settingData['additionalSubid'];
 				$this->additionalSubId[] = $this->subid;
 			}
 		}
 
 		if(sizeof($this->additionalSubId)){
-			if(!in_array(App::$Action, array('Index', 'MoreList', 'Write')) && strlen(App::$ID)){
+			if(!in_array(App::$action, array('Index', 'MoreList', 'Write')) && strlen(App::$id)){
 				$dt = DB::GetQryObj($this->model->table)
 					->SetKey('subid')
-					->AddWhere('seq = %d', to10(App::$ID))
+					->AddWhere('seq = %d', to10(App::$id))
 					->Get();
 				if(isset($dt['subid']) && strlen($dt['subid'])) $this->subid = $dt['subid'];
 			}
 
-			else if(App::$Action === 'Write' && !EmptyGet('subid')){
+			else if(App::$action === 'Write' && !EmptyGet('subid')){
 				$this->subid = Get('subid');
 			}
 		}
 
-		if(isset(App::$SettingData['boardCategory'])) $this->menuCategory = trim(App::$SettingData['boardCategory']);
+		if(isset(App::$settingData['boardCategory'])) $this->menuCategory = trim(App::$settingData['boardCategory']);
 
-		if(isset(App::$SettingData['boardSubCategory'])) $this->menuSubCategory = trim(App::$SettingData['boardSubCategory']);
+		if(isset(App::$settingData['boardSubCategory'])) $this->menuSubCategory = trim(App::$settingData['boardSubCategory']);
 
 		$this->userActionTable = $this->model->table . '_action';
 	}
@@ -151,46 +151,46 @@ class Board{
 		}
 
 		if($this->boardManger->GetValue('attach_type') == 'image'){
-			$this->model->data['file1']->HtmlType = \HTMLType::InputImageFile;
-			$this->model->data['file2']->HtmlType = \HTMLType::InputImageFile;
+			$this->model->data['file1']->htmlType = \HTMLType::FILE_IMAGE;
+			$this->model->data['file2']->htmlType = \HTMLType::FILE_IMAGE;
 		}
 
-		$action = App::$Action;
+		$action = App::$action;
 		if($action == 'Answer' || $action == 'Modify') $action = 'Write';
 		if($action == '_DirectView') $action = 'View';
-		$this->Path = '/Board/'.App::$NativeSkinDir.'/'.$this->boardManger->GetValue('skin').'/';
-		if(file_exists(_SKINDIR.$this->Path.$action.'.html')) App::$Html = $this->Path.$action.'.html';
+		$this->path = '/Board/'.App::$nativeSkinDir.'/'.$this->boardManger->GetValue('skin').'/';
+		if(file_exists(_SKINDIR.$this->path.$action.'.html')) App::$html = $this->path.$action.'.html';
 		else{
-			$this->Path = '/Board/'.App::$NativeSkinDir.'/';
-			if(file_exists(_SKINDIR.$this->Path.$action.'.html')) App::$Html = $this->Path.$action.'.html';
+			$this->path = '/Board/'.App::$nativeSkinDir.'/';
+			if(file_exists(_SKINDIR.$this->path.$action.'.html')) App::$html = $this->path.$action.'.html';
 			else{
-				$this->Path = '/Board/'.$this->boardManger->GetValue('skin').'/';
-				if(file_exists(_SKINDIR.$this->Path.$action.'.html')) App::$Html = $this->Path.$action.'.html';
+				$this->path = '/Board/'.$this->boardManger->GetValue('skin').'/';
+				if(file_exists(_SKINDIR.$this->path.$action.'.html')) App::$html = $this->path.$action.'.html';
 				else{
-					$this->Path = '/Board/';
-					App::$Html = '/Board/' . $action.'.html';
+					$this->path = '/Board/';
+					App::$html = '/Board/' . $action.'.html';
 				}
 			}
 		}
 
-		if(file_exists(_SKINDIR.$this->Path.'MoreList.html')) $this->MoreListIs = true;
-		else if(file_exists(_SKINDIR.$this->Path.'GetList.html')) $this->GetListIs = true;
+		if(file_exists(_SKINDIR.$this->path.'MoreList.html')) $this->moreListIs = true;
+		else if(file_exists(_SKINDIR.$this->path.'GetList.html')) $this->getListIs = true;
 
 		$layout = $this->boardManger->GetValue('layout');
 
 		// 관리자
-		if($this->AdminPathIs){
-			$this->Path = '/Board/Admin/'.$this->boardManger->GetValue('skin').'/';
-			if(!file_exists(_SKINDIR.$this->Path.$action.'.html')) $this->Path = '/Board/Admin/';
+		if($this->adminPathIs){
+			$this->path = '/Board/Admin/'.$this->boardManger->GetValue('skin').'/';
+			if(!file_exists(_SKINDIR.$this->path.$action.'.html')) $this->path = '/Board/Admin/';
 
-			App::$Html = $this->Path . $action.'.html';
-			App::$Layout = '_Admin';
-			$this->MoreListIs = false;
-			$this->GetListIs = false;
+			App::$html = $this->path . $action.'.html';
+			App::$layout = '_Admin';
+			$this->moreListIs = false;
+			$this->getListIs = false;
 			$this->boardManger->SetValue('article_count', 20);
 		}
 		else if($layout){
-			$layoutPath = App::$NativeSkinDir.'/'.$layout;
+			$layoutPath = App::$nativeSkinDir.'/'.$layout;
 
 			$e = explode('.', $layoutPath);
 			if(sizeof($e) > 1){
@@ -202,25 +202,25 @@ class Board{
 			}
 
 			if(file_exists(_SKINDIR.'/Layout/'.$layoutPath)) $layout = $layoutPath;
-			App::$Layout = $layout;
+			App::$layout = $layout;
 		}
 
 		$this->_SetCategory();
 
-		if(!$this->AdminPathIs && _MEMBERIS !== true && $this->boardManger->GetValue('man_to_man') === 'y') URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
+		if(!$this->adminPathIs && _MEMBERIS !== true && $this->boardManger->GetValue('man_to_man') === 'y') URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
 		if($this->boardManger->GetValue('man_to_man') === 'y') $this->boardManger->SetValue('use_secret', 'n');
 	}
 
 	public function _SetCategory(){
-		App::$Data['category'] = array();
-		App::$Data['subCategory'] = array();
+		App::$data['category'] = array();
+		App::$data['subCategory'] = array();
 
-		if(strlen($this->menuCategory)) App::$Data['subCategory'] =  $this->boardManger->GetSubCategory($this->menuCategory);
+		if(strlen($this->menuCategory)) App::$data['subCategory'] =  $this->boardManger->GetSubCategory($this->menuCategory);
 
-		else if(!EmptyGet('cate')) App::$Data['subCategory'] = $this->boardManger->GetSubCategory(Get('cate'));
+		else if(!EmptyGet('cate')) App::$data['subCategory'] = $this->boardManger->GetSubCategory(Get('cate'));
 
 		if(!is_null($this->boardManger->GetValue('category')) && strlen($this->boardManger->GetValue('category'))){
-			App::$Data['category'] = explode(',', $this->boardManger->GetValue('category'));
+			App::$data['category'] = explode(',', $this->boardManger->GetValue('category'));
 		}
 	}
 
@@ -259,7 +259,7 @@ class Board{
 			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
-		if($this->GetListIs || $this->MoreListIs){
+		if($this->getListIs || $this->moreListIs){
 			if(_JSONIS === true) JSON(true, '', App::GetView($this->model));
 			else  App::View($this->model);
 			return;
@@ -273,13 +273,13 @@ class Board{
 		$s_keyword = Get('keyword');
 		$s_type = Get('stype');
 
-		App::$Data['categoryKeyword'] = strlen($this->menuCategory) ? $this->menuCategory : Get('cate');
+		App::$data['categoryKeyword'] = strlen($this->menuCategory) ? $this->menuCategory : Get('cate');
 		if(sizeof($this->additionalSubId)){
 			$qry->AddWhere('`A`.`subid` IN (%s)', $this->additionalSubId);
 		}
 		else $qry->AddWhere('`A`.`subid` = %s', $this->subid);
 
-		if(strlen(App::$Data['categoryKeyword'])) $qry->AddWhere('`A`.category = %s', App::$Data['categoryKeyword']);
+		if(strlen(App::$data['categoryKeyword'])) $qry->AddWhere('`A`.category = %s', App::$data['categoryKeyword']);
 
 		if(strlen($this->menuSubCategory)) $qry->AddWhere('`A`.sub_category IN (%s)', explode(',', $this->menuSubCategory));
 		else if(!EmptyGet('scate')) $qry->AddWhere('`A`.sub_category = %s', Get('scate'));
@@ -315,7 +315,7 @@ class Board{
 
 
 		// 공지를 불러온다.
-		App::$Data['notice'] = array();
+		App::$data['notice'] = array();
 		if(($s_page < 2) && !strlen($s_keyword)){
 			$qry = $this->model->GetNoticeQuery();
 
@@ -324,14 +324,14 @@ class Board{
 			$this->_R_CommonQry($qry);
 			$this->_R_NoticeQuery($qry);
 
-			App::$Data['notice'] = $qry->GetRows();
-			$this->_RowSet(App::$Data['notice']);
+			App::$data['notice'] = $qry->GetRows();
+			$this->_RowSet(App::$data['notice']);
 		}
 
 		// 리스트를 불러온다.
-		$dbList = $this->model->NewQryName('default')->GetSetPageListQry('A');
+		$dbList = DB::GetListPageQryObj($this->model->table . ' A');
 
-		if($this->boardManger->_list_show_notice->txt() == 'n' && ($s_page < 2) && !strlen($s_keyword)) $dbList->AddWhere('A.notice=\'n\'');
+		if($this->boardManger->_list_show_notice->Txt() == 'n' && ($s_page < 2) && !strlen($s_keyword)) $dbList->AddWhere('A.notice=\'n\'');
 
 		$dbList->SetSort('A.sort1, A.sort2')
 			->SetPage($s_page)
@@ -339,7 +339,7 @@ class Board{
 			->SetArticleCount($this->boardManger->GetValue('article_count'));
 		$this->_R_CommonQry($dbList);
 
-		if(!$this->AdminPathIs){
+		if(!$this->adminPathIs){
 			$dbList->AddWhere('A.delis=\'n\'');
 			if(!$this->managerIs && $this->boardManger->GetValue('man_to_man') === 'y') $dbList->AddWhere('A.muid = %d OR A.target_muid = %d', $_SESSION['member']['muid'], $_SESSION['member']['muid']);
 		}
@@ -350,7 +350,7 @@ class Board{
 		$dbList->DrawRows();
 		$this->_RowSet($dbList->data);
 
-		App::$Html = $this->Path.'Index.html';
+		App::$html = $this->path.'Index.html';
 
 		if($viewPageIs) return App::GetOnlyView($this->model, $dbList);
 		else if(_JSONIS === true) JSON(true, '', App::GetView($this->model, $dbList));
@@ -370,7 +370,7 @@ class Board{
 
 
 		// 공지를 불러온다.
-		App::$Data['notice'] = array();
+		App::$data['notice'] = array();
 		if(!strlen($s_seq) && !strlen($s_last_seq) && !strlen($s_keyword)){
 			$qry = $this->model->GetNoticeQuery();
 
@@ -379,20 +379,20 @@ class Board{
 			$this->_R_CommonQry($qry);
 			$this->_R_NoticeQuery($qry);
 
-			App::$Data['notice'] = $qry->GetRows();
-			$this->_RowSet(App::$Data['notice']);
+			App::$data['notice'] = $qry->GetRows();
+			$this->_RowSet(App::$data['notice']);
 		}
 
 		// 리스트를 불러온다.
-		$dbList = $this->model->NewQryName('default')->GetSetListQry('A');
+		$dbList = DB::GetListQryObj($this->model->table. ' A');
 
-		if($this->boardManger->_list_show_notice->txt() == 'n' && !strlen($s_keyword)) $dbList->AddWhere('A.notice=\'n\'');
+		if($this->boardManger->_list_show_notice->Txt() == 'n' && !strlen($s_keyword)) $dbList->AddWhere('A.notice=\'n\'');
 
 		$dbList->SetLimit($this->boardManger->GetValue('article_count'))
 			->SetSort('A.sort1, A.sort2');
 		$this->_R_CommonQry($dbList);
 
-		if(!$this->AdminPathIs){
+		if(!$this->adminPathIs){
 			$dbList->AddWhere('A.delis=\'n\'');
 			if(!$this->managerIs && $this->boardManger->GetValue('man_to_man') === 'y') $dbList->AddWhere('A.muid = %d OR A.target_muid = %d', $_SESSION['member']['muid'], $_SESSION['member']['muid']);
 		}
@@ -433,13 +433,13 @@ class Board{
 	}
 
 	public function _RowSet(&$data){
-		$ck = strlen(App::$Data['categoryKeyword']) ? true : false;
+		$ck = strlen(App::$data['categoryKeyword']) ? true : false;
 		foreach($data as &$row){
 			if($this->managerIs || $row['secret'] == 'n' || ($row['first_member_is'] == 'y' && strlen($row['muid']))) $row['possibleView'] = true;
 			else $row['possibleView'] = false;
 			$row['viewUrl'] = App::URLAction('View/').toBase($row['seq']).App::GetFollowQuery();
 			$row['replyCount'] = $row['reply_cnt'] ? '<span class="ReplyCount">['.$row['reply_cnt'].']</span>' : '';
-			$row['newArticleIs'] = (time() - strtotime($row['reg_date']) < $this->boardManger->data['new_view_day']->Value * 60 * 60 * 24);
+			$row['newArticleIs'] = (time() - strtotime($row['reg_date']) < $this->boardManger->data['new_view_day']->value * 60 * 60 * 24);
 			$row['viewCategory'] = $ck ? (strlen($row['sub_category']) ? $row['sub_category'] : $row['category']) : $row['category'];
 		}
 	}
@@ -449,12 +449,12 @@ class Board{
 	}
 
 	public function View(){
-		if($this->boardManger->GetValue('list_in_view') == 'y' && !$this->MoreListIs) App::$Data['List'] = $this->GetList(true);
-		App::$Html = $this->Path.'View.html';
+		if($this->boardManger->GetValue('list_in_view') == 'y' && !$this->moreListIs) App::$data['List'] = $this->GetList(true);
+		App::$html = $this->path.'View.html';
 
-		if(!isset(App::$ID) || !strlen(App::$ID)) URLReplace('-1');
+		if(!isset(App::$id) || !strlen(App::$id)) URLReplace('-1');
 
-		$seq = to10(App::$ID);
+		$seq = to10(App::$id);
 
 		$viewAuth = $this->GetAuth('View');
 		if(!$viewAuth){
@@ -464,7 +464,7 @@ class Board{
 
 		$this->_GetBoardData($seq);
 
-		if(!$this->AdminPathIs){
+		if(!$this->adminPathIs){
 			if($this->model->GetValue('delis') == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
 			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && $this->model->GetValue('muid') != $_SESSION['member']['muid'] && $this->model->GetValue('target_muid') != $_SESSION['member']['muid']) URLReplace('-1', _MSG_WRONG_CONNECTED);
 		}
@@ -521,15 +521,15 @@ class Board{
 			setcookie($cookieName, 'y');
 		}
 
-		App::$Data['boardActionData'] = array();
+		App::$data['boardActionData'] = array();
 		if(_MEMBERIS == true){
 			$res = ArticleAction::GetInstance($this->bid)
 				->SetArticleSeq($seq)
 				->SetMUid($_SESSION['member']['muid'])
 				->GetAllAction();
-			if($res->result) App::$Data['boardActionData'] = $res->data;
+			if($res->result) App::$data['boardActionData'] = $res->data;
 
-			if($this->model->GetValue('muid') != $_SESSION['member']['muid'] && !isset(App::$Data['boardActionData']['read'])){
+			if($this->model->GetValue('muid') != $_SESSION['member']['muid'] && !isset(App::$data['boardActionData']['read'])){
 				ArticleAction::GetInstance($this->bid)
 					->SetArticleSeq($seq)
 					->SetMUid($_SESSION['member']['muid'])
@@ -538,17 +538,17 @@ class Board{
 			}
 		}
 
-		App::$Data['recommendButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  GetDBText(App::$ID) . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . GetDBText(App::$ID) . '" data-type="recommend" class="boardActionBtn boardRecommendActionBtn' .(isset(App::$Data['boardActionData']['recommend']) ? ' already' : ''). '"><b>추천</b> <span class="num">' . ($this->model->_recommend->txt()) . '</span></a>';
+		App::$data['recommendButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  GetDBText(App::$id) . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . GetDBText(App::$id) . '" data-type="recommend" class="boardActionBtn boardRecommendActionBtn' .(isset(App::$data['boardActionData']['recommend']) ? ' already' : ''). '"><b>추천</b> <span class="num">' . ($this->model->_recommend->Txt()) . '</span></a>';
 
-		App::$Data['scrapButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  GetDBText(App::$ID) . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . GetDBText(App::$ID) . '" data-type="scrap" class="boardActionBtn boardSubscribeActionBtn' .(isset(App::$Data['boardActionData']['scrap']) ? ' already' : ''). '"><b>스크랩</b> <span class="num">' . ($this->model->_scrap->txt()) . '</span></a>';
+		App::$data['scrapButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  GetDBText(App::$id) . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . GetDBText(App::$id) . '" data-type="scrap" class="boardActionBtn boardSubscribeActionBtn' .(isset(App::$data['boardActionData']['scrap']) ? ' already' : ''). '"><b>스크랩</b> <span class="num">' . ($this->model->_scrap->Txt()) . '</span></a>';
 
-		App::$Data['opposeButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  GetDBText(App::$ID) . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . GetDBText(App::$ID) . '" data-type="oppose" class="boardActionBtn boardOpposeActionBtn' .(isset(App::$Data['boardActionData']['oppose']) ? ' already' : ''). '"><b>반대</b> <span class="num">' . ($this->model->_oppose->txt()) . '</span></a>';
+		App::$data['opposeButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  GetDBText(App::$id) . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . GetDBText(App::$id) . '" data-type="oppose" class="boardActionBtn boardOpposeActionBtn' .(isset(App::$data['boardActionData']['oppose']) ? ' already' : ''). '"><b>반대</b> <span class="num">' . ($this->model->_oppose->Txt()) . '</span></a>';
 
-		App::$Data['reportButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  GetDBText(App::$ID) . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . GetDBText(App::$ID) . '" data-type="report" class="boardActionBtn boardReportActionBtn' .(isset(App::$Data['boardActionData']['report']) ? ' already' : ''). '"><b>신고</b> <span class="num">' . ($this->model->_report->txt()) . '</span></a>';
+		App::$data['reportButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  GetDBText(App::$id) . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . GetDBText(App::$id) . '" data-type="report" class="boardActionBtn boardReportActionBtn' .(isset(App::$data['boardActionData']['report']) ? ' already' : ''). '"><b>신고</b> <span class="num">' . ($this->model->_report->Txt()) . '</span></a>';
 
 
 		$_SESSION['boardView']['bid'] = $this->bid;
-		$_SESSION['boardView']['seq'] = App::$ID;
+		$_SESSION['boardView']['seq'] = App::$id;
 
 		$this->_R_ViewEnd($data);  // Reserved
 
@@ -593,7 +593,7 @@ class Board{
 			->AddWhere('seq = %d', $seq);
 		$this->_R_CommonQry($qry);
 		$data = $qry->Get();
-		if(!$this->AdminPathIs){
+		if(!$this->adminPathIs){
 			if($data['delis'] == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
 			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && $data['muid'] != $_SESSION['member']['muid'] && $data['target_muid'] != $_SESSION['member']['muid']) URLReplace('-1', _MSG_WRONG_CONNECTED);
 		}
@@ -608,7 +608,7 @@ class Board{
 	}
 
 	public function Modify(){
-		if(!isset(App::$ID) || !strlen(App::$ID)){
+		if(!isset(App::$id) || !strlen(App::$id)){
 			URLReplace('-1');
 		}
 
@@ -618,9 +618,9 @@ class Board{
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
-		$seq = to10(App::$ID);
+		$seq = to10(App::$id);
 		$this->_GetBoardData($seq);
-		if(!$this->AdminPathIs){
+		if(!$this->adminPathIs){
 			if($this->model->GetValue('delis') == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
 			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && $this->model->GetValue('muid') != $_SESSION['member']['muid'] && $this->model->GetValue('target_muid') != $_SESSION['member']['muid']) URLReplace('-1', _MSG_WRONG_CONNECTED);
 		}
@@ -648,16 +648,16 @@ class Board{
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
-		$seq = to10(App::$ID);
+		$seq = to10(App::$id);
 
-		$this->model->Need = array('subject', 'content');
-		if($this->boardManger->GetValue('use_secret') === 'y') $this->model->Need = 'secret';
-		if(_MEMBERIS !== true) $this->model->Need = 'mnane';
+		$this->model->need = array('subject', 'content');
+		if($this->boardManger->GetValue('use_secret') === 'y') $this->model->need = 'secret';
+		if(_MEMBERIS !== true) $this->model->need = 'mnane';
 		else $this->model->AddExcept('pwd');
 
 		$this->_GetBoardData($seq);
-		$beforeFile = $this->model->_file1->Value;
-		if(!$this->AdminPathIs){
+		$beforeFile = $this->model->_file1->value;
+		if(!$this->adminPathIs){
 			if($this->model->GetValue('delis') == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
 			$this->model->AddExcept('delis');
 			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && $this->model->GetValue('muid') != $_SESSION['member']['muid'] && $this->model->GetValue('target_muid') != $_SESSION['member']['muid']) URLReplace('-1', _MSG_WRONG_CONNECTED);
@@ -667,7 +667,7 @@ class Board{
 		if(!$res->result){
 			$res->message ? $res->message : 'ERROR#101';
 			if(_AJAXIS === true) JSON(false, $res->message);
-			App::$Data['error'] = $res->message;
+			App::$data['error'] = $res->message;
 			App::View($this->model);
 			return;
 		}
@@ -676,7 +676,7 @@ class Board{
 			$res = $this->_PasswordCheck();
 			if($res !== true){
 				if(_AJAXIS === true) JSON(false, $res);
-				App::$Data['error'] = $res;
+				App::$data['error'] = $res;
 				App::View($this->model);
 				return;
 			}
@@ -686,7 +686,7 @@ class Board{
 		$this->model->SetValue('htmlis', Post('htmlis') == 'y' ? 'y' : 'n');
 
 		// 섬네일 등록
-		if(IsImageFileName($this->model->_file1->Value)){
+		if(IsImageFileName($this->model->_file1->value)){
 			$this->model->_thumbnail->SetValue($this->model->GetFilePath('file1'));
 		}
 
@@ -695,12 +695,12 @@ class Board{
 		$error = $this->model->GetErrorMessage();
 		if(sizeof($error)){
 			if(_AJAXIS === true) JSON(false, $error[0]);
-			App::$Data['error'] = $error[0];
+			App::$data['error'] = $error[0];
 			App::View($this->model);
 			return;
 		}
 
-		if($this->model->_htmlis->Value !== 'n') $this->model->_content->Value = RemoveIFrame($this->model->_content->Value);
+		if($this->model->_htmlis->value !== 'n') $this->model->_content->value = RemoveIFrame($this->model->_content->value);
 
 		$res2 = $this->model->DBUpdate();
 		$this->_ContentImageUpdate(Post('content'), $seq, 'modify');
@@ -709,11 +709,11 @@ class Board{
 		if($res2->result){
 			$this->_R_PostModifyUpdateAfter();  // Reserved
 			if(_AJAXIS === true) JSON(true, '',_MSG_COMPLETE_MODIFY);
-			else URLReplace(App::URLAction('View/'.App::$ID).App::GetFollowQuery(), _MSG_COMPLETE_MODIFY);
+			else URLReplace(App::URLAction('View/'.App::$id).App::GetFollowQuery(), _MSG_COMPLETE_MODIFY);
 		}
 		else{
 			if(_AJAXIS === true) JSON(false, $res2->message ? $res2->message : 'ERROR#102');
-			App::$Data['error'] = $res2->message ? $res2->message : 'ERROR#102';
+			App::$data['error'] = $res2->message ? $res2->message : 'ERROR#102';
 			App::View($this->model);
 			return;
 		}
@@ -736,7 +736,7 @@ class Board{
 		$first_member_is = 'n';
 
 
-		if(App::$Action == 'Answer'){
+		if(App::$action == 'Answer'){
 			$auth = $this->GetAuth('Answer');
 			if(!$auth){
 				if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
@@ -747,22 +747,22 @@ class Board{
 				->AddWhere('seq=%d', to10(Post('target')))
 				->SetKey('mname, email, email_alarm, depth, muid, target_muid, sort1, sort2', 'seq', 'first_seq', 'first_member_is', 'category', 'sub_category', 'delis', 'subid');
 			$this->_R_CommonQry($qry);
-			App::$Data['targetData'] = $qry->Get();
-			if(!$this->AdminPathIs){
-				if(App::$Data['targetData']['delis'] == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
-				if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && App::$Data['targetData']['muid'] != $_SESSION['member']['muid'] && App::$Data['targetData']['target_muid'] != $_SESSION['member']['muid']) URLReplace('-1', _MSG_WRONG_CONNECTED);
+			App::$data['targetData'] = $qry->Get();
+			if(!$this->adminPathIs){
+				if(App::$data['targetData']['delis'] == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
+				if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && App::$data['targetData']['muid'] != $_SESSION['member']['muid'] && App::$data['targetData']['target_muid'] != $_SESSION['member']['muid']) URLReplace('-1', _MSG_WRONG_CONNECTED);
 			}
 
-			$first_seq = strlen(App::$Data['targetData']['first_seq']) ? App::$Data['targetData']['first_seq'] : App::$Data['targetData']['seq'];
-			$first_member_is = App::$Data['targetData']['first_member_is'];
+			$first_seq = strlen(App::$data['targetData']['first_seq']) ? App::$data['targetData']['first_seq'] : App::$data['targetData']['seq'];
+			$first_member_is = App::$data['targetData']['first_member_is'];
 		}
 
 
 		$result = new \BH_Result();
 
-		if(!$this->AdminPathIs) $this->model->AddExcept('delis');
-		$this->model->Need = array('subject', 'content');
-		if($this->boardManger->GetValue('use_secret') === 'y') $this->model->Need = 'secret';
+		if(!$this->adminPathIs) $this->model->AddExcept('delis');
+		$this->model->need = array('subject', 'content');
+		if($this->boardManger->GetValue('use_secret') === 'y') $this->model->need = 'secret';
 		if(_MEMBERIS === true){
 			$member = CM::GetMember();
 			$this->model->AddExcept('pwd');
@@ -773,7 +773,7 @@ class Board{
 		if(!$res->result){
 			$res->message ? $res->message : 'ERROR#101';
 			if(_JSONIS === true) JSON(false, $res->message);
-			App::$Data['error'] = $res->message;
+			App::$data['error'] = $res->message;
 			$this->Write();
 			return;
 		}
@@ -793,31 +793,31 @@ class Board{
 		}
 
 		// 답글쓰기라면 sort 정렬
-		if(App::$Action == 'Answer'){
+		if(App::$action == 'Answer'){
 			$qry = DB::UpdateQryObj($this->model->table)
 				->SetData('sort2', 'sort2 + 1')
-				->AddWhere('sort1 = %d', App::$Data['targetData']['sort1'])
-				->AddWhere('sort2 > %d', App::$Data['targetData']['sort2'])
+				->AddWhere('sort1 = %d', App::$data['targetData']['sort1'])
+				->AddWhere('sort2 > %d', App::$data['targetData']['sort2'])
 				->SetSort('sort2 DESC');
 			$this->_R_CommonQry($qry);
 			$res = $qry->Run();
 
 			if(!$res->result){
 				if(_JSONIS === true) JSON(false, 'ERROR#201');
-				App::$Data['error'] = 'ERROR#201';
+				App::$data['error'] = 'ERROR#201';
 				$this->Write();
 				return;
 			}
 			$this->model->SetValue('first_seq', $first_seq);
 			$this->model->SetValue('first_member_is', $first_member_is);
-			$this->model->SetValue('target_mname', App::$Data['targetData']['mname']);
-			$this->model->SetValue('category', App::$Data['targetData']['category']);
-			$this->model->SetValue('sub_category', App::$Data['targetData']['sub_category']);
-			$this->model->SetValue('subid', App::$Data['targetData']['subid']);
-			$this->model->SetValue('target_muid', App::$Data['targetData']['muid'] ? App::$Data['targetData']['muid'] : 0);
-			$this->model->SetValue('sort1', App::$Data['targetData']['sort1']);
-			$this->model->SetValue('sort2', App::$Data['targetData']['sort2'] + 1);
-			$this->model->SetValue('depth', App::$Data['targetData']['depth'] + 1);
+			$this->model->SetValue('target_mname', App::$data['targetData']['mname']);
+			$this->model->SetValue('category', App::$data['targetData']['category']);
+			$this->model->SetValue('sub_category', App::$data['targetData']['sub_category']);
+			$this->model->SetValue('subid', App::$data['targetData']['subid']);
+			$this->model->SetValue('target_muid', App::$data['targetData']['muid'] ? App::$data['targetData']['muid'] : 0);
+			$this->model->SetValue('sort1', App::$data['targetData']['sort1']);
+			$this->model->SetValue('sort2', App::$data['targetData']['sort2'] + 1);
+			$this->model->SetValue('depth', App::$data['targetData']['depth'] + 1);
 		}else{
 			$this->model->SetValue('first_member_is', _MEMBERIS === true ? 'y' : 'n');
 			$this->model->SetQueryValue('sort1', '(SELECT IF(COUNT(s.sort1) = 0, 0, MIN(s.sort1))-1 FROM '.$this->model->table.' as s)');
@@ -831,17 +831,17 @@ class Board{
 		$error = $this->model->GetErrorMessage();
 		if(sizeof($error)){
 			if(_JSONIS === true) JSON(false, $error[0]);
-			App::$Data['error'] = $error[0];
+			App::$data['error'] = $error[0];
 			$this->Write();
 			return;
 		}
 
 		// 섬네일 등록
-		if(IsImageFileName($this->model->_file1->Value)){
+		if(IsImageFileName($this->model->_file1->value)){
 			$this->model->_thumbnail->SetValue($this->model->GetFilePath('file1'));
 		}
 
-		if($this->model->_htmlis->Value !== 'n') $this->model->_content->Value = RemoveIFrame($this->model->_content->Value);
+		if($this->model->_htmlis->value !== 'n') $this->model->_content->value = RemoveIFrame($this->model->_content->value);
 
 		$res = $this->model->DBInsert();
 		$result->result = $res->result;
@@ -852,12 +852,12 @@ class Board{
 			$this->_R_PostWriteInsertAfter($res->id);  // Reserved
 
 			// 알람
-			if(class_exists('PHPMailer\\PHPMailer\\PHPMailer') && App::$Action == 'Answer' && App::$Data['targetData']['email_alarm'] == 'y' && strlen(App::$Data['targetData']['email']) && App::$CFG->Def()->sendEmail->value){
+			if(class_exists('PHPMailer\\PHPMailer\\PHPMailer') && App::$action == 'Answer' && App::$data['targetData']['email_alarm'] == 'y' && strlen(App::$data['targetData']['email']) && App::$cfg->Def()->sendEmail->value){
 				$mail = new Email();
-				$mail->AddMail(App::$Data['targetData']['email'], App::$Data['targetData']['mname']);
-				if($this->AdminPathIs) $url = _URL . '/Board/' . $this->bid . '-'. $this->subid . '/View/' . toBase($res->id);
+				$mail->AddMail(App::$data['targetData']['email'], App::$data['targetData']['mname']);
+				if($this->adminPathIs) $url = _URL . '/Board/' . $this->bid . '-'. $this->subid . '/View/' . toBase($res->id);
 				else $url = App::URLAction('View/' . toBase($res->id));
-				$mail->SendMailByAnswerAlarm(App::$Data['targetData']['mname'], $url, $this->model->_mname->Value, $this->model->_subject->Value, ($this->model->_htmlis->Value === 'y' ? $this->model->_content->safeRaw() : $this->model->_content->safeBr()));
+				$mail->SendMailByAnswerAlarm(App::$data['targetData']['mname'], $url, $this->model->_mname->value, $this->model->_subject->value, ($this->model->_htmlis->value === 'y' ? $this->model->_content->SafeRaw() : $this->model->_content->SafeBr()));
 			}
 
 			if(_AJAXIS === true){
@@ -866,7 +866,7 @@ class Board{
 			else URLReplace(App::URLAction(), '등록되었습니다.');
 		}else{
 			if(_AJAXIS === true) JSON(false, $result->message ? $result->message : 'ERROR');
-			App::$Data['error'] = $result->message ? $result->message : 'ERROR';
+			App::$data['error'] = $result->message ? $result->message : 'ERROR';
 			$this->Write();
 			return;
 		}
@@ -879,11 +879,11 @@ class Board{
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
-		$seq = to10(App::$ID);
+		$seq = to10(App::$id);
 
 		$this->_GetBoardData($seq);
 
-		if(!$this->AdminPathIs){
+		if(!$this->adminPathIs){
 			if($this->model->GetValue('delis') == 'y') URLReplace('-1', '이미 삭제된 글입니다.');
 			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && $this->model->GetValue('muid') != $_SESSION['member']['muid']) URLReplace('-1', _MSG_WRONG_CONNECTED);
 		}
@@ -904,9 +904,9 @@ class Board{
 	}
 
 	public function Undelete(){
-		if(!$this->AdminPathIs) URLReplace('-1', _MSG_WRONG_CONNECTED);
+		if(!$this->adminPathIs) URLReplace('-1', _MSG_WRONG_CONNECTED);
 
-		$seq = to10(App::$ID);
+		$seq = to10(App::$id);
 
 		$this->_GetBoardData($seq);
 		$this->model->SetValue('delis', 'n');
@@ -917,13 +917,13 @@ class Board{
 	}
 
 	public function Download(){
-		if(strpos(App::$ID, '-') !== false){
-			$temp = explode('-', App::$ID);
+		if(strpos(App::$id, '-') !== false){
+			$temp = explode('-', App::$id);
 			$md = $temp[0];
 			$seq = to10($temp[1]);
 		}
 		else{
-			$seq = to10(App::$ID);
+			$seq = to10(App::$id);
 			$md = 'file1';
 		}
 		$this->_GetBoardData($seq);
@@ -938,7 +938,7 @@ class Board{
 
 	public function RepAttachDownload(){
 		$repData = DB::GetQryObj($this->model->table . '_reply')
-			->AddWhere('seq = %d', to10(App::$ID))
+			->AddWhere('seq = %d', to10(App::$id))
 			->SetKey('`file`')
 			->Get();
 		$file = explode('*', $repData['file']);
@@ -954,8 +954,8 @@ class Board{
 	 * 게시물을 DB에서 완전히 삭제
 	 */
 	public function PostRemove(){
-		$seq = to10(App::$ID);
-		if(!$this->AdminPathIs) URLReplace(-1, _MSG_WRONG_CONNECTED);
+		$seq = to10(App::$id);
+		if(!$this->adminPathIs) URLReplace(-1, _MSG_WRONG_CONNECTED);
 		$this->_CheckArticleRemove($seq);
 
 		URLReplace(App::URLAction().App::GetFollowQuery());
@@ -1152,42 +1152,42 @@ class Board{
 	 * @return string
 	 */
 	public function _CategoryHtml(){
-		App::$Data['categoryHtml'] = '';
+		App::$data['categoryHtml'] = '';
 
-		if(!strlen($this->menuSubCategory) && strlen($this->menuCategory) && sizeof(App::$Data['subCategory'])){
-			App::$Data['categoryHtml'] .= '<div class="categoryTab categoryTabC categoryTabC1"><ul>';
-			App::$Data['categoryHtml'] .= '<li class="all ' . (EmptyGet('scate') ? 'active' : '') . '"><a href="' . App::URLAction() . '">전체</a></li>';
-			foreach(App::$Data['subCategory'] as $v){
+		if(!strlen($this->menuSubCategory) && strlen($this->menuCategory) && sizeof(App::$data['subCategory'])){
+			App::$data['categoryHtml'] .= '<div class="categoryTab categoryTabC categoryTabC1"><ul>';
+			App::$data['categoryHtml'] .= '<li class="all ' . (EmptyGet('scate') ? 'active' : '') . '"><a href="' . App::URLAction() . '">전체</a></li>';
+			foreach(App::$data['subCategory'] as $v){
 				$active = $v == Get('scate') ? ' class="active"' : '';
-				App::$Data['categoryHtml'] .= '<li' . $active . '><a href="' . App::URLAction() . '?scate=' . GetDBText($v) . '">' . GetDBText($v) . '</a></li>';
+				App::$data['categoryHtml'] .= '<li' . $active . '><a href="' . App::URLAction() . '?scate=' . GetDBText($v) . '">' . GetDBText($v) . '</a></li>';
 			}
-			App::$Data['categoryHtml'] .= '</ul></div>';
+			App::$data['categoryHtml'] .= '</ul></div>';
 		}
 
 		else if(!strlen($this->menuSubCategory)){
-			if(!EmptyGet('cate') && sizeof(App::$Data['subCategory'])){
-				App::$Data['categoryHtml'] .= '<div class="categoryTab categoryTabC categoryTabC1"><ul>';
-				App::$Data['categoryHtml'] .= '<li class="parent"><a href="' . App::URLAction() . '">상위</a></li>';
-				App::$Data['categoryHtml'] .= '<li class="all ' . (EmptyGet('scate') ? 'active' : '') . '"><a href="' . App::URLAction() . '?cate=' . GetDBText(Get('cate')) . '">전체</a></li>';
-				foreach(App::$Data['subCategory'] as $v){
+			if(!EmptyGet('cate') && sizeof(App::$data['subCategory'])){
+				App::$data['categoryHtml'] .= '<div class="categoryTab categoryTabC categoryTabC1"><ul>';
+				App::$data['categoryHtml'] .= '<li class="parent"><a href="' . App::URLAction() . '">상위</a></li>';
+				App::$data['categoryHtml'] .= '<li class="all ' . (EmptyGet('scate') ? 'active' : '') . '"><a href="' . App::URLAction() . '?cate=' . GetDBText(Get('cate')) . '">전체</a></li>';
+				foreach(App::$data['subCategory'] as $v){
 					$active = $v == Get('scate') ? ' class="active"' : '';
-					App::$Data['categoryHtml'] .= '<li' . $active . '><a href="' . App::URLAction() . '?cate=' . GetDBText(Get('cate')) . '&scate=' . GetDBText($v) . '">' . GetDBText($v) . '</a></li>';
+					App::$data['categoryHtml'] .= '<li' . $active . '><a href="' . App::URLAction() . '?cate=' . GetDBText(Get('cate')) . '&scate=' . GetDBText($v) . '">' . GetDBText($v) . '</a></li>';
 				}
-				App::$Data['categoryHtml'] .= '</ul></div>';
+				App::$data['categoryHtml'] .= '</ul></div>';
 			}
-			else if(sizeof(App::$Data['category'])){
-				App::$Data['categoryHtml'] .= '<div class="categoryTab categoryTabC categoryTabC2"><ul>';
-				App::$Data['categoryHtml'] .= '<li class="all ' . (EmptyGet('cate') ? 'active' : '') . '"><a href="' . App::URLAction() . '">전체</a></li>';
-				foreach(App::$Data['category'] as $v){
+			else if(sizeof(App::$data['category'])){
+				App::$data['categoryHtml'] .= '<div class="categoryTab categoryTabC categoryTabC2"><ul>';
+				App::$data['categoryHtml'] .= '<li class="all ' . (EmptyGet('cate') ? 'active' : '') . '"><a href="' . App::URLAction() . '">전체</a></li>';
+				foreach(App::$data['category'] as $v){
 					$active = $v == Get('cate') ? ' class="active"' : '';
-					App::$Data['categoryHtml'] .= '<li' . $active . '><a href="' . App::URLAction() . '?cate=' . GetDBText($v) . '">' . GetDBText($v) . '</a></li>';
+					App::$data['categoryHtml'] .= '<li' . $active . '><a href="' . App::URLAction() . '?cate=' . GetDBText($v) . '">' . GetDBText($v) . '</a></li>';
 				}
-				App::$Data['categoryHtml'] .= '</ul></div>';
+				App::$data['categoryHtml'] .= '</ul></div>';
 			}
 		}
 
 
-		return App::$Data['categoryHtml'];
+		return App::$data['categoryHtml'];
 	}
 
 	/**
@@ -1269,7 +1269,7 @@ class Board{
 		$boardModel = new \BoardModel();
 		$boardModel->bid = $bid;
 		$boardModel->table = TABLE_FIRST.'bbs_'.$boardModel->bid;
-		$boardModel->_pwd->HtmlType = \HTMLType::InputText;
+		$boardModel->_pwd->htmlType = \HTMLType::TEXT;
 
 		$except = array('file1', 'file2', 'thumbnail', 'seq', 'reg_date', 'sort1', 'sort2', 'subid', 'category', 'sub_category');
 		if($type == 'copy'){
@@ -1477,10 +1477,10 @@ class Board{
 	 * @return ArticleAction
 	 */
 	protected function GetArticleAction(){
-		if(!strlen(App::$ID)) JSON(false,  _MSG_WRONG_CONNECTED);
-		if(!isset($_SESSION['boardView']['bid']) || !isset($_SESSION['boardView']['seq']) || $_SESSION['boardView']['bid'] != $this->bid || $_SESSION['boardView']['seq'] != App::$ID) JSON(false, '마지막으로 본 게시물만 가능합니다.');
+		if(!strlen(App::$id)) JSON(false,  _MSG_WRONG_CONNECTED);
+		if(!isset($_SESSION['boardView']['bid']) || !isset($_SESSION['boardView']['seq']) || $_SESSION['boardView']['bid'] != $this->bid || $_SESSION['boardView']['seq'] != App::$id) JSON(false, '마지막으로 본 게시물만 가능합니다.');
 
-		$seq = to10(App::$ID);
+		$seq = to10(App::$id);
 		return ArticleAction::GetInstance($this->bid)
 			->SetArticleSeq($seq)
 			->SetMUid($_SESSION['member']['muid'])

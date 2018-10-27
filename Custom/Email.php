@@ -24,10 +24,10 @@ class Email
 	}
 
 	public function __construct(){
-		$this->defCfg = App::$CFG->Def();
+		$this->defCfg = App::$cfg->Def();
 		$this->mailer = new Mailer(_DEVELOPERIS === true ? 4 : 0);
-		App::$Data['LogoUrl'] = _UPLOAD_URL.$this->defCfg->emailLogoUrl->value;
-		App::$Data['HomeUrl'] = _DOMAIN;
+		App::$data['LogoUrl'] = _UPLOAD_URL.$this->defCfg->emailLogoUrl->value;
+		App::$data['HomeUrl'] = _DOMAIN;
 	}
 
 	public function &AddMail($email, $name){
@@ -41,50 +41,50 @@ class Email
 	}
 
 	public function SendMailByDefault($subject, $body){
-		App::$Data['subject'] = $subject;
-		App::$Data['body'] = $body;
-		$subject = '['.$this->defCfg->siteName->value.'] '.App::$Data['subject'];
+		App::$data['subject'] = $subject;
+		App::$data['body'] = $body;
+		$subject = '['.$this->defCfg->siteName->value.'] '.App::$data['subject'];
 		$this->SetMailer($subject, $this->SetBody('Default'));
 		$this->mailer->Send();
 	}
 
 	public function SendMailByEmailCertification($mid, $name, $code){
-		App::$Data['id'] = $mid;
-		App::$Data['name'] = $name;
-		App::$Data['code'] = $code;
-		App::$Data['subject'] = '이메일 인증';
-		$subject = '['.$this->defCfg->siteName->value.'] '.App::$Data['subject'];
+		App::$data['id'] = $mid;
+		App::$data['name'] = $name;
+		App::$data['code'] = $code;
+		App::$data['subject'] = '이메일 인증';
+		$subject = '['.$this->defCfg->siteName->value.'] '.App::$data['subject'];
 		$this->SetMailer($subject, $this->SetBody('CertifyEmail'));
 		$this->mailer->Send();
 	}
 
 	public function SendMailByFindPW($name, $id, $code){
-		App::$Data['id'] = $id;
-		App::$Data['code'] = $code;
-		App::$Data['name'] = $name;
-		App::$Data['subject'] = '계정 비밀번호 변경 코드';
-		$subject = '['.$this->defCfg->siteName->value.'] '.App::$Data['subject'];
+		App::$data['id'] = $id;
+		App::$data['code'] = $code;
+		App::$data['name'] = $name;
+		App::$data['subject'] = '계정 비밀번호 변경 코드';
+		$subject = '['.$this->defCfg->siteName->value.'] '.App::$data['subject'];
 		$this->SetMailer($subject, $this->SetBody('FindPW'));
 		$this->mailer->Send();
 	}
 
 	public function SendMailByFindID($name, $id){
-		App::$Data['id'] = $id;
-		App::$Data['name'] = $name;
-		App::$Data['subject'] = '요청하신 아이디입니다.';
-		$subject = '['.$this->defCfg->siteName->value.'] '.App::$Data['subject'];
+		App::$data['id'] = $id;
+		App::$data['name'] = $name;
+		App::$data['subject'] = '요청하신 아이디입니다.';
+		$subject = '['.$this->defCfg->siteName->value.'] '.App::$data['subject'];
 		$this->SetMailer($subject, $this->SetBody('FindID'));
 		$this->mailer->Send();
 	}
 
 	public function SendMailByAnswerAlarm($name, $url, $answerName, $subject, $content){
-		App::$Data['name'] = $name;
-		App::$Data['url'] = _DOMAIN . $url;
-		App::$Data['answerName'] = $answerName;
-		App::$Data['boardsubject'] = $subject;
-		App::$Data['content'] = $content;
-		App::$Data['subject'] = $name . '님께서 작성한 게시물에 답글이 등록되었습니다.';
-		$subject = '['.$this->defCfg->siteName->value.'] '.App::$Data['subject'];
+		App::$data['name'] = $name;
+		App::$data['url'] = _DOMAIN . $url;
+		App::$data['answerName'] = $answerName;
+		App::$data['boardsubject'] = $subject;
+		App::$data['content'] = $content;
+		App::$data['subject'] = $name . '님께서 작성한 게시물에 답글이 등록되었습니다.';
+		$subject = '['.$this->defCfg->siteName->value.'] '.App::$data['subject'];
 		$this->SetMailer($subject, $this->SetBody('AnswerAlarm'));
 		$this->mailer->Send();
 	}
@@ -141,25 +141,25 @@ class Email
 				$replace = array(
 					'',
 					'',
-					'<?php foreach(BH_Application::$Data[\'$1\'] as $item){ ?>',
+					'<?php foreach(BH_Application::$data[\'$1\'] as $item){ ?>',
 					'<?php } ?>',
 
 					'<?php echo GetDBText($item[\'$1\']) ?>',
 					'<?php echo number_format($item[\'$1\']) ?>',
 					'<?php echo BH_Common::Config(\'Default\',\'$1\') ?>',
-					'<?php if(isset(BH_Application::$Data[\'body\'])) echo BH_Application::$Data[\'body\'] ?>',
+					'<?php if(isset(BH_Application::$data[\'body\'])) echo BH_Application::$data[\'body\'] ?>',
 
-					'<?php if(isset(BH_Application::$Data[\'$1\']) && BH_Application::$Data[\'$1\']){ ?>',
-					'<?php if(isset(BH_Application::$Data[\'$1\'][\'$2\']) && BH_Application::$Data[\'$1\'][\'$2\']){ ?>',
+					'<?php if(isset(BH_Application::$data[\'$1\']) && BH_Application::$data[\'$1\']){ ?>',
+					'<?php if(isset(BH_Application::$data[\'$1\'][\'$2\']) && BH_Application::$data[\'$1\'][\'$2\']){ ?>',
 
-					'<?php if(isset(BH_Application::$Data[\'$1\'])) echo GetDBText(BH_Application::$Data[\'$1\']) ?>',
-					'<?php if(isset(BH_Application::$Data[\'$1\'][\'$2\'])) echo GetDBText(BH_Application::$Data[\'$1\'][\'$2\']) ?>',
+					'<?php if(isset(BH_Application::$data[\'$1\'])) echo GetDBText(BH_Application::$data[\'$1\']) ?>',
+					'<?php if(isset(BH_Application::$data[\'$1\'][\'$2\'])) echo GetDBText(BH_Application::$data[\'$1\'][\'$2\']) ?>',
 
-					'<?php if(isset(BH_Application::$Data[\'$1\'])) echo BH_Application::$Data[\'$1\'] ?>',
-					'<?php if(isset(BH_Application::$Data[\'$1\'][\'$2\'])) echo BH_Application::$Data[\'$1\'][\'$2\'] ?>',
+					'<?php if(isset(BH_Application::$data[\'$1\'])) echo BH_Application::$data[\'$1\'] ?>',
+					'<?php if(isset(BH_Application::$data[\'$1\'][\'$2\'])) echo BH_Application::$data[\'$1\'][\'$2\'] ?>',
 
-					'<?php if(isset(BH_Application::$Data[\'$1\'])) echo number_format(GetDBText(BH_Application::$Data[\'$1\'])) ?>',
-					'<?php if(isset(BH_Application::$Data[\'$1\'][\'$2\'])) echo number_format(GetDBText(BH_Application::$Data[\'$1\'][\'$2\'])) ?>',
+					'<?php if(isset(BH_Application::$data[\'$1\'])) echo number_format(GetDBText(BH_Application::$data[\'$1\'])) ?>',
+					'<?php if(isset(BH_Application::$data[\'$1\'][\'$2\'])) echo number_format(GetDBText(BH_Application::$data[\'$1\'][\'$2\'])) ?>',
 
 					'<img $1 src="' . _DOMAIN . _URL . '$2" $3>',
 				);
@@ -171,19 +171,19 @@ class Email
 	}
 
 	public function SetBody($html){
-		if(!isset(App::$Data['body'])) App::$Data['body'] = '';
+		if(!isset(App::$data['body'])) App::$data['body'] = '';
 		$path = self::HtmlExtraConvert($html.'.html', $this->path);
 		if($path !== false){
 			ob_start();
 			require $path;
-			App::$Data['body'] = ob_get_clean();
+			App::$data['body'] = ob_get_clean();
 		}
 		$path = self::HtmlExtraConvert($this->layout.'.html', $this->path);
 		if($path !== false){
 			ob_start();
 			require $path;
-			App::$Data['body'] = ob_get_clean();
+			App::$data['body'] = ob_get_clean();
 		}
-		return App::$Data['body'];
+		return App::$data['body'];
 	}
 }

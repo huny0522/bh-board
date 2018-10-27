@@ -6,7 +6,7 @@ use \BH_Application as App;
  * @var \MemberModel $Model
  * @var $Ctrl \Controller\Login
  */
-App::$Title = '로그인';
+App::$title = '로그인';
 ?>
 <div id="contents" class="login2">
 	<div id="login_wrap2">
@@ -15,7 +15,7 @@ App::$Title = '로그인';
 			<fieldset>
 				<?php if($Ctrl->useMailId){ ?>
 					<label>
-						<span class="tt"><?v. $Model->_email->DisplayName ?></span>
+						<span class="tt"><?v. $Model->_email->displayName ?></span>
 						<?php if($Ctrl->mailIdAddrSelection){ ?>
 							<input type="text" name="email1" value="" required>
 							<input type="text" name="email2" value="" required class="emailAddr">
@@ -30,12 +30,12 @@ App::$Title = '로그인';
 					</label>
 				<?php }else{ ?>
 					<label>
-						<span class="tt"><?v. $Model->_mid->DisplayName ?></span>
+						<span class="tt"><?v. $Model->_mid->displayName ?></span>
 						<?minp('mid') ?>
 					</label>
 				<?php } ?>
 				<label>
-					<span class="tt"><?v. $Model->_pwd->DisplayName ?></span>
+					<span class="tt"><?v. $Model->_pwd->displayName ?></span>
 					<?minp('pwd') ?>
 				</label>
 			</fieldset>

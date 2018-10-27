@@ -16,7 +16,7 @@ class BH_Common
 		}
 		if($_SESSION['member']['level'] == _ADMIN_LEVEL){
 			$AdminAuth = explode(',', self::GetMember('admin_auth'));
-			if(!in_array(App::$Data['NowMenu'], $AdminAuth)){
+			if(!in_array(App::$data['NowMenu'], $AdminAuth)){
 				if(_AJAXIS === true) JSON(false, _MSG_NO_AUTH);
 				else URLReplace('-1', _MSG_NO_AUTH);
 			}
@@ -83,7 +83,7 @@ class BH_Common
 	}
 
 	public static function RefreshParam($beginMark = '?'){
-		return $beginMark.'r='.App::$CFG->Sys()->refresh->value;
+		return $beginMark.'r='.App::$cfg->Sys()->refresh->value;
 	}
 
 	// 이미지 등록
@@ -247,7 +247,7 @@ class BH_Common
 	public static function GetBoardArticle($bid, $subid, $category = '', $limit = 10){
 		$qry = call_user_func_array('self::GetBoardArticleQuery', func_get_args());
 		$data = array();
-		$d = App::$CFG->Def()->newIconDay->Val() * 86400;
+		$d = App::$cfg->Def()->newIconDay->Val() * 86400;
 
 		while($row = $qry->Get()){
 			if($row['secret'] == 'y') $row['subject'] = '비밀글입니다.';
@@ -359,12 +359,12 @@ class BH_Common
 	}
 
 	public static function TinyMCEScript(){
-		if(self::TinyMCEUseIs()) return 'tinyMCEHelper.tinyMCEPath = \'' . App::$SettingData['tinyMCEPath'] . '\'; tinyMCEHelper.useTinyMce = true;';
+		if(self::TinyMCEUseIs()) return 'tinyMCEHelper.tinyMCEPath = \'' . App::$settingData['tinyMCEPath'] . '\'; tinyMCEHelper.useTinyMce = true;';
 		else return '';
 	}
 
 	public static function TinyMCEUseIs(){
-		return (isset(App::$SettingData['tinyMCEPath']) && strlen(App::$SettingData['tinyMCEPath']) && file_exists(_DIR . App::$SettingData['tinyMCEPath']) && App::$CFG->Def()->htmlEditor->value == 'tinymce');
+		return (isset(App::$settingData['tinyMCEPath']) && strlen(App::$settingData['tinyMCEPath']) && file_exists(_DIR . App::$settingData['tinyMCEPath']) && App::$cfg->Def()->htmlEditor->value == 'tinymce');
 	}
 
 	/* -------------------------------------------------

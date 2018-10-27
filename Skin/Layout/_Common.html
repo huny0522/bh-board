@@ -7,11 +7,11 @@ use \BH_Application as App;
 <html>
 <head>
 
-	<title><?p. App::$Title ? App::$Title.' - ' : '' ?><?p. App::$CFG->Def()->siteName->value ?></title>
+	<title><?p. App::$title ? App::$title.' - ' : '' ?><?p. App::$cfg->Def()->siteName->value ?></title>
 
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
-	<?ifp. App::$SettingData['headMeta'] ?>
+	<?ifp. App::$settingData['headMeta'] ?>
 
 	<?p. App::CSSPrint() ?>
 
@@ -27,7 +27,7 @@ use \BH_Application as App;
 
 <body>
 
-<?p. APP::$BodyHtml ?>
+<?p. APP::$bodyHtml ?>
 
 </body>
 </html>

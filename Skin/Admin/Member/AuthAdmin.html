@@ -10,31 +10,31 @@ use \BH_Application as App;
 	<div class="opt">
 		<input type="checkbox" id="AllCheck"><label for="AllCheck">전체선택</label>
 	</div>
-	<form name="AuthForm" id="AuthForm" method="post" action="<?a. App::$Action ?><?fq. '' ?>">
+	<form name="AuthForm" id="AuthForm" method="post" action="<?a. App::$action ?><?fq. '' ?>">
 		<input type="hidden" name="muid" value="<?p. SetDBInt($_GET['muid']) ?>">
-		<?php if(sizeof(App::$SettingData['AdminMenu']) && isset(App::$SettingData['AdminMenu'])){ ?>
+		<?php if(sizeof(App::$settingData['AdminMenu']) && isset(App::$settingData['AdminMenu'])){ ?>
 
 		<ul>
 			<?php
-			foreach(App::$SettingData['AdminMenu'] as $c => $row){
+			foreach(App::$settingData['AdminMenu'] as $c => $row){
 				if(strlen($c) == 3){
 					?>
 					<li>
 						<p>
 							<input type="checkbox" name="Category[]" id="Category<? p.$c ?>"
-							       value="<? p.$c ?>"<?php if(in_array($c, App::$Data['auth'])) echo ' checked' ?>>
+							       value="<? p.$c ?>"<?php if(in_array($c, App::$data['auth'])) echo ' checked' ?>>
 							<label for="Category<? p.$c ?>">
 								<? v.$row['Name'] ?>
 							</label>
 						</p>
 						<?php
 						$sub = '';
-						foreach(App::$SettingData['AdminMenu'] as $c2 => $row2){
+						foreach(App::$settingData['AdminMenu'] as $c2 => $row2){
 							if(strlen($c2) == 6 && substr($c2, 0, 3) == $c){
 								$sub .= '<li>'
 									.'<p>'
 									.'<input type="checkbox" name="Category[]" id="Category'. $c2 .'" value="'. $c2 .'"'
-									. ((in_array($c2, App::$Data['auth'])) ? ' checked' : ''). '>'
+									. ((in_array($c2, App::$data['auth'])) ? ' checked' : ''). '>'
 									.'<label for="Category'.$c2 .'">'
 									.$row2['Name']
 									.'</label>'

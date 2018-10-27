@@ -2,7 +2,7 @@
 use \BH_Common as CM;
 use \BH_Application as App;
 
-App::$Layout = '_AdminBoard';
+App::$layout = '_AdminBoard';
 
 /**
  * @var $Model \BoardModel
@@ -16,7 +16,7 @@ App::JSAdd('board.js', 200);
 
 <?p. $Ctrl->_CategoryHtml() ?>
 
-<?php if(($Data->result && $Data->totalRecord) || sizeof(App::$Data['notice'])){ ?>
+<?php if(($Data->result && $Data->totalRecord) || sizeof(App::$data['notice'])){ ?>
 <section class="boardList checkAllArea" id="bhBoardList">
 	<table class="list checkAllArea">
 		<colgroup>
@@ -45,7 +45,7 @@ App::JSAdd('board.js', 200);
 		</thead>
 		<tbody>
 		<?php
-		foreach(App::$Data['notice'] as $row){
+		foreach(App::$data['notice'] as $row){
 			$secretIcon = $row['secret'] == 'y' ? '<span class="secretDoc">[비밀글]</span> ' : '';
 			$newtIcon = $row['newArticleIs'] ? '<span class="newDoc">[새글]</span> ' : '';
 			$repIcon = $row['depth'] ? '<span class="answer">[답변글]</span> ' : '';

@@ -12,14 +12,14 @@ use \BH_Application as App;
 	<h2>회원정보 입력</h2>
 	<form name="RegisterForm" id="RegisterForm" method="post" action="RegisterProcess">
 
-		<?php if(isset(App::$Data['alertMsg'])) echo '<p class="alert">'.App::$Data['alertMsg'].'</p>'; ?>
+		<?php if(isset(App::$data['alertMsg'])) echo '<p class="alert">'.App::$data['alertMsg'].'</p>'; ?>
 		<table class="write">
 			<?php if($Ctrl->useMailId){ ?>
 				<tr>
 					<th><i class="requiredBullet" title="필수항목">*</i> <?mt('email')?></th>
 					<?php if($Ctrl->mailIdAddrSelection){ ?>
 						<td class="selectMail">
-							<input type="text" name="email1" value="<?v. App::$Data['email1'] ?>" required> @ <input type="text" name="email2" value="<?v. App::$Data['email2'] ?>" required class="emailAddr">
+							<input type="text" name="email1" value="<?v. App::$data['email1'] ?>" required> @ <input type="text" name="email2" value="<?v. App::$data['email2'] ?>" required class="emailAddr">
 							<select name="selectMail">
 								<option value="">선택하세요.</option>
 								<?p. OptionEmailAddress() ?>
@@ -205,5 +205,5 @@ use \BH_Application as App;
 			return false;
 		}
 	});
-	<?php if(isset(App::$Data['alertMsg'])){ ?>CMAlert('<?p. App::$Data['alertMsg'] ?>');<?php } ?>
+	<?php if(isset(App::$data['alertMsg'])){ ?>CMAlert('<?p. App::$data['alertMsg'] ?>');<?php } ?>
 </script>

@@ -11,35 +11,35 @@ class DB{
 	/**
 	 * @var self
 	 */
-	private static $Instance;
-	private static $Conn = array();
-	private static $ConnName = '';
-	private static $ConnectionInfo = array();
+	private static $instance;
+	private static $conn = array();
+	private static $connName = '';
+	private static $connectionInfo = array();
 	private function __construct(){
 		require _COMMONDIR.'/db.info.php';
 	}
 
 	public function __destruct(){
-		foreach(self::$Conn as $k => $v) mysqli_close($v);
+		foreach(self::$conn as $k => $v) mysqli_close($v);
 	}
 
 	public static function &SQL($connName = self::DefaultConnName){
-		self::$ConnName = $connName;
-		if (!isset(self::$Instance)) self::$Instance = new self();
+		self::$connName = $connName;
+		if (!isset(self::$instance)) self::$instance = new self();
 
-		if(!isset(self::$Conn[self::$ConnName])){
-			if(isset(self::$ConnectionInfo[self::$ConnName])){
+		if(!isset(self::$conn[self::$connName])){
+			if(isset(self::$connectionInfo[self::$connName])){
 				/* @var $_DBInfo array */
-				self::$Conn[self::$ConnName] = mysqli_connect(self::$ConnectionInfo[self::$ConnName]['hostName'], self::$ConnectionInfo[self::$ConnName]['userName'], self::$ConnectionInfo[self::$ConnName]['userPassword'], self::$ConnectionInfo[self::$ConnName]['dbName']);
-				if(!self::$Conn[self::$ConnName]){
+				self::$conn[self::$connName] = mysqli_connect(self::$connectionInfo[self::$connName]['hostName'], self::$connectionInfo[self::$connName]['userName'], self::$connectionInfo[self::$connName]['userPassword'], self::$connectionInfo[self::$connName]['dbName']);
+				if(!self::$conn[self::$connName]){
 					echo('ACCESS_DENIED_DB_CONNECTION');
 					exit;
 				}
-				mysqli_set_charset(self::$Conn[self::$ConnName],'utf8');
+				mysqli_set_charset(self::$conn[self::$connName],'utf8');
 			}
 			else{ echo('NOT_DEFINE_DB'); exit; }
 		}
-		return self::$Instance;
+		return self::$instance;
 	}
 
 	public function TableExists($table){
@@ -77,8 +77,8 @@ class DB{
 			$sql = self::StrToSql($args);
 		}
 
-		if(_DEVELOPERIS === true) $res = mysqli_query(self::$Conn[self::$ConnName], $sql) or ($dieIs ? die('ERROR SQL : '.$sql) : false);
-		else $res = mysqli_query(self::$Conn[self::$ConnName], $sql) or ($dieIs ? die('ERROR') : false);
+		if(_DEVELOPERIS === true) $res = mysqli_query(self::$conn[self::$connName], $sql) or ($dieIs ? die('ERROR SQL : '.$sql) : false);
+		else $res = mysqli_query(self::$conn[self::$connName], $sql) or ($dieIs ? die('ERROR') : false);
 		return $res;
 	}
 
@@ -93,8 +93,8 @@ class DB{
 		$args[0] = str_replace('%t', $table, $args[0]);
 		$sql = trim(StrToSql($args));
 
-		if(_DEVELOPERIS === true) $res = mysqli_query(self::$Conn[self::$ConnName], $sql) or die('ERROR SQL : '.$sql);
-		else $res = mysqli_query(self::$Conn[self::$ConnName], $sql) or die('ERROR SQL');
+		if(_DEVELOPERIS === true) $res = mysqli_query(self::$conn[self::$connName], $sql) or die('ERROR SQL : '.$sql);
+		else $res = mysqli_query(self::$conn[self::$connName], $sql) or die('ERROR SQL');
 
 		return $res;
 	}
@@ -118,7 +118,7 @@ class DB{
 	}
 
 	public static function &GetConn(){
-		return self::$Conn[self::$ConnName];
+		return self::$conn[self::$connName];
 	}
 
 	public static function &GetQryObj($table){

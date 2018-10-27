@@ -9,8 +9,8 @@ use \BH_Application as App;
 
 <h2>컨텐츠관리</h2>
 
-<form name="ContentWriteForm" id="ContentWriteForm" method="post" action="<?a. App::$Action ?><?fq. '' ?>">
-	<?php if(App::$Action == 'Modify'){?>
+<form name="ContentWriteForm" id="ContentWriteForm" method="post" action="<?a. App::$action ?><?fq. '' ?>">
+	<?php if(App::$action == 'Modify'){?>
 	<input type="hidden" name="bid" value="<?mv('bid') ?>">
 	<?php } ?>
 	<input type="hidden" name="select_menu" value="" id="select_menu">
@@ -21,7 +21,7 @@ use \BH_Application as App;
 			<td>
 				<select id="category_choice">
 					<option value="">선택</option>
-					<?p. SelectOption(App::$Data['category'], $Model->GetValue('category')) ?>
+					<?p. SelectOption(App::$data['category'], $Model->GetValue('category')) ?>
 					<option value="x">추가</option>
 				</select>
 				<span class="hidden" id="category_real"><input type="text" name="category" value="<?mv('category') ?>" id="category"></span>
@@ -51,18 +51,18 @@ use \BH_Application as App;
 				</ul>
 			</td>
 		</tr>
-		<?php if(App::$Data['menuAuth']){?>
+		<?php if(App::$data['menuAuth']){?>
 			<tr>
 				<th>연결메뉴</th>
 				<td class="menuSelectArea">
 					<?php
-					if(isset(App::$Data['selectedMenu']) && sizeof(App::$Data['selectedMenu'])){
-						foreach(App::$Data['selectedMenu'] as $selectedMenu){ ?>
+					if(isset(App::$data['selectedMenu']) && sizeof(App::$data['selectedMenu'])){
+						foreach(App::$data['selectedMenu'] as $selectedMenu){ ?>
 							<div class="menuSelect">
 								<select name="selectmenu[]">
 									<option value="">선택</option>
 									<?php
-									foreach(App::$Data['menu'] as $menu){
+									foreach(App::$data['menu'] as $menu){
 										$length = min(strlen($selectedMenu['category']), strlen($menu['category']));
 										$selected = (strlen($selectedMenu['category']) && substr($selectedMenu['category'], 0, $length) == substr($menu['category'], 0, $length)) ? ' selected' : '';
 										?>
@@ -76,7 +76,7 @@ use \BH_Application as App;
 						<div class="menuSelect">
 							<select name="selectmenu[]">
 								<option value="">선택</option>
-								<?php foreach(App::$Data['menu'] as $menu){ ?>
+								<?php foreach(App::$data['menu'] as $menu){ ?>
 									<option value="<? p.$menu['category'] ?>"><? v.$menu['title'] ?></option>
 								<?php } ?>
 							</select>
@@ -102,7 +102,7 @@ use \BH_Application as App;
 	</table>
 
 	<div class="bottomBtn">
-		<button type="submit" class="bBtn"><?php echo App::$Action == 'Modify' ? '수정' : '등록'; ?></button>
+		<button type="submit" class="bBtn"><?php echo App::$action == 'Modify' ? '수정' : '등록'; ?></button>
 		<button type="reset" class="bBtn">취소</button>
 		<a href="#" class="backbtn bBtn">뒤로</a>
 	</div>
@@ -129,7 +129,7 @@ use \BH_Application as App;
 		}
 	});
 
-	<?php if(App::$Data['menuAuth']){?>
+	<?php if(App::$data['menuAuth']){?>
 
 	$(document).on('change', '.menuSelect select', function(){
 		removeNext(this);
@@ -137,7 +137,7 @@ use \BH_Application as App;
 	});
 
 	$(document).ready(function(){
-		<?php if(isset(App::$Data['selectedMenu'])) foreach(App::$Data['selectedMenu'] as $k => $selectedMenu){ ?>
+		<?php if(isset(App::$data['selectedMenu'])) foreach(App::$data['selectedMenu'] as $k => $selectedMenu){ ?>
 		getSubMenu($('.menuSelect').eq(<?p. $k ?>).find('select'), '<?p. $selectedMenu['category'] ?>');
 		<?php } ?>
 	});

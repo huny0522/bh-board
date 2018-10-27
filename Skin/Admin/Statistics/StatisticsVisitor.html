@@ -10,18 +10,18 @@ use \BH_Application as App;
 ?>
 
 <div class="searchForm">
-	<form id="schForm" name="schForm" method="get" action="<?a. App::$Action ?>">
+	<form id="schForm" name="schForm" method="get" action="<?a. App::$action ?>">
 		<dl>
 			<dt>기간 검색</dt>
 			<dd>
 				<div class="selectBox">
 					<select name="by">
-						<?p. SelectOption(App::$Data['optYearArr'], Get('by')) ?>
+						<?p. SelectOption(App::$data['optYearArr'], Get('by')) ?>
 					</select>
 				</div>
 				<div class="selectBox">
 					<select name="bm">
-						<?p. SelectOption(App::$Data['optMonthArr'], Get('bm')) ?>
+						<?p. SelectOption(App::$data['optMonthArr'], Get('bm')) ?>
 					</select>
 				</div>
 				<button type="submit" class="mBtn">검색</button>
@@ -44,7 +44,7 @@ use \BH_Application as App;
 		</thead>
 		<tbody>
 		<?php
-		foreach(App::$Data['sData'] as $k => $row){
+		foreach(App::$data['sData'] as $k => $row){
 			echo '<tr>';
 			echo '<th>' . $k . '</th>';
 			echo '<td>';

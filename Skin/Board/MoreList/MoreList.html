@@ -10,7 +10,7 @@ use \BH_Application as App;
 ?>
 
 <?php
-foreach(App::$Data['notice'] as $row){
+foreach(App::$data['notice'] as $row){
 	$secretIcon = $row['secret'] == 'y' ? '<span class="secretDoc">[비밀글]</span> ' : '';
 	$newtIcon = $row['newArticleIs'] ? '<span class="newDoc">[새글]</span> ' : 'x';
 	?>

@@ -8,7 +8,7 @@ use \BH_Application as App;
  */
 ?>
 
-<h2><?v. $Model->_subject->txt() ?> 분류명 변경</h2>
+<h2><?v. $Model->_subject->Txt() ?> 분류명 변경</h2>
 
 <div class="categoryChEx">
 	<h3>1차 카테고리</h3>
@@ -16,7 +16,7 @@ use \BH_Application as App;
 	<h3>2차 카테고리</h3>
 	<div>
 		<?php
-		if(isset(App::$Data['subCategoryData'])) foreach(App::$Data['subCategoryData'] as $k => $v){
+		if(isset(App::$data['subCategoryData'])) foreach(App::$data['subCategoryData'] as $k => $v){
 			echo '<dl><dt>' . GetDBText($k) . '</dt>';
 			echo '<dd>' . GetDBText(implode(',', $v)) . '</dd>';
 			echo '</dl>';
@@ -25,19 +25,19 @@ use \BH_Application as App;
 	</div>
 </div>
 
-<?php if(sizeof(App::$Data['category'])){ ?>
+<?php if(sizeof(App::$data['category'])){ ?>
 	<h3>카테고리명 변경</h3>
 	<form id="ctchForm" name="ctchForm" method="post" action="<?a. 'CategoryChange' ?>">
-		<input type="hidden" name="bid" value="<?p. $Model->_bid->safe() ?>">
+		<input type="hidden" name="bid" value="<?p. $Model->_bid->Safe() ?>">
 		<fieldset class="writeField">
 			<dl>
 				<dt>카테고리명</dt>
 				<dd>
 					<select name="before_cate" id="before_cate">
 						<option value="">메인 카테고리명</option>
-						<?p. SelectOption(App::$Data['category'], $Model->_category->txt() ? $Model->_category->txt() : Get('cate'), true) ?>
+						<?p. SelectOption(App::$data['category'], $Model->_category->Txt() ? $Model->_category->Txt() : Get('cate'), true) ?>
 					</select>&nbsp;
-					<?php if($Model->_use_sub_category->txt() == 'y'){ ?>
+					<?php if($Model->_use_sub_category->Txt() == 'y'){ ?>
 					<select name="before_sub_cate" id="before_sub_cate">
 						<option value="">메인 카테고리명을 선택하여 주세요.</option>
 					</select>
@@ -50,9 +50,9 @@ use \BH_Application as App;
 					<dd>
 						<select name="after_cate" id="after_cate" required>
 							<option value="">변경할 카테고리명</option>
-							<?p. SelectOption(App::$Data['category'], $Model->_category->txt() ? $Model->_category->txt() : Get('cate'), true) ?>
+							<?p. SelectOption(App::$data['category'], $Model->_category->Txt() ? $Model->_category->Txt() : Get('cate'), true) ?>
 						</select>&nbsp;
-						<?php if($Model->_use_sub_category->txt() == 'y'){ ?>
+						<?php if($Model->_use_sub_category->Txt() == 'y'){ ?>
 						<select name="after_sub_cate" id="after_sub_cate" required>
 							<option value="">변경할 메인 카테고리명을 선택하여 주세요.</option>
 						</select>
@@ -68,7 +68,7 @@ use \BH_Application as App;
 <?php } ?>
 
 <script>
-	var sub = JSON.parse("<?p. addslashes($Model->_sub_category->Value) ?>");
+	var sub = JSON.parse("<?p. addslashes($Model->_sub_category->value) ?>");
 	console.log(sub);
 	$('#ctchForm').on('submit', function(e){
 		e.preventDefault();

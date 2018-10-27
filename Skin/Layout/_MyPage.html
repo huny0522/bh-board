@@ -9,13 +9,13 @@ App::$parentLayout = '_Default';
 	<h2>마이페이지</h2>
 	<nav>
 		<ul>
-			<li<?p. App::$Action == 'MyInfo' ? ' class="active"' : '' ?>><a href="<?a. 'MyInfo' ?>">회원정보 수정</a></li>
-			<li<?p. App::$Action == 'Scrap' ? ' class="active"' : '' ?>><a href="<?a. 'Scrap' ?>">스크랩한 게시물</a></li>
-			<li<?p. App::$Action == 'Withdraw' ? ' class="active"' : '' ?>><a href="<?a. 'Withdraw' ?>">회원탈퇴</a></li>
+			<li<?p. App::$action == 'MyInfo' ? ' class="active"' : '' ?>><a href="<?a. 'MyInfo' ?>">회원정보 수정</a></li>
+			<li<?p. App::$action == 'Scrap' ? ' class="active"' : '' ?>><a href="<?a. 'Scrap' ?>">스크랩한 게시물</a></li>
+			<li<?p. App::$action == 'Withdraw' ? ' class="active"' : '' ?>><a href="<?a. 'Withdraw' ?>">회원탈퇴</a></li>
 		</ul>
 	</nav>
 </div>
 
 <div id="contents" class="MyPage">
-	<?p. App::$BodyHtml ?>
+	<?p. App::$bodyHtml ?>
 </div>

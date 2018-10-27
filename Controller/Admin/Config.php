@@ -21,18 +21,18 @@ class Config{
 	}
 
 	public function __init(){
-		App::$Data['NowMenu'] = '001001';
+		App::$data['NowMenu'] = '001001';
 		CM::AdminAuth();
 
 		App::SetFollowQuery(array('where', 'keyword','page'));
-		App::$Layout = '_Admin';
-		App::$Data['Code'] = App::$Action;
-		if(App::$Action === 'SuperSet' && $_SESSION['member']['level'] < _SADMIN_LEVEL) URLRedirect(-1, _MSG_WRONG_CONNECTED);
+		App::$layout = '_Admin';
+		App::$data['Code'] = App::$action;
+		if(App::$action === 'SuperSet' && $_SESSION['member']['level'] < _SADMIN_LEVEL) URLRedirect(-1, _MSG_WRONG_CONNECTED);
 	}
 
 	public function Index(){
-		App::$Data['NowMenu'] = '001001';
-		App::$Data['Code'] = 'Default';
+		App::$data['NowMenu'] = '001001';
+		App::$data['Code'] = 'Default';
 		App::View();
 	}
 
@@ -50,13 +50,13 @@ class Config{
 	}
 
 	public function Content(){
-		App::$Data['NowMenu'] = '001050';
-		reset(App::$Data['menu']);
-		App::$Data['Code'] = (!App::$ID) ? 'TermsText' : App::$ID;
+		App::$data['NowMenu'] = '001050';
+		reset(App::$data['menu']);
+		App::$data['Code'] = (!App::$id) ? 'TermsText' : App::$id;
 
-		$class = '\\Config' . App::$Data['Code'];
+		$class = '\\Config' . App::$data['Code'];
 		if(!class_exists($class)) URLRedirect(-1, _MSG_WRONG_CONNECTED);
-		App::$Data['class'] = $class::GetInstance();
+		App::$data['class'] = $class::GetInstance();
 
 
 		App::View();

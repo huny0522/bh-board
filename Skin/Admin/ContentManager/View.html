@@ -31,7 +31,7 @@ use \BH_Application as App;
 	<tr>
 		<th>연결메뉴</th>
 		<td>
-			<?php foreach(App::$Data['selectedMenu'] as $k => $row){ ?>
+			<?php foreach(App::$data['selectedMenu'] as $k => $row){ ?>
 				<?v. ($k ? ', ' : '').$row['title'] ?>
 			<?php } ?>
 		</td>

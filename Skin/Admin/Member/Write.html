@@ -9,9 +9,9 @@ use \BH_Application as App;
 
 <h2>회원관리</h2>
 
-<?php if(isset(App::$Data['error']) && strlen(App::$Data['error'])){ ?><p class="alert"><?v. App::$Data['error'] ?></p><?php } ?>
-<form name="MemberWriteForm" id="MemberWriteForm" method="post" action="<?a. App::$Action ?><?fq. '' ?>">
-	<?php if(App::$Action == 'Modify'){ ?>
+<?php if(isset(App::$data['error']) && strlen(App::$data['error'])){ ?><p class="alert"><?v. App::$data['error'] ?></p><?php } ?>
+<form name="MemberWriteForm" id="MemberWriteForm" method="post" action="<?a. App::$action ?><?fq. '' ?>">
+	<?php if(App::$action == 'Modify'){ ?>
 		<input type="hidden" name="muid" value="<?p. $Ctrl->model->GetValue('muid') ?>">
 	<?php } ?>
 
@@ -19,7 +19,7 @@ use \BH_Application as App;
 		<tr>
 			<th><?mt('mid')?></th>
 			<td>
-				<?php if(App::$Action == 'Modify'){ ?>
+				<?php if(App::$action == 'Modify'){ ?>
 					<?mv('mid') ?>
 				<?php }else{ ?>
 					<?minp('mid') ?>
@@ -31,7 +31,7 @@ use \BH_Application as App;
 			</td>
 		</tr>
 		<tr>
-			<th><?php if(App::$Action == 'Write'){ ?><i class="requiredBullet" title="필수항목">*</i><?php } ?> <?mt('pwd')?></th>
+			<th><?php if(App::$action == 'Write'){ ?><i class="requiredBullet" title="필수항목">*</i><?php } ?> <?mt('pwd')?></th>
 			<td>
 				<?minp('pwd') ?>
 				<ul class="guide">
@@ -76,7 +76,7 @@ use \BH_Application as App;
 			<th><?mt('level')?></th>
 			<td>
 				<select name="level">
-					<?p. SelectOption(App::$Data['level'], $Model->GetValue('level')) ?>
+					<?p. SelectOption(App::$data['level'], $Model->GetValue('level')) ?>
 				</select>
 			</td>
 		</tr>
@@ -112,7 +112,7 @@ use \BH_Application as App;
 	</table>
 
 	<div class="bottomBtn">
-		<button type="submit" class="bBtn"><?php echo App::$Action == 'Modify' ? '수정' : '등록'; ?></button>
+		<button type="submit" class="bBtn"><?php echo App::$action == 'Modify' ? '수정' : '등록'; ?></button>
 		<button type="reset" class="bBtn">취소</button>
 		<a href="#" class="backbtn bBtn">뒤로</a>
 	</div>

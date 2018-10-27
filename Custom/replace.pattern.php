@@ -73,27 +73,27 @@ $_rpData = array(
 	// mv()
 	array(
 		'pattern' => '/<\?\s*mt\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-		'replace' => '<?php echo $Model->data[$1]->DisplayName; ?>'
+		'replace' => '<?php echo $Model->data[$1]->displayName; ?>'
 	),
 	array(
 		'pattern' => '/<\?\s*mp\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-		'replace' => '<?php echo $Model->data[$1]->txt(); ?>'
+		'replace' => '<?php echo $Model->data[$1]->value; ?>'
 	),
 	array(
 		'pattern' => '/<\?\s*mv\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-		'replace' => '<?php echo $Model->data[$1]->safe(); ?>'
+		'replace' => '<?php echo $Model->data[$1]->Safe(); ?>'
 	),
 	array(
 		'pattern' => '/<\?\s*mvn\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-		'replace' => '<?php echo $Model->data[$1]->num(); ?>'
+		'replace' => '<?php echo $Model->data[$1]->Num(); ?>'
 	),
 	array(
 		'pattern' => '/<\?\s*mvr\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-		'replace' => '<?php echo $Model->data[$1]->safeRaw(); ?>'
+		'replace' => '<?php echo $Model->data[$1]->SafeRaw(); ?>'
 	),
 	array(
 		'pattern' => '/<\?\s*mvb\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-		'replace' => '<?php echo $Model->data[$1]->safeBr(); ?>'
+		'replace' => '<?php echo $Model->data[$1]->SafeBr(); ?>'
 	),
 	array(
 		'pattern' => '/<\?\s*minp\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
@@ -107,27 +107,27 @@ $_rpData = array(
 	// mv.modelName()
 	array(
 		'pattern' => '/<\?\s*mt\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-		'replace' => '<?php echo $Ctrl->$1->data[$2]->DisplayName; ?>'
+		'replace' => '<?php echo $Ctrl->$1->data[$2]->displayName; ?>'
 	),
 	array(
 		'pattern' => '/<\?\s*mp\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-		'replace' => '<?php echo $Ctrl->$1->data[$2]->txt(); ?>'
+		'replace' => '<?php echo $Ctrl->$1->data[$2]->value; ?>'
 	),
 	array(
 		'pattern' => '/<\?\s*mv\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-		'replace' => '<?php echo $Ctrl->$1->data[$2]->safe(); ?>'
+		'replace' => '<?php echo $Ctrl->$1->data[$2]->Safe(); ?>'
 	),
 	array(
 		'pattern' => '/<\?\s*mvn\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-		'replace' => '<?php echo $Ctrl->$1->data[$2]->num(); ?>'
+		'replace' => '<?php echo $Ctrl->$1->data[$2]->Num(); ?>'
 	),
 	array(
 		'pattern' => '/<\?\s*mvr\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-		'replace' => '<?php echo $Ctrl->$1->data[$2]->safeRaw(); ?>'
+		'replace' => '<?php echo $Ctrl->$1->data[$2]->SafeRaw(); ?>'
 	),
 	array(
 		'pattern' => '/<\?\s*mvb\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
-		'replace' => '<?php echo $Ctrl->$1->data[$2]->safeBr(); ?>'
+		'replace' => '<?php echo $Ctrl->$1->data[$2]->SafeBr(); ?>'
 	),
 	array(
 		'pattern' => '/<\?\s*minp\s*\.\s*(.*?)\s*\(\s*(.*?)(\s*\)\s*;*\s*\?>)/is',
@@ -163,11 +163,11 @@ $_rpData = array(
 		'replace' => ''
 	),
 );
-BH_Application::$SettingData['_replace_patterns'] = array();
+BH_Application::$settingData['_replace_patterns'] = array();
 
-BH_Application::$SettingData['_replace_replace'] = array();
+BH_Application::$settingData['_replace_replace'] = array();
 
 for($i = 0, $m = sizeof($_rpData); $i < $m; $i++){
-	BH_Application::$SettingData['_replace_patterns'][] = $_rpData[$i]['pattern'];
-	BH_Application::$SettingData['_replace_replace'][] = $_rpData[$i]['replace'];
+	BH_Application::$settingData['_replace_patterns'][] = $_rpData[$i]['pattern'];
+	BH_Application::$settingData['_replace_replace'][] = $_rpData[$i]['replace'];
 }

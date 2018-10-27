@@ -77,7 +77,7 @@ class {$ControllerName}{
 		\$this->{$ModelValueName}->SetPostValues();
 		\$err = \$this->{$ModelValueName}->GetErrorMessage();
 		if(sizeof(\$err)){
-			App::\$Data['error'] = \$err[0];
+			App::\$data['error'] = \$err[0];
 			App::View('Write');
 			return;
 		}
@@ -85,7 +85,7 @@ class {$ControllerName}{
 		else \$res = \$this->{$ModelValueName}->DBUpdate();
 		
 		if(!\$res->result) {
-			App::\$Data['error'] = \$res->message ? \$res->message : 'Query Error';
+			App::\$data['error'] = \$res->message ? \$res->message : 'Query Error';
 			App::View('Write');
 			return;
 		}
@@ -169,9 +169,9 @@ class {$ModelName}Model extends \\BH_Model{
 			if(sizeof($matches) > 1 && $matches[1]){
 				if(!defined($matches[1])){
 					if(PHP_RUN_CLI === true){
-						if(!isset(App::$SettingData['_NO_CONSTANT'][$matches[1]])){
+						if(!isset(App::$settingData['_NO_CONSTANT'][$matches[1]])){
 							echo '[' . date('Y-m-d H:i:s') .']'. $matches[1] . mb_convert_encoding(' 상수가 정의되지 않았습니다.', 'euc-kr','utf-8');
-							App::$SettingData['_NO_CONSTANT'][$matches[1]] = true;
+							App::$settingData['_NO_CONSTANT'][$matches[1]] = true;
 						}
 						return '';
 					}
@@ -227,20 +227,20 @@ class {$ModelName}Model extends \\BH_Model{
 				$addOption = '';
 				$type = strtolower($row['Type']);
 				if(strpos($type, 'int(') !== false){
-					if($modelType === '') $modelType = 'ModelType::Int';
-					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->DefaultValue = ' . (int)$row['Default'] . ';';
+					if($modelType === '') $modelType = 'ModelType::INT';
+					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->defaultValue = ' . (int)$row['Default'] . ';';
 				}
 				else if(strpos($type, 'date') !== false){
-					if($modelType === '') $modelType = 'ModelType::Date';
-					if($htmlType === '') $htmlType = ', HTMLType::InputDatePicker';
+					if($modelType === '') $modelType = 'ModelType::DATE';
+					if($htmlType === '') $htmlType = ', HTMLType::DATE_PICKER';
 				}
 				else if(strpos($type, 'datetime') !== false){
-					if($modelType === '') $modelType = 'ModelType::Datetime';
-					if($htmlType === '') $htmlType = ', HTMLType::InputDatePicker';
+					if($modelType === '') $modelType = 'ModelType::DATETIME';
+					if($htmlType === '') $htmlType = ', HTMLType::DATE_PICKER';
 				}
 				else if(strpos($type, 'enum(') !== false){
-					if($modelType === '') $modelType = 'ModelType::Enum';
-					if($htmlType === '') $htmlType = ', HTMLType::Select';
+					if($modelType === '') $modelType = 'ModelType::ENUM';
+					if($htmlType === '') $htmlType = ', HTMLType::SELECT';
 					preg_match('/\((.*?)\)/', $row['Type'], $matches);
 					$enum = explode(',', $matches[1]);
 					$enum_t = array();
@@ -248,19 +248,19 @@ class {$ModelName}Model extends \\BH_Model{
 						$v2 = substr($v, 1, -1);
 						$enum_t[] = $v . ' => ' . (isset($enumValues[$v2]) ? '"'.$enumValues[$v2].'"' : $v);
 					}
-					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->EnumValues = array(' . implode(',', $enum_t) . ');';
-					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->DefaultValue = \'' . $row['Default'] . '\';';
+					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->enumValues = array(' . implode(',', $enum_t) . ');';
+					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->defaultValue = \'' . $row['Default'] . '\';';
 				}
 				else if(strpos($type, 'varchar(') !== false){
 					preg_match('/\(([0-9]*?)\)/', $type, $matches);
-					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->MaxLength = \'' . $matches[1] . '\';';
+					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->maxLength = \'' . $matches[1] . '\';';
 				}
 				else if(strpos($row['Type'], 'text') !== false){
-					if($modelType === '') $modelType = 'ModelType::Text';
-					if($htmlType === '') $htmlType = ', HTMLType::Textarea';
+					if($modelType === '') $modelType = 'ModelType::TEXT';
+					if($htmlType === '') $htmlType = ', HTMLType::TEXTAREA';
 				}
 
-				if($modelType === '') $modelType = 'ModelType::String';
+				if($modelType === '') $modelType = 'ModelType::STRING';
 
 				$initFuncText .= chr(10) . chr(10) . '$this->data[\'' . $row['Field'] . '\'] = new \\BH_ModelData(' . $modelType . ', \'' . ($cmt ? $cmt : $row['Field']) . '\'' . $htmlType . ');' . $addOption;
 			}
@@ -268,12 +268,12 @@ class {$ModelName}Model extends \\BH_Model{
 		}
 		//$f = preg_replace("/\s*\*\s*\[\@property\]\s*\n/is", PHP_EOL . $propertyDoc, $f);
 
-		$pattern = '/\$this\-\>Key\s*=\s*array/i';
+		$pattern = '/\$this\-\>key\s*=\s*array/i';
 		preg_match($pattern, $initFuncText, $matches);
-		$pattern = '/\$this\-\>Key\s*\[\s*\]/';
+		$pattern = '/\$this\-\>key\s*\[\s*\]/';
 		preg_match($pattern, $initFuncText, $matches2);
 		if(!sizeof($matches) && !sizeof($matches2)){
-			$initFuncText = '$this->Key = array(' . implode(',', $primaryKey) . ');' . chr(10) . $initFuncText;
+			$initFuncText = '$this->key = array(' . implode(',', $primaryKey) . ');' . chr(10) . $initFuncText;
 		}
 
 		$initFuncText = str_replace(chr(11), '', $initFuncText);
@@ -294,7 +294,7 @@ class {$ModelName}Model extends \\BH_Model{
 		$create = ($_SERVER['REMOTE_ADDR'] === '127.0.0.1' && _FILE_PUT_GUIDE === true);
 
 		$path = '/' . $path;
-		if(App::$NativeDir) $path = '/' . App::$NativeDir . $path;
+		if(App::$nativeDir) $path = '/' . App::$nativeDir . $path;
 		if(file_exists(_SKINDIR . $path) && is_dir(_SKINDIR . $path)) return;
 
 		$IndexHtml = self::Index($path . '/Index.html', $model);
@@ -309,7 +309,7 @@ class {$ModelName}Model extends \\BH_Model{
 			URLReplace(App::URLAction());
 		}
 		else{
-			$path = _SKINURL . '/' . (App::$NativeDir ? App::$NativeDir . '/' : '') . App::$ControllerName . '/';
+			$path = _SKINURL . '/' . (App::$nativeDir ? App::$nativeDir . '/' : '') . App::$controllerName . '/';
 			echo '<b>' . $path . 'Index.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">' . (GetDBText($IndexHtml)) . '</textarea>';
 			echo '<br><br>';
 			echo '<b>' . $path . 'View.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">' . (GetDBText($ViewHtml)) . '</textarea>';
@@ -362,13 +362,13 @@ use \\BH_Common as CM;
 			foreach($modelClass->data as $k => $row){
 
 				$html .= '<tr>' . chr(10) . '	<th><?mt(\'' . $k . '\') ?></th>' . chr(10);
-				if(isset($row->EnumValues) && is_array($row->EnumValues)) $html .= '	<td><?menum(\'' . $k . '\') ?></td>' . chr(10);
+				if(isset($row->enumValues) && is_array($row->enumValues)) $html .= '	<td><?menum(\'' . $k . '\') ?></td>' . chr(10);
 				else $html .= '	<td>' . chr(10) . '		<?mv(\'' . $k . '\') ?>' . chr(10) . '	</td>' . chr(10);
 				$html .= '</tr>' . chr(10);
 			}
 			$html .= '</table>' . chr(10);
-			$html .= '<div class="bottomBtn"><a href="<?a. \'\' ?><?fq. \'\' ?>" class="bBtn">리스트</a><a href="<?a. \'Modify/\'.App::$ID ?><?fq. \'\' ?>" class="bBtn">수정</a><a href="#" id="deleteArticle" class="bBtn">삭제</a><a href="#" class="backbtn bBtn">뒤로</a></div>' . chr(10);
-			$html .= '<div id="deleteForm" class="modalConfirm hidden">' . chr(10) . chr(9) . '<form id="delForm" name="delForm" method="post" action="<?a. \'Delete/\'.App::$ID ?><?fq. \'\' ?>">' . chr(10);
+			$html .= '<div class="bottomBtn"><a href="<?a. \'\' ?><?fq. \'\' ?>" class="bBtn">리스트</a><a href="<?a. \'Modify/\'.App::$id ?><?fq. \'\' ?>" class="bBtn">수정</a><a href="#" id="deleteArticle" class="bBtn">삭제</a><a href="#" class="backbtn bBtn">뒤로</a></div>' . chr(10);
+			$html .= '<div id="deleteForm" class="modalConfirm hidden">' . chr(10) . chr(9) . '<form id="delForm" name="delForm" method="post" action="<?a. \'Delete/\'.App::$id ?><?fq. \'\' ?>">' . chr(10);
 
 			$html .= chr(9) . chr(9) . '<p>정말 삭제하시겠습니까?</p>' . chr(10) . chr(9) . chr(9) . '<div class="sPopBtns">' . chr(10) . chr(9) . chr(9) . chr(9) . '<button type="submit" class="sBtn btn2">삭제하기</button>' . chr(10) . chr(9) . chr(9) . chr(9) . '<button type="reset" class="sBtn btn2">취소</button>' . chr(10) . chr(9) . chr(9) . '</div>' . chr(10) . chr(9) . '</form>' . chr(10) . '</div>' . chr(10);
 			$html .= '<script>' . chr(9) . '$(\'#deleteArticle\').on(\'click\', function(e){' . chr(10) . chr(9) . chr(9) . 'e.preventDefault();' . chr(10) . chr(9) . chr(9) . '$(\'#deleteForm\').show();' . chr(10) . chr(9) . '});' . chr(10) . chr(9) . '$(\'#deleteForm button[type=reset]\').on(\'click\', function(e){' . chr(10) . chr(9) . chr(9) . 'e.preventDefault();' . chr(10) . chr(9) . chr(9) . '$(\'#deleteForm\').hide();' . chr(10) . chr(9) . '});' . chr(10) . '</script>';
@@ -410,36 +410,36 @@ use \\BH_Common as CM;
 ?>
 
 ";
-			$html .= '<form name="' . $model . 'WriteForm" id="' . $model . 'WriteForm" method="post" action="<?a. App::$Action.\'/\'.App::$ID ?><?fq. \'\' ?>">' . chr(10);
+			$html .= '<form name="' . $model . 'WriteForm" id="' . $model . 'WriteForm" method="post" action="<?a. App::$action.\'/\'.App::$id ?><?fq. \'\' ?>">' . chr(10);
 
 			$html .= chr(10) . '	<table class="write">' . chr(10);
 			foreach($modelClass->data as $k => $row){
 				$html .= '		<tr>' . chr(10) . '			<th>';
-				if($row->Required) $html .= '<i class="requiredBullet" title="필수항목">*</i> ';
+				if($row->required) $html .= '<i class="requiredBullet" title="필수항목">*</i> ';
 				$html .= '<?mt(\'' . $k . '\') ?></th>' . chr(10);
 				$html .= '			<td>' . chr(10);
 				$html .= '				<?minp(\'' . $k . '\') ?>' . chr(10);
 				$guide = '';
-				if($row->MaxLength !== false){
+				if($row->maxLength !== false){
 					$guide .= '					<li>';
-					if($row->MinLength !== false) $guide .= $row->MinLength . '자 이상, ';
-					$guide .= $row->MaxLength . '자 이하로 입력하여주세요.</li>' . chr(10);
+					if($row->minLength !== false) $guide .= $row->minLength . '자 이상, ';
+					$guide .= $row->maxLength . '자 이하로 입력하여주세요.</li>' . chr(10);
 				}
-				else if($row->MinLength !== false){
-					$guide .= '					<li>' . $row->MinLength . '자 이상 입력하여주세요.</li>' . chr(10);
+				else if($row->minLength !== false){
+					$guide .= '					<li>' . $row->minLength . '자 이상 입력하여주세요.</li>' . chr(10);
 				}
-				if($row->MaxValue !== false){
+				if($row->maxValue !== false){
 					$guide .= '					<li>';
-					if($row->MaxValue !== false) $guide .= $row->MinValue . ' 이상, ';
-					$guide .= $row->MaxValue . ' 이하의 값을 입력하여주세요.</li>' . chr(10);
+					if($row->maxValue !== false) $guide .= $row->minValue . ' 이상, ';
+					$guide .= $row->maxValue . ' 이하의 값을 입력하여주세요.</li>' . chr(10);
 				}
-				else if($row->MinValue !== false){
-					$guide .= '					<li>' . $row->MinValue . ' 이상의 값을 입력하여주세요.</li>' . chr(10);
+				else if($row->minValue !== false){
+					$guide .= '					<li>' . $row->minValue . ' 이상의 값을 입력하여주세요.</li>' . chr(10);
 				}
-				if($row->HtmlType == HTMLType::InputEng){
+				if($row->htmlType == HTMLType::TEXT_ENG_ONLY){
 					$guide .= '					<li>영문만 입력하여 주세요.</li>' . chr(10);
 				}
-				if($row->Type == HTMLType::InputEngNum){
+				if($row->type == HTMLType::TEXT_ENG_NUM){
 					$guide .= '					<li>영문과 숫자만 입력하여 주세요.</li>' . chr(10);
 				}
 				if($guide) $html .= '				<ul class="guide">' . chr(10) . $guide . '				</ul>' . chr(10);
@@ -447,7 +447,7 @@ use \\BH_Common as CM;
 				$html .= '			</td>' . chr(10) . '		</tr>' . chr(10);
 			}
 			$html .= '	</table>' . chr(10) . chr(10);
-			$html .= '	<div class="bottomBtn">' . chr(10) . '		<button type="submit" class="bBtn"><?php echo App::$Action == \'Modify\' ? \'수정\' : \'등록\'; ?></button>' . chr(10) . '		<button type="reset" class="bBtn">취소</button>' . chr(10) . '		<a href="#" class="backbtn bBtn">뒤로</a>' . chr(10) . '	</div>' . chr(10);
+			$html .= '	<div class="bottomBtn">' . chr(10) . '		<button type="submit" class="bBtn"><?php echo App::$action == \'Modify\' ? \'수정\' : \'등록\'; ?></button>' . chr(10) . '		<button type="reset" class="bBtn">취소</button>' . chr(10) . '		<a href="#" class="backbtn bBtn">뒤로</a>' . chr(10) . '	</div>' . chr(10);
 			$html .= '</form>' . chr(10) . chr(10);
 			$html .= chr(60) . 'script>' . chr(10) . '	$(document).on(\'submit\', \'#' . $model . 'WriteForm\', function(e){' . chr(10) . '		var res = $(this).validCheck();' . chr(10) . '		if(!res){' . chr(10) . '			e.preventDefault(); ' . chr(10) . '			return false; ' . chr(10) . '		} ' . chr(10) . '	});' . chr(10) . '</script>' . chr(10);
 			return $html;
@@ -511,11 +511,11 @@ use \\BH_Common as CM;
 			$html .= '<tr>' . chr(10);
 			$html .= '	<td><?e. $Data->beginNum-- ?></td>' . chr(10);
 			foreach($modelClass->data as $k => $row){
-				if(isset($row->EnumValues) && is_array($row->EnumValues)) $html .= '	<td><?menum(\'' . $k . '\', $row[\'' . $k . '\']) ?></td>' . chr(10);
+				if(isset($row->enumValues) && is_array($row->enumValues)) $html .= '	<td><?menum(\'' . $k . '\', $row[\'' . $k . '\']) ?></td>' . chr(10);
 				else $html .= '	<td><?v. $row[\'' . $k . '\']; ?></td>' . chr(10);
 			}
 			$keys = array();
-			foreach($modelClass->Key as $k){
+			foreach($modelClass->key as $k){
 				$keys[] = '$row[\'' . $k . '\']';
 			}
 			$html .= '	<td><a href="<?a. \'View/\'.' . implode('.\'/\'.', $keys) . ' ?><?fn. \'\' ?>">상세보기</a></td>' . chr(10);

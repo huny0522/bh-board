@@ -8,20 +8,20 @@ use \BH_Application as App;
  */
 App::JSAdd('board.js', 200);
 $subid = $Ctrl->subid;
-$useHtml = ($Ctrl->boardManger->_use_html->Value == 'y' && (_MOBILEIS !== true || CM::TinyMCEUseIs())) ? 'y' : 'n';
+$useHtml = ($Ctrl->boardManger->_use_html->value == 'y' && (_MOBILEIS !== true || CM::TinyMCEUseIs())) ? 'y' : 'n';
 ?>
 
 
-<form name="BoardWriteForm" id="BoardWriteForm" method="post" action="<?a. App::$Action ?>/<?php if(App::$Action == 'Modify') echo App::$ID; ?><?fq. '' ?>" enctype="multipart/form-data">
+<form name="BoardWriteForm" id="BoardWriteForm" method="post" action="<?a. App::$action ?>/<?php if(App::$action == 'Modify') echo App::$id; ?><?fq. '' ?>" enctype="multipart/form-data">
 	<input type="hidden" name="htmlis" value="<?p. $useHtml ?>">
 	<input type="hidden" name="subid" value="<?v. $subid ?>">
-	<?php if(App::$Action == 'Answer'){ ?>
+	<?php if(App::$action == 'Answer'){ ?>
 		<input type="hidden" name="mode" value="answer">
 		<input type="hidden" name="target" value="<?v. strlen(Post('target')) ? Post('target') : Get('target') ?>">
 	<?php } ?>
 
 
-	<?php if(isset(App::$Data['error'])){ ?><p class="alert"><?p. App::$Data['error'] ?></p><?php } ?>
+	<?php if(isset(App::$data['error'])){ ?><p class="alert"><?p. App::$data['error'] ?></p><?php } ?>
 	<table class="write boardCategoryArea">
 		<?php if(_MEMBERIS === true && $Ctrl->managerIs){ ?>
 			<tr>
@@ -32,16 +32,16 @@ $useHtml = ($Ctrl->boardManger->_use_html->Value == 'y' && (_MOBILEIS !== true |
 			</tr>
 		<?php } ?>
 
-		<?php if(App::$Action !== 'Answer' && sizeof(App::$Data['category'])){ ?>
+		<?php if(App::$action !== 'Answer' && sizeof(App::$data['category'])){ ?>
 			<tr>
 				<th><?mt('category')?></th>
 				<td>
 					<select name="category" id="MD_category" class="boardCategory" required>
 						<option value="">선택</option>
-						<?p. SelectOption(App::$Data['category'], $Ctrl->model->_category->txt() ? $Ctrl->model->_category->txt() : Get('cate'), true); ?>
+						<?p. SelectOption(App::$data['category'], $Ctrl->model->_category->Txt() ? $Ctrl->model->_category->Txt() : Get('cate'), true); ?>
 					</select>
 
-					<?php if($Ctrl->boardManger->_use_sub_category->txt() == 'y'){ ?>
+					<?php if($Ctrl->boardManger->_use_sub_category->Txt() == 'y'){ ?>
 						<select name="sub_category" id="MD_sub_category" class="boardSubCategory" required></select>
 					<?php } ?>
 				</td>
@@ -57,7 +57,7 @@ $useHtml = ($Ctrl->boardManger->_use_html->Value == 'y' && (_MOBILEIS !== true |
 			</tr>
 		<?php } ?>
 
-		<?php if(_MEMBERIS !== true || (App::$Action == 'Modify' && !strlen($Model->GetValue('muid')))){?>
+		<?php if(_MEMBERIS !== true || (App::$action == 'Modify' && !strlen($Model->GetValue('muid')))){?>
 			<tr>
 				<th><?mt('mname')?></th>
 				<td>
@@ -74,12 +74,12 @@ $useHtml = ($Ctrl->boardManger->_use_html->Value == 'y' && (_MOBILEIS !== true |
 			<tr>
 				<th><i class="requiredBullet" title="필수항목">*</i> <?mt('pwd')?></th>
 				<td>
-					<?minp('pwd', array('value' =>(App::$Action == 'Modify' ? post('pwd') : ''))) ?>
+					<?minp('pwd', array('value' =>(App::$action == 'Modify' ? post('pwd') : ''))) ?>
 					<span class="guide">6자 이상 16자 이하로 입력하여주세요.</span>
 				</td>
 			</tr>
 			<?php
-			if(App::$Action != 'Modify'){
+			if(App::$action != 'Modify'){
 				?>
 				<tr>
 					<th><i class="requiredBullet" title="필수항목">*</i> 비밀번호 확인</th>
@@ -137,7 +137,7 @@ $useHtml = ($Ctrl->boardManger->_use_html->Value == 'y' && (_MOBILEIS !== true |
 	</table>
 
 	<div class="bottomBtn">
-		<button type="submit" class="mBtn btn2"><?php echo App::$Action == 'Modify' ? '수정' : '등록'; ?></button>
+		<button type="submit" class="mBtn btn2"><?php echo App::$action == 'Modify' ? '수정' : '등록'; ?></button>
 		<a href="#" class="backbtn mBtn btn1">뒤로</a>
 		<a href="<?a. '' ?><?fq. '' ?>" class="mBtn btn1">리스트</a>
 	</div>
@@ -150,7 +150,7 @@ $useHtml = ($Ctrl->boardManger->_use_html->Value == 'y' && (_MOBILEIS !== true |
 
 <script>
 	<?p. CM::TinyMCEScript() ?>
-	AppBoard.Write.subCategory = '<?p. str_replace('\'', '\\\'', $Model->_sub_category->txt() ? $Model->_sub_category->txt() : Get('scate')) ?>';
+	AppBoard.Write.subCategory = '<?p. str_replace('\'', '\\\'', $Model->_sub_category->Txt() ? $Model->_sub_category->Txt() : Get('scate')) ?>';
 	AppBoard.Write.getSubCategoryUrl = '<?a. 'GetSubCategory' ?>';
 	AppBoard.Write.bid = '<?v. $Ctrl->bid ?>';
 	AppBoard.Write.subid = '<?v. $Ctrl->subid ?>';

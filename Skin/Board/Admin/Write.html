@@ -2,7 +2,7 @@
 use \BH_Common as CM;
 use \BH_Application as App;
 
-App::$Layout = '_AdminBoard';
+App::$layout = '_AdminBoard';
 
 /**
  * @var \BoardModel $Model
@@ -10,21 +10,21 @@ App::$Layout = '_AdminBoard';
  */
 App::JSAdd('board.js', 200);
 $subid = $Ctrl->subid;
-$useHtml = $Ctrl->boardManger->_use_html->Value;
+$useHtml = $Ctrl->boardManger->_use_html->value;
 ?>
 <h2><?p. $Ctrl->boardManger->GetValue('subject') ?> 게시물관리</h2>
 <div class="right_btn"><a href="<?c. 'BoardManager' ?>" class="sBtn">게시판 관리로 이동</a></div>
 
-<form name="BoardWriteForm" id="BoardWriteForm" method="post" action="<?a. App::$Action ?>/<?php if(App::$Action == 'Modify') echo App::$ID; ?><?fq. '' ?>" enctype="multipart/form-data">
+<form name="BoardWriteForm" id="BoardWriteForm" method="post" action="<?a. App::$action ?>/<?php if(App::$action == 'Modify') echo App::$id; ?><?fq. '' ?>" enctype="multipart/form-data">
 	<input type="hidden" name="htmlis" value="<?p. $useHtml ?>" id="htmlis">
 	<input type="hidden" name="subid" value="<?v. $subid ?>">
-	<?php if(App::$Action == 'Answer'){ ?>
+	<?php if(App::$action == 'Answer'){ ?>
 		<input type="hidden" name="mode" value="answer">
 		<input type="hidden" name="target" value="<?v. strlen(Post('target')) ? Post('target') : Get('target') ?>">
 	<?php } ?>
 
 
-	<?php if(isset(App::$Data['error'])){ ?><p class="alert"><?p. App::$Data['error'] ?></p><?php } ?>
+	<?php if(isset(App::$data['error'])){ ?><p class="alert"><?p. App::$data['error'] ?></p><?php } ?>
 	<table class="write">
 		<?php if(_MEMBERIS === true && ($Ctrl->managerIs || $_SESSION['member']['level'] == _SADMIN_LEVEL || $_SESSION['member']['level'] == _ADMIN_LEVEL)){ ?>
 			<tr>
@@ -34,17 +34,17 @@ $useHtml = $Ctrl->boardManger->_use_html->Value;
 				</td>
 			</tr>
 		<?php } ?>
-		<?php if(sizeof(App::$Data['category'])){ ?>
+		<?php if(sizeof(App::$data['category'])){ ?>
 			<tr>
 				<th><?mt('category')?></th>
 				<td>
 					<select name="category" id="MD_category" class="boardCategory" required>
 						<option value="">선택</option>
-						<?p. SelectOption(App::$Data['category'], $Ctrl->model->_category->txt() ? $Ctrl->model->_category->txt() : Get('cate'), true); ?>
+						<?p. SelectOption(App::$data['category'], $Ctrl->model->_category->Txt() ? $Ctrl->model->_category->Txt() : Get('cate'), true); ?>
 					</select>
 				</td>
 			</tr>
-			<?php if($Ctrl->boardManger->_use_sub_category->txt() == 'y'){ ?>
+			<?php if($Ctrl->boardManger->_use_sub_category->Txt() == 'y'){ ?>
 				<tr>
 					<th><?mt('category')?></th>
 					<td>
@@ -110,7 +110,7 @@ $useHtml = $Ctrl->boardManger->_use_html->Value;
 	</table>
 
 	<div class="bottomBtn">
-		<button type="submit" class="mBtn btn2"><?php echo App::$Action == 'Modify' ? '수정' : '등록'; ?></button>
+		<button type="submit" class="mBtn btn2"><?php echo App::$action == 'Modify' ? '수정' : '등록'; ?></button>
 		<button type="reset" class="mBtn btn1">취소</button>
 		<a href="#" class="backbtn mBtn btn1">뒤로</a>
 	</div>
@@ -122,7 +122,7 @@ $useHtml = $Ctrl->boardManger->_use_html->Value;
 
 
 <script>
-	AppBoard.Write.subCategory = '<?p. str_replace('\'', '\\\'', $Model->_sub_category->txt() ? $Model->_sub_category->txt() : Get('scate')) ?>';
+	AppBoard.Write.subCategory = '<?p. str_replace('\'', '\\\'', $Model->_sub_category->Txt() ? $Model->_sub_category->Txt() : Get('scate')) ?>';
 	AppBoard.Write.getSubCategoryUrl = '<?a. 'GetSubCategory' ?>';
 	AppBoard.Write.bid = '<?v. $Ctrl->bid ?>';
 	AppBoard.Write.subid = '<?v. $Ctrl->subid ?>';

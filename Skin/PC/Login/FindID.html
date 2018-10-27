@@ -8,9 +8,9 @@ use \BH_Application as App;
  * @var $Ctrl
  * @var $Data
  */
-$fid = (App::$Action === 'FindID');
+$fid = (App::$action === 'FindID');
 $fTxt = $fid ? '아이디' : '비밀번호';
-App::$Title = $fTxt . ' 찾기';
+App::$title = $fTxt . ' 찾기';
 ?>
 
 <div id="contents" class="findIDPW">

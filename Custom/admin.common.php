@@ -6,7 +6,7 @@ use \BH_Common as CM;
 use \BH_Application as App;
 use \DB as DB;
 
-App::$SettingData['AdminMenu'] = array(
+App::$settingData['AdminMenu'] = array(
 	'001' => array(
 		'Category' => 'Config',
 		'Name' => '사이트관리'
@@ -57,11 +57,11 @@ App::$SettingData['AdminMenu'] = array(
 	)
 );
 
-App::$SettingData['koreaDo'] = '서울;경기;부산;대구;인천;광주;대전;울산;세종;강원;충북;충남;전북;전남;경북;경남;제주';
+App::$settingData['koreaDo'] = '서울;경기;부산;대구;인천;광주;대전;울산;세종;강원;충북;충남;전북;전남;경북;경남;제주';
 
-if(App::$SettingData['GetUrl'][2] === 'Config' && App::$SettingData['GetUrl'][3] === 'Content'){
+if(App::$settingData['GetUrl'][2] === 'Config' && App::$settingData['GetUrl'][3] === 'Content'){
 
-	App::$Data['menu'] = array(
+	App::$data['menu'] = array(
 		// 'Guide_Reg' => '회원가입 안내',
 		// 'Guide_Order' => '주문 안내',
 		// 'Guide_Settle' => '결제 안내',
@@ -78,5 +78,5 @@ if(App::$SettingData['GetUrl'][2] === 'Config' && App::$SettingData['GetUrl'][3]
 
 
 function AdminTitleSet(){
-	return App::$Title = App::$SettingData['AdminMenu'][App::$Data['NowMenu']]['Name'];
+	return App::$title = App::$settingData['AdminMenu'][App::$data['NowMenu']]['Name'];
 }

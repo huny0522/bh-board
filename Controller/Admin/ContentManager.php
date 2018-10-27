@@ -22,24 +22,24 @@ class ContentManager{
 
 		$dbGetList = new \BH_DB_GetList($this->model->table);
 		$dbGetList->SetKey('DISTINCT category');
-		App::$Data['category'] = array();
-		if(isset(App::$SettingData['contentCategory'])) foreach(App::$SettingData['contentCategory'] as $v){
-			App::$Data['category'][$v] = $v;
+		App::$data['category'] = array();
+		if(isset(App::$settingData['contentCategory'])) foreach(App::$settingData['contentCategory'] as $v){
+			App::$data['category'][$v] = $v;
 		}
 
-		while($row = $dbGetList->Get()) App::$Data['category'][$row['category']] = $row['category'];
+		while($row = $dbGetList->Get()) App::$data['category'][$row['category']] = $row['category'];
 	}
 
 	public function __init(){
-		App::$Data['NowMenu'] = '003';
+		App::$data['NowMenu'] = '003';
 		CM::AdminAuth();
 
 		// 항상 따라다닐 URL 쿼리 파라미터를 지정
 		App::SetFollowQuery(array('category', 'page', 'keyword'));
-		App::$Layout = '_Admin';
+		App::$layout = '_Admin';
 
 		$AdminAuth = explode(',', CM::GetMember('admin_auth'));
-		App::$Data['menuAuth'] = (in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL);
+		App::$data['menuAuth'] = (in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL);
 	}
 
 	public function Index(){
@@ -66,7 +66,7 @@ class ContentManager{
 		$dbGet = new \BH_DB_GetList(TABLE_MENU);
 		$dbGet->AddWhere('type=\'content\'');
 		$dbGet->AddWhere('bid = %s', $this->model->GetValue('bid'));
-		App::$Data['selectedMenu'] = $dbGet->GetRows();
+		App::$data['selectedMenu'] = $dbGet->GetRows();
 
 		if(!$res->result){
 			URLReplace('-1', $res->message);
@@ -77,24 +77,24 @@ class ContentManager{
 	public function Write(){
 		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
 		$dbGetList->AddWhere('LENGTH(category) = '._CATEGORY_LENGTH);
-		App::$Data['menu'] = $dbGetList->GetRows();
+		App::$data['menu'] = $dbGetList->GetRows();
 		App::View($this->model);
 	}
 	public function Modify(){
 		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
 		$dbGetList->AddWhere('LENGTH(category) = '._CATEGORY_LENGTH);
-		App::$Data['menu'] = $dbGetList->GetRows();
+		App::$data['menu'] = $dbGetList->GetRows();
 
 		$res = $this->model->DBGet($_GET['bid']);
 		$dbGet = new \BH_DB_GetList(TABLE_MENU);
 		$dbGet->AddWhere('type=\'content\'');
 		$dbGet->AddWhere('bid = %s', $this->model->GetValue('bid'));
-		App::$Data['selectedMenu'] = $dbGet->GetRows();
+		App::$data['selectedMenu'] = $dbGet->GetRows();
 
 		if(!$res->result){
 			URLReplace('-1', $res->message);
 		}
-		App::$Html = 'Write';
+		App::$html = 'Write';
 		App::View($this->model);
 	}
 	public function PostWrite(){
@@ -146,8 +146,8 @@ class ContentManager{
 
 	public function GetSubMenu(){
 		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
-		$dbGetList->AddWhere('LENGTH(category) = %d', strlen(App::$ID) + _CATEGORY_LENGTH);
-		$dbGetList->AddWhere('LEFT(category, %d) = %s', strlen(App::$ID), App::$ID);
+		$dbGetList->AddWhere('LENGTH(category) = %d', strlen(App::$id) + _CATEGORY_LENGTH);
+		$dbGetList->AddWhere('LEFT(category, %d) = %s', strlen(App::$id), App::$id);
 		JSON(true, '', $dbGetList->GetRows());
 	}
 

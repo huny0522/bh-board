@@ -11,7 +11,7 @@ use \BH_Application as App;
 	<h3>댓글 <span>(<?p. $Ctrl->boardModel->GetValue('reply_cnt') ?>)</span></h3>
 	<div id="replyWrite" class="replyWrite">
 		<form id="replyWriteForm" name="replyWriteForm" method="post" action="<?a. 'Write' ?>" autocomplete="off" class="reply_form">
-			<input type="hidden" name="article_seq" value="<?p. App::$Data['article_seq'] ?>" id="rep_article_seq" />
+			<input type="hidden" name="article_seq" value="<?p. App::$data['article_seq'] ?>" id="rep_article_seq" />
 
 			<?php if(_MEMBERIS !== true){ ?>
 				<fieldset class="user">
@@ -81,7 +81,7 @@ use \BH_Application as App;
 							if(in_array($ext, array('jpeg', 'jpg', 'gif', 'png'))){
 								?>
 								<div class="repAttach repAttachImg">
-									<span><a href="<?p. _URL . '/Board/' . App::$TID . '/RepAttachDownload/' . toBase($row['seq']) ?>" alt=""><img src="<?p. ResizeImage($fp, 300) ?>" alt=""></a></span>
+									<span><a href="<?p. _URL . '/Board/' . App::$tid . '/RepAttachDownload/' . toBase($row['seq']) ?>" alt=""><img src="<?p. ResizeImage($fp, 300) ?>" alt=""></a></span>
 								</div>
 								<?php
 							}

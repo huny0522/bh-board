@@ -7,7 +7,7 @@ use \BH_Application as App;
 */
 ?>
 
-<form name="BannerWriteForm" id="BannerWriteForm" method="post" action="<?a. App::$Action ?><?v. '/'.App::$ID ?><?fq. '' ?>" enctype="multipart/form-data">
+<form name="BannerWriteForm" id="BannerWriteForm" method="post" action="<?a. App::$action ?><?v. '/'.App::$id ?><?fq. '' ?>" enctype="multipart/form-data">
 
 	<table class="write">
 		<tr>
@@ -15,7 +15,7 @@ use \BH_Application as App;
 			<td>
 				<select id="category_choice">
 					<option value="">선택</option>
-					<?p. SelectOption(App::$Data['category'], $Model->GetValue('category')) ?>
+					<?p. SelectOption(App::$data['category'], $Model->GetValue('category')) ?>
 					<option value="x">추가</option>
 				</select>
 				<span class="hidden" id="category_real"><input type="text" name="category" value="<?mv('category') ?>" id="category"></span>
@@ -108,7 +108,7 @@ use \BH_Application as App;
 	</table>
 
 	<div class="bottomBtn">
-		<button type="submit" class="bBtn"><?php echo App::$Action == 'Modify' ? '수정' : '등록'; ?></button>
+		<button type="submit" class="bBtn"><?php echo App::$action == 'Modify' ? '수정' : '등록'; ?></button>
 		<button type="reset" class="bBtn">취소</button>
 		<a href="#" id="deleteArticle" data-seq="<?v. $_GET['seq'] ?>" class="bBtn">삭제</a>
 		<a href="#" class="backbtn bBtn">뒤로</a>
@@ -122,7 +122,7 @@ use \BH_Application as App;
 <script>
 	<?p. CM::TinyMCEScript() ?>
 	$(document).ready(function(){
-		typeView('<?p. $Model->data['type']->txt() ?>');
+		typeView('<?p. $Model->data['type']->Txt() ?>');
 	});
 
 	var contentsViewIs = false;
@@ -165,10 +165,10 @@ use \BH_Application as App;
 	});
 </script>
 
-<?php if(App::$Action == 'Modify'){ ?>
+<?php if(App::$action == 'Modify'){ ?>
 <div id="deleteForm" class="hidden modalConfirm">
 	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete' ?><?fq. '' ?>">
-		<input type="hidden" name="seq" value="<?v. App::$ID ?>">
+		<input type="hidden" name="seq" value="<?v. App::$id ?>">
 		<p>정말 삭제하시겠습니까?</p>
 		<div class="sPopBtns">
 			<button type="submit" class="mBtn">삭제하기</button>

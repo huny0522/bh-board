@@ -33,8 +33,8 @@ class Upload{
 
 			$temp = explode('.',$name);
 			$filename_ext = strtolower(array_pop($temp));
-			if(!in_array($filename_ext, App::$SettingData['POSSIBLE_EXT']) || in_array($filename_ext, App::$SettingData['noext'])) JSON(false, _MSG_IMPOSSIBLE_FILE);
-			if(($type == 'image' && !in_array($filename_ext, App::$SettingData['IMAGE_EXT'])) || ($type == '' && !in_array($filename_ext, App::$SettingData['POSSIBLE_EXT']))) JSON(false, _MSG_IMPOSSIBLE_FILE);
+			if(!in_array($filename_ext, App::$settingData['POSSIBLE_EXT']) || in_array($filename_ext, App::$settingData['noext'])) JSON(false, _MSG_IMPOSSIBLE_FILE);
+			if(($type == 'image' && !in_array($filename_ext, App::$settingData['IMAGE_EXT'])) || ($type == '' && !in_array($filename_ext, App::$settingData['POSSIBLE_EXT']))) JSON(false, _MSG_IMPOSSIBLE_FILE);
 			$path = '/temp/';
 			$uploadDir = _UPLOAD_DIR.$path;
 			if(!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);

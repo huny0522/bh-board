@@ -12,14 +12,14 @@ App::JSAdd('board.js', 200);
 
 <?p. $Ctrl->_CategoryHtml() ?>
 
-<?php if(($Data->result && $Data->totalRecord) || sizeof(App::$Data['notice'])){ ?>
+<?php if(($Data->result && $Data->totalRecord) || sizeof(App::$data['notice'])){ ?>
 
 	<section class="boardList checkAllArea" id="bhBoardList">
 		<header>
 			<ul>
 				<?php if($Ctrl->managerIs){ ?><li class="check"><input type="checkbox" class="checkAll"></li><?php } ?>
 				<li class="num">번호</li>
-				<?php if(sizeof(App::$Data['category'])){ ?>
+				<?php if(sizeof(App::$data['category'])){ ?>
 					<li class="category">분류</li>
 				<?php } ?>
 				<li class="subject"><?mt('subject')?></li>
@@ -31,7 +31,7 @@ App::JSAdd('board.js', 200);
 		</header>
 		<div class="articles">
 			<?php
-			foreach(App::$Data['notice'] as $row){
+			foreach(App::$data['notice'] as $row){
 				$secretIcon = $row['secret'] == 'y' ? '<span class="secretDoc">[비밀글]</span> ' : '';
 				$newtIcon = $row['newArticleIs'] ? '<span class="newDoc">[새글]</span> ' : '';
 				$repIcon = $row['depth'] ? '<span class="answer">[답변글]</span> ' : '';
@@ -40,7 +40,7 @@ App::JSAdd('board.js', 200);
 					<ul>
 						<?php if($Ctrl->managerIs){ ?><li class="check"></li><?php } ?>
 						<li class="num">공지</li>
-						<?php if(sizeof(App::$Data['category'])){ ?>
+						<?php if(sizeof(App::$data['category'])){ ?>
 							<li class="category"><?v. $row['viewCategory'] ?></li>
 						<?php } ?>
 						<li class="subject">
@@ -65,7 +65,7 @@ App::JSAdd('board.js', 200);
 					<ul>
 						<?php if($Ctrl->managerIs){ ?><li class="check"><input type="checkbox" class="checkItem boardCheckBox" name="checkItem" value="<?p. $row['seq'] ?>"></li><?php } ?>
 						<li class="num"><?p. $Data->beginNum-- ?></li>
-						<?php if(sizeof(App::$Data['category'])){ ?>
+						<?php if(sizeof(App::$data['category'])){ ?>
 							<li class="category"><?v. $row['viewCategory'] ?></li>
 						<?php } ?>
 						<li class="subject">

@@ -10,9 +10,9 @@ use \BH_Application as App;
 			<h2>공지사항</h2>
 			<a href="<?p. _ADMINURL ?>/Board/board-notice" class="more">더보기<i></i></a>
 		</header>
-		<?php if(sizeof(App::$Data['notice'])){ ?>
+		<?php if(sizeof(App::$data['notice'])){ ?>
 			<ul class="articles">
-				<?php foreach(App::$Data['notice'] as $row){ ?>
+				<?php foreach(App::$data['notice'] as $row){ ?>
 					<li>
 						<a href="<?p. _ADMINURL ?>/Board/board-notice/View/<?p. toBase($row['seq']) ?>">
 							<b class="title"><?vstag. $row['subject'] ?></b>
@@ -31,9 +31,9 @@ use \BH_Application as App;
 			<h2>자유게시판</h2>
 			<a href="<?p. _ADMINURL ?>/Board/board-free_board" class="more">더보기<i></i></a>
 		</header>
-		<?php if(sizeof(App::$Data['freeBoard'])){ ?>
+		<?php if(sizeof(App::$data['freeBoard'])){ ?>
 			<ul class="articles">
-				<?php foreach(App::$Data['freeBoard'] as $row){ ?>
+				<?php foreach(App::$data['freeBoard'] as $row){ ?>
 					<li>
 						<a href="<?p. _ADMINURL ?>/Board/board-free_board/View/<?p. toBase($row['seq']) ?>">
 							<b class="title"><?vstag. $row['subject'] ?></b>
@@ -59,9 +59,9 @@ use \BH_Application as App;
 			<li class="regDate">등록일</li>
 			<li class="loginDate">로그인날짜</li>
 		</ul>
-		<?php if(sizeof(App::$Data['user'])){ ?>
+		<?php if(sizeof(App::$data['user'])){ ?>
 			<ul class="articles">
-				<?php foreach(App::$Data['user'] as $row){ ?>
+				<?php foreach(App::$data['user'] as $row){ ?>
 					<li>
 						<a href="<?p. _ADMINURL ?>/Member/View?muid=<?p. $row['muid'] ?>">
 							<b class="name"><?v. $row['mname'] ? $row['mname'] : $row['nickname'] ?>(<?v. $row['mid'] ?>)</b>
@@ -88,9 +88,9 @@ use \BH_Application as App;
 			<li class="regDate">등록일</li>
 			<li class="loginDate">로그인날짜</li>
 		</ul>
-		<?php if(sizeof(App::$Data['loginUser'])){ ?>
+		<?php if(sizeof(App::$data['loginUser'])){ ?>
 			<ul class="articles">
-				<?php foreach(App::$Data['loginUser'] as $row){ ?>
+				<?php foreach(App::$data['loginUser'] as $row){ ?>
 					<li>
 						<a href="<?p. _ADMINURL ?>/Member/View?muid=<?p. $row['muid'] ?>">
 							<b class="name"><?v. $row['mname'] ? $row['mname'] : $row['nickname'] ?>(<?v. $row['mid'] ?>)</b>

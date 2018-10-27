@@ -15,11 +15,11 @@ class Login{
 
 	public function __construct(){
 		$this->model = App::InitModel('Member');
-		$this->model->data['mid']->Required = true;
+		$this->model->data['mid']->required = true;
 	}
 
 	public function __init(){
-		App::$Layout = '_Empty';
+		App::$layout = '_Empty';
 	}
 
 	public function Index(){

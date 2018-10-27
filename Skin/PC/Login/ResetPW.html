@@ -8,12 +8,12 @@ use \BH_Application as App;
  * @var $Ctrl
  * @var $Data
  */
-App::$Title = '비밀번호 변경';
-$Model->_pw_reset_code->Value = Get('code');
+App::$title = '비밀번호 변경';
+$Model->_pw_reset_code->value = Get('code');
 ?>
 <div id="contents" class="registerForm">
-	<h2><?p. App::$Title ?></h2>
-	<form id="resetPWForm" name="resetPWForm" action="<?a. App::$Action ?>" method="post">
+	<h2><?p. App::$title ?></h2>
+	<form id="resetPWForm" name="resetPWForm" action="<?a. App::$action ?>" method="post">
 		<table class="write">
 			<tr>
 				<th>사용자 아이디</th>

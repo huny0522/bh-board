@@ -23,27 +23,27 @@ class BoardManager
 
 		$dbGetList = new \BH_DB_GetList($this->model->table);
 		$dbGetList->SetKey('DISTINCT group_name');
-		App::$Data['group_name'] = array();
+		App::$data['group_name'] = array();
 
-		while($row = $dbGetList->Get()) App::$Data['group_name'][$row['group_name']] = $row['group_name'];
+		while($row = $dbGetList->Get()) App::$data['group_name'][$row['group_name']] = $row['group_name'];
 	}
 
 	public function __init(){
-		App::$Data['NowMenu'] = '002001';
-		if(App::$SettingData['GetUrl'][2] == 'Board' || !EmptyGet('gn')) App::$Data['NowMenu'] = '002';
+		App::$data['NowMenu'] = '002001';
+		if(App::$settingData['GetUrl'][2] == 'Board' || !EmptyGet('gn')) App::$data['NowMenu'] = '002';
 		CM::AdminAuth();
 
 		$AdminAuth = explode(',', CM::GetMember('admin_auth'));
-		App::$Data['menuAuth'] = (in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL);
+		App::$data['menuAuth'] = (in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL);
 
 		App::SetFollowQuery(array('where', 'keyword','page', 'gn'));
-		App::$Layout = '_Admin';
+		App::$layout = '_Admin';
 
 		$dbGetList = new \BH_DB_GetList($this->model->table);
 		$dbGetList->SetKey('DISTINCT bid');
-		App::$Data['bids'] = array();
+		App::$data['bids'] = array();
 
-		while($row = $dbGetList->Get()) App::$Data['bids'][$row['bid']] = $row['bid'];
+		while($row = $dbGetList->Get()) App::$data['bids'][$row['bid']] = $row['bid'];
 	}
 
 	public function Index(){
@@ -68,25 +68,25 @@ class BoardManager
 	public function Write(){
 		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
 		$dbGetList->AddWhere('LENGTH(category) = '._CATEGORY_LENGTH);
-		App::$Data['menu'] = $dbGetList->GetRows();
+		App::$data['menu'] = $dbGetList->GetRows();
 
-		App::$Data['subCategoryData'] = array();
+		App::$data['subCategoryData'] = array();
 
 		App::View('Write', $this->model);
 	}
 
 	public function CategoryChange(){
-		$res = $this->model->DBGet(App::$ID, App::$ID2);
+		$res = $this->model->DBGet(App::$id, App::$id2);
 
 		if(!$res->result){
 			URLReplace('-1', $res->message);
 		}
 
-		App::$Data['category'] = explode(',', $this->model->_category->txt());
+		App::$data['category'] = explode(',', $this->model->_category->Txt());
 
-		if(!strlen($this->model->_category->txt()) || !sizeof(App::$Data['category'])) URLRedirect(-1, '분류 설정이 되어있지 않습니다.');
+		if(!strlen($this->model->_category->Txt()) || !sizeof(App::$data['category'])) URLRedirect(-1, '분류 설정이 되어있지 않습니다.');
 
-		App::$Data['subCategoryData'] = $this->model->GetSubCategory();
+		App::$data['subCategoryData'] = $this->model->GetSubCategory();
 
 		App::View($this->model);
 	}
@@ -96,7 +96,7 @@ class BoardManager
 	}
 
 	public function Modify(){
-		$res = $this->model->DBGet(App::$ID, App::$ID2);
+		$res = $this->model->DBGet(App::$id, App::$id2);
 
 		if(!$res->result){
 			URLReplace('-1', $res->message);
@@ -104,15 +104,15 @@ class BoardManager
 
 		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
 		$dbGetList->AddWhere('LENGTH(category) = '._CATEGORY_LENGTH);
-		App::$Data['menu'] = $dbGetList->GetRows();
+		App::$data['menu'] = $dbGetList->GetRows();
 
 		$dbGet = new \BH_DB_GetList(TABLE_MENU);
 		$dbGet->AddWhere('type=\'board\'');
 		$dbGet->AddWhere('bid = %s', $this->model->GetValue('bid'));
 		$dbGet->AddWhere('subid = %s', $this->model->GetValue('subid'));
-		App::$Data['selectedMenu'] = $dbGet->GetRows();
+		App::$data['selectedMenu'] = $dbGet->GetRows();
 
-		App::$Data['subCategoryData'] = $this->model->GetSubCategory();
+		App::$data['subCategoryData'] = $this->model->GetSubCategory();
 
 		App::View('Write', $this->model);
 	}
@@ -198,7 +198,7 @@ class BoardManager
 
 	public function PostDelete(){
 		if(strlen(Post('bid'))){
-			if(isset(App::$SettingData['FixedBoardId']) && is_array(App::$SettingData['FixedBoardId']) && in_array(Post('bid'), App::$SettingData['FixedBoardId'])) URLRedirect('-1', '해당 게시판은 삭제가 불가능합니다.');
+			if(isset(App::$settingData['FixedBoardId']) && is_array(App::$settingData['FixedBoardId']) && in_array(Post('bid'), App::$settingData['FixedBoardId'])) URLRedirect('-1', '해당 게시판은 삭제가 불가능합니다.');
 
 			$res = $this->model->DBDelete(Post('bid'), Post('subid'));
 			$bm = DB::GetQryObj(TABLE_BOARD_MNG)
@@ -229,15 +229,15 @@ class BoardManager
 
 	public function GetSubMenu(){
 		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
-		$dbGetList->AddWhere('LENGTH(category) = %d', (strlen(App::$ID) + _CATEGORY_LENGTH));
-		$dbGetList->AddWhere('LEFT(category, %d) = %s', strlen(App::$ID), App::$ID);
+		$dbGetList->AddWhere('LENGTH(category) = %d', (strlen(App::$id) + _CATEGORY_LENGTH));
+		$dbGetList->AddWhere('LEFT(category, %d) = %s', strlen(App::$id), App::$id);
 		JSON(true, '', $dbGetList->GetRows());
 	}
 
 	public function _ErrorView($error, $page = null){
-		App::$Data['error'] = $error;
+		App::$data['error'] = $error;
 
-		App::$Data['subCategoryData'] = $this->model->GetSubCategory();
+		App::$data['subCategoryData'] = $this->model->GetSubCategory();
 		App::View($page, $this->model);
 		exit;
 	}

@@ -21,8 +21,8 @@ class Reply{
 	public $managerIs = false;
 	public $bid = '';
 	public $subid = '';
-	protected $MoreListIs = false;
-	protected $Path = '';
+	protected $moreListIs = false;
+	protected $path = '';
 	public $uploadUrl = '';
 
 	protected function _R_PostModifyUpdateBefore(){}
@@ -40,8 +40,8 @@ class Reply{
 		$this->boardModel = new \BoardModel();
 		$this->boardManger = new \BoardManagerModel();
 
-		$this->bid = App::$TID;
-		$this->subid = App::$SUB_TID;
+		$this->bid = App::$tid;
+		$this->subid = App::$sub_tid;
 
 		$this->uploadUrl = '/reply/' .$this->bid.(strlen($this->subid) ? '-' . $this->subid  : '').'/' . date('ym') . '/';
 		$this->model->uploadDir = $this->uploadUrl;
@@ -49,15 +49,15 @@ class Reply{
 
 	public function __init(){
 		if(_POSTIS !== true) exit;
-		if(!in_array(App::$Action, array('JSONAction', 'JSONCancelAction'))){
-			App::$Data['article_seq'] = SetDBInt((string)$_POST['article_seq']);
+		if(!in_array(App::$action, array('JSONAction', 'JSONCancelAction'))){
+			App::$data['article_seq'] = SetDBInt((string)$_POST['article_seq']);
 			$this->boardManger->DBGet($this->bid, $this->subid);
 			$this->_ReplySetting();
 		}
 	}
 
 	protected function _ReplySetting(){
-		App::$Layout = null;
+		App::$layout = null;
 		if(!isset($this->bid) || $this->bid == '') exit;
 
 		$mid = CM::GetMember('mid');
@@ -66,31 +66,31 @@ class Reply{
 			$this->managerIs = true;
 		}
 
-		$action = App::$Action;
+		$action = App::$action;
 		if($action == 'Answer' || $action == 'Modify') $action = 'Write';
 		if($action == '_DirectView') $action = 'View';
-		$this->Path = '/Reply/'.App::$NativeSkinDir.'/'.$this->boardManger->GetValue('reply_skin').'/';
-		if(file_exists(_SKINDIR.$this->Path.$action.'.html')) App::$Html = $this->Path.$action.'.html';
+		$this->path = '/Reply/'.App::$nativeSkinDir.'/'.$this->boardManger->GetValue('reply_skin').'/';
+		if(file_exists(_SKINDIR.$this->path.$action.'.html')) App::$html = $this->path.$action.'.html';
 		else{
 
-			$this->Path = '/Reply/'.App::$NativeSkinDir.'/';
-			if(file_exists(_SKINDIR.$this->Path.$action.'.html')) App::$Html = $this->Path.$action.'.html';
+			$this->path = '/Reply/'.App::$nativeSkinDir.'/';
+			if(file_exists(_SKINDIR.$this->path.$action.'.html')) App::$html = $this->path.$action.'.html';
 			else{
-				$this->Path = '/Reply/'.$this->boardManger->GetValue('reply_skin').'/';
-				if(file_exists(_SKINDIR.$this->Path.$action.'.html')) App::$Html = $this->Path.$action.'.html';
+				$this->path = '/Reply/'.$this->boardManger->GetValue('reply_skin').'/';
+				if(file_exists(_SKINDIR.$this->path.$action.'.html')) App::$html = $this->path.$action.'.html';
 				else{
-					$this->Path = '/Reply/';
-					App::$Html = '/Reply/' . $action.'.html';
+					$this->path = '/Reply/';
+					App::$html = '/Reply/' . $action.'.html';
 				}
 			}
 
 		}
 
-		if(file_exists(_SKINDIR.$this->Path.'MoreList.html')) $this->MoreListIs = true;
+		if(file_exists(_SKINDIR.$this->path.'MoreList.html')) $this->moreListIs = true;
 	}
 
 	public function PostIndex(){
-		if(!$this->MoreListIs) $this->PostGetList();
+		if(!$this->moreListIs) $this->PostGetList();
 		else JSON(true, '', App::GetView($this->model));
 	}
 
@@ -99,7 +99,7 @@ class Reply{
 
 		if(isset($this->boardManger) && $this->boardManger->GetValue('use_reply') == 'n') return;
 
-		$this->_GetBoardData(App::$Data['article_seq']);
+		$this->_GetBoardData(App::$data['article_seq']);
 		$myArticleIs = $this->_MyArticleCheck();
 
 		// 리스트를 불러온다.
@@ -107,7 +107,7 @@ class Reply{
 			->SetSort('sort1, sort2')
 			->SetPageUrl('#')
 			->SetPage(isset($_POST['page']) ? $_POST['page'] : 1)
-			->AddWhere('article_seq='.App::$Data['article_seq'])
+			->AddWhere('article_seq='.App::$data['article_seq'])
 			->SetArticleCount(isset($this->boardManger) ? $this->boardManger->GetValue('reply_count') : 20);
 		$this->_R_CommonQry($dbList);
 		$this->_R_GetListQuery($dbList);
@@ -156,13 +156,13 @@ class Reply{
 
 		if(isset($this->boardManger) && $this->boardManger->GetValue('use_reply') == 'n') return;
 
-		$this->_GetBoardData(App::$Data['article_seq']);
+		$this->_GetBoardData(App::$data['article_seq']);
 		$myArticleIs = $this->_MyArticleCheck();
 
 		// 리스트를 불러온다.
 		$dbList = DB::GetListQryObj($this->model->table)
 			->SetSort('sort1, sort2')
-			->AddWhere('article_seq= %d', App::$Data['article_seq'])
+			->AddWhere('article_seq= %d', App::$data['article_seq'])
 			->SetLimit(isset($this->boardManger) ? $this->boardManger->GetValue('reply_count') : 20);
 		$this->_R_CommonQry($dbList);
 		$this->_R_MoreListQuery($dbList);
@@ -174,7 +174,7 @@ class Reply{
 		else{
 			if(isset($_POST['lastSeq']) && strlen($_POST['lastSeq'])){
 				$qry = DB::GetQryObj($this->model->table)
-					->AddWhere('article_seq = %d', App::$Data['article_seq'])
+					->AddWhere('article_seq = %d', App::$data['article_seq'])
 					->AddWhere('seq = %d', $_POST['lastSeq'])
 					->SetKey('sort1, sort2');
 				$this->_R_CommonQry($qry);
@@ -227,10 +227,10 @@ class Reply{
 		if(!isset($_POST['article_seq']) || !strlen($_POST['article_seq'])) JSON(false, _MSG_WRONG_CONNECTED);
 		if(!$res) JSON(false, _MSG_NO_AUTH);
 
-		$this->model->Need = array('comment', 'article_seq');
+		$this->model->need = array('comment', 'article_seq');
 		if(_MEMBERIS !== true){
-			$this->model->Need = 'mname';
-			$this->model->Need = 'pwd';
+			$this->model->need = 'mname';
+			$this->model->need = 'pwd';
 		}
 
 		$res = $this->model->SetPostValuesWithFile();
@@ -256,7 +256,7 @@ class Reply{
 
 		// 파일 업로드
 		if(isset($_FILES['file'])){
-			$fres_em = \_ModelFunc::FileUpload($_FILES['file'], App::$SettingData['IMAGE_EXT'], $this->uploadUrl);
+			$fres_em = \_ModelFunc::FileUpload($_FILES['file'], App::$settingData['IMAGE_EXT'], $this->uploadUrl);
 
 			if(is_string($fres_em)) JSON(false, $fres_em);
 			else if(is_array($fres_em)){
@@ -281,14 +281,14 @@ class Reply{
 		if($answerIs){
 			$qry = DB::GetQryObj($this->model->table)
 				->SetKey('mname, depth, muid, sort1, sort2')
-				->AddWhere('article_seq = %d', App::$Data['article_seq'])
+				->AddWhere('article_seq = %d', App::$data['article_seq'])
 				->AddWhere('seq = %d', $target);
 			$this->_R_CommonQry($qry);
 			$row = $qry->Get();
 
 			$qry = DB::UpdateQryObj($this->model->table)
 				->SetData('sort2', 'sort2 + 1')
-				->AddWhere('article_seq = %d', App::$Data['article_seq'])
+				->AddWhere('article_seq = %d', App::$data['article_seq'])
 				->AddWhere('sort1 = %d', $row['sort1'])
 				->AddWhere('sort2 > %d', $row['sort2'])
 				->SetSort('sort2 DESC');
@@ -305,7 +305,7 @@ class Reply{
 			$this->model->SetValue('depth', $row['depth'] + 1);
 		}else{
 			$this->model->SetValue('first_member_is', _MEMBERIS === true ? 'y' : 'n');
-			$this->model->SetQueryValue('sort1', '(SELECT IF(COUNT(s.sort1) = 0, 0, MIN(s.sort1))-1 FROM '.$this->model->table.' as s WHERE s.article_seq='.App::$Data['article_seq'].')');
+			$this->model->SetQueryValue('sort1', '(SELECT IF(COUNT(s.sort1) = 0, 0, MIN(s.sort1))-1 FROM '.$this->model->table.' as s WHERE s.article_seq='.App::$data['article_seq'].')');
 		}
 
 		$this->_R_PostWriteInsertBefore();
@@ -329,7 +329,7 @@ class Reply{
 	}
 
 	public function PostViewSecret(){
-		$this->_GetData(App::$Data['article_seq'], Post('seq'));
+		$this->_GetData(App::$data['article_seq'], Post('seq'));
 
 		if(!_password_verify($_POST['pwd'], $this->model->GetValue('pwd'))){
 			$same = false;
@@ -352,12 +352,12 @@ class Reply{
 		$res = $this->GetAuth();
 		if(!$res) JSON(false, _MSG_NO_AUTH);
 
-		$this->model->Need = array('comment');
+		$this->model->need = array('comment');
 		if(_MEMBERIS !== true){
-			$this->model->Need = 'mnane';
+			$this->model->need = 'mnane';
 		}
 
-		$this->_GetData(App::$Data['article_seq'], Post('seq'));
+		$this->_GetData(App::$data['article_seq'], Post('seq'));
 
 		$res = $this->model->SetPostValuesWithFile();
 		if(!$res->result) JSON(false, $res->message);
@@ -379,7 +379,7 @@ class Reply{
 
 		// 파일 업로드
 		if(isset($_FILES['file'])){
-			$fres_em = \_ModelFunc::FileUpload($_FILES['file'], App::$SettingData['IMAGE_EXT'], $this->uploadUrl);
+			$fres_em = \_ModelFunc::FileUpload($_FILES['file'], App::$settingData['IMAGE_EXT'], $this->uploadUrl);
 
 			if(is_string($fres_em)) JSON(false, $fres_em);
 			else if(is_array($fres_em)){
@@ -412,7 +412,7 @@ class Reply{
 		$seq = SetDBInt(Post('seq'));
 		$article_seq = SetDBInt($_POST['article_seq']);
 
-		$res = $this->_GetData(App::$Data['article_seq'], Post('seq'));
+		$res = $this->_GetData(App::$data['article_seq'], Post('seq'));
 		if(!$res->result) JSON(false, $res->message ? $res->message : 'ERROR#201');
 
 		// 회원 글 체크
@@ -513,9 +513,9 @@ class Reply{
 	}
 
 	protected function GetArticleAction(){
-		if(!strlen(App::$ID)) JSON(false,  _MSG_WRONG_CONNECTED);
+		if(!strlen(App::$id)) JSON(false,  _MSG_WRONG_CONNECTED);
 
-		$seq = ToInt(App::$ID);
+		$seq = ToInt(App::$id);
 		return ArticleAction::GetInstance($this->bid)
 			->SetReplyIs(true)
 			->SetArticleSeq($seq)

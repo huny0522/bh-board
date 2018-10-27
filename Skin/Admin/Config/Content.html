@@ -8,19 +8,19 @@ use \BH_Application as App;
 <h2><?p. AdminTitleSet() ?></h2>
 <div class="topTab">
 	<ul>
-		<?php foreach(App::$Data['menu'] as $k => $v){ ?>
-			<li<?php if($k == App::$ID) echo ' class="active"'; ?>><a href="<?a. App::$Action.'/'. $k ?>"><?p. $v ?></a></li>
+		<?php foreach(App::$data['menu'] as $k => $v){ ?>
+			<li<?php if($k == App::$id) echo ' class="active"'; ?>><a href="<?a. App::$action.'/'. $k ?>"><?p. $v ?></a></li>
 		<?php } ?>
 	</ul>
 </div>
 
-<form name="ConfigForm" id="ConfigForm" method="post" action="<?a. 'Write' ?>?redirect_url=<?a. App::$Action.'/'.App::$ID ?>">
-	<input type="hidden" name="Code" value="<?v. App::$Data['class']->GetCode() ?>">
+<form name="ConfigForm" id="ConfigForm" method="post" action="<?a. 'Write' ?>?redirect_url=<?a. App::$action.'/'.App::$id ?>">
+	<input type="hidden" name="Code" value="<?v. App::$data['class']->GetCode() ?>">
 	<fieldset>
-		<h3><?p. App::$Data['class']->text->title ?></h3>
+		<h3><?p. App::$data['class']->text->title ?></h3>
 		<div class="writeField">
 			<article>
-				<textarea name="text" id="text"><?v. CustomText(App::$Data['class']->text->value) ?></textarea>
+				<textarea name="text" id="text"><?v. CustomText(App::$data['class']->text->value) ?></textarea>
 			</article>
 		</div>
 	</fieldset>

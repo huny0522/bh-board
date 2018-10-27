@@ -14,7 +14,7 @@ class JQUpload
 {
 	public function PostIndex(){
 		if(strlen(Get('ext'))) $possbieExt = explode(',', Get('ext'));
-		else $possbieExt = App::$SettingData['POSSIBLE_EXT'];
+		else $possbieExt = App::$settingData['POSSIBLE_EXT'];
 
 		$option = array(
 			'upload_dir' => _UPLOAD_DIR.'/temp/',

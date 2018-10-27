@@ -2,7 +2,7 @@
 use \BH_Common as CM;
 use \BH_Application as App;
 
-App::$Layout = '_AdminBoard';
+App::$layout = '_AdminBoard';
 
 /**
  * @var $Model \BoardModel
@@ -17,8 +17,8 @@ App::JSAdd('reply.js', 200);
 	<header>
 		<div>
 			<?php
-			if($Model->GetValue('sub_category')) echo '<b>[' . $Model->_sub_category->safe() . ']</b>';
-			else if($Model->GetValue('category')) echo '<b>[' . $Model->_category->safe() . ']</b>';
+			if($Model->GetValue('sub_category')) echo '<b>[' . $Model->_sub_category->Safe() . ']</b>';
+			else if($Model->GetValue('category')) echo '<b>[' . $Model->_category->Safe() . ']</b>';
 			?>
 			<?mv('subject') ?>
 		</div>
@@ -33,7 +33,7 @@ App::JSAdd('reply.js', 200);
 	<?php if($Model->GetValue('file1')){ ?>
 		<dl class="links files">
 			<dt>FILE : </dt>
-			<dd><a href="<?a . 'Download/' . App::$ID ?>"><?p. $Model->GetFileName('file1') ?></a></dd>
+			<dd><a href="<?a . 'Download/' . App::$id ?>"><?p. $Model->GetFileName('file1') ?></a></dd>
 		</dl>
 	<?php } ?>
 
@@ -54,7 +54,7 @@ App::JSAdd('reply.js', 200);
 	<div class="contents">
 		<?php if($Model->GetValue('youtube')){ ?>
 			<div class="youtube">
-				<?p. CM::Youtube($Model->_youtube->Value) ?>
+				<?p. CM::Youtube($Model->_youtube->value) ?>
 			</div>
 		<?php } ?>
 
@@ -73,32 +73,32 @@ App::JSAdd('reply.js', 200);
 
 	<div class="articleAction">
 		<ul>
-			<li><?p. App::$Data['recommendButton'] ?></li>
-			<li><?p. App::$Data['opposeButton'] ?></li>
-			<li><?p. App::$Data['scrapButton'] ?></li>
-			<li><?p. App::$Data['reportButton'] ?></li>
+			<li><?p. App::$data['recommendButton'] ?></li>
+			<li><?p. App::$data['opposeButton'] ?></li>
+			<li><?p. App::$data['scrapButton'] ?></li>
+			<li><?p. App::$data['reportButton'] ?></li>
 		</ul>
 	</div>
 
 	<div class="bottomBtn">
 		<?php if($Ctrl->GetAuth('Write') && (!strlen($Model->GetValue('muid')) || $Data['modifyAuthDirect'] || $Ctrl->managerIs)){ ?>
-			<a href="<?a. 'Modify/' ?><?v. App::$ID ?><?fq. '' ?>" class="mBtn btn2" <?php if(!$Data['modifyAuthDirect']){ ?>id="modifyBtn"<?php } ?>>수정</a>
+			<a href="<?a. 'Modify/' ?><?v. App::$id ?><?fq. '' ?>" class="mBtn btn2" <?php if(!$Data['modifyAuthDirect']){ ?>id="modifyBtn"<?php } ?>>수정</a>
 			<?php if($Model->GetValue('delis') != 'y'){ ?>
-				<a href="#" id="deleteArticle" data-seq="<?v. App::$ID ?>" class="mBtn btn2">삭제</a>
+				<a href="#" id="deleteArticle" data-seq="<?v. App::$id ?>" class="mBtn btn2">삭제</a>
 			<?php }else{ ?>
-				<a href="<?a. 'Undelete/'.App::$ID ?><?fq. '' ?>" id="undeleteArticle" class="mBtn btn2">복구</a>
-				<a href="#" id="removeArticle" data-seq="<?v. App::$ID ?>" class="mBtn btn2">완전삭제</a>
+				<a href="<?a. 'Undelete/'.App::$id ?><?fq. '' ?>" id="undeleteArticle" class="mBtn btn2">복구</a>
+				<a href="#" id="removeArticle" data-seq="<?v. App::$id ?>" class="mBtn btn2">완전삭제</a>
 			<?php } ?>
 		<?php } ?>
 		<?php if($Ctrl->GetAuth('Answer')){ ?>
-			<a href="<?a. 'Answer/' ?>?target=<?v. App::$ID ?><?fn. '' ?>" class="mBtn btn2" id="AnswerBtn">답변</a>
+			<a href="<?a. 'Answer/' ?>?target=<?v. App::$id ?><?fn. '' ?>" class="mBtn btn2" id="AnswerBtn">답변</a>
 		<?php } ?>
 		<a href="<?a. '' ?><?fq. '' ?>" class="mBtn btn2">리스트</a>
 	</div>
 </div>
 
 <div id="deleteForm" class="hidden boardPassword modalConfirm">
-	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete/' ?><?v. App::$ID ?><?fq. '' ?>">
+	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete/' ?><?v. App::$id ?><?fq. '' ?>">
 		<p>정말 삭제하시겠습니까?</p>
 		<?php if(!$Model->GetValue('muid')){ ?><input type="password" name="pwd" required="required"><?php } ?>
 		<div class="sPopBtns">
@@ -109,7 +109,7 @@ App::JSAdd('reply.js', 200);
 </div>
 
 <div id="removeForm" class="hidden boardPassword modalConfirm">
-	<form id="remForm" name="remForm" method="post" action="<?a. 'Remove/' ?><?v. App::$ID ?><?fq. '' ?>">
+	<form id="remForm" name="remForm" method="post" action="<?a. 'Remove/' ?><?v. App::$id ?><?fq. '' ?>">
 		<p>정말 완전히 삭제하시겠습니까?</p>
 		<?php if(!$Model->GetValue('muid')){ ?><input type="password" name="pwd" required="required"><?php } ?>
 		<div class="sPopBtns">
@@ -121,7 +121,7 @@ App::JSAdd('reply.js', 200);
 
 <?php if(!$Data['modifyAuthDirect']){ ?>
 	<div id="modifyForm" class="hidden boardPassword modalConfirm">
-		<form id="modForm" name="modForm" method="post" action="<?a. 'Modify/' ?><?v. App::$ID ?><?fq. '' ?>">
+		<form id="modForm" name="modForm" method="post" action="<?a. 'Modify/' ?><?v. App::$id ?><?fq. '' ?>">
 			<input type="hidden" name="mode" value="view">
 			<p>수정하시려면 비밀번호를 입력하여 주세요.</p>
 			<input type="password" name="pwd" required="required">
@@ -140,7 +140,7 @@ App::JSAdd('reply.js', 200);
 <?php
 if($Ctrl->boardManger->GetValue('use_reply') == 'y'){
 	$Controller = 'Reply/'.$Ctrl->bid . (strlen($Ctrl->subid) ? '-' . $Ctrl->subid  : '');
-	$ArticleSeq = to10(App::$ID);
+	$ArticleSeq = to10(App::$id);
 	?>
 	<div id="Reply">
 		<?inc. '/Reply/Form.html' ?>
@@ -155,4 +155,4 @@ if($Ctrl->boardManger->GetValue('use_reply') == 'y'){
 	</script>
 <?php } ?>
 
-<?php if(isset(App::$Data['List'])) echo App::$Data['List']; ?>
+<?php if(isset(App::$data['List'])) echo App::$data['List']; ?>

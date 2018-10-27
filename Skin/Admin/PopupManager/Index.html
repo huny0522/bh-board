@@ -17,14 +17,14 @@ use \BH_Application as App;
 			<span class="tt">접속장치</span>
 			<select name="kind">
 				<option value="">전체</option>
-				<?p. SelectOption($Model->_kind->EnumValues, Get('kind')) ?>
+				<?p. SelectOption($Model->_kind->enumValues, Get('kind')) ?>
 			</select>
 		</label>
 		<label>
 			<span class="tt">카테고리</span>
 			<select id="SearchLevel" name="category">
 				<option value="">선택</option>
-				<?p. SelectOption(App::$Data['category'], GetDBText(Get('category'))) ?>
+				<?p. SelectOption(App::$data['category'], GetDBText(Get('category'))) ?>
 			</select>
 		</label>
 		<label>

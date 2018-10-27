@@ -3,87 +3,81 @@
  * Bang Hun.
  * 16.07.10
  */
-define('QRY_GET', 1);
-define('QRY_LIST', 2);
-define('QRY_PAGE_LIST', 3);
-define('QRY_INSERT', 4);
-define('QRY_UPDATE', 5);
-define('QRY_DELETE', 6);
 
 class ModelType{
-	const Int = 1;
-	const String = 2;
-	const Float = 6;
-	const Datetime = 7;
-	const Date = 8;
-	const Enum = 9;
-	const Text = 10;
+	const INT = 1;
+	const STRING = 2;
+	const FLOAT = 6;
+	const DATETIME = 7;
+	const DATE = 8;
+	const ENUM = 9;
+	const TEXT = 10;
 }
 
 class HTMLType{
-	const InputText = 'text';
-	const InputNumber = 'number';
-	const InputPassword = 'password';
-	const InputRadio = 'radio';
-	const InputCheckbox = 'checkbox';
-	const InputEmail = 'email';
-	const InputTel = 'tel';
-	const InputFile = 'file';
-	const InputFileWithName = 'filewithname';
+	const TEXT = 'text';
+	const NUMBER = 'number';
+	const PASSWORD = 'password';
+	const RADIO = 'radio';
+	const CHECKBOX = 'checkbox';
+	const EMAIL = 'email';
+	const TEL = 'tel';
+	const FILE = 'file';
+	const FILE_WITH_NAME = 'filewithname';
 	/**
 	 * 아래 플러그인이 필요합니다.
 	 * composer require blueimp/jquery-file-upload
 	 */
-	const InputFileJQuery = 'jqueryfile';
-	const InputImageFile = 'imagefile';
-	const InputImageFileArray = 'imagefilearray';
-	const Select = 'select';
-	const Textarea = 'textarea';
-	const InputDate = 'date';
-	const InputDatePicker = 'datepicker';
-	const NumberFormat = 'numberformat';
-	const InputEng = 'engonly';
-	const InputEngNum = 'engnumonly';
-	const InputEngSpecial = 'engspecialonly';
+	const FILE_JQUERY = 'jqueryfile';
+	const FILE_IMAGE = 'imagefile';
+	const FILE_IMAGE_ARRAY = 'imagefilearray';
+	const SELECT = 'select';
+	const TEXTAREA = 'textarea';
+	const DATE = 'date';
+	const DATE_PICKER = 'datepicker';
+	const NUMBER_FORMAT = 'numberformat';
+	const TEXT_ENG_ONLY = 'engonly';
+	const TEXT_ENG_NUM = 'engnumonly';
+	const TEXT_ENG_SPECIAL = 'engspecialonly';
 }
 
 class BH_ModelData{
-	public $Type;
-	public $Required = false;
-	public $DisplayName;
-	public $ModelErrorMsg;
-	public $MinLength = false;
-	public $MaxLength = false;
-	public $MinValue = false;
-	public $MaxValue = false;
-	public $EnumValues;
-	public $Value;
-	public $DefaultValue;
-	public $HtmlType;
-	public $AutoDecrement = false;
-	public $ValueIsQuery = false;
-	public $BlankIsNull = false;
+	public $type;
+	public $required = false;
+	public $displayName;
+	public $modelErrorMsg;
+	public $minLength = false;
+	public $maxLength = false;
+	public $minValue = false;
+	public $maxValue = false;
+	public $enumValues;
+	public $value;
+	public $defaultValue;
+	public $htmlType;
+	public $autoDecrement = false;
+	public $valueIsQuery = false;
+	public $blankIsNull = false;
 	public $possibleExt;
-	public $KeyName = null;
+	public $keyName = null;
 	/**
 	 * @var array
 	 * @option string maxFileSize : InputFileJQuery 에서 파일 최대 용량
 	 * @option array possibleExt : InputFileJQuery 에서 허용 확장자
 	 */
-	public $AddOption = array();
+	public $addOption = array();
 
-	public $NeedIs = false;
-	public $IdFirst = 'MD_';
+	public $needIs = false;
+	public $idFirst = 'MD_';
 
 	/**
 	 * @var BH_Model
 	 */
 	public $parent = null;
 
-	public function __construct($Type = ModelType::String, $DisplayName = '', $HtmlType = HTMLType::InputText){
-		$this->Type = $Type;
-		$this->DisplayName = $DisplayName;
-		if($HtmlType) $this->HtmlType = $HtmlType;
+	public function __construct($type = ModelType::STRING, $displayName = '', $htmlType = HTMLType::TEXT){
+		$this->type = $type;
+		$this->displayName = $displayName;
+		if($htmlType) $this->htmlType = $htmlType;
 
 		$d_b = phpversion() < 5.6 ? debug_backtrace() : debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3);
 		if(isset($d_b[1]['object']) && get_parent_class($d_b[1]['object']) === 'BH_Model') $this->parent = &$d_b[1]['object'];
@@ -103,10 +97,10 @@ class BH_ModelData{
 	 *
 	 * @return string
 	 */
-	public function v(){
-		if(!isset($this->Value)) return '';
-		if($this->Type == ModelType::Enum) return $this->GetEnumValues();
-		return $this->Value;
+	public function Val(){
+		if(!isset($this->value)) return '';
+		if($this->type == ModelType::ENUM) return $this->GetEnumValues();
+		return $this->value;
 	}
 
 	/**
@@ -114,10 +108,10 @@ class BH_ModelData{
 	 *
 	 * @return string
 	 */
-	public function safe(){
-		if(!isset($this->Value)) return '';
-		if($this->Type == ModelType::Enum) return GetDBText($this->GetEnumValues());
-		return GetDBText($this->Value);
+	public function Safe(){
+		if(!isset($this->value)) return '';
+		if($this->type == ModelType::ENUM) return GetDBText($this->GetEnumValues());
+		return GetDBText($this->value);
 	}
 
 	/**
@@ -125,8 +119,8 @@ class BH_ModelData{
 	 *
 	 * @return string|null
 	 */
-	public function txt(){
-		return isset($this->Value) ? $this->Value : NULL;
+	public function Txt(){
+		return isset($this->value) ? $this->value : NULL;
 	}
 
 	/**
@@ -134,8 +128,8 @@ class BH_ModelData{
 	 *
 	 * @return string
 	 */
-	public function num(){
-		return isset($this->Value) ? number_format($this->Value) : 0;
+	public function Num(){
+		return isset($this->value) ? number_format($this->value) : 0;
 	}
 
 	/**
@@ -143,10 +137,10 @@ class BH_ModelData{
 	 *
 	 * @return string
 	 */
-	public function safeRaw(){
-		if(!isset($this->Value)) return '';
-		if($this->Type == ModelType::Enum) return GetDBRaw($this->GetEnumValues());
-		return GetDBRaw($this->Value);
+	public function SafeRaw(){
+		if(!isset($this->value)) return '';
+		if($this->type == ModelType::ENUM) return GetDBRaw($this->GetEnumValues());
+		return GetDBRaw($this->value);
 	}
 
 	/**
@@ -154,84 +148,84 @@ class BH_ModelData{
 	 *
 	 * @return string
 	 */
-	public function safeBr(){
-		if(!isset($this->Value)) return '';
-		if($this->Type == ModelType::Enum) return nl2br(GetDBText($this->GetEnumValues()));
-		return nl2br(GetDBText($this->Value));
+	public function SafeBr(){
+		if(!isset($this->value)) return '';
+		if($this->type == ModelType::ENUM) return nl2br(GetDBText($this->GetEnumValues()));
+		return nl2br(GetDBText($this->value));
 	}
 
 	public function GetEnumValues($val = false){
-		if($val === false) $val = $this->Value;
-		if($this->HtmlType === HTMLType::InputCheckbox){
+		if($val === false) $val = $this->value;
+		if($this->htmlType === HTMLType::CHECKBOX){
 			$e = explode(',', $val);
 			$t = array();
 			foreach($e as $v){
-				if(isset($this->EnumValues[$v])) $t[] = $this->EnumValues[$v];
+				if(isset($this->enumValues[$v])) $t[] = $this->enumValues[$v];
 			}
 			return implode(', ', $t);
 		}
-		else if(isset($this->EnumValues[$val])) return $this->EnumValues[$val];
+		else if(isset($this->enumValues[$val])) return $this->enumValues[$val];
 		else return '';
 	}
 
 	public function &SetValue($v){
-		$this->Value = trim($v);
-		$this->NeedIs = true;
+		$this->value = trim($v);
+		$this->needIs = true;
 		return $this;
 	}
 
 	public function &SetRequired($bool = true){
-		$this->Required = $bool;
+		$this->required = $bool;
 		return $this;
 	}
 
 	public function &SetMinLength($num){
-		$this->MinLength = $num;
+		$this->minLength = $num;
 		return $this;
 	}
 
 	public function &SetMaxLength($num){
-		$this->MaxLength = $num;
+		$this->maxLength = $num;
 		return $this;
 	}
 
 	public function &SetMinValue($num){
-		$this->MinValue = $num;
+		$this->minValue = $num;
 		return $this;
 	}
 
 	public function &SetMaxValue($num){
-		$this->MaxValue = $num;
+		$this->maxValue = $num;
 		return $this;
 	}
 
 	public function &SetEnumValues($array){
-		$this->EnumValues = $array;
+		$this->enumValues = $array;
 		return $this;
 	}
 
 	public function &SetDefaultValue($val){
-		$this->DefaultValue = $val;
+		$this->defaultValue = $val;
 		return $this;
 	}
 
 	public function &SetType($type){
-		$this->Type = $type;
+		$this->type = $type;
 		return $this;
 	}
 
 	public function &SetDisplayName($str){
-		$this->DisplayName = $str;
+		$this->displayName = $str;
 		return $this;
 	}
 
 	public function &SetModelErrorMsg($str){
-		$this->ModelErrorMsg = $str;
+		$this->modelErrorMsg = $str;
 		return $this;
 	}
 
 	public function &SetHtmlType($str){
-		$this->HtmlType = $str;
+		$this->htmlType = $str;
 		return $this;
 	}
 
@@ -241,18 +235,18 @@ class BH_ModelData{
 	}
 
 	public function &SetAutoDecrement($bool = true){
-		$this->AutoDecrement = $bool;
+		$this->autoDecrement = $bool;
 		return $this;
 	}
 
 	public function &SetValueIsQuery($bool = true){
-		$this->ValueIsQuery = $bool;
-		$this->NeedIs = true;
+		$this->valueIsQuery = $bool;
+		$this->needIs = true;
 		return $this;
 	}
 
 	public function &SetBlankIsNull($bool = true){
-		$this->BlankIsNull = $bool;
+		$this->blankIsNull = $bool;
 		return $this;
 	}
 
@@ -262,34 +256,34 @@ class BH_ModelData{
 	}
 
 	private function GetKeyName(){
-		if(is_null($this->KeyName) && !is_null($this->parent)){
+		if(is_null($this->keyName) && !is_null($this->parent)){
 			foreach($this->parent->data as $k => $d){
 				if($this === $d){
-					$this->KeyName = $k;
-					return $this->KeyName;
+					$this->keyName = $k;
+					return $this->keyName;
 				}
 			}
 		}
-		return $this->KeyName;
+		return $this->keyName;
 	}
 
 	public function &SetIdFirst($str){
-		$this->IdFirst = $str;
+		$this->idFirst = $str;
 		return $this;
 	}
 
-	public function HtmlPrintLabel($HtmlAttribute = array(), $callback = null){
-		return _ModelFunc::HTMLPrintLabel($this, $this->GetKeyName(), $HtmlAttribute, $callback, $this->IdFirst);
+	public function HtmlPrintLabel($htmlAttribute = array(), $callback = null){
+		return _ModelFunc::HTMLPrintLabel($this, $this->GetKeyName(), $htmlAttribute, $callback, $this->idFirst);
 	}
 
-	public function HTMLPrintInput($HtmlAttribute = array()){
-		return _ModelFunc::HTMLPrintInput($this->GetKeyName(), $this, $HtmlAttribute, $this->IdFirst);
+	public function HTMLPrintInput($htmlAttribute = array()){
+		return _ModelFunc::HTMLPrintInput($this->GetKeyName(), $this, $htmlAttribute, $this->idFirst);
 	}
 }
 
 /**
  * Class BH_Model
- * @property array $Need
+ * @property array $need
  */
 class BH_Model{
 	/**
@@ -297,14 +291,10 @@ class BH_Model{
 	 */
 	public $data = array();
 	public $table = '';
-	public $Key = array();
-	public $Except = array();
+	public $key = array();
+	public $except = array();
+	public $getKeys = array();
 	//public $Need = array();
-	/**
-	 * @var BH_DB_Get[]|BH_DB_GetListWithPage[]|BH_DB_GetList[]|BH_DB_Insert[]|BH_DB_Update[]|BH_DB_Delete[]
-	 */
-	public $qry = array('default' => null);
-	public $qryName = 'default';
 	public $uploadDir = '';
 	protected $connName = '';
 
@@ -340,7 +330,7 @@ class BH_Model{
 		if($name === 'Need'){
 			$res = array();
 			foreach($this->data as $k => $v){
-				if($v->NeedIs) $res[] = $k;
+				if($v->needIs) $res[] = $k;
 			}
 			return $res;
 		}
@@ -353,7 +343,7 @@ class BH_Model{
 	public function SetNeedData($str){
 		$args = is_array($str) ? $str : func_get_args();
 		for($i = 0, $i2 = sizeof($args); $i < $i2; $i++){
-			if(isset($this->data[$args[$i]])) $this->data[$args[$i]]->NeedIs = true;
+			if(isset($this->data[$args[$i]])) $this->data[$args[$i]]->needIs = true;
 		}
 	}
 
@@ -432,113 +422,12 @@ class BH_Model{
 	}
 
 	/**
-	 * 입력값에 해당하는 쿼리를 반환
-	 * @param string $name
-	 * @return BH_DB_Delete|BH_DB_Get|BH_DB_GetList|BH_DB_GetListWithPage|BH_DB_Insert|BH_DB_Update
-	 */
-	public function &SelectQryObj($name = null){
-		if(!is_null($name)) $this->qryName = $name;
-		if(!isset($this->qry[$this->qryName])) $this->qry[$this->qryName] = null;
-		return $this->qry[$this->qryName];
-	}
-
-	/**
-	 * 현재 쿼리를 반환
-	 * @return BH_DB_Delete|BH_DB_Get|BH_DB_GetList|BH_DB_GetListWithPage|BH_DB_Insert|BH_DB_Update
-	 */
-	public function &QryObj(){
-		return $this->qry[$this->qryName];
-	}
-
-	/**
-	 * 쿼리를 위한 공간을 비워둔다
-	 * @param string $name
-	 * @return $this
-	 */
-	public function &NewQryName($name){
-		$this->qryName = $name;
-		$this->qry[$name] = null;
-		return $this;
-	}
-
-	/**
-	 * Type에 해당하는 쿼리 생성
-	 * @param int $type
-	 * @param string $tableNaming
-	 * @return $this
-	 */
-	public function &SetQry($type, $tableNaming = ''){
-		_ModelFunc::SetQry($this, $type, $tableNaming);
-		return $this;
-	}
-
-	/**
-	 * 한개행쿼리 생성하고 반환
-	 * @param string $tableNaming
-	 * @return BH_DB_Get
-	 */
-	public function &GetSetQry($tableNaming = ''){
-		_ModelFunc::SetQry($this, QRY_GET, $tableNaming);
-		return $this->qry[$this->qryName];
-	}
-
-	/**
-	 * 리스트쿼리 생성하고 반환
-	 * @param string $tableNaming
-	 * @return BH_DB_GetList
-	 */
-	public function &GetSetListQry($tableNaming = ''){
-		_ModelFunc::SetQry($this, QRY_LIST, $tableNaming);
-		return $this->qry[$this->qryName];
-	}
-
-	/**
-	 * 리스트&페이지쿼리 생성하고 반환
-	 * @param string $tableNaming
-	 * @return BH_DB_GetListWithPage
-	 */
-	public function &GetSetPageListQry($tableNaming = ''){
-		_ModelFunc::SetQry($this, QRY_PAGE_LIST, $tableNaming);
-		return $this->qry[$this->qryName];
-	}
-
-	/**
-	 * 삽입쿼리 생성하고 반환
-	 * @param string $tableNaming
-	 * @return BH_DB_Insert
-	 */
-	public function &GetSetInsertQry($tableNaming = ''){
-		_ModelFunc::SetQry($this, QRY_INSERT, $tableNaming);
-		return $this->qry[$this->qryName];
-	}
-
-	/**
-	 * 업데이트쿼리 생성하고 반환
-	 * @param string $tableNaming
-	 * @return BH_DB_Update
-	 */
-	public function &GetSetUpdateQry($tableNaming = ''){
-		_ModelFunc::SetQry($this, QRY_UPDATE, $tableNaming);
-		return $this->qry[$this->qryName];
-	}
-
-	/**
-	 * 삭제쿼리 생성하고 반환
-	 * @param string $tableNaming
-	 * @return BH_DB_Delete
-	 */
-	public function &GetSetDeleteQry($tableNaming = ''){
-		_ModelFunc::SetQry($this, QRY_DELETE, $tableNaming);
-		return $this->qry[$this->qryName];
-	}
-
-	/**
 	 * 표시명 반환
 	 * @param string $key
 	 * @return null|string
 	 */
 	public function GetDisplayName($key){
-		return isset($this->data[$key]->DisplayName) ? $this->data[$key]->DisplayName : NULL;
+		return isset($this->data[$key]->displayName) ? $this->data[$key]->displayName : NULL;
 	}
 
 	/**
@@ -578,11 +467,13 @@ class BH_Model{
 	}
 
 	/**
-	 * 데이타를 등록
+	 * DB에서 가져온 데이터를 모델에 등록
 	 * @param array $Values
 	 */
 	public function SetDBValues($Values){
-		foreach($Values as $k=>$v) if(isset($this->data[$k])) $this->data[$k]->Value = $v;
+		foreach($this->data as $k => $v){
+			$this->data[$k]->value = isset($Values[$k]) ? $Values[$k] : null;
+		}
 	}
 
 	/**
@@ -592,25 +483,25 @@ class BH_Model{
 	 * @return null|string
 	 */
 	public function GetValue($key, $enumVal = false){
-		return isset($this->data[$key]->Value) ? ($enumVal && $this->data[$key]->Type == ModelType::Enum ? $this->data[$key]->GetEnumValues() : $this->data[$key]->Value) : NULL;
+		return isset($this->data[$key]->value) ? ($enumVal && $this->data[$key]->type == ModelType::ENUM ? $this->data[$key]->GetEnumValues() : $this->data[$key]->value) : NULL;
 	}
 
 	public function GetSafeValue($key, $enumVal = true){
-		if(!isset($this->data[$key]->Value)) return '';
-		if($enumVal && $this->data[$key]->Type == ModelType::Enum) return GetDBText($this->data[$key]->GetEnumValues());
-		return GetDBText($this->data[$key]->Value);
+		if(!isset($this->data[$key]->value)) return '';
+		if($enumVal && $this->data[$key]->type == ModelType::ENUM) return GetDBText($this->data[$key]->GetEnumValues());
+		return GetDBText($this->data[$key]->value);
 	}
 
 	public function GetSafeRawValue($key, $enumVal = true){
-		if(!isset($this->data[$key]->Value)) return '';
-		if($enumVal && $this->data[$key]->Type == ModelType::Enum) return GetDBRaw($this->data[$key]->GetEnumValues());
-		return GetDBRaw($this->data[$key]->Value);
+		if(!isset($this->data[$key]->value)) return '';
+		if($enumVal && $this->data[$key]->type == ModelType::ENUM) return GetDBRaw($this->data[$key]->GetEnumValues());
+		return GetDBRaw($this->data[$key]->value);
 	}
 
 	public function GetSafeBRValue($key, $enumVal = true){
-		if(!isset($this->data[$key]->Value)) return '';
-		if($enumVal && $this->data[$key]->Type == ModelType::Enum) return nl2br(GetDBText($this->data[$key]->GetEnumValues()));
-		return nl2br(GetDBText($this->data[$key]->Value));
+		if(!isset($this->data[$key]->value)) return '';
+		if($enumVal && $this->data[$key]->type == ModelType::ENUM) return nl2br(GetDBText($this->data[$key]->GetEnumValues()));
+		return nl2br(GetDBText($this->data[$key]->value));
 	}
 
 	public function GetFileName($key, $n = 0){
@@ -638,8 +529,8 @@ class BH_Model{
 	public function SetValue($key, $v){
 		if(!isset($this->data[$key])) return $key.' 키값이 정의되어 있지 않습니다.';
 
-		$this->data[$key]->Value = trim($v);
-		$this->data[$key]->NeedIs = true;
+		$this->data[$key]->value = trim($v);
+		$this->data[$key]->needIs = true;
 	}
 
 	/**
@@ -658,9 +549,9 @@ class BH_Model{
 	public function SetQueryValue($key, $v){
 		if(!isset($this->data[$key])) URLReplace('-1', 'No Key : ' . $key);
 
-		$this->data[$key]->Value = $v;
-		$this->data[$key]->ValueIsQuery = true;
-		$this->data[$key]->NeedIs = true;
+		$this->data[$key]->value = $v;
+		$this->data[$key]->valueIsQuery = true;
+		$this->data[$key]->needIs = true;
 		return true;
 	}
 
@@ -670,7 +561,7 @@ class BH_Model{
 	 */
 	public function AddExcept($ar){
 		if(!is_array($ar)) $ar = func_get_args();
-		$this->Except = array_merge($this->Except, $ar);
+		$this->except = array_merge($this->except, $ar);
 	}
 
 	/**
@@ -721,39 +612,39 @@ class BH_Model{
 
 	/**
 	 * BH_ModelData에서 Enum 값을 출력
-	 * @param string $Name
-	 * @param bool|string $Value
+	 * @param string $name
+	 * @param bool|string $value
 	 *
 	 * @return string
 	 */
-	public function HTMLPrintEnum($Name, $Value = false){
-		if(!isset($this->data[$Name])) return null;
-		return $this->data[$Name]->GetEnumValues($Value);
+	public function HTMLPrintEnum($name, $value = false){
+		if(!isset($this->data[$name])) return null;
+		return $this->data[$name]->GetEnumValues($value);
 	}
 
 	/**
 	 * BH_ModelData <label>출력
-	 * @param string $Name
-	 * @param bool $HtmlAttribute
+	 * @param string $name
+	 * @param bool $htmlAttribute
 	 * @param null|callable $callback
 	 * @param string $firstIDName
 	 *
 	 * @return string
 	 */
-	public function HTMLPrintLabel($Name, $HtmlAttribute = false, $callback = null, $firstIDName = 'MD_'){
-		return _ModelFunc::HTMLPrintLabel($this->data[$Name], $Name, $HtmlAttribute, $callback, $firstIDName);
+	public function HTMLPrintLabel($name, $htmlAttribute = false, $callback = null, $firstIDName = 'MD_'){
+		return _ModelFunc::HTMLPrintLabel($this->data[$name], $name, $htmlAttribute, $callback, $firstIDName);
 	}
 
 	/**
 	 * input, select textarea 출력
-	 * @param string $Name
-	 * @param bool $HtmlAttribute
+	 * @param string $name
+	 * @param bool $htmlAttribute
 	 * @param string $firstIDName
 	 *
 	 * @return string
 	 */
-	public function HTMLPrintInput($Name, $HtmlAttribute = false, $firstIDName = 'MD_'){
-		return _ModelFunc::HTMLPrintInput($Name, $this->data[$Name], $HtmlAttribute, $firstIDName);
+	public function HTMLPrintInput($name, $htmlAttribute = false, $firstIDName = 'MD_'){
+		return _ModelFunc::HTMLPrintInput($name, $this->data[$name], $htmlAttribute, $firstIDName);
 	}
 
 	/**
@@ -785,6 +676,16 @@ class BH_Model{
 	}
 
 	/**
+	 * 불러올 키를 설정
+	 * @param  array $keys
+	 * @return $this
+	 */
+	public function DBGetKey($keys){
+		$this->getKeys = is_array($keys) ? $keys : func_get_args();
+		return $this;
+	}
+
+	/**
 	 * 키값에 해당하는 DB데이터를 삭제
 	 * @param array|string $keys
 	 * @return BH_Result
@@ -803,19 +704,16 @@ class BH_Model{
 		$keyData = is_array($keys) ? $keys : func_get_args();
 		return _ModelFunc::DBDelete($this, $keyData, true);
 	}
+
+	public function Fetch($qry){
+		$row = $qry->Get();
+		if(!$row) return false;
+		$this->SetDBValues($row);
+		return true;
+	}
 }
 
 class _ModelFunc{
-	public static function SetQry(&$model, $type, $tableNaming){
-		if($type === QRY_LIST) $model->qry[$model->qryName] = new BH_DB_GetList();
-		else if($type === QRY_PAGE_LIST) $model->qry[$model->qryName] = new BH_DB_GetListWithPage();
-		else if($type === QRY_INSERT) $model->qry[$model->qryName] = new BH_DB_Insert();
-		else if($type === QRY_UPDATE) $model->qry[$model->qryName] = new BH_DB_Update();
-		else if($type === QRY_DELETE) $model->qry[$model->qryName] = new BH_DB_Delete();
-		else $model->qry[$model->qryName] = new BH_DB_Get();
-
-		$model->qry[$model->qryName]->AddTable('`' . $model->table . '`' . (strlen($tableNaming) ? ' `' . $tableNaming . '`' : ''));
-	}
 	public static function _Join(&$model, $args){
 		$args[1]->parent = &$model;
 		$n = array_values(array_slice($args, 3));
@@ -825,37 +723,37 @@ class _ModelFunc{
 	}
 
 	public static function IsFileType($type){
-		return in_array($type, array(HTMLType::InputFile, HTMLType::InputFileWithName, HTMLType::InputImageFile, HTMLType::InputImageFileArray, HTMLType::InputFileJQuery));
+		return in_array($type, array(HTMLType::FILE, HTMLType::FILE_WITH_NAME, HTMLType::FILE_IMAGE, HTMLType::FILE_IMAGE_ARRAY, HTMLType::FILE_JQUERY));
 	}
 
 	public static function SetPostValues(&$model, &$post, $withFile = false){
 		$ret = new \BH_Result();
 		$ret->result = true;
 		foreach($model->data as $k => &$v){
-			if(!in_array($k, $model->Except) && $v->AutoDecrement !== true){
-				if(isset($v->HtmlType) && self::IsFileType($v->HtmlType) && isset($_FILES[$k])){
+			if(!in_array($k, $model->except) && $v->autoDecrement !== true){
+				if(isset($v->htmlType) && self::IsFileType($v->htmlType) && isset($_FILES[$k])){
 					if($withFile) self::SetFileValue($model, $k);
 				}
 				else if(!isset($post[$k])){
-					if($v->BlankIsNull){
-						$v->Value = 'NULL';
-						$v->ValueIsQuery = true;
-						$v->NeedIs = true;
+					if($v->blankIsNull){
+						$v->value = 'NULL';
+						$v->valueIsQuery = true;
+						$v->needIs = true;
 					}
-					else if($v->NeedIs && (!isset($v->Value) || !strlen($v->Value))){
-						$ret->message = $v->ModelErrorMsg = $v->DisplayName.' 항목이 정의되지 않았습니다.';
+					else if($v->needIs && (!isset($v->value) || !strlen($v->value))){
+						$ret->message = $v->modelErrorMsg = $v->displayName.' 항목이 정의되지 않았습니다.';
 						$ret->result = false;
 						return $ret;
 					}
 				}
 				else{
-					if($v->HtmlType == HTMLType::InputImageFileArray){
+					if($v->htmlType == HTMLType::FILE_IMAGE_ARRAY){
 						$delFiles = Post('del_file_' . $k);
 						if(!is_array($delFiles)) $delFiles = array();
 
 						$values = array();
 						if(!is_array($post[$k])){
-							$ret->message = $v->ModelErrorMsg = $v->DisplayName.'항목이 다중 파일 형식이 아닙니다.';
+							$ret->message = $v->modelErrorMsg = $v->displayName.'항목이 다중 파일 형식이 아닙니다.';
 							$ret->result = false;
 							return $ret;
 						}
@@ -866,10 +764,10 @@ class _ModelFunc{
 								if(is_string($newpath)){
 									$values[]= $newpath;
 									$v->__moveFile[]= array('source' => $path, 'dest' => $newpath);
-									$v->NeedIs = true;
+									$v->needIs = true;
 								}
 								else if($newpath->result === -1){
-									$ret->message = $v->ModelErrorMsg = $v->DisplayName . '항목에 ' . $newpath->message;
+									$ret->message = $v->modelErrorMsg = $v->displayName . '항목에 ' . $newpath->message;
 									$ret->result = false;
 									return $ret;
 								}
@@ -877,8 +775,8 @@ class _ModelFunc{
 						}
 
 						// 기존 파일
-						if(strlen($v->Value)){
-							$p = explode(';', $v->Value);
+						if(strlen($v->value)){
+							$p = explode(';', $v->value);
 							$valuePath = array();
 							foreach($p as $path){
 								if(in_array($path, $delFiles)) $v->__deleteFile[] = $path;
@@ -886,47 +784,47 @@ class _ModelFunc{
 							}
 							$values = array_merge($values, $valuePath);
 						}
-						$v->Value = implode(';', $values);
-						$v->NeedIs = true;
+						$v->value = implode(';', $values);
+						$v->needIs = true;
 					}
 
-					else if(self::IsFileType($v->HtmlType)){
+					else if(self::IsFileType($v->htmlType)){
 						$fileUpIs = false;
 						$m = explode('*', $post[$k]);
 						$fPath = $m[0];
 
 						$fName = '';
-						if($v->HtmlType === HTMLType::InputFileWithName || $v->HtmlType === HTMLType::InputFile || $v->HtmlType === HTMLType::InputFileJQuery){
-							if(($v->HtmlType === HTMLType::InputFileWithName || $v->HtmlType === HTMLType::InputFileJQuery) && isset($m[1]) && strlen($m[1])) $fName = '*' . $m[1];
+						if($v->htmlType === HTMLType::FILE_WITH_NAME || $v->htmlType === HTMLType::FILE || $v->htmlType === HTMLType::FILE_JQUERY){
+							if(($v->htmlType === HTMLType::FILE_WITH_NAME || $v->htmlType === HTMLType::FILE_JQUERY) && isset($m[1]) && strlen($m[1])) $fName = '*' . $m[1];
 						}
 
 						if(strlen($fPath) && file_exists(_UPLOAD_DIR . $fPath)){
 							$ext = explode('.', $fPath);
 							$ext = array_pop($ext);
 
-							if(isset($v->AddOption['possibleExt']) && is_array($v->AddOption['possibleExt']) && sizeof($v->AddOption['possibleExt'])){
-								if(!in_array($ext, $v->AddOption['possibleExt'])){
-									$ret->message = $v->ModelErrorMsg = $v->DisplayName . '항목에 업로드 불가능한 파일을 등록하였습니다.';
+							if(isset($v->addOption['possibleExt']) && is_array($v->addOption['possibleExt']) && sizeof($v->addOption['possibleExt'])){
+								if(!in_array($ext, $v->addOption['possibleExt'])){
+									$ret->message = $v->modelErrorMsg = $v->displayName . '항목에 업로드 불가능한 파일을 등록하였습니다.';
 									$ret->result = false;
 									return $ret;
 								}
 							}
-							else if(!in_array($ext, BH_Application::$SettingData['POSSIBLE_EXT'])){
-								$ret->message = $v->ModelErrorMsg = $v->DisplayName . '항목에 업로드 불가능한 파일을 등록하였습니다.';
+							else if(!in_array($ext, BH_Application::$settingData['POSSIBLE_EXT'])){
+								$ret->message = $v->modelErrorMsg = $v->displayName . '항목에 업로드 불가능한 파일을 등록하였습니다.';
 								$ret->result = false;
 								return $ret;
 							}
 
 							// 파일 용량검사
-							if(isset($v->AddOption['maxFileSize']) && $v->AddOption['maxFileSize']){
-								$s = preg_replace('/[^0-9\.]/', '', $v->AddOption['maxFileSize']);
-								$type = strtolower(substr($v->AddOption['maxFileSize'], -2));
+							if(isset($v->addOption['maxFileSize']) && $v->addOption['maxFileSize']){
+								$s = preg_replace('/[^0-9\.]/', '', $v->addOption['maxFileSize']);
+								$type = strtolower(substr($v->addOption['maxFileSize'], -2));
 
 								if($type === 'mb') $s = $s * 1024 * 1024;
 								else if($type === 'kb') $s = $s * 1024;
 
 								if($s < filesize(_UPLOAD_DIR . $fPath)){
-									$ret->message = $v->ModelErrorMsg = $v->DisplayName . '항목에 파일용량을 초과하였습니다.';
+									$ret->message = $v->modelErrorMsg = $v->displayName . '항목에 파일용량을 초과하였습니다.';
 									$ret->result = false;
 									return $ret;
 								}
@@ -935,7 +833,7 @@ class _ModelFunc{
 							$fileUpIs = true;
 
 							// 파일명 변경
-							if($v->HtmlType === HTMLType::InputFileJQuery){
+							if($v->htmlType === HTMLType::FILE_JQUERY){
 								$tempPath = explode('/', $fPath);
 								array_pop($tempPath);
 
@@ -951,46 +849,46 @@ class _ModelFunc{
 							if(is_string($newpath)){
 								$v->__moveFile[]= array('source' => $fPath, 'dest' => $newpath);
 								// 기존 파일
-								if(strlen($v->Value)) $v->__deleteFile[]= $v->Value;
+								if(strlen($v->value)) $v->__deleteFile[]= $v->value;
 
-								$v->Value = $newpath.$fName;
-								$v->NeedIs = true;
+								$v->value = $newpath.$fName;
+								$v->needIs = true;
 							}
 							else{
 								if($newpath->result === -1){
-									$ret->message = $v->ModelErrorMsg = $v->DisplayName . '항목에 ' . $newpath->message;
+									$ret->message = $v->modelErrorMsg = $v->displayName . '항목에 ' . $newpath->message;
 									$ret->result = false;
 									return $ret;
 								}
 							}
 						}
 
-						if(!$fileUpIs && strlen($v->Value) && Post('del_file_' . $k) == 'y'){
-							$v->__deleteFile[]= $v->Value;
-							$v->Value = '';
-							$v->NeedIs = true;
+						if(!$fileUpIs && strlen($v->value) && Post('del_file_' . $k) == 'y'){
+							$v->__deleteFile[]= $v->value;
+							$v->value = '';
+							$v->needIs = true;
 						}
 					}
 
-					else if((isset($v->HtmlType) || $v->Required) && !self::IsFileType($v->HtmlType)){
+					else if((isset($v->htmlType) || $v->required) && !self::IsFileType($v->htmlType)){
 						if(is_array($post[$k])){
-							if($v->HtmlType === HTMLType::InputCheckbox){
-								$v->Value = implode(',', $post[$k]);
+							if($v->htmlType === HTMLType::CHECKBOX){
+								$v->value = implode(',', $post[$k]);
 							}
 							else{
-								$ret->message = $v->ModelErrorMsg = $v->DisplayName . '항목에 배열데이터를 사입할 수 없습니다.';
+								$ret->message = $v->modelErrorMsg = $v->displayName . '항목에 배열데이터를 사입할 수 없습니다.';
 								$ret->result = false;
 							}
 						}
-						else if(!strlen($post[$k]) && $v->BlankIsNull){
-							$v->Value = 'NULL';
-							$v->ValueIsQuery = true;
+						else if(!strlen($post[$k]) && $v->blankIsNull){
+							$v->value = 'NULL';
+							$v->valueIsQuery = true;
 						}
 						else{
-							if($v->HtmlType === HTMLType::NumberFormat) $v->Value = preg_replace('/[^0-9]/', '', $post[$k]);
-							else $v->Value = $post[$k];
+							if($v->htmlType === HTMLType::NUMBER_FORMAT) $v->value = preg_replace('/[^0-9]/', '', $post[$k]);
+							else $v->value = $post[$k];
 						}
-						$v->NeedIs = true;
+						$v->needIs = true;
 					}
 				}
 			}
@@ -1022,7 +920,7 @@ class _ModelFunc{
 	 */
 	private static function FileProcess(&$model){
 		foreach($model->data as $v){
-			if(self::IsFileType($v->HtmlType)){
+			if(self::IsFileType($v->htmlType)){
 				if(isset($v->__moveFile) && is_array($v->__moveFile)){
 					foreach($v->__moveFile as $mv){
 						@copy(_UPLOAD_DIR . $mv['source'], _UPLOAD_DIR . $mv['dest']);
@@ -1040,16 +938,16 @@ class _ModelFunc{
 
 	public static function GetErrorMessage(&$model, &$ret){
 		foreach($model->data as $k=>$v){
-			if($v->NeedIs !== true) continue;
+			if($v->needIs !== true) continue;
 			self::ValueCheck($model, $k);
-			if($v->ModelErrorMsg) $ret[] =$v->ModelErrorMsg;
+			if($v->modelErrorMsg) $ret[] =$v->modelErrorMsg;
 		}
 	}
 
 	public static function GetFilePath($data, $n, $n2){
-		if(isset($data->Value)){
-			if(self::IsFileType($data->HtmlType)){
-				$p = explode(';', $data->Value);
+		if(isset($data->value)){
+			if(self::IsFileType($data->htmlType)){
+				$p = explode(';', $data->value);
 				if(isset($p[$n2])){
 					$f = explode('*', $p[$n2]);
 					if(isset($f[$n])) return $f[$n];
@@ -1060,7 +958,7 @@ class _ModelFunc{
 				}
 				else return NULL;
 			}
-			else return $data->Value;
+			else return $data->value;
 		}
 
 		else return NULL;
@@ -1080,10 +978,10 @@ class _ModelFunc{
 	}
 
 	public static function ValueCheck(&$model, $key){
-		if(in_array($key, $model->Except)) return true;
-		if($model->data[$key]->ValueIsQuery) return true;
+		if(in_array($key, $model->except)) return true;
+		if($model->data[$key]->valueIsQuery) return true;
 		if(self::CheckRequired($model, $key) === false) return false;
-		if(isset($model->data[$key]->Value) && strlen($model->data[$key]->Value)){
+		if(isset($model->data[$key]->value) && strlen($model->data[$key]->value)){
 			if(self::CheckType($key, $model->data[$key]) === false) return false;
 			if(self::CheckLength($key, $model->data[$key]) === false) return false;
 			if(self::CheckValue($key, $model->data[$key]) === false) return false;
@@ -1092,92 +990,92 @@ class _ModelFunc{
 	}
 
 	public static function CheckType($key, &$data){
-		switch($data->Type){
-			case ModelType::Int:
-				$val = preg_replace('/[^0-9\-]/','',$data->Value);
-				if($val != $data->Value){
-					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 숫자만 입력 가능합니다.';
+		switch($data->type){
+			case ModelType::INT:
+				$val = preg_replace('/[^0-9\-]/','',$data->value);
+				if($val != $data->value){
+					$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 숫자만 입력 가능합니다.';
 					return false;
 				}
 			break;
-			case ModelType::Float:
-				$val = preg_replace('/[^0-9\.\-]/','',$data->Value);
-				if($val != $data->Value){
-					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 숫자만 입력 가능합니다.';
+			case ModelType::FLOAT:
+				$val = preg_replace('/[^0-9\.\-]/','',$data->value);
+				if($val != $data->value){
+					$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 숫자만 입력 가능합니다.';
 					return false;
 				}
 			break;
-			case ModelType::Enum:
-				$v = $data->Value;
-				if($data->HtmlType == HTMLType::InputCheckbox){
-					$temp = explode(',', $data->Value);
+			case ModelType::ENUM:
+				$v = $data->value;
+				if($data->htmlType == HTMLType::CHECKBOX){
+					$temp = explode(',', $data->value);
 					$v = trim($temp[0]);
 				}
-				if(!(isset($data->EnumValues) && is_array($data->EnumValues) && isset($data->EnumValues[$v]))){
-					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목에 값이 필요합니다.';
+				if(!(isset($data->enumValues) && is_array($data->enumValues) && isset($data->enumValues[$v]))){
+					$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목에 값이 필요합니다.';
 					return false;
 				}
 			break;
 		}
-		switch($data->HtmlType){
-			case HTMLType::InputEmail:
-				if (!filter_var($data->Value, FILTER_VALIDATE_EMAIL)) {
-					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 형식이 올바르지 않습니다.';
+		switch($data->htmlType){
+			case HTMLType::EMAIL:
+				if (!filter_var($data->value, FILTER_VALIDATE_EMAIL)) {
+					$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 형식이 올바르지 않습니다.';
 					return false;
 				}
 			break;
-			case HTMLType::InputTel:
-				$val = preg_replace('/[^0-9\-\*\#]/','',$data->Value);
-				if($val != $data->Value){
-					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 형식이 올바르지 않습니다.';
+			case HTMLType::TEL:
+				$val = preg_replace('/[^0-9\-\*\#]/','',$data->value);
+				if($val != $data->value){
+					$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 형식이 올바르지 않습니다.';
 					return false;
 				}
 			break;
-			case HTMLType::InputEng:
-				$val = preg_replace('/[^a-zA-Z]/','',$data->Value);
-				if($val != $data->Value){
-					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문만 입력가능합니다.';
+			case HTMLType::TEXT_ENG_ONLY:
+				$val = preg_replace('/[^a-zA-Z]/','',$data->value);
+				if($val != $data->value){
+					$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문만 입력가능합니다.';
 					return false;
 				}
 			break;
-			case HTMLType::InputEngNum:
-				if ( !ctype_alnum($data->Value) ){
-					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문과 숫자만 입력가능합니다.';
+			case HTMLType::TEXT_ENG_NUM:
+				if ( !ctype_alnum($data->value) ){
+					$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문과 숫자만 입력가능합니다.';
 					return false;
 				}
 			break;
-			case HTMLType::InputEngSpecial:
-				$val = preg_replace('/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>\'\"\?\-=\+_\:\;\[\]\{\}\/]/','',$data->Value);
-				if($val != $data->Value){
-					$data->ModelErrorMsg = $data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문과 숫자, 특수문자만 입력가능합니다.';
+			case HTMLType::TEXT_ENG_SPECIAL:
+				$val = preg_replace('/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>\'\"\?\-=\+_\:\;\[\]\{\}\/]/','',$data->value);
+				if($val != $data->value){
+					$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문과 숫자, 특수문자만 입력가능합니다.';
 					return false;
 				}
-		}
-		return true;
-	}
-
-	public static function CheckValue($key, &$Data){
-		if($Data->Type == ModelType::Int || $Data->Type == ModelType::Float){
-			if($Data->MinValue !== false && $Data->MinValue > $Data->Value){
-				$Data->ModelErrorMsg = $Data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목에 '.$Data->MinValue.' 이상의 값을 입력하여 주세요.';
-				return false;
-			}
-			if($Data->MaxValue !== false && $Data->MaxValue < $Data->Value){
-				$Data->ModelErrorMsg = $Data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목에 '.$Data->MaxValue.' 이하의 값을 입력하여 주세요.';
-				return false;
-			}
 		}
 		return true;
 	}
 
-	public static function CheckLength($key, &$Data){
-		if($Data->Type == ModelType::String || $Data->Type == ModelType::Text){
-			if($Data->MinLength !== false && $Data->MinLength > mb_strlen($Data->Value, 'UTF-8')){
-				$Data->ModelErrorMsg = $Data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 '.$Data->MinLength.'자 이상 입력하여 주세요.';
+	public static function CheckValue($key, &$data){
+		if($data->type == ModelType::INT || $data->type == ModelType::FLOAT){
+			if($data->minValue !== false && $data->minValue > $data->value){
+				$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목에 '.$data->minValue.' 이상의 값을 입력하여 주세요.';
 				return false;
 			}
-			if($Data->MaxLength !== false && $Data->MaxLength < mb_strlen($Data->Value, 'UTF-8')){
-				$Data->ModelErrorMsg = $Data->DisplayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 '.$Data->MaxLength.'자 이하 입력하여 주세요.';
+			if($data->maxValue !== false && $data->maxValue < $data->value){
+				$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목에 '.$data->maxValue.' 이하의 값을 입력하여 주세요.';
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public static function CheckLength($key, &$data){
+		if($data->type == ModelType::STRING || $data->type == ModelType::TEXT){
+			if($data->minLength !== false && $data->minLength > mb_strlen($data->value, 'UTF-8')){
+				$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 '.$data->minLength.'자 이상 입력하여 주세요.';
+				return false;
+			}
+			if($data->maxLength !== false && $data->maxLength < mb_strlen($data->value, 'UTF-8')){
+				$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 '.$data->maxLength.'자 이하 입력하여 주세요.';
 				return false;
 			}
 		}
@@ -1185,99 +1083,99 @@ class _ModelFunc{
 	}
 
 	public static function CheckRequired(&$model, $key){
-		if($model->data[$key]->Required == false) return true;
+		if($model->data[$key]->required == false) return true;
 		if(is_null($model->GetValue($key)) || !strlen($model->GetValue($key))){
-			if(!in_array($key, $model->Except) && $model->data[$key]->AutoDecrement !== true){
-				$model->data[$key]->ModelErrorMsg = $model->data[$key]->DisplayName.' 항목은 필수항목입니다.';
+			if(!in_array($key, $model->except) && $model->data[$key]->autoDecrement !== true){
+				$model->data[$key]->modelErrorMsg = $model->data[$key]->displayName.' 항목은 필수항목입니다.';
 				return false;
 			}
 		}
 		return true;
 	}
 
-	public static function HTMLPrintLabel(&$data, $Name, $HtmlAttribute, $callback, $firstIDName){
+	public static function HTMLPrintLabel(&$data, $name, $htmlAttribute, $callback, $firstIDName){
 		$Attribute = '';
-		if(is_array($HtmlAttribute)){
-			foreach($HtmlAttribute as $k => $row){
+		if(is_array($htmlAttribute)){
+			foreach($htmlAttribute as $k => $row){
 				$Attribute .= ' '.$k.'="'.$row.'"';
 			}
 		}
-		else if(is_string($HtmlAttribute)) $Attribute = $HtmlAttribute;
+		else if(is_string($htmlAttribute)) $Attribute = $htmlAttribute;
 
 		if(is_callable($callback)){
-			return '<label for="'.$firstIDName.$Name.'" '.$Attribute.'>'.$callback($data->DisplayName).'</label>';
+			return '<label for="'.$firstIDName.$name.'" '.$Attribute.'>'.$callback($data->displayName).'</label>';
 		}
-		return '<label for="'.$firstIDName.$Name.'" '.$Attribute.'>'.$data->DisplayName.'</label>';
+		return '<label for="'.$firstIDName.$name.'" '.$Attribute.'>'.$data->displayName.'</label>';
 	}
 
-	public static function HTMLPrintInput($Name, &$data, $HtmlAttribute = false, $firstIDName){
-		$htmlType = strtolower($data->HtmlType);
+	public static function HTMLPrintInput($Name, &$data, $htmlAttribute = false, $firstIDName){
+		$htmlType = strtolower($data->htmlType);
 		$Attribute = '';
-		$val = isset($data->Value) ? $data->Value : $data->DefaultValue;
+		$val = isset($data->value) ? $data->value : $data->defaultValue;
 
-		if($HtmlAttribute === false) $HtmlAttribute = array();
+		if($htmlAttribute === false) $htmlAttribute = array();
 
-		if(!isset($HtmlAttribute['class'])) $HtmlAttribute['class'] = '';
+		if(!isset($htmlAttribute['class'])) $htmlAttribute['class'] = '';
 
-		if($data->MinLength !== false) $Attribute .= ' data-minlength="'.$data->MinLength.'"';
+		if($data->minLength !== false) $Attribute .= ' data-minlength="'.$data->minLength.'"';
 
-		if($data->MaxLength !== false){
-			$Attribute .= ' data-maxlength="'.$data->MaxLength.'"';
-			$Attribute .= ' maxlength="'.$data->MaxLength.'"';
+		if($data->maxLength !== false){
+			$Attribute .= ' data-maxlength="'.$data->maxLength.'"';
+			$Attribute .= ' maxlength="'.$data->maxLength.'"';
 		}
-		if($data->MinValue !== false) $Attribute .= ' data-minvalue="'.$data->MinValue.'"';
+		if($data->minValue !== false) $Attribute .= ' data-minvalue="'.$data->minValue.'"';
 
-		if($data->MaxValue !== false) $Attribute .= ' data-maxvalue="'.$data->MaxValue.'"';
+		if($data->maxValue !== false) $Attribute .= ' data-maxvalue="'.$data->maxValue.'"';
 
-		if($data->Required) $Attribute .= ' required="required"';
+		if($data->required) $Attribute .= ' required="required"';
 
 		// ModelType
-		if($data->Type == ModelType::Int && $data->HtmlType != 'numberformat') $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'numberonly';
+		if($data->type == ModelType::INT && $data->htmlType != 'numberformat') $htmlAttribute['class'] .= ($htmlAttribute['class'] ? ' ' : '').'numberonly';
 
 		// HTMLType
-		if($data->HtmlType == HTMLType::InputEmail) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'email';
-		else if($data->HtmlType == HTMLType::InputTel) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'tel';
-		else if($data->HtmlType == HTMLType::InputDate){
-			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'date';
-			$HtmlAttribute['maxlength'] = '10';
-			$HtmlAttribute['minlength'] = '10';
+		if($data->htmlType == HTMLType::EMAIL) $htmlAttribute['class'] .= ($htmlAttribute['class'] ? ' ' : '').'email';
+		else if($data->htmlType == HTMLType::TEL) $htmlAttribute['class'] .= ($htmlAttribute['class'] ? ' ' : '').'tel';
+		else if($data->htmlType == HTMLType::DATE){
+			$htmlAttribute['class'] .= ($htmlAttribute['class'] ? ' ' : '').'date';
+			$htmlAttribute['maxlength'] = '10';
+			$htmlAttribute['minlength'] = '10';
 		}
-		else if($data->HtmlType == HTMLType::InputDatePicker){
-			$HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'datePicker';
-			$HtmlAttribute['maxlength'] = '10';
-			$HtmlAttribute['minlength'] = '10';
+		else if($data->htmlType == HTMLType::DATE_PICKER){
+			$htmlAttribute['class'] .= ($htmlAttribute['class'] ? ' ' : '').'datePicker';
+			$htmlAttribute['maxlength'] = '10';
+			$htmlAttribute['minlength'] = '10';
 		}
-		else if($data->HtmlType == HTMLType::NumberFormat) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').HTMLType::NumberFormat;
-		else if($data->HtmlType == HTMLType::InputEngNum) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').HTMLType::InputEngNum;
-		else if($data->HtmlType == HTMLType::InputEng) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').HTMLType::InputEng;
-		else if($data->HtmlType == HTMLType::InputEngSpecial) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').HTMLType::InputEngSpecial;
-		else if(in_array($data->HtmlType, array(HTMLType::InputImageFile, HTMLType::InputImageFileArray))) $HtmlAttribute['class'] .= ($HtmlAttribute['class'] ? ' ' : '').'fileUploadInput';
+		else if($data->htmlType == HTMLType::NUMBER_FORMAT) $htmlAttribute['class'] .= ($htmlAttribute['class'] ? ' ' : '').HTMLType::NUMBER_FORMAT;
+		else if($data->htmlType == HTMLType::TEXT_ENG_NUM) $htmlAttribute['class'] .= ($htmlAttribute['class'] ? ' ' : '').HTMLType::TEXT_ENG_NUM;
+		else if($data->htmlType == HTMLType::TEXT_ENG_ONLY) $htmlAttribute['class'] .= ($htmlAttribute['class'] ? ' ' : '').HTMLType::TEXT_ENG_ONLY;
+		else if($data->htmlType == HTMLType::TEXT_ENG_SPECIAL) $htmlAttribute['class'] .= ($htmlAttribute['class'] ? ' ' : '').HTMLType::TEXT_ENG_SPECIAL;
+		else if(in_array($data->htmlType, array(HTMLType::FILE_IMAGE, HTMLType::FILE_IMAGE_ARRAY))) $htmlAttribute['class'] .= ($htmlAttribute['class'] ? ' ' : '').'fileUploadInput';
 
-		foreach($HtmlAttribute as $k => $row) $Attribute .= ' '.$k.'="'.$row.'"';
+		foreach($htmlAttribute as $k => $row) $Attribute .= ' '.$k.'="'.$row.'"';
 
 		switch($htmlType){
-			case HTMLType::InputText:
-			case HTMLType::InputPassword:
-			case HTMLType::InputEmail:
-			case HTMLType::InputTel:
-				return '<input type="'.$htmlType.'" name="'.$Name.'" id="'.$firstIDName.$Name.'" '.(isset($val) && $htmlType != HTMLType::InputPassword ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+			case HTMLType::TEXT:
+			case HTMLType::PASSWORD:
+			case HTMLType::EMAIL:
+			case HTMLType::TEL:
+				return '<input type="'.$htmlType.'" name="'.$Name.'" id="'.$firstIDName.$Name.'" '.(isset($val) && $htmlType != HTMLType::PASSWORD ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->displayName . '" '.$Attribute.'>';
 			break;
-			case HTMLType::NumberFormat:
-			case HTMLType::InputDatePicker:
-			case HTMLType::InputEngNum:
-			case HTMLType::InputEng:
-			case HTMLType::InputEngSpecial:
-				return '<input type="text" name="'.$Name.'" id="'.$firstIDName.$Name.'" '.(isset($val) ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+			case HTMLType::NUMBER_FORMAT:
+			case HTMLType::DATE_PICKER:
+			case HTMLType::TEXT_ENG_NUM:
+			case HTMLType::TEXT_ENG_ONLY:
+			case HTMLType::TEXT_ENG_SPECIAL:
+				return '<input type="text" name="'.$Name.'" id="'.$firstIDName.$Name.'" '.(isset($val) ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->displayName . '" '.$Attribute.'>';
 			break;
-			case HTMLType::InputNumber:
-				return '<input type="number" name="'.$Name.'" id="'.$firstIDName.$Name.'" '.(isset($val) ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+			case HTMLType::NUMBER:
+				return '<input type="number" name="'.$Name.'" id="'.$firstIDName.$Name.'" '.(isset($val) ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->displayName . '" '.$Attribute.'>';
 			break;
-			case HTMLType::InputDate:
-				return '<span class="dateInput"><input type="text" name="'.$Name.'" id="'.$firstIDName.$Name.'" '.(isset($val) ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->DisplayName . '" '.$Attribute.'></span>';
+			case HTMLType::DATE:
+				return '<span class="dateInput"><input type="text" name="'.$Name.'" id="'.$firstIDName.$Name.'" '.(isset($val) ? 'value="'.GetDBText($val).'"' : '').' data-displayname="' . $data->displayName . '" '.$Attribute.'></span>';
 			break;
-			case HTMLType::InputFileJQuery:
-				if(!isset(BH_Application::$SettingData['_JQUERY_FILE_UPLOAD'])){
-					BH_Application::$SettingData['_JQUERY_FILE_UPLOAD'] = true;
+			case HTMLType::FILE_JQUERY:
+				if(!isset(BH_Application::$settingData['_JQUERY_FILE_UPLOAD'])){
+					BH_Application::$settingData['_JQUERY_FILE_UPLOAD'] = true;
 					BH_Application::JSAdd('/vendor/blueimp/jquery-file-upload/js/vendor/jquery.ui.widget.js', 150);
 					BH_Application::JSAdd('/vendor/blueimp/jquery-file-upload/js/jquery.fileupload.js', 150);
 					BH_Application::CSSAdd('/vendor/blueimp/jquery-file-upload/css/jquery.fileupload.css', 150);
@@ -1285,31 +1183,31 @@ class _ModelFunc{
 				}
 
 
-				if(isset($data->AddOption['maxFileSize'])) $Attribute .= ' data-max-size="' . $data->AddOption['maxFileSize'] . '"';
-				if(isset($data->AddOption['possibleExt']) && is_array($data->AddOption['possibleExt'])) $Attribute .= ' data-ext="' .  implode(',', $data->AddOption['possibleExt']) . '"';
+				if(isset($data->addOption['maxFileSize'])) $Attribute .= ' data-max-size="' . $data->addOption['maxFileSize'] . '"';
+				if(isset($data->addOption['possibleExt']) && is_array($data->addOption['possibleExt'])) $Attribute .= ' data-ext="' .  implode(',', $data->addOption['possibleExt']) . '"';
 
-				$f = explode('*', $data->Value);
+				$f = explode('*', $data->value);
 
 				$h = '<div class="jqFileUploadArea"' . $Attribute . '>
 				<input type="hidden" name="' . $Name . '" value="" id="MD_'.$firstIDName.$Name.'" class="fileUploadPath">
 				<div style="padding-bottom:10px;">';
-				if(strlen($data->Value)) $h .= '<p><b class="upload_file_name">'.(isset($f[1]) ? GetDBText($f[1]) : '').'</b> <label class="checkbox"><input type="checkbox" name="del_file_'.$Name.'" value="y"><span> 파일삭제</span></label></p>';
+				if(strlen($data->value)) $h .= '<p><b class="upload_file_name">'.(isset($f[1]) ? GetDBText($f[1]) : '').'</b> <label class="checkbox"><input type="checkbox" name="del_file_'.$Name.'" value="y"><span> 파일삭제</span></label></p>';
 				else $h .= '<p><b class="upload_file_name"></b></p>';
 				$h .= '</div>
 						<div style="display:block; width: 0; height: 0; overflow: hidden; opacity: 0; filter:alpha(0);">
 							<input type="file" name="temp_upload_file" class="fileUploadInp">
 						</div>
-						<button type="button" class="mBtn fileUploadBtn">' . (isset($HtmlAttribute['button']) ? $HtmlAttribute['button'] : '파일등록') . '</button>
+						<button type="button" class="mBtn fileUploadBtn">' . (isset($htmlAttribute['button']) ? $htmlAttribute['button'] : '파일등록') . '</button>
 						<div class="progress progress-animated">
 							<div class="bar"></div>
 						</div>
 					</div>';
 				return $h;
 			break;
-			case HTMLType::InputFileWithName:
-				$h = '<div class="fileUploadArea2"><input type="hidden" name="' . $Name . '" class="fileUploadInput" value=""> <button type="button" class="fileUploadBtn sBtn"><i></i>' . (isset($HtmlAttribute['button']) ? $HtmlAttribute['button'] : '첨부파일') . '</button>';
-				if(strlen($data->Value)){
-					$f = explode('*', $data->Value);
+			case HTMLType::FILE_WITH_NAME:
+				$h = '<div class="fileUploadArea2"><input type="hidden" name="' . $Name . '" class="fileUploadInput" value=""> <button type="button" class="fileUploadBtn sBtn"><i></i>' . (isset($htmlAttribute['button']) ? $htmlAttribute['button'] : '첨부파일') . '</button>';
+				if(strlen($data->value)){
+					$f = explode('*', $data->value);
 					$h .= ' <p><span class="fileName">' . (isset($f[1]) ? GetDBText($f[1]) : '') . '</span> <label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><span> 파일삭제</span></label></p>';
 				}
 				else{
@@ -1317,58 +1215,58 @@ class _ModelFunc{
 				}
 				return $h . '</div><script>JCM.fileForm();</script>';
 			break;
-			case HTMLType::InputFile:
+			case HTMLType::FILE:
 				$h = '';
-				if(strlen($data->Value)){
+				if(strlen($data->value)){
 					$h = ' <span class="uploadedFile"><label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><span> 파일삭제</span></label></span>';
 				}
-				return $h . ' <input type="file" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+				return $h . ' <input type="file" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$Attribute.'>';
 			break;
-			case HTMLType::InputImageFile:
-				$h = '<div class="fileUploadArea"><input type="hidden" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+			case HTMLType::FILE_IMAGE:
+				$h = '<div class="fileUploadArea"><input type="hidden" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$Attribute.'>';
 				$h .= '<span class="fileUploadImage">';
-				if(strlen($data->Value)){
-					$h .= '<i style="background-image:url(' . _UPLOAD_URL . $data->Value . ')"></i>';
+				if(strlen($data->value)){
+					$h .= '<i style="background-image:url(' . _UPLOAD_URL . $data->value . ')"></i>';
 				}
 				$h .= '</span>';
-				if(strlen($data->Value)) $h .= ' <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><span>삭제</span></label>';
+				if(strlen($data->value)) $h .= ' <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><span>삭제</span></label>';
 				return $h . '<button type="button" class="fileUploadBtn sBtn"><span>이미지업로드</span></button></div><script>JCM.imageFileForm();</script>';
 			break;
-			case HTMLType::InputImageFileArray:
+			case HTMLType::FILE_IMAGE_ARRAY:
 				$h = '<div class="multiFileUploadArea">';
-				if(strlen($data->Value)){
-					$p = explode(';', $data->Value);
+				if(strlen($data->value)){
+					$p = explode(';', $data->value);
 					foreach($p as $path){
 						$h .= ' <span class="fileUploadImage"><i style="background-image:url(' . _UPLOAD_URL . $path . ')"></i></span> <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '[]" value="' . $path . '"><span>삭제</span></label>';
 					}
 				}
-				$h .= '<div class="fileUploadArea"><span class="fileUploadImage"></span><input type="hidden" name="'.$Name.'[]" data-displayname="' . $data->DisplayName . '" '.$Attribute.'><button type="button" class="fileUploadBtn sBtn"><span>이미지업로드</span></button><button type="button" class="fileUploadAreaAddBtn sBtn">추가</button><button type="button" class="fileUploadAreaRmBtn sBtn">삭제</button></div>';
+				$h .= '<div class="fileUploadArea"><span class="fileUploadImage"></span><input type="hidden" name="'.$Name.'[]" data-displayname="' . $data->displayName . '" '.$Attribute.'><button type="button" class="fileUploadBtn sBtn"><span>이미지업로드</span></button><button type="button" class="fileUploadAreaAddBtn sBtn">추가</button><button type="button" class="fileUploadAreaRmBtn sBtn">삭제</button></div>';
 				return $h . '</div><script>JCM.imageFileForm();</script>';
 			break;
-			case HTMLType::Textarea:
-				return '<textarea name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>'.(isset($val) ? GetDBText($val) : '').'</textarea>';
+			case HTMLType::TEXTAREA:
+				return '<textarea name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$Attribute.'>'.(isset($val) ? GetDBText($val) : '').'</textarea>';
 			break;
-			case HTMLType::InputRadio:
-			case HTMLType::InputCheckbox:
-				$nm = $htmlType === HTMLType::InputCheckbox ? $Name . '[]' : $Name;
+			case HTMLType::RADIO:
+			case HTMLType::CHECKBOX:
+				$nm = $htmlType === HTMLType::CHECKBOX ? $Name . '[]' : $Name;
 				$ret = '';
-				$tempVal = $htmlType === HTMLType::InputCheckbox ? explode(',', $val) : array($val);
-				if(isset($data->EnumValues) && is_array($data->EnumValues)){
+				$tempVal = $htmlType === HTMLType::CHECKBOX ? explode(',', $val) : array($val);
+				if(isset($data->enumValues) && is_array($data->enumValues)){
 					$i = 1;
-					foreach($data->EnumValues as $k=>$v){
+					foreach($data->enumValues as $k=>$v){
 						$checked = isset($val) && in_array($k, $tempVal) ? ' checked="checked"' : '';
 
-						$ret .= '<label for="'.$firstIDName.$Name.'_'.$i.'" class="'.$htmlType.'"><input type="'.$htmlType.'" name="'.$nm.'" id="'.$firstIDName.$Name.'_'.$i.'" value="'.$k.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.$checked.'> <span>'.$v.'</span></label>';
+						$ret .= '<label for="'.$firstIDName.$Name.'_'.$i.'" class="'.$htmlType.'"><input type="'.$htmlType.'" name="'.$nm.'" id="'.$firstIDName.$Name.'_'.$i.'" value="'.$k.'" data-displayname="' . $data->displayName . '" '.$Attribute.$checked.'> <span>'.$v.'</span></label>';
 						$i++;
 					}
 				}
 				return $ret;
 			break;
-			case HTMLType::Select:
-				$ret = '<select name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->DisplayName . '" '.$Attribute.'>';
+			case HTMLType::SELECT:
+				$ret = '<select name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$Attribute.'>';
 
-				if(isset($data->EnumValues) && is_array($data->EnumValues)){
-					foreach($data->EnumValues as $k=>$v){
+				if(isset($data->enumValues) && is_array($data->enumValues)){
+					foreach($data->enumValues as $k=>$v){
 						$selected = isset($val) && $k == $val ? ' selected="selected"' : '';
 
 						$ret .= '<option value="'.$k.'" '.$selected.'>'.GetDBText($v).'</option>';
@@ -1381,7 +1279,7 @@ class _ModelFunc{
 	}
 
 	private static function HasNeed(&$model){
-		foreach($model->data as $v) if($v->NeedIs) return true;
+		foreach($model->data as $v) if($v->needIs) return true;
 		return false;
 	}
 
@@ -1391,57 +1289,57 @@ class _ModelFunc{
 		$result = new \BH_InsertResult();
 
 		foreach($model->data as $k=>$v){
-			if(!isset($v->Value) && $v->NeedIs){
+			if(!isset($v->value) && $v->needIs){
 				$result->result = false;
 				$result->message = 'ERROR#101';
 				return $result;
 			}
-			else if(!isset($v->Value) && !$v->NeedIs && $v->Type === ModelType::Text && !$v->BlankIsNull){
-				$v->Value = '';
-				$v->NeedIs = true;
+			else if(!isset($v->value) && !$v->needIs && $v->type === ModelType::TEXT && !$v->blankIsNull){
+				$v->value = '';
+				$v->needIs = true;
 			}
 
 			// 예외 패스, 셋이 없거나 셋에 있는것
-			if((!in_array($k, $model->Except) && (!self::HasNeed($model) || $v->NeedIs))){
-				if(isset($v->Value)){
-					if(in_array($k, $model->Key) && $v->AutoDecrement === true) continue;
+			if((!in_array($k, $model->except) && (!self::HasNeed($model) || $v->needIs))){
+				if(isset($v->value)){
+					if(in_array($k, $model->key) && $v->autoDecrement === true) continue;
 
-					if(!$v->ValueIsQuery && $v->HtmlType == HTMLType::InputTel) $v->Value = preg_replace('/[^0-9\-\*\#]/','',$v->Value);
+					if(!$v->valueIsQuery && $v->htmlType == HTMLType::TEL) $v->value = preg_replace('/[^0-9\-\*\#]/','',$v->value);
 
-					if($v->ValueIsQuery) $dbInsert->data[$k] = $v->Value;
-					else if($v->Type == ModelType::Int){
-						if(!strlen($v->Value) && !isset($v->DefaultValue)) continue;
-						if(!strlen($v->Value) && isset($v->DefaultValue)) $dbInsert->data[$k] = $v->DefaultValue;
+					if($v->valueIsQuery) $dbInsert->data[$k] = $v->value;
+					else if($v->type == ModelType::INT){
+						if(!strlen($v->value) && !isset($v->defaultValue)) continue;
+						if(!strlen($v->value) && isset($v->defaultValue)) $dbInsert->data[$k] = $v->defaultValue;
 						else{
-							$res = self::CheckInt($k, $v->Value);
-							if($res === true) $dbInsert->data[$k] = $v->Value;
+							$res = self::CheckInt($k, $v->value);
+							if($res === true) $dbInsert->data[$k] = $v->value;
 							else{
 								$result->result = false;
 								$result->message = $res;
 							}
 						}
 					}
-					else if($v->Type == ModelType::Float){
-						if(!strlen($v->Value) && !isset($v->DefaultValue)) continue;
-						if(!strlen($v->Value) && isset($v->DefaultValue)) $dbInsert->data[$k] = $v->DefaultValue;
+					else if($v->type == ModelType::FLOAT){
+						if(!strlen($v->value) && !isset($v->defaultValue)) continue;
+						if(!strlen($v->value) && isset($v->defaultValue)) $dbInsert->data[$k] = $v->defaultValue;
 						else{
-							$res = self::CheckFloat($k, $v->Value);
-							if($res === true) $dbInsert->data[$k] = $v->Value;
+							$res = self::CheckFloat($k, $v->value);
+							if($res === true) $dbInsert->data[$k] = $v->value;
 							else{
 								$result->result = false;
 								$result->message = $res;
 							}
 						}
 					}
-					else if($v->HtmlType == HTMLType::InputPassword) $dbInsert->SetDataStr($k, _password_hash($v->Value));
-					else $dbInsert->SetDataStr($k, $v->Value);
+					else if($v->htmlType == HTMLType::PASSWORD) $dbInsert->SetDataStr($k, _password_hash($v->value));
+					else $dbInsert->SetDataStr($k, $v->value);
 				}
 			}
 		}
 
-		foreach($model->Key as $k){
-			if($model->data[$k]->AutoDecrement === true) $dbInsert->decrement = $k;
-			else if($model->data[$k]->Value) $dbInsert->AddWhere($k.'= %s', $model->data[$k]->Value);
+		foreach($model->key as $k){
+			if($model->data[$k]->autoDecrement === true) $dbInsert->decrement = $k;
+			else if($model->data[$k]->value) $dbInsert->AddWhere($k.'= %s', $model->data[$k]->value);
 		}
 		if(!$dbInsert->decrement) $dbInsert->UnsetWhere();
 		if(_DEVELOPERIS === true) $dbInsert->test = $test;
@@ -1458,45 +1356,45 @@ class _ModelFunc{
 		$dbUpdate = new \BH_DB_Update($model->table);
 		$dbUpdate->SetConnName($model->GetConnName());
 		foreach($model->data as $k=>$v){
-			if(!isset($v->Value) && $v->NeedIs){
+			if(!isset($v->value) && $v->needIs){
 				$result->result = false;
 				$result->message = 'ERROR';
 				return $result;
 			}
 
 			// 예외와 키값 패스, 셋이 없거나 셋에 있는것
-			if(!in_array($k, $model->Except) && (!self::HasNeed($model) || $v->NeedIs) && !in_array($k, $model->Key)){
-				if(isset($v->Value)){
-					if(in_array($k, $model->Key) && $v->AutoDecrement === true) continue;
+			if(!in_array($k, $model->except) && (!self::HasNeed($model) || $v->needIs) && !in_array($k, $model->key)){
+				if(isset($v->value)){
+					if(in_array($k, $model->key) && $v->autoDecrement === true) continue;
 
-					if(!$v->ValueIsQuery && $v->HtmlType == HTMLType::InputTel) $v->Value = preg_replace('/[^0-9\-\*\#]/','',$v->Value);
+					if(!$v->valueIsQuery && $v->htmlType == HTMLType::TEL) $v->value = preg_replace('/[^0-9\-\*\#]/','',$v->value);
 
-					if($v->ValueIsQuery) $dbUpdate->SetData($k, $v->Value);
-					else if($v->Type == ModelType::Int){
-						if(!strlen($v->Value)) continue;
-						$res = self::CheckInt($k, $v->Value);
-						if($res === true) $dbUpdate->SetDataNum($k, $v->Value);
+					if($v->valueIsQuery) $dbUpdate->SetData($k, $v->value);
+					else if($v->type == ModelType::INT){
+						if(!strlen($v->value)) continue;
+						$res = self::CheckInt($k, $v->value);
+						if($res === true) $dbUpdate->SetDataNum($k, $v->value);
 						else{
 							$result->result = false;
 							$result->message = $res;
 						}
 					}
-					else if($v->Type == ModelType::Float){
-						if(!strlen($v->Value)) continue;
-						$res = self::CheckFloat($k, $v->Value);
-						if($res === true) $dbUpdate->SetDataNum($k, $v->Value);
+					else if($v->type == ModelType::FLOAT){
+						if(!strlen($v->value)) continue;
+						$res = self::CheckFloat($k, $v->value);
+						if($res === true) $dbUpdate->SetDataNum($k, $v->value);
 						else{
 							$result->result = false;
 							$result->message = $res;
 						}
 					}
-					else if($v->HtmlType == HTMLType::InputPassword) $dbUpdate->SetDataStr($k, _password_hash($v->Value));
-					else $dbUpdate->SetDataStr($k, $v->Value);
+					else if($v->htmlType == HTMLType::PASSWORD) $dbUpdate->SetDataStr($k, _password_hash($v->value));
+					else $dbUpdate->SetDataStr($k, $v->value);
 				}
 			}
 		}
-		foreach($model->Key as $k){
-			if(isset($model->data[$k]->Value) && strlen($model->data[$k]->Value)) $dbUpdate->AddWhere($k.' = %s', $model->data[$k]->Value);
+		foreach($model->key as $k){
+			if(isset($model->data[$k]->value) && strlen($model->data[$k]->value)) $dbUpdate->AddWhere($k.' = %s', $model->data[$k]->value);
 			else{
 				$result->message = 'Empty Key';
 				$result->result = false;
@@ -1516,7 +1414,7 @@ class _ModelFunc{
 	public static function DBGet(&$model, $keys){
 		$res = new \BH_Result();
 
-		if(!isset($model->Key) || !is_array($model->Key)){
+		if(!isset($model->key) || !is_array($model->key)){
 			if(_DEVELOPERIS === true){
 				echo '키값이 존재하지 않습니다.';
 				exit;
@@ -1525,7 +1423,7 @@ class _ModelFunc{
 			$res->message = 'ERROR#01';
 			return $res;
 		}
-		else if(sizeof($keys) != sizeof($model->Key)){
+		else if(sizeof($keys) != sizeof($model->key)){
 			if(_DEVELOPERIS === true){
 				echo '모델의 키의 길이와 인자값의 키의 길이가 동일하지 않습니다.';
 				exit;
@@ -1536,11 +1434,12 @@ class _ModelFunc{
 		}
 		$dbGet = new \BH_DB_Get($model->table);
 		$dbGet->SetConnName($model->GetConnName());
-		foreach($model->Key as $k => $v) $dbGet->AddWhere($v.' = %s', trim($keys[$k]));
+		if(sizeof($model->getKeys)) $dbGet->SetKey($model->getKeys);
+		foreach($model->key as $k => $v) $dbGet->AddWhere($v.' = %s', trim($keys[$k]));
 		$data = $dbGet->Get();
 
 		if($data !== false){
-			foreach($data as $k=>$v) if(isset($model->data[$k])) $model->data[$k]->Value = $v;
+			foreach($data as $k=>$v) if(isset($model->data[$k])) $model->data[$k]->value = $v;
 			$res->result = true;
 		}
 		else $res->result = false;
@@ -1553,7 +1452,7 @@ class _ModelFunc{
 
 		if(!is_array($keyData)) $keyData = array($keyData);
 
-		if(!isset($model->Key) || !is_array($model->Key)){
+		if(!isset($model->key) || !is_array($model->key)){
 			if(_DEVELOPERIS === true){
 				echo '키값이 존재하지 않습니다.';
 				exit;
@@ -1563,7 +1462,7 @@ class _ModelFunc{
 			$res->message = 'ERROR#01';
 			return $res;
 		}
-		else if(sizeof($keyData) != sizeof($model->Key)){
+		else if(sizeof($keyData) != sizeof($model->key)){
 			if(_DEVELOPERIS === true){
 				echo '모델의 키의 길이와 인자값의 키의 길이가 동일하지 않습니다.';
 				exit;
@@ -1574,7 +1473,7 @@ class _ModelFunc{
 			return $res;
 		}
 
-		if(!sizeof($model->Key)){
+		if(!sizeof($model->key)){
 			$res->result = false;
 			$res->message = 'ERROR#03';
 			return $res;
@@ -1583,8 +1482,8 @@ class _ModelFunc{
 		if($withFile){
 			$res = self::DBGet($model, $keyData);
 			foreach($model->data as $data){
-				if(self::IsFileType($data->HtmlType) && strlen($data->Value)){
-					$p = explode(';', $data->Value);
+				if(self::IsFileType($data->htmlType) && strlen($data->value)){
+					$p = explode(';', $data->value);
 					foreach($p as $path){
 						$pn = explode('*', $path);
 						UnlinkImage(_UPLOAD_DIR . $pn[0]);
@@ -1594,7 +1493,7 @@ class _ModelFunc{
 		}
 
 		$qry = DB::DeleteQryObj($model->table)->SetConnName($model->GetConnName());
-		foreach($model->Key as $k => $v){
+		foreach($model->key as $k => $v){
 			$qry->AddWhere($v.' = %s', trim($keyData[$k]));
 		}
 
@@ -1639,7 +1538,7 @@ class _ModelFunc{
 	}
 
 	public static function SetFileValue(&$model, $key){
-		$ext = in_array($model->data[$key]->HtmlType, array(HTMLType::InputImageFile, HTMLType::InputImageFileArray)) ? BH_Application::$SettingData['IMAGE_EXT'] : BH_Application::$SettingData['POSSIBLE_EXT'];
+		$ext = in_array($model->data[$key]->htmlType, array(HTMLType::FILE_IMAGE, HTMLType::FILE_IMAGE_ARRAY)) ? BH_Application::$settingData['IMAGE_EXT'] : BH_Application::$settingData['POSSIBLE_EXT'];
 		$value = array();
 		if(isset($_FILES[$key])){
 			$res = self::FileUploadArray($_FILES[$key], $ext, '/temp/');
@@ -1648,18 +1547,18 @@ class _ModelFunc{
 					$value[] = $v;
 				}
 				else if(is_string($v)){
-					$model->data[$key]->ModelErrorMsg = '[' . $model->data[$key]->DisplayName . ']' . $v;
+					$model->data[$key]->modelErrorMsg = '[' . $model->data[$key]->displayName . ']' . $v;
 				}
 			}
 		}
 
 		// 단일 파일, 업로드 시 기존 파일 삭제
-		if(in_array($model->data[$key]->HtmlType, array(HTMLType::InputImageFile, HTMLType::InputFileWithName, HTMLType::InputFile, HTMLType::InputFileJQuery))){
-			if(isset($model->data[$key]->Value) && strlen($model->data[$key]->Value) && Post('del_file_' . $key) == 'y'){
-				$temp = explode('*', $model->data[$key]->Value);
+		if(in_array($model->data[$key]->htmlType, array(HTMLType::FILE_IMAGE, HTMLType::FILE_WITH_NAME, HTMLType::FILE, HTMLType::FILE_JQUERY))){
+			if(isset($model->data[$key]->value) && strlen($model->data[$key]->value) && Post('del_file_' . $key) == 'y'){
+				$temp = explode('*', $model->data[$key]->value);
 				$model->data[$key]->__deleteFile[]= $temp[0];
-				$model->data[$key]->Value = '';
-				$model->data[$key]->NeedIs = true;
+				$model->data[$key]->value = '';
+				$model->data[$key]->needIs = true;
 			}
 
 			if(sizeof($value)){
@@ -1668,28 +1567,28 @@ class _ModelFunc{
 				if(is_string($newpath)){
 					$model->data[$key]->__moveFile[]= array('source' => $value[0]['file'], 'dest' => $newpath);
 					// 기존 파일
-					if(isset($model->data[$key]->Value) && strlen($model->data[$key]->Value)){
-						$temp = explode('*', $model->data[$key]->Value);
+					if(isset($model->data[$key]->value) && strlen($model->data[$key]->value)){
+						$temp = explode('*', $model->data[$key]->value);
 						$model->data[$key]->__deleteFile[]= $temp[0];
 					}
 
-					$model->SetValue($key, $newpath . (($model->data[$key]->HtmlType === HTMLType::InputFileWithName || $model->data[$key]->HtmlType === HTMLType::InputFileJQuery) ? '*' . $value[0]['original'] : ''));
+					$model->SetValue($key, $newpath . (($model->data[$key]->htmlType === HTMLType::FILE_WITH_NAME || $model->data[$key]->htmlType === HTMLType::FILE_JQUERY) ? '*' . $value[0]['original'] : ''));
 				}
 				else{
 					if($newpath->result === -1){
-						$model->data[$key]->ModelErrorMsg = $model->data[$key]->DisplayName . '항목에 ' . $newpath->message;
+						$model->data[$key]->modelErrorMsg = $model->data[$key]->displayName . '항목에 ' . $newpath->message;
 					}
 				}
 			}
 		}
 
 		// 다중 파일, 선택 파일 삭제
-		else if($model->data[$key]->HtmlType == HTMLType::InputImageFileArray){
+		else if($model->data[$key]->htmlType == HTMLType::FILE_IMAGE_ARRAY){
 			$deleteFiles = Post('del_file_' . $key);
 
 			$valuePath = array();
-			if(strlen($model->data[$key]->Value)){
-				$p = explode(';', $model->data[$key]->Value);
+			if(strlen($model->data[$key]->value)){
+				$p = explode(';', $model->data[$key]->value);
 				foreach($p as $k => $v){
 					$f = explode('*', $v);
 					if(is_array($deleteFiles) && in_array($f[0], $deleteFiles)) $model->data[$key]->__deleteFile[]=  $f[0];
@@ -1704,7 +1603,7 @@ class _ModelFunc{
 					}
 					else{
 						if($newpath->result === -1){
-							$model->data[$key]->ModelErrorMsg = $model->data[$key]->DisplayName . '항목에 ' . $newpath->message;
+							$model->data[$key]->modelErrorMsg = $model->data[$key]->displayName . '항목에 ' . $newpath->message;
 						}
 					}
 				}
@@ -1762,8 +1661,8 @@ class _ModelFunc{
 			$ext = explode('.', $files['name']);
 			$ext = strtolower($ext[sizeof($ext)-1]);
 
-			if(in_array($ext, BH_Application::$SettingData['noext'])) return _MSG_IMPOSSIBLE_FILE;
-			else if(!in_array($ext, BH_Application::$SettingData['POSSIBLE_EXT'])) return _MSG_IMPOSSIBLE_FILE;
+			if(in_array($ext, BH_Application::$settingData['noext'])) return _MSG_IMPOSSIBLE_FILE;
+			else if(!in_array($ext, BH_Application::$settingData['POSSIBLE_EXT'])) return _MSG_IMPOSSIBLE_FILE;
 			else if($possible_ext && !in_array($ext, $possible_ext)) return _MSG_IMPOSSIBLE_FILE;
 
 			if($files['error'] ===  UPLOAD_ERR_INI_SIZE) return _MSG_FILE_TOO_BIG;
@@ -1849,7 +1748,7 @@ class CfgEmptyClass
 	}
 }
 
-BH_Application::$CFG = new CfgEmptyClass();
+BH_Application::$cfg = new CfgEmptyClass();
 
 class _CfgData
 {
@@ -1857,7 +1756,7 @@ class _CfgData
 	public $defaultValue = '';
 	public $key = '';
 	public $title = '';
-	public $type = \HTMLType::InputText;
+	public $type = \HTMLType::TEXT;
 	public $enumValues = array();
 
 	/**
@@ -1935,36 +1834,36 @@ class _CfgData
 	public function PrintInput($class = '', $attr = ''){
 		$h = '';
 		switch($this->type){
-			case \HTMLType::InputText:
+			case \HTMLType::TEXT:
 				$h = '<input type="text" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->Val()) . '" class="'. $class .'" ' . $attr .'>';
 			break;
-			case \HTMLType::InputTel:
+			case \HTMLType::TEL:
 				$h = '<input type="tel" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->Val()) . '" class="'. $class .'" ' . $attr .'>';
 			break;
-			case \HTMLType::InputEmail:
+			case \HTMLType::EMAIL:
 				$h = '<input type="email" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->Val()) . '" class="'. $class .'" ' . $attr .'>';
 			break;
-			case \HTMLType::InputNumber:
+			case \HTMLType::NUMBER:
 				$h = '<input type="number" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->Val()) . '" class="'. $class .'" ' . $attr .'>';
 			break;
-			case \HTMLType::InputEngSpecial:
-				$class .= ' ' . \HTMLType::InputEngSpecial;
+			case \HTMLType::TEXT_ENG_SPECIAL:
+				$class .= ' ' . \HTMLType::TEXT_ENG_SPECIAL;
 				$h = '<input type="text" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->Val()) . '" class="'. $class .'" ' . $attr .'>';
 			break;
-			case \HTMLType::Textarea:
+			case \HTMLType::TEXTAREA:
 				$h = '<textarea id="CFG_' . $this->key . '" name="' . $this->key .'">' .  GetDBText($this->Val()) . '</textarea>';
 			break;
-			case \HTMLType::InputImageFile:
+			case \HTMLType::FILE_IMAGE:
 				$h = '<input type="hidden" name="file_field[]" value="'. $this->key . '">';
 				if($this->value){
 					$h .= '<img src="' . _UPLOAD_URL. GetDBText($this->value) . '" style="max-width:100px; max-height:100px;">';
 				}
 				$h .= '<input type="file" name="' . $this->key .'" accept="image/*" ' . $attr . '> <label class="checkbox"><input type="checkbox" name="_delFile[]" value="' . GetDBText($this->value) . '"><span>삭제</span></label>';
 			break;
-			case \HTMLType::InputRadio:
+			case \HTMLType::RADIO:
 				$h = InputRadio($this->key, $this->enumValues, strlen($this->Val()) ? $this->Val() : $this->defaultValue);
 			break;
-			case \HTMLType::InputCheckbox:
+			case \HTMLType::CHECKBOX:
 				$h = InputCheckbox($this->key, $this->enumValues, strlen($this->Val()) ? $this->Val() : $this->defaultValue);
 			break;
 		}
@@ -1994,13 +1893,13 @@ class _ConfigModel{
 	private function __clone(){}
 
 	public function __get($name){
-		if(BH_Application::$ShowError) PrintError('존재하지 않는 환경설정값입니다.');
+		if(BH_Application::$showError) PrintError('존재하지 않는 환경설정값입니다.');
 		return _CfgData::GetInstance($name);
 	}
 
 	protected function GetFileSetting(){
 		if(!strlen($this->_code)){
-			if(BH_Application::$ShowError) PrintError('환경설정의 코드명이 빠졌습니다.');
+			if(BH_Application::$showError) PrintError('환경설정의 코드명이 빠졌습니다.');
 			exit;
 		}
 		// 설정불러오기

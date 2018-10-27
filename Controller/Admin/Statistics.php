@@ -16,20 +16,20 @@ class Statistics
 
 	public function __construct(){
 		$this->visitCounter = VisitCounter::GetInstance();
-		App::$Data['optYearArr'] = array();
+		App::$data['optYearArr'] = array();
 		for($y = 2010; $y <= date('Y'); $y++){
-			App::$Data['optYearArr'][$y] = $y . '년';
+			App::$data['optYearArr'][$y] = $y . '년';
 		}
-		App::$Data['optMonthArr'] = array();
+		App::$data['optMonthArr'] = array();
 		for($m = 1; $m <= 12; $m++){
-			App::$Data['optMonthArr'][$m] = $m . '월';
+			App::$data['optMonthArr'][$m] = $m . '월';
 		}
 	}
 
 	public function __Init(){
 		CM::AdminAuth();
-		App::$Data['NowMenu'] = '006001';
-		App::$Layout = '_AdminStatistics';
+		App::$data['NowMenu'] = '006001';
+		App::$layout = '_AdminStatistics';
 	}
 
 	// 접속자별
@@ -53,14 +53,14 @@ class Statistics
 			->SetPageUrl(App::URLAction().App::GetFollowQuery('page'))
 			->Run();
 
-		App::$Data['sData'] = array();
+		App::$data['sData'] = array();
 		$total = 0;
 		while($data = $qry->Get()){
 			$total += $data['cnt'];
-			App::$Data['sData'][$data['ip']] = $data;
+			App::$data['sData'][$data['ip']] = $data;
 		}
-		foreach(App::$Data['sData'] as $k => $row){
-			App::$Data['sData'][$k]['per'] = round(($row['cnt'] / $total) * 100);
+		foreach(App::$data['sData'] as $k => $row){
+			App::$data['sData'][$k]['per'] = round(($row['cnt'] / $total) * 100);
 		}
 
 		App::View('StatisticsVisitor', $qry);
@@ -78,14 +78,14 @@ class Statistics
 			->SetArticleCount(30)
 			->SetPageUrl(App::URLAction().App::GetFollowQuery('page'))
 			->Run();
-		App::$Data['sData'] = array();
-		App::$Data['lastDay'] = '';
-		App::$Data['firstDay'] = '9999-99-99';
+		App::$data['sData'] = array();
+		App::$data['lastDay'] = '';
+		App::$data['firstDay'] = '9999-99-99';
 		while($data = $qry->Get()){
 			$k = $data['d_y'].'-'.sprintf('%02d', $data['d_m']).'-'.sprintf('%02d', $data['d_d']);
-			App::$Data['firstDay'] = min(App::$Data['firstDay'], $k);
-			App::$Data['lastDay'] = max(App::$Data['lastDay'], $k);
-			App::$Data['sData'][$k] = $data;
+			App::$data['firstDay'] = min(App::$data['firstDay'], $k);
+			App::$data['lastDay'] = max(App::$data['lastDay'], $k);
+			App::$data['sData'][$k] = $data;
 		}
 		$this->_SetTotal();
 		App::View('StatisticsDay', $qry);
@@ -96,7 +96,7 @@ class Statistics
 		if(Get('bd') > Get('ed')) URLRedirect(-1, '시작일을 종료일보다 낮게 검색하여주세요.');
 		if(!isset($_GET['bd'])) $_GET['bd'] = (date('Y') - 1).date('m-d');
 		$this->_SetGetParam();
-		App::$Data['sData'] = $this->visitCounter->GetStatisticsMonth();
+		App::$data['sData'] = $this->visitCounter->GetStatisticsMonth();
 		$this->_SetTotal();
 		App::View('StatisticsMonth');
 	}
@@ -107,9 +107,9 @@ class Statistics
 		if(!isset($_GET['bd'])) $_GET['bd'] = (date('Y') - 1);
 		App::SetFollowQuery('bd', 'ed');
 		$this->_SetGetParam();
-		App::$Data['beginDate'] = substr(App::$Data['beginDate'], 0, 4);
-		App::$Data['endDate'] = substr(App::$Data['endDate'], 0, 4);
-		App::$Data['sData'] = $this->visitCounter->GetStatisticsYear();
+		App::$data['beginDate'] = substr(App::$data['beginDate'], 0, 4);
+		App::$data['endDate'] = substr(App::$data['endDate'], 0, 4);
+		App::$data['sData'] = $this->visitCounter->GetStatisticsYear();
 		$this->_SetTotal();
 		App::View('StatisticsYear');
 	}
@@ -119,7 +119,7 @@ class Statistics
 		if(Get('bd') > Get('ed')) URLRedirect(-1, '시작일을 종료일보다 낮게 검색하여주세요.');
 		App::SetFollowQuery('bd', 'ed');
 		$this->_SetGetParam();
-		App::$Data['sData'] = $this->visitCounter->GetStatisticsWeek();
+		App::$data['sData'] = $this->visitCounter->GetStatisticsWeek();
 		$this->_SetTotal();
 		App::View('StatisticsWeek');
 	}
@@ -129,7 +129,7 @@ class Statistics
 		if(Get('bd') > Get('ed')) URLRedirect(-1, '시작일을 종료일보다 낮게 검색하여주세요.');
 		App::SetFollowQuery('bd', 'ed');
 		$this->_SetGetParam();
-		App::$Data['sData'] = $this->visitCounter->GetStatisticsHour();
+		App::$data['sData'] = $this->visitCounter->GetStatisticsHour();
 		$this->_SetTotal();
 		App::View('StatisticsHour');
 	}
@@ -139,7 +139,7 @@ class Statistics
 		if(Get('bd') > Get('ed')) URLRedirect(-1, '시작일을 종료일보다 낮게 검색하여주세요.');
 		App::SetFollowQuery('bd', 'ed');
 		$this->_SetGetParam();
-		App::$Data['sData'] = $this->visitCounter->GetStatisticsBrowser();
+		App::$data['sData'] = $this->visitCounter->GetStatisticsBrowser();
 		$this->_SetTotal();
 		App::View('StatisticsBrowser');
 	}
@@ -149,7 +149,7 @@ class Statistics
 		if(Get('bd') > Get('ed')) URLRedirect(-1, '시작일을 종료일보다 낮게 검색하여주세요.');
 		App::SetFollowQuery('bd', 'ed');
 		$this->_SetGetParam();
-		App::$Data['sData'] = $this->visitCounter->GetStatisticsDevice();
+		App::$data['sData'] = $this->visitCounter->GetStatisticsDevice();
 		$this->_SetTotal();
 		App::View('StatisticsDevice');
 	}
@@ -159,7 +159,7 @@ class Statistics
 		if(Get('bd') > Get('ed')) URLRedirect(-1, '시작일을 종료일보다 낮게 검색하여주세요.');
 		App::SetFollowQuery('bd', 'ed');
 		$this->_SetGetParam();
-		App::$Data['sData'] = $this->visitCounter->GetStatisticsURI();
+		App::$data['sData'] = $this->visitCounter->GetStatisticsURI();
 		$this->_SetTotal();
 		App::View('StatisticsURI');
 
@@ -170,7 +170,7 @@ class Statistics
 		if(Get('bd') > Get('ed')) URLRedirect(-1, '시작일을 종료일보다 낮게 검색하여주세요.');
 		App::SetFollowQuery('bd', 'ed');
 		$this->_SetGetParam();
-		App::$Data['sData'] = $this->visitCounter->GetStatisticsOS();
+		App::$data['sData'] = $this->visitCounter->GetStatisticsOS();
 		$this->_SetTotal();
 		App::View('StatisticsOS');
 
@@ -179,15 +179,15 @@ class Statistics
 
 
 	private function _SetTotal(){
-		App::$Data['visitTotal'] = 0;
-		App::$Data['loginTotal'] = 0;
-		foreach(App::$Data['sData'] as $row){
-			App::$Data['visitTotal'] += $row['visit'];
-			App::$Data['loginTotal'] += $row['login'];
+		App::$data['visitTotal'] = 0;
+		App::$data['loginTotal'] = 0;
+		foreach(App::$data['sData'] as $row){
+			App::$data['visitTotal'] += $row['visit'];
+			App::$data['loginTotal'] += $row['login'];
 		}
-		foreach(App::$Data['sData'] as $k => $row){
-			App::$Data['sData'][$k]['visitPer'] = App::$Data['visitTotal'] ? round(($row['visit'] / App::$Data['visitTotal']) * 100) : 0;
-			App::$Data['sData'][$k]['loginPer'] = App::$Data['loginTotal'] ? round(($row['login'] / App::$Data['loginTotal']) * 100) : 0;
+		foreach(App::$data['sData'] as $k => $row){
+			App::$data['sData'][$k]['visitPer'] = App::$data['visitTotal'] ? round(($row['visit'] / App::$data['visitTotal']) * 100) : 0;
+			App::$data['sData'][$k]['loginPer'] = App::$data['loginTotal'] ? round(($row['login'] / App::$data['loginTotal']) * 100) : 0;
 		}
 	}
 
@@ -202,7 +202,7 @@ class Statistics
 		if(strlen($ed) >= 4) $this->visitCounter->viewOption['endY'] = substr($ed, 0, 4);
 		if(strlen($ed) >= 6) $this->visitCounter->viewOption['endM'] = substr($ed, 4, 2);
 		if(strlen($ed) >= 8) $this->visitCounter->viewOption['endD'] = substr($ed, 6, 2);
-		App::$Data['beginDate'] = $this->visitCounter->viewOption['beginY'] . '-' . $this->visitCounter->viewOption['beginM'] . '-' . $this->visitCounter->viewOption['beginD'];
-		App::$Data['endDate'] = $this->visitCounter->viewOption['endY'] . '-' . $this->visitCounter->viewOption['endM'] . '-' . $this->visitCounter->viewOption['endD'];
+		App::$data['beginDate'] = $this->visitCounter->viewOption['beginY'] . '-' . $this->visitCounter->viewOption['beginM'] . '-' . $this->visitCounter->viewOption['beginD'];
+		App::$data['endDate'] = $this->visitCounter->viewOption['endY'] . '-' . $this->visitCounter->viewOption['endM'] . '-' . $this->visitCounter->viewOption['endD'];
 	}
 }

@@ -10,19 +10,19 @@ use \BH_Application as App;
 ?>
 
 <div class="searchForm">
-	<form id="schForm" name="schForm" method="get" action="<?a. App::$Action ?>">
+	<form id="schForm" name="schForm" method="get" action="<?a. App::$action ?>">
 		<dl>
 			<dt>기간 검색</dt>
 			<dd>
 				<div class="selectBox">
 					<select name="bd">
-						<?p. SelectOption(App::$Data['optYearArr'], App::$Data['beginDate']) ?>
+						<?p. SelectOption(App::$data['optYearArr'], App::$data['beginDate']) ?>
 					</select>
 				</div>
 				~
 				<div class="selectBox">
 					<select name="ed">
-						<?p. SelectOption(App::$Data['optYearArr'], App::$Data['endDate']) ?>
+						<?p. SelectOption(App::$data['optYearArr'], App::$data['endDate']) ?>
 					</select>
 				</div>
 				<button type="submit" class="mBtn">검색</button>
@@ -42,8 +42,8 @@ use \BH_Application as App;
 		</thead>
 		<tbody>
 		<?php
-		foreach(App::$Data['sData'] as $k => $row){
-			$row = isset(App::$Data['sData'][$k]) ? App::$Data['sData'][$k] : array('visit' => 0, 'visitPer' => 0, 'login' => 0, 'loginPer' => 0);
+		foreach(App::$data['sData'] as $k => $row){
+			$row = isset(App::$data['sData'][$k]) ? App::$data['sData'][$k] : array('visit' => 0, 'visitPer' => 0, 'login' => 0, 'loginPer' => 0);
 			echo '<tr>';
 			echo '<th>';
 			echo $k;

@@ -16,7 +16,7 @@ use \BH_Application as App;
 	</header>
 	<?php } ?>
 
-	<?php if(sizeof(App::$Data['notice'])){ ?>
+	<?php if(sizeof(App::$data['notice'])){ ?>
 	<div class="noticeArticles">
 		<header>
 			<ul>
@@ -28,7 +28,7 @@ use \BH_Application as App;
 			</ul>
 		</header>
 		<?php
-		foreach(App::$Data['notice'] as $row){
+		foreach(App::$data['notice'] as $row){
 			$secretIcon = $row['secret'] == 'y' ? '<span class="secretDoc">[비밀글]</span> ' : '';
 			$newtIcon = $row['newArticleIs'] ? '<span class="newDoc">[새글]</span> ' : '';
 			?>

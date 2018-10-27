@@ -25,14 +25,14 @@ class Login{
 	public $defCfg;
 
 	public function __construct(){
-		$this->defCfg = App::$CFG->Def();
+		$this->defCfg = App::$cfg->Def();
 	}
 
 	public function __init(){
 		$this->model = App::InitModel('Member');
 		$this->useMailId = ($this->defCfg->useMailId->Val() == 'y');
 		$this->mailIdAddrSelection = ($this->defCfg->mailIdAddrSelection->Val() == 'y');
-		if(_MEMBERIS === true && !in_array(App::$Action, array('Logout'))) URLRedirect(_URL . '/');
+		if(_MEMBERIS === true && !in_array(App::$action, array('Logout'))) URLRedirect(_URL . '/');
 	}
 
 	public function Index(){
@@ -83,17 +83,17 @@ class Login{
 	}
 
 	public function PostRegister(){
-		App::$Html = 'RegisterForm.html';
-		$this->model->data['nickname']->Required = true;
-		App::$Data['email1'] = '';
-		App::$Data['email2'] = '';
+		App::$html = 'RegisterForm.html';
+		$this->model->data['nickname']->required = true;
+		App::$data['email1'] = '';
+		App::$data['email2'] = '';
 		App::View($this->model);
 	}
 
 	private function _PostRegister($msg){
-		App::$Data['alertMsg'] = $msg;
-		App::$Data['email1'] = Post('email1');
-		App::$Data['email2'] = Post('email2');
+		App::$data['alertMsg'] = $msg;
+		App::$data['email1'] = Post('email1');
+		App::$data['email2'] = Post('email2');
 		App::View('RegisterForm', $this->model);
 	}
 
@@ -154,7 +154,7 @@ class Login{
 			$this->_PostRegister('DB ERROR');
 			return;
 		}
-		else $this->model->_muid->Value = $res->id;
+		else $this->model->_muid->value = $res->id;
 
 		if($this->defCfg->joinApprove->Val() !== 'y' && $this->defCfg->emailCer->Val() !== 'n'){
 			$this->_SendEmailCode($this->model);
@@ -241,7 +241,7 @@ class Login{
 		$key = EmptyPost('mname') ? 'nickname' : 'mname';
 		if(EmptyPost($key)) JSON(false, _WRONG_CONNECTED);
 		if(EmptyPost('email')) JSON(false, _WRONG_CONNECTED);
-		if(App::$ID == 'PW' && !strlen(Post('mid'))) JSON(false, _WRONG_CONNECTED);
+		if(App::$id == 'PW' && !strlen(Post('mid'))) JSON(false, _WRONG_CONNECTED);
 
 		$qry = DB::GetQryObj($this->model->table)
 			->AddWhere($key . ' = %s', Post($key))
@@ -249,7 +249,7 @@ class Login{
 			->SetKey('muid', 'mname', 'nickname', 'mid', 'email');
 
 		// 패스워드 찾기
-		if(App::$ID == 'PW'){
+		if(App::$id == 'PW'){
 			$qry->AddWhere('mid = %s', Post('mid'));
 			$res = $qry->Get();
 			if($res){
@@ -388,14 +388,14 @@ class Login{
 	 */
 	private function _SendEmailCode($model){
 		$mail = Email::GetInstance();
-		$mail->AddMail($model->_email->Value, $model->_mname->Value);
+		$mail->AddMail($model->_email->value, $model->_mname->value);
 
 
 		$t = explode(' ', microtime());
 		$t2 = trim(str_replace('.','',$t[0]));
 		$code = date('Y-m-d H:i:s').toBase(mt_rand(10000, 99999).substr($t2, 0, 4), 36);
 
-		\DB::SQL()->CCQuery($this->model->table, 'UPDATE %t SET email_code = %s WHERE muid = %d', aes_encrypt($code, PW_RESET_KEY), $model->_muid->Value);
-		$mail->SendMailByEmailCertification($model->_mid->Value, $model->_mname->Value, $model->_mid->Value.':'.substr($code, 19));
+		\DB::SQL()->CCQuery($this->model->table, 'UPDATE %t SET email_code = %s WHERE muid = %d', aes_encrypt($code, PW_RESET_KEY), $model->_muid->value);
+		$mail->SendMailByEmailCertification($model->_mid->value, $model->_mname->value, $model->_mid->value.':'.substr($code, 19));
 	}
 }

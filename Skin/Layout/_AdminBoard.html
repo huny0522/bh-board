@@ -13,8 +13,8 @@ App::$parentLayout = '_Admin';
 
 $g_n = DB::GetQryObj(TABLE_BOARD_MNG)
 	->SetKey('group_name')
-	->AddWhere('bid = %s', App::$TID)
-	->AddWhere('subid = %s', App::$SUB_TID)
+	->AddWhere('bid = %s', App::$tid)
+	->AddWhere('subid = %s', App::$sub_tid)
 	->Get();
 
 if($g_n){
@@ -25,10 +25,10 @@ if($g_n){
 
 	echo '<ul class="BMGroupCategory">';
 	foreach($groupBM as $k => $row){
-		echo '<li '.($row['bid'] == App::$TID && $row['subid'] == App::$SUB_TID ? ' class="active"' : '').'>'
+		echo '<li '.($row['bid'] == App::$tid && $row['subid'] == App::$sub_tid ? ' class="active"' : '').'>'
 			.'<span><a href="'. _ADMINURL.'/Board/'.$row['bid'].(strlen($row['bid']) ? '-' : '').$row['subid'].'">'.$row['subject'].'</a></span>';
 	}
 	echo '</ul>';
 }
 
-echo App::$BodyHtml;
+echo App::$bodyHtml;

@@ -5,25 +5,25 @@ use \BH_Application as App;
 /**
  * @var $Model \BoardManagerModel
  */
-App::$Data['category'] = explode(',', $Model->_category->txt());
-if(App::$Action === 'Copy'){
-	App::$Data['selectedMenu'] = array();
+App::$data['category'] = explode(',', $Model->_category->Txt());
+if(App::$action === 'Copy'){
+	App::$data['selectedMenu'] = array();
 	$tt = '복사';
 }
-else if(App::$Action === 'Write'){
+else if(App::$action === 'Write'){
 	$tt = '등록';
 }
-else if(App::$Action === 'Modify'){
+else if(App::$action === 'Modify'){
 	$tt = '수정';
 }
 ?>
 
 <h2>게시판관리(<?p. $tt ?>)</h2>
 
-<?php if(isset(App::$Data['error'])) echo '<p class="alert">' . App::$Data['error'] . '</p>'; ?>
+<?php if(isset(App::$data['error'])) echo '<p class="alert">' . App::$data['error'] . '</p>'; ?>
 
-<form name="BoardManagerWriteForm" id="BoardManagerWriteForm" method="post" action="<?a. App::$Action == 'Copy' ? 'Write' : App::$Action ?><?fq. '' ?>">
-	<?php if(App::$Action == 'Modify'){?>
+<form name="BoardManagerWriteForm" id="BoardManagerWriteForm" method="post" action="<?a. App::$action == 'Copy' ? 'Write' : App::$action ?><?fq. '' ?>">
+	<?php if(App::$action == 'Modify'){?>
 		<input type="hidden" name="bid" value="<?mv('bid') ?>">
 		<input type="hidden" name="subid" value="<?mv('subid') ?>">
 	<?php } ?>
@@ -37,13 +37,13 @@ else if(App::$Action === 'Modify'){
 				<?minp('subject', array('class' => 'w40p')) ?>
 			</td>
 		</tr>
-		<?php if(App::$Action != 'Modify'){?>
+		<?php if(App::$action != 'Modify'){?>
 			<tr>
 				<th><i class="requiredBullet" title="필수항목">*</i> <?mt('bid')?></th>
 				<td>
 					<select id="bid_choice">
 						<option value="">선택</option>
-						<?p. SelectOption(App::$Data['bids'], $Model->GetValue('bid')) ?>
+						<?p. SelectOption(App::$data['bids'], $Model->GetValue('bid')) ?>
 						<option value="x">새로운 테이블 생성</option>
 					</select>
 					<span class="hidden" id="bid_real"><input type="text" name="bid" value="<?mv('bid') ?>" id="category"></span>
@@ -69,7 +69,7 @@ else if(App::$Action === 'Modify'){
 				<th><?mt('bid')?></th>
 				<td><?mv('bid') ?></td>
 				<th><?mt('subid')?></th>
-				<td><?v. strlen($Model->_subid->Value) ? $Model->_subid->Value : '없음' ?></td>
+				<td><?v. strlen($Model->_subid->value) ? $Model->_subid->value : '없음' ?></td>
 			</tr>
 		<?php }?>
 
@@ -79,25 +79,25 @@ else if(App::$Action === 'Modify'){
 			<td colspan="3">
 				<select id="group_name_choice">
 					<option value="">선택</option>
-					<?p. SelectOption(App::$Data['group_name'], $Model->GetValue('group_name')) ?>
+					<?p. SelectOption(App::$data['group_name'], $Model->GetValue('group_name')) ?>
 					<option value="x">추가</option>
 				</select>
 				<span class="hidden" id="group_name_real"><input type="text" name="group_name" value="<?mv('group_name') ?>" id="group_name"></span>
 			</td>
 		</tr>
 
-		<?php if(App::$Data['menuAuth']){?>
+		<?php if(App::$data['menuAuth']){?>
 			<tr>
 				<th>연결메뉴</th>
 				<td colspan="3" class="menuSelectArea">
 					<?php
-					if(isset(App::$Data['selectedMenu']) && sizeof(App::$Data['selectedMenu'])){
-						foreach(App::$Data['selectedMenu'] as $selectedMenu){ ?>
+					if(isset(App::$data['selectedMenu']) && sizeof(App::$data['selectedMenu'])){
+						foreach(App::$data['selectedMenu'] as $selectedMenu){ ?>
 							<div class="menuSelect">
 								<select name="selectmenu[]">
 									<option value="">선택</option>
 									<?php
-									foreach(App::$Data['menu'] as $menu){
+									foreach(App::$data['menu'] as $menu){
 										$length = min(strlen($selectedMenu['category']), strlen($menu['category']));
 										$selected = (strlen($selectedMenu['category']) && substr($selectedMenu['category'], 0, $length) == substr($menu['category'], 0, $length)) ? ' selected' : '';
 										?>
@@ -111,7 +111,7 @@ else if(App::$Action === 'Modify'){
 						<div class="menuSelect">
 							<select name="selectmenu[]">
 								<option value="">선택</option>
-								<?php foreach(App::$Data['menu'] as $menu){ ?>
+								<?php foreach(App::$data['menu'] as $menu){ ?>
 									<option value="<? p.$menu['category'] ?>"><? v.$menu['title'] ?></option>
 								<?php } ?>
 							</select>
@@ -266,7 +266,7 @@ else if(App::$Action === 'Modify'){
 	</table>
 
 	<div class="bottomBtn">
-		<button type="submit" class="bBtn"><?php echo App::$Action == 'Modify' ? '수정' : '등록'; ?></button>
+		<button type="submit" class="bBtn"><?php echo App::$action == 'Modify' ? '수정' : '등록'; ?></button>
 		<a href="#" id="deleteArticle" class="bBtn btn3">삭제</a>
 		<a href="<?a. '' ?><?fq. '' ?>" class="bBtn">목록</a>
 	</div>
@@ -293,7 +293,7 @@ else if(App::$Action === 'Modify'){
 		}
 	});
 
-	<?php if(App::$Data['menuAuth']){?>
+	<?php if(App::$data['menuAuth']){?>
 
 	$(document).on('change', '.menuSelect select', function(){
 		removeNext(this);
@@ -301,7 +301,7 @@ else if(App::$Action === 'Modify'){
 	});
 
 	$(document).ready(function(){
-		<?php if(isset(App::$Data['selectedMenu'])) foreach(App::$Data['selectedMenu'] as $k => $selectedMenu){ ?>
+		<?php if(isset(App::$data['selectedMenu'])) foreach(App::$data['selectedMenu'] as $k => $selectedMenu){ ?>
 		getSubMenu($('.menuSelect').eq(<?p. $k ?>).find('select'), '<?p. $selectedMenu['category'] ?>');
 		<?php } ?>
 	});
@@ -403,8 +403,8 @@ else if(App::$Action === 'Modify'){
 
 	$(document).ready(function(){
 		<?php
-		if(App::$Action === 'Modify' && isset(App::$Data['subCategoryData'])){
-			foreach(App::$Data['subCategoryData'] as $k => $v){
+		if(App::$action === 'Modify' && isset(App::$data['subCategoryData'])){
+			foreach(App::$data['subCategoryData'] as $k => $v){
 				echo 'InsertCaregoryData(\'' . GetDBText($k) . '\', \'' . GetDBText(implode(',', $v)) . '\');';
 			}
 			echo 'categoryShow()';
@@ -417,8 +417,8 @@ else if(App::$Action === 'Modify'){
 
 <div id="deleteForm" class="hidden modalConfirm">
 	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete' ?><?fq. '' ?>">
-		<input type="hidden" name="bid" value="<?v. $Model->_bid->Value ?>">
-		<input type="hidden" name="subid" value="<?v. $Model->_subid->Value ?>">
+		<input type="hidden" name="bid" value="<?v. $Model->_bid->value ?>">
+		<input type="hidden" name="subid" value="<?v. $Model->_subid->value ?>">
 		<p>정말 삭제하시겠습니까?</p>
 		<div class="sPopBtns">
 			<button type="submit" class="mBtn">삭제하기</button>

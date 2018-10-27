@@ -28,41 +28,41 @@ class ContentModel extends \BH_Model
 {
 
 	public function __Init(){
-		$this->Key[] = 'bid';
+		$this->key[] = 'bid';
 		$this->table = TABLE_CONTENT;
 
-		$this->data['subject'] = new \BH_ModelData(ModelType::String, '제목');
-		$this->data['subject']->MaxLength = 128;
-		$this->data['subject']->Required = true;
+		$this->data['subject'] = new \BH_ModelData(ModelType::STRING, '제목');
+		$this->data['subject']->maxLength = 128;
+		$this->data['subject']->required = true;
 
-		$this->data['category'] = new \BH_ModelData(ModelType::String, '분류');
-		$this->data['category']->MaxLength = 128;
-		$this->data['category']->Required = true;
+		$this->data['category'] = new \BH_ModelData(ModelType::STRING, '분류');
+		$this->data['category']->maxLength = 128;
+		$this->data['category']->required = true;
 
-		$this->data['bid'] = new \BH_ModelData(ModelType::String, '아이디', HTMLType::InputEngSpecial);
-		$this->data['bid']->MinLength = '1';
-		$this->data['bid']->MaxLength = '20';
-		$this->data['bid']->Required = true;
+		$this->data['bid'] = new \BH_ModelData(ModelType::STRING, '아이디', HTMLType::TEXT_ENG_SPECIAL);
+		$this->data['bid']->minLength = '1';
+		$this->data['bid']->maxLength = '20';
+		$this->data['bid']->required = true;
 
-		$this->data['html'] = new \BH_ModelData(ModelType::String, '컨텐츠파일');
-		$this->data['html']->MinLength = '1';
-		$this->data['html']->MaxLength = '256';
-		$this->data['html']->Required = true;
+		$this->data['html'] = new \BH_ModelData(ModelType::STRING, '컨텐츠파일');
+		$this->data['html']->minLength = '1';
+		$this->data['html']->maxLength = '256';
+		$this->data['html']->required = true;
 
-		$this->data['layout'] = new \BH_ModelData(ModelType::String, '레이아웃');
-		$this->data['layout']->MinLength = '1';
-		$this->data['layout']->MaxLength = '50';
+		$this->data['layout'] = new \BH_ModelData(ModelType::STRING, '레이아웃');
+		$this->data['layout']->minLength = '1';
+		$this->data['layout']->maxLength = '50';
 
-		$this->data['hit'] = new \BH_ModelData(ModelType::Int, '조회수');
+		$this->data['hit'] = new \BH_ModelData(ModelType::INT, '조회수');
 
-		$this->data['read'] = new \BH_ModelData(ModelType::Int, '읽음수');
-		$this->data['recommend'] = new \BH_ModelData(ModelType::Int, '추천수');
-		$this->data['oppose'] = new \BH_ModelData(ModelType::Int, '반대수');
-		$this->data['scrap'] = new \BH_ModelData(ModelType::Int, '스크랩수');
-		$this->data['reg_date'] = new \BH_ModelData(ModelType::Datetime, '등록일');
+		$this->data['read'] = new \BH_ModelData(ModelType::INT, '읽음수');
+		$this->data['recommend'] = new \BH_ModelData(ModelType::INT, '추천수');
+		$this->data['oppose'] = new \BH_ModelData(ModelType::INT, '반대수');
+		$this->data['scrap'] = new \BH_ModelData(ModelType::INT, '스크랩수');
+		$this->data['reg_date'] = new \BH_ModelData(ModelType::DATETIME, '등록일');
 
-		$this->data['subscribe'] = new \BH_ModelData(ModelType::Int, 'subscribe');
-		$this->data['subscribe']->DefaultValue = 0;
+		$this->data['subscribe'] = new \BH_ModelData(ModelType::INT, 'subscribe');
+		$this->data['subscribe']->defaultValue = 0;
 	} // __Init
 
 	public function DBInsert($test = false){

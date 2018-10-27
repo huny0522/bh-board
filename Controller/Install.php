@@ -13,7 +13,7 @@ use \DB as DB;
 class Install{
 
 	public function __construct(){
-		if(App::$InstallIs) exit;
+		if(App::$installIs) exit;
 	}
 
 	public function Index(){

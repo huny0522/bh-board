@@ -22,11 +22,11 @@ class Member{
 	}
 
 	public function __init(){
-		App::$Data['NowMenu'] = '005';
+		App::$data['NowMenu'] = '005';
 		CM::AdminAuth();
 
 		App::SetFollowQuery(array('SLevel', 'keyword','page'));
-		App::$Layout = '_Admin';
+		App::$layout = '_Admin';
 	}
 
 	public function Index(){
@@ -65,16 +65,16 @@ class Member{
 		App::View($this->model);
 	}
 	public function Write(){
-		foreach($this->model->data['level']->EnumValues as $k => $v){
-			if($k <= $_SESSION['member']['level']) App::$Data['level'][$k] = $v;
+		foreach($this->model->data['level']->enumValues as $k => $v){
+			if($k <= $_SESSION['member']['level']) App::$data['level'][$k] = $v;
 		}
 		App::View($this->model);
 	}
 	public function Modify(){
-		foreach($this->model->data['level']->EnumValues as $k => $v){
-			if($k <= $_SESSION['member']['level']) App::$Data['level'][$k] = $v;
+		foreach($this->model->data['level']->enumValues as $k => $v){
+			if($k <= $_SESSION['member']['level']) App::$data['level'][$k] = $v;
 		}
-		$this->model->data['pwd']->Required = false;
+		$this->model->data['pwd']->required = false;
 		$res = $this->model->DBGet($_GET['muid']);
 		if($this->model->GetValue('level') > $_SESSION['member']['level'] || ($_SESSION['member']['muid'] != $this->model->GetValue('muid') && $this->model->GetValue('level') == $_SESSION['member']['level'])){
 			URLReplace('-1', _MSG_WRONG_CONNECTED);
@@ -82,39 +82,39 @@ class Member{
 
 		if(!$res->result) URLReplace('-1', $res->message);
 
-		App::$Html = 'Write';
+		App::$html = 'Write';
 		App::View($this->model);
 	}
 	public function PostWrite(){
 		$res = $this->model->SetPostValues();
 		if(!$res->result){
-			App::$Data['error'] = $res->message ? $res->message : 'ERROR';
+			App::$data['error'] = $res->message ? $res->message : 'ERROR';
 			App::View($this->model);
 			return;
 		}
 
 		$row = \DB::SQL()->Fetch('SELECT COUNT(*) as cnt FROM %1 WHERE mid=%s', $this->model->table, $_POST['mid']);
 		if($row['cnt']){
-			App::$Data['error'] = '중복되는 아이디가 존재합니다.';
+			App::$data['error'] = '중복되는 아이디가 존재합니다.';
 			App::View($this->model);
 			return;
 		}
 		$row = \DB::SQL()->Fetch('SELECT COUNT(*) as cnt FROM %1 WHERE nickname=%s', $this->model->table, $_POST['nickname']);
 		if($row['cnt']){
-			App::$Data['error'] = '중복되는 닉네임이 존재합니다.';
+			App::$data['error'] = '중복되는 닉네임이 존재합니다.';
 			App::View($this->model);
 			return;
 		}
 		$row = \DB::SQL()->Fetch('SELECT COUNT(*) as cnt FROM %1 WHERE email=%s', $this->model->table, $_POST['email']);
 		if($row['cnt']){
-			App::$Data['error'] = '중복되는 이메일이 존재합니다.';
+			App::$data['error'] = '중복되는 이메일이 존재합니다.';
 			App::View($this->model);
 			return;
 		}
 
 		$err = $this->model->GetErrorMessage();
 		if(sizeof($err)){
-			App::$Data['error'] = $err[0];
+			App::$data['error'] = $err[0];
 			App::View($this->model);
 			return;
 		}
@@ -167,7 +167,7 @@ class Member{
 	}
 
 	public function AuthAdmin(){
-		App::$Layout = null;
+		App::$layout = null;
 		if($_SESSION['member']['level'] != _SADMIN_LEVEL) return;
 		$dbGet = new \BH_DB_Get($this->model->table);
 		$dbGet->AddWhere('muid='.SetDBInt($_GET['muid']));
@@ -175,7 +175,7 @@ class Member{
 		$res = $dbGet->Get();
 		if(!$res) return;
 		if($res['level'] != _ADMIN_LEVEL) return;
-		App::$Data['auth'] = explode(',', $res['admin_auth']);
+		App::$data['auth'] = explode(',', $res['admin_auth']);
 		JSON(true, '', App::GetView());
 	}
 
@@ -210,7 +210,7 @@ class Member{
 	public static function _Withdraw($muid, $reason){
 		$model = new \MemberModel();
 		$model->DBGet($muid);
-		if($model->_level->Value >= _ADMIN_LEVEL && $model->_level->Value >= $_SESSION['member']['level']){
+		if($model->_level->value >= _ADMIN_LEVEL && $model->_level->value >= $_SESSION['member']['level']){
 			return \BH_Result::Init(false, '관리자는 탈퇴가 불가능합니다.');
 		}
 
@@ -231,16 +231,16 @@ class Member{
 			$v->SetMinLength(false);
 			$v->SetMinValue(false);
 			$v->SetRequired(false);
-			if($v->Type == \ModelType::Int || $v->Type == \ModelType::Float){
+			if($v->type == \ModelType::INT || $v->type == \ModelType::FLOAT){
 				$v->SetValue(0);
 			}
-			else if($v->Type == \ModelType::Enum){
-				if(is_array($v->EnumValues) && sizeof($v->EnumValues)){
-					reset($v->EnumValues);
-					$v->SetValue(key($v->EnumValues));
+			else if($v->type == \ModelType::ENUM){
+				if(is_array($v->enumValues) && sizeof($v->enumValues)){
+					reset($v->enumValues);
+					$v->SetValue(key($v->enumValues));
 				}
 			}
-			else if($v->Type == \ModelType::Date || $v->Type == \ModelType::Datetime){
+			else if($v->type == \ModelType::DATE || $v->type == \ModelType::DATETIME){
 				continue;
 			}
 			else{

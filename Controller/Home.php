@@ -14,9 +14,9 @@ class Home{
 	}
 
 	public function Index(){
-		App::$Data['freeBoard'] = CM::GetBoardArticle('board', 'free_board', '', 5);
-		App::$Data['notice'] = CM::GetBoardArticle('board', 'notice', '', 5);
-		App::$Data['gallery'] = CM::GetBoardArticle('board', 'gallery', '', 5);
+		App::$data['freeBoard'] = CM::GetBoardArticle('board', 'free_board', '', 5);
+		App::$data['notice'] = CM::GetBoardArticle('board', 'notice', '', 5);
+		App::$data['gallery'] = CM::GetBoardArticle('board', 'gallery', '', 5);
 		App::View();
 	}
 }

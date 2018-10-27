@@ -19,7 +19,7 @@ class MyPage{
 
 	public function __init(){
 		CM::MemberAuth(1);
-		App::$Layout = '_MyPage';
+		App::$layout = '_MyPage';
 	}
 
 	public function Index(){
@@ -88,12 +88,12 @@ class MyPage{
 
 	public function MyInfo(){
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
-			App::$Html = 'Password.html';
+			App::$html = 'Password.html';
 			App::View();
 			return;
 		}
 		$model = App::InitModel('Member');
-		$model->data['pwd']->Required = false;
+		$model->data['pwd']->required = false;
 		$model->DBGet($_SESSION['member']['muid']);
 		App::View($model);
 	}
@@ -108,11 +108,11 @@ class MyPage{
 		$model = App::InitModel('Member');
 		$model->DBGet($_SESSION['member']['muid']);
 		$model->AddExcept(array('level','approve'));
-		$model->data['pwd']->Required = false;
+		$model->data['pwd']->required = false;
 		$model->SetPostValues();
 		if(isset($_POST['pwd']) && strlen($_POST['pwd'])){
 			if(isset($_POST['pwdchk']) && strlen($_POST['pwd'])){
-				App::$Data['error'] = '비밀번호가 일치하지 않습니다.';
+				App::$data['error'] = '비밀번호가 일치하지 않습니다.';
 			}else{
 				URLReplace('-1', _MSG_WRONG_CONNECTED);
 			}
@@ -122,10 +122,10 @@ class MyPage{
 
 		$error = $model->GetErrorMessage();
 		if(sizeof($error)){
-			App::$Data['error'] = $error[0];
+			App::$data['error'] = $error[0];
 		}
 
-		if(!isset(App::$Data['error'])){
+		if(!isset(App::$data['error'])){
 			$model->DBUpdate();
 			URLReplace(App::URLAction(), '수정되었습니다.');
 		}
@@ -138,7 +138,7 @@ class MyPage{
 		if($_SESSION['member']['level'] >= _ADMIN_LEVEL) URLRedirect(-1, '관리자는 탈퇴가 불가능합니다.');
 
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
-			App::$Html = 'Password.html';
+			App::$html = 'Password.html';
 			App::View();
 			return;
 		}

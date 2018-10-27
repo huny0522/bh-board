@@ -18,7 +18,7 @@ App::JSAdd('contents.js' . CM::RefreshParam(), 10);
 App::JSAdd('admin.js' . CM::RefreshParam(), 10);
 ?>
 
-<div id="wrap"<?php if((isset($_COOKIE['managerSideView']) && $_COOKIE['managerSideView'] == 'no') || App::$ControllerName == 'Home') echo ' class="sideHidden"'; ?>>
+<div id="wrap"<?php if((isset($_COOKIE['managerSideView']) && $_COOKIE['managerSideView'] == 'no') || App::$controllerName == 'Home') echo ' class="sideHidden"'; ?>>
 	<header id="header">
 		<div id="header_wrap">
 			<h1><a href="<?p. _ADMINURL ?>"><span>ADMINISTRATOR</span></a></h1>
@@ -34,16 +34,16 @@ App::JSAdd('admin.js' . CM::RefreshParam(), 10);
 			<nav id="tnb">
 				<ul>
 					<?php
-					$NM = App::$Data['NowMenu'];
+					$NM = App::$data['NowMenu'];
 					$AdminAuth = explode(',', CM::GetMember('admin_auth'));
-					foreach(App::$SettingData['AdminMenu'] as $c => $v){
+					foreach(App::$settingData['AdminMenu'] as $c => $v){
 						if(strlen($c) == 3 && ($_SESSION['member']['level'] == _SADMIN_LEVEL || in_array($c, $AdminAuth))){
 							echo '<li '.(substr($NM,0,3) == $c ? ' class="Active"' : '').'>'
 								.'<span><a href="'. _ADMINURL.'/'.$v['Category'].'">'.$v['Name'].'</a></span>';
 
 							$sub = '';
 
-							foreach(App::$SettingData['AdminMenu'] as $c2 => $v2){
+							foreach(App::$settingData['AdminMenu'] as $c2 => $v2){
 								if(strlen($c2) == 6 && substr($c2, 0, 3) == $c && ($_SESSION['member']['level'] == _SADMIN_LEVEL || in_array($c2, $AdminAuth))){
 									$sub .= '<li '.(substr($NM,0,6) == $c2 ? ' class="Active"' : '').'>'
 										.'<span><a href="'. _ADMINURL.'/'.$v2['Category'].'">'.$v2['Name'].'</a></span>';
@@ -52,11 +52,11 @@ App::JSAdd('admin.js' . CM::RefreshParam(), 10);
 
 							if(substr($v['Category'], 0, 12) == 'BoardManager'){
 								$groupN = '';
-								if(App::$SettingData['GetUrl'][2] == 'Board'){
+								if(App::$settingData['GetUrl'][2] == 'Board'){
 									$g_n = DB::GetQryObj(TABLE_BOARD_MNG)
 										->SetKey('group_name')
-										->AddWhere('bid = %s', App::$TID)
-										->AddWhere('subid = %s', App::$SUB_TID)
+										->AddWhere('bid = %s', App::$tid)
+										->AddWhere('subid = %s', App::$sub_tid)
 										->Get();
 									if($g_n) $groupN = $g_n['group_name'];
 								}
@@ -76,14 +76,14 @@ App::JSAdd('admin.js' . CM::RefreshParam(), 10);
 	</header>
 	<div id="container">
 		<div id="container_wrap">
-			<?p. App::$BodyHtml ?>
+			<?p. App::$bodyHtml ?>
 		</div>
 	</div>
 	<footer id="footer">
 		<div id="footer_wrap"></div>
 	</footer>
 </div>
-<?php if(App::$ControllerName != 'Home'){ ?>
+<?php if(App::$controllerName != 'Home'){ ?>
 	<script>
 		$(document).ready(function(){
 			if(JCM.getCookie('managerSideView') == 'no'){
