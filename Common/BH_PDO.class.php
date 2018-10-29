@@ -35,7 +35,7 @@ class DB{
 	 * @return $this
 	 */
 	public static function &SQL($connName = self::DefaultConnName){
-		self::$connName = $connName;
+		self::$connName = $connName === '' ? self::DefaultConnName : $connName;
 		if (!isset(self::$instance)) self::$instance = new self();
 
 		if(!isset(self::$conn[self::$connName])){

@@ -63,7 +63,7 @@ class BoardModel extends \BH_Model
 		$this->table = TABLE_FIRST.'bbs_'.$this->bid;
 		$this->imageTable = $this->table.'_images';
 
-		if(!\DB::SQL()->TableExists($this->table)){
+		if(!\DB::SQL($this->connName)->TableExists($this->table)){
 			URLReplace(_URL.'/', '존재하지 않는 게시판입니다.');
 		}
 
@@ -152,6 +152,7 @@ class BoardModel extends \BH_Model
 		$sort1 = $this->data['sort1']->Txt();
 		$sort2 = $this->data['sort2']->Txt();
 		$qry = DB::GetQryObj($this->table)
+			->SetConnName($this->connName)
 			->AddWhere('secret = \'n\'')
 			->AddWhere('delis = \'n\'')
 			->AddWhere('(sort1 = %d AND sort2 > %d) OR sort1 > %d', $sort1, $sort2, $sort1)
@@ -168,6 +169,7 @@ class BoardModel extends \BH_Model
 		$sort1 = $this->data['sort1']->Txt();
 		$sort2 = $this->data['sort2']->Txt();
 		$qry = DB::GetQryObj($this->table)
+			->SetConnName($this->connName)
 			->AddWhere('secret = \'n\'')
 			->AddWhere('delis = \'n\'')
 			->AddWhere('(sort1 = %d AND sort2 < %d) OR sort1 < %d', $sort1, $sort2, $sort1)
@@ -185,6 +187,7 @@ class BoardModel extends \BH_Model
 	 */
 	public function GetNoticeQuery(){
 		return DB::GetListQryObj($this->table . ' A')
+			->SetConnName($this->connName)
 			->AddWhere('A.delis=\'n\'')
 			->AddWhere('A.notice=\'y\'')
 			->SetSort('A.seq DESC');

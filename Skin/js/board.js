@@ -192,6 +192,13 @@ var AppBoard = {
 			}
 		});
 
+		$('#checkActionModal').on('click', 'button.boardActionGroupBtn', function(){
+			var ul = $(this).next();
+			if(ul.length && ul[0].tagName.toLowerCase() == 'ul'){
+				ul.toggle();
+			}
+		});
+
 		$('#cActForm').on('submit', function(e){
 			e.preventDefault();
 			JCM.ajaxForm(this, function(data){

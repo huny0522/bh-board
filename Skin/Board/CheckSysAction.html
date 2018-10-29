@@ -1,0 +1,60 @@
+<?php if(_BH_ !== true) exit;
+
+use \BH_Common as CM;
+use \BH_Application as App;
+use \DB as DB;
+
+/**
+ * @var $Model
+ * @var $Ctrl
+ * @var $Data
+ */
+if($Ctrl->managerIs){
+	$bmList = array();
+	$qry = DB::GetListQryObj(TABLE_BOARD_MNG)->SetConnName($Ctrl->connName)->SetSort('`bid`, `subject`, `group_name`');
+	while($row = $qry->Get()){
+		$bmList[$row['group_name']][] = $row;
+	}
+	?>
+	<div id="checkActionModal" class="modal_layer" data-close-type="hidden">
+		<div class="modal_wrap">
+			<header class="modal_header">
+				<h1>게시판 선택</h1>
+				<button type="button" class="close"><i class="cross"></i></button>
+			</header>
+			<div class="modal_contents">
+				<form id="cActForm" name="cActForm" method="post" action="" data-move-url="<? a.'SysMove' ?>" data-copy-url="<? a.'SysCopy' ?>">
+					<input type="hidden" name="bid" value="">
+					<input type="hidden" name="subid" value="">
+					<input type="hidden" name="seq" value="">
+					<div class="selected" id="boardActionSelected"><span>선택게시판 : </span><b></b></div>
+					<div class="selectedCategory" id="boardActionCategory"></div>
+					<div class="group">
+					<?php
+					foreach($bmList as $gName => $g){
+						echo '<button type="button" class="boardActionGroupBtn">' . GetDBText($gName) . '</button>';
+						echo '<ul>';
+						foreach($g as $v){
+							echo '<li>';
+							echo '<button type="button" class="boardActionArticleBtn" data-bid="'.GetDBText($v['bid']).'" data-subid="'.GetDBText($v['subid']).'" id="btn-'.GetDBText($v['bid']).'-'.GetDBText($v['subid']).'" data-category="'.GetDBText($v['category']).'" data-sub-category="'.GetDBText($v['sub_category']).'">'.GetDBText($v['bid']).' - '.GetDBText($v['subject']).'('.GetDBText($v['subid']).')'.'</button>';
+							echo '</li>';
+						}
+						echo '</ul>';
+					}
+					?>
+					</div>
+					</ul>
+					<div class="bottomBtn">
+						<button type="submit" class="mBtn btn2">확인</button>
+						<button type="button" class="mBtn close">닫기</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		AppBoard.CheckActionInit();
+	</script>
+	<?php
+}

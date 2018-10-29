@@ -16,6 +16,7 @@ class BH_Category{
 	/* @var \MenuModel */
 	public $model;
 	public $Name;
+	public $lockId = array();
 
 	public function __construct(){
 		$this->model = new \MenuModel();
@@ -29,13 +30,15 @@ class BH_Category{
 
 	public function Write(){
 		App::$layout = null;
-		if(!isset($_GET['category']) || $_GET['category'] == '') exit;
+		if(EmptyGet('category')) exit;
+		if(in_array(Get('category'), $this->lockId)) JSON(true);
 		$data = $this->ModelDBGet();
 		JSON(true, '', App::GetView($this->model, $data));
 	}
 
 	public function PostWrite(){
-		if(!isset($_POST['category']) || $_POST['category'] == '') exit;
+		if(EmptyPost('category')) exit;
+		if(in_array(Post('category'), $this->lockId)) JSON(true);
 
 		$this->ModelDBGet();
 		$this->model->need = array('title', 'type',  'controller', 'enabled');
@@ -108,6 +111,7 @@ class BH_Category{
 	}
 
 	public function PostModifyTitle(){
+		if(in_array(Post('category'), $this->lockId)) JSON(true);
 		$this->ModelDBGet();
 		$this->model->need = array('title');
 		if(isset($_POST['title'])) $_POST['title'] = preg_replace('/\|/is', '', $_POST['title']);
@@ -163,6 +167,7 @@ class BH_Category{
 	// 메뉴삭제
 	// 하위메뉴까지 삭제
 	public function PostDeleteMenu(){
+		if(in_array(Post('category'), $this->lockId)) JSON(true);
 		$dbGet = $this->SqlGetQry();
 		$dbGet->SetKey('category', 'sort');
 		$dbGet->AddWhere('category = %s', $_POST['category']);
@@ -191,6 +196,7 @@ class BH_Category{
 	}
 
 	public function PostToggleOnOff(){
+		if(in_array(Post('category'), $this->lockId)) JSON(true);
 		$res = $this->ModelDBGet();
 		if(!$res->result) JSON(false, 'ERROR#101');
 		else{

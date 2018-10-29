@@ -3,7 +3,7 @@ namespace Controller\Admin;
 
 use \BH_Application as App;
 use \BH_Common as CM;
-use Common\ArticleAction;
+use Custom\ArticleAction;
 use Common\MenuHelp;
 use \DB as DB;
 

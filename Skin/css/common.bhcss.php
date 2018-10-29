@@ -190,7 +190,9 @@ BHCss::$variable['$fw'] = 'font-weight';
 		.modal_contents{padding:10px;}
 		.selected{padding:5px; border:1px solid #666;}
 		.selected b{font-weight:700;}
-		ul{padding:10px; margin-top:10px; height:250px; border:1px solid #ccc; overflow-y:scroll;}
+		div.group{padding:10px; margin-top:10px; height:250px; border:1px solid #ccc; overflow-y:scroll;}
+		button.boardActionGroupBtn{position:relative; margin-bottom:5px; height:24px; width:100%; padding:0 10px; background:#999; color:#fff; text-align:left;}
+		ul{display:none;}
 		li{border-bottom:1px solid #ddd;}
 		li button{display:block; width:100%; text-align:left; padding:5px;}
 		li button:hover{background:#eee;}

@@ -8,10 +8,13 @@ namespace Controller;
 
 use \BH_Application as App;
 use \BH_Common as CM;
-use Common\ArticleAction;
+use \Custom\ArticleAction;
 use \DB as DB;
 
 class Reply{
+
+	protected $connName = '';
+
 	/* @var \ReplyModel */
 	public $model;
 	/* @var \BoardModel */
@@ -36,9 +39,9 @@ class Reply{
 	protected function _R_CommonQry(&$qry, $opt = null){}
 
 	public function __construct(){
-		$this->model = App::InitModel('Reply');
-		$this->boardModel = new \BoardModel();
-		$this->boardManger = new \BoardManagerModel();
+		$this->model = App::InitModel('Reply', $this->connName);
+		$this->boardModel = new \BoardModel($this->connName);
+		$this->boardManger = new \BoardManagerModel($this->connName);
 
 		$this->bid = App::$tid;
 		$this->subid = App::$sub_tid;
@@ -54,6 +57,11 @@ class Reply{
 			$this->boardManger->DBGet($this->bid, $this->subid);
 			$this->_ReplySetting();
 		}
+	}
+
+	protected function _CheckMyMUid(&$obj, $key){
+		if(is_array($obj)) return ($obj[$key] === $_SESSION['member']['muid']);
+		else return ($obj->data[$key]->value === $_SESSION['member']['muid']);
 	}
 
 	protected function _ReplySetting(){
@@ -104,6 +112,7 @@ class Reply{
 
 		// 리스트를 불러온다.
 		$dbList = DB::GetListPageQryObj($this->model->table)
+			->SetConnName($this->connName)
 			->SetSort('sort1, sort2')
 			->SetPageUrl('#')
 			->SetPage(isset($_POST['page']) ? $_POST['page'] : 1)
@@ -112,14 +121,15 @@ class Reply{
 		$this->_R_CommonQry($dbList);
 		$this->_R_GetListQuery($dbList);
 		$dbList->DrawRows();
-		foreach($dbList->data as &$row){
+		foreach($dbList->data as $k => $v){
+			$row = &$dbList->data[$k];
 			// 비밀번호없이 수정권한
 			$row['modifyAuthDirect'] = false;
-			if($this->GetAuth() && _MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || CM::GetAdminIs() )) $row['modifyAuthDirect'] = true;
+			if($this->GetAuth() && _MEMBERIS === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs() )) $row['modifyAuthDirect'] = true;
 
 			// 수정 버튼 보기
 			if(
-				(_MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || CM::GetAdminIs())) ||
+				(_MEMBERIS === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs())) ||
 				(!strlen($row['muid']))
 			) $row['modifyAuth'] = true;
 			else $row['modifyAuth'] = false;
@@ -136,7 +146,7 @@ class Reply{
 			}
 			else if($row['secret'] == 'y'){
 				if(!$myArticleIs){
-					if(!(_MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || CM::GetAdminIs() || $this->managerIs))){
+					if(!(_MEMBERIS === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs() || $this->managerIs))){
 						$row['comment'] = _MSG_SECRET_ARTICLE;
 						$row['secretIs'] = true;
 					}
@@ -161,11 +171,11 @@ class Reply{
 
 		// 리스트를 불러온다.
 		$dbList = DB::GetListQryObj($this->model->table)
+			->SetConnName($this->connName)
 			->SetSort('sort1, sort2')
 			->AddWhere('article_seq= %d', App::$data['article_seq'])
 			->SetLimit(isset($this->boardManger) ? $this->boardManger->GetValue('reply_count') : 20);
 		$this->_R_CommonQry($dbList);
-		$this->_R_MoreListQuery($dbList);
 
 		if(strlen(Post('seq'))){
 			$seq = to10(Post('seq'));
@@ -174,6 +184,7 @@ class Reply{
 		else{
 			if(isset($_POST['lastSeq']) && strlen($_POST['lastSeq'])){
 				$qry = DB::GetQryObj($this->model->table)
+					->SetConnName($this->connName)
 					->AddWhere('article_seq = %d', App::$data['article_seq'])
 					->AddWhere('seq = %d', $_POST['lastSeq'])
 					->SetKey('sort1, sort2');
@@ -185,15 +196,18 @@ class Reply{
 			}
 		}
 
+		$this->_R_MoreListQuery($dbList);
+
 		$dbList->DrawRows();
-		foreach($dbList->data as &$row){
+		foreach($dbList->data as $k => $v){
+			$row = &$dbList->data[$k];
 			// 비밀번호없이 수정권한
 			$row['modifyAuthDirect'] = false;
-			if($this->GetAuth() && _MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || CM::GetAdminIs() )) $row['modifyAuthDirect'] = true;
+			if($this->GetAuth() && _MEMBERIS === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs() )) $row['modifyAuthDirect'] = true;
 
 			// 수정 버튼 보기
 			if(
-				(_MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || CM::GetAdminIs())) ||
+				(_MEMBERIS === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs())) ||
 				(!strlen($row['muid']))
 			) $row['modifyAuth'] = true;
 			else $row['modifyAuth'] = false;
@@ -207,7 +221,7 @@ class Reply{
 			if($row['delis'] == 'y') $row['comment'] = _MSG_DELETED_REPLY;
 			else if($row['secret'] == 'y'){
 				if(!$myArticleIs){
-					if(!(_MEMBERIS === true && ($row['muid'] == $_SESSION['member']['muid'] || CM::GetAdminIs() || $this->managerIs))){
+					if(!(_MEMBERIS === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs() || $this->managerIs))){
 						$row['comment'] = _MSG_SECRET_ARTICLE;
 						$row['secretIs'] = true;
 					}
@@ -243,6 +257,7 @@ class Reply{
 		if($answerIs){
 			$target = SetDBInt($_POST['target_seq']);
 			$dbGet = DB::GetQryObj($this->model->table)
+				->SetConnName($this->connName)
 				->AddWhere('article_seq='.$_POST['article_seq'])
 				->AddWhere('seq='.$target)
 				->SetKey(array('seq', 'first_seq', 'first_member_is', 'secret'));
@@ -280,6 +295,7 @@ class Reply{
 		// 답글쓰기라면 sort 정렬
 		if($answerIs){
 			$qry = DB::GetQryObj($this->model->table)
+				->SetConnName($this->connName)
 				->SetKey('mname, depth, muid, sort1, sort2')
 				->AddWhere('article_seq = %d', App::$data['article_seq'])
 				->AddWhere('seq = %d', $target);
@@ -287,6 +303,7 @@ class Reply{
 			$row = $qry->Get();
 
 			$qry = DB::UpdateQryObj($this->model->table)
+				->SetConnName($this->connName)
 				->SetData('sort2', 'sort2 + 1')
 				->AddWhere('article_seq = %d', App::$data['article_seq'])
 				->AddWhere('sort1 = %d', $row['sort1'])
@@ -335,6 +352,7 @@ class Reply{
 			$same = false;
 			if($this->model->GetValue('first_seq') && $this->model->GetValue('first_member_is') == 'n'){
 				$dbGet = DB::GetQryObj($this->model->table)
+					->SetConnName($this->connName)
 					->AddWhere('article_seq = %d', $_POST['article_seq'])
 					->AddWhere('seq = %d', $this->model->GetValue('first_seq'))
 					->SetKey('pwd');
@@ -365,10 +383,11 @@ class Reply{
 		// 회원 글 체크
 		if(strlen($this->model->GetValue('muid'))){
 			if(_MEMBERIS !== true) JSON(false, '#ERROR#101');
-			else if($this->model->GetValue('muid') != $_SESSION['member']['muid'] && !CM::GetAdminIs()) JSON(false, 'ERROR#102');
+			else if(!$this->_CheckMyMUid($this->model, 'muid') && !CM::GetAdminIs()) JSON(false, 'ERROR#102');
 		}
 		else if(_MEMBERIS !== true || !CM::GetAdminIs()){
 			$qry = DB::GetQryObj($this->model->table, false)
+				->SetConnName($this->connName)
 				->SetKey('pwd')
 				->AddWhere('article_seq = %d', $_POST['article_seq'])
 				->AddWhere('seq = %d', Post('seq'));
@@ -418,10 +437,11 @@ class Reply{
 		// 회원 글 체크
 		if($this->model->GetValue('muid')){
 			if(_MEMBERIS !== true) JSON(false, 'ERROR#101');
-			else if($this->model->GetValue('muid') != $_SESSION['member']['muid'] && !CM::GetAdminIs()) JSON(false, 'ERROR#102');
+			else if(!$this->_CheckMyMUid($this->model, 'muid') && !CM::GetAdminIs()) JSON(false, 'ERROR#102');
 		}
 		else if(_MEMBERIS !== true || !CM::GetAdminIs() || !$this->managerIs){
 			$qry = DB::GetQryObj($this->model->table, false)
+				->SetConnName($this->connName)
 				->SetKey('pwd')
 				->AddWhere('article_seq = %d', $_POST['article_seq'])
 				->AddWhere('seq = %d', Post('seq'));
@@ -460,9 +480,9 @@ class Reply{
 		$myArticleIs = false;
 		if($this->managerIs || CM::GetAdminIs()) $myArticleIs = true;
 		else if(strlen($this->boardModel->GetValue('muid')))
-			$myArticleIs = (_MEMBERIS === true && $this->boardModel->GetValue('muid') == $_SESSION['member']['muid']);
+			$myArticleIs = (_MEMBERIS === true && $this->_CheckMyMUid($this->boardModel, 'muid'));
 		else if(isset($this->boardModel->data['target_muid']) && strlen($this->boardModel->GetValue('target_muid')))
-			$myArticleIs = (_MEMBERIS === true && $this->boardModel->GetValue('target_muid') == $_SESSION['member']['muid']);
+			$myArticleIs = (_MEMBERIS === true && $this->_CheckMyMUid($this->boardModel, 'target_muid'));
 		return $myArticleIs;
 	}
 
@@ -517,6 +537,7 @@ class Reply{
 
 		$seq = ToInt(App::$id);
 		return ArticleAction::GetInstance($this->bid)
+			->SetConnName($this->connName)
 			->SetReplyIs(true)
 			->SetArticleSeq($seq)
 			->SetMUid($_SESSION['member']['muid'])
@@ -529,7 +550,7 @@ class Reply{
 			foreach($rows as $v) $arrays[] = $v['seq'];
 
 			$replyActionData = array();
-			$res = ArticleAction::GetInstance($this->bid)->SetMUid($_SESSION['member']['muid'])->GetReplyActions($arrays);
+			$res = ArticleAction::GetInstance($this->bid)->SetConnName($this->connName)->SetMUid($_SESSION['member']['muid'])->GetReplyActions($arrays);
 
 			if($res->result) $replyActionData = $res->data;
 		}

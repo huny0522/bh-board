@@ -8,12 +8,15 @@ namespace Controller;
 
 use \BH_Application as App;
 use \BH_Common as CM;
-use Common\ArticleAction;
-use Common\MenuHelp;
+use \Custom\ArticleAction;
+use \Common\MenuHelp;
 use Custom\Email;
 use \DB as DB;
 
 class Board{
+
+	public $connName = '';
+
 	/**
 	 * @var \BoardModel
 	 */
@@ -75,6 +78,11 @@ class Board{
 		$this->_BoardSetting();
 	}
 
+	protected function _CheckMyMUid(&$obj, $key){
+		if(is_array($obj)) return ($obj[$key] === $_SESSION['member']['muid']);
+		else return ($obj->data[$key]->value === $_SESSION['member']['muid']);
+	}
+
 	/**
 	 * 관리자 경로일때 권한 체크
 	 */
@@ -91,8 +99,8 @@ class Board{
 	protected function _ModelInit($modelName, $tid = ''){
 		if(strlen($tid)) App::$tid = $tid;
 		if(substr($modelName, -5) === 'Model') $modelName = substr($modelName, 0, -5);
-		$this->model = App::InitModel($modelName);
-		$this->boardManger = new \BoardManagerModel();
+		$this->model = App::InitModel($modelName, $this->connName);
+		$this->boardManger = new \BoardManagerModel($this->connName);
 	}
 
 	protected function _IdSet(){
@@ -112,6 +120,7 @@ class Board{
 		if(sizeof($this->additionalSubId)){
 			if(!in_array(App::$action, array('Index', 'MoreList', 'Write')) && strlen(App::$id)){
 				$dt = DB::GetQryObj($this->model->table)
+					->SetConnName($this->connName)
 					->SetKey('subid')
 					->AddWhere('seq = %d', to10(App::$id))
 					->Get();
@@ -329,7 +338,7 @@ class Board{
 		}
 
 		// 리스트를 불러온다.
-		$dbList = DB::GetListPageQryObj($this->model->table . ' A');
+		$dbList = DB::GetListPageQryObj($this->model->table . ' A')->SetConnName($this->connName);
 
 		if($this->boardManger->_list_show_notice->Txt() == 'n' && ($s_page < 2) && !strlen($s_keyword)) $dbList->AddWhere('A.notice=\'n\'');
 
@@ -384,7 +393,7 @@ class Board{
 		}
 
 		// 리스트를 불러온다.
-		$dbList = DB::GetListQryObj($this->model->table. ' A');
+		$dbList = DB::GetListQryObj($this->model->table. ' A')->SetConnName($this->connName);
 
 		if($this->boardManger->_list_show_notice->Txt() == 'n' && !strlen($s_keyword)) $dbList->AddWhere('A.notice=\'n\'');
 
@@ -404,6 +413,7 @@ class Board{
 		else{
 			if(strlen($s_last_seq)){
 				$qry = DB::GetQryObj($this->model->table.' A')
+					->SetConnName($this->connName)
 					->AddWhere('A.seq = %d', $s_last_seq)
 					->SetKey('A.sort1, A.sort2');
 				$this->_R_CommonQry($qry);
@@ -466,14 +476,14 @@ class Board{
 
 		if(!$this->adminPathIs){
 			if($this->model->GetValue('delis') == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
-			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && $this->model->GetValue('muid') != $_SESSION['member']['muid'] && $this->model->GetValue('target_muid') != $_SESSION['member']['muid']) URLReplace('-1', _MSG_WRONG_CONNECTED);
+			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !$this->_CheckMyMUid($this->model, 'muid') && !$this->_CheckMyMUid($this->model, 'target_muid')) URLReplace('-1', _MSG_WRONG_CONNECTED);
 		}
 
 		$data['answerAuth'] = $this->GetAuth('Answer');
 
 		// 비밀번호없이 수정권한
 		$data['modifyAuthDirect'] = false;
-		if($this->GetAuth('Write') && _MEMBERIS === true && ($this->model->GetValue('muid') == $_SESSION['member']['muid'] || CM::GetAdminIs() )){
+		if($this->GetAuth('Write') && _MEMBERIS === true && ($this->_CheckMyMUid($this->model, 'muid')|| CM::GetAdminIs() )){
 			$data['modifyAuthDirect'] = true;
 		}
 
@@ -484,6 +494,7 @@ class Board{
 			// first_seq 가 있으면 첫째글을 호출
 			if(strlen($this->model->GetValue('first_seq'))){
 				$qry = DB::GetQryObj($this->model->table)
+					->SetConnName($this->connName)
 					->AddWhere('seq=' . $this->model->GetValue('first_seq'));
 				$this->_R_CommonQry($qry);
 				$firstDoc = $qry->Get();
@@ -492,7 +503,7 @@ class Board{
 
 			if(_MEMBERIS === true){
 				// 자신의 글 권한
-				if($this->model->GetValue('muid') == $_SESSION['member']['muid'] || (isset($firstDoc) && $this->model->GetValue('first_member_is') == 'y' && $firstDoc['muid'] == $_SESSION['member']['muid'])){
+				if($this->_CheckMyMUid($this->model, 'muid') || (isset($firstDoc) && $this->model->GetValue('first_member_is') == 'y' && $this->_CheckMyMUid($firstDoc, 'muid'))){
 					$viewAuth = true;
 				}
 			}
@@ -513,6 +524,7 @@ class Board{
 		$cookieName = $this->model->table.$seq;
 		if(!isset($_COOKIE[$cookieName]) || !$_COOKIE[$cookieName]){
 			$dbUpdate = DB::UpdateQryObj($this->model->table)
+				->SetConnName($this->connName)
 				->SetData('hit', 'hit + 1')
 				->AddWhere('seq='.$seq);
 			$this->_R_CommonQry($dbUpdate);
@@ -524,13 +536,15 @@ class Board{
 		App::$data['boardActionData'] = array();
 		if(_MEMBERIS == true){
 			$res = ArticleAction::GetInstance($this->bid)
+				->SetConnName($this->connName)
 				->SetArticleSeq($seq)
 				->SetMUid($_SESSION['member']['muid'])
 				->GetAllAction();
 			if($res->result) App::$data['boardActionData'] = $res->data;
 
-			if($this->model->GetValue('muid') != $_SESSION['member']['muid'] && !isset(App::$data['boardActionData']['read'])){
+			if(!$this->_CheckMyMUid($this->model, 'muid') && !isset(App::$data['boardActionData']['read'])){
 				ArticleAction::GetInstance($this->bid)
+					->SetConnName($this->connName)
 					->SetArticleSeq($seq)
 					->SetMUid($_SESSION['member']['muid'])
 					->SetParentTable($this->bid)
@@ -590,12 +604,13 @@ class Board{
 		if(!strlen($seq)) URLReplace('-1');
 
 		$qry = DB::GetQryObj($this->model->table)
+			->SetConnName($this->connName)
 			->AddWhere('seq = %d', $seq);
 		$this->_R_CommonQry($qry);
 		$data = $qry->Get();
 		if(!$this->adminPathIs){
 			if($data['delis'] == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
-			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && $data['muid'] != $_SESSION['member']['muid'] && $data['target_muid'] != $_SESSION['member']['muid']) URLReplace('-1', _MSG_WRONG_CONNECTED);
+			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !$this->_CheckMyMUid($data, 'muid') && !$this->_CheckMyMUid($data, 'target_muid')) URLReplace('-1', _MSG_WRONG_CONNECTED);
 		}
 
 		$this->model->SetValue('subject', strpos('[답변]', $data['subject']) === false ? '[답변] '.$data['subject'] : $data['subject']);
@@ -622,7 +637,7 @@ class Board{
 		$this->_GetBoardData($seq);
 		if(!$this->adminPathIs){
 			if($this->model->GetValue('delis') == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
-			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && $this->model->GetValue('muid') != $_SESSION['member']['muid'] && $this->model->GetValue('target_muid') != $_SESSION['member']['muid']) URLReplace('-1', _MSG_WRONG_CONNECTED);
+			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !$this->_CheckMyMUid($this->model, 'muid') && !$this->_CheckMyMUid($this->model, 'target_muid')) URLReplace('-1', _MSG_WRONG_CONNECTED);
 		}
 
 		// 회원 글 체크
@@ -660,7 +675,7 @@ class Board{
 		if(!$this->adminPathIs){
 			if($this->model->GetValue('delis') == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
 			$this->model->AddExcept('delis');
-			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && $this->model->GetValue('muid') != $_SESSION['member']['muid'] && $this->model->GetValue('target_muid') != $_SESSION['member']['muid']) URLReplace('-1', _MSG_WRONG_CONNECTED);
+			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !$this->_CheckMyMUid($this->model, 'muid') && !$this->_CheckMyMUid($this->model, 'target_muid')) URLReplace('-1', _MSG_WRONG_CONNECTED);
 		}
 
 		$res = $this->model->SetPostValuesWithFile();
@@ -744,13 +759,13 @@ class Board{
 			}
 
 			$qry = DB::GetQryObj($this->model->table)
-				->AddWhere('seq=%d', to10(Post('target')))
-				->SetKey('mname, email, email_alarm, depth, muid, target_muid, sort1, sort2', 'seq', 'first_seq', 'first_member_is', 'category', 'sub_category', 'delis', 'subid');
+				->SetConnName($this->connName)
+				->AddWhere('seq=%d', to10(Post('target')));
 			$this->_R_CommonQry($qry);
 			App::$data['targetData'] = $qry->Get();
 			if(!$this->adminPathIs){
 				if(App::$data['targetData']['delis'] == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
-				if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && App::$data['targetData']['muid'] != $_SESSION['member']['muid'] && App::$data['targetData']['target_muid'] != $_SESSION['member']['muid']) URLReplace('-1', _MSG_WRONG_CONNECTED);
+				if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !_CheckMyMUid(App::$data['targetData'], 'muid') && !_CheckMyMUid(App::$data['targetData'], 'target_muid')) URLReplace('-1', _MSG_WRONG_CONNECTED);
 			}
 
 			$first_seq = strlen(App::$data['targetData']['first_seq']) ? App::$data['targetData']['first_seq'] : App::$data['targetData']['seq'];
@@ -795,6 +810,7 @@ class Board{
 		// 답글쓰기라면 sort 정렬
 		if(App::$action == 'Answer'){
 			$qry = DB::UpdateQryObj($this->model->table)
+				->SetConnName($this->connName)
 				->SetData('sort2', 'sort2 + 1')
 				->AddWhere('sort1 = %d', App::$data['targetData']['sort1'])
 				->AddWhere('sort2 > %d', App::$data['targetData']['sort2'])
@@ -885,7 +901,7 @@ class Board{
 
 		if(!$this->adminPathIs){
 			if($this->model->GetValue('delis') == 'y') URLReplace('-1', '이미 삭제된 글입니다.');
-			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && $this->model->GetValue('muid') != $_SESSION['member']['muid']) URLReplace('-1', _MSG_WRONG_CONNECTED);
+			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !$this->_CheckMyMUid($this->model, 'muid')) URLReplace('-1', _MSG_WRONG_CONNECTED);
 		}
 
 		// 회원 글 체크
@@ -938,6 +954,7 @@ class Board{
 
 	public function RepAttachDownload(){
 		$repData = DB::GetQryObj($this->model->table . '_reply')
+			->SetConnName($this->connName)
 			->AddWhere('seq = %d', to10(App::$id))
 			->SetKey('`file`')
 			->Get();
@@ -974,6 +991,7 @@ class Board{
 
 		if($mode == 'modify'){
 			$dbGetList = DB::GetListQryObj($this->model->imageTable)
+				->SetConnName($this->connName)
 				->AddWhere('article_seq='.$seq);
 			$this->_R_CommonQry($dbGetList);
 			while($img = $dbGetList->Get()){
@@ -984,6 +1002,7 @@ class Board{
 					if($img['image'] == $this->model->GetValue('thumbnail')) $this->model->SetValue('thumbnail', '');
 
 					$qry = DB::DeleteQryObj($this->model->table.'_images')
+						->SetConnName($this->connName)
 						->AddWhere('article_seq = '.$img['article_seq'])
 						->AddWhere('seq = '.$img['seq']);
 					$this->_R_CommonQry($qry);
@@ -993,6 +1012,7 @@ class Board{
 		}
 
 		$qry = DB::GetQryObj($this->model->imageTable)
+			->SetConnName($this->connName)
 			->AddWhere('article_seq='.$seq)
 			->SetKey('COUNT(*) as cnt');
 		$this->_R_CommonQry($qry);
@@ -1019,6 +1039,7 @@ class Board{
 					unset($dbInsert);
 					// 여기 수정
 					$dbInsert = DB::InsertQryObj($this->model->imageTable)
+						->SetConnName($this->connName)
 						->SetDataNum('article_seq', $seq)
 						->SetDataStr('image', $newpath)
 						->SetDataStr('imagename', $exp[1])
@@ -1034,6 +1055,7 @@ class Board{
 			if($newContent != $content || !$this->model->GetValue('thumbnail')){
 				if(!$this->model->GetValue('thumbnail')){
 					$qry = DB::GetQryObj($this->model->imageTable)
+						->SetConnName($this->connName)
 						->AddWhere('article_seq='.$seq)
 						->SetSort('seq');
 					$this->_R_CommonQry($qry);
@@ -1041,6 +1063,7 @@ class Board{
 					$this->model->SetValue('thumbnail', $new['image']);
 				}
 				$qry =DB::UpdateQryObj($this->model->table)
+					->SetConnName($this->connName)
 					->SetDataStr('thumbnail', $this->model->GetValue('thumbnail'))
 					->SetDataStr('content', $newContent)
 					->AddWhere('seq = '.$seq);
@@ -1060,12 +1083,12 @@ class Board{
 	protected function _PasswordCheck(){
 		if($this->model->GetValue('muid')){
 			if(_MEMBERIS !== true) return 'ERROR#101';
-			else if($this->model->GetValue('muid') != $_SESSION['member']['muid']) return 'ERROR#102';
+			else if(!$this->_CheckMyMUid($this->model, 'muid')) return 'ERROR#102';
 		}
 		else{
 			if(!isset($_POST['pwd'])) return _MSG_WRONG_CONNECTED;
 
-			$qry = DB::GetQryObj($this->model->table)->AddWhere('seq = %d', $this->model->GetValue('seq'))->SetKey('pwd');
+			$qry = DB::GetQryObj($this->model->table)->SetConnName($this->connName)->AddWhere('seq = %d', $this->model->GetValue('seq'))->SetKey('pwd');
 			$this->_R_CommonQry($qry);
 			$pwd = $qry->Get();
 			if(!_password_verify(Post('pwd'), $pwd['pwd'])){
@@ -1199,6 +1222,7 @@ class Board{
 		$chk = explode(',', Post('seq'));
 
 		DB::UpdateQryObj($this->model->table)
+			->SetConnName($this->connName)
 			->AddWhere('seq IN (%d)', $chk)
 			->SetDataStr('delis','y')
 			->Run();
@@ -1214,6 +1238,7 @@ class Board{
 		$chk = explode(',', Post('seq'));
 
 		DB::UpdateQryObj($this->model->table)
+			->SetConnName($this->connName)
 			->AddWhere('seq IN (%d)', $chk)
 			->SetDataStr('delis','n')
 			->Run();
@@ -1267,6 +1292,7 @@ class Board{
 		$newUploadImageDir = '/boardimage/'.$bid.(strlen($subid) ? '-' . $subid  : '').'/'.date('ym').'/';
 
 		$boardModel = new \BoardModel();
+		$boardModel->SetConnName($this->connName);
 		$boardModel->bid = $bid;
 		$boardModel->table = TABLE_FIRST.'bbs_'.$boardModel->bid;
 		$boardModel->_pwd->htmlType = \HTMLType::TEXT;
@@ -1280,6 +1306,7 @@ class Board{
 
 		foreach($arr as $seq){
 			$qry = DB::GetQryObj($this->model->table)
+				->SetConnName($this->connName)
 				->AddWhere('seq = %d', $seq)
 				->SetSort('sort1 DESC, sort2 DESC');
 			$this->_R_CommonQry($qry);
@@ -1318,6 +1345,7 @@ class Board{
 			$article_seq = $res->id;
 
 			$newRow = DB::GetQryObj($newTable)
+				->SetConnName($this->connName)
 				->SetKey('sort1')
 				->AddWhere('seq = %d', $article_seq)
 				->Get();
@@ -1328,6 +1356,7 @@ class Board{
 
 			// 이미지 복사
 			$dbGetList = DB::GetListQryObj($this->model->imageTable)
+				->SetConnName($this->connName)
 				->AddWhere('article_seq='.$seq);
 			$this->_R_CommonQry($dbGetList);
 			$imgCopyCnt = 0;
@@ -1335,6 +1364,7 @@ class Board{
 				$fcRes = $this->_FileCopy($newUploadImageDir, $img['image']);
 
 				DB::InsertQryObj($newTable . '_images')
+					->SetConnName($this->connName)
 					->SetDataStr('imagename', $img['imagename'])
 					->SetDataNum('article_seq', $article_seq)
 					->SetDataStr('image', $fcRes['path'])
@@ -1342,6 +1372,7 @@ class Board{
 					->Run();
 				if($row['thumbnail'] == $img['image']){
 					DB::UpdateQryObj($newTable)
+						->SetConnName($this->connName)
 						->SetDataStr('thumbnail', $fcRes['path'])
 						->AddWhere('seq = %d', $article_seq)
 						->Run();
@@ -1351,6 +1382,7 @@ class Board{
 			}
 			if($imgCopyCnt){
 				DB::UpdateQryObj($newTable)
+					->SetConnName($this->connName)
 					->SetDataStr('content', $row['content'])
 					->AddWhere('seq = %d', $article_seq)
 					->Run();
@@ -1360,16 +1392,17 @@ class Board{
 
 			if($type == 'move'){
 				// 액션 복사
-				DB::SQL()->Query('INSERT INTO %1 (SELECT `action_type`, %d as `article_seq`, `muid`, `reg_date` FROM %1 WHERE article_seq = %d)', $newTable . '_action', $article_seq, $this->model->table . '_action', $row['seq']);
+				DB::SQL($this->connName)->Query('INSERT INTO %1 (SELECT `action_type`, %d as `article_seq`, `muid`, `reg_date` FROM %1 WHERE article_seq = %d)', $newTable . '_action', $article_seq, $this->model->table . '_action', $row['seq']);
 
 				// 리플 복사
 				$dbGetList = DB::GetListQryObj($this->model->table.'_reply')
+					->SetConnName($this->connName)
 					->AddWhere('article_seq='.$seq);
 				$this->_R_CommonQry($dbGetList);
 				while($rep = $dbGetList->Get()){
 
 
-					$replyModel = new \ReplyModel();
+					$replyModel = new \ReplyModel($this->connName);
 					$replyModel->bid = $bid;
 					$replyModel->table = TABLE_FIRST.'bbs_'.$replyModel->bid.'_reply';
 
@@ -1417,17 +1450,20 @@ class Board{
 
 		foreach($arr as $seq){
 			$qry = DB::GetQryObj($this->model->table)
+				->SetConnName($this->connName)
 				->AddWhere('seq = %d', $seq);
 			$this->_R_CommonQry($qry);
 			$row = $qry->Get();
 
 			// 이미지 삭제
 			$dbGetList = DB::GetListQryObj($this->model->imageTable)
+				->SetConnName($this->connName)
 				->AddWhere('article_seq='.$seq);
 			$this->_R_CommonQry($dbGetList);
 			while($img = $dbGetList->Get()){
 				if(file_exists(_UPLOAD_DIR.$img['image'])) @UnlinkImage(_UPLOAD_DIR.$img['image']);
 				$qry = DB::DeleteQryObj($this->model->table.'_images')
+					->SetConnName($this->connName)
 					->AddWhere('article_seq = '.$img['article_seq'])
 					->AddWhere('seq = '.$img['seq']);
 				$this->_R_CommonQry($qry);
@@ -1436,12 +1472,14 @@ class Board{
 
 			// 댓글 삭제
 			$dbGetList = DB::GetListQryObj($this->model->table.'_reply')
+				->SetConnName($this->connName)
 				->AddWhere('article_seq='.$seq);
 			$this->_R_CommonQry($dbGetList);
 			while($rep = $dbGetList->Get()){
 				$f = $this->model->GetFilePathByValue($rep['file']);
 				if(file_exists(_UPLOAD_DIR.$f)) @UnlinkImage(_UPLOAD_DIR.$f);
 				DB::DeleteQryObj($this->model->table.'_reply')
+					->SetConnName($this->connName)
 					->AddWhere('article_seq = '.$rep['article_seq'])
 					->AddWhere('seq = '.$rep['seq'])
 					->Run();
@@ -1450,6 +1488,7 @@ class Board{
 
 			// 액션 삭제
 			DB::DeleteQryObj($this->model->table . '_action')
+				->SetConnName($this->connName)
 				->AddWhere('article_seq = '.$row['seq'])
 				->Run();
 
@@ -1463,6 +1502,7 @@ class Board{
 				@UnlinkImage(_UPLOAD_DIR.$f);
 			}
 			$qry = DB::DeleteQryObj($this->model->table)
+				->SetConnName($this->connName)
 				->AddWhere('seq = '.$row['seq']);
 			$this->_R_CommonQry($qry);
 			$qry->Run();
@@ -1482,6 +1522,7 @@ class Board{
 
 		$seq = to10(App::$id);
 		return ArticleAction::GetInstance($this->bid)
+			->SetConnName($this->connName)
 			->SetArticleSeq($seq)
 			->SetMUid($_SESSION['member']['muid'])
 			->SetParentTable($this->bid);
@@ -1500,6 +1541,7 @@ class Board{
 		$temp = array();
 		if(sizeof($this->additionalSubId)){
 			$qry = \BoardManagerModel::GetBoardListQry()
+				->SetConnName($this->connName)
 				->AddWhere('A.bid = %s', $this->bid)
 				->AddWhere('A.subid IN (%s)', $this->additionalSubId)
 				->SetGroup('');
@@ -1514,48 +1556,5 @@ class Board{
 			return $data;
 		}
 		return array();
-	}
-
-	public function _CheckActionModal(){
-		if($this->managerIs){
-			$bmList = DB::GetListQryObj(TABLE_BOARD_MNG)
-				->SetSort('`bid`, `subject`')
-				->GetRows();
-			$html = '<div id="checkActionModal" class="modal_layer" data-close-type="hidden">
-		<div class="modal_wrap">
-			<header class="modal_header">
-				<h1>123</h1>
-				<button type="button" class="close"><i class="cross"></i></button>
-			</header>
-			<div class="modal_contents">
-				<form id="cActForm" name="cActForm" method="post" action="" data-move-url="' . App::URLAction('SysMove') . '" data-copy-url="' . App::URLAction('SysCopy') . '">
-					<input type="hidden" name="bid" value="">
-					<input type="hidden" name="subid" value="">
-					<input type="hidden" name="seq" value="">
-					<div class="selected" id="boardActionSelected"><span>선택게시판 : </span><b></b></div>
-					<div class="selectedCategory" id="boardActionCategory"></div>
-					<ul>';
-			foreach($bmList as $v){
-				$html .= '<li>
-								<button type="button" class="boardActionArticleBtn" data-bid="' . GetDBText($v['bid']) .'" data-subid="' . GetDBText($v['subid']) .'" id="btn-' . GetDBText($v['bid']) .'-'. GetDBText($v['subid']) . '" data-category="'. GetDBText($v['category']) . '" data-sub-category="'. GetDBText($v['sub_category']) . '">'. GetDBText($v['bid']) . ' - '. GetDBText($v['subject']) .'('. GetDBText($v['subid']).')' . '</button>
-							</li>';
-			}
-
-			$html .= '</ul>
-							<div class="bottomBtn">
-								<button type="submit" class="mBtn btn2">확인</button>
-								<button type="button" class="mBtn close">닫기</button>
-							</div>
-						</form>
-					</div>
-				</div>
-			</div>
-		
-			<script>
-				AppBoard.CheckActionInit();
-			</script>';
-			return $html;
-		}
-		return '';
 	}
 }

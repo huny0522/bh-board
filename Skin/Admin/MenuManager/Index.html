@@ -18,6 +18,7 @@ App::JSAdd('BHCategory.js');
 			maxLevel : 4,
 			width : 400,
 			height : 500,
+			lockId : '<?p. implode(',', $Ctrl->lockId) ?>',
 			addMenu : function(parentId, title, sort){
 				JCM.post('<?a. 'InsertMenu' ?>', {'title' : title, 'sort' : sort, 'parent' : parentId, 'enabled' : 'n'}, function(data){
 					menu.AddMenu(data.id, false);
@@ -62,21 +63,23 @@ App::JSAdd('BHCategory.js');
 		addOptionForm(menu.IDFirst, '<?p. $row['category'] ?>');
 		<?php } ?>
 		menu.toggleFolder();
-	});
+		menu.optionfolderLoadMenu($('#' + menu.IDFirst + '00000'));
 
+		function addOptionForm(IDFirst, category){
+			if($.inArray(category, menu.optionLockId) > -1) return;
+			var category = $('#' + IDFirst + category);
+			var html = '<a href="#" class="onoff"><i class="fa fa-power-off"></i><span>사용여부</span></a>';
+			var btns = $(category).find('.btns');
+			btns.prepend(html);
+		}
 
-	function addOptionForm(IDFirst, category){
-		var category = $('#' + IDFirst + category);
-		var html = '<a href="#" class="onoff"><i class="fa fa-power-off"></i><span>사용여부</span></a>';
-		var btns = $(category).find('.btns');
-		btns.prepend(html);
-	}
-	$(document).on('click', '#BHCategory a.onoff', function(e){
-		e.preventDefault();
-		var category = $(this).closest('li').attr('data-id');
-		JCM.post('<?a. 'ToggleOnOff' ?>', {'category' : category}, function(data){
-			if(data.enabled == 'y') $('#BHMenu'+category+' > a.folder').removeClass('disabled');
-			else $('#BHMenu'+category+' > a.folder').addClass('disabled');
-		})
+		$(document).on('click', '#BHCategory a.onoff', function(e){
+			e.preventDefault();
+			var category = $(this).closest('li').attr('data-id');
+			JCM.post('<?a. 'ToggleOnOff' ?>', {'category' : category}, function(data){
+				if(data.enabled == 'y') $('#BHMenu'+category+' > a.folder').removeClass('disabled');
+				else $('#BHMenu'+category+' > a.folder').addClass('disabled');
+			})
+		});
 	});
 </script>

@@ -418,12 +418,13 @@ class BH_Application
 	/**
 	 * 모델 생성
 	 * @param string $ModelName
+	 * @param string $connName
 	 * @return mixed
 	 */
-	public static function &InitModel($ModelName){
+	public static function &InitModel($ModelName, $connName = ''){
 		$model = $ModelName . 'Model';
 		if(class_exists($model)){
-			$newModel = new $model();
+			$newModel = new $model($connName);
 			return $newModel;
 		}
 

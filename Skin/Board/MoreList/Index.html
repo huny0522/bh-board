@@ -70,7 +70,9 @@ App::JSAdd('board.js', 200);
 	</form>
 </div>
 
-<?p. $Ctrl->_CheckActionModal() ?>
+<?if($Ctrl->managerIs){ ?>
+	<?inc. '/Board/CheckSysAction.html' ?>
+<?php } ?>
 
 <script>
 	AppBoard.MoreListInit();

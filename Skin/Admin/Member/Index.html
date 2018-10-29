@@ -27,6 +27,7 @@ use \BH_Application as App;
 	</form>
 </div>
 
+<?php if($Data->result && $Data->totalRecord){ ?>
 <table class="list">
 <colgroup>
 	<col style="width:5%">
@@ -53,7 +54,6 @@ use \BH_Application as App;
 </tr>
 </thead>
 <tbody>
-<?php if($Data->result && $Data->totalRecord){ ?>
 <?php while($row = $Data->Get()){?>
 <tr>
 	<td><?p. $Data->beginNum-- ?></td>
@@ -67,11 +67,11 @@ use \BH_Application as App;
 	<td><?php if($row['level'] == _ADMIN_LEVEL && $_SESSION['member']['level'] == _SADMIN_LEVEL){ ?><a href="<?a. 'AuthAdmin' ?>?muid=<?p. $row['muid'] ?>" class="adminAuthBtn sBtn">관리자권한관리</a><?php } ?></td>
 </tr>
 <?php } ?>
-<?php } else{ ?>
-<tr><td colspan="9" class="nothing">등록된 게시물이 없습니다.</td></tr>
-<?php } ?>
 </tbody>
 </table>
+<?php } else{ ?>
+	<p class="nothing">등록된 회원이 없습니다.</p>
+<?php } ?>
 
 <div class="left_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn">회원추가</a></div>
 <div class="paging"><?p. $Data->pageHtml ?></div>

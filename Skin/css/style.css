@@ -115,7 +115,9 @@ span.uploadedFile{display:inline-block; padding:3px 5px; border:1px solid #ccc; 
 #checkActionModal .modal_contents{padding:10px;}
 #checkActionModal .selected{padding:5px; border:1px solid #666;}
 #checkActionModal .selected b{font-weight:700;}
-#checkActionModal ul{padding:10px; margin-top:10px; height:250px; border:1px solid #ccc; overflow-y:scroll;}
+#checkActionModal div.group{padding:10px; margin-top:10px; height:250px; border:1px solid #ccc; overflow-y:scroll;}
+#checkActionModal button.boardActionGroupBtn{position:relative; margin-bottom:5px; height:24px; width:100%; padding:0 10px; background:#999; color:#fff; text-align:left;}
+#checkActionModal ul{display:none;}
 #checkActionModal li{border-bottom:1px solid #ddd;}
 #checkActionModal li button{display:block; width:100%; text-align:left; padding:5px;}
 #checkActionModal li button:hover{background:#eee;}
@@ -422,8 +424,7 @@ ul.boardSelectForW li a:hover{background:#3c4155; border-color:#828b99; color:#f
 #replyListContents .comment{padding:10px; line-height:1.5em;}
 #replyListContents .comment b{color:#999; margin-right:10px;}
 #replyListContents a.pwdView{color:#713f73; display:inline-block; margin-left:5px; font-weight:700;}
-#replyListContents .replyWrite .attachFileArea{float:left;}
-#replyListContents .replyWrite .fileUploadArea2{padding:0;}
+#replyListContents .fileUploadArea2{padding:0; line-height:30px;}
 
 .repLayer{position:fixed; top:0; left:0; z-index:100; width:100%; height:100%; background:#999; background:rgba(0,0,0,0.1);}
 .repLayer form{position:absolute; top:50%; left:50%; width:400px; padding:20px; margin:-80px 0 0 -150px; border:2px solid #333; background:#fff; text-align:center;}

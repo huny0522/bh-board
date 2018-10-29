@@ -20,6 +20,7 @@ function BHCategory(elem, opt){
 	this.optionfolderLoadMenu = opt.folderLoad;
 	this.optionDefaultTitle = typeof opt.defaultTitle != 'undefined' ? opt.defaultTitle : '이름없음';
 	this.optionHTML = typeof opt.maxLevel != 'undefined' ? opt.HTML : false;
+	this.optionLockId = typeof opt.lockId != 'undefined' ? opt.lockId.split(',') : [];
 
 	this.ActionOption = null;
 
@@ -61,7 +62,7 @@ function BHCategory(elem, opt){
 		var btnHtml = '';
 		this.downButtonHtml + this.upButtonHtml + this.deleteButtonHtml;
 
-		if(!level){
+		if(!level || $.inArray(id, menuObject.optionLockId) > -1){
 			btnHtml = this.addButtonHtml;
 		}
 		else{
@@ -180,7 +181,10 @@ function BHCategory(elem, opt){
 		e.preventDefault();
 		e.stopPropagation();
 
-		var title = $(this).closest('li').children('a.title');
+		var li = $(this).closest('li');
+		var id = li.attr('data-id');
+		if($.inArray(id, menuObject.optionLockId) > -1) return;
+		var title = li.children('a.title');
 		if(!title.prev().hasClass('modifyInput')){
 			title.before('<form class="modifyInput"><input type="text" value="' + title.children('b').html().replace(/"/ig, '&quot;') + '"><button type="submit" class="modifyConfirm"><span>Confirm</span></button></form>');
 			$(this).closest('li').children('.modifyInput').children('input').focus();
@@ -214,6 +218,10 @@ function BHCategory(elem, opt){
 	this.element.on('click', 'a.delete', function(e){
 		e.preventDefault();
 		var thisObj = this;
+		var li = $(this).closest('li');
+		var id = li.attr('data-id');
+		if($.inArray(id, menuObject.optionLockId) > -1) return;
+
 		CMConfirm('하위폴더까지 모두 삭제됩니다.\n정말 삭제하시겠습니까?', function(){
 			var li = $(thisObj).closest('li');
 
@@ -324,6 +332,11 @@ function BHCategory(elem, opt){
 	this.element.on('mousedown', 'a.title', function(e){
 		e.preventDefault();
 		e.stopPropagation();
+
+		var li = $(this).closest('li');
+		var id = li.attr('data-id');
+		if($.inArray(id, menuObject.optionLockId) > -1) return;
+
 		menuObject.mouseDownPosition.x = e.pageX;
 		menuObject.mouseDownPosition.y = e.pageY;
 		menuObject.mouseDownPosition.moveIs = false;

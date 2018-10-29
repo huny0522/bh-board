@@ -1247,7 +1247,7 @@ var _SelectBox = new SelectBox(jQuery);
 		inp.each(function(){
 			if(ret) {
 
-				if (this.hasAttribute('required')) {
+				if (this.hasAttribute('required') && !this.hasAttribute('disabled')) {
 					if ($(this).attr('type') === 'checkbox' || $(this).attr('type') === 'radio') {
 						if (!f.find('input[name=' + $(this).attr('name') + ']:checked').length) {
 							var obj = this;
@@ -1682,11 +1682,11 @@ function SE2_paste(id, defaultfolder, hiddenBtns){
 
 			additionalBtns += '<div class="se2_add_youtube">' +
 				'<span><button type="button" data-sname="'+id+'"><i></i><span>유튜브</span></button></span>' +
-			'</div>';
+				'</div>';
 
 			additionalBtns += '<div class="se2_add_link">' +
 				'<span><button type="button" data-sname="'+id+'"><i></i><span>링크</span></button></span>' +
-			'</div>';
+				'</div>';
 
 			$('#'+id).before('<div class="se2_addi_btns">' + additionalBtns + '</div>');
 		}
@@ -1838,9 +1838,56 @@ var tinyMCEHelper = {
 	plugin : 'advlist autolink link image lists charmap print preview media emoticons',
 	toolbar : 'undo redo | styleselect | bold italic | alignleft aligncenter alignright | bulllist numlist outdent indent | link image media emoticons',
 	mobileToolbar : 'undo bold italic link image bullist styleselect forecolor',
-	language : 'ko_KR',
-	Paste : function(id, defaultfolder, hiddenimage){
+	defaultFolder : '',
+	opt : {
+		selector: '',  // change this value according to your HTML
+		language : 'ko_KR',
+		relative_urls : false,
+		plugins: '',
+		toolbar : '',
+		mobile: {
+			theme: 'mobile',
+			toolbar: null
+		},
+		images_upload_credentials: true,
+		images_upload_handler: function (blobInfo, success, failure) {
+			var xhr, formData;
+
+			xhr = new XMLHttpRequest();
+			xhr.withCredentials = false;
+			xhr.open('POST', tinyMCEHelper.defaultFolder + '/Upload/ImageUpload');
+
+			xhr.onload = function() {
+				var json;
+
+				if (xhr.status < 200 || xhr.status >= 300) {
+					failure('HTTP Error: ' + xhr.status);
+					return;
+				}
+
+				json = JSON.parse(xhr.responseText);
+
+				if (!json || !json.result || typeof json.data.path != 'string') {
+					failure('Invalid JSON: ' + xhr.responseText);
+					return;
+				}
+
+				var hinp = '<input type="hidden" name="addimg[]" value="'+json.data.path+'|'+json.data.fname+'">';
+				$(tinyMCEHelper.opt.selector).after(hinp);
+				success(json.data.uploadDir + json.data.path);
+			};
+
+			formData = new FormData();
+			var fileName = ( typeof(blobInfo.blob().name) !== undefined ) ? blobInfo.blob().name : blobInfo.filename();
+			formData.append('Filedata', blobInfo.blob(), fileName);
+
+			xhr.send(formData);
+		}
+	},
+	Paste : function(id, defaultfolder, hiddenimage, callback){
 		var _this = this;
+		_this.opt.selector = '#' + id,
+			_this.defaultFolder = defaultfolder;
 		var scriptLoadIs = typeof(tinymce) !== 'undefined';
 		if(scriptLoadIs){
 			_this.tinyMCELoadIs = true;
@@ -1866,51 +1913,13 @@ var tinyMCEHelper = {
 				mt = mt.replace(/image/, '');
 				mt = mt.replace(/\s\s/, ' ').split(' ');
 			}
-			tinymce.init({
-				selector: "#" + id,  // change this value according to your HTML
-				language: _this.language,
-				relative_urls : false,
-				plugins: p,
-				toolbar : t,
-				mobile: {
-					theme: 'mobile',
-					toolbar: mt
-				},
-				images_upload_credentials: true,
-				images_upload_handler: function (blobInfo, success, failure) {
-					var xhr, formData;
-
-					xhr = new XMLHttpRequest();
-					xhr.withCredentials = false;
-					xhr.open('POST', defaultfolder + '/Upload/ImageUpload');
-
-					xhr.onload = function() {
-						var json;
-
-						if (xhr.status < 200 || xhr.status >= 300) {
-							failure('HTTP Error: ' + xhr.status);
-							return;
-						}
-
-						json = JSON.parse(xhr.responseText);
-
-						if (!json || !json.result || typeof json.data.path != 'string') {
-							failure('Invalid JSON: ' + xhr.responseText);
-							return;
-						}
-
-						var hinp = '<input type="hidden" name="addimg[]" value="'+json.data.path+'|'+json.data.fname+'">';
-						$("#" + id).after(hinp);
-						success(json.data.uploadDir + json.data.path);
-					};
-
-					formData = new FormData();
-					var fileName = ( typeof(blobInfo.blob().name) !== undefined ) ? blobInfo.blob().name : blobInfo.filename();
-					formData.append('Filedata', blobInfo.blob(), fileName);
-
-					xhr.send(formData);
-				}
-			});
+			if(typeof callback === 'function'){
+				callback(tinymce);
+			}
+			_this.opt.plugins = p;
+			_this.opt.toolbar = t;
+			_this.opt.mobile.toolbar = mt;
+			tinymce.init(_this.opt);
 		}
 	}
 };

@@ -298,8 +298,8 @@ class BH_Model{
 	public $uploadDir = '';
 	protected $connName = '';
 
-	public function __construct(){
-		$this->connName = \DB::DefaultConnName;
+	public function __construct($connName = ''){
+		$this->connName = ($connName === '') ? \DB::DefaultConnName : $connName;
 		if(method_exists($this, '__Init')) $this->__Init();
 		$this->uploadDir = '/modelData/' . $this->table . '/' . date('Ym') . '/';
 		foreach($this->data as $k => $v) if(!isset($this->{'_'.$k})) $this->{'_'.$k} = $v;

@@ -16,6 +16,8 @@ class ArticleAction
 	protected $type = '';
 	protected $actionDBType = '';
 
+	protected $connName = '';
+
 	public $boardActionType = array('read', 'recommend', 'oppose', 'report', 'scrap');
 	public $replyActionType = array('rp_recommend', 'rp_oppose', 'rp_report');
 
@@ -24,8 +26,29 @@ class ArticleAction
 	 * @param string $bid
 	 * @param bool $fullTableName
 	 */
-	public function __construct($bid, $fullTableName = false){
+	private function __construct($bid, $fullTableName = false){
+		$this->connName = DB::DefaultConnName;
 		$this->table = $fullTableName ? $bid : TABLE_FIRST.'bbs_'.$bid.'_action';
+	}
+
+	protected function QueryGet($table){
+		return DB::GetQryObj($table)->SetConnName($this->connName);
+	}
+
+	protected function QueryGetList($table){
+		return DB::GetListQryObj($table)->SetConnName($this->connName);
+	}
+
+	protected function QueryDelete($table){
+		return DB::DeleteQryObj($table)->SetConnName($this->connName);
+	}
+
+	protected function QueryUpdate($table){
+		return DB::UpdateQryObj($table)->SetConnName($this->connName);
+	}
+
+	protected function QueryInsert($table){
+		return DB::InsertQryObj($table)->SetConnName($this->connName);
 	}
 
 	/**
@@ -36,6 +59,15 @@ class ArticleAction
 	public static function GetInstance($bid, $fullTableName = false){
 		$static = new static($bid, $fullTableName);
 		return $static;
+	}
+
+	/**
+	 * @param string $connName
+	 * @return ArticleAction
+	 */
+	public function SetConnName($connName){
+		$this->connName = $connName;
+		return $this;
 	}
 
 	/**
@@ -57,7 +89,7 @@ class ArticleAction
 
 		$data = array();
 
-		$qry = DB::GetListQryObj($this->table)
+		$qry = $this->QueryGetList($this->table)
 			->AddWhere('`article_seq` = %d', $this->articleSeq)
 			->AddWhere('`action_type` IN (%s)', $this->boardActionType)
 			->AddWhere('`muid` = %d', $this->mUid);
@@ -75,7 +107,7 @@ class ArticleAction
 		$data = array();
 
 		if(is_array($articleSeqArr) && sizeof($articleSeqArr)){
-			$qry = DB::GetListQryObj($this->table)
+			$qry = $this->QueryGetList($this->table)
 				->AddWhere('`article_seq` IN (%d)', $articleSeqArr)
 				->AddWhere('`action_type` IN (%s)', $this->replyActionType)
 				->AddWhere('`muid` = %d', $this->mUid);
@@ -266,7 +298,7 @@ class ArticleAction
 	 * @return \BH_DB_Get
 	 */
 	protected function DBCheckQry(){
-		$qry = DB::GetQryObj($this->table)
+		$qry = $this->QueryGet($this->table)
 			->AddWhere('`muid` = %d', $this->mUid)
 			->AddWhere('`article_seq` = %d', $this->articleSeq);
 
@@ -285,7 +317,7 @@ class ArticleAction
 	 * @return \BH_DB_Insert
 	 */
 	protected function InsertQuery(){
-		return DB::InsertQryObj($this->table)
+		return $this->QueryInsert($this->table)
 			->SetDataNum('muid', $this->mUid)
 			->SetDataNum('article_seq', $this->articleSeq)
 			->SetDataStr('action_type', $this->actionDBType)
@@ -299,7 +331,7 @@ class ArticleAction
 	 */
 	protected function UpdateTableQuery(){
 		if(!$this->parentTable) return null;
-		$qry = DB::UpdateQryObj($this->parentTable)
+		$qry = $this->QueryUpdate($this->parentTable)
 			->AddWhere('`seq` = %d', $this->articleSeq);
 		$sql = $qry->StrToPDO('(SELECT COUNT(*) FROM %1 WHERE `action_type` = %s AND `article_seq` = %d)', $this->table, $this->actionDBType, $this->articleSeq);
 		$qry->SetData($this->type, $sql);
@@ -340,7 +372,7 @@ class ArticleAction
 		if(!$res->result) return $res;
 
 		if(in_array($this->type, array('recommend', 'oppose', 'report'))){
-			$data = DB::GetQryObj($this->table)
+			$data = $this->QueryGet($this->table)
 				->AddWhere('`muid` = %d', $this->mUid)
 				->AddWhere('`article_seq` = %d', $this->articleSeq)
 				->AddWhere('`action_type` = %s', $this->actionDBType)
@@ -354,7 +386,7 @@ class ArticleAction
 			}
 		}
 
-		$res = DB::DeleteQryObj($this->table)
+		$res = $this->QueryDelete($this->table)
 			->AddWhere('`muid` = %d', $this->mUid)
 			->AddWhere('`article_seq` = %d', $this->articleSeq)
 			->AddWhere('`action_type` = %s', $this->actionDBType)
