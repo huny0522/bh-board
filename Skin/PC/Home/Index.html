@@ -91,12 +91,15 @@ $popup = CM::GetPopup(function($qry){
 
 </section>
 
+<?php	foreach($popup as $row){
+	echo '<div class="popupContents" style="display:none;">' . $row['html'] . '</div>';
+}
+?>
 <script>
 	<?php
-	foreach($popup as $row){
-	echo 'var html = \''.str_replace(array("'", "\r", "\n"), array('&#39;', '', ''), $row['html']).'\';';
+	foreach($popup as $k => $row){
 	?>
-	JCM.popup('body', <?p. $row['seq'] ?>, <?p. $row['pos_y'] ?>, <?p. $row['pos_x'] ?>, <?p. $row['width'] ?>, <?p. $row['height'] ?>, html);
+	JCM.popup('body', <?p. $row['seq'] ?>, <?p. $row['pos_y'] ?>, <?p. $row['pos_x'] ?>, <?p. $row['width'] ?>, <?p. $row['height'] ?>, $('div.popupContents').eq(<?p. $k ?>).html());
 	<?php
 	}
 	?>

@@ -53,7 +53,7 @@ App::$settingData['IMAGE_EXT'] = array('jpg', 'jpeg', 'png', 'gif', 'bmp');
 App::$settingData['POSSIBLE_EXT'] = array('jpg', 'jpeg', 'png', 'gif', 'bmp', 'zip', '7z', 'gz', 'xz', 'tar', 'xls',
 	'xlsx', 'ppt', 'doc', 'hwp', 'pdf', 'docx', 'pptx', 'avi', 'mov', 'mkv', 'mpg', 'mpeg', 'wmv', 'asf', 'asx', 'flv',
 	'm4v', 'mp4', 'mp3', 'txt');
-App::$settingData['iframePossibleUrl'] = array('https://www.youtube.com');
+App::$settingData['iframePossibleUrl'] = array('www.youtube.com');
 
 if(_DEVELOPERIS === true){
 	if(!file_exists(_DATADIR) || !is_dir(_DATADIR)) @mkdir(_DATADIR, 0755, true);
@@ -428,7 +428,7 @@ function RemoveIFrame($str){
 				foreach(App::$settingData['iframePossibleUrl'] as $v){
 					if(substr($matches2[1], 0, strlen($v)) !== $v) $r = true;
 				}
-				if($r) $matches[0] = '';
+				if(!$r) $matches[0] = '';
 				return '';
 			}, $matches[1]);
 			return $matches[0];

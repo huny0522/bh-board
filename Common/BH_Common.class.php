@@ -324,7 +324,7 @@ class BH_Common
 				$html .= '<img src="'._UPLOAD_URL.$row['img'].'" alt="'.GetDBText($row['subject']).'">';
 				if($row['link_url']) $html .= '</a>';
 			}
-			else $html = GetDBRaw(addslashes($row['contents']));
+			else $html = GetDBRaw($row['contents']);
 
 			$banner->data[$k]['html'] = $html;
 		}
