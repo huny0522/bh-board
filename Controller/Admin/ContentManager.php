@@ -78,12 +78,21 @@ class ContentManager{
 		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
 		$dbGetList->AddWhere('LENGTH(category) = '._CATEGORY_LENGTH);
 		App::$data['menu'] = $dbGetList->GetRows();
+
+		$dbGetList = new \BH_DB_GetList($this->model->table);
+		$dbGetList->SetKey('DISTINCT layout');
+		App::$data['layout'] = $dbGetList->GetRows();
+
 		App::View($this->model);
 	}
 	public function Modify(){
 		$dbGetList = new \BH_DB_GetList(TABLE_MENU);
 		$dbGetList->AddWhere('LENGTH(category) = '._CATEGORY_LENGTH);
 		App::$data['menu'] = $dbGetList->GetRows();
+
+		$dbGetList = new \BH_DB_GetList($this->model->table);
+		$dbGetList->SetKey('DISTINCT layout');
+		App::$data['layout'] = $dbGetList->GetRows();
 
 		$res = $this->model->DBGet($_GET['bid']);
 		$dbGet = new \BH_DB_GetList(TABLE_MENU);
@@ -136,7 +145,7 @@ class ContentManager{
 			$res = $this->model->DBUpdate();
 			if($res->result){
 				CM::MenuConnect($this->model->GetValue('bid'), 'content');
-				$url = App::URLAction('View').'?bid='.$_POST['bid'].App::GetFollowQuery();
+				$url = App::URLAction('Modify').'?bid='.$_POST['bid'].App::GetFollowQuery();
 				URLReplace($url, '수정완료');
 			}else{
 				URLReplace('-1', '수정에 실패했습니다.');

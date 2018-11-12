@@ -11,7 +11,7 @@ use \BH_Application as App;
 
 <form name="ContentWriteForm" id="ContentWriteForm" method="post" action="<?a. App::$action ?><?fq. '' ?>">
 	<?php if(App::$action == 'Modify'){?>
-	<input type="hidden" name="bid" value="<?mv('bid') ?>">
+		<input type="hidden" name="bid" value="<?mv('bid') ?>">
 	<?php } ?>
 	<input type="hidden" name="select_menu" value="" id="select_menu">
 
@@ -70,6 +70,7 @@ use \BH_Application as App;
 									<?php } ?>
 								</select>
 								<a href="#" class="menuSelectRemoveBtn sBtn">삭제</a>
+								<a href="#" class="menuSubjectBtn sBtn">제목입력</a>
 							</div>
 						<?php }
 					}else{?>
@@ -81,6 +82,7 @@ use \BH_Application as App;
 								<?php } ?>
 							</select>
 							<a href="#" class="menuSelectRemoveBtn sBtn">삭제</a>
+							<a href="#" class="menuSubjectBtn sBtn">제목입력</a>
 						</div>
 					<?php } ?>
 					<a href="#" class="menuSelectAddBtn sBtn">추가</a>
@@ -97,6 +99,9 @@ use \BH_Application as App;
 			<th><?mt('layout')?></th>
 			<td>
 				<?minp('layout') ?>
+				<?php foreach(App::$data['layout'] as $v){ if($v['layout']){ ?>
+					<button type="button" data-txt="<?v. $v['layout'] ?>" class="layoutInBtn sBtn"><?v. $v['layout'] ?></button>
+				<?php }} ?>
 			</td>
 		</tr>
 	</table>
@@ -104,7 +109,7 @@ use \BH_Application as App;
 	<div class="bottomBtn">
 		<button type="submit" class="bBtn"><?php echo App::$action == 'Modify' ? '수정' : '등록'; ?></button>
 		<button type="reset" class="bBtn">취소</button>
-		<a href="#" class="backbtn bBtn">뒤로</a>
+		<a href="<?a. '' ?><?fq. '' ?>" class="bBtn">목록</a>
 	</div>
 </form>
 
@@ -169,13 +174,29 @@ use \BH_Application as App;
 	$(document).on('click', 'a.menuSelectAddBtn', function(e){
 		e.preventDefault();
 		var html = $('.menuSelect select').eq(0).html().replace(/selected/ig, '');
-		$(this).before('<div class="menuSelect"><select name="selectmenu[]">' + html + '</select><a href="#" class="menuSelectRemoveBtn sBtn">삭제</a></div>');
+		$(this).before('<div class="menuSelect"><select name="selectmenu[]">' + html + '</select><a href="#" class="menuSelectRemoveBtn sBtn">삭제</a><a href="#" class="menuSubjectBtn sBtn">제목입력</a></div>');
 	});
 
 	$(document).on('click', 'a.menuSelectRemoveBtn', function(e){
 		e.preventDefault();
 		if($('.menuSelect').length < 2) return;
 		$(this).closest('.menuSelect').remove();
+	});
+
+	$(document).on('click', 'a.menuSubjectBtn', function(e){
+		e.preventDefault();
+		var subject = '';
+		var i = 0;
+		$(this).closest('.menuSelect').find('select').each(function(){
+			i++;
+			if(i === 1) return;
+			subject += (subject === '' ? '' : '-') + $(this).find('option:selected').text();
+		});
+		$('#MD_subject').val(subject);
+	});
+
+	$(document).on('click', 'button.layoutInBtn', function(){
+		$('#MD_layout').val($(this).attr('data-txt'));
 	});
 
 
