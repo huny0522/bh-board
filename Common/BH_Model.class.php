@@ -1926,9 +1926,11 @@ class _ConfigModel{
 	 * @return BH_Result
 	 */
 	public function DataWrite($data = array(), $files = null){
+		if(!BH_Application::$installIs) return;
+
 		$fileNames = isset($data['file_field']) ? $data['file_field'] : array();
 
-		if(!file_exists( _DATADIR.'/CFG') || !is_dir(_DATADIR.'/CFG')) mkdir(_DATADIR.'/CFG', 0755);
+		if(!file_exists( _DATADIR.'/CFG') || !is_dir(_DATADIR.'/CFG')) mkdir(_DATADIR.'/CFG', 0755, true);
 		foreach($data as $k => $v){
 			if(!isset($this->{$k}) || $k === '_delFile') continue;
 			$this->{$k}->value = $v;
