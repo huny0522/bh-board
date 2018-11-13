@@ -93,12 +93,16 @@ use \BH_Application as App;
 			<th><i class="requiredBullet" title="필수항목">*</i> <?mt('html')?></th>
 			<td>
 				<?minp('html') ?>
+				<div id="htmlSelector" class="fileSelector"></div>
 			</td>
 		</tr>
 		<tr>
 			<th><?mt('layout')?></th>
 			<td>
 				<?minp('layout') ?>
+
+				<div id="layoutSelector" class="fileSelector"></div>
+
 				<?php foreach(App::$data['layout'] as $v){ if($v['layout']){ ?>
 					<button type="button" data-txt="<?v. $v['layout'] ?>" class="layoutInBtn sBtn"><?v. $v['layout'] ?></button>
 				<?php }} ?>
@@ -211,4 +215,61 @@ use \BH_Application as App;
 		}
 	});
 	<?php } ?>
+
+	function getChildFiles(parentEl, url){
+		var path = '';
+		var dirIs = false;
+		$(parentEl).children('select').each(function(){
+			var opt = $(this).children('option:checked');
+			if(opt.val() !== ''){
+				path += opt.val();
+				if(opt.attr('data-dir-is') === 'y') dirIs = true;
+				else dirIs = false;
+			}
+			else dirIs = false;
+		});
+
+		if(path === ''){
+			if($(parentEl).children('select').length) return;
+			dirIs = true;
+		}
+
+		if(dirIs){
+			JCM.get(url, {'path' : path}, function(data){
+				var opt = '';
+				for(var i = 0; i < data.dir.length; i++){
+					opt += '<option data-dir-is="y" value="' + data.dir[i] + '/">' + data.dir[i] + '/</option>';
+				}
+				for(var i = 0; i < data.file.length; i++){
+					opt += '<option data-dir-is="n" value="' + data.file[i] + '">' + data.file[i] + '</option>';
+				}
+				if(opt !== '') opt = '<select><option value="">선택</option>' + opt + '</select>';
+				$(parentEl).append(opt);
+			});
+		}
+		else if(path !== ''){
+			$(parentEl).parent().find('input').val(path.split('/').pop());
+		}
+	}
+
+	getChildFiles('#htmlSelector', '<?a. 'GetSkinFiles' ?>');
+	getChildFiles('#layoutSelector', '<?a. 'GetLayoutFiles' ?>');
+
+	$('#htmlSelector').on('change', 'select', function(){
+		if($(this).val() === ''){
+			while($(this).next().length){
+				$(this).next().remove();
+			}
+		}
+		getChildFiles('#htmlSelector', '<?a. 'GetSkinFiles' ?>');
+	})
+	$('#layoutSelector').on('change', 'select', function(){
+		if($(this).val() === ''){
+			while($(this).next().length){
+				$(this).next().remove();
+			}
+		}
+		getChildFiles('#layoutSelector', '<?a. 'GetLayoutFiles' ?>');
+	})
+
 </script>

@@ -165,4 +165,28 @@ class ContentManager{
 		if($res->result) URLReplace(App::URLAction('').App::GetFollowQuery());
 		else URLReplace('-1', '삭제에 실패했습니다.');
 	}
+
+	public function GetSkinFiles(){
+		$this->GetFiles(_SKINDIR . '/Contents/');
+	}
+
+	public function GetLayoutFiles(){
+		$this->GetFiles(_SKINDIR . '/Layout/');
+	}
+
+	public function GetFiles($parentPath){
+		$list = array('dir' => array(), 'file' => array());
+		$path = $parentPath . Get('path');
+		if(is_dir($path) && $dh = opendir($path)){
+			while(($file = readdir($dh)) !== false){
+				if($file != '.' && $file != '..'){
+					$dest_path = $path . '/' . $file;
+					if(is_dir($dest_path)) $list['dir'][] = $file;
+					else $list['file'][] = substr($file, -5) === '.html' ? substr($file, 0, -5) : $file;
+				}
+			}
+			closedir($dh);
+		}
+		JSON(true, '', $list);
+	}
 }

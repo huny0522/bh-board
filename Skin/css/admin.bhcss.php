@@ -436,4 +436,7 @@ BHCss::$variable['$c4'] = 'rgb(10, 25, 40)';
 		dt{$dtc; width:100px; padding:5px;}
 		dd{$dtc; padding:5px;}
 	}
+
+	.fileSelector{display:inline-block; padding-left:10px;}
+	.fileSelector select{background:#eee;}
 </style>
