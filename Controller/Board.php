@@ -724,7 +724,15 @@ class Board{
 		if($res2->result){
 			$this->_R_PostModifyUpdateAfter();  // Reserved
 			if(_AJAXIS === true) JSON(true, '',_MSG_COMPLETE_MODIFY);
-			else URLReplace(App::URLAction('View/'.App::$id).App::GetFollowQuery(), _MSG_COMPLETE_MODIFY);
+			else{
+				if(!isset($this->model->_muid->value) || !strlen($this->model->_muid->value)){
+					echo '<form action="' . App::URLAction('View/') . App::$id . App::GetFollowQuery() . '" method="post" id="redirectForm">';
+					echo '<input type="hidden" name="pwd" value="' . GetDBText(Post('pwd')). '">';
+					echo '</form>';
+					echo '<script>document.getElementById(\'redirectForm\').submit()</script>';
+				}
+				URLReplace(App::URLAction('View/'.App::$id).App::GetFollowQuery(), _MSG_COMPLETE_MODIFY);
+			}
 		}
 		else{
 			if(_AJAXIS === true) JSON(false, $res2->message ? $res2->message : 'ERROR#102');
