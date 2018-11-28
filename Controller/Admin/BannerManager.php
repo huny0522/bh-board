@@ -41,6 +41,7 @@ class BannerManager
 		// 리스트를 불러온다.
 		$qry = DB::GetListPageQryObj($this->model->table)
 			->SetPage(Get('page'))
+			->SetSort('seq DESC')
 			->SetPageUrl(App::URLAction().App::GetFollowQuery('page'))
 			->SetArticleCount(20);
 
