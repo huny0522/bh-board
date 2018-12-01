@@ -68,9 +68,9 @@ if(App::$settingData['GetUrl'][2] === 'Config' && App::$settingData['GetUrl'][3]
 		// 'Guide_Delivery' => '배송 안내',
 		// 'Guide_Change' => '교환/반품 안내',
 		// 'Guide_Return' => '환불 안내',
-		'Terms_Email' => '이메일무단수집거부',
-		'Terms_Privacy' => '개인정보취급방침',
-		'Terms_Default' => '이용약관',
+		'EmailCollector' => '이메일무단수집거부',
+		'PrivacyText' => '개인정보취급방침',
+		'TermsText' => '이용약관',
 		// 'Terms_YouthProtection' => '청소년 보호방침',
 		// 'JoinMessage' => '가입완료 메세지'
 	);

@@ -1661,7 +1661,7 @@ function SE2_paste(id, defaultfolder, hiddenBtns){
 	else{
 		if(!SE2LoadIs){
 			SE2LoadIs = true;
-			$.getScript('/Common/smarteditor2/dist/js/service/HuskyEZCreator.js').done(function( s, Status ) {
+			$.getScript('/Skin/js/smarteditor2/dist/js/service/HuskyEZCreator.js').done(function( s, Status ) {
 				spaste(id, defaultfolder, hiddenBtns);
 			});
 		}
@@ -1700,7 +1700,7 @@ function SE2_paste(id, defaultfolder, hiddenBtns){
 		nhn.husky.EZCreator.createInIFrame({
 			oAppRef: oEditors,
 			elPlaceHolder: id,
-			sSkinURI: defaultfolder + "/Common/smarteditor2/dist/SmartEditor2Skin.html",
+			sSkinURI: defaultfolder + "/Skin/js/smarteditor2/dist/SmartEditor2Skin.html",
 			htParams : {
 				bUseToolbar : true,				// 툴바 사용 여부 (true:사용/ false:사용하지 않음)
 				bUseVerticalResizer : true,		// 입력창 크기 조절바 사용 여부 (true:사용/ false:사용하지 않음)
