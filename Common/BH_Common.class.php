@@ -331,9 +331,9 @@ class BH_Common
 		return $banner->data;
 	}
 
-	public static function Youtube($urlOrId, $width='100%', $height = '100%',  $opt = 'autoplay'){
+	public static function Youtube($urlOrId, $width='100%', $height = '100%',  $opt = '?rel=0&amp;showinfo=0&amp;autohide=1&amp;autoplay=1'){
 		$urlOrId = self::GetYoutubeId($urlOrId);
-		if($urlOrId !== false) return '<div class="youtubeFrameWrap"><iframe src="https://www.youtube.com/embed/'. $urlOrId . '?rel=0&amp;showinfo=0&amp;autohide=1" frameborder="0" allow="' . $opt .'; encrypted-media" allowfullscreen style="width:' . $width . '; height:' . $height . ';" autohide="1"></iframe></div>';
+		if($urlOrId !== false) return '<div class="youtubeFrameWrap"><iframe src="https://www.youtube.com/embed/'. $urlOrId . $opt .'" frameborder="0" allowfullscreen style="width:' . $width . '; height:' . $height . ';" autohide="1"></iframe></div>';
 		return '';
 	}
 
