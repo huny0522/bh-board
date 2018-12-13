@@ -111,8 +111,8 @@ class MyPage{
 		$model->data['pwd']->required = false;
 		$model->SetPostValues();
 		if(isset($_POST['pwd']) && strlen($_POST['pwd'])){
-			if(isset($_POST['pwdchk']) && strlen($_POST['pwd'])){
-				App::$data['error'] = '비밀번호가 일치하지 않습니다.';
+			if(isset($_POST['pwdchk'])){
+				if($_POST['pwdchk'] !== $_POST['pwd']) App::$data['error'] = '비밀번호가 일치하지 않습니다.';
 			}else{
 				URLReplace('-1', _MSG_WRONG_CONNECTED);
 			}
