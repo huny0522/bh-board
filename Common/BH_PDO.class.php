@@ -75,6 +75,17 @@ class DB{
 	}
 
 	/**
+	 * @param string $table
+	 * @param string $column
+	 * @return bool
+	 */
+	public function ColumnExists($table, $column){
+		$exists = self::NumRows("SHOW COLUMNS FROM {$table} LIKE '{$column}'");
+		if($exists) return true;
+		else return false;
+	}
+
+	/**
 	 * @param string|PDOStatement $qry
 	 * @return bool|int
 	 */
@@ -458,7 +469,7 @@ class BH_DB_Get{
 				return $row;
 			}
 		}
-		else if((_DEVELOPERIS === true && $this->showError) || BH_Application::$showError) PrintError('Error');
+		else if(_DEVELOPERIS === true && $this->showError && BH_Application::$showError) PrintError($this->query->errorInfo());
 		return false;
 	}
 
@@ -573,7 +584,7 @@ class BH_DB_GetList extends BH_DB_Get{
 
 		if($this->query->execute()) $this->result = true;
 		else{
-			if((_DEVELOPERIS === true && $this->showError) || BH_Application::$showError) PrintError('Error');
+			if(_DEVELOPERIS === true && $this->showError && BH_Application::$showError) PrintError($this->query->errorInfo());
 			$this->result = false;
 		}
 
@@ -778,7 +789,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 			$this->result = true;
 		}
 		else{
-			if((_DEVELOPERIS === true && $this->showError) || BH_Application::$showError) PrintError('Error');
+			if(_DEVELOPERIS === true && $this->showError && BH_Application::$showError) PrintError($this->query->errorInfo());
 			$this->result = false;
 		}
 		return $this;
@@ -1062,7 +1073,7 @@ class BH_DB_Insert{
 		$qry = DB::PDO($this->connName)->prepare($this->sql);
 		foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
 		$res->result = $qry->execute();
-		if(!$res->result && ((_DEVELOPERIS === true && $this->showError) || BH_Application::$showError)) PrintError('Error');
+		if(!$res->result && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($this->query->errorInfo());
 
 		return $res;
 	}
@@ -1118,7 +1129,7 @@ class BH_DB_Insert{
 				foreach($this->tableBindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
 				foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
 				$r = $qry->execute();
-				if(!$r && ((_DEVELOPERIS === true && $this->showError) || BH_Application::$showError)) PrintError('Error');
+				if(!$r && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($this->query->errorInfo());
 				$cnt --;
 			}
 			$res->result = $r ? true : false;
@@ -1136,7 +1147,7 @@ class BH_DB_Insert{
 			foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
 			$res->result = $qry->execute();
 			if($res->result) $res->id = DB::PDO($this->connName)->lastInsertId();
-			else if((_DEVELOPERIS === true && $this->showError) || BH_Application::$showError) PrintError('Error');
+			else if(_DEVELOPERIS === true && $this->showError && BH_Application::$showError) PrintError($this->query->errorInfo());
 		}
 		return $res;
 	}
@@ -1290,7 +1301,7 @@ class BH_DB_Update{
 		$qry = DB::PDO($this->connName)->prepare($this->sql);
 		foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
 		$res->result = $qry->execute();
-		if(!$res->result && ((_DEVELOPERIS === true && $this->showError) || BH_Application::$showError)) PrintError('Error');
+		if(!$res->result && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($this->query->errorInfo());
 		return $res;
 	}
 
@@ -1388,7 +1399,7 @@ class BH_DB_Delete{
 		$qry = DB::PDO($this->connName)->prepare($this->sql);
 		foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
 		$res = $qry->execute();
-		if(!$res && ((_DEVELOPERIS === true && $this->showError) || BH_Application::$showError)) PrintError('Error');
+		if(!$res && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($this->query->errorInfo());
 		return $res;
 	}
 

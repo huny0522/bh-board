@@ -541,7 +541,8 @@ function SetDBFloat($txt){
 }
 
 function PrintError($message){
-	echo '<b style="color:#c00;">' . $message . '</b><br>';
+	if(_DEVELOPERIS !== true) exit;
+	echo '<b style="color:#c00;">' . (is_array($message) ? implode('<br>', $message) : $message) . '</b><br>';
 	$d_b = phpversion() < 5.6 ? debug_backtrace() : debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 4);
 	for($k = 1; isset($d_b[$k]) && $k < 4;$k++){
 		echo '<h1>#'. $k.'</h1>';
