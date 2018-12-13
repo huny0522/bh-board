@@ -12,13 +12,13 @@ use \BH_Application as App;
 
 		<fieldset>
 			<h3>이용약관</h3>
-			<div class="txt"><?vr. CM::Config('Terms_Default', 'text') ?></div>
+			<div class="txt"><?vr. App::$cfg->TermsText()->text ?></div>
 			<p class="chk"><label class="checkbox"><input type="checkbox" name="agree2" id="agree2" class="checkItem"><span>이용약관에 동의합니다.</span></label></p>
 		</fieldset>
 
 		<fieldset>
 			<h3>개인정보보호정책</h3>
-			<div class="txt"><?vr. CM::Config('Terms_Privacy', 'text') ?></div>
+			<div class="txt"><?vr. App::$cfg->Privacy()->text ?></div>
 			<p class="chk"><label class="checkbox"><input type="checkbox" name="agree1" id="agree1" class="checkItem"><span>개인정보보호정책에 동의합니다.</span></label></p>
 		</fieldset>
 
