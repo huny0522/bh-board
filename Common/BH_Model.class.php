@@ -1394,7 +1394,7 @@ class _ModelFunc{
 			}
 		}
 		foreach($model->key as $k){
-			if(isset($model->data[$k]->value) && strlen($model->data[$k]->value)) $dbUpdate->AddWhere($k.' = %s', $model->data[$k]->value);
+			if(isset($model->data[$k]->value) && ($model->data[$k]->type === ModelType::STRING || strlen($model->data[$k]->value))) $dbUpdate->AddWhere($k.' = %s', $model->data[$k]->value);
 			else{
 				$result->message = 'Empty Key';
 				$result->result = false;
@@ -1926,7 +1926,7 @@ class _ConfigModel{
 	 * @return BH_Result
 	 */
 	public function DataWrite($data = array(), $files = null){
-		if(!BH_Application::$installIs) return;
+		if(BH_Application::$version === '') return;
 
 		$fileNames = isset($data['file_field']) ? $data['file_field'] : array();
 

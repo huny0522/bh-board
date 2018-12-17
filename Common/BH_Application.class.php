@@ -18,7 +18,7 @@ class BH_Application
 	public static $tid = '';
 	public static $sub_tid = '';
 	public static $ctrlUrl = '';
-	public static $installIs = true;
+	public static $version = '';
 	/**
 	 * @var _ConfigMap
 	 */
@@ -47,14 +47,15 @@ class BH_Application
 	}
 
 	public static function run(){
-		self::$showError = (_DEVELOPERIS === true && isset(self::$settingData['showError']) && self::$settingData['showError'] === true);
 		self::$settingData['URLFirst'] = '';
 		spl_autoload_register(array('BH_Application', 'AutoLoad'));
 
 		$composerFile = _DIR . '/vendor/autoload.php';
 		if(file_exists($composerFile)) require $composerFile;
 
-		if(_DEVELOPERIS === true) self::$installIs = \DB::SQL()->TableExists(TABLE_MEMBER);
+
+
+		if(_DEVELOPERIS === true) require _DIR . '/DBUpdate.php';
 
 		// ----------------------
 		//
@@ -106,16 +107,7 @@ class BH_Application
 		self::$baseDir = _URL;
 		self::$nativeDir = '';
 
-		if(!self::$installIs){
-			if(self::$settingData['GetUrl'][1] == 'Install'){
-				self::$controllerName = self::$settingData['GetUrl'][1];
-				self::$action = self::$settingData['GetUrl'][2];
-				self::$id = self::$settingData['GetUrl'][3];
-				self::$ctrlUrl = _URL . '/' . self::$controllerName;
-			}
-			else exit;
-		}
-		else require _DIR . '/Custom/BH_Router.php';
+		require _DIR . '/Custom/BH_Router.php';
 
 		//
 		//    라우팅 초기화

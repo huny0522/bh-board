@@ -115,6 +115,7 @@ define('TABLE_IMAGES', TABLE_FIRST . 'images');
 define('TABLE_FRAMEWORK_SETTING', TABLE_FIRST . 'framework_setting');
 define('TABLE_VISIT', TABLE_FIRST . 'visit');
 define('TABLE_VISIT_COUNTER', TABLE_FIRST . 'visit_counter');
+define('TABLE_MESSAGE', TABLE_FIRST . 'message');
 
 define('_MEMBER_LEVEL', 1);
 define('_MANAGER_LEVEL', 15);
@@ -130,6 +131,11 @@ define('_DEFAULT_CONTROLLER', 'Home');
 define('_DEFAULT_LAYOUT', '_Default');
 
 require _COMMONDIR . '/common.php';
+
+$fetch = DB::GetQryObj(TABLE_FRAMEWORK_SETTING)
+	->AddWhere('`key_name` = \'version\'')
+	->Get();
+if($fetch) BH_Application::$version = $fetch['data'];
 
 define('_MEMBERIS', isset($_SESSION['member']) && strlen($_SESSION['member']['muid']));
 

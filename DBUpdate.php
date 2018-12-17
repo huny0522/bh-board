@@ -1,25 +1,55 @@
 <?php
-/**
- * Bang Hun.
- * 16.07.10
- */
+if(!defined('_DEVELOPERIS') || _DEVELOPERIS !== true) return;
+$createSql = array();
+$createSql['18.09.15'][] = array(
+	'table' => TABLE_MESSAGE,
+	'sql' => "CREATE TABLE `" . TABLE_MESSAGE . "` (
+					`seq` BIGINT(10) NOT NULL DEFAULT '0',
+					`muid` INT(10) NULL DEFAULT NULL,
+					`target_muid` INT(10) NULL DEFAULT NULL,
+					`comment` TEXT NOT NULL,
+					`reg_date` DATETIME NOT NULL DEFAULT '0000-01-01 00:00:00',
+					`file` VARCHAR(128) NOT NULL DEFAULT '' COMMENT '파일',
+					`delis` ENUM('y','n') NOT NULL DEFAULT 'n',
+					`target_delis` ENUM('y','n') NOT NULL DEFAULT 'n',
+					`read_date` DATETIME DEFAULT NULL,
+					`report` ENUM('y', 'n') NOT NULL DEFAULT 'n',
+					PRIMARY KEY (`seq`),
+					INDEX `muid` (`muid`),
+					INDEX `target_muid` (`target_muid`)
+				)
+				COLLATE='utf8_general_ci'
+				ENGINE=InnoDB"
+);
 
-namespace Controller;
+$addColumnSql = array();
 
-use \BH_Application as App;
-use \BH_Common as CM;
-use \DB as DB;
+$updateSql = array();
 
-class Install{
-
-	public function __construct(){
-		if(App::$installIs) exit;
+// 버전이 존재하면 업데이트
+if(BH_Application::$version !== ''){
+	foreach($createSql as $k => $v){
+		if(BH_Application::$version <= $k){
+			foreach($v as $v2){
+				if(!DB::SQL()->TableExists($v2['table'])){
+					DB::SQL()->Query($v2['sql']);
+				}
+			}
+		}
 	}
 
-	public function Index(){
-		if(_DEVELOPERIS !== true) return;
-		$sql = array();
-		$sql[]="
+	foreach($updateSql as $k => $v){
+		DB::SQL()->Query($v);
+	}
+
+	if(file_exists(_DIR . '/version.php')) BH_Application::$version = file_get_contents(_DIR . '/Common/version.php');
+	DB::SQL()->Query('UPDATE `'.TABLE_FRAMEWORK_SETTING.'` SET `data` = \''.BH_Application::$version.'\'  WHERE `key_name` = \'version\'');
+}
+
+// 버전이 존재하지 않으면 기본 테이블 생성
+else{
+	$sql = array();
+	$sql[]="
 CREATE TABLE `".TABLE_FRAMEWORK_SETTING."` (
 	`key_name` VARBINARY(64) NOT NULL DEFAULT '',
 	`data` TEXT NOT NULL,
@@ -28,7 +58,7 @@ CREATE TABLE `".TABLE_FRAMEWORK_SETTING."` (
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 ";
-		$sql[]="
+	$sql[]="
 CREATE TABLE `".TABLE_BANNER."` (
 	`seq` INT(11) NOT NULL AUTO_INCREMENT,
 	`category` VARCHAR(20) NOT NULL DEFAULT '',
@@ -54,7 +84,7 @@ COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 ";
 
-		$sql[] = "
+	$sql[] = "
 CREATE TABLE `".TABLE_BOARD_MNG."` (
 	`bid` VARCHAR(20) NOT NULL DEFAULT '',
 	`subid` VARCHAR(20) NOT NULL DEFAULT '',
@@ -91,7 +121,7 @@ COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 ";
 
-		$sql[] = "
+	$sql[] = "
 CREATE TABLE `".TABLE_CONTENT."` (
 	`bid` VARCHAR(20) NOT NULL DEFAULT '',
 	`category` VARCHAR(256) NOT NULL DEFAULT '',
@@ -111,7 +141,7 @@ COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 ";
 
-		$sql[]= "
+	$sql[]= "
 CREATE TABLE `".TABLE_IMAGES."` (
 	`tid` VARCHAR(32) NOT NULL DEFAULT '',
 	`article_seq` VARCHAR(64) NOT NULL DEFAULT '0',
@@ -124,7 +154,7 @@ COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 ";
 
-		$sql[] = "
+	$sql[] = "
 CREATE TABLE `".TABLE_MEMBER."` (
 	`muid` INT(11) NOT NULL DEFAULT '0',
 	`mid` VARCHAR(128) NULL DEFAULT NULL,
@@ -156,7 +186,7 @@ COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 ";
 
-		$sql[] = "
+	$sql[] = "
 CREATE TABLE `".TABLE_MENU."` (
 	`category` VARBINARY(50) NOT NULL DEFAULT '0',
 	`sort` INT(11) NOT NULL DEFAULT '0',
@@ -180,7 +210,7 @@ COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 ";
 
-		$sql[]= "
+	$sql[]= "
 CREATE TABLE `".TABLE_POPUP."` (
 	`seq` INT(11) NOT NULL AUTO_INCREMENT,
 	`category` VARCHAR(20) NOT NULL DEFAULT '',
@@ -208,7 +238,7 @@ CREATE TABLE `".TABLE_POPUP."` (
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB";
 
-		$sql[]= "
+	$sql[]= "
 CREATE TABLE `".TABLE_WITHDRAW_MEMBER."` (
 	`muid` INT(11) NOT NULL DEFAULT '0',
 	`mid` VARCHAR(128) NOT NULL DEFAULT '',
@@ -225,7 +255,7 @@ CREATE TABLE `".TABLE_WITHDRAW_MEMBER."` (
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB";
 
-		$sql[] = "CREATE TABLE `" . TABLE_CONTENT_ACTION . "` (
+	$sql[] = "CREATE TABLE `" . TABLE_CONTENT_ACTION . "` (
 				`action_type` ENUM('read','recommend','oppose','scrap') NOT NULL DEFAULT 'read',
 				`bid` VARCHAR(20) NOT NULL DEFAULT '',
 				`muid` INT(11) NOT NULL DEFAULT '0',
@@ -236,7 +266,7 @@ ENGINE=InnoDB";
 			COLLATE='utf8_general_ci'
 			ENGINE=InnoDB";
 
-		$sql[] = "CREATE TABLE `" . TABLE_VISIT . "` (
+	$sql[] = "CREATE TABLE `" . TABLE_VISIT . "` (
 	`ip` VARCHAR(64) NOT NULL DEFAULT '' COLLATE 'utf8_unicode_ci',
 	`dt` DATE NOT NULL DEFAULT '0000-01-01',
 	`browser` VARCHAR(64) NOT NULL DEFAULT '' COLLATE 'utf8_unicode_ci',
@@ -249,7 +279,7 @@ ENGINE=InnoDB";
 COLLATE='utf8_unicode_ci'
 ENGINE=InnoDB";
 
-		$sql[] = "CREATE TABLE `" . TABLE_VISIT_COUNTER . "` (
+	$sql[] = "CREATE TABLE `" . TABLE_VISIT_COUNTER . "` (
 	`d_y` SMALLINT(6) NOT NULL DEFAULT '0',
 	`d_m` TINYINT(4) NOT NULL DEFAULT '-1',
 	`d_d` TINYINT(4) NOT NULL DEFAULT '-1',
@@ -266,102 +296,110 @@ ENGINE=InnoDB";
 COLLATE='utf8_unicode_ci'
 ENGINE=InnoDB";
 
-		foreach($sql as $s){
-			@\DB::SQL()->Query($s);
-		}
+	foreach($sql as $s){
+		@\DB::SQL()->Query($s);
+	}
 
-		$bmModel = new \BoardManagerModel();
+	$bmModel = new \BoardManagerModel();
 
-		$bmModel->CreateTableBoard(TABLE_FIRST.'bbs_board');
+	$bmModel->CreateTableBoard(TABLE_FIRST.'bbs_board');
 
-		$bmModel->CreateTableReply(TABLE_FIRST.'bbs_board_reply');
+	$bmModel->CreateTableReply(TABLE_FIRST.'bbs_board_reply');
 
-		$bmModel->CreateTableImg(TABLE_FIRST.'bbs_board_images');
+	$bmModel->CreateTableImg(TABLE_FIRST.'bbs_board_images');
 
-		$bmModel->CreateTableAction(TABLE_FIRST.'bbs_board_action');
+	$bmModel->CreateTableAction(TABLE_FIRST.'bbs_board_action');
 
-		$bmModel->_subid->SetValue('free_board');
-		$bmModel->_bid->SetValue('board');
-		$bmModel->_reg_date->SetValue(date('Y-m-d H:i:s'));
-		$bmModel->_auth_answer_level->SetValue(1);
-		$bmModel->_auth_list_level->SetValue(0);
-		$bmModel->_auth_reply_level->SetValue(1);
-		$bmModel->_auth_view_level->SetValue(0);
-		$bmModel->_auth_write_level->SetValue(1);
-		$bmModel->_layout->SetValue('_Board');
-		$bmModel->_subject->SetValue('자유게시판');
-		$bmModel->_group_name->SetValue('기본');
-		$bmModel->DBInsert();
+	$bmModel->_subid->SetValue('free_board');
+	$bmModel->_bid->SetValue('board');
+	$bmModel->_reg_date->SetValue(date('Y-m-d H:i:s'));
+	$bmModel->_auth_answer_level->SetValue(1);
+	$bmModel->_auth_list_level->SetValue(0);
+	$bmModel->_auth_reply_level->SetValue(1);
+	$bmModel->_auth_view_level->SetValue(0);
+	$bmModel->_auth_write_level->SetValue(1);
+	$bmModel->_layout->SetValue('_Board');
+	$bmModel->_subject->SetValue('자유게시판');
+	$bmModel->_group_name->SetValue('기본');
+	$bmModel->DBInsert();
 
-		$bmModel->_subid->SetValue('notice');
-		$bmModel->_bid->SetValue('board');
-		$bmModel->_reg_date->SetValue(date('Y-m-d H:i:s'));
-		$bmModel->_auth_answer_level->SetValue(18);
-		$bmModel->_auth_list_level->SetValue(0);
-		$bmModel->_auth_reply_level->SetValue(1);
-		$bmModel->_auth_view_level->SetValue(0);
-		$bmModel->_auth_write_level->SetValue(18);
-		$bmModel->_layout->SetValue('_Board');
-		$bmModel->_subject->SetValue('공지사항');
-		$bmModel->_group_name->SetValue('기본');
-		$bmModel->DBInsert();
+	$bmModel->_subid->SetValue('notice');
+	$bmModel->_bid->SetValue('board');
+	$bmModel->_reg_date->SetValue(date('Y-m-d H:i:s'));
+	$bmModel->_auth_answer_level->SetValue(18);
+	$bmModel->_auth_list_level->SetValue(0);
+	$bmModel->_auth_reply_level->SetValue(1);
+	$bmModel->_auth_view_level->SetValue(0);
+	$bmModel->_auth_write_level->SetValue(18);
+	$bmModel->_layout->SetValue('_Board');
+	$bmModel->_subject->SetValue('공지사항');
+	$bmModel->_group_name->SetValue('기본');
+	$bmModel->DBInsert();
 
-		$bmModel->_subid->SetValue('gallery');
-		$bmModel->_bid->SetValue('board');
-		$bmModel->_skin->SetValue('Gallery');
-		$bmModel->_reg_date->SetValue(date('Y-m-d H:i:s'));
-		$bmModel->_auth_answer_level->SetValue(1);
-		$bmModel->_auth_list_level->SetValue(0);
-		$bmModel->_auth_reply_level->SetValue(1);
-		$bmModel->_auth_view_level->SetValue(0);
-		$bmModel->_auth_write_level->SetValue(1);
-		$bmModel->_layout->SetValue('_Board');
-		$bmModel->_subject->SetValue('갤러리게시판');
-		$bmModel->_group_name->SetValue('기본');
-		$bmModel->DBInsert();
+	$bmModel->_subid->SetValue('gallery');
+	$bmModel->_bid->SetValue('board');
+	$bmModel->_skin->SetValue('Gallery');
+	$bmModel->_reg_date->SetValue(date('Y-m-d H:i:s'));
+	$bmModel->_auth_answer_level->SetValue(1);
+	$bmModel->_auth_list_level->SetValue(0);
+	$bmModel->_auth_reply_level->SetValue(1);
+	$bmModel->_auth_view_level->SetValue(0);
+	$bmModel->_auth_write_level->SetValue(1);
+	$bmModel->_layout->SetValue('_Board');
+	$bmModel->_subject->SetValue('갤러리게시판');
+	$bmModel->_group_name->SetValue('기본');
+	$bmModel->DBInsert();
 
-		$contentsModel = new \ContentModel();
-		$contentsModel->_bid->SetValue('introduce');
-		$contentsModel->_category->SetValue('기본');
-		$contentsModel->_subject->SetValue('회사소개');
-		$contentsModel->_html->SetValue('Introduce');
-		$contentsModel->_reg_date->SetValue(date('Y-m-d H:i:s'));
-		$contentsModel->DBInsert();
+	$contentsModel = new \ContentModel();
+	$contentsModel->_bid->SetValue('introduce');
+	$contentsModel->_category->SetValue('기본');
+	$contentsModel->_subject->SetValue('회사소개');
+	$contentsModel->_html->SetValue('Introduce');
+	$contentsModel->_reg_date->SetValue(date('Y-m-d H:i:s'));
+	$contentsModel->DBInsert();
 
-		$contentsModel->_bid->SetValue('privacy');
-		$contentsModel->_subject->SetValue('개인정보보호정책');
-		$contentsModel->_html->SetValue('Privacy');
-		$contentsModel->DBInsert();
+	$contentsModel->_bid->SetValue('privacy');
+	$contentsModel->_subject->SetValue('개인정보보호정책');
+	$contentsModel->_html->SetValue('Privacy');
+	$contentsModel->DBInsert();
 
-		$contentsModel->_bid->SetValue('terms');
-		$contentsModel->_subject->SetValue('이용약관');
-		$contentsModel->_html->SetValue('Terms');
-		$contentsModel->DBInsert();
+	$contentsModel->_bid->SetValue('terms');
+	$contentsModel->_subject->SetValue('이용약관');
+	$contentsModel->_html->SetValue('Terms');
+	$contentsModel->DBInsert();
 
 
-		$sql2[] = "INSERT INTO `".TABLE_MEMBER."` (`muid`, `mid`, `pwd`, `mname`, `cname`, `nickname`, `level`, `reg_date`, `approve`, `email`, `admin_auth`)
+	$sql2[] = "INSERT INTO `".TABLE_MEMBER."` (`muid`, `mid`, `pwd`, `mname`, `cname`, `nickname`, `level`, `reg_date`, `approve`, `email`, `admin_auth`)
  			SELECT "._DBMAXINT.", 'admin', '"._password_hash('12341234')."', '관리자', '관리자', '관리자', 18, NOW(), 'y', 'admin@admin.com', '001,001001,001002,001003,002,003,005'";
 
-		$sql2[] = "INSERT INTO `".TABLE_MEMBER."` (`muid`, `mid`, `pwd`, `mname`, `cname`, `nickname`, `level`, `reg_date`, `approve`, `email`)
+	$sql2[] = "INSERT INTO `".TABLE_MEMBER."` (`muid`, `mid`, `pwd`, `mname`, `cname`, `nickname`, `level`, `reg_date`, `approve`, `email`)
  			SELECT ".(_DBMAXINT - 1).", 'developer', '"._password_hash('12341234')."', '개발자', '개발자', '개발자', 20, NOW(), 'y', 'developer@admin.com'";
 
-		$sql2[] = "INSERT INTO `".TABLE_MENU."` (`category`, `sort`, `controller`, `title`, `type`, `enabled`, `parent_enabled`, `bid`) VALUES ('00000', 0, 'Home', 'Home', 'customize', 'y', 'y', '')";
+	$sql2[] = "INSERT INTO `".TABLE_MENU."` (`category`, `sort`, `controller`, `title`, `type`, `enabled`, `parent_enabled`, `bid`) VALUES ('00000', 0, 'Home', 'Home', 'customize', 'y', 'y', '')";
 
-		$sql2[] = "INSERT INTO `".TABLE_MENU."` (`category`, `sort`, `controller`, `title`, `type`, `enabled`, `parent_enabled`, `bid`, `subid`) VALUES ('0000000000', 0, 'FreeBoard', '자유게시판', 'board', 'y', 'y', 'board', 'free_board')";
+	$sql2[] = "INSERT INTO `".TABLE_MENU."` (`category`, `sort`, `controller`, `title`, `type`, `enabled`, `parent_enabled`, `bid`, `subid`) VALUES ('0000000000', 0, 'FreeBoard', '자유게시판', 'board', 'y', 'y', 'board', 'free_board')";
 
-		$sql2[] = "INSERT INTO `".TABLE_MENU."` (`category`, `sort`, `controller`, `title`, `type`, `enabled`, `parent_enabled`, `bid`, `subid`) VALUES ('0000000001', 0, 'Notice', '공지사항', 'board', 'y', 'y', 'board', 'notice')";
+	$sql2[] = "INSERT INTO `".TABLE_MENU."` (`category`, `sort`, `controller`, `title`, `type`, `enabled`, `parent_enabled`, `bid`, `subid`) VALUES ('0000000001', 0, 'Notice', '공지사항', 'board', 'y', 'y', 'board', 'notice')";
 
-		$sql2[] = "INSERT INTO `".TABLE_MENU."` (`category`, `sort`, `controller`, `title`, `type`, `enabled`, `parent_enabled`, `bid`, `subid`) VALUES ('0000000002', 0, 'Gallery', '갤러리게시판', 'board', 'y', 'y', 'board', 'gallery')";
+	$sql2[] = "INSERT INTO `".TABLE_MENU."` (`category`, `sort`, `controller`, `title`, `type`, `enabled`, `parent_enabled`, `bid`, `subid`) VALUES ('0000000002', 0, 'Gallery', '갤러리게시판', 'board', 'y', 'y', 'board', 'gallery')";
 
-		$version = '18.09.15';
-		if(file_exists(_DIR . '/version.php')) $version = file_get_contents(_DIR . '/version.php');
-		$sql2[] = "INSERT INTO `".TABLE_FRAMEWORK_SETTING."` (`key_name`, `data`) VALUES ('version', '{$version}')";
-
-		foreach($sql2 as $s){
-			\DB::SQL()->Query($s);
-		}
-
-		URLReplace(_URL.'/');
+	foreach($sql2 as $s){
+		\DB::SQL()->Query($s);
 	}
+
+	foreach($createSql as $k => $v){
+		foreach($v as $v2){
+			if(!DB::SQL()->TableExists($v2['table'])){
+				DB::SQL()->Query($v2['sql']);
+			}
+		}
+	}
+
+	foreach($updateSql as $k => $v){
+		DB::SQL()->Query($v);
+	}
+
+	if(file_exists(_COMMONDIR . '/version.php')) BH_Application::$version = trim(file_get_contents(_COMMONDIR . '/version.php'));
+	DB::SQL()->Query('INSERT INTO `'.TABLE_FRAMEWORK_SETTING.'` (`key_name`, `data`) VALUES (\'version\', \'' . BH_Application::$version . '\')');
 }
 

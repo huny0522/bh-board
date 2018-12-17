@@ -192,7 +192,9 @@ class {$ModelName}Model extends \\BH_Model{
 		$initFuncText = '';
 		if(sizeof($fn_matches) > 1 && $fn_matches[1]) $initFuncText = str_replace(chr(9), '', $fn_matches[1]);
 
-		$qry = \DB::SQL()->Query('SHOW FULL COLUMNS FROM ' . $TableName);
+		$qry = \DB::SQL()->Query('SHOW FULL COLUMNS FROM ' . $TableName, false);
+		if(!$qry) return;
+
 		$primaryKey = array();
 		//$tData = array();
 		$propertyDoc = '';

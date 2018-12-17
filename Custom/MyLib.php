@@ -27,7 +27,7 @@ App::$settingData['tinyMCEPath'] = _SKINURL . '/js/tinymce/tinymce.min.js';
 */
 
 // 에러 출력 여부
-App::$settingData['showError'] = true;
+if(_DEVELOPERIS === true) App::$showError = true;
 
 App::$settingData['noImg'] = _UPLOAD_URL . App::$cfg->Def()->noImg->value;
 

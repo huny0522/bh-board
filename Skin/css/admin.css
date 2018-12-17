@@ -533,10 +533,6 @@ table.graph .login span.bar i{background:#f30;}
 .categoryChEx dd{display:table-cell; padding:5px;}
 .fileSelector{display:inline-block; padding-left:10px;}
 .fileSelector select{background:#eee;}
-@media(max-width:999px) and (min-width:800px){
-}
-@media(max-width:799px) and (min-width:600px){
-}
 @media(max-width:599px) and (min-width:400px){
 }
 @media(max-width:399px){
