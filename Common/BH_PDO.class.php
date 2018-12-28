@@ -120,34 +120,14 @@ class DB{
 		foreach($res[1] as $k => $v){
 			$qry->bindParam($k, $v[0], $v[1]);
 		}
-		if(_DEVELOPERIS === true) $qry->execute() or ($dieIs ? die('ERROR SQL : '.$res[0]) : false);
+		if(_DEVELOPERIS === true){
+			$res = $qry->execute();
+			if(!$res){
+				if($dieIs) PrintError($qry->errorInfo());
+				else return false;
+			}
+		}
 		else $qry->execute() or ($dieIs ? die('ERROR') : false);
-		return $qry;
-	}
-
-	/**
-	 * @param string $table
-	 * @param string $str
-	 * @return PDOStatement
-	 */
-	public function CCQuery($table, $str){
-		if(is_array($str)) $args = $str;
-		else{
-			$args = func_get_args();
-			array_shift($args);
-		}
-
-		if(strpos($args[0], '%t') === false) die('ERROR SQL(CC)'.(_DEVELOPERIS === true ? ' : '.$args[0] : ''));
-		$args[0] = str_replace('%t', $table, $args[0]);
-		$res = self::StrToPDO($args);
-
-		$qry = self::$conn[self::$connName]->prepare($res[0]);
-		foreach($res[1] as $k => $v){
-			$qry->bindParam($k, $v[0], $v[1]);
-		}
-
-		if(_DEVELOPERIS === true) $qry->execute() or die('ERROR SQL : '.$res[0]);
-		else $qry->execute() or die('ERROR');
 		return $qry;
 	}
 
@@ -315,7 +295,7 @@ class DB{
 class BH_DB_Get{
 	public $table = '';
 	public $sql = '';
-	public $showError = false;
+	public $showError = true;
 	public $test = false;
 	public $sort = '';
 	public $group = '';
@@ -493,7 +473,7 @@ class BH_DB_Get{
 	 * @param bool $bool
 	 * @return $this
 	 */
-	public function &SetShowError($bool = false){
+	public function &SetShowError($bool = true){
 		$this->showError = $bool;
 		return $this;
 	}
@@ -897,7 +877,7 @@ class BH_DB_Insert{
 	public $decrement = '';
 	public $data = array();
 	public $sql = '';
-	public $showError = false;
+	public $showError = true;
 	public $test = false;
 	public $MAXInt = _DBMAXINT;
 	private $where = array();
@@ -1173,7 +1153,7 @@ class BH_DB_Insert{
 	 * @param bool $bool
 	 * @return $this
 	 */
-	public function &SetShowError($bool = false){
+	public function &SetShowError($bool = true){
 		$this->showError = $bool;
 		return $this;
 	}
@@ -1184,7 +1164,7 @@ class BH_DB_Update{
 	public $where = array();
 	public $data = array();
 	public $sql = '';
-	public $showError = false;
+	public $showError = true;
 	public $test = false;
 	public $sort = '';
 	private $connName = '';
@@ -1325,7 +1305,7 @@ class BH_DB_Update{
 	 * @param bool $bool
 	 * @return $this
 	 */
-	public function &SetShowError($bool = false){
+	public function &SetShowError($bool = true){
 		$this->showError = $bool;
 		return $this;
 	}
@@ -1334,7 +1314,7 @@ class BH_DB_Update{
 class BH_DB_Delete{
 	public $table = '';
 	public $sql = '';
-	public $showError = false;
+	public $showError = true;
 	public $test = false;
 	private $where = array();
 	private $connName = '';
@@ -1423,7 +1403,7 @@ class BH_DB_Delete{
 	 * @param bool $bool
 	 * @return $this
 	 */
-	public function &SetShowError($bool = false){
+	public function &SetShowError($bool = true){
 		$this->showError = $bool;
 		return $this;
 	}
