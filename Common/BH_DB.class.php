@@ -82,23 +82,6 @@ class DB{
 		return $res;
 	}
 
-	public function CCQuery($table, $str){
-		if(is_array($str)) $args = $str;
-		else{
-			$args = func_get_args();
-			array_shift($args);
-		}
-
-		if(strpos($args[0], '%t') === false) die('ERROR SQL(CC)'.(_DEVELOPERIS === true ? ' : '.$args[0] : ''));
-		$args[0] = str_replace('%t', $table, $args[0]);
-		$sql = trim(StrToSql($args));
-
-		if(_DEVELOPERIS === true) $res = mysqli_query(self::$conn[self::$connName], $sql) or die('ERROR SQL : '.$sql);
-		else $res = mysqli_query(self::$conn[self::$connName], $sql) or die('ERROR SQL');
-
-		return $res;
-	}
-
 	public function Fetch($qry){
 		if(!isset($qry) || $qry === false || empty($qry)){
 			if(_DEVELOPERIS === true) echo 'FETCH ASSOC MESSAGE(DEBUG ON) : <b>query is empty( or null, false).</b><br>';

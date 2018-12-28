@@ -260,7 +260,7 @@ class Login{
 				$t2 = trim(str_replace('.','',$t[0]));
 				$code = date('Y-m-d H:i:s').toBase(mt_rand(10000, 99999).substr($t2, 0, 4), 36);
 
-				\DB::SQL()->CCQuery($this->model->table, 'UPDATE %t SET pw_reset_code = %s WHERE muid = %d', aes_encrypt($code, PW_RESET_KEY), $res['muid']);
+				\DB::SQL()->Query('UPDATE %1 SET pw_reset_code = %s WHERE muid = %d', $this->model->table, aes_encrypt($code, PW_RESET_KEY), $res['muid']);
 				$mail->SendMailByFindPW(Post($key), Post('mid'), substr($code, 19));
 				JSON(true, '해당메일('.GetDBText(Post('email')).')로 비밀번호 변경 코드를 발송하였습니다.');
 			}else JSON(false, '해당 정보와 일치하는 회원이 없습니다.');
@@ -395,7 +395,7 @@ class Login{
 		$t2 = trim(str_replace('.','',$t[0]));
 		$code = date('Y-m-d H:i:s').toBase(mt_rand(10000, 99999).substr($t2, 0, 4), 36);
 
-		\DB::SQL()->CCQuery($this->model->table, 'UPDATE %t SET email_code = %s WHERE muid = %d', aes_encrypt($code, PW_RESET_KEY), $model->_muid->value);
+		\DB::SQL()->Query('UPDATE %t SET email_code = %s WHERE muid = %d', $this->model->table, aes_encrypt($code, PW_RESET_KEY), $model->_muid->value);
 		$mail->SendMailByEmailCertification($model->_mid->value, $model->_mname->value, $model->_mid->value.':'.substr($code, 19));
 	}
 }
