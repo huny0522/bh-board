@@ -90,6 +90,9 @@ class BH_Common
 	public static function ContentImageUpdate($tid, $keyValue, $content, $mode = 'write'){
 		$newcontent = $content['contents'];
 		$dbKeyValue = implode('|',$keyValue);
+		$ex = explode('-', $mode);
+		$mode = $ex[0];
+		$cfgIs = (isset($ex[1]) && $ex[1] === 'cfg');
 
 		if($mode == 'modify'){
 			$dbGetList = new \BH_DB_GetList(TABLE_IMAGES);
@@ -110,7 +113,7 @@ class BH_Common
 
 		$dbGet = new \BH_DB_Get(TABLE_IMAGES);
 		$dbGet->AddWhere('tid = %s', $tid);
-		$dbGet->AddWhere('article_seq = %d', $dbKeyValue);
+		$dbGet->AddWhere('article_seq = %s', $dbKeyValue);
 		$dbGet->SetKey('COUNT(*) as cnt');
 		$cnt = $dbGet->Get();
 		$imageCount = $cnt['cnt'];
@@ -147,7 +150,7 @@ class BH_Common
 				@unlink(_DIR.$exp[0]);
 			}
 
-			if($newcontent != $content['contents']){
+			if($newcontent != $content['contents'] && !$cfgIs){
 				$qry = new \BH_DB_Update($tid);
 				$qry->SetDataStr($content['name'], $newcontent);
 				foreach($keyValue as $k=>$v){
@@ -340,6 +343,11 @@ class BH_Common
 	public static function GetYoutubeId($urlOrId){
 		$urlOrId = trim($urlOrId);
 		preg_match('/youtu\.be\/([a-zA-Z0-9\-\_]+)/', $urlOrId, $matches);
+		if(is_array($matches) && sizeof($matches) > 1){
+			$temp = explode('/', $matches[1]);
+			return end($temp);
+		}
+		preg_match('/youtube\-nocookie\.com\/v\/([a-zA-Z0-9\-\_]+)/', $urlOrId, $matches);
 		if(is_array($matches) && sizeof($matches) > 1){
 			$temp = explode('/', $matches[1]);
 			return end($temp);
