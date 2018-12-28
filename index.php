@@ -97,7 +97,7 @@ define('_MSG_IMPOSSIBLE_FILE', '등록 불가능한 파일입니다.');
 define('_MSG_FILE_TOO_BIG', '업로드한 파일이 제한용량보다 큽니다.(' . ini_get('upload_max_filesize') . ')');
 define('_MSG_UPLOAD_ERROR', '파일 등록 오류');
 
-define('_NEED_LOGIN', _NEED_LOGIN);
+define('_NEED_LOGIN', 'NEED LOGIN');
 
 // -------------------------------------
 //
@@ -118,6 +118,7 @@ define('TABLE_FRAMEWORK_SETTING', TABLE_FIRST . 'framework_setting');
 define('TABLE_VISIT', TABLE_FIRST . 'visit');
 define('TABLE_VISIT_COUNTER', TABLE_FIRST . 'visit_counter');
 define('TABLE_MESSAGE', TABLE_FIRST . 'message');
+define('TABLE_USER_BLOCK', TABLE_FIRST . 'block');
 
 define('_MEMBER_LEVEL', 1);
 define('_MANAGER_LEVEL', 15);
