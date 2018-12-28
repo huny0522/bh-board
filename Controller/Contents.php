@@ -125,7 +125,7 @@ class Contents{
 	}
 
 	protected function _ActionCheck($type){
-		if(_MEMBERIS !== true) JSON(false, _MSG_NEED_LOGIN);
+		if(_MEMBERIS !== true) JSON(false, _MSG_NEED_LOGIN, _NEED_LOGIN);
 
 		if(!in_array($type, $this->possibleActionType)) JSON(false, _MSG_WRONG_CONNECTED);
 

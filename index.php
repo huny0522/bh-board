@@ -97,6 +97,8 @@ define('_MSG_IMPOSSIBLE_FILE', '등록 불가능한 파일입니다.');
 define('_MSG_FILE_TOO_BIG', '업로드한 파일이 제한용량보다 큽니다.(' . ini_get('upload_max_filesize') . ')');
 define('_MSG_UPLOAD_ERROR', '파일 등록 오류');
 
+define('_NEED_LOGIN', _NEED_LOGIN);
+
 // -------------------------------------
 //
 //			DB Table Name

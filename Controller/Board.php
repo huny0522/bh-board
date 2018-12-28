@@ -216,7 +216,7 @@ class Board{
 
 		$this->_SetCategory();
 
-		if(!$this->adminPathIs && _MEMBERIS !== true && $this->boardManger->GetValue('man_to_man') === 'y') URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
+		if(!$this->adminPathIs && _MEMBERIS !== true && $this->boardManger->GetValue('man_to_man') === 'y') URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
 		if($this->boardManger->GetValue('man_to_man') === 'y') $this->boardManger->SetValue('use_secret', 'n');
 	}
 
@@ -265,7 +265,7 @@ class Board{
 	public function Index(){
 		$res = $this->GetAuth('List');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 		if($this->getListIs || $this->moreListIs){
@@ -315,7 +315,7 @@ class Board{
 	public function GetList($viewPageIs = false){
 		$res = $this->GetAuth('List');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
@@ -369,7 +369,7 @@ class Board{
 	public function MoreList(){
 		$res = $this->GetAuth('List');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
@@ -468,7 +468,7 @@ class Board{
 
 		$viewAuth = $this->GetAuth('View');
 		if(!$viewAuth){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
@@ -573,7 +573,7 @@ class Board{
 	public function Write(){
 		$res = $this->GetAuth('Write');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
@@ -597,7 +597,7 @@ class Board{
 	public function Answer(){
 		$res = $this->GetAuth('Answer');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 		$seq = to10(strlen(Post('target')) ? Post('target') : Get('target'));
@@ -629,7 +629,7 @@ class Board{
 
 		$res = $this->GetAuth('Modify');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
@@ -659,7 +659,7 @@ class Board{
 		}
 		$res = $this->GetAuth('Modify');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
@@ -751,7 +751,7 @@ class Board{
 
 		$res = $this->GetAuth('Write');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
@@ -762,7 +762,7 @@ class Board{
 		if(App::$action == 'Answer'){
 			$auth = $this->GetAuth('Answer');
 			if(!$auth){
-				if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
+				if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
 				URLReplace('-1', _MSG_NO_AUTH);
 			}
 
@@ -899,7 +899,7 @@ class Board{
 	public function PostDelete(){
 		$res = $this->GetAuth('Write');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, 'NEED LOGIN');
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
 			URLReplace('-1', _MSG_NO_AUTH);
 		}
 
