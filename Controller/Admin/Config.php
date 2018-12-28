@@ -40,6 +40,12 @@ class Config{
 		$class = '\\Config'.Post('Code');
 		if(EmptyPost('Code') || !class_exists($class)) URLRedirect(-1,  '설정이 존재하지 않습니다.');
 		$cfg = $class::GetInstance();
+
+		$arr = get_object_vars($cfg);
+		foreach($arr as $k=> $v){
+			if($cfg->{$k}->type == \HTMLType::InputCheckbox) $cfg->{$k}->value = '';
+		}
+
 		$res = $cfg->DataWrite($_POST, $_FILES);
 		if(!$res->result) URLReplace(-1, $res->message);
 
@@ -52,7 +58,7 @@ class Config{
 	public function Content(){
 		App::$data['NowMenu'] = '001050';
 		reset(App::$data['menu']);
-		App::$data['Code'] = (!App::$id) ? 'TermsText' : App::$id;
+		App::$data['Code'] = (!App::$id) ? 'EmailCollector' : App::$id;
 
 		$class = '\\Config' . App::$data['Code'];
 		if(!class_exists($class)) URLRedirect(-1, _MSG_WRONG_CONNECTED);

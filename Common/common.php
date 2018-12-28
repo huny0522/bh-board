@@ -332,7 +332,7 @@ function GetNextMonth($month, $year = false){
 function Download($path, $fname){
 	$temp = explode('/', $path);
 	if(!$fname) $fname = $temp[sizeof($temp) - 1];
-	$fname = mb_convert_encoding($fname, 'cp949', 'utf-8');
+	if(!App::$settingData['viewMobile']) $fname = mb_convert_encoding($fname, 'cp949', 'utf-8');
 
 	App::$layout = null;
 
@@ -417,7 +417,7 @@ function ToFloat($s){
 }
 
 function RemoveScriptTag($str){
-	return preg_replace(array('/\<\/*\s*(script|form|input|select|button|textarea).*?\>/is', '/\<\s*(\S+?)(\s+.*?\s+on|\s+on).*?\>/is', '/\<a.*?src\s*\=\s*.*?javascript\s*\:[^\>]*\>/'), array('', '<$1>', ''), $str);
+	return preg_replace(array('/\<\/*\s*(script|form|input|select|button|textarea).*?\>/is', '/\<\s*(\S+?)(\s+[^\>]*\s+on|\s+on)[^\>]*?\>/is', '/\<a[^\>]*?src\s*\=\s*[^\>]*?javascript\s*\:[^\>]*\>/'), array('', '<$1>', ''), $str);
 }
 
 function RemoveIFrame($str){
@@ -426,7 +426,7 @@ function RemoveIFrame($str){
 			preg_replace_callback('/.*?src\s*\=\s*[\'\"]*(.*?)[\'\"\s].*?/is', function($matches2) use(&$matches){
 				$r = false;
 				foreach(App::$settingData['iframePossibleUrl'] as $v){
-					if(substr($matches2[1], 0, strlen($v)) !== $v) $r = true;
+					if(strpos($matches2[1], $v) !== false) $r = true;
 				}
 				if(!$r) $matches[0] = '';
 				return '';

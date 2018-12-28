@@ -1311,15 +1311,12 @@ class Board{
 		}
 		$repExcept = array('article_seq', 'file');
 		$sort1Arr = array();
-
-		foreach($arr as $seq){
-			$qry = DB::GetQryObj($this->model->table)
-				->SetConnName($this->connName)
-				->AddWhere('seq = %d', $seq)
-				->SetSort('sort1 DESC, sort2 DESC');
-			$this->_R_CommonQry($qry);
-			$row = $qry->Get();
-
+		$qry = DB::GetListQryObj($this->model->table)
+			->SetConnName($this->connName)
+			->AddWhere('seq IN (%d)', $arr)
+			->SetSort('sort1 DESC, sort2 DESC');
+		$this->_R_CommonQry($qry);
+		while($row = $qry->Get()){
 			// 게시물 복사
 			$fcRes1 = $this->_FileCopy($newUploadDir, $row['file1']);
 			$fcRes2 = $this->_FileCopy($newUploadDir, $row['file2']);
@@ -1365,7 +1362,7 @@ class Board{
 			// 이미지 복사
 			$dbGetList = DB::GetListQryObj($this->model->imageTable)
 				->SetConnName($this->connName)
-				->AddWhere('article_seq='.$seq);
+				->AddWhere('article_seq='.$row['seq']);
 			$this->_R_CommonQry($dbGetList);
 			$imgCopyCnt = 0;
 			while($img = $dbGetList->Get()){
@@ -1405,7 +1402,7 @@ class Board{
 				// 리플 복사
 				$dbGetList = DB::GetListQryObj($this->model->table.'_reply')
 					->SetConnName($this->connName)
-					->AddWhere('article_seq='.$seq);
+					->AddWhere('article_seq='.$row['seq']);
 				$this->_R_CommonQry($dbGetList);
 				while($rep = $dbGetList->Get()){
 
@@ -1538,7 +1535,8 @@ class Board{
 
 	protected function _GetBoardData($id){
 		$args = func_get_args();
-		$this->model->DBGet($args);
+		$res = $this->model->DBGet($args);
+		if(!$res->result) URLRedirect(-1, _MSG_WRONG_CONNECTED);
 	}
 
 	public function _DirectView(){
