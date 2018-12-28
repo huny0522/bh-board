@@ -294,6 +294,7 @@ class BH_Model{
 	public $key = array();
 	public $except = array();
 	public $getKeys = array();
+	public $showError = true;
 	//public $Need = array();
 	public $uploadDir = '';
 	protected $connName = '';
@@ -303,6 +304,11 @@ class BH_Model{
 		if(method_exists($this, '__Init')) $this->__Init();
 		$this->uploadDir = '/modelData/' . $this->table . '/' . date('Ym') . '/';
 		foreach($this->data as $k => $v) if(!isset($this->{'_'.$k})) $this->{'_'.$k} = $v;
+	}
+
+	public function SetShowError($bool = true){
+		$this->showError = $bool;
+		return $this;
 	}
 
 	public function DataUnset(){
@@ -1285,7 +1291,7 @@ class _ModelFunc{
 
 	public static function DBInsert(&$model, $test = false){
 		$dbInsert = new \BH_DB_Insert($model->table);
-		$dbInsert->SetConnName($model->GetConnName());
+		$dbInsert->SetConnName($model->GetConnName())->SetShowError($model->showError);
 		$result = new \BH_InsertResult();
 
 		foreach($model->data as $k=>$v){
@@ -1354,7 +1360,7 @@ class _ModelFunc{
 		$result = new \BH_Result();
 
 		$dbUpdate = new \BH_DB_Update($model->table);
-		$dbUpdate->SetConnName($model->GetConnName());
+		$dbUpdate->SetConnName($model->GetConnName())->SetShowError($model->showError);
 		foreach($model->data as $k=>$v){
 			if(!isset($v->value) && $v->needIs){
 				$result->result = false;
@@ -1433,7 +1439,7 @@ class _ModelFunc{
 			return $res;
 		}
 		$dbGet = new \BH_DB_Get($model->table);
-		$dbGet->SetConnName($model->GetConnName());
+		$dbGet->SetConnName($model->GetConnName())->SetShowError($model->showError);
 		if(sizeof($model->getKeys)) $dbGet->SetKey($model->getKeys);
 		foreach($model->key as $k => $v) $dbGet->AddWhere($v.' = %s', trim($keys[$k]));
 		$data = $dbGet->Get();
@@ -1492,7 +1498,7 @@ class _ModelFunc{
 			}
 		}
 
-		$qry = DB::DeleteQryObj($model->table)->SetConnName($model->GetConnName());
+		$qry = DB::DeleteQryObj($model->table)->SetConnName($model->GetConnName())->SetShowError($model->showError);
 		foreach($model->key as $k => $v){
 			$qry->AddWhere($v.' = %s', trim($keyData[$k]));
 		}
@@ -1694,8 +1700,31 @@ class _ModelFunc{
 		$size = getimagesize($source);
 		if ($size[2] == 1)
 			$source = imagecreatefromgif($source);
-		else if ($size[2] == 2)
+		else if ($size[2] == 2){
+			// TODO : 이미지 크기가 너무 클 경우 오류 또는 원본 반환 ($size[0] x $size[1])
+
+			$exif = @exif_read_data($source);
 			$source = imagecreatefromjpeg($source);
+			if(isset($exif['Orientation']) && !empty($exif['Orientation'])){
+				switch($exif['Orientation']){
+					case 8:
+						$source = imagerotate($source, 90, 0);
+						$temp = $size[0];
+						$size[0] = $size[1];
+						$size[1] = $temp;
+					break;
+					case 3:
+						$source = imagerotate($source, 180, 0);
+					break;
+					case 6:
+						$source = imagerotate($source, -90, 0);
+						$temp = $size[0];
+						$size[0] = $size[1];
+						$size[1] = $temp;
+					break;
+				}
+			}
+		}
 		else if ($size[2] == 3)
 			$source = imagecreatefrompng($source);
 		else
@@ -1934,6 +1963,7 @@ class _ConfigModel{
 		foreach($data as $k => $v){
 			if(!isset($this->{$k}) || $k === '_delFile') continue;
 			$this->{$k}->value = $v;
+			if($this->{$k}->type == \HTMLType::Textarea) $this->{$k}->value = BH_Common::ContentImageUpdate('cfg.ct', array('content_cfg_' . $k), array('contents' => $this->{$k}->value), 'modify-cfg');
 		}
 
 		if(isset($data['_delFile']) && is_array($data['_delFile'])){
