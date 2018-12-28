@@ -26,14 +26,18 @@ function ReplaceHTMLFile($source, $target){
 		$f = str_replace("\r", '', $f);
 		$f = preg_replace(
 			array(
+				'#(<\!--\s*remove\s*-->)(.*?)(<\!--\s*remove end\s*-->)#is',
 				'/(<\!--)([^\[].*?)(\-\->)/s',
 				'/(\/\*)(.*?)(\*\/)/s',
 				'/\n\s*/'
-			), array(
-			'',
-			'',
-			"\n"
-		), $f);
+			),
+			array(
+				'',
+				'',
+				'',
+				"\n"
+			),
+			$f);
 		if(_REMOVE_SPACE === true){
 			$f = preg_replace(
 				array(
