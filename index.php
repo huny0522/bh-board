@@ -134,6 +134,7 @@ require _COMMONDIR . '/common.php';
 
 $fetch = DB::GetQryObj(TABLE_FRAMEWORK_SETTING)
 	->AddWhere('`key_name` = \'version\'')
+	->SetShowError(false)
 	->Get();
 if($fetch) BH_Application::$version = $fetch['data'];
 
