@@ -155,12 +155,12 @@ $_rpData = array(
 		'replace' => '<?php echo ($1); ?>'
 	),
 	array(
-		'pattern' => '#<\?php\s*(.*?)(\s*[^\s\}\;\{])\s*\?>#is',
-		'replace' => '<?php $1$2; ?>'
+		'pattern' => '#\?>(\r\n|\n|\s)*<\?php#is',
+		'replace' => ''
 	),
 	array(
-		'pattern' => '#\?>(\r\n|\n|)<\?php#is',
-		'replace' => ''
+		'pattern' => '#<\?php\s*(.*?)(\s*[^\s\}\;\{])\s*\?>#is',
+		'replace' => '<?php $1$2; ?>'
 	),
 );
 BH_Application::$settingData['_replace_patterns'] = array();
