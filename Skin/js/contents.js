@@ -5,24 +5,6 @@ var App = {
 		App.UserMenuPopup();
 	},
 
-	FindDaumAddress : function(e){
-		e.preventDefault();
-		var area = $(this).closest('.daumAddress');
-		JCM.popPostCode(function(data) {
-			//console.log(data);
-			area.find('input.zipcode').val(data.zonecode);
-			area.find('input.address1').val(data.address);
-			var sido = area.find('input.address_sido');
-			var sigungu = area.find('input.address_sigungu');
-			var bname = area.find('input.address_bname');
-			var code = area.find('input.address_bcode');
-			if(sido.length) sido.val(data.sido);
-			if(sigungu.length) sigungu.val(data.sigungu);
-			if(bname.length) bname.val(data.bname);
-			if(code.length) code.val(data.bcode.substr(0, 8));
-		});
-	},
-
 	AddressToLocByNaver : function(address1, address2, callback){
 		if(typeof(naver) === 'undefined' || typeof(naver.maps) === 'undefined') return;
 		naver.maps.Service.geocode({

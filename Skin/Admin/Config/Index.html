@@ -284,7 +284,7 @@ if(strlen($NaverClientId)){
 		}
 	});
 
-	$(document).on('click', '#findAddressBtn1', App.FindDaumAddress);
+	$(document).on('click', '#findAddressBtn1', JCM.FindDaumAddress);
 
 	<?php if($useLatLng){ ?>
 	$('#CFG_address2, #CFG_address2').on('focusout', function(){

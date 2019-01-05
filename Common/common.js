@@ -517,8 +517,7 @@ function Common($){
 	 ------------------------------------------- */
 
 	this.popPostCode = function (callback) {
-		if (typeof daum === "undefined") {
-
+		if (typeof daum === "undefined" || typeof(daum.postcode) === 'undefined') {
 			jQuery.getScript("http://dmaps.daum.net/map_js_init/postcode.v2.js").done(function (script, textStatus) {
 				_this.popDaumPostCode(callback);
 			});
