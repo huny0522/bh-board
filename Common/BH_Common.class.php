@@ -6,6 +6,8 @@ class BH_Common
 	public static $member;
 	public static $blockUser;
 
+	private static $fbSetIs = null;
+
 	private function __construct(){
 	}
 
@@ -100,9 +102,14 @@ class BH_Common
 	public static function MemName($muid, $name){
 		if(_MEMBERIS !== true || $_SESSION['member']['muid'] == $muid) return GetDBText($name);
 		else{
-			$adtAttr = (class_exists('Kreait\Firebase\Factory')) ? '' : ' data-no-chat="yes"';
+			$adtAttr = self::FirebaseSetIs() ? '' : ' data-no-chat="yes"';
 			return '<a href="#" class="userPopupMenuBtn" data-id="' . $muid . '"' . $adtAttr . '>' . GetDBText($name) . '</a>';
 		}
+	}
+
+	public static function FirebaseSetIs(){
+		if(is_null(self::$fbSetIs)) self::$fbSetIs = (class_exists('Kreait\Firebase\Factory') && strlen(trim(App::$cfg->Def()->firebaseWebConfig->Val())) > 0 && strlen(trim(App::$cfg->Def()->googleServiceAccount->Val())) > 0);
+		return self::$fbSetIs;
 	}
 
 	public static function StripSlashes($data){
