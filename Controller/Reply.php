@@ -118,6 +118,14 @@ class Reply{
 			->SetPage(isset($_POST['page']) ? $_POST['page'] : 1)
 			->AddWhere('article_seq='.App::$data['article_seq'])
 			->SetArticleCount(isset($this->boardManger) ? $this->boardManger->GetValue('reply_count') : 20);
+
+		if(_MEMBERIS === true){
+			$blockUser = CM::GetBlockUsers();
+			if(sizeof($blockUser)){
+				$dbList->AddWhere('`muid` NOT IN (%d)', $blockUser);
+			}
+		}
+
 		$this->_R_CommonQry($dbList);
 		$this->_R_GetListQuery($dbList);
 		$dbList->DrawRows();
@@ -176,6 +184,13 @@ class Reply{
 			->AddWhere('article_seq= %d', App::$data['article_seq'])
 			->SetLimit(isset($this->boardManger) ? $this->boardManger->GetValue('reply_count') : 20);
 		$this->_R_CommonQry($dbList);
+
+		if(_MEMBERIS === true){
+			$blockUser = CM::GetBlockUsers();
+			if(sizeof($blockUser)){
+				$dbList->AddWhere('`muid` NOT IN (%d)', $blockUser);
+			}
+		}
 
 		if(strlen(Post('seq'))){
 			$seq = to10(Post('seq'));

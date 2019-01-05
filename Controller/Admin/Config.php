@@ -43,7 +43,7 @@ class Config{
 
 		$arr = get_object_vars($cfg);
 		foreach($arr as $k=> $v){
-			if($cfg->{$k}->type == \HTMLType::InputCheckbox) $cfg->{$k}->value = '';
+			if($cfg->{$k}->type == \HTMLType::CHECKBOX) $cfg->{$k}->value = '';
 		}
 
 		$res = $cfg->DataWrite($_POST, $_FILES);

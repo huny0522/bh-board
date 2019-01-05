@@ -256,6 +256,16 @@ if(strlen($NaverClientId)){
 					</script>
 				</td>
 			</tr>
+			<?php if(class_exists('Kreait\Firebase\Factory')){ ?>
+			<tr>
+				<th><?p. $cfg->firebaseWebConfig->title ?></th>
+				<td colspan="3"><?p. $cfg->firebaseWebConfig->PrintInput() ?></td>
+			</tr>
+			<tr>
+				<th><?p. $cfg->googleServiceAccount->title ?></th>
+				<td colspan="3"><?p. $cfg->googleServiceAccount->PrintInput() ?></td>
+			</tr>
+			<?php } ?>
 		</table>
 	</fieldset>
 

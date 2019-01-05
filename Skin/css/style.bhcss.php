@@ -210,6 +210,9 @@ echo \BH\BHCss\BHCss::setResponseFontSizeByMin(100, 1000);
 		td{padding:10px; border:1px solid #D3D6DF; border-width:1px 0; text-align:left;}
 	}
 
+	h2 + .boardList,
+	h2 + table.list{margin-top:20px;}
+
 	.paging{
 		~{clear:both; padding:20px; text-align:center;}
 		span, a, strong{display:inline-block; padding:0 10px; border:1px solid #D3D6DF; color:#D3D6DF; line-height:30px; height:30px; overflow:hidden; font-size:13px;}
@@ -574,5 +577,66 @@ echo \BH\BHCss\BHCss::setResponseFontSizeByMin(100, 1000);
 
 	#contents.introduce{
 		~{$box; width:970px; padding:20px; margin:20px auto;}
+	}
+
+	/* ---------------------------------------------------------------
+	 *			메세지
+	 --------------------------------------------------------------- */
+	.read{color:#6086b1;}
+	.notRead{color:#c33;}
+	
+	#messageModal .modal_contents{position:relative; padding-bottom:84px;}
+	#messageModal .modal_wrap{height:450px;}
+
+	#messageChatWrap{
+		~{position:relative; height:100%;}
+		> div{position:absolute; bottom:0; left:0; width:100%; max-height:100%; padding:20px 20px 0; overflow-y:auto;}
+		> div:after{content:''; display:block; height:20px; clear:both;}
+		button.beforeReadBtn{background:rgba(255,255,255,0.6); color:#000; width:100%; height:28px; text-align:center; font-size:12px;}
+		article{position:relative; clear:both; float:left; padding-top:10px; max-width:90%;}
+		article.myMsg{float:right; text-align:right;}
+		article div.msg{padding:10px 15px; background:#f2be1f; border-radius:10px; font-weight:700; text-align:left;}
+		article div.notRead{margin-top:5px; font-size:11px; font-weight:700; color:#666;}
+		article div.date{padding:5px 5px 0; font-size:11px; text-align:right; color:rgba(0,0,0,0.5);}
+		article div.img{margin-bottom:5px; border-radius:5px; overflow:hidden;}
+		article div.img img{max-width:200px; max-height:200px;}
+		article div.file{display:inline-block; margin-bottom:5px; padding:4px 10px; background:#ddd; border-radius:3px; text-decoration:underline; font-weight:700; font-size:12px;}
+	}
+	#messageWriteWrap{
+		~{position:absolute; bottom:0; left:0; width:100%; height:83px; padding-top:24px; background:#fff;}
+		form{height:100%;}
+		textarea{float:left; width:80%; height:100%; border:0;}
+		button[type=submit]{float:right; width:50px; height:50px; margin:5px 5px 0 0; background:#333; color:#fff;}
+		.fileUploadArea2{position:absolute; top:0; left:0; width:100%; clear:both; padding:0; border:1px solid #ccc; border-width:1px 0; background:#fff;}
+		.fileUploadArea2 .fileName{line-height:22px;}
+		.fileUploadArea2 button{height:22px; background:#666;}
+	}
+
+	.messageView{
+		~{padding:20px 20px 0;}
+		> header{
+			~{line-height:22px; font-size:14px; border:2px solid $colorA3; background:#fff;}
+			> div{$dt; padding:5px 0;}
+			> div + div{border-top:1px solid $colorA2;}
+			dl{$dtc; vertical-align:middle;}
+			dt{display:inline-block; padding:0 15px; font-weight:700; color:#999;}
+			dd{position:relative; display:inline-block; padding:0 15px; font-weight:700;}
+			dd:before{content:''; position:absolute; top:50%; left:0; width:1px; height:10px; margin-top:-5px; background:rgba(0,0,0,0.2);}
+			dl.readDate{display:block;}
+		}
+		.cont{margin-top:10px; height:280px; border:2px solid $colorA3; overflow-y:auto; background:#fff;}
+		.cont .img{text-align:center;}
+		.cont img{max-width:100%; max-height:200px;}
+		.cont > table{width:100%; table-layout:fixed;}
+		.cont > table > tr > td,
+		.cont > table > tbody > tr > td{padding:5px 10px; line-height:30px;}
+	}
+
+	.messageWrite{
+		~{padding:20px;}
+		table.write{
+			~{background:#fff;}
+			th{width:20%; text-align:center;}
+		}
 	}
 </style>

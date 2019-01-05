@@ -49,17 +49,17 @@ class {$ControllerName}{
 	}
 
 	public function Index(){
-		\$this->{$ModelValueName}->GetSetPageListQry()
+		\$qry = DB::GetListPageQryObj(\$this->{$ModelValueName}->table)
 			->SetArticleCount(10)
 			->SetPage(isset(\$_GET['page']) ? \$_GET['page'] : 0)
 			->SetPageUrl(App::URLAction().App::GetFollowQuery('page'))
 			->Run();
 
-		App::View();
+		App::View(\$qry);
 	}
 
 	public function View(){
-		\$this->_ModelSet(App::\$ID);
+		\$this->_ModelSet(App::\$id);
 		App::View();
 	}
 
@@ -68,7 +68,7 @@ class {$ControllerName}{
 	}
 
 	public function Modify(){
-		\$this->_ModelSet(App::\$ID);
+		\$this->_ModelSet(App::\$id);
 		App::View('Write');
 	}
 
@@ -96,17 +96,17 @@ class {$ControllerName}{
 	}
 
 	public function PostModify(){
-		\$this->PostWrite(App::\$ID);
+		\$this->PostWrite(App::\$id);
 	}
 
 	public function PostDelete(){
-		\$res = \$this->{$ModelValueName}->DBDelete(App::\$ID);
+		\$res = \$this->{$ModelValueName}->DBDelete(App::\$id);
 
 		if(\$res->result){
 			URLReplace(App::URLAction('').App::GetFollowQuery());
 		}
 		else{
-			URLReplace(App::URLAction('View/'.App::\$ID).App::GetFollowQuery(), \$res->message ? \$res->message : 'Query Error');
+			URLReplace(App::URLAction('View/'.App::\$id).App::GetFollowQuery(), \$res->message ? \$res->message : 'Query Error');
 		}
 	}
 
@@ -491,7 +491,6 @@ use \\BH_Common as CM;
 /**
  * @var \BH_DB_GetListWithPage \$Data
  */
-\$Data = &\$Model->QryObj();
 ?>
 
 ";

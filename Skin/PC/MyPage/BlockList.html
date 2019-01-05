@@ -1,0 +1,51 @@
+<?php if(_BH_ !== true) exit;
+
+use \BH_Application as App;
+use \BH_Common as CM;
+
+/**
+ * @var \Controller\Messages $Ctrl
+ */
+?>
+
+<h2>차단회원</h2>
+
+<?php if($Data->result && $Data->totalRecord){ ?>
+	<section class="boardList checkAllArea">
+		<header>
+			<ul>
+				<li class="num">번호</li>
+				<li>회원명</li>
+				<li class="date">차단 날짜</li>
+				<li class="name">차단 취소</li>
+			</ul>
+		</header>
+		<div class="articles">
+			<?php while($row = $Data->Get()){?>
+				<article>
+					<ul>
+						<li class="num"><?e. $Data->beginNum-- ?></li>
+						<li><?v. $row['mname'] ?></li>
+						<li class="date"><?p. substr($row['reg_date'], 0, 10) ?></li>
+						<li class="name"><button type="button" class="sBtn unblockBtn" data-id="<?p. $row['target_muid'] ?>">차단취소</button></li>
+					</ul>
+				</article>
+			<?php } ?>
+		</div>
+	</section>
+
+	<?e. $Data->GetPageHtml() ?>
+<?php } else{ ?>
+	<p class="nothing">등록된 차단 회원이 없습니다.</p>
+<?php } ?>
+<script>
+	$('button.unblockBtn').on('click', function(e){
+		e.preventDefault();
+		var id = $(this).attr('data-id');
+		CMConfirm('현재 회원 차단을 취소하시겠습니까?', function(){
+			JCM.post('<?a. 'UnBlockUser' ?>', {'id' : id}, function(){
+				location.reload();
+			})
+		});
+	});
+</script>

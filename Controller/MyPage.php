@@ -134,6 +134,37 @@ class MyPage{
 		}
 	}
 
+	public function PostBlockUser(){
+		if(EmptyPost('id')) JSON(false, _MSG_WRONG_CONNECTED);
+		$res = DB::InsertQryObj(TABLE_USER_BLOCK)
+			->SetDataStr('reg_date', date('Y-m-d H:i:s'))
+			->SetDataNum('muid', $_SESSION['member']['muid'])
+			->SetDataNum('target_muid', Post('id'))
+			->Run();
+		if($res->result) JSON($res->result);
+		else  JSON($res->result, $res->message ? $res->message : '차단 오류');
+	}
+
+	public function PostUnBlockUser(){
+		if(EmptyPost('id')) JSON(false, _MSG_WRONG_CONNECTED);
+		$res = DB::DeleteQryObj(TABLE_USER_BLOCK)
+			->AddWhere('muid = %d', $_SESSION['member']['muid'])
+			->AddWhere('target_muid = %d', Post('id'))
+			->Run();
+		JSON($res, $res ? '' : '차단취소 오류');
+	}
+
+	public function BlockList(){
+		$qry = DB::GetListPageQryObj(TABLE_USER_BLOCK . ' A')
+			->AddTable('LEFT JOIN %1 `B` ON `A`.`muid` = `B`.`muid`', TABLE_MEMBER)
+			->AddWhere('`A`.`muid` = %d', $_SESSION['member']['muid'])
+			->SetKey('`A`.*, `B`.`mname`')
+			->SetPage(Get('page'))
+			->SetPageUrl(App::URLAction(App::$action).App::GetFollowQuery('page'))
+			->Run();
+		App::View($qry);
+	}
+
 	public function WithDraw(){
 		if($_SESSION['member']['level'] >= _ADMIN_LEVEL) URLRedirect(-1, '관리자는 탈퇴가 불가능합니다.');
 

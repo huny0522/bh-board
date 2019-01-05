@@ -68,7 +68,7 @@ $popup = CM::GetPopup(function($qry){
 			<ul class="articles">
 				<?php foreach(App::$data['gallery'] as $row){ ?>
 					<li>
-						<a href="<?p. _URL . '/FreeBoard/View/' . toBase($row['seq']) ?>">
+						<a href="<?p. _URL . '/Gallery/View/' . toBase($row['seq']) ?>">
 							<div class="thumb">
 								<i style="background-image:url('<? p.ResizeImage($row['thumbnail'], 300) ?>');"></i>
 							</div>

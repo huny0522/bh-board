@@ -1,0 +1,60 @@
+<?php if(_BH_ !== true) exit;
+
+use \BH_Application as App;
+use \BH_Common as CM;
+
+/**
+ * @var \Controller\Messages $Ctrl
+ * @var \messageModel $Model
+ */
+$Model = &$Ctrl->messageModel;
+?>
+
+<article class="messageWrite">
+	<form name="MessagesWriteForm" id="MessagesWriteForm" method="post" action="<?a. App::$action.'/'.App::$id ?><?fq. '' ?>">
+		<?php if(App::$action === 'Modify'){ ?>
+			<input type="hidden" name="seq" value="<?p. $Model->_seq->value ?>">
+		<?php }else{ ?>
+			<input type="hidden" name="target_muid" value="<?v. Get('id') ?>">
+		<?php } ?>
+		<table class="write">
+			<tr>
+				<th>수신자</th>
+				<td>
+					<?v. $_SESSION['member']['muid'] == $Model->_target_muid->value ? CM::GetMember('mname') : App::$data['target']['mname'] ?>
+				</td>
+			</tr>
+			<tr>
+				<th><?mt('comment') ?></th>
+				<td>
+					<?minp('comment') ?>
+				</td>
+			</tr>
+			<tr>
+				<th><?mt('file') ?></th>
+				<td>
+					<?minp('file') ?>
+				</td>
+			</tr>
+		</table>
+
+		<footer class="bottomBtn">
+			<button type="submit" class="mBtn"><?php echo App::$action == 'Modify' ? '수정' : '등록'; ?></button>
+			<button type="reset" class="mBtn close">닫기</button>
+		</footer>
+	</form>
+</article>
+
+
+<script>
+	$(document).on('submit', '#MessagesWriteForm', function(e){
+		e.preventDefault();
+		var res = $(this).validCheck();
+		if(!res){
+			return false;
+		}
+		JCM.ajaxForm(this, function(data){
+			location.reload();
+		});
+	});
+</script>

@@ -1,0 +1,54 @@
+<?php if(_BH_ !== true) exit;
+
+use \BH_Application as App;
+use \BH_Common as CM;
+
+/**
+ * @var \Controller\Messages $Ctrl
+ * @var \MessagesModel $Model
+ */
+$Model = &$Ctrl->messageModel;
+?>
+
+<h2>쪽지</h2>
+
+<?php if($Data->result && $Data->totalRecord){ ?>
+<section class="boardList checkAllArea">
+	<header>
+		<ul>
+			<li class="num">번호</li>
+			<li class="category">구분</li>
+			<li class="name">대상</li>
+			<li class="subject"><?mt('comment')?></li>
+			<li class="date"><?mt('reg_date')?></li>
+			<li class="date">읽음</li>
+		</ul>
+	</header>
+	<div class="articles">
+	<?php while($row = $Data->Get()){?>
+		<article>
+			<ul>
+				<li class="num"><?e. $Data->beginNum-- ?></li>
+				<li class="category"><?p. $row['muid'] == $_SESSION['member']['muid'] ? '보낸쪽지' : '받은쪽지' ?></li>
+				<li class="name"><a href="#" class="userPopupMenuBtn" data-id="<?p. $row['muid'] == $_SESSION['member']['muid'] ? $row['target_muid'] : $row['muid'] ?>"><?v. $row['muid'] == $_SESSION['member']['muid'] ? $row['receiver_name'] : $row['sender_name'] ?></a>
+				</li>
+				<li class="subject"><a href="<?a. 'View/'.$row['seq'] ?><?fn. '' ?>" class="viewBtn"><?v. StringCut($row['comment'], 50); ?></a></li>
+				<li class="date"><?p. substr($row['reg_date'], 0, 10) ?></li>
+				<li class="date"><?p. strlen($row['read_date']) ? '<span class="read">' . substr($row['read_date'], 0, 10) . '</span>' : '<span class="notRead">읽지않음</span>' ?></li>
+			</ul>
+		</article>
+	<?php } ?>
+	</div>
+</section>
+
+<?php } else{ ?>
+<p class="nothing">등록된 게시물이 없습니다.</p>
+<?php } ?>
+<!--<div class="left_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn">글쓰기</a></div>-->
+<?e. $Data->GetPageHtml() ?>
+<script>
+	$('a.viewBtn').on('click', function(e){
+		e.preventDefault();
+		JCM.getModal(this.href, {}, '쪽지보기', 'messageViewModal', 600, 600);
+	});
+</script>

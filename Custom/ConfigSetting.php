@@ -78,6 +78,8 @@ BH_Application::$cfg = new _ConfigMap();
  * @property _CfgData emailLogoUrl
  * @property _CfgData mobileLogoUrl
  * @property _CfgData footLogoUrl
+ * @property _CfgData googleServiceAccount
+ * @property _CfgData firebaseWebConfig
  */
 class ConfigDefault extends _ConfigModel
 {
@@ -122,6 +124,8 @@ class ConfigDefault extends _ConfigModel
 		$this->instagramCID = _CfgData::GetInstance('instagramCID')->SetTitle('인스타그램 ID');
 		$this->instagramRUri = _CfgData::GetInstance('instagramRUri')->SetTitle('인스타그램 Redirect Uri');
 		$this->instagramToken = _CfgData::GetInstance('instagramToken')->SetTitle('인스타그램 Access Token');
+		$this->firebaseWebConfig = _CfgData::GetInstance('firebaseWebConfig')->SetTitle('firebase 웹설정 JSON')->SetType(HTMLType::TEXTAREA);
+		$this->googleServiceAccount = _CfgData::GetInstance('googleServiceAccount')->SetTitle('구글 서비스 계정 JSON')->SetType(HTMLType::TEXTAREA);
 
 		$this->GetFileSetting();
 	}

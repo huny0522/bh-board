@@ -1963,7 +1963,7 @@ class _ConfigModel{
 		foreach($data as $k => $v){
 			if(!isset($this->{$k}) || $k === '_delFile') continue;
 			$this->{$k}->value = $v;
-			if($this->{$k}->type == \HTMLType::Textarea) $this->{$k}->value = BH_Common::ContentImageUpdate('cfg.ct', array('content_cfg_' . $k), array('contents' => $this->{$k}->value), 'modify-cfg');
+			if($this->{$k}->type == \HTMLType::TEXTAREA) $this->{$k}->value = BH_Common::ContentImageUpdate('cfg.ct', array('content_cfg_' . $k), array('contents' => $this->{$k}->value), 'modify-cfg');
 		}
 
 		if(isset($data['_delFile']) && is_array($data['_delFile'])){

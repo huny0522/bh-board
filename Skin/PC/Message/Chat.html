@@ -1,0 +1,49 @@
+<?php if(_BH_ !== true) exit;
+
+use \BH_Common as CM;
+use \BH_Application as App;
+
+/**
+ * @var MessageModel $Model
+ * @var \Controller\Message $Ctrl
+ */
+
+// App::JSAdd('https://www.gstatic.com/firebasejs/5.7.2/firebase.js', 400);
+// App::JSAdd('https://www.gstatic.com/firebasejs/5.7.2/firebase-auth.js', 500);
+//App::JSAdd('https://www.gstatic.com/firebasejs/5.5.3/firebase-database.js', 500);
+//App::JSAdd('https://www.gstatic.com/firebasejs/5.5.3/firebase-firestore.js', 500);
+//App::JSAdd('https://www.gstatic.com/firebasejs/5.5.3/firebase-messaging.js', 500);
+//App::JSAdd('https://www.gstatic.com/firebasejs/5.5.3/firebase-functions.js', 500);
+?>
+<section id="messageChatWrap"></section>
+<section id="messageWriteWrap">
+	<form id="msgChatForm" name="msgChatForm" method="post" action="<?a. 'ChatWrite' ?>">
+		<input type="hidden" name="target" value="<?p. App::$data['targetMember']['muid'] ?>">
+		<textarea name="comment" id="msgComment"></textarea>
+		<button type="submit"><i></i><span>입력</span></button>
+		<?minp('file') ?>
+	</form>
+</section>
+<script>
+	<?php ob_start(); ?>
+	App.messageChat.SetConfig(<?p. App::$cfg->Def()->firebaseWebConfig->Val() ?>)
+		.SetId('<?p. $_SESSION['member']['muid'] ?>')
+		.SetTargetId('<?p. App::$data['targetMember']['muid'] ?>')
+		.SetDataGetUrl('<?a. 'GetList' ?>')
+		.SetRoomId('<?p.App::$data['RoomId'] ?>')
+		.SetToken('<?p.App::$data['customToken'] ?>')
+		.SetStartTime(<?p. App::$data['timestamp'] ?>)
+		.Init();
+	<?php $scr = ob_get_clean(); ?>
+	$('#messageModal .modal_header h1').html('<?v. App::$data['targetMember']['mname'] ?>님과 대화');
+	$('#messageModal .modal_contents').attr('id', 'messageBox');
+	if(typeof(firebase) === 'undefined'){
+		$.getScript('https://www.gstatic.com/firebasejs/5.7.2/firebase.js', function(){
+			<?p. $scr ?>
+		});
+	}
+	else{
+		<?p. $scr ?>
+	}
+
+</script>

@@ -4,6 +4,7 @@ use \DB as DB;
 class BH_Common
 {
 	public static $member;
+	public static $blockUser;
 
 	private function __construct(){
 	}
@@ -57,6 +58,38 @@ class BH_Common
 		}else{
 			return false;
 		}
+	}
+
+	/**
+	 * @param int $muid
+	 * @return array|bool
+	 */
+	public static function GetOtherMember($muid){
+		$qry = new \BH_DB_Get(TABLE_MEMBER);
+		return $qry->AddWhere('muid = %d', $muid)
+			->AddWhere('withdraw = \'n\'')
+			->SetKey('*', 'NULL as pwd')
+			->Get();
+	}
+
+	/**
+	 * 로그인 한 회원의 차단회원들을 가져옴
+	 *
+	 * @return array
+	 */
+	public static function GetBlockUsers(){
+		if(_MEMBERIS !== true) return array();
+		if(!isset(self::$blockUser)){
+			$qry = DB::GetListQryObj(TABLE_USER_BLOCK . ' A')
+				->AddWhere('`A`.`muid` = %d', $_SESSION['member']['muid']);
+			$list = array();
+			while($row = $qry->Get()){
+				$list[] = $row['target_muid'];
+			}
+			self::$blockUser = $list;
+
+		}
+		return self::$blockUser;
 	}
 
 	public static function StripSlashes($data){

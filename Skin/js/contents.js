@@ -2,6 +2,7 @@ var App = {
 	Init : function(){
 		// MessageModal.Init();
 		// App.Tooltip.Init();
+		App.UserMenuPopup();
 	},
 
 	FindDaumAddress : function(e){
@@ -117,6 +118,55 @@ var App = {
 		}
 	},
 
+	userMenu : {
+		'UMP_SendMsgBtn' : {title : '쪽지보내기', action : function(uid){
+				JCM.getModal('/Message/Write', {id : uid}, '쪽지보내기', 'messageModifyModal', 600, 550);
+			}},
+		'UMP_MsgChatBtn' : {title : '쪽지 채팅', action : function(uid){
+				JCM.getModal('/Message/Chat/' + uid, {}, '쪽지 채팅', 'messageModal', 400, 450);
+			}},
+		'UMP_BlockBtn' : {title : '차단하기', action : function(uid){
+				CMConfirm('정말 차단하시겠습니까?', function(){
+					JCM.post('/MyPage/BlockUser', {id : uid}, function(data){
+						location.reload();
+					})
+				})
+			}},
+	},
+
+	// 팝업메뉴 뜬 후 호출
+	UserMenuPopupCustom : function(){
+
+	},
+
+	UserMenuPopup : function(){
+		$(document).on('click', '.userPopupMenuBtn', function(e){
+			if(!this.hasAttribute('data-id')) return;
+			var uid = $(this).attr('data-id');
+			e.preventDefault();
+			var top = $(this).offset().top + $(this).outerHeight();
+			var left = $(this).offset().left;
+			var html = '<article id="userMenuPopup" style="position:absolute; left:' + left + 'px; top:' + top + 'px; z-index:1001; border:1px solid #666; background:#fff;"><ul>';
+			$.each(App.userMenu, function(id, val){
+				html += '<li><button type="button" id="' + id + '">' + val.title + '</button></li>';
+			});
+			html += '</ul></article>';
+			html += '<button type="button" id="userMenuPopupRMBtn" style="position:fixed; z-index:1000; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0); cursor:default;"></button>';
+			$('body').append(html);
+			$.each(App.userMenu, function(id, val){
+				$('#' + id).on('click', function(e){
+					val.action(uid);
+					$('#userMenuPopup').remove();
+					$('#userMenuPopupRMBtn').remove();
+				});
+			});
+			$('#userMenuPopupRMBtn').on('click', function(){
+				$('#userMenuPopup').remove();
+				$(this).remove();
+			});
+			App.UserMenuPopupCustom();
+		});
+	},
 
 	swiperJsIs : false,
 
@@ -210,7 +260,218 @@ var App = {
 			}
 		}
 
-	}
+	},
+
+	messageChat : {
+		config : {},
+		messageRef : null,
+		uid : '',
+		roomId : '',
+		layerObj : null,
+		chatBoxObj : null,
+		formObj : null,
+		time : 0,
+		dataGetUrl : '',
+		targetId : '',
+		reservedFunc : null,
+		initIs : false,
+
+		SetTargetId : function(id){
+			this.targetId = id;
+			return this;
+		},
+		SetId : function(id){
+			this.uid = id;
+			return this;
+		},
+		SetDataGetUrl : function(str){
+			this.dataGetUrl = str;
+			return this;
+		},
+		SetStartTime : function(str){
+			this.time = str;
+			return this;
+		},
+		SetRoomId : function(str){
+			this.roomId = str;
+			return this;
+		},
+		SetToken : function(str){
+			this.token = str;
+			return this;
+		},
+		SetConfig : function(str){
+			this.config = str;
+			return this;
+		},
+		Init : function(){
+			if(this.dataGetUrl === ''){
+				console.log('새글 불러오기 경로가 필요합니다.');
+				return;
+			}
+			if(this.targetId === ''){
+				console.log('대상 아이디가 필요합니다.');
+				return;
+			}
+			$(function(){
+				if(App.messageChat.layerObj === null) App.messageChat.layerObj = $('#messageBox');
+				if(App.messageChat.chatBoxObj === null) App.messageChat.chatBoxObj = $('#messageChatWrap');
+				if(App.messageChat.formObj === null) App.messageChat.formObj = App.messageChat.layerObj.find('form').eq(0);
+				console.log(App.messageChat.layerObj.length);
+
+				// Send Button 에 클릭이벤트 적용
+				App.messageChat.formObj.on('submit',App.messageChat.Submit);
+
+				App.messageChat.GetList();
+
+				App.messageChat.layerObj.on('click', '#msgChatBeforeReadBtn', function(){
+					App.messageChat.GetList(true);
+				});
+
+				if(App.messageChat.layerObj.closest('.modal_layer').length){
+					App.messageChat.layerObj.closest('.modal_layer').data('close_method', function(){
+						App.messageChat.MessageOff();
+						App.messageChat.layerObj = null;
+						App.messageChat.chatBoxObj = null;
+						App.messageChat.formObj = null;
+					});
+				}
+
+
+				App.messageChat.formObj.find('textarea')[0].disabled = true;
+				if(!App.messageChat.initIs){
+					firebase.initializeApp(App.messageChat.config);
+				}
+
+				var database = firebase.database();
+				App.messageChat.messageRef = database.ref('/messages/' + App.messageChat.roomId + '/');
+
+
+				App.messageChat.ChildAdded();
+				App.messageChat.ChildChanged();
+
+				firebase.auth().signInWithCustomToken(App.messageChat.token).then(function(){
+					if(App.messageChat.formObj !== null) App.messageChat.formObj.find('textarea')[0].disabled = false;
+				}).catch(function(reason){
+					console.log(reason);
+				});
+
+				App.messageChat.initIs = true;
+			});
+		},
+
+		MessageOff : function(){
+			console.log('message ref off');
+			if(App.messageChat.messageRef !== null) App.messageChat.messageRef.off();
+		},
+
+		Submit : function(e){
+			e.preventDefault();
+			var form = this;
+			if(App.messageChat.messageRef === null) return;
+			JCM.ajaxForm(this, function(data){
+				// App.messageChat.messageRef.push().set({uid : App.messageChat.uid, message : $.trim(App.messageChat.formObj.find('textarea').val()), timestamp : firebase.database.ServerValue.TIMESTAMP});
+				firebase.database().ref('/messages/' + App.messageChat.roomId + '/' + data.seq).set({timestamp : data.timestamp, readis : false});
+				if($(form).find('.fileUploadArea2').length){
+					$(form).find('.fileUploadArea2').each(function(){
+						$(this).find('.fileName').remove();
+						$(this).find('.fileUploadInput').val();
+					});
+				}
+			});
+			this.reset();
+		},
+
+		ChildChanged : function(){
+			App.messageChat.messageRef.on('child_changed', function (snapshot) {
+				var data = snapshot.val();
+				if(data.readis) $('#msgChatAtc' + snapshot.key).find('div.notRead').remove();
+				console.log('changed', data);
+			});
+		},
+
+		ChildAdded : function(){
+			App.messageChat.messageRef.orderByChild('timestamp').startAt(App.messageChat.time).on('child_added', function (snapshot) {
+				if(App.messageChat.gettingListIs){
+					App.messageChat.reservedFunc = App.messageChat.GetList;
+				}
+				else{
+					App.messageChat.GetList();
+				}
+			});
+		},
+
+		gettingListIs : false,
+		noBeforeDataIs : false,
+
+		GetList : function(before){
+			if(typeof(before) === 'undefined') before = false;
+			App.messageChat.gettingListIs = true;
+			var articles = App.messageChat.chatBoxObj.find('article');
+			var last = before ? articles.eq(0) : articles.last();
+			last = last.length ? last.attr('data-seq') : '';
+			JCM.get(App.messageChat.dataGetUrl, {'lastSeq' : last, 'targetId' : App.messageChat.targetId, 'beforeIs' : before ? 1 : 0}, function(data){
+				App.messageChat.gettingListIs = false;
+				if(typeof(App.messageChat.reservedFunc) === 'function'){
+					App.messageChat.reservedFunc();
+					App.messageChat.reservedFunc = null;
+				}
+				if(data.data.length){
+					var chat = '';
+					for(var i = 0; i < data.data.length; i++){
+						chat += App.messageChat.DataToHtml(data.data[i]);
+					}
+					if(!App.messageChat.chatBoxObj.children().length) App.messageChat.chatBoxObj.append('<div></div>');
+					var wrap = App.messageChat.chatBoxObj.children();
+					if(before){
+						wrap.eq(0).prepend(chat);
+					}
+					else{
+						wrap.eq(0).append(chat);
+						setTimeout(function (){
+							wrap.scrollTop(wrap[0].scrollHeight);
+						}, 100);
+					}
+
+					if($('#msgChatBeforeReadBtn').length) $('#msgChatBeforeReadBtn').remove();
+					if(!App.messageChat.noBeforeDataIs) wrap.prepend('<button class="beforeReadBtn" id="msgChatBeforeReadBtn">이전 메세지 읽기</button>');
+				}
+
+				if(data.noReadSeq.length){
+					for(var i = 0; i < data.noReadSeq.length; i++){
+						firebase.database().ref('/messages/' + App.messageChat.roomId + '/' + data.noReadSeq[i] + '/readis').set(true);
+					}
+				}
+			}, function(data){
+				App.messageChat.gettingListIs = false;
+				if(typeof(App.messageChat.reservedFunc) === 'function'){
+					App.messageChat.reservedFunc();
+					App.messageChat.reservedFunc = null;
+				}
+				if(data.noBeforeDataIs === true){
+					if($('#msgChatBeforeReadBtn').length) $('#msgChatBeforeReadBtn').remove();
+					App.messageChat.noBeforeDataIs = true;
+				}
+			});
+		},
+
+		DataToHtml : function(article){
+			var chat = '';
+			var c = (article.sendIs) ? 'myMsg' : 'otherMsg';
+			chat += '<article class="' + c+ '" data-seq="' + article.seq + '" id="msgChatAtc' + article.seq + '"><div class="msgArticleContent">';
+			if(article.filePath !== ''){
+				if(article.isImage){
+					chat += '<div class="img"><a href="' + article.fileLink  + '"><img src="' + article.filePath + '"></a></div>';
+				}
+				else chat += '<div class="file"><a href="' + article.fileLink  + '">' + JCM.html2txt(article.fileName) + '</a></div>';
+			}
+			chat += '<div class="msg">' + JCM.html2txt(article.comment).replace(/\n/g, '<br>') + '</div>';
+			chat += '<div class="date">' + article.date + '</div>';
+			if(!article.readIs) chat += '<div class="notRead">읽지않음</div>';
+			chat += "</div></article>";
+			return chat;
+		},
+	},
 };
 
 App.NaverMap = function(id){

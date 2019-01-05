@@ -4,9 +4,9 @@ $createSql = array();
 $createSql['18.09.15'][] = array(
 	'table' => TABLE_MESSAGE,
 	'sql' => "CREATE TABLE `" . TABLE_MESSAGE . "` (
-					`seq` BIGINT(10) NOT NULL DEFAULT '0',
-					`muid` INT(10) NULL DEFAULT NULL,
-					`target_muid` INT(10) NULL DEFAULT NULL,
+					`seq` BIGINT(10) NOT NULL AUTO_INCREMENT,
+					`muid` INT(10) NOT NULL DEFAULT '0',
+					`target_muid` INT(10) NOT NULL DEFAULT '0',
 					`comment` TEXT NOT NULL,
 					`reg_date` DATETIME NOT NULL DEFAULT '0000-01-01 00:00:00',
 					`file` VARCHAR(128) NOT NULL DEFAULT '' COMMENT '파일',
@@ -14,6 +14,21 @@ $createSql['18.09.15'][] = array(
 					`target_delis` ENUM('y','n') NOT NULL DEFAULT 'n',
 					`read_date` DATETIME DEFAULT NULL,
 					`report` ENUM('y', 'n') NOT NULL DEFAULT 'n',
+					PRIMARY KEY (`seq`),
+					INDEX `muid` (`muid`),
+					INDEX `target_muid` (`target_muid`)
+				)
+				COLLATE='utf8_general_ci'
+				ENGINE=InnoDB"
+);
+
+$createSql['18.12.29'][] = array(
+	'table' => TABLE_USER_BLOCK,
+	'sql' => "CREATE TABLE `" . TABLE_USER_BLOCK . "` (
+					`seq` BIGINT(10) NOT NULL AUTO_INCREMENT,
+					`muid` INT(10) NOT NULL DEFAULT '0',
+					`target_muid` INT(10) NOT NULL DEFAULT '0',
+					`reg_date` DATETIME NOT NULL DEFAULT '0000-01-01 00:00:00',
 					PRIMARY KEY (`seq`),
 					INDEX `muid` (`muid`),
 					INDEX `target_muid` (`target_muid`)
@@ -42,7 +57,7 @@ if(BH_Application::$version !== ''){
 		DB::SQL()->Query($v);
 	}
 
-	if(file_exists(_DIR . '/version.php')) BH_Application::$version = file_get_contents(_DIR . '/Common/version.php');
+	if(file_exists(_COMMONDIR . '/version.php')) BH_Application::$version = file_get_contents(_COMMONDIR . '/version.php');
 	DB::SQL()->Query('UPDATE `'.TABLE_FRAMEWORK_SETTING.'` SET `data` = \''.BH_Application::$version.'\'  WHERE `key_name` = \'version\'');
 }
 

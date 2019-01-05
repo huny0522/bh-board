@@ -279,6 +279,13 @@ class Board{
 
 	public function _SearchQuery($qry, $noticeIs = false){
 
+		if(_MEMBERIS === true){
+			$blockUser = CM::GetBlockUsers();
+			if(sizeof($blockUser)){
+				$qry->AddWhere('`A`.`muid` NOT IN (%d)', $blockUser);
+			}
+		}
+
 		$s_keyword = Get('keyword');
 		$s_type = Get('stype');
 
@@ -1537,6 +1544,10 @@ class Board{
 		$args = func_get_args();
 		$res = $this->model->DBGet($args);
 		if(!$res->result) URLRedirect(-1, _MSG_WRONG_CONNECTED);
+		if(_MEMBERIS === true && strlen($this->model->_muid->value)){
+			$blockUser = CM::GetBlockUsers();
+			if(in_array($this->model->_muid->value, $blockUser)) URLRedirect(-1, '차단된 사용자의 글입니다.');
+		}
 	}
 
 	public function _DirectView(){

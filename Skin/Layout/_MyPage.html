@@ -9,9 +9,11 @@ App::$parentLayout = '_Default';
 	<h2>마이페이지</h2>
 	<nav>
 		<ul>
-			<li<?p. App::$action == 'MyInfo' ? ' class="active"' : '' ?>><a href="<?a. 'MyInfo' ?>">회원정보 수정</a></li>
-			<li<?p. App::$action == 'Scrap' ? ' class="active"' : '' ?>><a href="<?a. 'Scrap' ?>">스크랩한 게시물</a></li>
-			<li<?p. App::$action == 'Withdraw' ? ' class="active"' : '' ?>><a href="<?a. 'Withdraw' ?>">회원탈퇴</a></li>
+			<li<?p. App::$action == 'MyInfo' ? ' class="active"' : '' ?>><a href="<?p. _URL . '/MyPage/MyInfo' ?>">회원정보 수정</a></li>
+			<li<?p. App::$controllerName == 'Message' ? ' class="active"' : '' ?>><a href="<?p. _URL . '/Message' ?>">쪽지함</a></li>
+			<li<?p. App::$action == 'Scrap' ? ' class="active"' : '' ?>><a href="<?p. _URL . '/MyPage/Scrap' ?>">스크랩한 게시물</a></li>
+			<li<?p. App::$action == 'BlockList' ? ' class="active"' : '' ?>><a href="<?p. _URL . '/MyPage/BlockList' ?>">차단회원관리</a></li>
+			<li<?p. App::$action == 'Withdraw' ? ' class="active"' : '' ?>><a href="<?p. _URL . '/MyPage/Withdraw' ?>">회원탈퇴</a></li>
 		</ul>
 	</nav>
 </div>

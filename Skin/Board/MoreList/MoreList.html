@@ -39,7 +39,7 @@ foreach($Data->data as $row){
 			</a>
 		</td>
 
-		<td><?v. $row['mname']; ?></td>
+		<td><a href="#" class="userPopupMenuBtn" data-id="<?p. $row['muid'] ?>"><?v. $row['mname']; ?></a></td>
 		<td><?v. $row['hit']; ?></td>
 		<td><?v. $row['recommend']; ?></td>
 		<td><?v. KrDate($row['reg_date'],'ymd', 24) ?></td>

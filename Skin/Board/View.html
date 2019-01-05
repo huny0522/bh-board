@@ -18,7 +18,7 @@ App::JSAdd('reply.js', 200);
 			<?mv('subject') ?>
 		</div>
 		<ul>
-			<li class="mname"><b><?mt('mname')?></b> : <?mv('mname') ?></li>
+			<li class="mname"><b><?mt('mname')?></b> : <a href="#" class="userPopupMenuBtn" data-id="<?p. $Model->_muid->Val() ?>"><?mv('mname') ?></a></li>
 			<li><b><?mt('recommend')?></b> : <?mv('recommend') ?></li>
 			<li><b><?mt('hit')?></b> : <?mv('hit') ?></li>
 			<li><b><?mt('reg_date')?></b> : <?p. KrDate($Model->GetValue('reg_date')) ?></li>

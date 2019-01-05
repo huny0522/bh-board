@@ -43,7 +43,7 @@ use \BH_Application as App;
 							<?v. $row['subject'] ?> <?p. $row['replyCount'] ?> <?p. $secretIcon . $newtIcon ?>
 						</a>
 					</li>
-					<li class="name"><?v. $row['mname']; ?></li>
+					<li class="name"><a href="#" class="userPopupMenuBtn" data-id="<?p. $row['muid'] ?>"><?v. $row['mname']; ?></a></li>
 					<li class="num hit"><?v. $row['hit']; ?></li>
 					<li class="date"><?v. KrDate($row['reg_date'],'ymd', 24) ?></li>
 				</ul>
@@ -59,18 +59,21 @@ use \BH_Application as App;
 			$newtIcon = $row['newArticleIs'] ? '<span class="newDoc">[새글]</span> ' : '';
 			?>
 			<article>
-				<a href="<?p. $row['viewUrl'] ?>"<?php if(!$row['possibleView']){ ?> class="passwordView"<?php } ?>>
 					<ul>
 						<?php if($Ctrl->managerIs){ ?><li class="check"><input type="checkbox" class="checkItem boardCheckBox" name="checkItem" value="<?p. $row['seq'] ?>"></li><?php } ?>
-						<li class="thumb"><i style="background-image:url('<? p.ResizeImage($row['thumbnail'], 300) ?>');"></i></li>
+						<li class="thumb">
+							<a href="<?p. $row['viewUrl'] ?>"<?php if(!$row['possibleView']){ ?> class="passwordView"<?php } ?>><i style="background-image:url('<? p.ResizeImage($row['thumbnail'], 300) ?>');"></i></a>
+						</li>
 						<li class="subject">
-							<?php if($row['viewCategory']){ ?>
-								[<?v. $row['viewCategory'] ?>]
-							<?php } ?>
-							<?v. $row['subject'] ?> <?p. $row['replyCount'] ?> <?p. $secretIcon . $newtIcon ?>
+							<a href="<?p. $row['viewUrl'] ?>"<?php if(!$row['possibleView']){ ?> class="passwordView"<?php } ?>>
+								<?php if($row['viewCategory']){ ?>
+									[<?v. $row['viewCategory'] ?>]
+								<?php } ?>
+								<?v. $row['subject'] ?> <?p. $row['replyCount'] ?> <?p. $secretIcon . $newtIcon ?>
+							</a>
 						</li>
 
-						<li class="name"><?v. $row['mname']; ?></li>
+						<li class="name"><a href="#" class="userPopupMenuBtn" data-id="<?p. $row['muid'] ?>"><?v. $row['mname']; ?></a></li>
 						<li class="num hit"><?v. $row['hit']; ?></li>
 						<li class="num recommend"><?v. $row['recommend']; ?></li>
 						<li class="date"><?p. DotDate($row['reg_date']) ?></li>

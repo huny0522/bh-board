@@ -1,0 +1,90 @@
+<?php if(_BH_ !== true) exit;
+			
+use \BH_Application as App;
+use \BH_Common as CM;
+
+/**
+ * @var \Controller\Messages $Ctrl
+ * @var \messageModel $Model
+ */
+ $Model = &$Ctrl->messageModel;
+ ?>
+<article class="messageView">
+	<header>
+		<div>
+			<dl class="sender">
+				<dt>보낸사람</dt>
+				<dd><?v. $_SESSION['member']['muid'] == $Model->_muid->value ? CM::GetMember('mname') : App::$data['target']['mname'] ?></dd>
+			</dl>
+			<dl class="receiver">
+				<dt>받는사람</dt>
+				<dd><?v. $_SESSION['member']['muid'] == $Model->_target_muid->value ? CM::GetMember('mname') : App::$data['target']['mname'] ?></dd>
+			</dl>
+		</div>
+		<div>
+			<dl>
+				<dt><?mt('read_date') ?></dt>
+				<dd><?p. strlen($Model->_read_date->value) ? '<span class="read">' . $Model->_read_date->value . '</span>' : '<span class="notRead">읽지않음</span>' ?></dd>
+			</dl>
+		</div>
+		<div>
+			<dl class="readDate">
+				<dt><?mt('reg_date') ?></dt>
+				<dd><?mv('reg_date') ?></dd>
+			</dl>
+		</div>
+		<?php if($Model->_file->value){ ?>
+			<div>
+				<dl class="adtFile">
+					<dt><?mt('file') ?></dt>
+					<dd><a href="<?a. 'Download/' . $Model->_seq->value ?>"><?v. $Model->GetFileName('file') ?></a></dd>
+				</dl>
+			</div>
+		<?php } ?>
+
+	</header>
+	<div class="cont">
+		<table>
+			<tr>
+				<td>
+					<?php if($Model->_file->value && IsImageFileName($Model->GetFileName('file'))) echo '<div class="img"><img src="' . _UPLOAD_URL . $Model->GetFilePath('file'). '"></div>'; ?>
+					<?mvb('comment') ?>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<footer class="bottomBtn">
+		<button type="button" class="mBtn close">닫기</button>
+		<?php if($_SESSION['member']['muid'] == $Model->_muid->value){ ?>
+			<a href="<?a. 'Modify/'.App::$id ?><?fq. '' ?>" class="mBtn" id="msgModifyBtn">수정</a>
+			<a href="#" id="deleteArticle" class="mBtn">삭제</a>
+		<?php } ?>
+	</footer>
+</article>
+
+
+
+
+<div id="deleteForm" class="modalConfirm hidden">
+	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete/'.App::$id ?><?fq. '' ?>">
+		<p>정말 삭제하시겠습니까?</p>
+		<div class="sPopBtns">
+			<button type="submit" class="sBtn btn2">삭제하기</button>
+			<button type="reset" class="sBtn btn2">취소</button>
+		</div>
+	</form>
+</div>
+<script>
+	$('#msgModifyBtn').on('click', function(e){
+		e.preventDefault();
+		JCM.getModal(this.href, {}, '쪽지 수정', 'messageModifyModal', 600, 550);
+	});
+	$('#deleteArticle').on('click', function(e){
+		e.preventDefault();
+		$('#deleteForm').show();
+	});
+	$('#deleteForm button[type=reset]').on('click', function(e){
+		e.preventDefault();
+		$('#deleteForm').hide();
+	});
+</script>
