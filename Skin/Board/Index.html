@@ -48,7 +48,7 @@ App::JSAdd('board.js', 200);
 								<?p. $repIcon ?><?v. $row['subject'] ?> <?p. $row['replyCount'] ?> <?p. $secretIcon . $newtIcon ?>
 							</a>
 						</li>
-						<li class="name"><a href="#" class="userPopupMenuBtn" data-id="<?p. $row['muid'] ?>"><?v. $row['mname']; ?></a></li>
+						<li class="name"><?p. CM::MemName($row['muid'], $row['mname']) ?></li>
 						<li class="num hit"><?v. $row['hit']; ?></li>
 						<li class="num recommend"><?v. $row['recommend']; ?></li>
 						<li class="date"><?v. KrDate($row['reg_date'],'ymd', 24) ?></li>
@@ -74,7 +74,7 @@ App::JSAdd('board.js', 200);
 							</a>
 						</li>
 
-						<li class="name"><a href="#" class="userPopupMenuBtn" data-id="<?p. $row['muid'] ?>"><?v. $row['mname']; ?></a></li>
+						<li class="name"><?p. CM::MemName($row['muid'], $row['mname']) ?></li>
 						<li class="num"><?v. $row['hit']; ?></li>
 						<li class="num"><?v. $row['recommend']; ?></li>
 						<li class="date"><?v. KrDate($row['reg_date'],'ymd', 24) ?></li>

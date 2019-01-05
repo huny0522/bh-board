@@ -55,7 +55,7 @@ use \BH_Application as App;
 			?>
 			<article data-seq="<?p. $row['seq'] ?>" id="repArticle<?p. $row['seq'] ?>" data-file-name="<?v. $newCommentBtnIs ? '' : $md->GetFileName('file') ?>">
 				<header>
-					<b><a href="#" class="userPopupMenuBtn" data-id="<?p. $row['muid'] ?>"><?v. $row['mname']; ?></a></b>
+					<b><?p. CM::MemName($row['muid'], $row['mname']) ?></b>
 					<span><?p. $row['kdate']; ?></span>
 					<div class="btns">
 						<?php if(!$row['secretIs'] && $row['delis'] != 'y'){ ?>

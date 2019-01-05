@@ -141,6 +141,7 @@ var App = {
 
 	UserMenuPopup : function(){
 		$(document).on('click', '.userPopupMenuBtn', function(e){
+			var noChat = this.hasAttribute('data-no-chat');
 			if(!this.hasAttribute('data-id') || $(this).attr('data-id') === '') return;
 			var uid = $(this).attr('data-id');
 			e.preventDefault();
@@ -148,6 +149,7 @@ var App = {
 			var left = $(this).offset().left;
 			var html = '<article id="userMenuPopup" style="position:absolute; left:' + left + 'px; top:' + top + 'px; z-index:1001; border:1px solid #666; background:#fff;"><ul>';
 			$.each(App.userMenu, function(id, val){
+				if(noChat && id === 'UMP_MsgChatBtn') return;
 				html += '<li><button type="button" id="' + id + '">' + val.title + '</button></li>';
 			});
 			html += '</ul></article>';

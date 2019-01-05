@@ -92,6 +92,19 @@ class BH_Common
 		return self::$blockUser;
 	}
 
+	/**
+	 * @param int $muid
+	 * @param string $name
+	 * @return string
+	 */
+	public static function MemName($muid, $name){
+		if(_MEMBERIS !== true || $_SESSION['member']['muid'] == $muid) return GetDBText($name);
+		else{
+			$adtAttr = (class_exists('Kreait\Firebase\Factory')) ? '' : ' data-no-chat="yes"';
+			return '<a href="#" class="userPopupMenuBtn" data-id="' . $muid . '"' . $adtAttr . '>' . GetDBText($name) . '</a>';
+		}
+	}
+
 	public static function StripSlashes($data){
 		if(is_array($data)) return array_map('self::StripSlashes', $data);
 		else return stripslashes($data);
