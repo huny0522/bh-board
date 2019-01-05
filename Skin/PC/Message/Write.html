@@ -21,7 +21,7 @@ $Model = &$Ctrl->messageModel;
 			<tr>
 				<th>수신자</th>
 				<td>
-					<?v. $_SESSION['member']['muid'] == $Model->_target_muid->value ? CM::GetMember('mname') : App::$data['target']['mname'] ?>
+					<?v. App::$data['target']['nickname'] ?>
 				</td>
 			</tr>
 			<tr>

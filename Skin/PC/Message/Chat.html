@@ -35,7 +35,7 @@ use \BH_Application as App;
 		.SetStartTime(<?p. App::$data['timestamp'] ?>)
 		.Init();
 	<?php $scr = ob_get_clean(); ?>
-	$('#messageModal .modal_header h1').html('<?v. App::$data['targetMember']['mname'] ?>님과 대화');
+	$('#messageModal .modal_header h1').html('<?v. App::$data['targetMember']['nickname'] ?>님과 대화');
 	$('#messageModal .modal_contents').attr('id', 'messageBox');
 	if(typeof(firebase) === 'undefined'){
 		$.getScript('https://www.gstatic.com/firebasejs/5.7.2/firebase.js', function(){

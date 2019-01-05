@@ -116,7 +116,7 @@ class MessageModel extends \BH_Model
 		$qry = DB::GetListPageQryObj(TABLE_MESSAGE . ' `MSG`')
 			->AddTable('LEFT JOIN %1 `M1` ON `M1`.`muid` = `MSG`.`muid`', TABLE_MEMBER)
 			->AddTable('LEFT JOIN %1 `M2` ON `M2`.`muid` = `MSG`.`target_muid`', TABLE_MEMBER)
-			->SetKey('`MSG`.*, `M1`.`mname` as `sender_name`, `M2`.`mname` as `receiver_name`')
+			->SetKey('`MSG`.*, `M1`.`nickname` as `sender_name`, `M2`.`nickname` as `receiver_name`')
 			->SetPage($pageNum)
 			->SetSort('`MSG`.`seq` DESC')
 			->SetArticleCount(10);

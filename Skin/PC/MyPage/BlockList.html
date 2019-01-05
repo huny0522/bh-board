@@ -4,7 +4,7 @@ use \BH_Application as App;
 use \BH_Common as CM;
 
 /**
- * @var \Controller\Messages $Ctrl
+ * @var \Controller\MyPage $Ctrl
  */
 ?>
 
@@ -25,7 +25,7 @@ use \BH_Common as CM;
 				<article>
 					<ul>
 						<li class="num"><?e. $Data->beginNum-- ?></li>
-						<li><?v. $row['mname'] ?></li>
+						<li><?v. $row['nickname'] ?></li>
 						<li class="date"><?p. substr($row['reg_date'], 0, 10) ?></li>
 						<li class="name"><button type="button" class="sBtn unblockBtn" data-id="<?p. $row['target_muid'] ?>">차단취소</button></li>
 					</ul>

@@ -14,11 +14,11 @@ use \BH_Common as CM;
 		<div>
 			<dl class="sender">
 				<dt>보낸사람</dt>
-				<dd><?v. $_SESSION['member']['muid'] == $Model->_muid->value ? CM::GetMember('mname') : App::$data['target']['mname'] ?></dd>
+				<dd><?v. $_SESSION['member']['muid'] == $Model->_muid->value ? CM::GetMember('nickname') : App::$data['target']['nickname'] ?></dd>
 			</dl>
 			<dl class="receiver">
 				<dt>받는사람</dt>
-				<dd><?v. $_SESSION['member']['muid'] == $Model->_target_muid->value ? CM::GetMember('mname') : App::$data['target']['mname'] ?></dd>
+				<dd><?v. $_SESSION['member']['muid'] == $Model->_target_muid->value ? CM::GetMember('nickname') : App::$data['target']['nickname'] ?></dd>
 			</dl>
 		</div>
 		<div>

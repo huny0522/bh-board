@@ -158,7 +158,7 @@ class MyPage{
 		$qry = DB::GetListPageQryObj(TABLE_USER_BLOCK . ' A')
 			->AddTable('LEFT JOIN %1 `B` ON `A`.`muid` = `B`.`muid`', TABLE_MEMBER)
 			->AddWhere('`A`.`muid` = %d', $_SESSION['member']['muid'])
-			->SetKey('`A`.*, `B`.`mname`')
+			->SetKey('`A`.*, `B`.`nickname`')
 			->SetPage(Get('page'))
 			->SetPageUrl(App::URLAction(App::$action).App::GetFollowQuery('page'))
 			->Run();
