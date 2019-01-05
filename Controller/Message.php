@@ -135,7 +135,8 @@ class Message
 	}
 
 	public function Chat(){
-
+		if(!class_exists('Kreait\Firebase\Factory')) URLRedirect(-1);
+		if(!strlen(App::$id)) URLRedirect(-1);
 		App::$data['targetMember'] = CM::GetOtherMember(App::$id);
 		if(!App::$data['targetMember']) URLRedirect(-1, '탈퇴하였거나 삭제된 회원입니다.');
 

@@ -646,6 +646,12 @@ section.galleryBoardList .articles li.date{float:left; width:50%; padding-top:5p
 .messageWrite{padding:20px;}
 .messageWrite table.write{background:#fff;}
 .messageWrite table.write th{width:20%; text-align:center;}
+
+#userMenuPopup{-webkit-box-shadow:2px 2px 2px rgba(0,0,0,0.2); -moz-box-shadow:2px 2px 2px rgba(0,0,0,0.2); box-shadow:2px 2px 2px rgba(0,0,0,0.2);}
+#userMenuPopup li{padding:2px;}
+#userMenuPopup li + li{border-top:1px solid #ddd;}
+#userMenuPopup button{height:22px; width:80px; font-size:12px;}
+#userMenuPopup button:hover{background:#999; color:#fff;}
 @media(max-width:999px) and (min-width:800px){
 }
 @media(max-width:799px) and (min-width:600px){

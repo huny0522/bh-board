@@ -639,4 +639,12 @@ echo \BH\BHCss\BHCss::setResponseFontSizeByMin(100, 1000);
 			th{width:20%; text-align:center;}
 		}
 	}
+
+	#userMenuPopup{
+		~{box-shadow:2px 2px 2px rgba(0,0,0,0.2);}
+		li{padding:2px;}
+		li + li{border-top:1px solid #ddd;}
+		button{height:22px; width:80px; font-size:12px;}
+		button:hover{background:#999; color:#fff;}
+	}
 </style>

@@ -141,7 +141,7 @@ var App = {
 
 	UserMenuPopup : function(){
 		$(document).on('click', '.userPopupMenuBtn', function(e){
-			if(!this.hasAttribute('data-id')) return;
+			if(!this.hasAttribute('data-id') || $(this).attr('data-id') === '') return;
 			var uid = $(this).attr('data-id');
 			e.preventDefault();
 			var top = $(this).offset().top + $(this).outerHeight();
