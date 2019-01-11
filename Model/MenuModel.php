@@ -70,6 +70,15 @@ class MenuModel extends \BH_Model
 
 		$this->data['board_sub_category'] = new \BH_ModelData(ModelType::STRING, '게시판 세부분류');
 		$this->data['board_sub_category']->maxLength = '256';
+
+		$this->data['show_level'] = new \BH_ModelData(ModelType::ENUM, '메뉴 표시 레벨', HTMLType::SELECT);
+		$this->data['show_level']->enumValues = App::$settingData['LevelArray'];
+		$this->data['show_level']->defaultValue = 0;
+
+		$this->data['con_level'] = new \BH_ModelData(ModelType::ENUM, '메뉴 접근 레벨', HTMLType::SELECT);
+		$this->data['con_level']->enumValues = App::$settingData['LevelArray'];
+		$this->data['con_level']->defaultValue = 0;
+
 	} // __Init
 
 

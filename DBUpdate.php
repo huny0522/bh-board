@@ -40,11 +40,12 @@ $createSql['18.12.29'][] = array(
 $addColumnSql = array();
 
 $updateSql = array();
+$updateSql['19.01.11'][] =  "ALTER TABLE `" . TABLE_MENU . "` ADD COLUMN `show_level` TINYINT(2) NOT NULL DEFAULT '0' AFTER `board_sub_category`,  ADD COLUMN `con_level` TINYINT(2) NOT NULL DEFAULT '0' AFTER `show_level`";
 
 // 버전이 존재하면 업데이트
 if(BH_Application::$version !== ''){
 	foreach($createSql as $k => $v){
-		if(BH_Application::$version <= $k){
+		if(BH_Application::$version < $k){
 			foreach($v as $v2){
 				if(!DB::SQL()->TableExists($v2['table'])){
 					DB::SQL()->Query($v2['sql']);
@@ -54,8 +55,14 @@ if(BH_Application::$version !== ''){
 	}
 
 	foreach($updateSql as $k => $v){
-		DB::SQL()->Query($v);
+		if(BH_Application::$version < $k){
+			foreach($v as $v2){
+				DB::SQL()->Query($v2);
+			}
+		}
 	}
+
+	\Common\MenuHelp::GetInstance()->MenusToFile();
 
 	if(file_exists(_COMMONDIR . '/version.php')) BH_Application::$version = file_get_contents(_COMMONDIR . '/version.php');
 	DB::SQL()->Query('UPDATE `'.TABLE_FRAMEWORK_SETTING.'` SET `data` = \''.BH_Application::$version.'\'  WHERE `key_name` = \'version\'');
@@ -411,7 +418,9 @@ ENGINE=InnoDB";
 	}
 
 	foreach($updateSql as $k => $v){
-		DB::SQL()->Query($v);
+		foreach($v as $v2){
+			DB::SQL()->Query($v2);
+		}
 	}
 
 	if(file_exists(_COMMONDIR . '/version.php')) BH_Application::$version = trim(file_get_contents(_COMMONDIR . '/version.php'));
