@@ -487,7 +487,7 @@ class BHCss{
 				if(sizeof($after)){
 					$temp = $s;
 					for($k = 0; $k < sizeof($temp); $k++){
-						$temp[$k] = trim($temp[$k]) . ':after';
+						$temp[$k] = str_replace(',', ':before,', trim($temp[$k])) . ':before';
 					}
 					$sel = implode(',', $temp);
 					$css = implode(';', $after);
@@ -497,7 +497,7 @@ class BHCss{
 				if(sizeof($before)){
 					$temp = $s;
 					for($k = 0; $k < sizeof($temp); $k++){
-						$temp[$k] = trim($temp[$k]) . ':after';
+						$temp[$k] = str_replace(',', ':after,', trim($temp[$k]) . ':after');
 					}
 					$sel = implode(',', $temp);
 					$css = implode(';', $before);
@@ -511,12 +511,12 @@ class BHCss{
 				if(sizeof($after)){
 					$css = implode(';', $after);
 					self::setResponseData($node->selector . ':after', $css);
-					$txt .= $node->selector . ':after' . '{' . $css . '}';
+					$txt .= str_replace(',', ':after,', $node->selector) . ':after' . '{' . $css . '}';
 				}
 				if(sizeof($before)){
 					$css = implode(';', $before);
 					self::setResponseData($node->selector . ':before', $css);
-					$txt .= $node->selector . ':before' . '{' . $css . '}';
+					$txt .= str_replace(',', ':before,', $node->selector) . ':before' . '{' . $css . '}';
 				}
 			}
 			else{
