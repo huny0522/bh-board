@@ -27,6 +27,7 @@ class MenuHelp
 	private $linkWrapTag = '';
 	private $head = '';
 	private $tail = '';
+	private $idBegin = 'mn-';
 
 	/**
 	 * @var MenuHelp[]
@@ -93,6 +94,15 @@ class MenuHelp
 	 */
 	public function SetClass($class){
 		$this->class = $class;
+		return $this;
+	}
+
+	/**
+	 * @param string $id
+	 * @return MenuHelp
+	 */
+	public function SetIdBegin($id){
+		$this->idBegin = $id;
 		return $this;
 	}
 
@@ -303,7 +313,7 @@ class MenuHelp
 		$html = '';
 
 		foreach($menuData as $menu){
-			$html .= '<'.$tagName.$attr.' class="'.$class.($this->ActiveCheck($menu['category']) ? ' '.$activeClass : '').'">';
+			$html .= '<'.$tagName.$attr.' id="' . $this->idBegin . $menu['category'] . '" class="'.$class.($this->ActiveCheck($menu['category']) ? ' '.$activeClass : '').'">';
 			if($linkWrapTag) echo '<'.$linkWrapTag.'>';
 			$html .= '<a href="'._URL.'/'.urlencode(GetDBText($menu['controller'])).'">'.GetDBText($menu['title']).'</a>';
 			if($linkWrapTag) echo '</'.$linkWrapTag.'>';
