@@ -383,15 +383,21 @@ function Common($){
 			$('#_uploadImgInp').click();
 		});
 		$(document).on('click','.fileUploadArea button.fileUploadAreaAddBtn',function(e){
+			AddFileInp.call(this);
+		});
+
+		function AddFileInp(){
 			var area = $(this).closest('.fileUploadArea');
 			var inHtml = '<div class="fileUploadArea">' + area.html().replace(/\<span.+?class\=\"fileUploadImage\"\>.*?\<\/span\>/ig, '<span class="fileUploadImage"></span>').replace(/value\=\".*?\"/ig, 'value=""') + '</div>';
 			area.after(inHtml);
 			e.preventDefault();
-		});
+		}
+
 		$(document).on('click','.fileUploadArea button.fileUploadAreaRmBtn',function(e){
 			e.preventDefault();
 			var area = $(this).closest('.fileUploadArea');
-			if(area.siblings('.fileUploadArea').length) area.remove();
+			if(!area.siblings('.fileUploadArea').length) AddFileInp.call(this);
+			area.remove();
 		});
 		$(document).on('change', '#_uploadImgInp', function(e){
 			e.preventDefault();
@@ -442,15 +448,21 @@ function Common($){
 			$('#_uploadFileInp').click();
 		});
 		$(document).on('click','.fileUploadArea2 button.fileUploadAreaAddBtn',function(e){
+			AddFileInp2.call(this);
+		});
+
+		function AddFileInp2(){
 			var area = $(this).closest('.fileUploadArea2');
 			var inHtml = '<div class="fileUploadArea2">' + area.html().replace(/\<span.+?class\=\"fileName\"\>.*?\<\/span\>/ig, '').replace(/value\=\".*?\"/ig, 'value=""') + '</div>';
 			area.after(inHtml);
 			e.preventDefault();
-		});
+		}
+
 		$(document).on('click','.fileUploadArea2 button.fileUploadAreaRmBtn',function(e){
 			e.preventDefault();
 			var area = $(this).closest('.fileUploadArea2');
-			if(area.siblings('.fileUploadArea2').length) area.remove();
+			if(!area.siblings('.fileUploadArea2').length) AddFileInp2.call(this);
+			area.remove();
 		});
 		$(document).on('change', '#_uploadFileInp', function(e){
 			e.preventDefault();
