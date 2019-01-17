@@ -27,8 +27,8 @@ class Statistics
 	}
 
 	public function __Init(){
-		CM::AdminAuth();
 		App::$data['NowMenu'] = '006001';
+		CM::AdminAuth();
 		App::$layout = '_AdminStatistics';
 	}
 
