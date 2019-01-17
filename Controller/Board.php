@@ -164,35 +164,71 @@ class Board{
 			$this->model->data['file2']->htmlType = \HTMLType::FILE_IMAGE;
 		}
 
-		$action = App::$action;
-		if($action == 'Answer' || $action == 'Modify') $action = 'Write';
-		if($action == '_DirectView') $action = 'View';
-		$this->path = '/Board/'.App::$nativeSkinDir.'/'.$this->boardManger->GetValue('skin').'/';
-		if(file_exists(_SKINDIR.$this->path.$action.'.html')) App::$html = $this->path.$action.'.html';
-		else{
-			$this->path = '/Board/'.App::$nativeSkinDir.'/';
-			if(file_exists(_SKINDIR.$this->path.$action.'.html')) App::$html = $this->path.$action.'.html';
-			else{
-				$this->path = '/Board/'.$this->boardManger->GetValue('skin').'/';
-				if(file_exists(_SKINDIR.$this->path.$action.'.html')) App::$html = $this->path.$action.'.html';
-				else{
-					$this->path = '/Board/';
-					App::$html = '/Board/' . $action.'.html';
-				}
-			}
-		}
+
+		$this->_SetFilePath(App::$action);
 
 		if(file_exists(_SKINDIR.$this->path.'MoreList.html')) $this->moreListIs = true;
 		else if(file_exists(_SKINDIR.$this->path.'GetList.html')) $this->getListIs = true;
 
+		$this->_SetLayoutPath();
+
+		$this->_SetCategory();
+
+		if(!$this->adminPathIs && _MEMBERIS !== true && $this->boardManger->GetValue('man_to_man') === 'y') URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
+		if($this->boardManger->GetValue('man_to_man') === 'y') $this->boardManger->SetValue('use_secret', 'n');
+	}
+
+	public function _SetCategory(){
+		App::$data['category'] = array();
+		App::$data['subCategory'] = array();
+
+		if(strlen($this->menuCategory)) App::$data['subCategory'] =  $this->boardManger->GetSubCategory($this->menuCategory);
+
+		else if(!EmptyGet('cate')) App::$data['subCategory'] = $this->boardManger->GetSubCategory(Get('cate'));
+
+		if(!is_null($this->boardManger->GetValue('category')) && strlen($this->boardManger->GetValue('category'))){
+			App::$data['category'] = explode(',', $this->boardManger->GetValue('category'));
+		}
+	}
+
+	protected function _ActionToFileName($fileName){
+		if($fileName == 'Answer' || $fileName == 'Modify') $fileName = 'Write';
+		else if($fileName == '_DirectView') $fileName = 'View';
+		return $fileName;
+	}
+
+	protected function _SetFilePath($fileName){
+		$fileName = $this->_ActionToFileName($fileName);
+		if($this->adminPathIs){
+			$this->path = '/Board/Admin/'.$this->boardManger->GetValue('skin').'/';
+			if(!file_exists(_SKINDIR.$this->path.$fileName.'.html')) $this->path = '/Board/Admin/';
+
+			App::$html = $this->path . $fileName.'.html';
+		}
+		else{
+			$this->path = '/Board/'.App::$nativeSkinDir.'/'.$this->boardManger->GetValue('skin').'/';
+			if(file_exists(_SKINDIR.$this->path.$fileName.'.html')) App::$html = $this->path.$fileName.'.html';
+			else{
+				$this->path = '/Board/'.App::$nativeSkinDir.'/';
+				if(file_exists(_SKINDIR.$this->path.$fileName.'.html')) App::$html = $this->path.$fileName.'.html';
+				else{
+					$this->path = '/Board/'.$this->boardManger->GetValue('skin').'/';
+					if(file_exists(_SKINDIR.$this->path.$fileName.'.html')) App::$html = $this->path.$fileName.'.html';
+					else{
+						$this->path = '/Board/';
+						App::$html = '/Board/' . $fileName.'.html';
+					}
+				}
+			}
+		}
+
+	}
+
+	protected function _SetLayoutPath(){
 		$layout = $this->boardManger->GetValue('layout');
 
 		// 관리자
 		if($this->adminPathIs){
-			$this->path = '/Board/Admin/'.$this->boardManger->GetValue('skin').'/';
-			if(!file_exists(_SKINDIR.$this->path.$action.'.html')) $this->path = '/Board/Admin/';
-
-			App::$html = $this->path . $action.'.html';
 			App::$layout = '_Admin';
 			$this->moreListIs = false;
 			$this->getListIs = false;
@@ -212,24 +248,6 @@ class Board{
 
 			if(file_exists(_SKINDIR.'/Layout/'.$layoutPath)) $layout = $layoutPath;
 			App::$layout = $layout;
-		}
-
-		$this->_SetCategory();
-
-		if(!$this->adminPathIs && _MEMBERIS !== true && $this->boardManger->GetValue('man_to_man') === 'y') URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
-		if($this->boardManger->GetValue('man_to_man') === 'y') $this->boardManger->SetValue('use_secret', 'n');
-	}
-
-	public function _SetCategory(){
-		App::$data['category'] = array();
-		App::$data['subCategory'] = array();
-
-		if(strlen($this->menuCategory)) App::$data['subCategory'] =  $this->boardManger->GetSubCategory($this->menuCategory);
-
-		else if(!EmptyGet('cate')) App::$data['subCategory'] = $this->boardManger->GetSubCategory(Get('cate'));
-
-		if(!is_null($this->boardManger->GetValue('category')) && strlen($this->boardManger->GetValue('category'))){
-			App::$data['category'] = explode(',', $this->boardManger->GetValue('category'));
 		}
 	}
 
@@ -366,7 +384,7 @@ class Board{
 		$dbList->DrawRows();
 		$this->_RowSet($dbList->data);
 
-		App::$html = $this->path.'Index.html';
+		if(App::$action !== 'Index') $this->_SetFilePath('Index');
 
 		if($viewPageIs) return App::GetOnlyView($this->model, $dbList);
 		else if(_JSONIS === true) JSON(true, '', App::GetView($this->model, $dbList));
@@ -466,8 +484,10 @@ class Board{
 	}
 
 	public function View(){
-		if($this->boardManger->GetValue('list_in_view') == 'y' && !$this->moreListIs) App::$data['List'] = $this->GetList(true);
-		App::$html = $this->path.'View.html';
+		if($this->boardManger->GetValue('list_in_view') == 'y' && !$this->moreListIs){
+			App::$data['List'] = $this->GetList(true);
+			$this->_SetFilePath('View');
+		}
 
 		if(!isset(App::$id) || !strlen(App::$id)) URLReplace('-1');
 
