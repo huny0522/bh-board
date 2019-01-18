@@ -11,6 +11,18 @@ $Model = &$Ctrl->messageModel;
 ?>
 
 <h2>쪽지</h2>
+<section class="boardSearch">
+	<form name="msgSchForm" id="msgSchForm" method="get" action="<?a. '' ?>">
+		<input type="hidden" name="id" value="<?v. Get('id') ?>">
+		<select name="type">
+			<option value="">구분검색</option>
+			<?p. SelectOption(array('send' => '보낸쪽지', 'receive' => '받은쪽지'), Get('type')) ?>
+		</select>&nbsp;
+		<input type="text" name="keyword" value="<?v. Get('keyword') ?>">&nbsp;
+		<button type="submit" class="mBtn btn2">검색</button>&nbsp;
+		<button type="reset" class="mBtn btn1">초기화</button>
+	</form>
+</section>
 
 <?php if($Data->result && $Data->totalRecord){ ?>
 <section class="boardList checkAllArea">
@@ -44,11 +56,18 @@ $Model = &$Ctrl->messageModel;
 <?php } else{ ?>
 <p class="nothing">등록된 게시물이 없습니다.</p>
 <?php } ?>
-<!--<div class="left_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn">글쓰기</a></div>-->
 <?e. $Data->GetPageHtml() ?>
 <script>
 	$('a.viewBtn').on('click', function(e){
 		e.preventDefault();
 		JCM.getModal(this.href, {}, '쪽지보기', 'messageViewModal', 600, 600);
+	});
+
+	$('#msgSchForm select').on('change', function(){
+		$(this).closest('form').submit();
+	});
+
+	$('#msgSchForm button[type=reset]').on('click', function(){
+		location.href = $(this).closest('form').attr('action');
 	});
 </script>

@@ -66,6 +66,7 @@ echo \BH\BHCss\BHCss::setResponseFontSizeByMin(100, 1000);
 
 	.leftBoardSearch, .left_btn{float:left; margin-top:20px; padding-bottom:20px;}
 	.rightBoardSearch, .right_btn{ float:right; margin-top:20px; padding-bottom:20px;}
+	.boardSearch{padding-bottom:20px; margin-top:20px;}
 	.bottomBtn{ padding:30px 0; text-align:center;}
 	.bottomBtn a + button, .bottomBtn button + a, .bottomBtn button + button, .bottomBtn a + a{margin-left:5px;}
 	.moreViewBtn{ margin-top:20px; $tac;}

@@ -114,6 +114,9 @@ var App = {
 					})
 				})
 			}},
+		'UMP_SearchBtn' : {title : '쪽지 확인', action : function(uid){
+			location.href = '/Message/?id=' + uid;
+			}},
 	},
 
 	// 팝업메뉴 뜬 후 호출

@@ -93,16 +93,37 @@ class MessageModel extends \BH_Model
 	 */
 	public function Del(){
 		if(_MEMBERIS !== true) return BH_Result::Init(false, _MSG_NEED_LOGIN, _NEED_LOGIN);
-		if($this->_seq->value){
+		if(!strlen($this->_seq->Val())){
 			if(_DEVELOPERIS === true) PrintError('삭제할 데이터가 없습니다.');
 			return BH_Result::Init(false, 'MESSAGE DELETE ERROR #01');
 		}
 		$qry = DB::UpdateQryObj($this->table)
 			->AddWhere('seq = %d', $this->_seq->value);
-		if($this->_muid->value === $_SESSION['member']['muid']) $qry->SetDataStr('delis', 'y');
-		else if($this->_target_muid->value === $_SESSION['member']['muid']) $qry->SetDataStr('target_delis', 'y');
+		$qrySetIs = false;
+		if($this->_muid->Val() === $_SESSION['member']['muid']){
+			$qrySetIs = true;
+
+			// 읽지 않은 메세지는 완전 삭제
+			if(!$this->_read_date->Val()){
+				if($this->_file->Val()) @unlink(_UPLOAD_DIR . $this->GetFilePath('file'));
+
+				DB::DeleteQryObj($this->table)
+					->AddWhere('seq = %d', $this->_seq->Val())
+					->Run();
+				return BH_Result::Init(true);
+			}
+
+			$qry->SetDataStr('delis', 'y');
+		}
+		if($this->_target_muid->Val() === $_SESSION['member']['muid']){
+			$qrySetIs = true;
+			$qry->SetDataStr('target_delis', 'y');
+		}
+
+		if(!$qrySetIs) return BH_Result::Init(false, _MSG_WRONG_CONNECTED);
 		else return BH_Result::Init(false, _MSG_WRONG_CONNECTED);
 		$qry->Run();
+		return BH_Result::Init(true);
 	}
 
 	/**

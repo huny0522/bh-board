@@ -22,7 +22,7 @@ class Message
 
 	public function __Init(){
 		CM::MemberAuth();
-		App::SetFollowQuery('page', 'keyword', 'type', 'nr');
+		App::SetFollowQuery('page', 'keyword', 'type', 'id');
 	}
 
 	public function Index(){
@@ -31,9 +31,10 @@ class Message
 			->SetPageUrl(App::URLAction().App::GetFollowQuery('page'));
 
 		if(Get('type') === 'send') $qry->AddWhere('`MSG`.`muid` = %d', $_SESSION['member']['muid']);
-		else if(Get('type') === 'receive') $qry->AddWhere('`MSG`.`target_muid` NOT IN (%d)', $_SESSION['member']['muid']);
+		else if(Get('type') === 'receive') $qry->AddWhere('`MSG`.`target_muid` = %d', $_SESSION['member']['muid']);
 
-		if(Get('type') === 'send') $qry->AddWhere('INSTR(`MSG`.`comment`, %s)', Get('keyword'));
+		if(!EmptyGet('keyword')) $qry->AddWhere('INSTR(`MSG`.`comment`, %s)', Get('keyword'));
+		if(!EmptyGet('id')) $qry->AddWhere('`MSG`.`muid` = %d OR `MSG`.`target_muid` = %d', Get('id'), Get('id'));
 
 		$blockUsers = CM::GetBlockUsers();
 
@@ -50,6 +51,7 @@ class Message
 		$blockUsers = CM::GetBlockUsers();
 
 		App::$data['targetMuid'] = $this->messageModel->GetTargetMuid();
+		if(App::$data['targetMuid'] === $_SESSION['member']['muid']) JSON(false, '자기 자신에게 메세지를 보낼 수 없습니다.');
 		App::$data['target'] = CM::GetOtherMember(App::$data['targetMuid']);
 
 		if(in_array(App::$data['targetMuid'], $blockUsers)) JSON(false, '차단된 사용자의 글입니다.');

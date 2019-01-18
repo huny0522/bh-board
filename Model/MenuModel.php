@@ -23,6 +23,8 @@ use \BH_Application as App;
  * @property BH_ModelData $_addi_subid
  * @property BH_ModelData $_board_category
  * @property BH_ModelData $_board_sub_category
+ * @property BH_ModelData $_show_level
+ * @property BH_ModelData $_con_level
  */
 class MenuModel extends \BH_Model
 {
@@ -78,7 +80,6 @@ class MenuModel extends \BH_Model
 		$this->data['con_level'] = new \BH_ModelData(ModelType::ENUM, '메뉴 접근 레벨', HTMLType::SELECT);
 		$this->data['con_level']->enumValues = App::$settingData['LevelArray'];
 		$this->data['con_level']->defaultValue = 0;
-
 	} // __Init
 
 
