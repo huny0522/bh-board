@@ -69,11 +69,13 @@ BHCss::$variable['$fw'] = 'font-weight';
 
 	/*FORM RESET*/
 	input{border:0; box-sizing:border-box; vertical-align:middle;}
-	input[type=email], input[type=text], input[type=password], input[type=tel], input[type=file], select, textarea {margin:0; padding:0; border: 1px solid #ddd; font-family:'Nanum Gothic'; font-size:inherit; resize:none; vertical-align:middle; border-radius:5px; height:26px; padding:0 4px; line-height:24px;}
+	input[type=email], input[type=text], input[type=password], input[type=tel], input[type=file], input[type=number], select, textarea {margin:0; padding:0; border: 1px solid #ddd; font-family:'Nanum Gothic'; font-size:inherit; resize:none; vertical-align:middle; border-radius:5px; height:26px; padding:0 4px; line-height:24px;}
 	select{height:26px; line-height:24px; box-sizing:border-box;}
 	input, img{vertical-align:middle;}
 	input[type=file]{border:0; padding:0;}
 	input[type=button], input[type=submit], button{padding:0; color:inherit; font-family:'Nanum Gothic'; border:0; background:none; vertical-align:middle; cursor:pointer; font-weight:inherit; font-size:inherit; line-height:1.1;}
+	input[type=number]::-webkit-outer-spin-button,
+	input[type=number]::-webkit-inner-spin-button {-webkit-appearance: none; margin: 0;}
 	label{font-family:'Nanum Gothic';}
 	textarea{ width:100%; height:100px; box-sizing:border-box; padding:4px; line-height:1.3;}
 	.hidden, .hide{display:none;}
