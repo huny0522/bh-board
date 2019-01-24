@@ -37,10 +37,9 @@ $createSql['18.12.29'][] = array(
 				ENGINE=InnoDB"
 );
 
-$addColumnSql = array();
-
 $updateSql = array();
 $updateSql['19.01.11'][] =  "ALTER TABLE `" . TABLE_MENU . "` ADD COLUMN `show_level` TINYINT(2) NOT NULL DEFAULT '0' AFTER `board_sub_category`,  ADD COLUMN `con_level` TINYINT(2) NOT NULL DEFAULT '0' AFTER `show_level`";
+$updateSql['19.01.24'][] =  "ALTER TABLE `" . TABLE_VISIT_COUNTER . "` ADD COLUMN `type_etc` VARCHAR(256) NOT NULL DEFAULT '' AFTER `type_detail`";
 
 // 버전이 존재하면 업데이트
 if(BH_Application::$version !== ''){

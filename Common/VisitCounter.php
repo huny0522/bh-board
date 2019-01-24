@@ -574,15 +574,24 @@ class VisitCounter
 		// 처음월, 마지막월 데이타
 		$beginLastDay = GetLastDay($beginY, $beginM);
 
-		$qry = DB::GetListQryObj(TABLE_VISIT_COUNTER)
-			->AddWhere('(`d_y` = %d AND `d_m` = %d AND `d_d` BETWEEN %d AND %d) OR (`d_y` = %d AND `d_m` = %d AND `d_d` BETWEEN 1 AND %d)', $beginY, $beginM, $beginD, $beginLastDay, $endY, $endM, $endD)
+		$qry = $type === 'uri' ? DB::GetListPageQryObj(TABLE_VISIT_COUNTER) : DB::GetListQryObj(TABLE_VISIT_COUNTER);
+		$qry->AddWhere('(`d_y` = %d AND `d_m` = %d AND `d_d` BETWEEN %d AND %d) OR (`d_y` = %d AND `d_m` = %d AND `d_d` BETWEEN 1 AND %d)', $beginY, $beginM, $beginD, $beginLastDay, $endY, $endM, $endD)
 			->SetKey('SUM(`login`) as `login`, SUM(`visit`) as `visit`');
+		//$qry->SetTest(true);
+
+		if($type === 'uri'){
+			$qry->SetPageUrl(\BH_Application::URLAction(\BH_Application::$Action).'/'.\BH_Application::$ID.\BH_Application::GetFollowQuery('page'))
+				->SetPage(Get('page'))
+				->SetArticleCount(20);
+		}
 
 		$this->_SetTypeListQuery($qry, $type, true);
 
 		while($row = $qry->Get()){
 			$res[$row['keyword']] = $row;
 		}
+
+		if($type === 'uri') \BH_Application::$settingData['statistics_page'] = $qry->GetPageHtml();
 
 
 
@@ -875,6 +884,14 @@ class VisitCounter
 		$d = $this->today['d'];
 		$h = $this->today['h'];
 		$w = $this->today['w'];
+		$type_detail_etc = '';
+		if($type === 'uri'){
+			$parse = parse_url($type_detail);
+			if(isset($parse['host'])){
+				$type_detail_etc = $type_detail;
+				$type_detail = $parse['host'];
+			}
+		}
 
 		$dt = DB::GetQryObj(TABLE_VISIT_COUNTER)
 			->AddWhere('`d_y` = %d', $y)
@@ -901,6 +918,7 @@ class VisitCounter
 		}
 		else{
 			DB::InsertQryObj(TABLE_VISIT_COUNTER)
+				->SetShowError(true)
 				->SetDataStr('d_y', $y)
 				->SetDataStr('d_m', $m)
 				->SetDataStr('d_d', $d)
@@ -908,6 +926,7 @@ class VisitCounter
 				->SetDataStr('d_w', $w)
 				->SetDataStr('type', $type)
 				->SetDataStr('type_detail', $type_detail)
+				->SetDataStr('type_etc', $type_detail_etc)
 				->SetDataNum($countField , 1)
 				->Run();
 		}
