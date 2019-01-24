@@ -487,7 +487,7 @@ class BHCss{
 				if(sizeof($after)){
 					$temp = $s;
 					for($k = 0; $k < sizeof($temp); $k++){
-						$temp[$k] = str_replace(',', ':before,', trim($temp[$k])) . ':before';
+						$temp[$k] = str_replace(',', ':after,', trim($temp[$k])) . ':after';
 					}
 					$sel = implode(',', $temp);
 					$css = implode(';', $after);
@@ -497,7 +497,7 @@ class BHCss{
 				if(sizeof($before)){
 					$temp = $s;
 					for($k = 0; $k < sizeof($temp); $k++){
-						$temp[$k] = str_replace(',', ':after,', trim($temp[$k]) . ':after');
+						$temp[$k] = str_replace(',', ':before,', trim($temp[$k]) . ':before');
 					}
 					$sel = implode(',', $temp);
 					$css = implode(';', $before);
