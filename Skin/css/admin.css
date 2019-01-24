@@ -236,7 +236,7 @@ td select + select{margin-left:5px;}
 
 .articleAction{padding-top:50px; text-align:center;}
 .articleAction ul{display:inline-block;}
-.articleAction ul:before{content:' '; display:block; clear:both}
+.articleAction ul:after{content:' '; display:block; clear:both}
 .articleAction li{float:left;}
 .articleAction a{display:inline-block; height:22px; width:70px; margin:0 5px; background:rgb(90, 115, 140); color:#fff; font-size:12px;}
 .articleAction a:before{content:''; display:inline-block; width:0; height:100%; vertical-align:middle;}
@@ -497,7 +497,7 @@ fieldset.writeField > dl + dl{border-top:1px solid #ccc;}
 #mainContents section.memberArticles ul.list .loginDate,#mainContents section.memberArticles ul.list .regDate{width:130px;}
 
 ul.BMGroupCategory{padding-bottom:40px;}
-ul.BMGroupCategory:before{content:' '; display:block; clear:both}
+ul.BMGroupCategory:after{content:' '; display:block; clear:both}
 ul.BMGroupCategory li{float:left; width:20%; border:1px solid #ccc; text-align:center; background:#fff; border-left-width:0; font-weight:700; font-size:14px;}
 ul.BMGroupCategory li a{display:block; padding:7px 0;}
 ul.BMGroupCategory li:nth-child(5n+1){clear:left; border-left-width:1px;}
@@ -535,10 +535,6 @@ table.graph .login span.bar i{background:#f30;}
 .categoryChEx dd{display:table-cell; padding:5px;}
 .fileSelector{display:inline-block; padding-left:10px;}
 .fileSelector select{background:#eee;}
-@media(max-width:999px) and (min-width:800px){
-}
-@media(max-width:799px) and (min-width:600px){
-}
 @media(max-width:599px) and (min-width:400px){
 }
 @media(max-width:399px){

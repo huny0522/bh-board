@@ -195,7 +195,7 @@ select{height:30px; line-height:28px;}
 
 .articleAction{padding-top:50px; text-align:center;}
 .articleAction ul{display:inline-block;}
-.articleAction ul:before{content:' '; display:block; clear:both}
+.articleAction ul:after{content:' '; display:block; clear:both}
 .articleAction li{float:left;}
 .articleAction a{display:inline-block; height:22px; width:70px; margin:0 5px; color:#fff; font-size:12px; background:#713f73;}
 .articleAction a:before{content:''; display:inline-block; width:0; height:100%; vertical-align:middle;}
@@ -244,9 +244,9 @@ span.answerDoc:after{content:''; position:absolute; top:50%; right:0; display:bl
 #header h1 i{margin-right:10px;}
 #header h1 i img{width:45px;}
 #header #gnb{height:24px;}
-#header #gnb:before{content:' '; display:block; clear:both}
+#header #gnb:after{content:' '; display:block; clear:both}
 #header #gnb ul{float:right; height:100%; padding:1px 0; text-align:right; font-size:12px;}
-#header #gnb ul:before{content:' '; display:block; clear:both}
+#header #gnb ul:after{content:' '; display:block; clear:both}
 #header #gnb li{float:left; height:100%; display:inline-block; color:#fff; background:#828b99; font-weight:700;}
 #header #gnb li.admin{background:#c10; color:#fff;}
 #header #gnb li a{display:block; height:100%; padding:0 10px;}
@@ -256,7 +256,7 @@ span.answerDoc:after{content:''; position:absolute; top:50%; right:0; display:bl
 #header #gnb li.admin:hover{background:#f33; color:#fff; font-weight:700;}
 #header #tnb{width:100%; height:36px; padding:3px 0; font-weight:700; font-size:15px;}
 #header #tnb ul{height:100%;}
-#header #tnb ul:before{content:' '; display:block; clear:both}
+#header #tnb ul:after{content:' '; display:block; clear:both}
 #header #tnb ul > li{position:relative; float:left; height:100%; width:20%;}
 #header #tnb ul > li > a{display:block; height:100%; color:#333; text-align:center;}
 #header #tnb ul > li > a:after{content:''; display:inline-block; width:0; height:100%; vertical-align:middle;}
@@ -344,7 +344,7 @@ h2 + table.list{margin-top:20px;}
 .paging .last:before{content:'\f051'; display:block; height:100%; font-family:'FontAwesome';}
 
 #contents.board{padding:20px; width:970px; margin:20px auto; background:#fff; -webkit-box-shadow:2px 2px 3px rgba(0,0,0,0.2); -moz-box-shadow:2px 2px 3px rgba(0,0,0,0.2); box-shadow:2px 2px 3px rgba(0,0,0,0.2);}
-#contents.board:before{content:' '; display:block; clear:both}
+#contents.board:after{content:' '; display:block; clear:both}
 #contents.board .categoryTab{margin-top:20px; padding-bottom:10px;}
 #contents.board .categoryTab ul:after{content:' '; display:block; clear:both;}
 #contents.board .categoryTab li{float:left;}
@@ -394,7 +394,7 @@ ul.boardSelectForW li a:hover{background:#3c4155; border-color:#828b99; color:#f
 .replyWrite fieldset.text .btn{position:absolute; top:5px; right:0; width:140px; height:100px;}
 .replyWrite fieldset.text .btn button{width:100%; height:100%; background:#828b99; font-size:1.8em; color:#fff; border-radius:5px; -webkit-border-radius:5px; -moz-border-radius:5px; text-align:center;}
 .replyWrite div.option{padding:0;}
-.replyWrite div.option:before{content:' '; display:block; clear:both}
+.replyWrite div.option:after{content:' '; display:block; clear:both}
 .replyWrite div.option > span{float:left; width:80px;}
 .replyWrite div.option .fileUploadArea2{padding:0; float:left;}
 
@@ -415,7 +415,7 @@ ul.boardSelectForW li a:hover{background:#3c4155; border-color:#828b99; color:#f
 #replyListContents article{position:relative; border-bottom:1px solid #b8c2cc;}
 #replyListContents article:first-child{border-top:1px solid #b8c2cc;}
 #replyListContents header{padding:7px; background:#e6ecf2;}
-#replyListContents header:before{content:' '; display:block; clear:both}
+#replyListContents header:after{content:' '; display:block; clear:both}
 #replyListContents header b{display:inline-block; font-weight:700; margin-right:5px;}
 #replyListContents .btns{float:right;}
 #replyListContents .btns a{float:left; display:block; padding:2px 5px; background:#3c4155; color:#fff; font-size:0.9em; border-radius:2px; -webkit-border-radius:2px; -moz-border-radius:2px;}
@@ -447,7 +447,7 @@ ul.boardSelectForW li a:hover{background:#3c4155; border-color:#828b99; color:#f
 #contents.login2 #login_wrap2 fieldset{padding-top:20px;}
 #contents.login2 #login_wrap2 fieldset:after{content:' '; display:block; clear:both;}
 #contents.login2 #login_wrap2 fieldset label{display:block; padding-left:10px; line-height:30px; font-weight:700;}
-#contents.login2 #login_wrap2 fieldset label:before{content:' '; display:block; clear:both}
+#contents.login2 #login_wrap2 fieldset label:after{content:' '; display:block; clear:both}
 #contents.login2 #login_wrap2 fieldset label span.tt{float:left; display:block; width:33%; line-height:30px;}
 #contents.login2 #login_wrap2 fieldset input{float:left; width:67%;}
 #contents.login2 #login_wrap2 fieldset label + label{margin-top:10px;}
@@ -530,12 +530,12 @@ section.galleryBoardList .noticeArticles li.num{width:60px;}
 section.galleryBoardList .noticeArticles li.name{width:120px;}
 section.galleryBoardList .noticeArticles li.date{width:140px;}
 section.galleryBoardList .articles{padding-top:20px;}
-section.galleryBoardList .articles:before{content:' '; display:block; clear:both}
+section.galleryBoardList .articles:after{content:' '; display:block; clear:both}
 section.galleryBoardList .articles article{float:left; width:24.4%; margin-left:0.8%; border:1px solid #ccc; padding:5px;}
 section.galleryBoardList .articles article:nth-child(4n+1){clear:left; margin-left:0;}
 section.galleryBoardList .articles article:nth-child(n+5){margin-top:10px;}
 section.galleryBoardList .articles ul{position:relative;}
-section.galleryBoardList .articles ul:before{content:' '; display:block; clear:both}
+section.galleryBoardList .articles ul:after{content:' '; display:block; clear:both}
 section.galleryBoardList .articles li.check{position:absolute; top:0; left:0;}
 section.galleryBoardList .articles li.thumb img{width:100%;}
 section.galleryBoardList .articles li.thumb i{display:block; height:0; padding-bottom:75%; background:no-repeat center center; -webkit-background-size:cover; background-size:cover;}
