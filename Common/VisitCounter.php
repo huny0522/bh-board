@@ -580,7 +580,7 @@ class VisitCounter
 		//$qry->SetTest(true);
 
 		if($type === 'uri'){
-			$qry->SetPageUrl(\BH_Application::URLAction(\BH_Application::$Action).'/'.\BH_Application::$ID.\BH_Application::GetFollowQuery('page'))
+			$qry->SetPageUrl(\BH_Application::URLAction(\BH_Application::$action).'/'.\BH_Application::$id.\BH_Application::GetFollowQuery('page'))
 				->SetPage(Get('page'))
 				->SetArticleCount(20);
 		}
