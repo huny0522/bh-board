@@ -34,7 +34,7 @@ App::$settingData['noImg'] = _UPLOAD_URL . App::$cfg->Def()->noImg->value;
 // 컨트롤러 생성 바로 다음
 App::$extendMethod['createControllerInstance'] = function(){
 
-	if(App::$controllerName !== 'Install'){
+	if(App::$controllerName !== 'Install' && strpos(php_sapi_name(), 'cli') === false){
 
 		// 접속 카운터
 		$vcnt = \Common\VisitCounter::GetInstance();

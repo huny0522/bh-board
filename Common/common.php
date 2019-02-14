@@ -241,14 +241,15 @@ function InputRadio($name, $OptionValues, $SelectValue = ''){
 /**
  * @param string $name
  * @param array $OptionValues
- * @param string $SelectValue
+ * @param array $SelectValue
  * @return string
  */
-function InputCheckbox($name, $OptionValues, $SelectValue = ''){
-	if(is_null($SelectValue)) $SelectValue = '';
+function InputCheckbox($name, $OptionValues, $SelectValue = array()){
+	if(is_null($SelectValue)) $SelectValue = array();
+	if(!is_array($SelectValue)) $SelectValue = array($SelectValue);
 	$str = '';
 	if(!isset($OptionValues) || !is_array($OptionValues)) return $str;
-	foreach($OptionValues as $k => $v) $str .= '<label class="checkbox"><input type="checkbox" name="' . $name . '" value="' . $k . '"' . (isset($SelectValue) && $SelectValue === (string)$k ? ' checked' : '') . '><span>' . $v . '</span></label>';
+	foreach($OptionValues as $k => $v) $str .= '<label class="checkbox"><input type="checkbox" name="' . $name . '" value="' . $k . '"' . (in_array($k, $SelectValue) ? ' checked' : '') . '><span>' . $v . '</span></label>';
 	return $str;
 }
 
