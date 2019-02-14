@@ -312,12 +312,14 @@ class BH_Model{
 	//public $need = array();
 	public $uploadDir = '';
 	protected $connName = '';
+	private $dataExcept = array();
 
 	public function __construct($connName = ''){
 		$this->connName = ($connName === '') ? \DB::DefaultConnName : $connName;
 		if(method_exists($this, '__Init')) $this->__Init();
 		$this->uploadDir = '/modelData/' . $this->table . '/' . date('Ym') . '/';
 		foreach($this->data as $k => $v) if(!isset($this->{'_'.$k})) $this->{'_'.$k} = $v;
+		foreach($this->dataExcept as $v) if(isset($this->data[$v])) $this->data[$v]->dbExcept = true;
 	}
 
 	public function SetShowError($bool = true){
@@ -375,6 +377,7 @@ class BH_Model{
 		$args = is_array($str) ? $str : func_get_args();
 		for($i = 0, $i2 = sizeof($args); $i < $i2; $i++){
 			if(isset($this->data[$args[$i]])) $this->data[$args[$i]]->dbExcept = true;
+			else $this->dataExcept[]= $args[$i];
 		}
 	}
 
@@ -593,7 +596,8 @@ class BH_Model{
 	public function AddExcept($ar){
 		if(!is_array($ar)) $ar = func_get_args();
 		foreach($ar as $v){
-			$this->data[$v]->dbExcept = true;
+			if(isset($this->data[$v])) $this->data[$v]->dbExcept = true;
+			else $this->dataExcept[]= $v;
 		}
 	}
 
