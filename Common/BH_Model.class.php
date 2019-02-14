@@ -69,6 +69,9 @@ class BH_ModelData{
 	public $needIs = false;
 	public $idFirst = 'MD_';
 
+	public $dbExcept = false; // DB에 등록을 하지 않음. 자동증가 같은 경우
+	public $postExcept = false; // POST로 넘어오는 값을 DB에 등록하지 않음
+
 	/**
 	 * @var BH_Model
 	 */
@@ -251,7 +254,17 @@ class BH_ModelData{
 	}
 
 	public function &SetFileSize($mb){
-		$this->MaxFileSize = $mb;
+		$this->maxFileSize = $mb;
+		return $this;
+	}
+
+	public function &SetDBExcept($bool = true){
+		$this->dbExcept = $bool;
+		return $this;
+	}
+
+	public function &SetPostExcept($bool = true){
+		$this->postExcept = $bool;
 		return $this;
 	}
 
@@ -284,6 +297,7 @@ class BH_ModelData{
 /**
  * Class BH_Model
  * @property array $need
+ * @property array $except
  */
 class BH_Model{
 	/**
@@ -292,10 +306,10 @@ class BH_Model{
 	public $data = array();
 	public $table = '';
 	public $key = array();
-	public $except = array();
+	// public $except = array();
 	public $getKeys = array();
 	public $showError = true;
-	//public $Need = array();
+	//public $need = array();
 	public $uploadDir = '';
 	protected $connName = '';
 
@@ -322,9 +336,13 @@ class BH_Model{
 			$this->{$name} = $value;
 			if(!isset($this->data[substr($name, 1)]) || is_null($this->data[substr($name, 1)])) $this->data[substr($name, 1)] = $this->{$name};
 		}
-		else if($name === 'Need'){
+		else if($name === 'need'){
 			if(!is_array($value)) $value = array($value);
 			call_user_func_array(array($this, 'SetNeedData'), $value);
+		}
+		else if($name === 'except'){
+			if(!is_array($value)) $value = array($value);
+			call_user_func_array(array($this, 'SetDBExcept'), $value);
 		}
 	}
 
@@ -350,6 +368,13 @@ class BH_Model{
 		$args = is_array($str) ? $str : func_get_args();
 		for($i = 0, $i2 = sizeof($args); $i < $i2; $i++){
 			if(isset($this->data[$args[$i]])) $this->data[$args[$i]]->needIs = true;
+		}
+	}
+
+	public function SetDBExcept($str){
+		$args = is_array($str) ? $str : func_get_args();
+		for($i = 0, $i2 = sizeof($args); $i < $i2; $i++){
+			if(isset($this->data[$args[$i]])) $this->data[$args[$i]]->dbExcept = true;
 		}
 	}
 
@@ -567,7 +592,9 @@ class BH_Model{
 	 */
 	public function AddExcept($ar){
 		if(!is_array($ar)) $ar = func_get_args();
-		$this->except = array_merge($this->except, $ar);
+		foreach($ar as $v){
+			$this->data[$v]->dbExcept = true;
+		}
 	}
 
 	/**
@@ -736,7 +763,8 @@ class _ModelFunc{
 		$ret = new \BH_Result();
 		$ret->result = true;
 		foreach($model->data as $k => &$v){
-			if(!in_array($k, $model->except) && $v->autoDecrement !== true){
+			/** @var BH_ModelData $v */
+			if($v->postExcept !== true && $v->dbExcept !== true && $v->autoDecrement !== true){
 				if(isset($v->htmlType) && self::IsFileType($v->htmlType) && isset($_FILES[$k])){
 					if($withFile) self::SetFileValue($model, $k);
 				}
@@ -983,9 +1011,13 @@ class _ModelFunc{
 		else return NULL;
 	}
 
+	/**
+	 * @param BH_Model $model
+	 * @param string $key
+	 * @return bool
+	 */
 	public static function ValueCheck(&$model, $key){
-		if(in_array($key, $model->except)) return true;
-		if($model->data[$key]->valueIsQuery) return true;
+		if($model->data[$key]->valueIsQuery || $model->data[$key]->dbExcept) return true;
 		if(self::CheckRequired($model, $key) === false) return false;
 		if(isset($model->data[$key]->value) && strlen($model->data[$key]->value)){
 			if(self::CheckType($key, $model->data[$key]) === false) return false;
@@ -1091,7 +1123,7 @@ class _ModelFunc{
 	public static function CheckRequired(&$model, $key){
 		if($model->data[$key]->required == false) return true;
 		if(is_null($model->GetValue($key)) || !strlen($model->GetValue($key))){
-			if(!in_array($key, $model->except) && $model->data[$key]->autoDecrement !== true){
+			if(!$model->data[$key]->dbExcept && !$model->data[$key]->postExcept && $model->data[$key]->autoDecrement !== true){
 				$model->data[$key]->modelErrorMsg = $model->data[$key]->displayName.' 항목은 필수항목입니다.';
 				return false;
 			}
@@ -1306,7 +1338,7 @@ class _ModelFunc{
 			}
 
 			// 예외 패스, 셋이 없거나 셋에 있는것
-			if((!in_array($k, $model->except) && (!self::HasNeed($model) || $v->needIs))){
+			if(!$v->dbExcept && (!self::HasNeed($model) || $v->needIs)){
 				if(isset($v->value)){
 					if(in_array($k, $model->key) && $v->autoDecrement === true) continue;
 
@@ -1369,7 +1401,7 @@ class _ModelFunc{
 			}
 
 			// 예외와 키값 패스, 셋이 없거나 셋에 있는것
-			if(!in_array($k, $model->except) && (!self::HasNeed($model) || $v->needIs) && !in_array($k, $model->key)){
+			if(!$v->dbExcept && (!self::HasNeed($model) || $v->needIs) && !in_array($k, $model->key)){
 				if(isset($v->value)){
 					if(in_array($k, $model->key) && $v->autoDecrement === true) continue;
 
@@ -1806,6 +1838,10 @@ class _CfgData
 		return ((is_string($this->value) && strlen($this->value)) || !is_string($this->value)) ? $this->value : $this->defaultValue;
 	}
 
+	public function IntVal(){
+		return ((is_string($this->value) && strlen($this->value)) || !is_string($this->value)) ? ToInt($this->value) : $this->defaultValue;
+	}
+
 	/**
 	 * @param string $k
 	 * @return _CfgData
@@ -1873,7 +1909,10 @@ class _CfgData
 				$h = '<input type="email" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->Val()) . '" class="'. $class .'" ' . $attr .'>';
 			break;
 			case \HTMLType::NUMBER:
-				$h = '<input type="number" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->Val()) . '" class="'. $class .'" ' . $attr .'>';
+				$h = '<input type="text" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->Val()) . '" class="number '. $class .'" ' . $attr .'>';
+			break;
+			case \HTMLType::NUMBER_FORMAT:
+				$h = '<input type="text" id="CFG_' . $this->key . '" name="' . $this->key .'" value="' .  GetDBText($this->Val()) . '" class="numberformat '. $class .'" ' . $attr .'>';
 			break;
 			case \HTMLType::TEXT_ENG_SPECIAL:
 				$class .= ' ' . \HTMLType::TEXT_ENG_SPECIAL;
