@@ -433,7 +433,7 @@ class BHCss{
 		$values = array();
 
 		foreach(self::$paramVariable as $k => $v){
-			$params[] = '/\\' . $k . '/';
+			$params[] = '#' . preg_replace('#([^a-zA-Z0-9])#is', '\\\$1', $k) . '#';
 			$values[] = $v;
 		}
 
