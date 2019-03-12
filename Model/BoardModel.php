@@ -50,7 +50,11 @@ use \BH_Application as App;
  * @property BH_ModelData $_youtube
  * @property BH_ModelData $_link1
  * @property BH_ModelData $_link2
+ * @property BH_ModelData $_reply_top_recommend
+ * @property BH_ModelData $_reply_top_oppose
+ * @property BH_ModelData $_reply_top_report
  */
+
 class BoardModel extends \BH_Model
 {
 	public $imageTable = '';
@@ -86,6 +90,9 @@ class BoardModel extends \BH_Model
 		$this->data['scrap'] = new \BH_ModelData(ModelType::INT, '스크랩수');
 		$this->data['oppose'] = new \BH_ModelData(ModelType::INT, '반대수');
 		$this->data['reply_cnt'] = new \BH_ModelData(ModelType::INT, '댓글수');
+		$this->data['reply_top_recommend'] = new \BH_ModelData(ModelType::INT, '댓글 최고 추천수');
+		$this->data['reply_top_oppose'] = new \BH_ModelData(ModelType::INT, '댓글 최고 반대수');
+		$this->data['reply_top_report'] = new \BH_ModelData(ModelType::INT, '댓글 최고 신고수');
 		$this->data['delis'] = new \BH_ModelData(ModelType::STRING, '삭제여부', HTMLType::RADIO);
 		$this->data['delis']->enumValues = array('n'=>'미삭제', 'y'=>'삭제');
 		$this->data['delis']->defaultValue = 'n';

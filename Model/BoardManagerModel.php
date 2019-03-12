@@ -189,6 +189,11 @@ class BoardManagerModel extends \BH_Model
 					`report` INT(10) NOT NULL DEFAULT '0' COMMENT '신고수',
 					`scrap` INT(10) NOT NULL DEFAULT '0' COMMENT '스크랩수',
 					`reply_cnt` INT(10) NOT NULL DEFAULT '0',
+					
+					`reply_top_recommend` INT(10) NOT NULL DEFAULT '0' COMMENT '댓글 최고 추천수',
+					`reply_top_oppose` INT(10) NOT NULL DEFAULT '0' COMMENT '댓글 최고 반대수',
+					`reply_top_report` INT(10) NOT NULL DEFAULT '0' COMMENT '댓글 최고 신고수',
+					
 					`delis` ENUM('y','n') NOT NULL DEFAULT 'n' COMMENT '삭제여부',
 					`htmlis` ENUM('y','n') NOT NULL DEFAULT 'n' COMMENT 'HTML태그사용',
 					`email_alarm` ENUM('y','n') NOT NULL DEFAULT 'y' COMMENT '이메일 알림 여부',

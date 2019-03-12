@@ -41,6 +41,13 @@ $updateSql = array();
 $updateSql['19.01.11'][] =  "ALTER TABLE `" . TABLE_MENU . "` ADD COLUMN `show_level` TINYINT(2) NOT NULL DEFAULT '0' AFTER `board_sub_category`,  ADD COLUMN `con_level` TINYINT(2) NOT NULL DEFAULT '0' AFTER `show_level`";
 $updateSql['19.01.24'][] =  "ALTER TABLE `" . TABLE_VISIT_COUNTER . "` ADD COLUMN `type_etc` VARCHAR(256) NOT NULL DEFAULT '' AFTER `type_detail`";
 
+$bmQry = DB::GetListQryObj(TABLE_BOARD_MNG)
+	->SetKey('DISTINCT `bid`');
+while($bmRow = $bmQry->Get()){
+	$updateSql['19.03.12'][] =  "ALTER TABLE `" . TABLE_FIRST . "bbs_" . $bmRow['bid'] . "` ADD COLUMN `reply_top_recommend` INT(10) NOT NULL DEFAULT '0' COMMENT '댓글 최고 추천수' AFTER `reply_cnt`, ADD COLUMN `reply_top_oppose` INT(10) NOT NULL DEFAULT '0' COMMENT '댓글 최고 반대수' AFTER `reply_top_recommend`, ADD COLUMN `reply_top_report` INT(10) NOT NULL DEFAULT '0' COMMENT '댓글 최고 신고수' AFTER `reply_top_oppose`";
+}
+
+
 // 버전이 존재하면 업데이트
 if(BH_Application::$version !== ''){
 	foreach($createSql as $k => $v){

@@ -522,6 +522,7 @@ class Reply{
 				JSON(false, _MSG_WRONG_CONNECTED);
 			break;
 		}
+		$this->model->article_recommend_set(App::$id);
 	}
 
 	public function PostJSONCancelAction(){
@@ -545,6 +546,7 @@ class Reply{
 				JSON(false, _MSG_WRONG_CONNECTED);
 			break;
 		}
+		$this->model->article_recommend_set(App::$id);
 	}
 
 	protected function GetArticleAction(){
