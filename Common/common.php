@@ -98,6 +98,9 @@ function URLReplace($url, $msg = '', $data = '', $exitIs = true, $redirect = fal
 	if(_JSONIS === true) JSON($url != '-1', $msg, $data);
 
 	echo '<script>';
+	if($url == '-1') echo 'window.onpopstate = function(){
+			if(!document.body || document.body.innerHTML.replace(/\s/g, \'\') === \'\') location.reload();
+		};';
 	if($msg) echo 'alert(\'' . $msg . '\');';
 	if($url == '-1') echo 'history.go(-1);';
 	else{
