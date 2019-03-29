@@ -167,8 +167,9 @@ class Board{
 
 		$this->_SetFilePath(App::$action);
 
-		if(file_exists(_SKINDIR.$this->path.'MoreList.html')) $this->moreListIs = true;
-		else if(file_exists(_SKINDIR.$this->path.'GetList.html')) $this->getListIs = true;
+		$path = '/Board/'.App::$nativeSkinDir.'/'.$this->boardManger->GetValue('skin').'/';
+		if(file_exists(_SKINDIR.$path.'MoreList.html')) $this->moreListIs = true;
+		else if(file_exists(_SKINDIR.$path.'GetList.html')) $this->getListIs = true;
 
 		$this->_SetLayoutPath();
 
@@ -384,7 +385,7 @@ class Board{
 		$dbList->DrawRows();
 		$this->_RowSet($dbList->data);
 
-		if(App::$action !== 'Index') $this->_SetFilePath('Index');
+		if(App::$action !== 'Index') $this->_SetFilePath($this->getListIs ? 'GetList' : ($this->moreListIs ? 'MoreList' : 'MoreList'));
 
 		if($viewPageIs) return App::GetOnlyView($this->model, $dbList);
 		else if(_JSONIS === true) JSON(true, '', App::GetView($this->model, $dbList));

@@ -274,7 +274,7 @@ class BH_Common
 	public static function GetBoardArticleQuery($bid, $subid, $category = '', $limit = 10){
 		// 리스트를 불러온다.
 		$dbList = new \BH_DB_GetList(TABLE_FIRST.'bbs_'.$bid);
-		$dbList->AddWhere('subid IN (%s)', is_array($subid) ? $subid : explode(',', $subid));
+		if((is_array($subid) && sizeof($subid)) || (is_string($subid) && strlen($subid))) $dbList->AddWhere('subid IN (%s)', is_array($subid) ? $subid : explode(',', $subid));
 		$dbList->AddWhere('delis=\'n\'');
 		$n = func_num_args();
 		if($n > 4){

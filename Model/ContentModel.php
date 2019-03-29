@@ -85,6 +85,7 @@ class ContentModel extends \BH_Model
 				->SetDataStr('action_type', 'read')
 				->SetDataStr('bid', $bid)
 				->SetDataStr('reg_date', date('Y-m-d H:i:s'))
+				->SetOnDuplicateDataStr('reg_date', date('Y-m-d H:i:s'))
 				->Run();
 			if($res->result) $this->UpdateActionCount('read', $bid);
 		}
