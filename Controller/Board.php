@@ -392,7 +392,7 @@ class Board{
 		else  App::View($this->model, $dbList);
 	}
 
-	public function MoreList(){
+	public function MoreList($backIs = false){
 		$res = $this->GetAuth('List');
 		if(!$res){
 			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
@@ -437,17 +437,7 @@ class Board{
 			$dbList->AddWhere('A.seq = %d', $seq);
 		}
 		else{
-			if(strlen($s_last_seq)){
-				$qry = DB::GetQryObj($this->model->table.' A')
-					->SetConnName($this->connName)
-					->AddWhere('A.seq = %d', $s_last_seq)
-					->SetKey('A.sort1, A.sort2');
-				$this->_R_CommonQry($qry);
-				$last = $qry->Get();
-
-				if($last) $dbList->AddWhere('A.sort1 > %d OR (A.sort1 = %d AND A.sort2 > %d)', $last['sort1'], $last['sort1'], $last['sort2']);
-				else $dbList->AddWhere('A.seq > %d', $s_last_seq);
-			}
+			$this->_MoreListNext($dbList, $s_last_seq, $backIs);
 
 			$this->_SearchQuery($dbList);
 		}
@@ -466,6 +456,37 @@ class Board{
 
 		if(_JSONIS === true) JSON(true, '', array('list' => App::GetOnlyView($this->model, $dbList), 'lastSeq' => $lastSeq, 'lastIs' => $lastIs));
 		else App::View($this->model, array('list' => $dbList, 'lastSeq' => $lastSeq));
+	}
+
+	public function MoreListPrev(){
+		$this->MoreList(true);
+	}
+
+	/**
+	 * 마지막 seq값으로 다음 페이지를 찾기.
+	 *
+	 * @param \BH_DB_GetList $dbList
+	 * @param int $s_last_seq
+	 * @param bool $backIs
+	 */
+	protected function _MoreListNext($dbList, $s_last_seq, $backIs){
+		if(strlen($s_last_seq)){
+			$qry = DB::GetQryObj($this->model->table.' A')
+				->SetConnName($this->connName)
+				->AddWhere('A.seq = %d', $s_last_seq)
+				->SetKey('A.sort1, A.sort2');
+			$this->_R_CommonQry($qry);
+			$last = $qry->Get();
+
+			if($last){
+				if($backIs) $dbList->AddWhere('A.sort1 < %d OR (A.sort1 = %d AND A.sort2 < %d)', $last['sort1'], $last['sort1'], $last['sort2'])->SetSort('A.sort1 DESC, A.sort2 DESC');
+				else $dbList->AddWhere('A.sort1 > %d OR (A.sort1 = %d AND A.sort2 > %d)', $last['sort1'], $last['sort1'], $last['sort2']);
+			}
+			else{
+				if($backIs) $dbList->AddWhere('A.seq < %d', $s_last_seq)->SetSort('A.seq DESC');
+				else  $dbList->AddWhere('A.seq > %d', $s_last_seq);
+			}
+		}
 	}
 
 	public function _RowSet(&$data){

@@ -10,11 +10,7 @@ use \BH_Application as App;
 ?>
 
 
-<section class="galleryBoardList checkAllArea">
-	<?php if($Ctrl->managerIs){ ?><header>
-		<div><label><input type="checkbox" class="checkAll"><span>전체선택</span></label></div>
-	</header>
-	<?php } ?>
+
 
 	<?php if(sizeof(App::$data['notice'])){ ?>
 	<div class="noticeArticles">
@@ -82,4 +78,3 @@ use \BH_Application as App;
 			</article>
 		<?php } ?>
 	</div>
-</section>

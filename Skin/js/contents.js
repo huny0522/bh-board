@@ -493,51 +493,6 @@ App.NaverMap = function(id){
 	}
 }
 
-App.AjaxQueryPage = {
-	submitResetSelector : '',
-	formObj : '',
-	targetObj : '',
-	Init : function(formId, targetId){
-		this.formObj = $('#' + formId);
-		this.targetObj = $('#' + targetId);
-
-		$(window).on('popstate', function(e) {
-			var q = window.location.search.substring(1);
-			App.AjaxQueryPage.formObj.deserialize(q);
-			App.AjaxQueryPage.AjaxForm();
-		});
-
-		this.formObj.on('submit', this.Submit);
-
-		this.AjaxForm();
-	},
-
-	Submit : function(e){
-		var l = location.href.split('?');
-		var iever = getInternetExplorerVersion();
-		if(iever !== -1 && iever < 10){
-			$(this).attr('action', l[0]);
-			return true;
-		}
-		e.preventDefault();
-		$(this).find(App.AjaxQueryPage.submitResetSelector).val('');
-		App.AjaxQueryPage.AjaxForm();
-
-	},
-
-	PushState : function(){
-		var l = location.href.split('?');
-		var q = App.AjaxQueryPage.formObj.serialize();
-		history.pushState(q, '', l[0] + '?' + q);
-	},
-
-	AjaxForm : function(){
-		JCM.ajaxForm(this.formObj, function(data){
-			App.AjaxQueryPage.targetObj.html(data);
-		});
-	}
-};
-
 $.fn.deserialize = function(serializedString){
 	var $form = $(this);
 	$form[0].reset();

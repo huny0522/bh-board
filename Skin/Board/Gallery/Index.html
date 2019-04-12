@@ -12,7 +12,15 @@ App::JSAdd('board.js', 200);
 
 <?p. $Ctrl->_CategoryHtml() ?>
 <div id="boardArea">
-	<div id="boardListArea"></div>
+	<section class="galleryBoardList checkAllArea">
+		<?php if($Ctrl->managerIs){ ?>
+			<header>
+				<div><label><input type="checkbox" class="checkAll"><span>전체선택</span></label></div>
+			</header>
+		<?php } ?>
+		<div id="boardListArea"></div>
+
+	</section>
 	<div class="moreViewBtn"><a href="#" id="moreViewBtn">더보기</a></div>
 </div>
 

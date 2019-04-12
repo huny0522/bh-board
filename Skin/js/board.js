@@ -94,7 +94,7 @@ var AppBoard = {
 
 	ClickMoreViewBtn : function(e){
 		e.preventDefault();
-		$('#bhBoardList .lastSeq').val(AppBoard.listWrapElement.find(AppBoard.article).last().attr('data-seq'));
+		AppBoard.boardWrapElement.find('.lastSeq').val(AppBoard.listWrapElement.find(AppBoard.article).last().attr('data-seq'));
 		AppBoard.GetMoreList();
 	},
 
