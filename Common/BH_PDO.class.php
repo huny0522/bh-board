@@ -41,7 +41,16 @@ class DB{
 		if(!isset(self::$conn[self::$connName])){
 			if(isset(self::$connectionInfo[self::$connName])){
 				try {
-					self::$conn[self::$connName] = new PDO('mysql:host='.self::$connectionInfo[self::$connName]['hostName'].';dbname='.self::$connectionInfo[self::$connName]['dbName'], self::$connectionInfo[self::$connName]['userName'], self::$connectionInfo[self::$connName]['userPassword']);
+					$opt = isset(self::$connectionInfo[self::$connName]['option']) ? isset(self::$connectionInfo[self::$connName]['dsn']) : null;
+					if(isset(self::$connectionInfo[self::$connName]['dsn'])){
+						self::$conn[self::$connName] = new PDO(self::$connectionInfo[self::$connName]['dsn'], self::$connectionInfo[self::$connName]['userName'], self::$connectionInfo[self::$connName]['userPassword'], $opt);
+					}
+					else{
+						$dsn = 'mysql:host='.self::$connectionInfo[self::$connName]['hostName'] .
+							';dbname='.self::$connectionInfo[self::$connName]['dbName'] .
+							(isset(self::$connectionInfo[self::$connName]['port']) ? ';port=' . self::$connectionInfo[self::$connName]['port'] : '');
+						self::$conn[self::$connName] = new PDO($dsn, self::$connectionInfo[self::$connName]['userName'], self::$connectionInfo[self::$connName]['userPassword'], $opt);
+					}
 				}
 				catch(PDOException $e) {
 					echo $e->getMessage();
