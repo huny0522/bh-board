@@ -499,8 +499,9 @@ function Common($){
 				$.each(data.result, function (index, file) {
 					if(typeof file[0].error !== 'undefined') CMAlert(file[0].error);
 					else{
-						area.find('input.fileUploadPath').val('/temp/' + file[0].name + '*' + file[0].name);
-						area.find('b.upload_file_name').text(file[0].name);
+						var fn = decodeURIComponent(file[0].name.replace(/\+/g, '%20'));
+						area.find('input.fileUploadPath').val('/temp/' + file[0].name + '*' + fn);
+						area.find('b.upload_file_name').text(fn);
 					}
 				});
 				area.find('div.progress div.bar').fadeOut(1000);
