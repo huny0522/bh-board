@@ -838,7 +838,7 @@ class _ModelFunc{
 
 						if(strlen($fPath) && file_exists(_UPLOAD_DIR . $fPath)){
 							$ext = explode('.', $fPath);
-							$ext = array_pop($ext);
+							$ext = strtolower(array_pop($ext));
 
 							if(isset($v->addOption['possibleExt']) && is_array($v->addOption['possibleExt']) && sizeof($v->addOption['possibleExt'])){
 								if(!in_array($ext, $v->addOption['possibleExt'])){
