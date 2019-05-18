@@ -41,7 +41,22 @@ class HTMLType{
 	const TEXT_ENG_SPECIAL = 'engspecialonly';
 }
 
-class BH_ModelData{
+class BH_ModelDataArray extends ArrayObject{
+	private $parent;
+	public function SetParent($obj){
+		$this->parent = $obj;
+	}
+
+	public function offsetSet($index, $newval){
+		if(!is_object($newval) || get_class($newval) !== 'BH_ModelData') PrintError('모델데이터만 등록가능합니다.');
+		$newval->parent = $this->parent;
+		$newval->keyName = $index;
+		parent::offsetSet($index, $newval);
+	}
+}
+
+class BH_ModelData
+{
 	public $type;
 	public $required = false;
 	public $displayName;
@@ -81,10 +96,6 @@ class BH_ModelData{
 		$this->type = $type;
 		$this->displayName = $displayName;
 		if($htmlType) $this->htmlType = $htmlType;
-
-		$d_b = phpversion() < 5.6 ? debug_backtrace() : debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3);
-		if(isset($d_b[1]['object']) && get_parent_class($d_b[1]['object']) === 'BH_Model') $this->parent = &$d_b[1]['object'];
-		else if(isset($d_b[2]['object']) && get_parent_class($d_b[2]['object']) === 'BH_Model') $this->parent = &$d_b[2]['object'];
 	}
 
 	public function __debugInfo() {
@@ -303,7 +314,7 @@ class BH_Model{
 	/**
 	 * @var BH_ModelData[]
 	 */
-	public $data = array();
+	public $data;
 	public $table = '';
 	public $key = array();
 	// public $except = array();
@@ -315,6 +326,8 @@ class BH_Model{
 	private $dataExcept = array();
 
 	public function __construct($connName = ''){
+		$this->data = new BH_ModelDataArray();
+		$this->data->SetParent($this);
 		$this->connName = ($connName === '') ? \DB::DefaultConnName : $connName;
 		if(method_exists($this, '__Init')) $this->__Init();
 		$this->uploadDir = '/modelData/' . $this->table . '/' . date('Ym') . '/';
@@ -336,7 +349,10 @@ class BH_Model{
 	public function __set($name, $value){
 		if(is_object($value) && get_class($value) === 'BH_ModelData' && $name[0] === '_'){
 			$this->{$name} = $value;
-			if(!isset($this->data[substr($name, 1)]) || is_null($this->data[substr($name, 1)])) $this->data[substr($name, 1)] = $this->{$name};
+			$keyName = substr($name, 1);
+			$this->{$name}->keyName = $keyName;
+			$this->{$name}->parent = $this;
+			if(!isset($this->data[$keyName]) || is_null($this->data[$keyName])) $this->data[$keyName] = $this->{$name};
 		}
 		else if($name === 'need'){
 			if(!is_array($value)) $value = array($value);
@@ -504,10 +520,44 @@ class BH_Model{
 	 * DB에서 가져온 데이터를 모델에 등록
 	 * @param array $Values
 	 */
-	public function SetDBValues($Values){
+	public function SetArrayToData($Values){
 		foreach($this->data as $k => $v){
-			$this->data[$k]->value = isset($Values[$k]) ? $Values[$k] : null;
+			if(isset($Values[$k])) $this->data[$k]->value = $Values[$k];
+			else{
+				$this->data[$k]->value = null;
+				$this->data[$k]->needIs = false;
+			}
 		}
+	}
+
+	/**
+	 * DB에서 가져온 데이터를 모델에 등록
+	 * @deprecated
+	 * @param array $Values
+	 */
+	public function SetDBValues($Values){
+		$this->SetArrayToData($Values);
+	}
+
+	/**
+	 * @return static
+	 */
+	public function SetDBExceptAll(){
+		foreach($this->data as $k => $v){
+			$this->data[$k]->dbExcept = true;
+		}
+		return $this;
+	}
+
+	/**
+	 * @return static
+	 */
+	public function CleanDataValue(){
+		foreach($this->data as $k => $v){
+			$this->data[$k]->value = null;
+			$this->data[$k]->needIs = false;
+		}
+		return $this;
 	}
 
 	/**
@@ -745,7 +795,7 @@ class BH_Model{
 	public function Fetch($qry){
 		$row = $qry->Get();
 		if(!$row) return false;
-		$this->SetDBValues($row);
+		$this->SetArrayToData($row);
 		return true;
 	}
 }

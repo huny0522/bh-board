@@ -294,7 +294,7 @@ class Login{
 		 */
 		$this->model;
 		$this->model->AddExcept('tel', 'phone');
-		$this->model->SetDBValues($data);
+		$this->model->SetArrayToData($data);
 
 		$this->model->SetValue('pwd', Post('pwd'));
 		$this->model->SetValue('pw_reset_code', '');

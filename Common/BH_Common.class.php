@@ -262,7 +262,6 @@ class BH_Common
 
 	/**
 	 * 게시물 쿼리 가져오기.
-	 * 5번째 인자부터는 배열로 where 구문을 호출할 수 있습니다.
 	 * ex) array('INSTR(mname, %s)', '홍길동')
 	 *
 	 * @param string $bid
@@ -276,11 +275,7 @@ class BH_Common
 		$dbList = new \BH_DB_GetList(TABLE_FIRST.'bbs_'.$bid);
 		if((is_array($subid) && sizeof($subid)) || (is_string($subid) && strlen($subid))) $dbList->AddWhere('subid IN (%s)', is_array($subid) ? $subid : explode(',', $subid));
 		$dbList->AddWhere('delis=\'n\'');
-		$n = func_num_args();
-		if($n > 4){
-			$args = func_get_args();
-			for($i = 4; $i < $n; $i++) $dbList->AddWhere($args[$i]);
-		}
+
 		$dbList->sort = 'sort1, sort2';
 		$dbList->limit = $limit;
 		if(strlen($category)){
@@ -291,17 +286,20 @@ class BH_Common
 
 	/**
 	 * 게시물 가져오기.
-	 * 5번째 인자부터는 배열로 where 구문을 호출할 수 있습니다.
 	 * ex) array('INSTR(mname, %s)', '홍길동')
 	 *
 	 * @param string $bid
 	 * @param string $subid
 	 * @param string $category
 	 * @param int $limit
+	 * @param callable(&BH_DB_GetList) $func
 	 * @return array
 	 */
-	public static function GetBoardArticle($bid, $subid, $category = '', $limit = 10){
-		$qry = call_user_func_array('self::GetBoardArticleQuery', func_get_args());
+	public static function GetBoardArticle($bid, $subid, $category = '', $limit = 10, $func = null){
+		$qry = self::GetBoardArticleQuery($bid, $subid, $category, $limit);
+
+		if(is_callable($func)) $func($qry);
+
 		$data = array();
 		$d = App::$cfg->Def()->newIconDay->Val() * 86400;
 

@@ -411,7 +411,8 @@ class BH_DB_Get{
 	 * @return $this
 	 */
 	public function &SetGroup($str){
-		$this->group = $str;
+		$sql = $this->StrToPDO(func_get_args());
+		if($sql !== false) $this->group = $sql;
 		return $this;
 	}
 
@@ -424,7 +425,14 @@ class BH_DB_Get{
 		return $this;
 	}
 
+	/**
+	 * @var callable(&$sql) $func
+	 * @return bool|array
+	 */
 	public function Get(){
+		$func = null;
+		if(func_num_args()) $func = func_get_arg(0);
+
 		$where = '';
 		if(isset($this->where) && is_array($this->where) && sizeof($this->where)) $where = ' WHERE ' . implode(' AND ', $this->where);
 		$having = '';
@@ -434,11 +442,15 @@ class BH_DB_Get{
 		else $key = '*';
 
 
-		$this->sql = 'SELECT '.$key.' FROM '.$this->table.' '.$where;
-		if($this->group) $this->sql .= ' GROUP BY ' . $this->group;
+		$this->sql = 'SELECT {{space1}} '.$key.' {{space2}} FROM {{space3}} '.$this->table.' {{space4}} '.$where;
+		if($this->group) $this->sql .= ' {{space5}} GROUP BY ' . $this->group;
 		$this->sql .= $having;
-		if($this->sort) $this->sql .= ' ORDER BY ' . $this->sort;
-		$this->sql .= ' LIMIT 1';
+		if($this->sort) $this->sql .= ' {{space6}} ORDER BY ' . $this->sort;
+		$this->sql .= ' {{space7}} LIMIT 1';
+
+		if(is_callable($func)) $func($this->sql);
+		$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
+
 		if($this->test && _DEVELOPERIS === true){
 			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 			echo $this->sql;
@@ -524,14 +536,16 @@ class BH_DB_GetList extends BH_DB_Get{
 	 * @return $this
 	 */
 	public function &SetLimit($str){
-		$this->limit = $str;
+		$sql = $this->StrToPDO(func_get_args());
+		if($sql !== false) $this->limit = $sql;
 		return $this;
 	}
 
 	/**
+	 * @var callable(&$sql) $func
 	 * @return $this
 	 */
-	function &Run(){
+	function &Run($func = null){
 		$this->runIs = true;
 
 		$where = '';
@@ -551,13 +565,15 @@ class BH_DB_GetList extends BH_DB_Get{
 			$key = '*';
 		}
 
+		$this->sql = 'SELECT {{space1}} '.$key.' {{space2}} FROM {{space3}} '.$this->table.' {{space4}} '.$where;
 
-		$this->sql = 'SELECT '.$key.' FROM '.$this->table.' '.$where;
-
-		if($this->group) $this->sql .= ' GROUP BY ' . $this->group;
+		if($this->group) $this->sql .= ' {{space5}} GROUP BY ' . $this->group;
 		$this->sql .= $having;
-		if($this->sort) $this->sql .= ' ORDER BY ' . $this->sort;
-		if($this->limit) $this->sql .= ' LIMIT ' . $this->limit;
+		if($this->sort) $this->sql .= ' {{space6}} ORDER BY ' . $this->sort;
+		if($this->limit) $this->sql .= ' {{space7}} LIMIT ' . $this->limit;
+
+		if(is_callable($func)) $func($this->sql);
+		$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
 
 		if($this->test && _DEVELOPERIS === true){
 			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
@@ -611,7 +627,8 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	 * @return $this
 	 */
 	public function &SetLimit($str){
-		$this->limit = $str;
+		$sql = $this->StrToPDO(func_get_args());
+		if($sql !== false) $this->limit = $sql;
 		return $this;
 	}
 
@@ -692,9 +709,10 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	}
 
 	/**
-	 * @return $this
-	 */
-	public function &Run(){
+	* @var callable(&$sql) $func
+	* @return $this
+	*/
+	public function &Run($func = null){
 		$this->runIs = true;
 		if($this->page < 1) $this->page = 1;
 		$nowPage = $this->page - 1;
@@ -726,9 +744,9 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		}
 
 		$sql_cnt = 'SELECT COUNT('.($this->CountKey ? $this->CountKey : '*').') as cnt'.$subCnt_sql.' FROM '.$this->table.' '.$where;
-		$this->sql = 'SELECT '.$key.' FROM '.$this->table.' '.$where;
+		$this->sql = 'SELECT {{space1}} '.$key.' {{space2}} FROM {{space3}} '.$this->table.' {{space4}} '.$where;
 		if($this->group){
-			$this->sql .= ' GROUP BY ' . $this->group;
+			$this->sql .= ' {{space5}} GROUP BY ' . $this->group;
 			$sql_cnt .= ' GROUP BY ' . $this->group;
 		}
 
@@ -736,12 +754,15 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		$this->sql .= $having;
 
 		if($this->sort)
-			$this->sql .= ' ORDER BY ' . $this->sort;
+			$this->sql .= ' {{space6}} ORDER BY ' . $this->sort;
 
 		if($this->limit)
-			$this->sql .= ' LIMIT ' . $this->limit;
+			$this->sql .= ' {{space7}} LIMIT ' . $this->limit;
 		else if($this->articleCount)
-			$this->sql .= ' LIMIT '.$beginPage.', ' . $this->articleCount;
+			$this->sql .= ' {{space7}} LIMIT '.$beginPage.', ' . $this->articleCount;
+
+		if(is_callable($func)) $func($this->sql);
+		$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
 
 		if($this->test && _DEVELOPERIS === true){
 			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
@@ -1068,9 +1089,10 @@ class BH_DB_Insert{
 	}
 
 	/**
+	 * @var callable(&$sql) $func
 	 * @return \BH_InsertResult
 	 */
-	public function Run(){
+	public function Run($func = null){
 		$res = new \BH_InsertResult();
 		$temp = '';
 		$names = '';
@@ -1107,7 +1129,11 @@ class BH_DB_Insert{
 				if(!strlen($minseq['seq'])) $minseq['seq'] = $this->MAXInt;
 
 				$minseq['seq'] --;
-				$this->sql = 'INSERT INTO ' . $this->table . '(' . $names . ', `' . $this->decrement . '`) VALUES (' . $values . ',' . $minseq['seq'] . ')';
+				$this->sql = 'INSERT {{space1}} INTO {{space2}} ' . $this->table . ' {{space3}} (' . $names . ', `' . $this->decrement . '`) {{space4}} VALUES (' . $values . ',' . $minseq['seq'] . ')';
+
+				if(is_callable($func)) $func($this->sql);
+				$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
+
 				if($this->test && _DEVELOPERIS === true){
 					foreach($this->tableBindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 					foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
@@ -1125,7 +1151,11 @@ class BH_DB_Insert{
 			$res->id = $minseq['seq'];
 		}
 		else{
-			$this->sql = 'INSERT INTO ' . $this->table . '(' . $names . ') VALUES (' . $values . ')'.(isset($duplicateSql) ? ' '.$duplicateSql : '');
+			$this->sql = 'INSERT {{space1}} INTO {{space2}} ' . $this->table . ' {{space3}} (' . $names . ') {{space4}} VALUES (' . $values . ')'.(isset($duplicateSql) ? ' '.$duplicateSql : '');
+
+			if(is_callable($func)) $func($this->sql);
+			$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
+
 			if($this->test && _DEVELOPERIS === true){
 				foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 				echo $this->sql;
@@ -1260,9 +1290,10 @@ class BH_DB_Update{
 	}
 
 	/**
-	 * @return BH_Result
-	 */
-	function Run(){
+	* @var callable(&$sql) $func
+	* @return \BH_Result
+	*/
+	function Run($func = null){
 		$res = new \BH_Result();
 		$temp = '';
 		$set = '';
@@ -1280,8 +1311,12 @@ class BH_DB_Update{
 			return $res;
 		}
 
-		$this->sql = 'UPDATE ' . $this->table . ' SET ' . $set . $where;
-		if($this->sort) $this->sql .= ' ORDER BY ' . $this->sort;
+		$this->sql = 'UPDATE {{space1}} ' . $this->table . ' {{space2}} SET {{space3}} ' . $set . ' {{space4}} ' . $where;
+		if($this->sort) $this->sql .= ' {{space5}} ORDER BY ' . $this->sort;
+
+		if(is_callable($func)) $func($this->sql);
+		$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
+
 		if($this->test && _DEVELOPERIS === true){
 			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 			echo $this->sql;
@@ -1371,13 +1406,18 @@ class BH_DB_Delete{
 	}
 
 	/**
+	 * @var callable(&$sql) $func
 	 * @return bool
 	 */
-	function Run(){
+	function Run($func = null){
 		$where = '';
 		if(isset($this->where) && is_array($this->where) && sizeof($this->where)) $where = ' WHERE ' . implode(' AND ', $this->where);
 
-		$this->sql = 'DELETE FROM '.$this->table.' '.$where;
+		$this->sql = 'DELETE {{space1}} FROM {{space2}} '.$this->table.' {{space3}} '.$where;
+
+		if(is_callable($func)) $func($this->sql);
+		$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
+
 		if($this->test && _DEVELOPERIS === true){
 			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 			echo $this->sql;
