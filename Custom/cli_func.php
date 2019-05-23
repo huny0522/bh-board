@@ -36,7 +36,7 @@ if(in_array('-loop', $argv)){
 			if(in_array('-property-update', $argv)) _ModelDirUpdate();
 		}
 		if($second % 1 === 0){
-			if(in_array('-bhcss', $argv)) convertBHCssDir(_SKINDIR . '/css');
+			if(in_array('-bhcss', $argv)) convertBHCssDir(\Paths::DirOfSkin() . '/css');
 		}
 
 		sleep(1);

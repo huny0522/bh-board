@@ -56,7 +56,7 @@ use \BH_Application as App;
 				<td><?v. $row['category']; ?></td>
 				<td>
 					<?php if($row['type'] == 'i'){ ?>
-						<img src="<?v. _UPLOAD_URL . $Model->GetFilePathByValue($row['img']); ?>" alt="">
+						<img src="<?v. Paths::UrlOfUpload() . $Model->GetFilePathByValue($row['img']); ?>" alt="">
 					<?php }else{ ?>
 						직접등록
 					<?php } ?>

@@ -84,10 +84,10 @@ class BH_Application
 
 				if($res->result){
 					if(_REFRESH_HTML_ALL === true){
-						delTree(_HTMLDIR);
-						ReplaceHTMLAll(_SKINDIR, _HTMLDIR);
-						ReplaceBHCSSALL(_HTMLDIR, _HTMLDIR);
-						ReplaceBHCSSALL(_SKINDIR, _HTMLDIR);
+						delTree(\Paths::DirOfHtml());
+						ReplaceHTMLAll(\Paths::DirOfSkin(), \Paths::DirOfHtml());
+						ReplaceBHCSSALL(\Paths::DirOfHtml(), \Paths::DirOfHtml());
+						ReplaceBHCSSALL(\Paths::DirOfSkin(), \Paths::DirOfHtml());
 					}
 
 					if(isset(self::$extendMethod['refreshExtend'])){
@@ -104,7 +104,7 @@ class BH_Application
 		if(!isset(self::$settingData['GetUrl'][1]) || !strlen(self::$settingData['GetUrl'][1])) self::$settingData['GetUrl'][1] = _DEFAULT_CONTROLLER;
 
 
-		self::$baseDir = _URL;
+		self::$baseDir = Paths::Url();
 		self::$nativeDir = '';
 
 		require _DIR . '/Custom/BH_Router.php';
@@ -163,12 +163,12 @@ class BH_Application
 			}
 			else{
 				if(_DEVELOPERIS === true) echo '메소드가 존재하지 않습니다.(#2)';
-				else URLReplace(_URL . '/');
+				else URLReplace(Paths::Url() . '/');
 			}
 		}
 		else{
 			if(_DEVELOPERIS === true && _SHOW_CREATE_GUIDE === true) require _COMMONDIR . '/Create.html';
-			else URLReplace(_URL . '/');
+			else URLReplace(Paths::Url() . '/');
 		}
 	}
 
@@ -240,13 +240,13 @@ class BH_Application
 		$html = substr($viewAction, 0, 1) == '/' ? $viewAction : (self::$nativeSkinDir ? '/' . self::$nativeSkinDir : '') . '/' . self::$controllerName . '/' . $viewAction;
 		if(substr($html, -5) != '.html') $html .= '.html';
 
-		if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR . $html, _HTMLDIR . $html);
+		if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(\Paths::DirOfSkin() . $html, \Paths::DirOfHtml() . $html);
 
 		ob_start();
-		if(file_exists(_HTMLDIR . $html)) require _HTMLDIR . $html;
+		if(file_exists(\Paths::DirOfHtml() . $html)) require \Paths::DirOfHtml() . $html;
 		else{
 			if(_DEVELOPERIS !== true) echo 'ERROR : NOT EXISTS TEMPLATE';
-			else echo 'ERROR : NOT EXISTS TEMPLATE : ' . _HTMLDIR . $html;
+			else echo 'ERROR : NOT EXISTS TEMPLATE : ' . \Paths::DirOfHtml() . $html;
 		}
 		self::$bodyHtml = ob_get_clean();
 
@@ -258,10 +258,10 @@ class BH_Application
 
 				$layout = '/Layout/' . self::$layout;
 				if(substr($layout, -5) != '.html') $layout .= '.html';
-				if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(_SKINDIR . $layout, _HTMLDIR . $layout);
-				if($layout && file_exists(_HTMLDIR . $layout)){
+				if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(\Paths::DirOfSkin() . $layout, \Paths::DirOfHtml() . $layout);
+				if($layout && file_exists(\Paths::DirOfHtml() . $layout)){
 					ob_start();
-					require _HTMLDIR . $layout;
+					require \Paths::DirOfHtml() . $layout;
 					self::$bodyHtml = ob_get_clean();
 				}
 			}
@@ -342,7 +342,7 @@ class BH_Application
 				foreach($v as $row){
 					if(substr($row, 0, 4) == 'http' || substr($row, 0, 1) == '/') $html .= chr(9) . '<script src="' . $row . '" charset="utf8"></script>' . chr(10);
 					else
-						$html .= chr(9) . '<script src="' . _SKINURL . '/js/' . $row . '" charset="utf8"></script>' . chr(10);
+						$html .= chr(9) . '<script src="' . \Paths::UrlOfSkin() . '/js/' . $row . '" charset="utf8"></script>' . chr(10);
 				}
 			}
 		}
@@ -361,7 +361,7 @@ class BH_Application
 				foreach($v as $row){
 					if(substr($row, 0, 4) == 'http' || substr($row, 0, 1) == '/') $html .= chr(9) . '<link rel="stylesheet" href="' . $row . '">' . chr(10);
 					else
-						$html .= chr(9) . '<link rel="stylesheet" href="' . _SKINURL . '/css/' . $row . '">' . chr(10);
+						$html .= chr(9) . '<link rel="stylesheet" href="' . \Paths::UrlOfSkin() . '/css/' . $row . '">' . chr(10);
 				}
 			}
 		}
@@ -388,15 +388,15 @@ class BH_Application
 
 		if(_DEVELOPERIS === true){
 			$css2 = '/css' . ($css[0] == '/' ? $css : '/' . $css);
-			$dir = _SKINDIR;
-			if(file_exists(_HTMLDIR . $css2)) $dir = _HTMLDIR;
-			else if(!file_exists(_SKINDIR . $css2)) $dir = false;
+			$dir = \Paths::DirOfSkin();
+			if(file_exists(\Paths::DirOfHtml() . $css2)) $dir = \Paths::DirOfHtml();
+			else if(!file_exists(\Paths::DirOfSkin() . $css2)) $dir = false;
 
 			if($dir !== false){
-				$res = BH\BHCss\BHCss::conv($dir . $css2, _HTMLDIR . $target);
+				$res = BH\BHCss\BHCss::conv($dir . $css2, \Paths::DirOfHtml() . $target);
 			}
 		}
-		self::$css[$idx][] = _HTMLURL . $target . $queryParam;
+		self::$css[$idx][] = \Paths::UrlOfHtml() . $target . $queryParam;
 	}
 
 	public static function URLAction($Action = ''){

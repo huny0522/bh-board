@@ -32,7 +32,7 @@ class Login{
 		$this->model = App::InitModel('Member');
 		$this->useMailId = ($this->defCfg->useMailId->Val() == 'y');
 		$this->mailIdAddrSelection = ($this->defCfg->mailIdAddrSelection->Val() == 'y');
-		if(_MEMBERIS === true && !in_array(App::$action, array('Logout'))) URLRedirect(_URL . '/');
+		if(_MEMBERIS === true && !in_array(App::$action, array('Logout'))) URLRedirect(\Paths::Url() . '/');
 	}
 
 	public function Index(){
@@ -73,7 +73,7 @@ class Login{
 				$vcnt = \Common\VisitCounter::GetInstance();
 				$vcnt->InsertLoginCounter();
 
-				URLReplace(_URL.'/');
+				URLReplace(\Paths::Url().'/');
 			}
 		}
 	}
@@ -158,9 +158,9 @@ class Login{
 
 		if($this->defCfg->joinApprove->Val() !== 'y' && $this->defCfg->emailCer->Val() !== 'n'){
 			$this->_SendEmailCode($this->model);
-			URLReplace(_URL.'/', '등록되었습니다. 이용하시려면 이메일 인증을 해주셔야합니다. 입력하신 이메일을 확인 바랍니다.');
+			URLReplace(\Paths::Url().'/', '등록되었습니다. 이용하시려면 이메일 인증을 해주셔야합니다. 입력하신 이메일을 확인 바랍니다.');
 		}
-		else URLReplace(_URL.'/', '등록되었습니다.');
+		else URLReplace(\Paths::Url().'/', '등록되었습니다.');
 
 	}
 
@@ -198,7 +198,7 @@ class Login{
 	public function Logout(){
 		unset($_SESSION['member']);
 		session_destroy();
-		URLReplace(_URL.'/');
+		URLReplace(\Paths::Url().'/');
 	}
 
 	private function LoginMidCheck($mid, $pwd){
@@ -327,7 +327,7 @@ class Login{
 
 				$res = $this->model->DBUpdate();
 				if($res->result){
-					URLRedirect(_URL.'/', '비밀번호가 변경되었습니다.');
+					URLRedirect(\Paths::Url().'/', '비밀번호가 변경되었습니다.');
 				}
 				else{
 					URLRedirect('-1', '비밀번호 변경 오류');
@@ -372,7 +372,7 @@ class Login{
 					->SetDataStr('approve', 'y')
 					->Run();
 				if($res->result){
-					URLRedirect(_URL.'/', '승인되었습니다.');
+					URLRedirect(\Paths::Url().'/', '승인되었습니다.');
 				}
 				else{
 					URLRedirect('-1', '승인 DB 오류');

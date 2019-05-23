@@ -34,7 +34,7 @@ class BH_Common
 	public static function MemberAuth($level = 1){
 		if(_MEMBERIS !== true){
 			if(_AJAXIS === true) JSON(false, _MSG_NO_AUTH.' 로그인하여 주세요.', array('needLogin' => true));
-			else URLReplace(_URL . '/Login', _MSG_NO_AUTH.' 로그인하여 주세요.');
+			else URLReplace(Paths::Url() . '/Login', _MSG_NO_AUTH.' 로그인하여 주세요.');
 		}
 		if($_SESSION['member']['level'] < $level){
 			if(_AJAXIS === true) JSON(false, _MSG_NO_AUTH);
@@ -154,7 +154,7 @@ class BH_Common
 			while($img = $dbGetList->Get()){
 				if(strpos($content['contents'], $img['image']) === false){
 					// 파일이 없으면 삭제
-					@unlink(_UPLOAD_DIR.$img['image']);
+					@unlink(\Paths::DirOfUpload().$img['image']);
 					$qry = new \BH_DB_Delete(TABLE_IMAGES);
 					$qry->AddWhere('tid = %s', $tid);
 					$qry->AddWhere('article_seq = %s', $dbKeyValue);
@@ -179,11 +179,11 @@ class BH_Common
 				if(strpos($content['contents'], $exp[0]) !== false){
 
 					$newpath = str_replace('/temp/', '/image/' . $tid . '/' .$ym.'/', $exp[0]);
-					$uploadDir = _UPLOAD_DIR.'/image/' . $tid . '/' . $ym;
+					$uploadDir = \Paths::DirOfUpload().'/image/' . $tid . '/' . $ym;
 					if(!is_dir($uploadDir)){
 						mkdir($uploadDir, 0777, true);
 					}
-					@copy(_UPLOAD_DIR.$exp[0],_UPLOAD_DIR.$newpath);
+					@copy(\Paths::DirOfUpload().$exp[0],\Paths::DirOfUpload().$newpath);
 					$newcontent = str_replace($exp[0],$newpath, $newcontent);
 					// 파일이 있으면 등록
 
@@ -213,7 +213,7 @@ class BH_Common
 			}
 		}
 
-		DeleteOldTempFiles(_UPLOAD_DIR.'/temp/', strtotime('-6 hours'));
+		DeleteOldTempFiles(\Paths::DirOfUpload().'/temp/', strtotime('-6 hours'));
 		return $newcontent;
 	}
 
@@ -339,7 +339,7 @@ class BH_Common
 			if($row['type'] == 'i'){
 				$html = '';
 				if($row['link_url']) $html .= '<a href="'.$row['link_url'].'"'.($row['new_window'] == 'y' ? ' target="_blank"' : '').'>';
-				$html .= '<img src="'._UPLOAD_URL.$row['img'].'" alt="'.GetDBText($row['subject']).'">';
+				$html .= '<img src="'.Paths::UrlOfUpload().$row['img'].'" alt="'.GetDBText($row['subject']).'">';
 				if($row['link_url']) $html .= '</a>';
 			}
 			else $html = GetDBRaw(addslashes($row['contents']));
@@ -375,7 +375,7 @@ class BH_Common
 			if($row['type'] == 'i'){
 				$html = '';
 				if($row['link_url']) $html .= '<a href="'.$row['link_url'].'"'.($row['new_window'] == 'y' ? ' target="_blank"' : '').'>';
-				$html .= '<img src="'._UPLOAD_URL.$row['img'].'" alt="'.GetDBText($row['subject']).'">';
+				$html .= '<img src="'.Paths::UrlOfUpload().$row['img'].'" alt="'.GetDBText($row['subject']).'">';
 				if($row['link_url']) $html .= '</a>';
 			}
 			else $html = GetDBRaw($row['contents']);

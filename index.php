@@ -21,20 +21,24 @@ define('_BH_', true);
 define('PHP_RUN_CLI', strpos(php_sapi_name(), 'cli') !== false);
 if(0) define('_DIR', __DIR__);
 define('_DIR', str_replace('\\', '/', dirname(__FILE__)));
+
+define('_SKINDIRNAME', 'Skin');
+define('_DATADIRNAME', 'Data');
+define('_UPLOAD_DIRNAME', 'Upload');
+define('_ADMINURLNAME', 'BHAdm');
+
 define('_MODELDIR', _DIR . '/Model');
 define('_CONTROLLERDIR', _DIR . '/Controller');
 define('_COMMONDIR', _DIR . '/Common');
-define('_SKINDIR', _DIR . '/Skin');
-define('_DATADIR', _DIR . '/Data');
+define('_SKINDIR', _DIR . '/' . _SKINDIRNAME);
+define('_DATADIR', _DIR . '/' . _DATADIRNAME);
 define('_HTMLDIR', _DATADIR . '/_HTML');
-define('_UPLOAD_DIRNAME', 'Upload');
 define('_UPLOAD_DIR', _DATADIR . '/' . _UPLOAD_DIRNAME);
 
 define('_URL', '');
-define('_DATAURL', _URL . '/Data');
-define('_SKINURL', _URL . '/Skin');
+define('_SKINURL', _URL . '/' . _SKINDIRNAME);
+define('_DATAURL', _URL . '/' . _DATADIRNAME);
 define('_HTMLURL', _DATAURL . '/_HTML');
-define('_ADMINURLNAME', 'BHAdm');
 define('_ADMINURL', _URL . '/' . _ADMINURLNAME);
 define('_IMGURL', _SKINURL . '/images');
 define('_UPLOAD_URL', _DATAURL . '/' . _UPLOAD_DIRNAME);
@@ -55,7 +59,6 @@ if(PHP_RUN_CLI === true){
 else define('_DEVELOPERIS', true && in_array($_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP));
 define('_CREATE_HTML_ALL', false && _DEVELOPERIS === true);
 define('_REFRESH_HTML_ALL', true && _DEVELOPERIS === true);
-define('_REFRESH_BTN', PHP_RUN_CLI ? '' : (_DEVELOPERIS === true ? '<a id="_BH_RefreshBtn" href="' . _URL . '/_Refresh?r_url=' . urlencode($_SERVER['REQUEST_URI']) . '" style="position:fixed; bottom:10px; right:10px; z-index:9999; display:block; height:30px; line-height:30px; padding:0 15px; font-size:12px; background:rgba(0,0,0,0.5); color:#fff; border-radius:15px;">새로고침</a>' : ''));
 
 define('_REMOVE_SPACE', true);
 define('_VIEW_MICROTIME', true);

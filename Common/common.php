@@ -30,9 +30,118 @@ class BH_InsertResult
 	public $message = '';
 }
 
+class Paths{
+	private static $dir = _DIR;
+
+	private static $dataDirName = _DATADIRNAME;
+	private static $skinDirName = _SKINDIRNAME;
+	private static $uploadDirName = _UPLOAD_DIRNAME;
+	private static $adminUrlName = _ADMINURLNAME;
+
+	private static $skinDir = _SKINDIR;
+	private static $dataDir = _DATADIR;
+	private static $htmlDir = _HTMLDIR;
+	private static $uploadDir = _UPLOAD_DIR;
+
+	private static $url = _URL;
+	private static $dataUrl = _DATAURL;
+	private static $skinUrl = _SKINURL;
+	private static $htmlUrl = _HTMLURL;
+	private static $adminUrl = _ADMINURL;
+	private static $imageUrl = _IMGURL;
+	private static $uploadUrl = _UPLOAD_URL;
+
+	public static function SetDefaultUrl($str){
+		self::$url = $str;
+		self::$dataUrl = self::$url . '/' . self::$dataDirName;
+		self::$skinUrl = self::$url . '/' . self::$skinDirName;
+		self::$uploadUrl = self::$dataUrl . '/' . self::$uploadDirName;
+		self::$htmlUrl = self::$dataUrl . '/_HTML';
+		self::$imageUrl = self::$skinUrl . '/images';
+		self::$adminUrl = self::$url . '/' . self::$adminUrlName;
+	}
+
+	public static function SetDataDirName($str){
+		self::$dataDirName = $str;
+		self::$dataUrl = self::$url . '/' . self::$dataDirName;
+		self::$dataDir = self::$dir . '/' . self::$dataDirName;
+
+		self::$htmlUrl = self::$dataUrl . '/_HTML';
+		self::$uploadUrl = self::$dataUrl . '/' . self::$uploadDirName;
+	}
+
+	public static function SetSkinDirName($str){
+		self::$skinDirName = $str;
+		self::$skinUrl = self::$url . '/' . self::$skinDirName;
+		self::$skinDir = self::$dir . '/' . self::$skinDirName;
+
+		self::$imageUrl = self::$skinUrl . '/images';
+	}
+
+	public static function SetUploadDirName($str){
+		self::$uploadDirName = $str;
+
+		self::$uploadUrl = self::$url . '/' . self::$uploadDirName;
+		self::$uploadDir = self::$dir . '/' . self::$uploadDirName;
+	}
+
+	public static function SetAdminUrlName($str){
+		self::$adminUrlName = $str;
+		self::$adminUrl = self::$url . '/' .self::$adminUrlName;
+	}
+
+	public static function Url(){
+		return self::$url;
+	}
+
+	public static function NameOfAdmin(){
+		return self::$adminUrlName;
+	}
+
+	public static function DirOfData(){
+		return self::$dataDir;
+	}
+
+	public static function UrlOfData(){
+		return self::$dataUrl;
+	}
+
+	public static function DirOfSkin(){
+		return self::$skinDir;
+	}
+
+	public static function UrlOfSkin(){
+		return self::$skinUrl;
+	}
+
+	public static function DirOfHtml(){
+		return self::$htmlDir;
+	}
+
+	public static function UrlOfHtml(){
+		return self::$htmlUrl;
+	}
+
+	public static function DirOfUpload(){
+		return self::$uploadDir;
+	}
+
+	public static function UrlOfUpload(){
+		return self::$uploadUrl;
+	}
+
+	public static function UrlOfAdmin(){
+		return self::$adminUrl;
+	}
+}
+
+
 define('_POSTIS', isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST');
 define('_AJAXIS', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
 define('_JSONIS', isset($_SERVER['HTTP_ACCEPT']) && strpos(strtolower($_SERVER['HTTP_ACCEPT']), 'application/json') !== false);
+
+define('_REFRESH_BTN', PHP_RUN_CLI ? '' : (_DEVELOPERIS === true ? '<a id="_BH_RefreshBtn" href="' . Paths::Url() . '/_Refresh?r_url=' . urlencode($_SERVER['REQUEST_URI']) . '" style="position:fixed; bottom:10px; right:10px; z-index:9999; display:block; height:30px; line-height:30px; padding:0 15px; font-size:12px; background:rgba(0,0,0,0.5); color:#fff; border-radius:15px;">새로고침</a>' : ''));
+
 
 require _COMMONDIR . '/BH_PDO.class.php';
 require _COMMONDIR . '/BH_Application.class.php';
@@ -56,17 +165,17 @@ App::$settingData['POSSIBLE_EXT'] = array('jpg', 'jpeg', 'png', 'gif', 'bmp', 'z
 App::$settingData['iframePossibleUrl'] = array('www.youtube.com');
 
 if(_DEVELOPERIS === true){
-	if(!file_exists(_DATADIR) || !is_dir(_DATADIR)) @mkdir(_DATADIR, 0755, true);
+	if(!file_exists(\Paths::DirOfData()) || !is_dir(\Paths::DirOfData())) @mkdir(\Paths::DirOfData(), 0755, true);
 	require _COMMONDIR . '/HtmlConvert.php';
 	BH\BHCss\BHCss::setNL(true);
 	require _COMMONDIR . '/BH_HtmlCreate.class.php';
 }
 
 if(_CREATE_HTML_ALL === true){
-	delTree(_HTMLDIR);
-	ReplaceHTMLAll(_SKINDIR, _HTMLDIR);
-	ReplaceBHCSSALL(_HTMLDIR, _HTMLDIR);
-	ReplaceBHCSSALL(_SKINDIR, _HTMLDIR);
+	delTree(\Paths::DirOfHtml());
+	ReplaceHTMLAll(\Paths::DirOfSkin(), \Paths::DirOfHtml());
+	ReplaceBHCSSALL(\Paths::DirOfHtml(), \Paths::DirOfHtml());
+	ReplaceBHCSSALL(\Paths::DirOfSkin(), \Paths::DirOfHtml());
 }
 
 define('ENG_NUM', '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
@@ -377,14 +486,14 @@ function Download($path, $fname){
 
 function ResizeImage($path, $width, $noext = ''){
 	if(!strlen($noext)) $noext = (isset(App::$settingData['noImg']) && strlen(App::$settingData['noImg'])) ? App::$settingData['noImg'] : _NO_IMG;
-	if(!file_exists(_UPLOAD_DIR . $path) || is_dir(_UPLOAD_DIR . $path)) return $noext ? _URL . $noext : '';
+	if(!file_exists(\Paths::DirOfUpload() . $path) || is_dir(\Paths::DirOfUpload() . $path)) return $noext ? Paths::Url() . $noext : '';
 	$temp = explode('/', $path);
 	$temp[sizeof($temp) - 1] = $width . '_' . $temp[sizeof($temp) - 1];
 	$new = implode('/', $temp);
-	if(!file_exists(_UPLOAD_DIR . $new)){
-		_ModelFunc::Thumbnail(_UPLOAD_DIR . $path, _UPLOAD_DIR . $new, $width);
+	if(!file_exists(\Paths::DirOfUpload() . $new)){
+		_ModelFunc::Thumbnail(\Paths::DirOfUpload() . $path, \Paths::DirOfUpload() . $new, $width);
 	}
-	return _UPLOAD_URL . $new;
+	return Paths::UrlOfUpload() . $new;
 }
 
 function UnlinkImage($file){
@@ -657,13 +766,11 @@ function JSON($bool, $message = '', $data = array(), $exitIs = true){
 }
 
 function aes_encrypt($plaintext, $password){
-	$qry = DB::SQL()->Fetch('SELECT HEX(AES_ENCRYPT(%s, %s)) as txt', $plaintext, $password);
-	return $qry['txt'];
+	return strtoupper(bin2hex(@openssl_encrypt($plaintext, 'aes-128-cbc', $password, true, '')));
 }
 
 function aes_decrypt($ciphertext, $password){
-	$qry = DB::SQL()->Fetch('SELECT AES_DECRYPT(UNHEX(%s), %s) as txt', $ciphertext, $password);
-	return $qry['txt'];
+	return @openssl_decrypt(hex2bin($ciphertext), 'aes-128-cbc', $password, true, '');
 }
 
 function delTree($dir){
@@ -676,7 +783,7 @@ function delTree($dir){
 }
 
 function findDelTree($ConnName, $dir){
-	$path = _DATADIR . '/temp/' . $ConnName . '/';
+	$path = \Paths::DirOfData() . '/temp/' . $ConnName . '/';
 	if(!file_exists($path) && !is_dir($path)) mkdir($path, 0755, true);
 	$files = array_diff(scandir($path), array('.', '..'));
 	foreach($files as $file){
@@ -772,7 +879,7 @@ function _password_verify($str, $hash){
 
 function modifyFileTime($file, $group = 'default'){
 	if(!file_exists($file)) return false;
-	$path = _DATADIR . '/fileModTime.php';
+	$path = \Paths::DirOfData() . '/fileModTime.php';
 	if(file_exists($path)) require_once $path;
 
 	$t = filemtime($file);

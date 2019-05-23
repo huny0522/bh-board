@@ -25,7 +25,7 @@ use \BH_Application as App;
 				<div class="articles">
 					<?php foreach($row['list'] as $article){ ?>
 						<ul>
-							<li class="subject"><a href="<?v. _URL.'/'.$row['controller'] ?>/View/<?p. toBase($article['seq']) ?>"><?v. $article['subject'] ?></a></li>
+							<li class="subject"><a href="<?v. \Paths::Url().'/'.$row['controller'] ?>/View/<?p. toBase($article['seq']) ?>"><?v. $article['subject'] ?></a></li>
 							<li class="num hit"><?v. $article['hit'] ?></li>
 							<li class="date"><?v. $article['reg_date'] ?></li>
 						</ul>

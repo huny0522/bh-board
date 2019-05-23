@@ -67,7 +67,7 @@ $_rpData = array(
 	// inc
 	array(
 		'pattern' => '/<\?\s*inc\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'replace' => '<?php if(_DEVELOPERIS === true) ReplaceHTMLFile(_SKINDIR.$1, _HTMLDIR.$1); require _HTMLDIR.$1; ?>'
+		'replace' => '<?php if(_DEVELOPERIS === true) ReplaceHTMLFile(\Paths::DirOfSkin().$1, \Paths::DirOfHtml().$1); require \Paths::DirOfHtml().$1; ?>'
 	),
 
 	// mv()
@@ -141,7 +141,12 @@ $_rpData = array(
 	// img
 	array(
 		'pattern' => '/<img\s*\!\s*(.*?)\s*src=\"(.*?)\"(.*?)>/is',
-		'replace' => '<img $1 src="' . _DOMAIN . _URL . '$2" $3>'
+		'replace' => '<img $1 src="' . _DOMAIN . \Paths::Url() . '$2" $3>'
+	),
+
+	array(
+		'pattern' => '#\=\s*([\'"])/Skin/#s',
+		'replace' => '=$1' . \Paths::UrlOfSkin() . '/'
 	),
 
 	// '<?=' -> '<?php echo'

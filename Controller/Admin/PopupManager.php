@@ -111,7 +111,7 @@ class PopupManager
 
 				if(is_string($fres_em)) URLReplace('-1', $fres_em);
 				else if(is_array($fres_em)){
-					if($this->model->GetValue('img')) @unlink(_UPLOAD_DIR.$this->model->GetValue('img'));
+					if($this->model->GetValue('img')) @unlink(\Paths::DirOfUpload().$this->model->GetValue('img'));
 					$this->model->SetValue('img', $fres_em['file']);
 				}
 			}*/

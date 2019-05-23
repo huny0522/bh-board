@@ -19,7 +19,7 @@ if(Get('_view_pc') === 'y') $_SESSION['viewMobile'] = false;
 if(isset($_SESSION['viewMobile'])) App::$settingData['viewMobile'] = $_SESSION['viewMobile'];
 
 switch(App::$settingData['GetUrl'][1]){
-	case _ADMINURLNAME: // 관리자
+	case \Paths::NameOfAdmin(): // 관리자
 		App::$nativeDir = 'Admin';
 		App::$baseDir .= '/'.App::$settingData['GetUrl'][1];
 
@@ -33,14 +33,14 @@ switch(App::$settingData['GetUrl'][1]){
 			App::$action = App::$settingData['GetUrl'][4];
 			App::$id = App::$settingData['GetUrl'][5];
 			App::$id2 = App::$settingData['GetUrl'][6];
-			App::$ctrlUrl = _URL.App::$baseDir.'/'.App::$controllerName.'/'.App::$settingData['GetUrl'][3];
+			App::$ctrlUrl = \Paths::Url().App::$baseDir.'/'.App::$controllerName.'/'.App::$settingData['GetUrl'][3];
 			if(App::$settingData['GetUrl'][2] == 'Board') App::$data['NowMenu'] = '002';
 		}else{
 			App::$controllerName = App::$settingData['GetUrl'][2];
 			App::$action = App::$settingData['GetUrl'][3];
 			App::$id = App::$settingData['GetUrl'][4];
 			App::$id2 = App::$settingData['GetUrl'][5];
-			App::$ctrlUrl = _URL.App::$baseDir.'/'.App::$controllerName;
+			App::$ctrlUrl = \Paths::Url().App::$baseDir.'/'.App::$controllerName;
 		}
 
 		require _DIR . '/Custom/admin.common.php';
@@ -63,7 +63,7 @@ switch(App::$settingData['GetUrl'][1]){
 		else App::$tid = App::$settingData['GetUrl'][2];
 		App::$action = App::$settingData['GetUrl'][3];
 		App::$id = App::$settingData['GetUrl'][4];
-		App::$ctrlUrl = _URL.'/'.App::$controllerName.'/'.App::$settingData['GetUrl'][2];
+		App::$ctrlUrl = \Paths::Url().'/'.App::$controllerName.'/'.App::$settingData['GetUrl'][2];
 		if(_AJAXIS === true) App::$layout = null;
 		else if(App::$settingData['GetUrl'][1] == 'Board') App::$layout = '_Board';
 		else if(App::$settingData['GetUrl'][1] == 'Contents'){
@@ -71,7 +71,7 @@ switch(App::$settingData['GetUrl'][1]){
 				App::$tid = '';
 				App::$action = App::$settingData['GetUrl'][2];
 				App::$id = '';
-				App::$ctrlUrl = _URL.'/'.App::$controllerName;
+				App::$ctrlUrl = \Paths::Url().'/'.App::$controllerName;
 			}
 			App::$layout = '_Default';
 		}
@@ -81,11 +81,11 @@ switch(App::$settingData['GetUrl'][1]){
 		// 모바일을 추가할 경우 App::$settingData['viewMobile'] 를 비교하여 스킨 디렉토리를 변경
 		App::$nativeSkinDir = 'PC';
 
-		if(!\Common\MenuHelp::GetInstance()->SetDBMenuRouter(_URL)){
+		if(!\Common\MenuHelp::GetInstance()->SetDBMenuRouter(\Paths::Url())){
 			App::$controllerName = App::$settingData['GetUrl'][1];
 			App::$action = App::$settingData['GetUrl'][2];
 			App::$id = App::$settingData['GetUrl'][3];
-			App::$ctrlUrl = _URL.'/'.App::$controllerName;
+			App::$ctrlUrl = \Paths::Url().'/'.App::$controllerName;
 		}
 		if(_AJAXIS === true) App::$layout = null;
 		else App::$layout = _DEFAULT_LAYOUT;

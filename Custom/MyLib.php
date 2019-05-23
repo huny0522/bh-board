@@ -23,13 +23,13 @@ App::$extendMethod['AfterSetView'] = function(){
 };
 
 // tinymce 에디터 경로
-App::$settingData['tinyMCEPath'] = _SKINURL . '/js/tinymce/tinymce.min.js';
+App::$settingData['tinyMCEPath'] = \Paths::UrlOfSkin() . '/js/tinymce/tinymce.min.js';
 */
 
 // 에러 출력 여부
 if(_DEVELOPERIS === true) App::$showError = true;
 
-App::$settingData['noImg'] = _UPLOAD_URL . App::$cfg->Def()->noImg->value;
+App::$settingData['noImg'] = Paths::UrlOfUpload() . App::$cfg->Def()->noImg->value;
 
 // 컨트롤러 생성 바로 다음
 App::$extendMethod['createControllerInstance'] = function(){

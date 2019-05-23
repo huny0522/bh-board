@@ -81,14 +81,14 @@ use \BH_Application as App;
 							if(in_array($ext, array('jpeg', 'jpg', 'gif', 'png'))){
 								?>
 								<div class="repAttach repAttachImg">
-									<span><a href="<?p. _URL . '/Board/' . App::$tid . '/RepAttachDownload/' . toBase($row['seq']) ?>" alt=""><img src="<?p. ResizeImage($fp, 300) ?>" alt=""></a></span>
+									<span><a href="<?p. \Paths::Url() . '/Board/' . App::$tid . '/RepAttachDownload/' . toBase($row['seq']) ?>" alt=""><img src="<?p. ResizeImage($fp, 300) ?>" alt=""></a></span>
 								</div>
 								<?php
 							}
 							else{
 								?>
 								<div class="repAttach repAttachFile">
-									<span><a href="<?p. _UPLOAD_URL ?><?v. $fp ?>" alt=""><?v. $fn ?></span>
+									<span><a href="<?p. Paths::UrlOfUpload() ?><?v. $fp ?>" alt=""><?v. $fn ?></span>
 								</div>
 								<?php
 							}

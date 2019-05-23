@@ -12,7 +12,7 @@ App::CSSAdd('nanumgothic.css', 10);
 App::JSAdd('jquery-1.11.3.min.js', 10);
 App::JSAdd('jquery.form.min.js', 10);
 App::JSAdd('jquery-ui.min.js', 10);
-App::JSAdd(_URL . '/Common/common.js' . CM::RefreshParam(), 10);
+App::JSAdd(\Paths::Url() . '/Common/common.js' . CM::RefreshParam(), 10);
 ?>
 
 <?p. App::$bodyHtml ?>

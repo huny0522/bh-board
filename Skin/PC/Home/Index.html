@@ -13,13 +13,13 @@ $popup = CM::GetPopup(function($qry){
 	<section id="mainNotice" class="boardArticles">
 		<header>
 			<h2>공지사항</h2>
-			<a href="<?p. _URL ?>/Notice" class="more">더보기<i></i></a>
+			<a href="<?p. \Paths::Url() ?>/Notice" class="more">더보기<i></i></a>
 		</header>
 		<?php if(sizeof(App::$data['notice'])){ ?>
 			<ul class="articles">
 				<?php foreach(App::$data['notice'] as $row){ ?>
 					<li>
-						<a href="<?p. _URL . '/Notice/View/' . toBase($row['seq']) ?>">
+						<a href="<?p. \Paths::Url() . '/Notice/View/' . toBase($row['seq']) ?>">
 							<div class="title">
 								<b><?vstag. $row['subject'] ?></b>
 								<?p. $row['replyCount'] ?> <?p. $row['secretIcon']. $row['newtIcon'] ?>
@@ -37,13 +37,13 @@ $popup = CM::GetPopup(function($qry){
 	<section id="mainFreeBoard" class="boardArticles">
 		<header>
 			<h2>자유게시판</h2>
-			<a href="<?p. _URL ?>/FreeBoard" class="more">더보기<i></i></a>
+			<a href="<?p. \Paths::Url() ?>/FreeBoard" class="more">더보기<i></i></a>
 		</header>
 		<?php if(sizeof(App::$data['freeBoard'])){ ?>
 			<ul class="articles">
 				<?php foreach(App::$data['freeBoard'] as $row){ ?>
 					<li>
-						<a href="<?p. _URL . '/FreeBoard/View/' . toBase($row['seq']) ?>">
+						<a href="<?p. \Paths::Url() . '/FreeBoard/View/' . toBase($row['seq']) ?>">
 							<div class="title">
 								<b><?vstag. $row['subject'] ?></b>
 								<?p. $row['replyCount'] ?> <?p. $row['secretIcon']. $row['newtIcon'] ?>
@@ -62,13 +62,13 @@ $popup = CM::GetPopup(function($qry){
 	<section id="mainGalleryBoard" class="galleryArticles">
 		<header>
 			<h2>갤러리 게시판</h2>
-			<a href="<?p. _URL ?>/Gallery" class="more">더보기<i></i></a>
+			<a href="<?p. \Paths::Url() ?>/Gallery" class="more">더보기<i></i></a>
 		</header>
 		<?php if(sizeof(App::$data['gallery'])){ ?>
 			<ul class="articles">
 				<?php foreach(App::$data['gallery'] as $row){ ?>
 					<li>
-						<a href="<?p. _URL . '/Gallery/View/' . toBase($row['seq']) ?>">
+						<a href="<?p. \Paths::Url() . '/Gallery/View/' . toBase($row['seq']) ?>">
 							<div class="thumb">
 								<i style="background-image:url('<? p.ResizeImage($row['thumbnail'], 300) ?>');"></i>
 							</div>

@@ -13,7 +13,7 @@ App::CSSAdd('style.css' . CM::RefreshParam(), 10);
 App::JSAdd('jquery-1.11.3.min.js', 10);
 App::JSAdd('jquery.form.min.js', 10);
 App::JSAdd('jquery-ui.min.js', 10);
-App::JSAdd(_URL . '/Common/common.js' . CM::RefreshParam(), 10);
+App::JSAdd(\Paths::Url() . '/Common/common.js' . CM::RefreshParam(), 10);
 App::JSAdd('contents.js' . CM::RefreshParam(), 11);
 
 $cfg = App::$cfg->Def();
@@ -32,9 +32,9 @@ if($activeCategory){
 	<header id="header">
 		<div id="header_wrap">
 			<h1>
-				<a href="<?p. _URL ?>/">
+				<a href="<?p. \Paths::Url() ?>/">
 					<?php if($cfg->logoUrl->value){ ?>
-						<img src="<? p._UPLOAD_URL.$cfg->logoUrl->value ?>" alt="로고">
+						<img src="<? p.Paths::UrlOfUpload().$cfg->logoUrl->value ?>" alt="로고">
 					<?php }else{ ?>
 						<i><img src="/Skin/images/logo.png"></i> <span>BH BOARD</span>
 					<?php } ?>
@@ -44,14 +44,14 @@ if($activeCategory){
 			<nav id="gnb">
 				<ul>
 					<?php if(_MEMBERIS === true){ ?>
-						<li><a href="<?p. _URL ?>/Login/Logout">로그아웃</a></li>
-						<li><a href="<?p. _URL ?>/MyPage">마이페이지</a></li>
-						<?php if($_SESSION['member']['level'] >= _ADMIN_LEVEL){ ?><li class="admin"><a href="<?p. _ADMINURL ?>" target="_blank">Admin</a></li><?php } ?>
+						<li><a href="<?p. \Paths::Url() ?>/Login/Logout">로그아웃</a></li>
+						<li><a href="<?p. \Paths::Url() ?>/MyPage">마이페이지</a></li>
+						<?php if($_SESSION['member']['level'] >= _ADMIN_LEVEL){ ?><li class="admin"><a href="<?p. \Paths::UrlOfAdmin() ?>" target="_blank">Admin</a></li><?php } ?>
 					<?php }
 					else{ ?>
-						<li><a href="<?p. _URL ?>/Login/Register">회원가입</a></li>
-						<li><a href="<?p. _URL ?>/Login">로그인</a></li>
-						<li><a href="<?p. _URL ?>/Login/FindID">ID/PW 찾기</a></li>
+						<li><a href="<?p. \Paths::Url() ?>/Login/Register">회원가입</a></li>
+						<li><a href="<?p. \Paths::Url() ?>/Login">로그인</a></li>
+						<li><a href="<?p. \Paths::Url() ?>/Login/FindID">ID/PW 찾기</a></li>
 					<?php } ?>
 				</ul>
 			</nav>
@@ -83,16 +83,16 @@ if($activeCategory){
 	<footer id="footer">
 		<nav id="fnb">
 			<ul>
-				<li><a href="<?p. _URL ?>/Contents/introduce">회사소개</a></li>
-				<li><a href="<?p. _URL ?>/Contents/privacy">개인정보보호정책</a></li>
-				<li><a href="<?p. _URL ?>/Contents/terms">이용약관</a></li>
+				<li><a href="<?p. \Paths::Url() ?>/Contents/introduce">회사소개</a></li>
+				<li><a href="<?p. \Paths::Url() ?>/Contents/privacy">개인정보보호정책</a></li>
+				<li><a href="<?p. \Paths::Url() ?>/Contents/terms">이용약관</a></li>
 			</ul>
 		</nav>
 
 		<div id="footerInfo">
 			<h1 class="footerLogo">
 				<?php if($cfg->footLogoUrl->value){ ?>
-					<img src="<? p._UPLOAD_URL.$cfg->footLogoUrl->value ?>" alt="로고">
+					<img src="<? p.Paths::UrlOfUpload().$cfg->footLogoUrl->value ?>" alt="로고">
 				<?php }else echo $cfg->siteName->value; ?>
 			</h1>
 			<dl class="company">

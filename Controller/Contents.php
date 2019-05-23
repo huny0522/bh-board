@@ -34,11 +34,11 @@ class Contents{
 		if($html){
 			if(substr($html, -5) != '.html') $html .= '.html';
 			$htmlPath = App::$nativeSkinDir.'/'.$html;
-			if(file_exists(_SKINDIR.'/Contents/'.$htmlPath)) $html = $htmlPath;
+			if(file_exists(\Paths::DirOfSkin().'/Contents/'.$htmlPath)) $html = $htmlPath;
 			App::$html = '/Contents/'.$html;
 		}
 
-		if(!file_exists(_SKINDIR . App::$html)) URLReplace(_URL . '/', _DEVELOPERIS === true ? '컨텐츠 파일이 없습니다.(' . App::$html . ')' : '');
+		if(!file_exists(\Paths::DirOfSkin() . App::$html)) URLReplace(\Paths::Url() . '/', _DEVELOPERIS === true ? '컨텐츠 파일이 없습니다.(' . App::$html . ')' : '');
 
 		$cookieName = $this->model->table.$this->model->GetValue('bid');
 		if(!isset($_COOKIE[$cookieName]) || !$_COOKIE[$cookieName]){
@@ -74,11 +74,11 @@ class Contents{
 		if($html){
 			if(substr($html, -5) != '.html') $html .= '.html';
 			$htmlPath = App::$nativeSkinDir.'/'.$html;
-			if(file_exists(_SKINDIR.'/Contents/'.$htmlPath)) $html = $htmlPath;
+			if(file_exists(\Paths::DirOfSkin().'/Contents/'.$htmlPath)) $html = $htmlPath;
 			App::$html = '/Contents/'.$html;
 		}
 
-		if(!file_exists(_SKINDIR . App::$html)) URLReplace(_URL . '/', _DEVELOPERIS === true ? '컨텐츠 파일이 없습니다.(' . App::$html . ')' : '');
+		if(!file_exists(\Paths::DirOfSkin() . App::$html)) URLReplace(\Paths::Url() . '/', _DEVELOPERIS === true ? '컨텐츠 파일이 없습니다.(' . App::$html . ')' : '');
 
 		$this->_LayoutSet();
 
@@ -98,7 +98,7 @@ class Contents{
 				$layoutPath .= '.html';
 			}
 
-			if(file_exists(_SKINDIR.'/Layout/'.$layoutPath)) $layout = $layoutPath;
+			if(file_exists(\Paths::DirOfSkin().'/Layout/'.$layoutPath)) $layout = $layoutPath;
 			App::$layout = $layout;
 		}
 	}

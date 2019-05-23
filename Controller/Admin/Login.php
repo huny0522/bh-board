@@ -23,7 +23,7 @@ class Login{
 	}
 
 	public function Index(){
-		if(_MEMBERIS === true && ($_SESSION['member']['level'] == _SADMIN_LEVEL || $_SESSION['member']['level'] == _ADMIN_LEVEL)) URLReplace(_ADMINURL);
+		if(_MEMBERIS === true && ($_SESSION['member']['level'] == _SADMIN_LEVEL || $_SESSION['member']['level'] == _ADMIN_LEVEL)) URLReplace(\Paths::UrlOfAdmin());
 		App::View($this->model);
 	}
 
@@ -46,14 +46,14 @@ class Login{
 			$_SESSION['member'] = array();
 			$_SESSION['member']['muid'] = $res['muid'];
 			$_SESSION['member']['level'] = $res['level'];
-			URLReplace(_ADMINURL);
+			URLReplace(\Paths::UrlOfAdmin());
 		}
 	}
 
 	public function Logout(){
 		unset($_SESSION['member']);
 		session_destroy();
-		URLReplace(_ADMINURL.'/Login');
+		URLReplace(\Paths::UrlOfAdmin().'/Login');
 	}
 
 

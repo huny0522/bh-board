@@ -78,14 +78,14 @@ class Reply{
 		if($action == 'Answer' || $action == 'Modify') $action = 'Write';
 		if($action == '_DirectView') $action = 'View';
 		$this->path = '/Reply/'.App::$nativeSkinDir.'/'.$this->boardManger->GetValue('reply_skin').'/';
-		if(file_exists(_SKINDIR.$this->path.$action.'.html')) App::$html = $this->path.$action.'.html';
+		if(file_exists(\Paths::DirOfSkin().$this->path.$action.'.html')) App::$html = $this->path.$action.'.html';
 		else{
 
 			$this->path = '/Reply/'.App::$nativeSkinDir.'/';
-			if(file_exists(_SKINDIR.$this->path.$action.'.html')) App::$html = $this->path.$action.'.html';
+			if(file_exists(\Paths::DirOfSkin().$this->path.$action.'.html')) App::$html = $this->path.$action.'.html';
 			else{
 				$this->path = '/Reply/'.$this->boardManger->GetValue('reply_skin').'/';
-				if(file_exists(_SKINDIR.$this->path.$action.'.html')) App::$html = $this->path.$action.'.html';
+				if(file_exists(\Paths::DirOfSkin().$this->path.$action.'.html')) App::$html = $this->path.$action.'.html';
 				else{
 					$this->path = '/Reply/';
 					App::$html = '/Reply/' . $action.'.html';
@@ -94,7 +94,7 @@ class Reply{
 
 		}
 
-		if(file_exists(_SKINDIR.$this->path.'MoreList.html')) $this->moreListIs = true;
+		if(file_exists(\Paths::DirOfSkin().$this->path.'MoreList.html')) $this->moreListIs = true;
 	}
 
 	public function PostIndex(){
@@ -417,7 +417,7 @@ class Reply{
 
 			if(is_string($fres_em)) JSON(false, $fres_em);
 			else if(is_array($fres_em)){
-				if($this->model->GetValue('file')) @unlink (_UPLOAD_DIR.$this->model->GetValue('file'));
+				if($this->model->GetValue('file')) @unlink (\Paths::DirOfUpload().$this->model->GetValue('file'));
 				$this->model->SetValue('file', $fres_em['file']);
 				$this->model->SetValue('filenm', $_FILES['file']['name']);
 			}

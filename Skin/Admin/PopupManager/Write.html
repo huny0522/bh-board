@@ -131,7 +131,7 @@ use \BH_Application as App;
 			$('#typeFieldI').addClass('hidden');
 			$('#typeFieldC').removeClass('hidden');
 			if(!contentsViewIs){
-				SE2_paste('MD_contents','<?p. _URL ?>');
+				SE2_paste('MD_contents','<?p. \Paths::Url() ?>');
 				contentsViewIs = true;
 			}
 		}else{
@@ -145,9 +145,9 @@ use \BH_Application as App;
 
 		var res = $(this).validCheck();
 		if(!res){
-			e.preventDefault(); 
-			return false; 
-		} 
+			e.preventDefault();
+			return false;
+		}
 	});
 
 	$(document).on('change', '#category_choice', function(){

@@ -26,7 +26,7 @@ if($g_n){
 	echo '<ul class="BMGroupCategory">';
 	foreach($groupBM as $k => $row){
 		echo '<li '.($row['bid'] == App::$tid && $row['subid'] == App::$sub_tid ? ' class="active"' : '').'>'
-			.'<span><a href="'. _ADMINURL.'/Board/'.$row['bid'].(strlen($row['bid']) ? '-' : '').$row['subid'].'">'.$row['subject'].'</a></span>';
+			.'<span><a href="'. \Paths::UrlOfAdmin().'/Board/'.$row['bid'].(strlen($row['bid']) ? '-' : '').$row['subid'].'">'.$row['subject'].'</a></span>';
 	}
 	echo '</ul>';
 }

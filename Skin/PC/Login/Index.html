@@ -42,7 +42,7 @@ App::$title = '로그인';
 			<label id="LoginRemember" class="radio"><input type="checkbox" id="RememberIDBtn"><span>아이디 저장</span></label>
 			<div id="LoginConfirm"><button type="submit" class="mBtn btn2">로그인</button></div>
 			<div id="link">
-				<a href="<?p. _URL ?>/" class="mBtn btn1">메인으로</a>
+				<a href="<?p. \Paths::Url() ?>/" class="mBtn btn1">메인으로</a>
 				<a href="<?p. App::URLAction('Register') ?>" class="regbtn mBtn">회원가입</a>
 				<a href="<?p. App::URLAction('FindID') ?>" class="mBtn">아이디/비밀번호 찾기</a>
 			</div>

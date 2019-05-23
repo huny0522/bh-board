@@ -83,7 +83,7 @@ class {$ControllerName}{
 		}
 		if(is_null(\$seq)) \$res = \$this->{$ModelValueName}->DBInsert();
 		else \$res = \$this->{$ModelValueName}->DBUpdate();
-		
+
 		if(!\$res->result) {
 			App::\$data['error'] = \$res->message ? \$res->message : 'Query Error';
 			App::View('Write');
@@ -157,7 +157,7 @@ class {$ModelName}Model extends \\BH_Model{
 		$oClass = new ReflectionClass('HTMLType');
 		$hTypeKeys = array_keys($oClass->getConstants());
 		/*$modelPath = _MODELDIR.'/'.$ModelName.'.model.php';
-		if(!file_exists($modelPath)) $modelPath = _DATADIR.'/'.$ModelName.'.model.php';
+		if(!file_exists($modelPath)) $modelPath = \Paths::DirOfData().'/'.$ModelName.'.model.php';
 		if(!file_exists($modelPath)) exit;
 		$f = file_get_contents($modelPath);*/
 		$pattern = '/\$this\-\>table\s*=\s*[\'|\"](.*?)[\'|\"]\;/i';
@@ -297,21 +297,21 @@ class {$ModelName}Model extends \\BH_Model{
 
 		$path = '/' . $path;
 		if(App::$nativeDir) $path = '/' . App::$nativeDir . $path;
-		if(file_exists(_SKINDIR . $path) && is_dir(_SKINDIR . $path)) return;
+		if(file_exists(\Paths::DirOfSkin() . $path) && is_dir(\Paths::DirOfSkin() . $path)) return;
 
 		$IndexHtml = self::Index($path . '/Index.html', $model);
 		$ViewHtml = self::View($path . '/View.html', $model);
 		$WriteHtml = self::Write($path . '/Write.html', $model);
 
 		if($create){
-			@mkdir(_SKINDIR . $path, 0777, true);
-			file_put_contents(_SKINDIR . $path . '/Index.html', $IndexHtml);
-			file_put_contents(_SKINDIR . $path . '/View.html', $ViewHtml);
-			file_put_contents(_SKINDIR . $path . '/Write.html', $WriteHtml);
+			@mkdir(\Paths::DirOfSkin() . $path, 0777, true);
+			file_put_contents(\Paths::DirOfSkin() . $path . '/Index.html', $IndexHtml);
+			file_put_contents(\Paths::DirOfSkin() . $path . '/View.html', $ViewHtml);
+			file_put_contents(\Paths::DirOfSkin() . $path . '/Write.html', $WriteHtml);
 			URLReplace(App::URLAction());
 		}
 		else{
-			$path = _SKINURL . '/' . (App::$nativeDir ? App::$nativeDir . '/' : '') . App::$controllerName . '/';
+			$path = \Paths::UrlOfSkin() . '/' . (App::$nativeDir ? App::$nativeDir . '/' : '') . App::$controllerName . '/';
 			echo '<b>' . $path . 'Index.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">' . (GetDBText($IndexHtml)) . '</textarea>';
 			echo '<br><br>';
 			echo '<b>' . $path . 'View.html 파일에 아래 코드를 삽입하세요.</b><br><textarea cols="200" rows="30">' . (GetDBText($ViewHtml)) . '</textarea>';
@@ -334,9 +334,9 @@ class {$ModelName}Model extends \\BH_Model{
 		$classname = $model . 'Model';
 		/* @var $modelClass Model */
 		$modelClass = App::InitModel($model);
-		if(!file_exists(_SKINDIR . $path)){
+		if(!file_exists(\Paths::DirOfSkin() . $path)){
 
-			$a = explode('/', _SKINDIR . $path);
+			$a = explode('/', \Paths::DirOfSkin() . $path);
 			$filename = array_pop($a);
 			$path2 = implode('/', $a) . '/';
 
@@ -348,7 +348,7 @@ class {$ModelName}Model extends \\BH_Model{
 			$ModelValueName = strtolower(substr($classname, 0, 1)) . substr($classname, 1);
 
 			$html = "<?php if(_BH_ !== true) exit;
-			
+
 use \\BH_Application as App;
 use \\BH_Common as CM;
 
@@ -358,7 +358,7 @@ use \\BH_Common as CM;
  */
  \$Model = &\$Ctrl->{$ModelValueName};
  ?>
- 
+
  ";
 			$html .= '<table class="view">' . chr(10);
 			foreach($modelClass->data as $k => $row){
@@ -375,8 +375,8 @@ use \\BH_Common as CM;
 			$html .= chr(9) . chr(9) . '<p>정말 삭제하시겠습니까?</p>' . chr(10) . chr(9) . chr(9) . '<div class="sPopBtns">' . chr(10) . chr(9) . chr(9) . chr(9) . '<button type="submit" class="sBtn btn2">삭제하기</button>' . chr(10) . chr(9) . chr(9) . chr(9) . '<button type="reset" class="sBtn btn2">취소</button>' . chr(10) . chr(9) . chr(9) . '</div>' . chr(10) . chr(9) . '</form>' . chr(10) . '</div>' . chr(10);
 			$html .= '<script>' . chr(9) . '$(\'#deleteArticle\').on(\'click\', function(e){' . chr(10) . chr(9) . chr(9) . 'e.preventDefault();' . chr(10) . chr(9) . chr(9) . '$(\'#deleteForm\').show();' . chr(10) . chr(9) . '});' . chr(10) . chr(9) . '$(\'#deleteForm button[type=reset]\').on(\'click\', function(e){' . chr(10) . chr(9) . chr(9) . 'e.preventDefault();' . chr(10) . chr(9) . chr(9) . '$(\'#deleteForm\').hide();' . chr(10) . chr(9) . '});' . chr(10) . '</script>';
 			return $html;
-			/*file_put_contents(_SKINDIR . $path, $html);
-			ReplaceHTMLFile(_SKINDIR . $path, _HTMLDIR . $path);*/
+			/*file_put_contents(\Paths::DirOfSkin() . $path, $html);
+			ReplaceHTMLFile(\Paths::DirOfSkin() . $path, \Paths::DirOfHtml() . $path);*/
 		}
 	}
 
@@ -386,9 +386,9 @@ use \\BH_Common as CM;
 		$classname = $model . 'Model';
 		/* @var $modelClass BH_Model */
 		$modelClass = App::InitModel($model);
-		if(!file_exists(_SKINDIR . $path)){
+		if(!file_exists(\Paths::DirOfSkin() . $path)){
 
-			$a = explode('/', _SKINDIR . $path);
+			$a = explode('/', \Paths::DirOfSkin() . $path);
 			$filename = array_pop($a);
 			$path2 = implode('/', $a) . '/';
 
@@ -453,8 +453,8 @@ use \\BH_Common as CM;
 			$html .= '</form>' . chr(10) . chr(10);
 			$html .= chr(60) . 'script>' . chr(10) . '	$(document).on(\'submit\', \'#' . $model . 'WriteForm\', function(e){' . chr(10) . '		var res = $(this).validCheck();' . chr(10) . '		if(!res){' . chr(10) . '			e.preventDefault(); ' . chr(10) . '			return false; ' . chr(10) . '		} ' . chr(10) . '	});' . chr(10) . '</script>' . chr(10);
 			return $html;
-			/*file_put_contents(_SKINDIR . $path, $html);
-			ReplaceHTMLFile(_SKINDIR . $path, _HTMLDIR . $path);*/
+			/*file_put_contents(\Paths::DirOfSkin() . $path, $html);
+			ReplaceHTMLFile(\Paths::DirOfSkin() . $path, \Paths::DirOfHtml() . $path);*/
 		}
 	}
 
@@ -464,9 +464,9 @@ use \\BH_Common as CM;
 		$classname = $model . 'Model';
 		/* @var $modelClass BH_Model */
 		$modelClass = App::InitModel($model);
-		if(!file_exists(_SKINDIR . $path)){
+		if(!file_exists(\Paths::DirOfSkin() . $path)){
 
-			$a = explode('/', _SKINDIR . $path);
+			$a = explode('/', \Paths::DirOfSkin() . $path);
 			$filename = array_pop($a);
 			$path2 = implode('/', $a) . '/';
 
@@ -531,8 +531,8 @@ use \\BH_Common as CM;
 			$html .= '<div class="left_btn"><a href="<?a. \'Write\' ?><?fq. \'\' ?>" class="mBtn">글쓰기</a></div>' . chr(10);
 			$html .= '<?e. $Data->GetPageHtml() ?>' . chr(10);
 			return $html;
-			/*file_put_contents(_SKINDIR . $path, $html);
-			ReplaceHTMLFile(_SKINDIR . $path, _HTMLDIR . $path);*/
+			/*file_put_contents(\Paths::DirOfSkin() . $path, $html);
+			ReplaceHTMLFile(\Paths::DirOfSkin() . $path, \Paths::DirOfHtml() . $path);*/
 		}
 	}
 }

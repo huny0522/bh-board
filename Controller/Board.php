@@ -87,7 +87,7 @@ class Board{
 	 * 관리자 경로일때 권한 체크
 	 */
 	protected function _AdminPathAuth(){
-		if(App::$settingData['GetUrl'][1] == _ADMINURLNAME){
+		if(App::$settingData['GetUrl'][1] == \Paths::NameOfAdmin()){
 			if(CM::GetAdminIs()) $this->adminPathIs = true;
 			else{
 				if(_JSONIS === true) JSON(false, _MSG_WRONG_CONNECTED);
@@ -168,8 +168,8 @@ class Board{
 		$this->_SetFilePath(App::$action);
 
 		$path = '/Board/'.App::$nativeSkinDir.'/'.$this->boardManger->GetValue('skin').'/';
-		if(file_exists(_SKINDIR.$path.'MoreList.html')) $this->moreListIs = true;
-		else if(file_exists(_SKINDIR.$path.'GetList.html')) $this->getListIs = true;
+		if(file_exists(\Paths::DirOfSkin().$path.'MoreList.html')) $this->moreListIs = true;
+		else if(file_exists(\Paths::DirOfSkin().$path.'GetList.html')) $this->getListIs = true;
 
 		$this->_SetLayoutPath();
 
@@ -202,19 +202,19 @@ class Board{
 		$fileName = $this->_ActionToFileName($fileName);
 		if($this->adminPathIs){
 			$this->path = '/Board/Admin/'.$this->boardManger->GetValue('skin').'/';
-			if(!file_exists(_SKINDIR.$this->path.$fileName.'.html')) $this->path = '/Board/Admin/';
+			if(!file_exists(\Paths::DirOfSkin().$this->path.$fileName.'.html')) $this->path = '/Board/Admin/';
 
 			App::$html = $this->path . $fileName.'.html';
 		}
 		else{
 			$this->path = '/Board/'.App::$nativeSkinDir.'/'.$this->boardManger->GetValue('skin').'/';
-			if(file_exists(_SKINDIR.$this->path.$fileName.'.html')) App::$html = $this->path.$fileName.'.html';
+			if(file_exists(\Paths::DirOfSkin().$this->path.$fileName.'.html')) App::$html = $this->path.$fileName.'.html';
 			else{
 				$this->path = '/Board/'.App::$nativeSkinDir.'/';
-				if(file_exists(_SKINDIR.$this->path.$fileName.'.html')) App::$html = $this->path.$fileName.'.html';
+				if(file_exists(\Paths::DirOfSkin().$this->path.$fileName.'.html')) App::$html = $this->path.$fileName.'.html';
 				else{
 					$this->path = '/Board/'.$this->boardManger->GetValue('skin').'/';
-					if(file_exists(_SKINDIR.$this->path.$fileName.'.html')) App::$html = $this->path.$fileName.'.html';
+					if(file_exists(\Paths::DirOfSkin().$this->path.$fileName.'.html')) App::$html = $this->path.$fileName.'.html';
 					else{
 						$this->path = '/Board/';
 						App::$html = '/Board/' . $fileName.'.html';
@@ -247,7 +247,7 @@ class Board{
 				$layoutPath .= '.html';
 			}
 
-			if(file_exists(_SKINDIR.'/Layout/'.$layoutPath)) $layout = $layoutPath;
+			if(file_exists(\Paths::DirOfSkin().'/Layout/'.$layoutPath)) $layout = $layoutPath;
 			App::$layout = $layout;
 		}
 	}
@@ -928,7 +928,7 @@ class Board{
 			if(class_exists('PHPMailer\\PHPMailer\\PHPMailer') && App::$action == 'Answer' && App::$data['targetData']['email_alarm'] == 'y' && strlen(App::$data['targetData']['email']) && App::$cfg->Def()->sendEmail->value){
 				$mail = new Email();
 				$mail->AddMail(App::$data['targetData']['email'], App::$data['targetData']['mname']);
-				if($this->adminPathIs) $url = _URL . '/Board/' . $this->bid . '-'. $this->subid . '/View/' . toBase($res->id);
+				if($this->adminPathIs) $url = \Paths::Url() . '/Board/' . $this->bid . '-'. $this->subid . '/View/' . toBase($res->id);
 				else $url = App::URLAction('View/' . toBase($res->id));
 				$mail->SendMailByAnswerAlarm(App::$data['targetData']['mname'], $url, $this->model->_mname->value, $this->model->_subject->value, ($this->model->_htmlis->value === 'y' ? $this->model->_content->SafeRaw() : $this->model->_content->SafeBr()));
 			}
@@ -1005,7 +1005,7 @@ class Board{
 			$name = explode('/', $file[0]);
 			$file[1] = end($name);
 		}
-		if(file_exists(_UPLOAD_DIR . $file[0]) && !is_dir(_UPLOAD_DIR . $file[0])) Download(_UPLOAD_DIR . $file[0], $file[1]);
+		if(file_exists(\Paths::DirOfUpload() . $file[0]) && !is_dir(\Paths::DirOfUpload() . $file[0])) Download(\Paths::DirOfUpload() . $file[0], $file[1]);
 		else URLRedirect(-1, '파일이 존재하지 않습니다.');
 	}
 
@@ -1020,7 +1020,7 @@ class Board{
 			$name = explode('/', $file[0]);
 			$file[1] = end($name);
 		}
-		if(file_exists(_UPLOAD_DIR . $file[0]) && !is_dir(_UPLOAD_DIR . $file[0])) Download(_UPLOAD_DIR . $file[0], $file[1]);
+		if(file_exists(\Paths::DirOfUpload() . $file[0]) && !is_dir(\Paths::DirOfUpload() . $file[0])) Download(\Paths::DirOfUpload() . $file[0], $file[1]);
 		else URLRedirect(-1, '파일이 존재하지 않습니다.');
 	}
 
@@ -1054,7 +1054,7 @@ class Board{
 			while($img = $dbGetList->Get()){
 				if(strpos($content,$img['image']) === false){
 					// 파일이 없으면 삭제
-					@UnlinkImage(_UPLOAD_DIR.$img['image']);
+					@UnlinkImage(\Paths::DirOfUpload().$img['image']);
 
 					if($img['image'] == $this->model->GetValue('thumbnail')) $this->model->SetValue('thumbnail', '');
 
@@ -1083,13 +1083,13 @@ class Board{
 				if(strpos($content, $exp[0]) !== false){
 
 					$newpath = str_replace('/temp/', $this->uploadImageDir, $exp[0]);
-					$uploadDir = _UPLOAD_DIR.$this->uploadImageDir;
+					$uploadDir = \Paths::DirOfUpload().$this->uploadImageDir;
 					if(!is_dir($uploadDir)){
 						mkdir($uploadDir, 0777, true);
 					}
 
 					// 복사 전에 파일의 용량 체크 여기서 가능
-					@copy(_UPLOAD_DIR.$exp[0],_UPLOAD_DIR.$newpath);
+					@copy(\Paths::DirOfUpload().$exp[0],\Paths::DirOfUpload().$newpath);
 					$newContent = str_replace($exp[0],$newpath, $newContent);
 					// 파일이 있으면 등록
 
@@ -1106,7 +1106,7 @@ class Board{
 					$dbInsert->Run();
 					$imageCount++;
 				}
-				@UnlinkImage(_UPLOAD_DIR.$exp[0]);
+				@UnlinkImage(\Paths::DirOfUpload().$exp[0]);
 			}
 
 			if($newContent != $content || !$this->model->GetValue('thumbnail')){
@@ -1129,7 +1129,7 @@ class Board{
 			}
 		}
 
-		DeleteOldTempFiles(_UPLOAD_DIR.'/temp/', strtotime('-6 hours'));
+		DeleteOldTempFiles(\Paths::DirOfUpload().'/temp/', strtotime('-6 hours'));
 		return true;
 	}
 
@@ -1483,14 +1483,14 @@ class Board{
 	protected function _FileCopy($dir, $file){
 		$filePath = $this->model->GetFilePathByValue($file);
 		$fileName = $this->model->GetFileNameByValue($file);
-		if($filePath && file_exists(_UPLOAD_DIR.$filePath)){
+		if($filePath && file_exists(\Paths::DirOfUpload().$filePath)){
 
-			if(!is_dir(_UPLOAD_DIR . $dir)) mkdir(_UPLOAD_DIR . $dir, 0777, true);
+			if(!is_dir(\Paths::DirOfUpload() . $dir)) mkdir(\Paths::DirOfUpload() . $dir, 0777, true);
 
 			$temp = explode('.', $filePath);
 			$ext = end($temp);
 			$newFilePath = $dir . \_ModelFunc::RandomFileName() . '.' . $ext;
-			if(file_exists(_UPLOAD_DIR.$filePath)) copy(_UPLOAD_DIR.$filePath, _UPLOAD_DIR.$newFilePath);
+			if(file_exists(\Paths::DirOfUpload().$filePath)) copy(\Paths::DirOfUpload().$filePath, \Paths::DirOfUpload().$newFilePath);
 			return array('name' => $fileName, 'path' => $newFilePath);
 		}
 		return array('name' => '', 'path' => '');
@@ -1515,7 +1515,7 @@ class Board{
 				->AddWhere('article_seq='.$seq);
 			$this->_R_CommonQry($dbGetList);
 			while($img = $dbGetList->Get()){
-				if(file_exists(_UPLOAD_DIR.$img['image'])) @UnlinkImage(_UPLOAD_DIR.$img['image']);
+				if(file_exists(\Paths::DirOfUpload().$img['image'])) @UnlinkImage(\Paths::DirOfUpload().$img['image']);
 				$qry = DB::DeleteQryObj($this->model->table.'_images')
 					->SetConnName($this->connName)
 					->AddWhere('article_seq = '.$img['article_seq'])
@@ -1531,7 +1531,7 @@ class Board{
 			$this->_R_CommonQry($dbGetList);
 			while($rep = $dbGetList->Get()){
 				$f = $this->model->GetFilePathByValue($rep['file']);
-				if(file_exists(_UPLOAD_DIR.$f)) @UnlinkImage(_UPLOAD_DIR.$f);
+				if(file_exists(\Paths::DirOfUpload().$f)) @UnlinkImage(\Paths::DirOfUpload().$f);
 				DB::DeleteQryObj($this->model->table.'_reply')
 					->SetConnName($this->connName)
 					->AddWhere('article_seq = '.$rep['article_seq'])
@@ -1548,12 +1548,12 @@ class Board{
 
 			// 게시물 삭제
 			$f = $this->model->GetFilePathByValue($row['file1']);
-			if($f && file_exists(_UPLOAD_DIR.$f)){
-				@UnlinkImage(_UPLOAD_DIR.$f);
+			if($f && file_exists(\Paths::DirOfUpload().$f)){
+				@UnlinkImage(\Paths::DirOfUpload().$f);
 			}
 			$f = $this->model->GetFilePathByValue($row['file2']);
-			if($f && file_exists(_UPLOAD_DIR.$f)){
-				@UnlinkImage(_UPLOAD_DIR.$f);
+			if($f && file_exists(\Paths::DirOfUpload().$f)){
+				@UnlinkImage(\Paths::DirOfUpload().$f);
 			}
 			$qry = DB::DeleteQryObj($this->model->table)
 				->SetConnName($this->connName)

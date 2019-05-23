@@ -105,7 +105,7 @@ class MessageModel extends \BH_Model
 
 			// 읽지 않은 메세지는 완전 삭제
 			if(!$this->_read_date->Val()){
-				if($this->_file->Val()) @unlink(_UPLOAD_DIR . $this->GetFilePath('file'));
+				if($this->_file->Val()) @unlink(\Paths::DirOfUpload() . $this->GetFilePath('file'));
 
 				DB::DeleteQryObj($this->table)
 					->AddWhere('seq = %d', $this->_seq->Val())

@@ -68,7 +68,7 @@ class BoardModel extends \BH_Model
 		$this->imageTable = $this->table.'_images';
 
 		if(!\DB::SQL($this->connName)->TableExists($this->table)){
-			URLReplace(_URL.'/', '존재하지 않는 게시판입니다.');
+			URLReplace(\Paths::Url().'/', '존재하지 않는 게시판입니다.');
 		}
 
 		$this->data['seq'] = new \BH_ModelData(ModelType::INT, '');

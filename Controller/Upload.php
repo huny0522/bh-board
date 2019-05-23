@@ -22,7 +22,7 @@ class Upload{
 	}
 
 	private function FileUpload($type = ''){
-		DeleteOldTempFiles(_UPLOAD_DIR.'/temp/', strtotime('-6 hours'));
+		DeleteOldTempFiles(\Paths::DirOfUpload().'/temp/', strtotime('-6 hours'));
 		if(strpos('../', $_FILES['Filedata']['name']) !== false) URLReplace('-1');
 		$bSuccessUpload = is_uploaded_file($_FILES['Filedata']['tmp_name']);
 
@@ -36,14 +36,14 @@ class Upload{
 			if(!in_array($filename_ext, App::$settingData['POSSIBLE_EXT']) || in_array($filename_ext, App::$settingData['noext'])) JSON(false, _MSG_IMPOSSIBLE_FILE);
 			if(($type == 'image' && !in_array($filename_ext, App::$settingData['IMAGE_EXT'])) || ($type == '' && !in_array($filename_ext, App::$settingData['POSSIBLE_EXT']))) JSON(false, _MSG_IMPOSSIBLE_FILE);
 			$path = '/temp/';
-			$uploadDir = _UPLOAD_DIR.$path;
+			$uploadDir = \Paths::DirOfUpload().$path;
 			if(!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
 			$newFileName = \_ModelFunc::RandomFileName().'.'.$filename_ext;
 
 			@move_uploaded_file($tmp_name, $uploadDir.$newFileName);
 
-			$data['uploadDir'] = _UPLOAD_URL;
+			$data['uploadDir'] = Paths::UrlOfUpload();
 			$data['path'] = $path.$newFileName;
 			$data['fname'] = $_FILES['Filedata']['name'];
 			JSON(true, '', $data);

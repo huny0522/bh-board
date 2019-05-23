@@ -102,7 +102,7 @@ class MyPage{
 		if($_SESSION['member']['level'] >= _ADMIN_LEVEL) URLRedirect(-1, '관리자는 관리자페이지에서 수정이 가능합니다.');
 
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
-			URLReplace(_URL.'/', _MSG_WRONG_CONNECTED);
+			URLReplace(\Paths::Url().'/', _MSG_WRONG_CONNECTED);
 		}
 
 		$model = App::InitModel('Member');
@@ -180,7 +180,7 @@ class MyPage{
 		if($_SESSION['member']['level'] >= _ADMIN_LEVEL) URLRedirect(-1, '관리자는 탈퇴가 불가능합니다.');
 
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
-			URLReplace(_URL.'/', _MSG_WRONG_CONNECTED);
+			URLReplace(\Paths::Url().'/', _MSG_WRONG_CONNECTED);
 		}
 
 		$res = Member::_Withdraw($_SESSION['member']['muid'], Post('withdraw_reason'));
@@ -188,6 +188,6 @@ class MyPage{
 
 		unset($_SESSION['member']);
 		session_destroy();
-		URLReplace(_URL.'/', '탈퇴되었습니다. 이용해 주셔서 감사합니다.');
+		URLReplace(\Paths::Url().'/', '탈퇴되었습니다. 이용해 주셔서 감사합니다.');
 	}
 }

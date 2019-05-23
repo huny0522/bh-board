@@ -13,7 +13,7 @@ App::CSSAdd('admin.css'.CM::RefreshParam(), 10);
 App::JSAdd('jquery-1.11.3.min.js', 10);
 App::JSAdd('jquery.form.min.js', 10);
 App::JSAdd('jquery-ui.min.js', 10);
-App::JSAdd(_URL . '/Common/common.js' . CM::RefreshParam(), 10);
+App::JSAdd(\Paths::Url() . '/Common/common.js' . CM::RefreshParam(), 10);
 App::JSAdd('contents.js' . CM::RefreshParam(), 10);
 App::JSAdd('admin.js' . CM::RefreshParam(), 10);
 ?>
@@ -21,13 +21,13 @@ App::JSAdd('admin.js' . CM::RefreshParam(), 10);
 <div id="wrap"<?php if((isset($_COOKIE['managerSideView']) && $_COOKIE['managerSideView'] == 'no') || App::$controllerName == 'Home') echo ' class="sideHidden"'; ?>>
 	<header id="header">
 		<div id="header_wrap">
-			<h1><a href="<?p. _ADMINURL ?>"><span>ADMINISTRATOR</span></a></h1>
+			<h1><a href="<?p. \Paths::UrlOfAdmin() ?>"><span>ADMINISTRATOR</span></a></h1>
 			<nav id="gnb">
 				<ul>
-					<li class="home"><a href="<?p. _URL.'/' ?>" target="_blank">홈으로</a></li>
-					<li class="logout"><a href="<?p. _ADMINURL ?>/Login/Logout">로그아웃</a></li>
+					<li class="home"><a href="<?p. \Paths::Url().'/' ?>" target="_blank">홈으로</a></li>
+					<li class="logout"><a href="<?p. \Paths::UrlOfAdmin() ?>/Login/Logout">로그아웃</a></li>
 					<?php if($_SESSION['member']['level'] == _SADMIN_LEVEL){ ?>
-					<li><a href="<?p. _ADMINURL ?>/Home/PHPInfo" target="_blank">PHPInfo()</a></li>
+					<li><a href="<?p. \Paths::UrlOfAdmin() ?>/Home/PHPInfo" target="_blank">PHPInfo()</a></li>
 					<?php } ?>
 				</ul>
 			</nav>
@@ -39,14 +39,14 @@ App::JSAdd('admin.js' . CM::RefreshParam(), 10);
 					foreach(App::$settingData['AdminMenu'] as $c => $v){
 						if(strlen($c) == 3 && ($_SESSION['member']['level'] == _SADMIN_LEVEL || in_array($c, $AdminAuth))){
 							echo '<li '.(substr($NM,0,3) == $c ? ' class="Active"' : '').'>'
-								.'<span><a href="'. _ADMINURL.'/'.$v['Category'].'">'.$v['Name'].'</a></span>';
+								.'<span><a href="'. \Paths::UrlOfAdmin().'/'.$v['Category'].'">'.$v['Name'].'</a></span>';
 
 							$sub = '';
 
 							foreach(App::$settingData['AdminMenu'] as $c2 => $v2){
 								if(strlen($c2) == 6 && substr($c2, 0, 3) == $c && ($_SESSION['member']['level'] == _SADMIN_LEVEL || in_array($c2, $AdminAuth))){
 									$sub .= '<li '.(substr($NM,0,6) == $c2 ? ' class="Active"' : '').'>'
-										.'<span><a href="'. _ADMINURL.'/'.$v2['Category'].'">'.$v2['Name'].'</a></span>';
+										.'<span><a href="'. \Paths::UrlOfAdmin().'/'.$v2['Category'].'">'.$v2['Name'].'</a></span>';
 								}
 							}
 
@@ -62,7 +62,7 @@ App::JSAdd('admin.js' . CM::RefreshParam(), 10);
 								}
 								foreach(DB::GetListQryObj(TABLE_BOARD_MNG)->SetKey('DISTINCT group_name')->GetRows() as $k => $row){
 									$sub .= '<li '.(($row['group_name'] == Get('gn') || $row['group_name'] == $groupN) ? ' class="Active"' : '').'>'
-										.'<span><a href="'. _ADMINURL.'/BoardManager/?gn='.$row['group_name'].'">'.$row['group_name'].'</a></span>';
+										.'<span><a href="'. \Paths::UrlOfAdmin().'/BoardManager/?gn='.$row['group_name'].'">'.$row['group_name'].'</a></span>';
 								}
 							}
 

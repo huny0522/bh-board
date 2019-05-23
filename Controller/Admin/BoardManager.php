@@ -216,9 +216,9 @@ class BoardManager
 
 				$dirName = Post('bid') . (EmptyPost('subid') ? '' : '-' . Post('subid'));
 
-				delTree(_UPLOAD_DIR . '/board/' . $dirName);
-				delTree(_UPLOAD_DIR . '/boardimage/' . $dirName);
-				delTree(_UPLOAD_DIR . '/reply/' . $dirName);
+				delTree(\Paths::DirOfUpload() . '/board/' . $dirName);
+				delTree(\Paths::DirOfUpload() . '/boardimage/' . $dirName);
+				delTree(\Paths::DirOfUpload() . '/reply/' . $dirName);
 
 				URLReplace(App::URLAction('').App::GetFollowQuery(), '삭제되었습니다.');
 			}else{

@@ -208,7 +208,7 @@ class Message
 	public function Download(){
 		$this->_ModelSet(App::$id);
 		if(!strlen($this->messageModel->_file->value)) URLRedirect(-1, '해당 파일이 존재하지 않습니다.');
-		Download(_UPLOAD_DIR . $this->messageModel->GetFilePath('file'), $this->messageModel->GetFileName('file'));
+		Download(\Paths::DirOfUpload() . $this->messageModel->GetFilePath('file'), $this->messageModel->GetFileName('file'));
 	}
 
 	public function GetList(){
@@ -229,7 +229,7 @@ class Message
 				$row['readIs'] = strlen($row['read_date']) ? true : false;
 				if(strlen($row['file'])){
 					$row['fileLink'] = App::URLAction('Download/' . $row['seq']);
-					$row['filePath'] = _UPLOAD_URL . $this->messageModel->GetFilePathByValue($row['file']);
+					$row['filePath'] = Paths::UrlOfUpload() . $this->messageModel->GetFilePathByValue($row['file']);
 					$row['fileName'] = $this->messageModel->GetFileNameByValue($row['file']);
 					$row['isImage'] = IsImageFileName($row['fileName']);
 				}

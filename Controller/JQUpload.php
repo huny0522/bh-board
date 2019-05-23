@@ -17,7 +17,7 @@ class JQUpload
 		else $possbieExt = App::$settingData['POSSIBLE_EXT'];
 
 		$option = array(
-			'upload_dir' => _UPLOAD_DIR.'/temp/',
+			'upload_dir' => \Paths::DirOfUpload().'/temp/',
 			'upload_url' => '/Data/Upload/temp/',
 			'accept_file_types' => '/\.(' . implode('|', $possbieExt) . ')$/i',
 			'param_name' => 'temp_upload_file'

@@ -26,7 +26,7 @@ class Email
 	public function __construct(){
 		$this->defCfg = App::$cfg->Def();
 		$this->mailer = new Mailer(_DEVELOPERIS === true ? 4 : 0);
-		App::$data['LogoUrl'] = _UPLOAD_URL.$this->defCfg->emailLogoUrl->value;
+		App::$data['LogoUrl'] = Paths::UrlOfUpload().$this->defCfg->emailLogoUrl->value;
 		App::$data['HomeUrl'] = _DOMAIN;
 	}
 
@@ -99,18 +99,18 @@ class Email
 	}
 
 	public static function HtmlExtraConvert($html, $dir = '/Email/'){
-		if(strlen($html) && file_exists(_SKINDIR.$dir.$html)){
-			$convertHtml = _HTMLDIR.$dir.'convert.'.$html;
+		if(strlen($html) && file_exists(\Paths::DirOfSkin().$dir.$html)){
+			$convertHtml = \Paths::DirOfHtml().$dir.'convert.'.$html;
 
 			// 파일이 수정되었거나 없으면 변환합니다.
 			// {?LEFT(category) = 0000}
-			$modifyIs = modifyFileTime(_SKINDIR.$dir.$html, 'mall_email');
+			$modifyIs = modifyFileTime(\Paths::DirOfSkin().$dir.$html, 'mall_email');
 			if(!file_exists($convertHtml) || $modifyIs){
-				if(!file_exists(_HTMLDIR.$dir) && !is_dir(_HTMLDIR.$dir)){
-					@mkdir(_HTMLDIR.$dir, 0777, true);
+				if(!file_exists(\Paths::DirOfHtml().$dir) && !is_dir(\Paths::DirOfHtml().$dir)){
+					@mkdir(\Paths::DirOfHtml().$dir, 0777, true);
 				}
 
-				$body = file_get_contents(_SKINDIR.$dir.$html);
+				$body = file_get_contents(\Paths::DirOfSkin().$dir.$html);
 
 				$patterns = array(
 					'/\<\?.*?\?\>/i',
@@ -161,7 +161,7 @@ class Email
 					'<?php if(isset(BH_Application::$data[\'$1\'])) echo number_format(GetDBText(BH_Application::$data[\'$1\'])) ?>',
 					'<?php if(isset(BH_Application::$data[\'$1\'][\'$2\'])) echo number_format(GetDBText(BH_Application::$data[\'$1\'][\'$2\'])) ?>',
 
-					'<img $1 src="' . _DOMAIN . _URL . '$2" $3>',
+					'<img $1 src="' . _DOMAIN . \Paths::Url() . '$2" $3>',
 				);
 				file_put_contents($convertHtml, preg_replace($patterns, $replace, $body));
 			}

@@ -886,7 +886,7 @@ class _ModelFunc{
 							if(($v->htmlType === HTMLType::FILE_WITH_NAME || $v->htmlType === HTMLType::FILE_JQUERY) && isset($m[1]) && strlen($m[1])) $fName = '*' . $m[1];
 						}
 
-						if(strlen($fPath) && file_exists(_UPLOAD_DIR . $fPath)){
+						if(strlen($fPath) && file_exists(\Paths::DirOfUpload() . $fPath)){
 							$ext = explode('.', $fPath);
 							$ext = strtolower(array_pop($ext));
 
@@ -911,7 +911,7 @@ class _ModelFunc{
 								if($type === 'mb') $s = $s * 1024 * 1024;
 								else if($type === 'kb') $s = $s * 1024;
 
-								if($s < filesize(_UPLOAD_DIR . $fPath)){
+								if($s < filesize(\Paths::DirOfUpload() . $fPath)){
 									$ret->message = $v->modelErrorMsg = $v->displayName . '항목에 파일용량을 초과하였습니다.';
 									$ret->result = false;
 									return $ret;
@@ -926,10 +926,10 @@ class _ModelFunc{
 								array_pop($tempPath);
 
 								$newFileName = '';
-								while($newFileName == '' || file_exists(_UPLOAD_DIR . implode('/', $tempPath) . '/' . $newFileName . '.' . $ext)) $newFileName = self::RandomFileName();
+								while($newFileName == '' || file_exists(\Paths::DirOfUpload() . implode('/', $tempPath) . '/' . $newFileName . '.' . $ext)) $newFileName = self::RandomFileName();
 								$old = $fPath;
 								$fPath = implode('/', $tempPath) . '/' . $newFileName . '.' . $ext;
-								rename(_UPLOAD_DIR . $old, _UPLOAD_DIR . $fPath);
+								rename(\Paths::DirOfUpload() . $old, \Paths::DirOfUpload() . $fPath);
 							}
 
 							$newpath = self::ReservedMoveFile($fPath, $model->uploadDir);
@@ -993,10 +993,10 @@ class _ModelFunc{
 		if(strpos($path, '..') !== false) return (object) array('result' => -1, 'message' => '잘못된 파일경로가 탐지었습니다.');
 
 		$path = preg_replace('/[^0-9a-zA-Z\/\_\-\!\@\.]/', '', $path);
-		if(file_exists(_UPLOAD_DIR . $path)){
+		if(file_exists(\Paths::DirOfUpload() . $path)){
 			$upDir = $dir;
 			$newpath = substr_replace($path, $upDir, 0, 6);
-			if(!is_dir(_UPLOAD_DIR . $upDir)) mkdir(_UPLOAD_DIR . $upDir, 0777, true);
+			if(!is_dir(\Paths::DirOfUpload() . $upDir)) mkdir(\Paths::DirOfUpload() . $upDir, 0777, true);
 
 			return $newpath;
 		}
@@ -1011,13 +1011,13 @@ class _ModelFunc{
 			if(self::IsFileType($v->htmlType)){
 				if(isset($v->__moveFile) && is_array($v->__moveFile)){
 					foreach($v->__moveFile as $mv){
-						@copy(_UPLOAD_DIR . $mv['source'], _UPLOAD_DIR . $mv['dest']);
-						UnlinkImage(_UPLOAD_DIR . $mv['source']);
+						@copy(\Paths::DirOfUpload() . $mv['source'], \Paths::DirOfUpload() . $mv['dest']);
+						UnlinkImage(\Paths::DirOfUpload() . $mv['source']);
 					}
 				}
 				if(isset($v->__deleteFile) && is_array($v->__deleteFile)){
 					foreach($v->__deleteFile as $f){
-						UnlinkImage(_UPLOAD_DIR . $f);
+						UnlinkImage(\Paths::DirOfUpload() . $f);
 					}
 				}
 			}
@@ -1318,7 +1318,7 @@ class _ModelFunc{
 				$h = '<div class="fileUploadArea"><input type="hidden" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$Attribute.'>';
 				$h .= '<span class="fileUploadImage">';
 				if(strlen($data->value)){
-					$h .= '<i style="background-image:url(' . _UPLOAD_URL . $data->value . ')"></i>';
+					$h .= '<i style="background-image:url(' . Paths::UrlOfUpload() . $data->value . ')"></i>';
 				}
 				$h .= '</span>';
 				if(strlen($data->value)) $h .= ' <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><span>삭제</span></label>';
@@ -1329,7 +1329,7 @@ class _ModelFunc{
 				if(strlen($data->value)){
 					$p = explode(';', $data->value);
 					foreach($p as $path){
-						$h .= ' <span class="fileUploadImage"><i style="background-image:url(' . _UPLOAD_URL . $path . ')"></i></span> <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '[]" value="' . $path . '"><span>삭제</span></label>';
+						$h .= ' <span class="fileUploadImage"><i style="background-image:url(' . Paths::UrlOfUpload() . $path . ')"></i></span> <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '[]" value="' . $path . '"><span>삭제</span></label>';
 					}
 				}
 				$h .= '<div class="fileUploadArea"><span class="fileUploadImage"></span><input type="hidden" name="'.$Name.'[]" data-displayname="' . $data->displayName . '" '.$Attribute.'><button type="button" class="fileUploadBtn sBtn"><span>이미지업로드</span></button><button type="button" class="fileUploadAreaAddBtn sBtn">추가</button><button type="button" class="fileUploadAreaRmBtn sBtn">삭제</button></div>';
@@ -1578,7 +1578,7 @@ class _ModelFunc{
 					$p = explode(';', $data->value);
 					foreach($p as $path){
 						$pn = explode('*', $path);
-						UnlinkImage(_UPLOAD_DIR . $pn[0]);
+						UnlinkImage(\Paths::DirOfUpload() . $pn[0]);
 					}
 				}
 			}
@@ -1760,13 +1760,13 @@ class _ModelFunc{
 			if($files['error'] ===  UPLOAD_ERR_INI_SIZE) return _MSG_FILE_TOO_BIG;
 			if($files['error'] !==  UPLOAD_ERR_OK) return _MSG_UPLOAD_ERROR;
 
-			if(!is_dir(_UPLOAD_DIR.$path)) @mkdir(_UPLOAD_DIR.$path, 0777, true);
+			if(!is_dir(\Paths::DirOfUpload().$path)) @mkdir(\Paths::DirOfUpload().$path, 0777, true);
 
 			$newFileName = '';
-			while($newFileName == '' || file_exists(_UPLOAD_DIR.$path.$newFileName.'.'.$ext)) $newFileName = self::RandomFileName();
+			while($newFileName == '' || file_exists(\Paths::DirOfUpload().$path.$newFileName.'.'.$ext)) $newFileName = self::RandomFileName();
 
 
-			copy($files['tmp_name'], _UPLOAD_DIR.$path.$newFileName.'.'.$ext);
+			copy($files['tmp_name'], \Paths::DirOfUpload().$path.$newFileName.'.'.$ext);
 			$res['original'] = $files['name'];
 			$res['path'] = $path;
 			$res['name'] = $newFileName;
@@ -1978,7 +1978,7 @@ class _CfgData
 			case \HTMLType::FILE_IMAGE:
 				$h = '<input type="hidden" name="file_field[]" value="'. $this->key . '">';
 				if($this->value){
-					$h .= '<img src="' . _UPLOAD_URL. GetDBText($this->value) . '" style="max-width:100px; max-height:100px;">';
+					$h .= '<img src="' . Paths::UrlOfUpload(). GetDBText($this->value) . '" style="max-width:100px; max-height:100px;">';
 				}
 				$h .= '<input type="file" name="' . $this->key .'" accept="image/*" ' . $attr . '> <label class="checkbox"><input type="checkbox" name="_delFile[]" value="' . GetDBText($this->value) . '"><span>삭제</span></label>';
 			break;
@@ -2025,7 +2025,7 @@ class _ConfigModel{
 			exit;
 		}
 		// 설정불러오기
-		$path = _DATADIR.'/CFG/'.$this->_code.'.php';
+		$path = \Paths::DirOfData().'/CFG/'.$this->_code.'.php';
 		if(file_exists($path)){
 			$data = file_get_contents($path);
 			if(substr($data, 0, 15) == '<?php return;/*'){
@@ -2052,7 +2052,7 @@ class _ConfigModel{
 
 		$fileNames = isset($data['file_field']) ? $data['file_field'] : array();
 
-		if(!file_exists( _DATADIR.'/CFG') || !is_dir(_DATADIR.'/CFG')) mkdir(_DATADIR.'/CFG', 0755, true);
+		if(!file_exists( \Paths::DirOfData().'/CFG') || !is_dir(\Paths::DirOfData().'/CFG')) mkdir(\Paths::DirOfData().'/CFG', 0755, true);
 		foreach($data as $k => $v){
 			if(!isset($this->{$k}) || $k === '_delFile') continue;
 			$this->{$k}->value = $v;
@@ -2064,13 +2064,13 @@ class _ConfigModel{
 				preg_match('/([a-zA-Z0-9_]+)\[([0-9]*?)\]/', $v, $matches);
 				if(isset($matches[2])){
 					if(isset($this->{$matches[1]}[$matches[2]])){
-						@unlink(_UPLOAD_DIR.$this->{$matches[1]}[$matches[2]]->value);
+						@unlink(\Paths::DirOfUpload().$this->{$matches[1]}[$matches[2]]->value);
 						$this->{$matches[1]}[$matches[2]]->value = '';
 					}
 
 				}
 				else{
-					@unlink(_UPLOAD_DIR.$this->{$v}->value);
+					@unlink(\Paths::DirOfUpload().$this->{$v}->value);
 					if(isset($this->{$v})) $this->{$v}->value = '';
 				}
 			}
@@ -2093,13 +2093,13 @@ class _ConfigModel{
 
 						if(is_string($fres_em)) URLRedirect(-1, $fres_em);
 						else if(is_array($fres_em)){
-							if(strlen($this->{$k}->value)) @unlink(_UPLOAD_DIR.$this->{$k}->value);
+							if(strlen($this->{$k}->value)) @unlink(\Paths::DirOfUpload().$this->{$k}->value);
 							$this->{$k}->value = $fres_em['file'];
 							if(class_exists('\\PHP_ICO')){
 								if($this->_code === 'Default' && $k == 'FaviconPng'){
 									$temp = explode('.', $fres_em['file']);
 									array_pop($temp);
-									$pico = new \PHP_ICO(_UPLOAD_DIR . $fres_em['file'], array( array( 16, 16 ), array( 32, 32 ), array( 64, 64 ) ));
+									$pico = new \PHP_ICO(\Paths::DirOfUpload() . $fres_em['file'], array( array( 16, 16 ), array( 32, 32 ), array( 64, 64 ) ));
 									$pico->save_ico(_DIR . '/favicon.ico');
 								}
 							}
@@ -2109,7 +2109,7 @@ class _ConfigModel{
 			}
 		}
 
-		$path = _DATADIR.'/CFG/'.$this->_code.'.php';
+		$path = \Paths::DirOfData().'/CFG/'.$this->_code.'.php';
 		$arr = get_object_vars($this);
 		$saveData = array();
 		foreach($arr as $k => $v){

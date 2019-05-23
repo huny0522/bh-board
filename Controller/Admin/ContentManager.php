@@ -167,11 +167,11 @@ class ContentManager{
 	}
 
 	public function GetSkinFiles(){
-		$this->GetFiles(_SKINDIR . '/Contents/');
+		$this->GetFiles(\Paths::DirOfSkin() . '/Contents/');
 	}
 
 	public function GetLayoutFiles(){
-		$this->GetFiles(_SKINDIR . '/Layout/');
+		$this->GetFiles(\Paths::DirOfSkin() . '/Layout/');
 	}
 
 	public function GetFiles($parentPath){

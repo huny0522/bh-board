@@ -174,7 +174,7 @@ class MenuHelp
 			}
 			else{
 				$temp = App::$cfg->Sys()->menuCache->value;
-				if(!file_exists(_DATADIR . '/CFG/System.php')) $this->MenusToFile();
+				if(!file_exists(\Paths::DirOfData() . '/CFG/System.php')) $this->MenusToFile();
 				if(!is_array($temp)) $this->menus = array();
 				else{
 					foreach($temp as $v) $this->menus[$v['category']] = $v;
@@ -315,7 +315,7 @@ class MenuHelp
 		foreach($menuData as $menu){
 			$html .= '<'.$tagName.$attr.' id="' . $this->idBegin . $menu['category'] . '" class="'.$class.($this->ActiveCheck($menu['category']) ? ' '.$activeClass : '').'">';
 			if($linkWrapTag) echo '<'.$linkWrapTag.'>';
-			$html .= '<a href="'._URL.'/'.urlencode(GetDBText($menu['controller'])).'">'.GetDBText($menu['title']).'</a>';
+			$html .= '<a href="'.\Paths::Url().'/'.urlencode(GetDBText($menu['controller'])).'">'.GetDBText($menu['title']).'</a>';
 			if($linkWrapTag) echo '</'.$linkWrapTag.'>';
 			if(is_callable($func)) $html .= $func($menu['category']);
 			$html .= '</'.$tagName.'>';

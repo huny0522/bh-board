@@ -12,7 +12,7 @@ class Home{
 
 	public function __init(){
 		if(_MEMBERIS !== true || ($_SESSION['member']['level'] != _SADMIN_LEVEL  && $_SESSION['member']['level'] != _ADMIN_LEVEL)){
-			URLReplace(_ADMINURL.'/Login');
+			URLReplace(\Paths::UrlOfAdmin().'/Login');
 		}
 		App::$layout = '_Admin';
 		App::$data['NowMenu'] = '';
