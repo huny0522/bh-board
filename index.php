@@ -19,8 +19,9 @@ define('_BH_', true);
 //
 // -------------------------------------
 define('PHP_RUN_CLI', strpos(php_sapi_name(), 'cli') !== false);
-if(0) define('_DIR', __DIR__);
-define('_DIR', str_replace('\\', '/', dirname(__FILE__)));
+if(0) define('_DIR', __DIR__); // for phpstorm
+$_DIR = '_DIR';
+define($_DIR, str_replace('\\', '/', dirname(__FILE__)));
 
 define('_SKINDIRNAME', 'Skin');
 define('_DATADIRNAME', 'Data');

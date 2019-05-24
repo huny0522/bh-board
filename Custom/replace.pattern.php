@@ -145,7 +145,7 @@ $_rpData = array(
 	),
 
 	array(
-		'pattern' => '#\=\s*([\'"])/Skin/#s',
+		'pattern' => '#\=\s*([\'"])/' . \Paths::NameOfSkin() . '/#s',
 		'replace' => '=$1' . \Paths::UrlOfSkin() . '/'
 	),
 

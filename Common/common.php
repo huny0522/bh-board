@@ -94,8 +94,20 @@ class Paths{
 		return self::$url;
 	}
 
+	public static function Dir(){
+		return self::$dir;
+	}
+
 	public static function NameOfAdmin(){
 		return self::$adminUrlName;
+	}
+
+	public static function NameOfSkin(){
+		return self::$skinDirName;
+	}
+
+	public static function NameOfData(){
+		return self::$dataDirName;
 	}
 
 	public static function DirOfData(){
