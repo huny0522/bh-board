@@ -73,7 +73,7 @@ class Login{
 				$vcnt = \Common\VisitCounter::GetInstance();
 				$vcnt->InsertLoginCounter();
 
-				URLReplace(\Paths::Url().'/');
+				URLReplace(EmptyGet('r_url') ? \Paths::Url().'/' : Get('r_url'));
 			}
 		}
 	}
@@ -196,8 +196,8 @@ class Login{
 
 
 	public function Logout(){
+		$_SESSION['member'] = null;
 		unset($_SESSION['member']);
-		session_destroy();
 		URLReplace(\Paths::Url().'/');
 	}
 

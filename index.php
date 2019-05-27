@@ -55,9 +55,13 @@ define('_DOMAIN', isset($_SERVER['HTTP_HOST']) ? ((isset($_SERVER['HTTPS']) && $
 // -------------------------------------
 $_DEVELOPER_IP = array('127.0.0.1');
 if(PHP_RUN_CLI === true){
+	define('_IS_DEVELOPER_IP', true);
 	define('_DEVELOPERIS', true);
 }
-else define('_DEVELOPERIS', true && in_array($_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP));
+else{
+	define('_IS_DEVELOPER_IP', in_array($_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP));
+	define('_DEVELOPERIS', true && in_array($_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP) && isset($_SESSION['developer_login']) && $_SESSION['developer_login'] === 'y');
+}
 define('_CREATE_HTML_ALL', false && _DEVELOPERIS === true);
 define('_REFRESH_HTML_ALL', true && _DEVELOPERIS === true);
 

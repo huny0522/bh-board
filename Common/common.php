@@ -152,7 +152,22 @@ define('_POSTIS', isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'
 define('_AJAXIS', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
 define('_JSONIS', isset($_SERVER['HTTP_ACCEPT']) && strpos(strtolower($_SERVER['HTTP_ACCEPT']), 'application/json') !== false);
 
-define('_REFRESH_BTN', PHP_RUN_CLI ? '' : (_DEVELOPERIS === true ? '<a id="_BH_RefreshBtn" href="' . Paths::Url() . '/_Refresh?r_url=' . urlencode($_SERVER['REQUEST_URI']) . '" style="position:fixed; bottom:10px; right:10px; z-index:9999; display:block; height:30px; line-height:30px; padding:0 15px; font-size:12px; background:rgba(0,0,0,0.5); color:#fff; border-radius:15px;">새로고침</a>' : ''));
+if(_IS_DEVELOPER_IP === true){
+	$developerBottomHtml = '<ul style="position:fixed; bottom:10px; right:10px; z-index:9999; display:table;">';
+	if(_DEVELOPERIS !== true){
+		$developerBottomHtml .= '<li style="display:table-cell; vertical-align:middle;"><form method="post" action="' . Paths::UrlOfAdmin() . '/Login/DevLogin?r_url=' . urlencode($_SERVER['REQUEST_URI']) . '"><input type="password" name="devpwd" value="" style="height:30px; padding:0 15px; margin-right:5px; border:0; font-size:12px; background:rgba(0,0,0,0.2); color:#fff; border-radius:15px;"><button type="submit" style="height:30px; padding:0 15px; margin-right:15px; font-size:12px; background:rgba(0,0,0,0.5); color:#fff; border-radius:15px;">개발자로그인</button></form></li>';
+	}
+	else{
+		$developerBottomHtml .= '<li style="display:table-cell; vertical-align:middle;"><a href="' . Paths::UrlOfAdmin() . '/Login/DevLogout?r_url=' . urlencode($_SERVER['REQUEST_URI']) . '" style="display:block; height:30px; line-height:30px; padding:0 15px; margin-right:5px; font-size:12px; background:rgba(0,0,0,0.5); color:#fff; border-radius:15px;">개발자로그아웃</a></li>';
+
+		$developerBottomHtml .= '<li style="display:table-cell; vertical-align:middle;"><a id="_BH_RefreshBtn" href="' . Paths::Url() . '/_Refresh?r_url=' . urlencode($_SERVER['REQUEST_URI']) . '" style="display:block; height:30px; line-height:30px; padding:0 15px; font-size:12px; background:rgba(0,0,0,0.5); color:#fff; border-radius:15px;">새로고침</a></li>';
+	}
+	$developerBottomHtml .= '</ul>';
+}
+else $developerBottomHtml = '';
+
+
+define('_REFRESH_BTN', PHP_RUN_CLI ? '' : $developerBottomHtml);
 
 
 require _COMMONDIR . '/BH_PDO.class.php';

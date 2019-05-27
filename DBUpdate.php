@@ -1,5 +1,8 @@
 <?php
-if(!defined('_DEVELOPERIS') || _DEVELOPERIS !== true) return;
+if(!defined('_BH_') || _BH_ !== true || !defined('_IS_DEVELOPER_IP') || _IS_DEVELOPER_IP !== true) return;
+$developerDefaultPassword = '12341234';
+$adminDefaultPassword = '12341234';
+
 $createSql = array();
 $createSql['18.09.15'][] = array(
 	'table' => TABLE_MESSAGE,
@@ -402,10 +405,10 @@ ENGINE=InnoDB";
 
 
 	$sql2[] = "INSERT INTO `".TABLE_MEMBER."` (`muid`, `mid`, `pwd`, `mname`, `cname`, `nickname`, `level`, `reg_date`, `approve`, `email`, `admin_auth`)
- 			SELECT "._DBMAXINT.", 'admin', '"._password_hash('12341234')."', '관리자', '관리자', '관리자', 18, NOW(), 'y', 'admin@admin.com', '001,001001,001002,001003,002,003,005'";
+ 			SELECT "._DBMAXINT.", 'admin', '"._password_hash($adminDefaultPassword)."', '관리자', '관리자', '관리자', 18, NOW(), 'y', 'admin@admin.com', '001,001001,001002,001003,002,003,005'";
 
 	$sql2[] = "INSERT INTO `".TABLE_MEMBER."` (`muid`, `mid`, `pwd`, `mname`, `cname`, `nickname`, `level`, `reg_date`, `approve`, `email`, `admin_auth`)
- 			SELECT ".(_DBMAXINT - 1).", 'developer', '"._password_hash('12341234')."', '개발자', '개발자', '개발자', 20, NOW(), 'y', 'developer@admin.com', ''";
+ 			SELECT ".(_DBMAXINT - 1).", 'developer', '"._password_hash($developerDefaultPassword)."', '개발자', '개발자', '개발자', 20, NOW(), 'y', 'developer@admin.com', ''";
 
 	$sql2[] = "INSERT INTO `".TABLE_MENU."` (`category`, `sort`, `controller`, `title`, `type`, `enabled`, `parent_enabled`, `bid`) VALUES ('00000', 0, 'Home', 'Home', 'customize', 'y', 'y', '')";
 

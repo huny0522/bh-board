@@ -11,7 +11,7 @@ App::$title = '로그인';
 <div id="contents" class="login2">
 	<div id="login_wrap2">
 		<h2>로그인</h2>
-		<form id="LoginFrm" name="LoginFrm" action="<?a. 'Login' ?>" method="post">
+		<form id="LoginFrm" name="LoginFrm" action="<?a. 'Login?r_url=' . GetDBText(urlencode(Get('r_url'))) ?>" method="post">
 			<fieldset>
 				<?php if($Ctrl->useMailId){ ?>
 					<label>

@@ -351,17 +351,7 @@ class Board{
 
 		// 공지를 불러온다.
 		App::$data['notice'] = array();
-		if(($s_page < 2) && !strlen($s_keyword)){
-			$qry = $this->model->GetNoticeQuery();
-
-			$this->_SearchQuery($qry);
-
-			$this->_R_CommonQry($qry);
-			$this->_R_NoticeQuery($qry);
-
-			App::$data['notice'] = $qry->GetRows();
-			$this->_RowSet(App::$data['notice']);
-		}
+		if(($s_page < 2) && !strlen($s_keyword)) App::$data['notice'] = $this->_GetNotice()->data;
 
 		// 리스트를 불러온다.
 		$dbList = DB::GetListPageQryObj($this->model->table . ' A')->SetConnName($this->connName);
@@ -406,17 +396,7 @@ class Board{
 
 		// 공지를 불러온다.
 		App::$data['notice'] = array();
-		if(!strlen($s_seq) && !strlen($s_last_seq) && !strlen($s_keyword)){
-			$qry = $this->model->GetNoticeQuery();
-
-			$this->_SearchQuery($qry);
-
-			$this->_R_CommonQry($qry);
-			$this->_R_NoticeQuery($qry);
-
-			App::$data['notice'] = $qry->GetRows();
-			$this->_RowSet(App::$data['notice']);
-		}
+		if(!strlen($s_seq) && !strlen($s_last_seq) && !strlen($s_keyword)) App::$data['notice'] = $this->_GetNotice()->data;
 
 		// 리스트를 불러온다.
 		$dbList = DB::GetListQryObj($this->model->table. ' A')->SetConnName($this->connName);
@@ -1033,6 +1013,28 @@ class Board{
 		$this->_CheckArticleRemove($seq);
 
 		URLReplace(App::URLAction().App::GetFollowQuery());
+	}
+
+	/**
+	 * 공지사항을 반환
+	 *
+	 * @param callable $func
+	 * @return \BH_DB_GetList
+	 */
+	public function _GetNotice($func = null){
+		$qry = $this->model->GetNoticeQuery();
+
+		$this->_SearchQuery($qry);
+
+		$this->_R_CommonQry($qry);
+		$this->_R_NoticeQuery($qry);
+
+		if(is_callable($func)) $func($qry);
+
+		$qry->DrawRows();
+
+		$this->_RowSet($qry->data);
+		return $qry;
 	}
 
 	/**

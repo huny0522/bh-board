@@ -109,4 +109,24 @@ class ReplyModel extends \BH_Model
 		$qry->AddWhere('seq = %d', $seq);
 		$qry->Run();
 	}
+
+
+	/**
+	* 추천수나 신고수등이 높은 게시물 쿼리 반환
+	*
+	* @param string $type <'recommend' , 'report', 'oppose'>
+	* @param int $day
+	* @param callable $func
+	* @return BH_DB_GetList
+	*/
+	public function GetHighArticleQuery($type = 'recommend', $day = 1, $func = null){
+		$qry = DB::GetListQryObj($this->table . ' A')
+			->SetConnName($this->connName)
+			->AddWhere('`A`.`delis`=\'n\'')
+			->AddWhere('`A`.`reg_date` >= %s', date('Y-m-d H:i:s', strtotime('-' . $day . ' day', time())))
+			->SetSort('`A`.`%1` DESC', $type);
+
+		if(is_callable($func)) $func($qry);
+		return $qry;
+	}
 }

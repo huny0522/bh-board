@@ -55,7 +55,7 @@ class BH_Application
 
 
 
-		if(_DEVELOPERIS === true) require _DIR . '/DBUpdate.php';
+		if(_IS_DEVELOPER_IP === true) require _DIR . '/DBUpdate.php';
 
 		// ----------------------
 		//

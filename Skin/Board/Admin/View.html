@@ -87,7 +87,7 @@ App::JSAdd('reply.js', 200);
 				<a href="#" id="deleteArticle" data-seq="<?v. App::$id ?>" class="mBtn btn2">삭제</a>
 			<?php }else{ ?>
 				<a href="<?a. 'Undelete/'.App::$id ?><?fq. '' ?>" id="undeleteArticle" class="mBtn btn2">복구</a>
-				<a href="#" id="removeArticle" data-seq="<?v. App::$id ?>" class="mBtn btn2">완전삭제</a>
+				<a href="#" id="removeBtn" data-seq="<?v. App::$id ?>" class="mBtn btn2">완전삭제</a>
 			<?php } ?>
 		<?php } ?>
 		<?php if($Ctrl->GetAuth('Answer')){ ?>

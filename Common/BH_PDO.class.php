@@ -421,7 +421,7 @@ class BH_DB_Get{
 	 * @return $this
 	 */
 	public function &SetSort($str){
-		$this->sort = $str;
+		$this->sort = $this->StrToPDO(func_get_args());
 		return $this;
 	}
 
@@ -1285,7 +1285,7 @@ class BH_DB_Update{
 	 * @return $this
 	 */
 	public function &SetSort($str){
-		$this->sort = $str;
+		$this->sort = $this->StrToPDO(func_get_args());
 		return $this;
 	}
 

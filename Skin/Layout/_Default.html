@@ -50,7 +50,7 @@ if($activeCategory){
 					<?php }
 					else{ ?>
 						<li><a href="<?p. \Paths::Url() ?>/Login/Register">회원가입</a></li>
-						<li><a href="<?p. \Paths::Url() ?>/Login">로그인</a></li>
+						<li><a href="<?p. \Paths::Url() ?>/Login?r_url=<?v. EmptyGet('r_url') ? urlencode($_SERVER['REQUEST_URI']) : Get('r_url') ?>">로그인</a></li>
 						<li><a href="<?p. \Paths::Url() ?>/Login/FindID">ID/PW 찾기</a></li>
 					<?php } ?>
 				</ul>

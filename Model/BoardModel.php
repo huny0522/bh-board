@@ -190,13 +190,32 @@ class BoardModel extends \BH_Model
 	}
 
 	/**
-	 * @return BH_DB_GetList
-	 */
+	* @return BH_DB_GetList
+	*/
 	public function GetNoticeQuery(){
 		return DB::GetListQryObj($this->table . ' A')
 			->SetConnName($this->connName)
 			->AddWhere('A.delis=\'n\'')
 			->AddWhere('A.notice=\'y\'')
 			->SetSort('A.seq DESC');
+	}
+
+	/**
+	 * 추천수나 신고수등이 높은 게시물 쿼리 반환
+	 *
+	 * @param string $type <'hit', 'recommend', 'report', 'read', 'scrap', 'oppose', 'reply_cnt'>
+	 * @param int $day
+	 * @param callable $func
+	 * @return BH_DB_GetList
+	 */
+	public function GetHighArticleQuery($type = 'recommend', $day = 1, $func = null){
+		$qry = DB::GetListQryObj($this->table . ' A')
+			->SetConnName($this->connName)
+			->AddWhere('`A`.`delis`=\'n\'')
+			->AddWhere('`A`.`reg_date` >= %s', date('Y-m-d H:i:s', strtotime('-' . $day . ' day', time())))
+			->SetSort('`A`.`%1` DESC', $type);
+
+		if(is_callable($func)) $func($qry);
+		return $qry;
 	}
 }
