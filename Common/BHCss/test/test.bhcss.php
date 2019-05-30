@@ -40,9 +40,9 @@ BHCss::$variable['$fw'] = 'font-weight';
 BHCss::$variable['$cb--'] = 'content:\' \'; display:block; clear:both';
 ?>
 
+@charset "UTF-8";
 <style>
 	// 일부 IDE는 <style type="text/scss"> 로 설정하면 문법오류가 나오지 않을 수 있습니다.
-	@charset "UTF-8";
 
 	// php 파일이기 때문에 php 문법을 자유롭게 사용 가능합니다.
 	<?php for ($i = 5; $i < 100; $i += 5) { ?>
@@ -64,6 +64,6 @@ BHCss::$variable['$cb--'] = 'content:\' \'; display:block; clear:both';
 </style>
 <?php
 // test2.bhcss.php 파일을 인클루드합니다.
-BHCss::includeBHCss(__DIR__ . '/test2.bhcss.php');
+include 'test2.bhcss.php';
 
 
