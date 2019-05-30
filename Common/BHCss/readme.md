@@ -16,15 +16,11 @@
 ## 여백 및 주석 삭제
 	\BH\BHCss\BHCss::setNL(false); 
 	
-## bhcss 파일 내의 인클루드
-	BHCss::includeBHCss(__DIR__ . '/sub.bhcss.php');
 	
 ## css 변경 시도 시 다른 파일을 렌더링
 > 인클루드 된 파일의 경우 인클루드를 시도한 파일이 변경이 되도록 한다.
 
-	if (BHCss::callParent(__FILE__, array('mycss.bhcss.php'))) {
-   	   return;
-   	}
+	// parent 'parent.bhcss.php'
 
 ## 확장자명 변경
 	\BH\BHCss\BHCss::$fileExtension = '.mycss'; 
