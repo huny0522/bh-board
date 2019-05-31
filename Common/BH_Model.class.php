@@ -279,15 +279,7 @@ class BH_ModelData
 		return $this;
 	}
 
-	private function GetKeyName(){
-		if(is_null($this->keyName) && !is_null($this->parent)){
-			foreach($this->parent->data as $k => $d){
-				if($this === $d){
-					$this->keyName = $k;
-					return $this->keyName;
-				}
-			}
-		}
+	public function GetKeyName(){
 		return $this->keyName;
 	}
 
@@ -324,6 +316,7 @@ class BH_Model{
 	public $uploadDir = '';
 	protected $connName = '';
 	private $dataExcept = array();
+	public $isBHModel = true;
 
 	public function __construct($connName = ''){
 		$this->data = new BH_ModelDataArray();
@@ -348,11 +341,9 @@ class BH_Model{
 
 	public function __set($name, $value){
 		if(is_object($value) && get_class($value) === 'BH_ModelData' && $name[0] === '_'){
-			$this->{$name} = $value;
 			$keyName = substr($name, 1);
-			$this->{$name}->keyName = $keyName;
-			$this->{$name}->parent = $this;
-			if(!isset($this->data[$keyName]) || is_null($this->data[$keyName])) $this->data[$keyName] = $this->{$name};
+			if(!isset($this->data[$keyName]) || is_null($this->data[$keyName])) $this->data[$keyName] = $value;
+			$this->{$name} = $this->data[$keyName];
 		}
 		else if($name === 'need'){
 			if(!is_array($value)) $value = array($value);
@@ -413,62 +404,6 @@ class BH_Model{
 	 */
 	public function GetConnName(){
 		return $this->connName;
-	}
-
-	/**
-	 * @param BH_Model $model
-	 * @param string $tableNaming
-	 * @param string $on
-	 * @return $this
-	 */
-	public function &LeftJoin(&$model, $tableNaming, $on){
-		$args = func_get_args();
-		array_unshift($args, "LEFT");
-		$args[1] = &$model;
-		_ModelFunc::_Join($this, $args);
-		return $this;
-	}
-
-	/**
-	 * @param BH_Model $model
-	 * @param string $tableNaming
-	 * @param string $on
-	 * @return $this
-	 */
-	public function &RightJoin(&$model, $tableNaming, $on){
-		$args = func_get_args();
-		array_unshift($args, "RIGHT");
-		$args[1] = &$model;
-		_ModelFunc::_Join($this, $args);
-		return $this;
-	}
-
-	/**
-	 * @param BH_Model $model
-	 * @param string $tableNaming
-	 * @param string $on
-	 * @return $this
-	 */
-	public function &InnerJoin(&$model, $tableNaming, $on){
-		$args = func_get_args();
-		array_unshift($args, "INNER");
-		$args[1] = &$model;
-		_ModelFunc::_Join($this, $args);
-		return $this;
-	}
-
-	/**
-	 * @param BH_Model $model
-	 * @param string $tableNaming
-	 * @param string $on
-	 * @return $this
-	 */
-	public function &OuterJoin(&$model, $tableNaming, $on){
-		$args = func_get_args();
-		array_unshift($args, "OUTER");
-		$args[1] = &$model;
-		_ModelFunc::_Join($this, $args);
-		return $this;
 	}
 
 	/**
@@ -801,14 +736,6 @@ class BH_Model{
 }
 
 class _ModelFunc{
-	public static function _Join(&$model, $args){
-		$args[1]->parent = &$model;
-		$n = array_values(array_slice($args, 3));
-		$txt = $model->qry[$model->qryName]->StrToPDO($n);
-		$model->qry[$model->qryName]->AddTable('%1 JOIN `%1` `%1` ON %1', $args[0], $args[1]->table, $args[2], $txt);
-		return true;
-	}
-
 	public static function IsFileType($type){
 		return in_array($type, array(HTMLType::FILE, HTMLType::FILE_WITH_NAME, HTMLType::FILE_IMAGE, HTMLType::FILE_IMAGE_ARRAY, HTMLType::FILE_JQUERY));
 	}
