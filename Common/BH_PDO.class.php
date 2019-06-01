@@ -136,7 +136,7 @@ class DB{
 				else return false;
 			}
 		}
-		else $qry->execute() or ($dieIs ? die('ERROR') : false);
+		else $qry->execute() or ($dieIs ? die('QUERY ERROR') : false);
 		return $qry;
 	}
 
@@ -214,8 +214,7 @@ class DB{
 	 * @return \BH_DB_Insert
 	 */
 	public static function &InsertQryObj($table){
-		$instance = new BH_DB_Insert();
-		call_user_func_array(array($instance, 'AddTable'), func_get_args());
+		$instance = new BH_DB_Insert($table);
 		return $instance;
 	}
 
@@ -239,6 +238,16 @@ class DB{
 
 		$n = sizeof($args);
 		if(!$n) return false;
+
+		for($i = 0; $i < $n; $i++){
+			if(is_object($args[$i]) && get_class($args[$i]) === 'BH_ModelData')
+				$args[$i] = '`' . $args[$i]->parent->naming . '`.`' . $args[$i]->GetKeyName(). '`';
+
+			else if(is_object($args[$i]) && isset($args[$i]->isBHModel))
+				$args[$i] = '`' . $args[$i]->table . '` `' . $args[$i]->naming . '`';
+
+		}
+
 		if($n == 1) return array($args[0], $bindParam);
 		else{
 			$p = -1;
@@ -709,9 +718,9 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	}
 
 	/**
-	* @var callable(&$sql) $func
-	* @return $this
-	*/
+	 * @var callable(&$sql) $func
+	 * @return $this
+	 */
 	public function &Run($func = null){
 		$this->runIs = true;
 		if($this->page < 1) $this->page = 1;
@@ -921,22 +930,14 @@ class BH_DB_Insert{
 	protected $bindParam = array();
 
 	public function  __construct($table = ''){
-		if($table !== '') $this->table = $this->StrToPDO('table', func_get_args());
+		if(is_object($table) && isset($table->isBHModel)) $this->table = $table->table;
+		else if($table !== '') $this->table = $this->StrToPDO(func_get_args());
 		$this->connName = DB::DefaultConnName;
 	}
 
-	public function StrToPDO($p, $args){
-		$a = $args;
-		if(!is_array($a)){
-			$a = func_get_args();
-			array_shift($a);
-		}
-		$res = DB::StrToPDO($a);
-		if(sizeof($res[1])){
-			if($p == 'table') $this->tableBindParam = $this->tableBindParam + $res[1];
-			else if($p == 'where') $this->whereBindParam = $this->whereBindParam + $res[1];
-			else $this->bindParam = $this->bindParam + $res[1];
-		}
+	public function StrToPDO($args){
+		$res = DB::StrToPDO(is_array($args) ? $args : func_get_args());
+		if(sizeof($res[1])) $this->bindParam = $this->bindParam + $res[1];
 		return $res[0];
 	}
 
@@ -956,7 +957,7 @@ class BH_DB_Insert{
 	 * @return $this
 	 */
 	public function &SetOnDuplicateDataStr($key, $val){
-		$this->duplicateData[$key] = $this->StrToPDO('data','%s', $val);
+		$this->duplicateData[$key] = $this->StrToPDO('%s', $val);
 		return $this;
 	}
 
@@ -984,7 +985,7 @@ class BH_DB_Insert{
 	 * @return $this
 	 */
 	public function &AddTable($str){
-		$w = $this->StrToPDO('table', func_get_args());
+		$w = $this->StrToPDO(func_get_args());
 		if($w !== false) $this->table .= ' '.$w;
 		return $this;
 	}
@@ -1004,6 +1005,7 @@ class BH_DB_Insert{
 	 * @return $this
 	 */
 	public function &SetData($key, $val){
+		if(is_object($key) && get_class($key) === 'BH_ModelData') $key = '`' . $key->GetKeyName() .'`';
 		$this->data[$key] = $val;
 		return $this;
 	}
@@ -1014,7 +1016,8 @@ class BH_DB_Insert{
 	 * @return $this
 	 */
 	public function &SetDataStr($key, $val){
-		$this->data[$key] = $this->StrToPDO('data', '%s', $val);
+		if(is_object($key) && get_class($key) === 'BH_ModelData') $key = '`' . $key->GetKeyName() .'`';
+		$this->data[$key] = $this->StrToPDO('%s', $val);
 		return $this;
 	}
 
@@ -1024,6 +1027,7 @@ class BH_DB_Insert{
 	 * @return $this
 	 */
 	public function &SetDataNum($key, $val){
+		if(is_object($key) && get_class($key) === 'BH_ModelData') $key = '`' . $key->GetKeyName() .'`';
 		$this->data[$key] = SetDBFloat($val);
 		return $this;
 	}
@@ -1033,7 +1037,7 @@ class BH_DB_Insert{
 	 * @return $this
 	 */
 	public function &AddWhere($str){
-		$w = $this->StrToPDO('where', func_get_args());
+		$w = $this->StrToPDO(func_get_args());
 		if($w !== false) $this->where[] = '('.$w.')';
 		return $this;
 	}
@@ -1059,7 +1063,7 @@ class BH_DB_Insert{
 			$temp = ',';
 		}
 		if(!$this->MultiNames) $this->MultiNames = $names;
-		$this->MultiValues[]= '('.$values.')';
+		$this->MultiValues[]= $values;
 		return $this;
 	}
 
@@ -1074,16 +1078,36 @@ class BH_DB_Insert{
 			return $res;
 		}
 
-		$this->sql = 'INSERT INTO ' . $this->table . '(' . $this->MultiNames . ') VALUES '.implode(',', $this->MultiValues);
-		if($this->test && _DEVELOPERIS === true){
-			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
-			echo $this->sql;
-			exit;
+		try{
+			DB::PDO($this->connName)->beginTransaction();
+
+			if($this->decrement) $keyRes = $this->GetKeySetting();
+			else $keyRes = array();
+
+			foreach($this->MultiValues as $k => $v){
+				$this->MultiValues[$k] = '(' . ($this->decrement ? ($keyRes['data']--).', ' : '') . $v . ')';
+			}
+
+			$this->sql = 'INSERT INTO ' . $this->table . '(' . ($this->decrement ? '`'.$this->decrement.'`, ' : '') . $this->MultiNames . ') VALUES '.implode(',', $this->MultiValues);
+			if($this->test && _DEVELOPERIS === true){
+				foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
+				echo $this->sql;
+				exit;
+			}
+			$qry = DB::PDO($this->connName)->prepare($this->sql);
+			foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
+			$res->result = $qry->execute();
+			if(!$res->result && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($qry->errorInfo());
+
+			if($res->result) DB::SQL($this->connName)->Query('UPDATE '.TABLE_FRAMEWORK_SETTING.' SET `data` = \''.($keyRes['data']).'\' WHERE `key_name` = \''.$keyRes['keyName'].'\'');
+
+			DB::PDO($this->connName)->commit();
 		}
-		$qry = DB::PDO($this->connName)->prepare($this->sql);
-		foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
-		$res->result = $qry->execute();
-		if(!$res->result && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($qry->errorInfo());
+		catch(\Exception $e){
+			DB::PDO($this->connName)->rollBack();
+			PrintError($e->getMessage().'('.$e->getCode().')');
+		}
+
 
 		return $res;
 	}
@@ -1098,7 +1122,7 @@ class BH_DB_Insert{
 		$names = '';
 		$values = '';
 		foreach($this->data as $k => $v){
-			$names .= $temp . '`' . $k . '`';
+			$names .= $temp . ($k[0] === '`' ? $k : '`' . $k . '`');
 			$values .= $temp . $v;
 			$temp = ',';
 		}
@@ -1109,49 +1133,13 @@ class BH_DB_Insert{
 			$duplicateSql = 'ON DUPLICATE KEY UPDATE '.implode(', ', $set);
 		}
 
-		if($this->decrement){
-			$r = false;
-			$cnt = 5;
-			while(!$r && $cnt > 0){
-				$qry = DB::PDO($this->connName)->prepare('SELECT MIN(`'.$this->decrement.'`) as seq FROM '.$this->table
-					. ($this->where ? ' WHERE ' . implode(' AND ', $this->where) : ''));
-				foreach($this->tableBindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
-				foreach($this->whereBindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
-				if(!$qry->execute()){
-					$res->result = false;
-					return $res;
-				}
-				else $minseq = $qry->fetch(PDO::FETCH_ASSOC);
-				if(!$minseq){
-					$res->result = false;
-					return $res;
-				}
-				if(!strlen($minseq['seq'])) $minseq['seq'] = $this->MAXInt;
+		try{
+			DB::PDO($this->connName)->beginTransaction();
 
-				$minseq['seq'] --;
-				$this->sql = 'INSERT {{space1}} INTO {{space2}} ' . $this->table . ' {{space3}} (' . $names . ', `' . $this->decrement . '`) {{space4}} VALUES (' . $values . ',' . $minseq['seq'] . ')';
+			if($this->decrement) $keyRes = $this->GetKeySetting();
+			else $keyRes = array();
 
-				if(is_callable($func)) $func($this->sql);
-				$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
-
-				if($this->test && _DEVELOPERIS === true){
-					foreach($this->tableBindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
-					foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
-					echo $this->sql;
-					exit;
-				}
-				$qry = DB::PDO($this->connName)->prepare($this->sql.(isset($duplicateSql) ? ' '.$duplicateSql : ''));
-				foreach($this->tableBindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
-				foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
-				$r = $qry->execute();
-				if(!$r && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($qry->errorInfo());
-				$cnt --;
-			}
-			$res->result = $r ? true : false;
-			$res->id = $minseq['seq'];
-		}
-		else{
-			$this->sql = 'INSERT {{space1}} INTO {{space2}} ' . $this->table . ' {{space3}} (' . $names . ') {{space4}} VALUES (' . $values . ')'.(isset($duplicateSql) ? ' '.$duplicateSql : '');
+			$this->sql = 'INSERT {{space1}} INTO {{space2}} `'.$this->table.'` {{space3}} ('.($this->decrement ? '`'.$this->decrement.'`, ' : '').$names.') {{space4}} VALUES ('.($this->decrement ? $keyRes['data'].', ' : '').$values.')'.(isset($duplicateSql) ? ' '.$duplicateSql : '');
 
 			if(is_callable($func)) $func($this->sql);
 			$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
@@ -1165,18 +1153,49 @@ class BH_DB_Insert{
 			$qry = DB::PDO($this->connName)->prepare($this->sql);
 			foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
 			$res->result = $qry->execute();
-			if($res->result) $res->id = DB::PDO($this->connName)->lastInsertId();
+			if($res->result){
+				if($this->decrement){
+					$res->id = $keyRes['data'];
+					DB::SQL($this->connName)->Query('UPDATE '.TABLE_FRAMEWORK_SETTING.' SET `data` = \''.($keyRes['data'] - 1).'\' WHERE `key_name` = \''.$keyRes['keyName'].'\'');
+				}
+				else $res->id = DB::PDO($this->connName)->lastInsertId();
+			}
 			else if(_DEVELOPERIS === true && $this->showError && BH_Application::$showError) PrintError($qry->errorInfo());
+
+			DB::PDO($this->connName)->commit();
+		}
+		catch(\Exception $e){
+			DB::PDO($this->connName)->rollBack();
+			PrintError($e->getMessage().'('.$e->getCode().')');
 		}
 		return $res;
 	}
 
 	public function PrintTest(){
 		if(_DEVELOPERIS === true){
-			foreach($this->tableBindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 			echo $this->sql;
 		}
+	}
+
+	private function GetKeySetting(){
+		$kn = '_table_' . $this->table . '_key';
+		$keyQry = 'SELECT `data` FROM ' . TABLE_FRAMEWORK_SETTING . ' WHERE `key_name` = \'' . $kn . '\' FOR UPDATE';
+		$keyRes = DB::SQL($this->connName)->Fetch($keyQry);
+
+		$minSubSql = 'SELECT IF(COUNT(' . $this->decrement . ') = 0, ' . $this->MAXInt . ', MIN(' . $this->decrement . ')) - 1 as `data` FROM `' . $this->table . '`';
+		$minInsSql = 'INSERT INTO ' . TABLE_FRAMEWORK_SETTING . '(`key_name`, `data`) VALUES (\'' . $kn . '\', (' . $minSubSql . ')) ON DUPLICATE KEY UPDATE `data` = (' . $minSubSql . ')';
+
+		$preData = DB::SQL($this->connName)->Fetch($minSubSql);
+
+		if(!$keyRes || $keyRes['data'] >= $preData['data']){
+			DB::SQL($this->connName)->Query($minInsSql);
+			$keyRes = DB::SQL($this->connName)->Fetch($keyQry);
+		}
+		if(!$keyRes) PrintError('`' . $this->table . '` 최소설정값 생성 에러');
+
+		$keyRes['keyName'] = $kn;
+		return $keyRes;
 	}
 
 	/**
@@ -1246,6 +1265,7 @@ class BH_DB_Update{
 	 * @return $this
 	 */
 	public function &SetData($key, $val){
+		if(is_object($key) && get_class($key) === 'BH_ModelData') $key = '`' . $key->parent->naming . '`.`' . $key->GetKeyName() .'`';
 		$this->data[$key] = $val;
 		return $this;
 	}
@@ -1256,6 +1276,7 @@ class BH_DB_Update{
 	 * @return $this
 	 */
 	public function &SetDataStr($key, $val){
+		if(is_object($key) && get_class($key) === 'BH_ModelData') $key = '`' . $key->parent->naming . '`.`' . $key->GetKeyName() .'`';
 		$this->data[$key] = $this->StrToPDO('%s', $val);
 		return $this;
 	}
@@ -1266,6 +1287,7 @@ class BH_DB_Update{
 	 * @return $this
 	 */
 	public function &SetDataNum($key, $val){
+		if(is_object($key) && get_class($key) === 'BH_ModelData') $key = '`' . $key->parent->naming . '`.`' . $key->GetKeyName() .'`';
 		$this->data[$key] = SetDBFloat($val);
 		return $this;
 	}
@@ -1290,15 +1312,15 @@ class BH_DB_Update{
 	}
 
 	/**
-	* @var callable(&$sql) $func
-	* @return \BH_Result
-	*/
+	 * @var callable(&$sql) $func
+	 * @return \BH_Result
+	 */
 	function Run($func = null){
 		$res = new \BH_Result();
 		$temp = '';
 		$set = '';
 		foreach($this->data as $k => $v){
-			$set .= $temp . '`' . $k . '` = ' . $v;
+			$set .= $temp . ($k[0] === '`' ? $k : '`' . $k . '`') . ' = ' . $v;
 			$temp = ',';
 		}
 

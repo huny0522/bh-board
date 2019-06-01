@@ -317,6 +317,7 @@ class BH_Model{
 	protected $connName = '';
 	private $dataExcept = array();
 	public $isBHModel = true;
+	public $naming = '';
 
 	public function __construct($connName = ''){
 		$this->data = new BH_ModelDataArray();
@@ -326,6 +327,24 @@ class BH_Model{
 		$this->uploadDir = '/modelData/' . $this->table . '/' . date('Ym') . '/';
 		foreach($this->data as $k => $v) if(!isset($this->{'_'.$k})) $this->{'_'.$k} = $v;
 		foreach($this->dataExcept as $v) if(isset($this->data[$v])) $this->data[$v]->dbExcept = true;
+	}
+
+	/**
+	 * @param string $connName
+	 * @return static
+	 */
+	public static function GetInstance($connName = ''){
+		$static = new static($connName);
+		return $static;
+	}
+
+	/**
+	 * @param string $str
+	 * @return static
+	 */
+	public function SetNaming($str){
+		$this->naming = $str;
+		return $this;
 	}
 
 	public function SetShowError($bool = true){
