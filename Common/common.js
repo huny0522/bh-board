@@ -1413,20 +1413,19 @@ var _SelectBox = new SelectBox(jQuery);
 							return false;
 						}
 					}
+				}
 
-					if(this.hasAttribute('data-same') && this.tagName === 'INPUT'){
-						var target = $(this).closest('form').find('input[name=' + $(this).attr('data-same') + ']');
-						if(target.length){
-							if($(this).val() !== target.val()){
-								CMAlert(target.attr('data-displayname') + ' 값이 일치하지 않습니다.', function(){
-									target.focus();
-								});
-								ret = false;
-								return false;
-							}
+				if(this.hasAttribute('data-same') && this.tagName === 'INPUT'){
+					var target = $(this).closest('form').find('input[name=' + $(this).attr('data-same') + ']');
+					if(target.length){
+						if($(this).val() !== target.val()){
+							CMAlert(target.attr('data-displayname') + ' 값이 일치하지 않습니다.', function(){
+								target.focus();
+							});
+							ret = false;
+							return false;
 						}
 					}
-
 				}
 
 			}

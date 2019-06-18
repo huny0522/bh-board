@@ -153,14 +153,14 @@ define('_AJAXIS', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['H
 define('_JSONIS', isset($_SERVER['HTTP_ACCEPT']) && strpos(strtolower($_SERVER['HTTP_ACCEPT']), 'application/json') !== false);
 
 if(_IS_DEVELOPER_IP === true){
-	$developerBottomHtml = '<ul style="position:fixed; bottom:10px; right:10px; z-index:9999; display:table;">';
+	$developerBottomHtml = '<ul style="position:fixed; bottom:10px; right:10px; z-index:9999; display:table; opacity:0;" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=0">';
 	if(_DEVELOPERIS !== true){
 		$developerBottomHtml .= '<li style="display:table-cell; vertical-align:middle;"><form method="post" action="' . Paths::UrlOfAdmin() . '/Login/DevLogin?r_url=' . urlencode($_SERVER['REQUEST_URI']) . '"><input type="password" name="devpwd" value="" style="height:30px; padding:0 15px; margin-right:5px; border:0; font-size:12px; background:rgba(0,0,0,0.2); color:#fff; border-radius:15px;"><button type="submit" style="height:30px; padding:0 15px; margin-right:15px; font-size:12px; background:rgba(0,0,0,0.5); color:#fff; border-radius:15px;">개발자로그인</button></form></li>';
 	}
 	else{
-		$developerBottomHtml .= '<li style="display:table-cell; vertical-align:middle;"><a href="' . Paths::UrlOfAdmin() . '/Login/DevLogout?r_url=' . urlencode($_SERVER['REQUEST_URI']) . '" style="display:block; height:30px; line-height:30px; padding:0 15px; margin-right:5px; font-size:12px; background:rgba(0,0,0,0.5); color:#fff; border-radius:15px;">개발자로그아웃</a></li>';
+		$developerBottomHtml .= '<li style="display:table-cell; vertical-align:middle;"><a href="' . Paths::UrlOfAdmin() . '/Login/DevLogout?r_url=' . urlencode(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '') . '" style="display:block; height:30px; line-height:30px; padding:0 15px; margin-right:5px; font-size:12px; background:rgba(0,0,0,0.5); color:#fff; border-radius:15px;">개발자로그아웃</a></li>';
 
-		$developerBottomHtml .= '<li style="display:table-cell; vertical-align:middle;"><a id="_BH_RefreshBtn" href="' . Paths::Url() . '/_Refresh?r_url=' . urlencode($_SERVER['REQUEST_URI']) . '" style="display:block; height:30px; line-height:30px; padding:0 15px; font-size:12px; background:rgba(0,0,0,0.5); color:#fff; border-radius:15px;">새로고침</a></li>';
+		$developerBottomHtml .= '<li style="display:table-cell; vertical-align:middle;"><a id="_BH_RefreshBtn" href="' . Paths::Url() . '/_Refresh?r_url=' . urlencode(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '') . '" style="display:block; height:30px; line-height:30px; padding:0 15px; font-size:12px; background:rgba(0,0,0,0.5); color:#fff; border-radius:15px;">새로고침</a></li>';
 	}
 	$developerBottomHtml .= '</ul>';
 }
@@ -367,13 +367,14 @@ function SelectOption($OptionValues, $SelectValue = '', $noOptValue = false){
  * @param string $name
  * @param array $OptionValues
  * @param string $SelectValue
+ * @param string $class
  * @return string
  */
-function InputRadio($name, $OptionValues, $SelectValue = ''){
+function InputRadio($name, $OptionValues, $SelectValue = '', $class = ''){
 	if(is_null($SelectValue)) $SelectValue = '';
 	$str = '';
 	if(!isset($OptionValues) || !is_array($OptionValues)) return $str;
-	foreach($OptionValues as $k => $v) $str .= '<label class="radio"><input type="radio" name="' . $name . '" value="' . $k . '"' . (isset($SelectValue) && $SelectValue === (string)$k ? ' checked' : '') . '><span>' . $v . '</span></label>';
+	foreach($OptionValues as $k => $v) $str .= '<label class="radio' . ($class ? ' ' . $class : '') . '"><input type="radio" name="' . $name . '" value="' . $k . '" class="' . $class . '"' . (isset($SelectValue) && $SelectValue === (string)$k ? ' checked' : '') . '><i></i><span>' . $v . '</span></label>';
 	return $str;
 }
 
@@ -381,14 +382,15 @@ function InputRadio($name, $OptionValues, $SelectValue = ''){
  * @param string $name
  * @param array $OptionValues
  * @param array $SelectValue
+ * @param string $class
  * @return string
  */
-function InputCheckbox($name, $OptionValues, $SelectValue = array()){
+function InputCheckbox($name, $OptionValues, $SelectValue = array(), $class = ''){
 	if(is_null($SelectValue)) $SelectValue = array();
 	if(!is_array($SelectValue)) $SelectValue = array($SelectValue);
 	$str = '';
 	if(!isset($OptionValues) || !is_array($OptionValues)) return $str;
-	foreach($OptionValues as $k => $v) $str .= '<label class="checkbox"><input type="checkbox" name="' . $name . '" value="' . $k . '"' . (in_array($k, $SelectValue) ? ' checked' : '') . '><span>' . $v . '</span></label>';
+	foreach($OptionValues as $k => $v) $str .= '<label class="checkbox' . ($class ? ' ' . $class : '') . '"><input type="checkbox" name="' . $name . '" value="' . $k . '" class="' . $class . '"' . (in_array($k, $SelectValue) ? ' checked' : '') . '><i></i><span>' . $v . '</span></label>';
 	return $str;
 }
 
