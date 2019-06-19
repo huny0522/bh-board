@@ -240,13 +240,18 @@ class BH_Application
 		$html = substr($viewAction, 0, 1) == '/' ? $viewAction : (self::$nativeSkinDir ? '/' . self::$nativeSkinDir : '') . '/' . self::$controllerName . '/' . $viewAction;
 		if(substr($html, -5) != '.html') $html .= '.html';
 
-		if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(\Paths::DirOfSkin() . $html, \Paths::DirOfHtml() . $html);
+		$path = \Paths::DirOfHtml() . $html;
+		$skinPath = \Paths::DirOfSkin() . $html;
+		if((_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) || !file_exists($path)){
+			require_once 'HtmlConvert.php';
+			ReplaceHTMLFile($skinPath, $path);
+		}
 
 		ob_start();
-		if(file_exists(\Paths::DirOfHtml() . $html)) require \Paths::DirOfHtml() . $html;
+		if(file_exists($path)) require $path;
 		else{
 			if(_DEVELOPERIS !== true) echo 'ERROR : NOT EXISTS TEMPLATE';
-			else echo 'ERROR : NOT EXISTS TEMPLATE : ' . \Paths::DirOfHtml() . $html;
+			else echo 'ERROR : NOT EXISTS TEMPLATE : ' . $path;
 		}
 		self::$bodyHtml = ob_get_clean();
 
@@ -258,10 +263,16 @@ class BH_Application
 
 				$layout = '/Layout/' . self::$layout;
 				if(substr($layout, -5) != '.html') $layout .= '.html';
-				if(_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) ReplaceHTMLFile(\Paths::DirOfSkin() . $layout, \Paths::DirOfHtml() . $layout);
-				if($layout && file_exists(\Paths::DirOfHtml() . $layout)){
+
+				$path = \Paths::DirOfHtml() . $layout;
+				if((_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) || !file_exists($path)){
+					require_once 'HtmlConvert.php';
+					ReplaceHTMLFile(\Paths::DirOfSkin() . $layout, $path);
+				}
+
+				if(file_exists($path)){
 					ob_start();
-					require \Paths::DirOfHtml() . $layout;
+					require $path;
 					self::$bodyHtml = ob_get_clean();
 				}
 			}
@@ -386,7 +397,7 @@ class BH_Application
 		$convCss = (substr($css, strlen(BH\BHCss\BHCss::$fileExtension) * (-1)) === BH\BHCss\BHCss::$fileExtension) ? substr($css, 0, strlen(BH\BHCss\BHCss::$fileExtension) * (-1)) . '.css' : implode('.', $ex) . '.css';
 		$target = '/css' . ($convCss[0] == '/' ? $convCss : '/' . $convCss);
 
-		if(_DEVELOPERIS === true){
+		if(_DEVELOPERIS === true || !file_exists(\Paths::DirOfHtml() . $target)){
 			$css2 = '/css' . ($css[0] == '/' ? $css : '/' . $css);
 			$dir = \Paths::DirOfSkin();
 			if(file_exists(\Paths::DirOfHtml() . $css2)) $dir = \Paths::DirOfHtml();

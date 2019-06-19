@@ -43,7 +43,7 @@ class Upload{
 
 			@move_uploaded_file($tmp_name, $uploadDir.$newFileName);
 
-			$data['uploadDir'] = Paths::UrlOfUpload();
+			$data['uploadDir'] = \Paths::UrlOfUpload();
 			$data['path'] = $path.$newFileName;
 			$data['fname'] = $_FILES['Filedata']['name'];
 			JSON(true, '', $data);

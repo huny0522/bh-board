@@ -1151,7 +1151,7 @@ class BH_DB_Insert{
 			}
 
 			$qry = DB::PDO($this->connName)->prepare($this->sql);
-			foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
+			foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $qry->bindParam($k, $v[0], $v[1]);
 			$res->result = $qry->execute();
 			if($res->result){
 				if($this->decrement){

@@ -67,7 +67,7 @@ $_rpData = array(
 	// inc
 	array(
 		'pattern' => '/<\?\s*inc\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'replace' => '<?php if(_DEVELOPERIS === true) ReplaceHTMLFile(\Paths::DirOfSkin().$1, \Paths::DirOfHtml().$1); require \Paths::DirOfHtml().$1; ?>'
+		'replace' => '<?php if(_DEVELOPERIS === true || !file_exists(\Paths::DirOfHtml().$1)){require_once \Paths::Dir() . \'/Common/HtmlConvert.php\'; ReplaceHTMLFile(\Paths::DirOfSkin().$1, \Paths::DirOfHtml().$1);} require \Paths::DirOfHtml().$1; ?>'
 	),
 
 	// mv()

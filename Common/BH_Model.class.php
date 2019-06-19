@@ -1377,7 +1377,6 @@ class _ModelFunc{
 
 		foreach($model->key as $k){
 			if($model->data[$k]->autoDecrement === true) $dbInsert->decrement = $k;
-			else if($model->data[$k]->value) $dbInsert->AddWhere($k.'= %s', $model->data[$k]->value);
 		}
 		if(!$dbInsert->decrement) $dbInsert->UnsetWhere();
 		if(_DEVELOPERIS === true) $dbInsert->test = $test;
