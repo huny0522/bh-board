@@ -54,7 +54,6 @@ class BH_Application
 		if(file_exists($composerFile)) require $composerFile;
 
 
-
 		if(_IS_DEVELOPER_IP === true && PHP_RUN_CLI !== true) require _DIR . '/DBUpdate.php';
 
 		// ----------------------
@@ -144,7 +143,7 @@ class BH_Application
 			require $path;
 			$controller = '\\Controller\\' . (self::$nativeDir ? str_replace('/', '\\', self::$nativeDir) . '\\' : '') . self::$controllerName;
 			if(!class_exists($controller)){
-				if(_DEVELOPERIS === true) echo '클래스(' . $controller . ')가 존재하지 않습니다.';
+				if(_DEVELOPERIS === true) echo 'CLASS(' . $controller . ') DOES NOT EXIST.' . BH_APP_NOT_EXISTS;
 				exit;
 			}
 
@@ -162,7 +161,7 @@ class BH_Application
 				self::$controllerInstance->{$action}();
 			}
 			else{
-				if(_DEVELOPERIS === true) echo '메소드가 존재하지 않습니다.(#2)';
+				if(_DEVELOPERIS === true) echo 'METHOD DOES NOT EXIST(#2)';
 				else URLReplace(Paths::Url() . '/');
 			}
 		}
@@ -275,6 +274,7 @@ class BH_Application
 					require $path;
 					self::$bodyHtml = ob_get_clean();
 				}
+
 			}
 		}
 

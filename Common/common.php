@@ -237,12 +237,12 @@ function URLReplace($url, $msg = '', $data = '', $exitIs = true, $redirect = fal
 	if($url == '-1') echo 'window.onpopstate = function(){
 			if(!document.body || document.body.innerHTML.replace(/\s/g, \'\') === \'\') location.reload();
 		};';
-	if($msg) echo 'alert(\'' . $msg . '\');';
+	if($msg) echo 'alert(\'' . addslashes($msg) . '\');';
 	if($url == '-1') echo 'history.go(-1);';
 	else{
 		$url = str_replace(' ', '%20', $url);
-		if($redirect) echo 'location.href = \'' . $url . '\';';
-		else echo 'location.replace(\'' . $url . '\');';
+		if($redirect) echo 'location.href = \'' . addslashes($url) . '\';';
+		else echo 'location.replace(\'' . addslashes($url) . '\');';
 	}
 	echo '</script>';
 	if($exitIs) exit;

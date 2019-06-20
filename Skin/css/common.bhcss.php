@@ -127,22 +127,22 @@ BHCss::$variable['$fw'] = 'font-weight';
 	label.checkbox{
 		{$pr; $dib; line-height:16px; $vam;}
 		input{$pa; top:0; left:0; opacity:0; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0, 0, 0, 0);}
-		input + span{
+		input ~ span{
 			{$pr; $db; width:100%; height:100%; padding-left:21px;}
 			:before{ content:' '; $pa; top:50%; left:0; $db; width:14px; height:14px; border:1px solid #aaa; background:#fff; color:#c00; $tac; line-height:14px; $fz:14px; transform:translate(0, -50%);}
 		}
-		input:checked + span:before{ content:'\2714'; $fw4;}
+		input:checked ~ span:before{ content:'\2714'; $fw4;}
 	}
 
 	// 커스텀 라디오박스
 	label.radio{
 		{$pr; $dib; line-height:16px; $vam;}
 		input{$pa; top:0; left:0; opacity:0; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0, 0, 0, 0);}
-		input + span{
+		input ~ span{
 			{$pr; $db; width:100%; height:100%; padding-left:21px;}
 			:before{ content:' '; $pa; top:50%; left:0; $db; width:14px; height:14px; border:1px solid #aaa; background:#fff; color:#c00; $tac; line-height:14px; $fz:14px; border-radius:100%; transform:translate(0, -50%);}
 		}
-		input:checked + span:after{ content:' '; $pa; top:50%; left:3px; $db; width:10px; height:10px; background:#666; border-radius:100%; transform:translate(0, -50%);}
+		input:checked ~ span:after{ content:' '; $pa; top:50%; left:3px; $db; width:10px; height:10px; background:#666; border-radius:100%; transform:translate(0, -50%);}
 	}
 
 	// 커스텀 셀렉트

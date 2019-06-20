@@ -1259,9 +1259,9 @@ var _SelectBox = new SelectBox(jQuery);
 		inp.each(function(){
 			if(ret) {
 
-				if (this.hasAttribute('required') && !this.hasAttribute('disabled')) {
+				if ((this.hasAttribute('required') || $(this).hasClass('checkboxRequired')) && !this.hasAttribute('disabled')) {
 					if ($(this).attr('type') === 'checkbox' || $(this).attr('type') === 'radio') {
-						if (!f.find('input[name=' + $(this).attr('name') + ']:checked').length) {
+						if (!f.find('input[name="' + $(this).attr('name') + '"]:checked').length) {
 							var obj = this;
 							CMAlert($(this).attr('data-displayname') + ' 항목을 선택하여 주세요.', function(){
 								$(obj).focus();

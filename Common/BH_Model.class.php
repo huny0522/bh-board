@@ -779,6 +779,7 @@ class _ModelFunc{
 						$ret->result = false;
 						return $ret;
 					}
+					else if($v->htmlType === HTMLType::CHECKBOX && $v->required) $v->needIs = true;
 				}
 				else{
 					if($v->htmlType == HTMLType::FILE_IMAGE_ARRAY){
@@ -900,6 +901,9 @@ class _ModelFunc{
 						if(!$fileUpIs && strlen($v->value) && Post('del_file_' . $k) == 'y'){
 							$v->__deleteFile[]= $v->value;
 							$v->value = '';
+							$v->needIs = true;
+						}
+						if($v->required){
 							$v->needIs = true;
 						}
 					}
@@ -1191,6 +1195,7 @@ class _ModelFunc{
 
 		foreach($htmlAttribute as $k => $row) $Attribute .= ' '.$k.'="'.$row.'"';
 
+		$fileRequired = $data->required && !$data->value ? ' required' : '';
 		switch($htmlType){
 			case HTMLType::TEXT:
 			case HTMLType::PASSWORD:
@@ -1227,7 +1232,7 @@ class _ModelFunc{
 				$f = explode('*', $data->value);
 
 				$h = '<div class="jqFileUploadArea"' . $Attribute . '>
-				<input type="hidden" name="' . $Name . '" value="" id="MD_'.$firstIDName.$Name.'" class="fileUploadPath">
+				<input type="hidden" name="' . $Name . '" value="" id="MD_'.$firstIDName.$Name.'" class="fileUploadPath" data-displayname="' . $data->displayName . '"' . $fileRequired . '>
 				<div style="padding-bottom:10px;">';
 				if(strlen($data->value)) $h .= '<p><b class="upload_file_name">'.(isset($f[1]) ? GetDBText($f[1]) : '').'</b> <label class="checkbox"><input type="checkbox" name="del_file_'.$Name.'" value="y"><i></i><span> 파일삭제</span></label></p>';
 				else $h .= '<p><b class="upload_file_name"></b></p>';
@@ -1243,7 +1248,7 @@ class _ModelFunc{
 				return $h;
 			break;
 			case HTMLType::FILE_WITH_NAME:
-				$h = '<div class="fileUploadArea2"><input type="hidden" name="' . $Name . '" class="fileUploadInput" value=""> <button type="button" class="fileUploadBtn sBtn"><i></i>' . (isset($htmlAttribute['button']) ? $htmlAttribute['button'] : '첨부파일') . '</button>';
+				$h = '<div class="fileUploadArea2"><input type="hidden" name="' . $Name . '" class="fileUploadInput" value="" data-displayname="' . $data->displayName . '"' . $fileRequired . '> <button type="button" class="fileUploadBtn sBtn"><i></i>' . (isset($htmlAttribute['button']) ? $htmlAttribute['button'] : '첨부파일') . '</button>';
 				if(strlen($data->value)){
 					$f = explode('*', $data->value);
 					$h .= ' <p><span class="fileName">' . (isset($f[1]) ? GetDBText($f[1]) : '') . '</span> <label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><i></i><span> 파일삭제</span></label></p>';
@@ -1258,10 +1263,10 @@ class _ModelFunc{
 				if(strlen($data->value)){
 					$h = ' <span class="uploadedFile"><label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><i></i><span> 파일삭제</span></label></span>';
 				}
-				return $h . ' <input type="file" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$Attribute.'>';
+				return $h . ' <input type="file" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$fileRequired.'>';
 			break;
 			case HTMLType::FILE_IMAGE:
-				$h = '<div class="fileUploadArea"><input type="hidden" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$Attribute.'>';
+				$h = '<div class="fileUploadArea"><input type="hidden" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$fileRequired.'>';
 				$h .= '<span class="fileUploadImage">';
 				if(strlen($data->value)){
 					$h .= '<i style="background-image:url(' . Paths::UrlOfUpload() . $data->value . ')"></i>';
@@ -1288,13 +1293,16 @@ class _ModelFunc{
 			case HTMLType::CHECKBOX:
 				$nm = $htmlType === HTMLType::CHECKBOX ? $Name . '[]' : $Name;
 				$ret = '';
+				if($htmlType === HTMLType::CHECKBOX && $data->required) $htmlAttribute['class'] .= ' checkboxRequired';
 				$tempVal = $htmlType === HTMLType::CHECKBOX ? explode(',', $val) : array($val);
 				if(isset($data->enumValues) && is_array($data->enumValues)){
 					$i = 1;
 					foreach($data->enumValues as $k=>$v){
 						$checked = isset($val) && in_array($k, $tempVal) ? ' checked="checked"' : '';
 
-						$ret .= '<label for="'.$firstIDName.$Name.'_'.$i.'" class="'.$htmlType.(isset($htmlAttribute['class']) ? ' ' . $htmlAttribute['class'] : '').'"><input type="'.$htmlType.'" name="'.$nm.'" id="'.$firstIDName.$Name.'_'.$i.'" value="'.$k.'" data-displayname="' . $data->displayName . '" '.$Attribute.$checked.'> <i></i><span>'.$v.'</span></label>';
+						$ret .= '<label for="'.$firstIDName.$Name.'_'.$i.'" class="'.$htmlType.(isset($htmlAttribute['class']) ? ' ' . $htmlAttribute['class'] : '').'">
+							<input type="'.$htmlType.'" name="'.$nm.'" id="'.$firstIDName.$Name.'_'.$i.'" value="'.$k.'" data-displayname="' . $data->displayName . '" '.($htmlType !== HTMLType::CHECKBOX ? $Attribute : '').$checked.'><i></i><span>'.$v.'</span>
+							</label>';
 						$i++;
 					}
 				}
