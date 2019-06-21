@@ -165,7 +165,7 @@ class Login{
 	}
 
 	public function EmailCheck(){
-		$res = $this->Check('email', Get('email') ? Get('email') : (Get('email1').'@'.Get('email2')), false);
+		$res = $this->Check('email', Get('email') ? Get('email') : (Get('email1').(EmptyGet('email2') ? '' : '@'.Get('email2'))), false);
 		echo json_encode(array('result' => true, 'data' => $res ));
 	}
 
@@ -395,7 +395,7 @@ class Login{
 		$t2 = trim(str_replace('.','',$t[0]));
 		$code = date('Y-m-d H:i:s').toBase(mt_rand(10000, 99999).substr($t2, 0, 4), 36);
 
-		\DB::SQL()->Query('UPDATE %t SET email_code = %s WHERE muid = %d', $this->model->table, aes_encrypt($code, PW_RESET_KEY), $model->_muid->value);
+		\DB::SQL()->Query('UPDATE %1 SET email_code = %s WHERE muid = %d', $this->model->table, aes_encrypt($code, PW_RESET_KEY), $model->_muid->value);
 		$mail->SendMailByEmailCertification($model->_mid->value, $model->_mname->value, $model->_mid->value.':'.substr($code, 19));
 	}
 }
