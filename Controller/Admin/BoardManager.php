@@ -248,7 +248,7 @@ class BoardManager
 		$before2 = Post('before_sub_cate');
 		$after2 = Post('after_sub_cate');
 		$bid = Post('bid');
-		if(!strlen($bid)) JSON(false, _MSG_WRONG_CONNECTED);
+		if(!strlen($bid)) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 		$qry = DB::UpdateQryObj(TABLE_FIRST . 'bbs_' . $bid);
 		$c = false;
 		$qry->AddWhere('category = %s', $before);

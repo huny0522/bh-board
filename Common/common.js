@@ -1,3 +1,33 @@
+if(typeof(window._CM_LANG) === 'undefined') window._CM_LANG = {};
+if(typeof(window._CM_LANG.OK) === 'undefined') window._CM_LANG.OK = '확인';
+if(typeof(window._CM_LANG.todayClose) === 'undefined') window._CM_LANG.todayClose = '오늘하루 이창 열지 않기';
+if(typeof(window._CM_LANG.close) === 'undefined') window._CM_LANG.close = '닫기';
+if(typeof(window._CM_LANG.notification) === 'undefined') window._CM_LANG.notification = '알림';
+if(typeof(window._CM_LANG.cancel) === 'undefined') window._CM_LANG.cancel = '취소';
+if(typeof(window._CM_LANG.selectItem) === 'undefined') window._CM_LANG.selectItem = '{item} 항목을 선택하여 주세요.';
+if(typeof(window._CM_LANG.inputItem) === 'undefined') window._CM_LANG.inputItem = '{item} 항목을 입력하여 주세요.';
+if(typeof(window._CM_LANG.onlyEng) === 'undefined') window._CM_LANG.onlyEng = '{item} 항목은 영문만 입력하여 주세요.';
+if(typeof(window._CM_LANG.wrongType) === 'undefined') window._CM_LANG.wrongType = '{item} 항목 형식이 올바르지 않습니다.';
+if(typeof(window._CM_LANG.onlyEngNum) === 'undefined') window._CM_LANG.onlyEngNum = '{item} 항목은 영문 또는 숫자만 입력하여 주세요.';
+if(typeof(window._CM_LANG.onlyNum) === 'undefined') window._CM_LANG.onlyNum = '{item} 항목은 숫자만 입력하여 주세요.';
+if(typeof(window._CM_LANG.onlyEngNumSpecial) === 'undefined') window._CM_LANG.onlyEngNumSpecial = '{item} 항목은 영문 및 숫자, 특수문자만 입력하여 주세요.';
+if(typeof(window._CM_LANG.orMore) === 'undefined') window._CM_LANG.orMore = '{item} 항목은 {n}자 이상으로 입력하여 주세요.';
+if(typeof(window._CM_LANG.orLess) === 'undefined') window._CM_LANG.orLess = '{item} 항목은 {n}자 이하로 입력하여 주세요.';
+if(typeof(window._CM_LANG.orMoreValue) === 'undefined') window._CM_LANG.orMoreValue = '{item} 항목의 최소값은 {n}입니다.';
+if(typeof(window._CM_LANG.orLessValue) === 'undefined') window._CM_LANG.orLessValue = '{item} 항목의 최대값은 {n}입니다.';
+if(typeof(window._CM_LANG.notMatchValue) === 'undefined') window._CM_LANG.notMatchValue = '{item} 값이 일치하지 않습니다.';
+if(typeof(window._CM_LANG.image) === 'undefined') window._CM_LANG.image = '이미지';
+if(typeof(window._CM_LANG.youtube) === 'undefined') window._CM_LANG.youtube = '유튜브';
+if(typeof(window._CM_LANG.link) === 'undefined') window._CM_LANG.link = '링크';
+if(typeof(window._CM_LANG.youtubeLink) === 'undefined') window._CM_LANG.youtubeLink = '유튜브 링크';
+if(typeof(window._CM_LANG.linkUrl) === 'undefined') window._CM_LANG.linkUrl = '링크주소';
+if(typeof(window._CM_LANG.size) === 'undefined') window._CM_LANG.size = '크기';
+if(typeof(window._CM_LANG.width) === 'undefined') window._CM_LANG.width = '넓이';
+if(typeof(window._CM_LANG.height) === 'undefined') window._CM_LANG.height = '높이';
+if(typeof(window._CM_LANG.append) === 'undefined') window._CM_LANG.append = '삽입';
+if(typeof(window._CM_LANG.appendLink) === 'undefined') window._CM_LANG.appendLink = '링크 삽입';
+
+
 function getInternetExplorerVersion() {
 	var rv = -1;
 	if (navigator.appName === 'Microsoft Internet Explorer') {
@@ -169,8 +199,8 @@ function Common($){
 		html += '<div class="BH_Popup" id="BH_Popup' + seq + '" style="top:' + top + 'px; left:' + left + 'px;">'
 			+ '<div class="BH_PopupContent" style="width:'+ width + 'px; height:'+ height + 'px; background:#fff;">' + data + '</div>'
 			+ '<div class="BH_PopupBtns">'
-			+ '<span class="BH_PopupTodayClose"><a onclick="JCM.todayPopupClose(' + seq + ');">오늘하루 이창 열지 않기</a></span>'
-			+ '<span class="BH_PopupClose"><a onclick="jQuery(this).closest(\'.BH_Popup\').hide();">닫기</a></span>'
+			+ '<span class="BH_PopupTodayClose"><a onclick="JCM.todayPopupClose(' + seq + ');">' + window._CM_LANG.todayClose + '</a></span>'
+			+ '<span class="BH_PopupClose"><a onclick="jQuery(this).closest(\'.BH_Popup\').hide();">' + window._CM_LANG.close + '</a></span>'
 			+ '</div>'
 			+ '</div>';
 		$(target).append(html);
@@ -309,7 +339,7 @@ function Common($){
 		if (!w) w = 400;
 		if (!h) h = 300;
 		var html = '<div id="' + modal_id + '" class="modal_layer"><div class="modal_wrap">';
-		if (title && title !== '') html += '<div class="modal_header"><h1 class="modal_title">' + title + '</h1><button class="close"><i class="cross" title="닫기"></i></button></div>';
+		if (title && title !== '') html += '<div class="modal_header"><h1 class="modal_title">' + title + '</h1><button class="close"><i class="cross" title="' + window._CM_LANG.close + '"></i></button></div>';
 		html += '<div class="modal_contents">' + data + '</div>';
 		html += '</div></div>';
 		$('body').append(html);
@@ -633,6 +663,14 @@ function Common($){
 		}
 	};
 
+	this.lang = function(text){
+		if(!Array.isArray(text)){
+			if(arguments.length === 1) return text;
+			else text = arguments;
+		}
+		return text[typeof(window._lang) === 'undefined' ? 0 : window._lang];
+	};
+
 	this.Init();
 };
 
@@ -675,19 +713,19 @@ var MessageModal = {
 
 		window.CMAlert = function(msg, callback){
 			if(typeof callback === 'function')
-				MessageModal.Create(msg, [{text : '확인', onclick : function(obj){
+				MessageModal.Create(msg, [{text : window._CM_LANG.OK, onclick : function(obj){
 						callback();
 					}}]);
 			else MessageModal.Create(msg);
 		};
 
 		window.CMConfirm = function(message, yesCallback, noCallback, title){
-			if(typeof title === 'undefined') title = '알림';
+			if(typeof title === 'undefined') title = window._CM_LANG.notification;
 			MessageModal.Create(message, [
-				{text : '확인', onclick : function(obj){
+				{text : window._CM_LANG.OK, onclick : function(obj){
 						if(typeof yesCallback === 'function') yesCallback();
 					}},
-				{text : '취소', onclick : function(obj){
+				{text : window._CM_LANG.cancel, onclick : function(obj){
 						if(typeof noCallback === 'function') noCallback();
 					}}
 			], title);
@@ -696,9 +734,9 @@ var MessageModal = {
 
 	Create : function(message, buttons, title){
 		this.alertNumber++;
-		if(typeof(title) === 'undefined') title = '알림';
+		if(typeof(title) === 'undefined') title = window._CM_LANG.notification;
 		if(typeof(buttons) === 'undefined'){
-			buttons = [{'text' : '확인'}];
+			buttons = [{'text' : window._CM_LANG.OK}];
 		}
 
 		var btns = '';
@@ -1263,7 +1301,7 @@ var _SelectBox = new SelectBox(jQuery);
 					if ($(this).attr('type') === 'checkbox' || $(this).attr('type') === 'radio') {
 						if (!f.find('input[name="' + $(this).attr('name') + '"]:checked').length) {
 							var obj = this;
-							CMAlert($(this).attr('data-displayname') + ' 항목을 선택하여 주세요.', function(){
+							CMAlert(window._CM_LANG.selectItem.replace('{item}', $(this).attr('data-displayname')), function(){
 								$(obj).focus();
 							});
 							ret = false;
@@ -1272,7 +1310,7 @@ var _SelectBox = new SelectBox(jQuery);
 					}
 					else if ($.trim($(this).val()) === '') {
 						var obj = this;
-						CMAlert($(this).attr('data-displayname') + ' 항목을 입력하여 주세요.', function(){
+						CMAlert(window._CM_LANG.inputItem.replace('{item}', $(this).attr('data-displayname')), function(){
 							$(obj).focus();
 						});
 						ret = false;
@@ -1285,7 +1323,7 @@ var _SelectBox = new SelectBox(jQuery);
 						var val = this.value.replace(/[^a-zA-Z]/gi,'');
 						if(val !== this.value){
 							var obj = this;
-							CMAlert($(this).attr('data-displayname') + ' 항목은 영문만 입력하여 주세요.', function(){
+							CMAlert(window._CM_LANG.onlyEng.replace('{item}', $(this).attr('data-displayname')), function(){
 								$(obj).focus();
 							});
 							ret = false;
@@ -1297,7 +1335,7 @@ var _SelectBox = new SelectBox(jQuery);
 						var v = $.trim(this.value);
 						if(v !== '' && !JCM.validateEmail(this.value)){
 							var obj = this;
-							CMAlert($(this).attr('data-displayname') + ' 항목 형식이 올바르지 않습니다.!', function(){
+							CMAlert(window._CM_LANG.wrongType.replace('{item}', $(this).attr('data-displayname')), function(){
 								$(obj).focus();
 							});
 							ret = false;
@@ -1309,7 +1347,7 @@ var _SelectBox = new SelectBox(jQuery);
 						var val = this.value.replace(/[^0-9\-\*\#]/gi,'');
 						if(val !== this.value){
 							var obj = this;
-							CMAlert($(this).attr('data-displayname') + ' 항목 형식이 올바르지 않습니다.', function(){
+							CMAlert(window._CM_LANG.wrongType.replace('{item}', $(this).attr('data-displayname')), function(){
 								$(obj).focus();
 							});
 							ret = false;
@@ -1321,7 +1359,7 @@ var _SelectBox = new SelectBox(jQuery);
 						var val = this.value.replace(/[^a-zA-Z0-9]/gi,'');
 						if(val !== this.value){
 							var obj = this;
-							CMAlert($(this).attr('data-displayname') + ' 항목은 영문 또는 숫자만 입력하여 주세요.', function(){
+							CMAlert(window._CM_LANG.onlyEngNum.replace('{item}', $(this).attr('data-displayname')), function(){
 								$(obj).focus();
 							});
 							ret = false;
@@ -1333,7 +1371,7 @@ var _SelectBox = new SelectBox(jQuery);
 						var val = this.value.replace(/[^0-9]/gi,'');
 						if(val !== this.value){
 							var obj = this;
-							CMAlert($(this).attr('data-displayname') + ' 항목은 숫자만 입력하여 주세요.', function(){
+							CMAlert(window._CM_LANG.onlyNum.replace('{item}', $(this).attr('data-displayname')), function(){
 								$(obj).focus();
 							});
 							ret = false;
@@ -1345,7 +1383,7 @@ var _SelectBox = new SelectBox(jQuery);
 						var val = this.value.replace(/[^0-9\,]/gi,'');
 						if(val !== this.value){
 							var obj = this;
-							CMAlert($(this).attr('data-displayname') + ' 항목은 숫자만 입력하여 주세요.', function(){
+							CMAlert(window._CM_LANG.onlyNum.replace('{item}', $(this).attr('data-displayname')), function(){
 								$(obj).focus();
 							});
 							ret = false;
@@ -1357,7 +1395,7 @@ var _SelectBox = new SelectBox(jQuery);
 						var val = this.value.replace(/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>'\"\?\-=\+_\:\;\[\]\{\}\/]/gi,'');
 						if(val !== this.value){
 							var obj = this;
-							CMAlert($(this).attr('data-displayname') + ' 항목은 영문 및 숫자, 특수문자만 입력하여 주세요.', function(){
+							CMAlert(window._CM_LANG.onlyEngNumSpecial.replace('{item}', $(this).attr('data-displayname')), function(){
 								$(obj).focus();
 							});
 							ret = false;
@@ -1369,7 +1407,7 @@ var _SelectBox = new SelectBox(jQuery);
 						var len = parseInt($(this).attr('data-minlength'));
 						if($(this).val().length < len){
 							var obj = this;
-							CMAlert($(this).attr('data-displayname') + ' 항목은 ' + len + '자 이상으로 입력하여 주세요.', function(){
+							CMAlert(window._CM_LANG.orMore.replace('{item}', $(this).attr('data-displayname')).replace('{n}', len), function(){
 								$(obj).focus();
 							});
 							ret = false;
@@ -1380,7 +1418,7 @@ var _SelectBox = new SelectBox(jQuery);
 						var len = parseInt($(this).attr('data-maxlength'));
 						if($(this).val().length > len){
 							var obj = this;
-							CMAlert($(this).attr('data-displayname') + ' 항목은 ' + len + '자 이하로 입력하여 주세요.', function(){
+							CMAlert(window._CM_LANG.orLess.replace('{item}', $(this).attr('data-displayname')).replace('{n}', len), function(){
 								$(obj).focus();
 							});
 							ret = false;
@@ -1393,7 +1431,7 @@ var _SelectBox = new SelectBox(jQuery);
 						var val = parseInt(JCM.removeComma($(this).val()));
 						if(val < min){
 							var obj = this;
-							CMAlert($(this).attr('data-displayname') + ' 항목의 최소값은 ' + min + '입니다.', function(){
+							CMAlert(window._CM_LANG.orMoreValue.replace('{item}', $(this).attr('data-displayname')).replace('{n}', min), function(){
 								$(obj).focus();
 							});
 							ret = false;
@@ -1406,7 +1444,7 @@ var _SelectBox = new SelectBox(jQuery);
 						var val = parseInt(JCM.removeComma($(this).val()));
 						if(val > max){
 							var obj = this;
-							CMAlert($(this).attr('data-displayname') + ' 항목의 최대값은 ' + max + '입니다.', function(){
+							CMAlert(window._CM_LANG.orLessValue.replace('{item}', $(this).attr('data-displayname')).replace('{n}', max), function(){
 								$(obj).focus();
 							});
 							ret = false;
@@ -1419,7 +1457,7 @@ var _SelectBox = new SelectBox(jQuery);
 					var target = $(this).closest('form').find('input[name=' + $(this).attr('data-same') + ']');
 					if(target.length){
 						if($(this).val() !== target.val()){
-							CMAlert(target.attr('data-displayname') + ' 값이 일치하지 않습니다.', function(){
+							CMAlert(window._CM_LANG.orLessValue.replace('{item}', target.attr('data-displayname')), function(){
 								target.focus();
 							});
 							ret = false;
@@ -1596,16 +1634,16 @@ function SE2_paste(id, defaultfolder, hiddenBtns){
 	function spaste(id, defaultfolder, hiddenBtns){
 		if(!hiddenBtns){
 			var additionalBtns = '<div class="se2_add_img" data-sname="'+id+'">' +
-				'<span><button type="button" class="upbtn"><i></i><span>이미지</span></button></span>' +
+				'<span><button type="button" class="upbtn"><i></i><span>' + window._CM_LANG.image + '</span></button></span>' +
 				'<div></div>' +
 				'</div>';
 
 			additionalBtns += '<div class="se2_add_youtube">' +
-				'<span><button type="button" data-sname="'+id+'"><i></i><span>유튜브</span></button></span>' +
+				'<span><button type="button" data-sname="'+id+'"><i></i><span>' + window._CM_LANG.youtube + '</span></button></span>' +
 				'</div>';
 
 			additionalBtns += '<div class="se2_add_link">' +
-				'<span><button type="button" data-sname="'+id+'"><i></i><span>링크</span></button></span>' +
+				'<span><button type="button" data-sname="'+id+'"><i></i><span>' + window._CM_LANG.link + '</span></button></span>' +
 				'</div>';
 
 			$('#'+id).before('<div class="se2_addi_btns">' + additionalBtns + '</div>');
@@ -1654,10 +1692,10 @@ $(document).on('click','.se2_add_youtube button',function(e){
 	var sname = $(this).attr('data-sname');
 	if($('#youtubeLinkModal').length) return;
 	var html = '<article id="youtubeLinkModal" class="modal_layer" data-sname="' + sname + '"><div class="modal_wrap">' +
-		'<header class="modal_header"><h1>유튜브 링크</h1><button type="button" class="close"><i class="cross"></i></button></header><div class="modal_contents">' +
-		'<dl><dt>링크주소</dt><dd><textarea id="youtubeText"></textarea></dd></dl>' +
-		'<dl><dt>크기</dt><dd>넓이 : <input type="text" class="num" id="youtubeWidthInp" value="720"> * 높이 : <input type="text" id="youtubeHeightInp" class="num" value="405"></dd></dl>' +
-		'<footer><button type="button" id="youtubeSubmitBtn" class="mBtn btn2">삽입</button></footer>' +
+		'<header class="modal_header"><h1>' + window._CM_LANG.youtubeLink + '</h1><button type="button" class="close"><i class="cross"></i></button></header><div class="modal_contents">' +
+		'<dl><dt>' + window._CM_LANG.linkUrl + '</dt><dd><textarea id="youtubeText"></textarea></dd></dl>' +
+		'<dl><dt>' + window._CM_LANG.size + '</dt><dd>' + window._CM_LANG.width + ' : <input type="text" class="num" id="youtubeWidthInp" value="720"> * ' + window._CM_LANG.height + ' : <input type="text" id="youtubeHeightInp" class="num" value="405"></dd></dl>' +
+		'<footer><button type="button" id="youtubeSubmitBtn" class="mBtn btn2">' + window._CM_LANG.append + '</button></footer>' +
 		'</div></div></article>';
 	$('body').append(html);
 	JCM.showModal('youtubeLinkModal');
@@ -1708,9 +1746,9 @@ $(document).on('click','.se2_add_link button',function(e){
 	var sname = $(this).attr('data-sname');
 	if($('#urlLinkModal').length) return;
 	var html = '<article id="urlLinkModal" class="modal_layer" data-sname="' + sname + '"><div class="modal_wrap">' +
-		'<header class="modal_header"><h1>링크 삽입</h1><button type="button" class="close"><i class="cross"></i></button></header><div class="modal_contents">' +
-		'<dl><dt>링크주소</dt><dd><input type="text" id="urlLinkInp" class="w100p"></dd></dl>' +
-		'<footer><button type="button" id="urlLinkSubmitBtn" class="mBtn btn2">삽입</button></footer>' +
+		'<header class="modal_header"><h1>' . window._CM_LANG.appendLink + '</h1><button type="button" class="close"><i class="cross"></i></button></header><div class="modal_contents">' +
+		'<dl><dt>' . window._CM_LANG.linkUrl + '</dt><dd><input type="text" id="urlLinkInp" class="w100p"></dd></dl>' +
+		'<footer><button type="button" id="urlLinkSubmitBtn" class="mBtn btn2">' . window._CM_LANG.append + '</button></footer>' +
 		'</div></div></article>';
 	$('body').append(html);
 	JCM.showModal('urlLinkModal');

@@ -1,3 +1,10 @@
+if(typeof(window._REPLY_LANG) === 'undefined') window._REPLY_LANG = {};
+if(typeof(window._REPLY_LANG.answer) === 'undefined') window._REPLY_LANG.answer = '답변';
+if(typeof(window._REPLY_LANG.modify) === 'undefined') window._REPLY_LANG.modify = '수정';
+if(typeof(window._REPLY_LANG.del) === 'undefined') window._REPLY_LANG.del = '삭제';
+if(typeof(window._REPLY_LANG.attachFile) === 'undefined') window._REPLY_LANG.attachFile = '첨부파일';
+if(typeof(window._REPLY_LANG.deleteFile) === 'undefined') window._REPLY_LANG.deleteFile = '파일삭제';
+
 var AppReply = {
 	SubmitWrite : function(e){
 		e.preventDefault();
@@ -44,7 +51,7 @@ var AppReply = {
 		e.preventDefault();
 		var seq = $('#repPwdForm input[name=seq]').val();
 		JCM.ajaxForm(this, function(data){
-			var btns = '<a href="#" class="answerBtn">답변</a><a href="#" class="modifyBtn">수정</a><a href="#" class="deleteBtn">삭제</a>';
+			var btns = '<a href="#" class="answerBtn">' + window._REPLY_LANG.answer + '</a><a href="#" class="modifyBtn">' + window._REPLY_LANG.modify + '</a><a href="#" class="deleteBtn">' + window._REPLY_LANG.del + '</a>';
 			$('#repArticle'+seq).attr(data.file_name);
 			$('#repArticle'+seq+' .commentText').html(data.comment);
 			$('#repArticle'+seq+' .btns').html(btns);
@@ -212,10 +219,10 @@ var AppReply = {
 
 	GetFileInput : function(fname){
 		fname = $.trim(fname);
-		var html = '<div class="fileUploadArea2"><input type="hidden" name="file" class="fileUploadInput" value=""><button type="button" class="fileUploadBtn sBtn">첨부파일</button>' +
+		var html = '<div class="fileUploadArea2"><input type="hidden" name="file" class="fileUploadInput" value=""><button type="button" class="fileUploadBtn sBtn">' + window._REPLY_LANG.attachFile + '</button>' +
 			'<p>' +
 			'<span class="fileName">' + fname + '</span>' +
-			(fname !== '' ? ' <label class="checkbox"><input type="checkbox" name="del_file_file" value="y"><span> 파일삭제</span></label>' : '') +
+			(fname !== '' ? ' <label class="checkbox"><input type="checkbox" name="del_file_file" value="y"><span>' + window._REPLY_LANG.deleteFile + '</span></label>' : '') +
 			' </p>' +
 			'</div><script></script>';
 		return html;

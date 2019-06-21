@@ -565,7 +565,7 @@ class BH_Model{
 	 * @return bool
 	 */
 	public function SetValue($key, $v){
-		if(!isset($this->data[$key])) return $key.' 키값이 정의되어 있지 않습니다.';
+		if(!isset($this->data[$key])) return str_replace('{key}', $key, BH_Application::$lang['MODEL_NOT_DEFINED_KEY']);
 
 		$this->data[$key]->value = trim($v);
 		$this->data[$key]->needIs = true;
@@ -775,7 +775,7 @@ class _ModelFunc{
 						$v->needIs = true;
 					}
 					else if($v->needIs && (!isset($v->value) || !strlen($v->value))){
-						$ret->message = $v->modelErrorMsg = $v->displayName.' 항목이 정의되지 않았습니다.';
+						$ret->message = $v->modelErrorMsg = str_replace('{item}', $v->displayName, BH_Application::$lang['MODEL_NOT_DEFINED_ITEM']);
 						$ret->result = false;
 						return $ret;
 					}
@@ -788,7 +788,7 @@ class _ModelFunc{
 
 						$values = array();
 						if(!is_array($post[$k])){
-							$ret->message = $v->modelErrorMsg = $v->displayName.'항목이 다중 파일 형식이 아닙니다.';
+							$ret->message = $v->modelErrorMsg = str_replace('{item}', $v->displayName, BH_Application::$lang['MODEL_NOT_MULTI_FILE_ITEM']);
 							$ret->result = false;
 							return $ret;
 						}
@@ -802,7 +802,7 @@ class _ModelFunc{
 									$v->needIs = true;
 								}
 								else if($newpath->result === -1){
-									$ret->message = $v->modelErrorMsg = $v->displayName . '항목에 ' . $newpath->message;
+									$ret->message = $v->modelErrorMsg = $v->displayName . ' - ' . $newpath->message;
 									$ret->result = false;
 									return $ret;
 								}
@@ -839,13 +839,13 @@ class _ModelFunc{
 
 							if(isset($v->addOption['possibleExt']) && is_array($v->addOption['possibleExt']) && sizeof($v->addOption['possibleExt'])){
 								if(!in_array($ext, $v->addOption['possibleExt'])){
-									$ret->message = $v->modelErrorMsg = $v->displayName . '항목에 업로드 불가능한 파일을 등록하였습니다.';
+									$ret->message = $v->modelErrorMsg = str_replace('{item}', $v->displayName, BH_Application::$lang['MODEL_WRONG_FILE_TYPE']);
 									$ret->result = false;
 									return $ret;
 								}
 							}
 							else if(!in_array($ext, BH_Application::$settingData['POSSIBLE_EXT'])){
-								$ret->message = $v->modelErrorMsg = $v->displayName . '항목에 업로드 불가능한 파일을 등록하였습니다.';
+								$ret->message = $v->modelErrorMsg = str_replace('{item}', $v->displayName, BH_Application::$lang['MODEL_WRONG_FILE_TYPE']);
 								$ret->result = false;
 								return $ret;
 							}
@@ -859,7 +859,7 @@ class _ModelFunc{
 								else if($type === 'kb') $s = $s * 1024;
 
 								if($s < filesize(\Paths::DirOfUpload() . $fPath)){
-									$ret->message = $v->modelErrorMsg = $v->displayName . '항목에 파일용량을 초과하였습니다.';
+									$ret->message = $v->modelErrorMsg = str_replace('{item}', $v->displayName, BH_Application::$lang['MODEL_EXCEED_FILE_SIZE']);
 									$ret->result = false;
 									return $ret;
 								}
@@ -891,7 +891,7 @@ class _ModelFunc{
 							}
 							else{
 								if($newpath->result === -1){
-									$ret->message = $v->modelErrorMsg = $v->displayName . '항목에 ' . $newpath->message;
+									$ret->message = $v->modelErrorMsg = $v->displayName . ' - ' . $newpath->message;
 									$ret->result = false;
 									return $ret;
 								}
@@ -914,7 +914,7 @@ class _ModelFunc{
 								$v->value = implode(',', $post[$k]);
 							}
 							else{
-								$ret->message = $v->modelErrorMsg = $v->displayName . '항목에 배열데이터를 사입할 수 없습니다.';
+								$ret->message = $v->modelErrorMsg = $v->displayName . BH_Application::$lang['MODEL_DO_NOT_ARRAY'];
 								$ret->result = false;
 							}
 						}
@@ -940,7 +940,7 @@ class _ModelFunc{
 	 * @return string|object
 	 */
 	private static function ReservedMoveFile($path, $dir){
-		if(strpos($path, '..') !== false) return (object) array('result' => -1, 'message' => '잘못된 파일경로가 탐지었습니다.');
+		if(strpos($path, '..') !== false) return (object) array('result' => -1, 'message' => BH_Application::$lang['MODEL_WRONG_PATH']);
 
 		$path = preg_replace('/[^0-9a-zA-Z\/\_\-\!\@\.]/', '', $path);
 		if(file_exists(\Paths::DirOfUpload() . $path)){
@@ -950,7 +950,7 @@ class _ModelFunc{
 
 			return $newpath;
 		}
-		return (object) array('result' => -2, 'message' => '업로드한 파일이 존재하지 않습니다.');
+		return (object) array('result' => -2, 'message' => BH_Application::$lang['MODEL_FILE_NOT_EXISTS']);
 	}
 
 	/**
@@ -1036,14 +1036,14 @@ class _ModelFunc{
 			case ModelType::INT:
 				$val = preg_replace('/[^0-9\-]/','',$data->value);
 				if($val != $data->value){
-					$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 숫자만 입력 가능합니다.';
+					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_ONLY_NUMBER']);
 					return false;
 				}
 			break;
 			case ModelType::FLOAT:
 				$val = preg_replace('/[^0-9\.\-]/','',$data->value);
 				if($val != $data->value){
-					$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 숫자만 입력 가능합니다.';
+					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_ONLY_NUMBER']);
 					return false;
 				}
 			break;
@@ -1054,7 +1054,7 @@ class _ModelFunc{
 					$v = trim($temp[0]);
 				}
 				if(!(isset($data->enumValues) && is_array($data->enumValues) && isset($data->enumValues[$v]))){
-					$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목에 값이 필요합니다.';
+					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_NEED_VALUE']);
 					return false;
 				}
 			break;
@@ -1062,34 +1062,34 @@ class _ModelFunc{
 		switch($data->htmlType){
 			case HTMLType::EMAIL:
 				if (!filter_var($data->value, FILTER_VALIDATE_EMAIL)) {
-					$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 형식이 올바르지 않습니다.';
+					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_VALUE_WRONG_TYPE']);
 					return false;
 				}
 			break;
 			case HTMLType::TEL:
 				$val = preg_replace('/[^0-9\-\*\#]/','',$data->value);
 				if($val != $data->value){
-					$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 형식이 올바르지 않습니다.';
+					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_VALUE_WRONG_TYPE']);
 					return false;
 				}
 			break;
 			case HTMLType::TEXT_ENG_ONLY:
 				$val = preg_replace('/[^a-zA-Z]/','',$data->value);
 				if($val != $data->value){
-					$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문만 입력가능합니다.';
+					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_ONLY_ENG']);
 					return false;
 				}
 			break;
 			case HTMLType::TEXT_ENG_NUM:
 				if ( !ctype_alnum($data->value) ){
-					$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문과 숫자만 입력가능합니다.';
+					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_ONLY_ENG_NUM']);
 					return false;
 				}
 			break;
 			case HTMLType::TEXT_ENG_SPECIAL:
 				$val = preg_replace('/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>\'\"\?\-=\+_\:\;\[\]\{\}\/]/','',$data->value);
 				if($val != $data->value){
-					$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 영문과 숫자, 특수문자만 입력가능합니다.';
+					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_ONLY_ENG_NUM_SPECIAL']);
 					return false;
 				}
 		}
@@ -1099,11 +1099,11 @@ class _ModelFunc{
 	public static function CheckValue($key, &$data){
 		if($data->type == ModelType::INT || $data->type == ModelType::FLOAT){
 			if($data->minValue !== false && $data->minValue > $data->value){
-				$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목에 '.$data->minValue.' 이상의 값을 입력하여 주세요.';
+				$data->modelErrorMsg = str_replace(array('{item}','{n}'), array($data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), $data->minValue),BH_Application::$lang['MODEL_OR_MORE']);
 				return false;
 			}
 			if($data->maxValue !== false && $data->maxValue < $data->value){
-				$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목에 '.$data->maxValue.' 이하의 값을 입력하여 주세요.';
+				$data->modelErrorMsg = str_replace(array('{item}','{n}'), array($data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), $data->maxValue),BH_Application::$lang['MODEL_OR_LESS']);
 				return false;
 			}
 		}
@@ -1113,11 +1113,11 @@ class _ModelFunc{
 	public static function CheckLength($key, &$data){
 		if($data->type == ModelType::STRING || $data->type == ModelType::TEXT){
 			if($data->minLength !== false && $data->minLength > mb_strlen($data->value, 'UTF-8')){
-				$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 '.$data->minLength.'자 이상 입력하여 주세요.';
+				$data->modelErrorMsg = str_replace(array('{item}','{n}'), array($data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), $data->minLength),BH_Application::$lang['MODEL_OR_MORE_LENGTH']);
 				return false;
 			}
 			if($data->maxLength !== false && $data->maxLength < mb_strlen($data->value, 'UTF-8')){
-				$data->modelErrorMsg = $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : '').' 항목은 '.$data->maxLength.'자 이하 입력하여 주세요.';
+				$data->modelErrorMsg = str_replace(array('{item}','{n}'), array($data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), $data->maxLength),BH_Application::$lang['MODEL_OR_LESS_LENGTH']);
 				return false;
 			}
 		}
@@ -1128,7 +1128,7 @@ class _ModelFunc{
 		if($model->data[$key]->required == false) return true;
 		if(is_null($model->GetValue($key)) || !strlen($model->GetValue($key))){
 			if(!$model->data[$key]->dbExcept && !$model->data[$key]->postExcept && $model->data[$key]->autoDecrement !== true){
-				$model->data[$key]->modelErrorMsg = $model->data[$key]->displayName.' 항목은 필수항목입니다.';
+				$model->data[$key]->modelErrorMsg = str_replace('{item}', $model->data[$key]->displayName, BH_Application::$lang['MODEL_REQUIRED']);
 				return false;
 			}
 		}
@@ -1234,13 +1234,13 @@ class _ModelFunc{
 				$h = '<div class="jqFileUploadArea"' . $Attribute . '>
 				<input type="hidden" name="' . $Name . '" value="" id="MD_'.$firstIDName.$Name.'" class="fileUploadPath" data-displayname="' . $data->displayName . '"' . $fileRequired . '>
 				<div style="padding-bottom:10px;">';
-				if(strlen($data->value)) $h .= '<p><b class="upload_file_name">'.(isset($f[1]) ? GetDBText($f[1]) : '').'</b> <label class="checkbox"><input type="checkbox" name="del_file_'.$Name.'" value="y"><i></i><span> 파일삭제</span></label></p>';
+				if(strlen($data->value)) $h .= '<p><b class="upload_file_name">'.(isset($f[1]) ? GetDBText($f[1]) : '').'</b> <label class="checkbox"><input type="checkbox" name="del_file_'.$Name.'" value="y"><i></i><span> ' .BH_Application::$lang['DEL_FILE'] . '</span></label></p>';
 				else $h .= '<p><b class="upload_file_name"></b></p>';
 				$h .= '</div>
 						<div style="display:block; width: 0; height: 0; overflow: hidden; opacity: 0; filter:alpha(0);">
 							<input type="file" name="temp_upload_file" class="fileUploadInp">
 						</div>
-						<button type="button" class="mBtn fileUploadBtn">' . (isset($htmlAttribute['button']) ? $htmlAttribute['button'] : '파일등록') . '</button>
+						<button type="button" class="mBtn fileUploadBtn">' . (isset($htmlAttribute['button']) ? $htmlAttribute['button'] : BH_Application::$lang['REG_FILE']) . '</button>
 						<div class="progress progress-animated">
 							<div class="bar"></div>
 						</div>
@@ -1248,10 +1248,10 @@ class _ModelFunc{
 				return $h;
 			break;
 			case HTMLType::FILE_WITH_NAME:
-				$h = '<div class="fileUploadArea2"><input type="hidden" name="' . $Name . '" class="fileUploadInput" value="" data-displayname="' . $data->displayName . '"' . $fileRequired . '> <button type="button" class="fileUploadBtn sBtn"><i></i>' . (isset($htmlAttribute['button']) ? $htmlAttribute['button'] : '첨부파일') . '</button>';
+				$h = '<div class="fileUploadArea2"><input type="hidden" name="' . $Name . '" class="fileUploadInput" value="" data-displayname="' . $data->displayName . '"' . $fileRequired . '> <button type="button" class="fileUploadBtn sBtn"><i></i>' . (isset($htmlAttribute['button']) ? $htmlAttribute['button'] : BH_Application::$lang['ATTACH_FILE']) . '</button>';
 				if(strlen($data->value)){
 					$f = explode('*', $data->value);
-					$h .= ' <p><span class="fileName">' . (isset($f[1]) ? GetDBText($f[1]) : '') . '</span> <label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><i></i><span> 파일삭제</span></label></p>';
+					$h .= ' <p><span class="fileName">' . (isset($f[1]) ? GetDBText($f[1]) : '') . '</span> <label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><i></i><span> ' . BH_Application::$lang['DEL_FILE'] . '</span></label></p>';
 				}
 				else{
 					$h .= '<p></p>';
@@ -1261,7 +1261,7 @@ class _ModelFunc{
 			case HTMLType::FILE:
 				$h = '';
 				if(strlen($data->value)){
-					$h = ' <span class="uploadedFile"><label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><i></i><span> 파일삭제</span></label></span>';
+					$h = ' <span class="uploadedFile"><label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><i></i><span> ' . BH_Application::$lang['DEL_FILE'] . '</span></label></span>';
 				}
 				return $h . ' <input type="file" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$fileRequired.'>';
 			break;
@@ -1272,18 +1272,18 @@ class _ModelFunc{
 					$h .= '<i style="background-image:url(' . Paths::UrlOfUpload() . $data->value . ')"></i>';
 				}
 				$h .= '</span>';
-				if(strlen($data->value)) $h .= ' <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><i></i><span>삭제</span></label>';
-				return $h . '<button type="button" class="fileUploadBtn sBtn"><span>이미지업로드</span></button></div><script>JCM.imageFileForm();</script>';
+				if(strlen($data->value)) $h .= ' <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><i></i><span>' . BH_Application::$lang['DEL'] . '</span></label>';
+				return $h . '<button type="button" class="fileUploadBtn sBtn"><span>' . BH_Application::$lang['REG_IMAGE'] . '</span></button></div><script>JCM.imageFileForm();</script>';
 			break;
 			case HTMLType::FILE_IMAGE_ARRAY:
 				$h = '<div class="multiFileUploadArea">';
 				if(strlen($data->value)){
 					$p = explode(';', $data->value);
 					foreach($p as $path){
-						$h .= ' <span class="fileUploadImage"><i style="background-image:url(' . Paths::UrlOfUpload() . $path . ')"></i></span> <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '[]" value="' . $path . '"><i></i><span>삭제</span></label>';
+						$h .= ' <span class="fileUploadImage"><i style="background-image:url(' . Paths::UrlOfUpload() . $path . ')"></i></span> <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '[]" value="' . $path . '"><i></i><span>' . BH_Application::$lang['DEL'] . '</span></label>';
 					}
 				}
-				$h .= '<div class="fileUploadArea"><span class="fileUploadImage"></span><input type="hidden" name="'.$Name.'[]" data-displayname="' . $data->displayName . '" '.$Attribute.'><button type="button" class="fileUploadBtn sBtn"><span>이미지업로드</span></button><button type="button" class="fileUploadAreaAddBtn sBtn">추가</button><button type="button" class="fileUploadAreaRmBtn sBtn">삭제</button></div>';
+				$h .= '<div class="fileUploadArea"><span class="fileUploadImage"></span><input type="hidden" name="'.$Name.'[]" data-displayname="' . $data->displayName . '" '.$Attribute.'><button type="button" class="fileUploadBtn sBtn"><span>' . BH_Application::$lang['REG_IMAGE'] . '</span></button><button type="button" class="fileUploadAreaAddBtn sBtn">' . BH_Application::$lang['ADD'] . '</button><button type="button" class="fileUploadAreaRmBtn sBtn">' . BH_Application::$lang['DEL'] . '</button></div>';
 				return $h . '</div><script>JCM.imageFileForm();</script>';
 			break;
 			case HTMLType::TEXTAREA:
@@ -1461,7 +1461,7 @@ class _ModelFunc{
 
 		if(!isset($model->key) || !is_array($model->key)){
 			if(_DEVELOPERIS === true){
-				echo '키값이 존재하지 않습니다.';
+				echo BH_Application::$lang['MODEL_KEY_NOT_EXISTS'];
 				exit;
 			}
 			$res->result = false;
@@ -1470,7 +1470,7 @@ class _ModelFunc{
 		}
 		else if(sizeof($keys) != sizeof($model->key)){
 			if(_DEVELOPERIS === true){
-				echo '모델의 키의 길이와 인자값의 키의 길이가 동일하지 않습니다.';
+				echo BH_Application::$lang['MODEL_KEY_LENGTH_NOT_MATCH'];
 				exit;
 			}
 			$res->result = false;
@@ -1499,7 +1499,7 @@ class _ModelFunc{
 
 		if(!isset($model->key) || !is_array($model->key)){
 			if(_DEVELOPERIS === true){
-				echo '키값이 존재하지 않습니다.';
+				echo BH_Application::$lang['MODEL_KEY_NOT_EXISTS'];
 				exit;
 			}
 
@@ -1509,7 +1509,7 @@ class _ModelFunc{
 		}
 		else if(sizeof($keyData) != sizeof($model->key)){
 			if(_DEVELOPERIS === true){
-				echo '모델의 키의 길이와 인자값의 키의 길이가 동일하지 않습니다.';
+				echo BH_Application::$lang['MODEL_KEY_LENGTH_NOT_MATCH'];
 				exit;
 			}
 
@@ -1551,15 +1551,15 @@ class _ModelFunc{
 	public static function CheckInt($k, $v){
 		if(!strlen($v)){
 			if(_DEVELOPERIS === true){
-				if(_AJAXIS === true) JSON(false, '['.$k.']숫자값이 비어있습니다.');
-				else URLReplace('-1', '['.$k.']숫자값이 비어있습니다.');
+				if(_AJAXIS === true) JSON(false, '['.$k.']' . BH_Application::$lang['TXT_EMPTY_NUMBER']);
+				else URLReplace('-1', '['.$k.']' . BH_Application::$lang['TXT_EMPTY_NUMBER']);
 			}else return 'ERROR#102';
 		}
 		$val = ToInt($v);
 		if($val != $v){
 			if(_DEVELOPERIS === true){
-				if(_AJAXIS === true) JSON(false, '['.$k.']숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
-				else URLReplace('-1', '['.$k.']숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+				if(_AJAXIS === true) JSON(false, '['.$k.']' . BH_Application::$lang['TXT_ONLY_NUMBER_NOT_CHARACTER']);
+				else URLReplace('-1', '['.$k.']' . BH_Application::$lang['TXT_ONLY_NUMBER_NOT_CHARACTER']);
 			}else return 'ERROR#103';
 		}
 		return true;
@@ -1568,15 +1568,15 @@ class _ModelFunc{
 	public static function CheckFloat($k, $v){
 		if(!strlen($v)){
 			if(_DEVELOPERIS === true){
-				if(_AJAXIS === true) JSON(false, '['.$k.']숫자값이 비어있습니다.');
-				else URLReplace('-1', '['.$k.']숫자값이 비어있습니다.');
+				if(_AJAXIS === true) JSON(false, '['.$k.']' . BH_Application::$lang['TXT_EMPTY_NUMBER']);
+				else URLReplace('-1', '['.$k.']' . BH_Application::$lang['TXT_EMPTY_NUMBER']);
 			}else return 'ERROR#112';
 		}
 		$val = ToFloat($v);
 		if($val != $v){
 			if(_DEVELOPERIS === true){
-				if(_AJAXIS === true) JSON(false, '['.$k.']숫자(소수)가 들아갈 항목에 문자가 들어갈 수 없습니다.');
-				else URLReplace('-1', '['.$k.']숫자(소수)가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+				if(_AJAXIS === true) JSON(false, '['.$k.']' . BH_Application::$lang['TXT_ONLY_FLOAT_NOT_CHARACTER']);
+				else URLReplace('-1', '['.$k.']' . BH_Application::$lang['TXT_ONLY_FLOAT_NOT_CHARACTER']);
 			}else return 'ERROR#113';
 		}
 		return true;
@@ -1621,7 +1621,7 @@ class _ModelFunc{
 				}
 				else{
 					if($newpath->result === -1){
-						$model->data[$key]->modelErrorMsg = $model->data[$key]->displayName . '항목에 ' . $newpath->message;
+						$model->data[$key]->modelErrorMsg = $model->data[$key]->displayName . ' - ' . $newpath->message;
 					}
 				}
 			}
@@ -1648,7 +1648,7 @@ class _ModelFunc{
 					}
 					else{
 						if($newpath->result === -1){
-							$model->data[$key]->modelErrorMsg = $model->data[$key]->displayName . '항목에 ' . $newpath->message;
+							$model->data[$key]->modelErrorMsg = $model->data[$key]->displayName . ' - ' . $newpath->message;
 						}
 					}
 				}
@@ -1706,12 +1706,12 @@ class _ModelFunc{
 			$ext = explode('.', $files['name']);
 			$ext = strtolower($ext[sizeof($ext)-1]);
 
-			if(in_array($ext, BH_Application::$settingData['noext'])) return _MSG_IMPOSSIBLE_FILE;
-			else if(!in_array($ext, BH_Application::$settingData['POSSIBLE_EXT'])) return _MSG_IMPOSSIBLE_FILE;
-			else if($possible_ext && !in_array($ext, $possible_ext)) return _MSG_IMPOSSIBLE_FILE;
+			if(in_array($ext, BH_Application::$settingData['noext'])) return BH_Application::$lang['MSG_IMPOSSIBLE_FILE'];
+			else if(!in_array($ext, BH_Application::$settingData['POSSIBLE_EXT'])) return BH_Application::$lang['MSG_IMPOSSIBLE_FILE'];
+			else if($possible_ext && !in_array($ext, $possible_ext)) return BH_Application::$lang['MSG_IMPOSSIBLE_FILE'];
 
-			if($files['error'] ===  UPLOAD_ERR_INI_SIZE) return _MSG_FILE_TOO_BIG;
-			if($files['error'] !==  UPLOAD_ERR_OK) return _MSG_UPLOAD_ERROR;
+			if($files['error'] ===  UPLOAD_ERR_INI_SIZE) return BH_Application::$lang['MSG_FILE_TOO_BIG'];
+			if($files['error'] !==  UPLOAD_ERR_OK) return BH_Application::$lang['MSG_UPLOAD_ERROR'];
 
 			if(!is_dir(\Paths::DirOfUpload().$path)) @mkdir(\Paths::DirOfUpload().$path, 0777, true);
 
@@ -1933,7 +1933,7 @@ class _CfgData
 				if($this->value){
 					$h .= '<img src="' . Paths::UrlOfUpload(). GetDBText($this->value) . '" style="max-width:100px; max-height:100px;">';
 				}
-				$h .= '<input type="file" name="' . $this->key .'" accept="image/*" ' . $attr . '> <label class="checkbox"><input type="checkbox" name="_delFile[]" value="' . GetDBText($this->value) . '"><i></i><span>삭제</span></label>';
+				$h .= '<input type="file" name="' . $this->key .'" accept="image/*" ' . $attr . '> <label class="checkbox"><input type="checkbox" name="_delFile[]" value="' . GetDBText($this->value) . '"><i></i><span>' . BH_Application::$lang['DEL'] . '</span></label>';
 			break;
 			case \HTMLType::RADIO:
 				$h = InputRadio($this->key, $this->enumValues, strlen($this->Val()) ? $this->Val() : $this->defaultValue, $class);
@@ -1968,13 +1968,13 @@ class _ConfigModel{
 	private function __clone(){}
 
 	public function __get($name){
-		if(BH_Application::$showError) PrintError('존재하지 않는 환경설정값입니다.');
+		if(BH_Application::$showError) PrintError(BH_Application::$lang['C_MODEL_NO_PARAM']);
 		return _CfgData::GetInstance($name);
 	}
 
 	protected function GetFileSetting(){
 		if(!strlen($this->_code)){
-			if(BH_Application::$showError) PrintError('환경설정의 코드명이 빠졌습니다.');
+			if(BH_Application::$showError) PrintError(BH_Application::$lang['C_MODEL_MISSING_CODE_NAME']);
 			exit;
 		}
 		// 설정불러오기

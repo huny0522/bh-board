@@ -14,14 +14,14 @@ class BH_Common
 	public static function AdminAuth($redirectUrl = ''){
 		if($redirectUrl === '') $redirectUrl = App::URLBase('Login');
 		if(_MEMBERIS !== true || ($_SESSION['member']['level'] != _SADMIN_LEVEL  && $_SESSION['member']['level'] != _ADMIN_LEVEL)){
-			if(_AJAXIS === true) JSON(false, _MSG_NO_AUTH.' 로그인하여 주세요.');
-			else URLReplace($redirectUrl, _MSG_NO_AUTH.' 로그인하여 주세요.');
+			if(_AJAXIS === true) JSON(false, App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN']);
+			else URLReplace($redirectUrl, App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN']);
 		}
 		if($_SESSION['member']['level'] == _ADMIN_LEVEL){
 			$AdminAuth = explode(',', self::GetMember('admin_auth'));
 			if(!in_array(App::$data['NowMenu'], $AdminAuth)){
-				if(_AJAXIS === true) JSON(false, _MSG_NO_AUTH);
-				else URLReplace('-1', _MSG_NO_AUTH);
+				if(_AJAXIS === true) JSON(false, App::$lang['MSG_NO_AUTH']);
+				else URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 			}
 		}
 	}
@@ -33,12 +33,12 @@ class BH_Common
 
 	public static function MemberAuth($level = 1){
 		if(_MEMBERIS !== true){
-			if(_AJAXIS === true) JSON(false, _MSG_NO_AUTH.' 로그인하여 주세요.', array('needLogin' => true));
-			else URLReplace(Paths::Url() . '/Login', _MSG_NO_AUTH.' 로그인하여 주세요.');
+			if(_AJAXIS === true) JSON(false, App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN'], array('needLogin' => true));
+			else URLReplace(Paths::Url() . '/Login', App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN']);
 		}
 		if($_SESSION['member']['level'] < $level){
-			if(_AJAXIS === true) JSON(false, _MSG_NO_AUTH);
-			else URLReplace('-1', _MSG_NO_AUTH);
+			if(_AJAXIS === true) JSON(false, App::$lang['MSG_NO_AUTH']);
+			else URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 	}
 
@@ -304,11 +304,11 @@ class BH_Common
 		$d = App::$cfg->Def()->newIconDay->Val() * 86400;
 
 		while($row = $qry->Get()){
-			if($row['secret'] == 'y') $row['subject'] = '비밀글입니다.';
+			if($row['secret'] == 'y') $row['subject'] = App::$lang['IS_SECRET_POST'];
 			$row['replyCount'] = $row['reply_cnt'] ? '<span class="ReplyCount">['.$row['reply_cnt'].']</span>' : '';
 			$newArticleIs = (time() - strtotime($row['reg_date']) < $d);
-			$row['secretIcon']= $row['secret'] == 'y' ? '<span class="secretDoc">[비밀글]</span> ' : '';
-			$row['newtIcon'] = $newArticleIs ? '<span class="newDoc">[새글]</span> ' : '';
+			$row['secretIcon']= $row['secret'] == 'y' ? '<span class="secretDoc">[' . App::$lang['SECRET_POST'] . ']</span> ' : '';
+			$row['newtIcon'] = $newArticleIs ? '<span class="newDoc">[' . App::$lang['NEW_POST'] . ']</span> ' : '';
 			$data[] = $row;
 		}
 		return $data;
@@ -424,6 +424,19 @@ class BH_Common
 
 	public static function TinyMCEUseIs(){
 		return (isset(App::$settingData['tinyMCEPath']) && strlen(App::$settingData['tinyMCEPath']) && file_exists(_DIR . App::$settingData['tinyMCEPath']) && App::$cfg->Def()->htmlEditor->value == 'tinymce');
+	}
+
+	/**
+	 * @param array|string.. $textArr
+	 * @return string
+	 */
+	public static function Lang($textArr){
+		if(!is_array($textArr)){
+			$argn = func_num_args();
+			if($argn === 1) return $textArr;
+			else if($argn > 1) $textArr = func_get_args();
+		}
+		return $textArr[SELECT_LANG];
 	}
 
 	/* -------------------------------------------------

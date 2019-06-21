@@ -51,10 +51,10 @@ class Message
 		$blockUsers = CM::GetBlockUsers();
 
 		App::$data['targetMuid'] = $this->messageModel->GetTargetMuid();
-		if(App::$data['targetMuid'] === $_SESSION['member']['muid']) JSON(false, '자기 자신에게 메세지를 보낼 수 없습니다.');
+		if(App::$data['targetMuid'] === $_SESSION['member']['muid']) JSON(false, App::$lang['CANT_SEND_MSG_TO_SELF']);
 		App::$data['target'] = CM::GetOtherMember(App::$data['targetMuid']);
 
-		if(in_array(App::$data['targetMuid'], $blockUsers)) JSON(false, '차단된 사용자의 글입니다.');
+		if(in_array(App::$data['targetMuid'], $blockUsers)) JSON(false, App::$lang['POST_FROM_BLOCKED_USER']);
 		if($this->messageModel->_target_muid->value == $_SESSION['member']['muid'] && !strlen($this->messageModel->_read_date->value)){
 			$this->messageModel->_read_date->SetValue(date('Y-m-d H:i:s'));
 			$this->messageModel->DBUpdate();
@@ -63,17 +63,17 @@ class Message
 	}
 
 	public function Write(){
-		if(EmptyGet('id')) JSON(false, _MSG_WRONG_CONNECTED);
+		if(EmptyGet('id')) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 		App::$data['target'] = CM::GetOtherMember(Get('id'));
-		if(!App::$data) JSON(false, '해당 회원이 존재하지 않습니다.');
+		if(!App::$data) JSON(false, App::$lang['NOT_EXISTS_MEMBER']);
 		JSON(true, '', App::GetOnlyView('Write'));
 	}
 
 	public function Modify(){
 		$this->_ModelSet(App::$id);
 
-		if($this->messageModel->_muid->value != $_SESSION['member']['muid']) JSON(false, _MSG_WRONG_CONNECTED);
-		if(strlen($this->messageModel->_read_date->value)) JSON(false, '이미 읽은 페이지로 수정이 불가능합니다.');
+		if($this->messageModel->_muid->value != $_SESSION['member']['muid']) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
+		if(strlen($this->messageModel->_read_date->value)) JSON(false, App::$lang['CANT_MODIFY_ALREADY_READ']);
 
 		App::$data['targetMuid'] = $this->messageModel->GetTargetMuid();
 		App::$data['target'] = CM::GetOtherMember(App::$data['targetMuid']);
@@ -84,8 +84,8 @@ class Message
 	public function PostWrite($seq = null){
 		if(!is_null($seq)){
 			$this->_ModelSet($seq);
-			if($this->messageModel->_muid->value != $_SESSION['member']['muid']) JSON(false, _MSG_WRONG_CONNECTED);
-			if(strlen($this->messageModel->_read_date->value)) JSON(false, '이미 읽은 페이지로 수정이 불가능합니다.');
+			if($this->messageModel->_muid->value != $_SESSION['member']['muid']) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
+			if(strlen($this->messageModel->_read_date->value)) JSON(false, App::$lang['CANT_MODIFY_ALREADY_READ']);
 		}
 		$this->messageModel->SetPostValues();
 		$err = $this->messageModel->GetErrorMessage();
@@ -114,10 +114,10 @@ class Message
 	}
 
 	private function _ModelSet($seq){
-		if(!strlen($seq)) URLReplace(-1, _MSG_WRONG_CONNECTED);
+		if(!strlen($seq)) URLReplace(-1, App::$lang['MSG_WRONG_CONNECTED']);
 		$res = $this->messageModel->DBGet($seq);
-		if(!$res->result) URLReplace(-1, $res->message ? $res->message : _MSG_NO_ARTICLE);
-		if(($this->messageModel->_muid->value == $_SESSION['member']['muid'] && $this->messageModel->_delis->value == 'y') || ($this->messageModel->_muid->value == $_SESSION['member']['muid'] && $this->messageModel->_delis->value == 'y')) URLRedirect(-1, '삭제된 게시물입니다.');
+		if(!$res->result) URLReplace(-1, $res->message ? $res->message : App::$lang['MSG_NO_ARTICLE']);
+		if(($this->messageModel->_muid->value == $_SESSION['member']['muid'] && $this->messageModel->_delis->value == 'y') || ($this->messageModel->_muid->value == $_SESSION['member']['muid'] && $this->messageModel->_delis->value == 'y')) URLRedirect(-1, App::$lang['MSG_DELETED_ARTICLE']);
 	}
 
 	/* ----------------------------------------------
@@ -140,11 +140,11 @@ class Message
 		if(!CM::FirebaseSetIs()) URLRedirect(-1);
 		if(!strlen(App::$id)) URLRedirect(-1);
 		App::$data['targetMember'] = CM::GetOtherMember(App::$id);
-		if(!App::$data['targetMember']) URLRedirect(-1, '탈퇴하였거나 삭제된 회원입니다.');
+		if(!App::$data['targetMember']) URLRedirect(-1, App::$lang['NOT_FIND_MEMBER']);
 
 		$blockUser = CM::GetBlockUsers();
 		if(in_array(App::$data['targetMember']['muid'], $blockUser)){
-			URLRedirect(-1, '차단된 사용자입니다.');
+			URLRedirect(-1, App::$lang['BLOCKED_USER']);
 		}
 
 		/*$ruleSet = RuleSet::fromArray(
@@ -181,7 +181,7 @@ class Message
 
 	public function PostChatWrite(){
 		$this->messageModel->SetPostValuesWithFile();
-		if(EmptyPost('comment')) JSON(false, '내용을 입력하여 주세요.');
+		if(EmptyPost('comment')) JSON(false, App::$lang['INPUT_CONTENTS']);
 
 		$this->messageModel->_muid->SetValue($_SESSION['member']['muid']);
 		$this->messageModel->_target_muid->SetRequired();
@@ -201,18 +201,18 @@ class Message
 			);
 			JSON(true, '', $data);
 		}
-		else JSON(false, $res->message ? $res->message : 'DB 삽입 오류');
+		else JSON(false, $res->message ? $res->message : App::$lang['ERROR_INSERT_DB']);
 
 	}
 
 	public function Download(){
 		$this->_ModelSet(App::$id);
-		if(!strlen($this->messageModel->_file->value)) URLRedirect(-1, '해당 파일이 존재하지 않습니다.');
+		if(!strlen($this->messageModel->_file->value)) URLRedirect(-1, App::$lang['TXT_FILE_NOT_EXIST']);
 		Download(\Paths::DirOfUpload() . $this->messageModel->GetFilePath('file'), $this->messageModel->GetFileName('file'));
 	}
 
 	public function GetList(){
-		$krWeek = array('일', '월', '화', '수', '목', '금', '토');
+		$krWeek = App::$lang['WEEK_MINI_ARRAY'];
 
 		$res = \MessageModel::GetChat(Get('targetId'), 5, EmptyGet('lastSeq') ? null : Get('lastSeq'), Get('beforeIs'));
 		if($res->result){
@@ -223,13 +223,13 @@ class Message
 				$row['sendIs'] = ($row['muid'] === $_SESSION['member']['muid']);
 				$week = $krWeek[date('w', strtotime($row['reg_date']))];
 				$hour = substr($row['reg_date'], 11, 2);
-				$h = ($hour >= 12) ? '오후' : '오전';
+				$h = ($hour >= 12) ? App::$lang['PM'] : App::$lang['AM'];
 				$h .= ($hour > 12) ? $hour - 12 : $hour;
 				$row['date'] = substr($row['reg_date'], 0,4) . '/' . substr($row['reg_date'], 5,2) . '/' . substr($row['reg_date'], 8,2).'(' . $week . ') ' . $h.substr($row['reg_date'], 13,3);
 				$row['readIs'] = strlen($row['read_date']) ? true : false;
 				if(strlen($row['file'])){
 					$row['fileLink'] = App::URLAction('Download/' . $row['seq']);
-					$row['filePath'] = Paths::UrlOfUpload() . $this->messageModel->GetFilePathByValue($row['file']);
+					$row['filePath'] = \Paths::UrlOfUpload() . $this->messageModel->GetFilePathByValue($row['file']);
 					$row['fileName'] = $this->messageModel->GetFileNameByValue($row['file']);
 					$row['isImage'] = IsImageFileName($row['fileName']);
 				}
@@ -250,7 +250,7 @@ class Message
 
 			\MessageModel::UpdateReadArticles($noReadSeq);
 
-			if(Get('beforeIs') && !sizeof($data)) JSON(false, '더이상 데이터가 없습니다.', array('noBeforeDataIs' => true));
+			if(Get('beforeIs') && !sizeof($data)) JSON(false, App::$lang['NO_MORE_POST'], array('noBeforeDataIs' => true));
 
 			JSON(true, '', array('noReadSeq' => $noReadSeq, 'data' => array_reverse($data)));
 		}

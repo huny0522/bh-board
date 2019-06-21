@@ -149,13 +149,13 @@ class Reply{
 			// 비밀글일 경우 본문작성자, 댓글작성자, 매니저, 관리자 보기권한 부여
 			$row['secretIs'] = false;
 			if($row['delis'] == 'y'){
-				if(CM::GetAdminIs()) $row['comment'] = '[삭제됨]'.$row['comment'];
-				else $row['comment'] = _MSG_DELETED_REPLY;
+				if(CM::GetAdminIs()) $row['comment'] = '[' . App::$lang['REPLY_DELETED_POST'] . ']'.$row['comment'];
+				else $row['comment'] = App::$lang['MSG_DELETED_REPLY'];
 			}
 			else if($row['secret'] == 'y'){
 				if(!$myArticleIs){
 					if(!(_MEMBERIS === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs() || $this->managerIs))){
-						$row['comment'] = _MSG_SECRET_ARTICLE;
+						$row['comment'] = App::$lang['MSG_SECRET_ARTICLE'];
 						$row['secretIs'] = true;
 					}
 				}
@@ -170,7 +170,7 @@ class Reply{
 	}
 
 	public function PostMoreList(){
-		if(!isset($_POST['article_seq']) || !strlen($_POST['article_seq'])) JSON(false, _MSG_WRONG_CONNECTED);
+		if(!isset($_POST['article_seq']) || !strlen($_POST['article_seq'])) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 
 		if(isset($this->boardManger) && $this->boardManger->GetValue('use_reply') == 'n') return;
 
@@ -233,11 +233,11 @@ class Reply{
 
 			// 비밀글일 경우 본문작성자, 댓글작성자, 매니저, 관리자 보기권한 부여
 			$row['secretIs'] = false;
-			if($row['delis'] == 'y') $row['comment'] = _MSG_DELETED_REPLY;
+			if($row['delis'] == 'y') $row['comment'] = App::$lang['MSG_DELETED_REPLY'];
 			else if($row['secret'] == 'y'){
 				if(!$myArticleIs){
 					if(!(_MEMBERIS === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs() || $this->managerIs))){
-						$row['comment'] = _MSG_SECRET_ARTICLE;
+						$row['comment'] = App::$lang['MSG_SECRET_ARTICLE'];
 						$row['secretIs'] = true;
 					}
 				}
@@ -253,8 +253,8 @@ class Reply{
 
 	public function PostWrite($answerIs = false){
 		$res = $this->GetAuth();
-		if(!isset($_POST['article_seq']) || !strlen($_POST['article_seq'])) JSON(false, _MSG_WRONG_CONNECTED);
-		if(!$res) JSON(false, _MSG_NO_AUTH);
+		if(!isset($_POST['article_seq']) || !strlen($_POST['article_seq'])) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
+		if(!$res) JSON(false, App::$lang['MSG_NO_AUTH']);
 
 		$this->model->need = array('comment', 'article_seq');
 		if(_MEMBERIS !== true){
@@ -351,7 +351,7 @@ class Reply{
 			$this->_R_PostWriteInsertAfter($res->id);
 			// 댓글갯수 업데이트
 			$this->model->article_count_set($this->model->GetValue('article_seq'));
-			JSON(true, _MSG_COMPLETE_REGISTER);
+			JSON(true, App::$lang['MSG_COMPLETE_REGISTER']);
 		}
 		else JSON(result, $res->message ? $res->message : 'ERROR');
 	}
@@ -375,7 +375,7 @@ class Reply{
 				$first = $dbGet->Get();
 				if(_password_verify($_POST['pwd'], $first['pwd'])) $same = true;
 			}
-			if(!$same) JSON(false, _MSG_WRONG_PASSWORD);
+			if(!$same) JSON(false, App::$lang['MSG_WRONG_PASSWORD']);
 		}
 
 		JSON(true, '', array('comment' => nl2br(GetDBText($this->model->GetValue('comment'))), 'file_name' => $this->model->GetFileName('file')));
@@ -383,7 +383,7 @@ class Reply{
 
 	public function PostModify(){
 		$res = $this->GetAuth();
-		if(!$res) JSON(false, _MSG_NO_AUTH);
+		if(!$res) JSON(false, App::$lang['MSG_NO_AUTH']);
 
 		$this->model->need = array('comment');
 		if(_MEMBERIS !== true){
@@ -408,7 +408,7 @@ class Reply{
 				->AddWhere('seq = %d', Post('seq'));
 			$this->_R_CommonQry($qry);
 			$pwd = $qry->Get();
-			if(!_password_verify($_POST['pwd'], $pwd['pwd'])) JSON(false, _MSG_WRONG_PASSWORD);
+			if(!_password_verify($_POST['pwd'], $pwd['pwd'])) JSON(false, App::$lang['MSG_WRONG_PASSWORD']);
 		}
 
 		// 파일 업로드
@@ -433,7 +433,7 @@ class Reply{
 
 		if($res->result){
 			$this->_R_PostModifyUpdateAfter();  // Reserved
-			JSON(true, _MSG_COMPLETE_MODIFY);
+			JSON(true, App::$lang['MSG_COMPLETE_MODIFY']);
 		}
 		else JSON(false, $res->message ? $res->message : 'ERROR');
 
@@ -441,7 +441,7 @@ class Reply{
 
 	public function PostDelete(){
 		$res = $this->GetAuth('Write');
-		if(!$res) JSON(false, _MSG_NO_AUTH);
+		if(!$res) JSON(false, App::$lang['MSG_NO_AUTH']);
 
 		$seq = SetDBInt(Post('seq'));
 		$article_seq = SetDBInt($_POST['article_seq']);
@@ -462,14 +462,14 @@ class Reply{
 				->AddWhere('seq = %d', Post('seq'));
 			$this->_R_CommonQry($qry);
 			$getpwd = $qry->Get();
-			if(!_password_verify($_POST['pwd'], $getpwd['pwd'])) JSON(false, _MSG_WRONG_PASSWORD);
+			if(!_password_verify($_POST['pwd'], $getpwd['pwd'])) JSON(false, App::$lang['MSG_WRONG_PASSWORD']);
 		}
 
 		$this->model->SetValue('delis', 'y');
 		$this->model->DBUpdate();
 		$this->model->article_count_set($article_seq);
 
-		JSON(true, _MSG_COMPLETE_DELETE);
+		JSON(true, App::$lang['MSG_COMPLETE_DELETE']);
 	}
 
 
@@ -502,7 +502,7 @@ class Reply{
 	}
 
 	public function PostJSONAction(){
-		if(_MEMBERIS !== true) JSON(false, _MSG_NEED_LOGIN);
+		if(_MEMBERIS !== true) JSON(false, App::$lang['MSG_NEED_LOGIN']);
 
 		$articleAction = $this->GetArticleAction();
 		switch(Post('type')){
@@ -519,14 +519,14 @@ class Reply{
 				echo json_encode($res);
 			break;
 			default:
-				JSON(false, _MSG_WRONG_CONNECTED);
+				JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 			break;
 		}
 		$this->model->article_recommend_set(App::$id);
 	}
 
 	public function PostJSONCancelAction(){
-		if(_MEMBERIS !== true) JSON(false, _MSG_NEED_LOGIN);
+		if(_MEMBERIS !== true) JSON(false, App::$lang['MSG_NEED_LOGIN']);
 
 		$articleAction = $this->GetArticleAction();
 		switch(Post('type')){
@@ -543,14 +543,14 @@ class Reply{
 				echo json_encode($res);
 			break;
 			default:
-				JSON(false, _MSG_WRONG_CONNECTED);
+				JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 			break;
 		}
 		$this->model->article_recommend_set(App::$id);
 	}
 
 	protected function GetArticleAction(){
-		if(!strlen(App::$id)) JSON(false,  _MSG_WRONG_CONNECTED);
+		if(!strlen(App::$id)) JSON(false,  App::$lang['MSG_WRONG_CONNECTED']);
 
 		$seq = ToInt(App::$id);
 		return ArticleAction::GetInstance($this->bid)
@@ -574,11 +574,11 @@ class Reply{
 
 		foreach($rows as $k => $v){
 
-			$rows[$k]['recommendBtn'] = '<a href="' . App::URLAction('JSONAction') . '/' .  $v['seq'] . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . $v['seq'] . '" data-type="recommend" class="replyActionBtn replyRecommendActionBtn' .(isset($replyActionData[$v['seq']]['rp_recommend']) ? ' already' : ''). '"><b>추천</b> <span class="num">' . ($v['recommend']) . '</span></a>';
+			$rows[$k]['recommendBtn'] = '<a href="' . App::URLAction('JSONAction') . '/' .  $v['seq'] . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . $v['seq'] . '" data-type="recommend" class="replyActionBtn replyRecommendActionBtn' .(isset($replyActionData[$v['seq']]['rp_recommend']) ? ' already' : ''). '"><b>' . App::$lang['RECOMMEND'] . '</b> <span class="num">' . ($v['recommend']) . '</span></a>';
 
-			$rows[$k]['opposeButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  $v['seq'] . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . $v['seq'] . '" data-type="oppose" class="replyActionBtn replyOpposeActionBtn' .(isset($replyActionData[$v['seq']]['rp_oppose']) ? ' already' : ''). '"><b>반대</b> <span class="num">' . ($v['oppose']) . '</span></a>';
+			$rows[$k]['opposeButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  $v['seq'] . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . $v['seq'] . '" data-type="oppose" class="replyActionBtn replyOpposeActionBtn' .(isset($replyActionData[$v['seq']]['rp_oppose']) ? ' already' : ''). '"><b>' . App::$lang['OPPOSE'] . '</b> <span class="num">' . ($v['oppose']) . '</span></a>';
 
-			$rows[$k]['reportButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  $v['seq'] . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . $v['seq'] . '" data-type="report" class="replyActionBtn replyReportActionBtn' .(isset($replyActionData[$v['seq']]['rp_report']) ? ' already' : ''). '"><b>신고</b> <span class="num">' . ($v['report']) . '</span></a>';
+			$rows[$k]['reportButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  $v['seq'] . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . $v['seq'] . '" data-type="report" class="replyActionBtn replyReportActionBtn' .(isset($replyActionData[$v['seq']]['rp_report']) ? ' already' : ''). '"><b>' . App::$lang['REPORT'] . '</b> <span class="num">' . ($v['report']) . '</span></a>';
 		}
 	}
 }

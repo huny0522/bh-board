@@ -1,3 +1,35 @@
+if(typeof(window._BOARD_LANG) === 'undefined') window._BOARD_LANG = {};
+if(typeof(window._BOARD_LANG.noPost) === 'undefined') window._BOARD_LANG.noPost = '검색된 글이 없습니다.';
+if(typeof(window._BOARD_LANG.selectDelPost) === 'undefined') window._BOARD_LANG.selectDelPost = '삭제할 게시물을 선택하여 주세요.';
+if(typeof(window._BOARD_LANG.delQuestion) === 'undefined') window._BOARD_LANG.delQuestion = '정말 삭제하시겠습니까?';
+if(typeof(window._BOARD_LANG.selectRestorePost) === 'undefined') window._BOARD_LANG.selectRestorePost = '복구할 게시물을 선택하여 주세요.';
+if(typeof(window._BOARD_LANG.restoreQuestion) === 'undefined') window._BOARD_LANG.restoreQuestion = '복구하시겠습니까?';
+if(typeof(window._BOARD_LANG.selectCopyPost) === 'undefined') window._BOARD_LANG.selectCopyPost = '복사할 게시물을 선택하여 주세요.';
+if(typeof(window._BOARD_LANG.copy) === 'undefined') window._BOARD_LANG.copy = '복사하기';
+if(typeof(window._BOARD_LANG.selectMovePost) === 'undefined') window._BOARD_LANG.selectMovePost = '이동할 게시물을 선택하여 주세요.';
+if(typeof(window._BOARD_LANG.move) === 'undefined') window._BOARD_LANG.move = '이동하기';
+if(typeof(window._BOARD_LANG.recommendQ) === 'undefined') window._BOARD_LANG.recommendQ = '추천하시겠습니까?';
+if(typeof(window._BOARD_LANG.cancelRecommendQ) === 'undefined') window._BOARD_LANG.cancelRecommendQ = '추천을 취소하시겠습니까?';
+if(typeof(window._BOARD_LANG.opposeQ) === 'undefined') window._BOARD_LANG.opposeQ = '반대하시겠습니까?';
+if(typeof(window._BOARD_LANG.calcelOpposeQ) === 'undefined') window._BOARD_LANG.calcelOpposeQ = '반대를 취소하시겠습니까?';
+if(typeof(window._BOARD_LANG.reportQ) === 'undefined') window._BOARD_LANG.reportQ = '신고하시겠습니까?';
+if(typeof(window._BOARD_LANG.cancelReportQ) === 'undefined') window._BOARD_LANG.cancelReportQ = '신고를 취소하시겠습니까?';
+if(typeof(window._BOARD_LANG.scrapQ) === 'undefined') window._BOARD_LANG.scrapQ = '스크랩하시겠습니까?';
+if(typeof(window._BOARD_LANG.calcelScrapQ) === 'undefined') window._BOARD_LANG.calcelScrapQ = '스크랩을 취소하시겠습니까?';
+if(typeof(window._BOARD_LANG.wrongConnected) === 'undefined') window._BOARD_LANG.wrongConnected = '잘못된 접근입니다.';
+if(typeof(window._BOARD_LANG.recommendedIt) === 'undefined') window._BOARD_LANG.recommendedIt = '추천했습니다.';
+if(typeof(window._BOARD_LANG.wasAgainstIt) === 'undefined') window._BOARD_LANG.wasAgainstIt = '반대했습니다.';
+if(typeof(window._BOARD_LANG.reportedIt) === 'undefined') window._BOARD_LANG.reportedIt = '신고했습니다.';
+if(typeof(window._BOARD_LANG.scrapedIt) === 'undefined') window._BOARD_LANG.scrapedIt = '스크랩했습니다.';
+if(typeof(window._BOARD_LANG.recommend) === 'undefined') window._BOARD_LANG.recommend = '추천';
+if(typeof(window._BOARD_LANG.oppose) === 'undefined') window._BOARD_LANG.oppose = '반대';
+if(typeof(window._BOARD_LANG.report) === 'undefined') window._BOARD_LANG.report = '신고';
+if(typeof(window._BOARD_LANG.alreadyScratched) === 'undefined') window._BOARD_LANG.alreadyScratched = '이미 스크랩했습니다.';
+if(typeof(window._BOARD_LANG.actionFailed) === 'undefined') window._BOARD_LANG.actionFailed = '이 글을 {t1}했습니다.\n{t2}하시려면 {t1} 취소하시기 바랍니다.';
+if(typeof(window._BOARD_LANG.calceld) === 'undefined') window._BOARD_LANG.calceld = '취소되었습니다.';
+if(typeof(window._BOARD_LANG.pleaseAgreeRules) === 'undefined') window._BOARD_LANG.pleaseAgreeRules = '이용규칙에 동의하여 주시기 바랍니다.';
+if(typeof(window._BOARD_LANG.select) === 'undefined') window._BOARD_LANG.select = '선택';
+
 var AppBoard = {
 	EventInit : false,
 	boardWrap : '#bhBoardList',
@@ -77,7 +109,7 @@ var AppBoard = {
 			if(data.lastIs) AppBoard.moreBtnElement.hide();
 			else AppBoard.moreBtnElement.show();
 			if($.trim(data.list) === ''){
-				if($.trim(AppBoard.listWrapElement.text()) === '') AppBoard.listWrapElement.html('<p class="nothing">검색된 글이 없습니다.</p>');
+				if($.trim(AppBoard.listWrapElement.text()) === '') AppBoard.listWrapElement.html('<p class="nothing">' + window._BOARD_LANG.noPost + '</p>');
 				return;
 			}
 			AppBoard.listWrapElement.append(data.list);
@@ -94,7 +126,7 @@ var AppBoard = {
 
 	ClickMoreViewBtn : function(e){
 		e.preventDefault();
-		AppBoard.boardWrapElement.find('.lastSeq').val(AppBoard.listWrapElement.find(AppBoard.article).last().attr('data-seq'));
+		$('#bhBoardList .lastSeq').val(AppBoard.listWrapElement.find(AppBoard.article).last().attr('data-seq'));
 		AppBoard.GetMoreList();
 	},
 
@@ -111,10 +143,10 @@ var AppBoard = {
 		var obj = this;
 		var chk = AppBoard.GetCheckBox();
 		if(chk == ''){
-			CMAlert('삭제할 게시물을 선택하여 주세요.');
+			CMAlert(window._BOARD_LANG.selectDelPost);
 			return;
 		}
-		CMConfirm('정말 삭제하시겠습니까?', function(){
+		CMConfirm(window._BOARD_LANG.delQuestion, function(){
 			JCM.post(obj.href, {seq : chk}, function(){
 				location.reload();
 			});
@@ -126,10 +158,10 @@ var AppBoard = {
 		var obj = this;
 		var chk = AppBoard.GetCheckBox();
 		if(chk == ''){
-			CMAlert('복구할 게시물을 선택하여 주세요.');
+			CMAlert(window._BOARD_LANG.selectRestorePost);
 			return;
 		}
-		CMConfirm('복구하시겠습니까?', function(){
+		CMConfirm(window._BOARD_LANG.restoreQuestion, function(){
 			JCM.post(obj.href, {seq : chk}, function(){
 				location.reload();
 			});
@@ -139,13 +171,13 @@ var AppBoard = {
 	CheckedCopyArticles : function(e){
 		var chk = AppBoard.GetCheckBox();
 		if(chk == ''){
-			CMAlert('복사할 게시물을 선택하여 주세요.');
+			CMAlert(window._BOARD_LANG.selectCopyPost);
 			return;
 		}
 		if(!$('#checkActionModal').length) return;
 		var modal = $('#checkActionModal');
 		var form = modal.find('form');
-		modal.find('h1').text('복사하기');
+		modal.find('h1').text(window._BOARD_LANG.copy);
 		modal.find('input[name=seq]').val(chk);
 		form[0].action = form.attr('data-copy-url');
 		JCM.showModal('checkActionModal', 400, 480);
@@ -154,13 +186,13 @@ var AppBoard = {
 	CheckedMoveArticles : function(e){
 		var chk = AppBoard.GetCheckBox();
 		if(chk == ''){
-			CMAlert('이동할 게시물을 선택하여 주세요.');
+			CMAlert(window._BOARD_LANG.selectMovePost);
 			return;
 		}
 		if(!$('#checkActionModal').length) return;
 		var modal = $('#checkActionModal');
 		var form = modal.find('form');
-		modal.find('h1').text('이동하기');
+		modal.find('h1').text(window._BOARD_LANG.move);
 		modal.find('input[name=seq]').val(chk);
 		form[0].action = form.attr('data-move-url');
 		JCM.showModal('checkActionModal', 400, 480);
@@ -249,19 +281,19 @@ var AppBoard = {
 			var message = '';
 			var type = $(obj).attr('data-type');
 			if(type == 'recommend'){
-				message = !$(obj).hasClass('already') ? '추천하시겠습니까?' : '추천을 취소하시겠습니까?';
+				message = !$(obj).hasClass('already') ? window._BOARD_LANG.recommendQ : window._BOARD_LANG.cancelRecommendQ;
 			}
 			else if(type == 'oppose'){
-				message = !$(obj).hasClass('already') ? '반대하시겠습니까?' : '반대를 취소하시겠습니까?';
+				message = !$(obj).hasClass('already') ? window._BOARD_LANG.opposeQ : window._BOARD_LANG.calcelOpposeQ;
 			}
 			else if(type == 'report'){
-				message = !$(obj).hasClass('already') ? '신고하시겠습니까?' : '신고를 취소하시겠습니까?';
+				message = !$(obj).hasClass('already') ? window._BOARD_LANG.reportQ : window._BOARD_LANG.cancelReportQ;
 			}
 			else if(type == 'scrap'){
-				message = !$(obj).hasClass('already') ? '스크랩하시겠습니까?' : '스크랩을 취소하시겠습니까?';
+				message = !$(obj).hasClass('already') ? window._BOARD_LANG.scrapQ : window._BOARD_LANG.calcelScrapQ;
 			}
 			else{
-				CMAlert('잘못된 접근입니다.');
+				CMAlert(window._BOARD_LANG.wrongConnected);
 				return;
 			}
 			CMConfirm(message, function(){
@@ -274,39 +306,39 @@ var AppBoard = {
 			JCM.postWithLoading(obj.href, {type : type}, function(data){
 				$(obj).addClass('already');
 				if(type == 'recommend'){
-					CMAlert('추천했습니다.');
+					CMAlert(window._BOARD_LANG.recommendedIt);
 				}
 				else if(type == 'oppose'){
-					CMAlert('반대했습니다.');
+					CMAlert(window._BOARD_LANG.wasAgainstIt);
 				}
 				else if(type == 'report'){
-					CMAlert('신고했습니다.');
+					CMAlert(window._BOARD_LANG.reportedIt);
 				}
 				else if(type == 'scrap'){
-					CMAlert('스크랩했습니다.');
+					CMAlert(window._BOARD_LANG.scrapedIt);
 				}
 				var n = parseInt($(obj).find('span.num').text());
 				$(obj).find('span.num').text(n + 1);
 			}, function(data){
 				var msg = '';
 				var msg2 = '';
-				if(type == 'recommend') msg2 = '추천';
-				else if(type == 'oppose') msg2 = '반대';
-				else if(type == 'report') msg2 = '신고';
+				if(type == 'recommend') msg2 = window._BOARD_LANG.recommend;
+				else if(type == 'oppose') msg2 = window._BOARD_LANG.oppose;
+				else if(type == 'report') msg2 = window._BOARD_LANG.report;
 
-				if(data == 'recommend' || data == 'rp_recommend') msg = '추천';
-				else if(data == 'oppose' || data == 'rp_oppose') msg = '반대';
-				else if(data == 'report' || data == 'rp_report') msg = '신고';
-				else if(data == 'scrap') CMAlert('이미 스크랩했습니다.');
+				if(data == 'recommend' || data == 'rp_recommend') msg = window._BOARD_LANG.recommend;
+				else if(data == 'oppose' || data == 'rp_oppose') msg = window._BOARD_LANG.oppose;
+				else if(data == 'report' || data == 'rp_report') msg = window._BOARD_LANG.report;
+				else if(data == 'scrap') CMAlert(window._BOARD_LANG.alreadyScratched);
 
-				if(msg !== '') CMAlert('이 글을 ' + msg + '했습니다.\n' + msg2 + '하시려면 ' + msg + ' 취소하시기 바랍니다.');
+				if(msg !== '') CMAlert(window._BOARD_LANG.actionFailed.replace('/\{t1\}/g', msg).replace('{t2}', msg2));
 			});
 		},
 
 		BoardCancelAction : function(obj, type){
 			JCM.postWithLoading($(obj).attr('data-cancel-href'), {type : type}, function(data){
 				$(obj).removeClass('already');
-				CMAlert('취소되었습니다.');
+				CMAlert(window._BOARD_LANG.calceld);
 
 				var n = parseInt($(obj).find('span.num').text());
 				$(obj).find('span.num').text(n - 1);
@@ -372,11 +404,20 @@ var AppBoard = {
 				e.preventDefault();
 				return false;
 			}
+			var chk = document.getElementById('join_check01');
+			console.log(chk);
+			if(chk){
+				if(!chk.checked){
+					CMAlert(window._BOARD_LANG.pleaseAgreeRules);
+					e.preventDefault();
+					return false;
+				}
+			}
 		},
 
 		GetSubCategory : function(){
 			var cate = $.trim($('#MD_category').val());
-			var html = '<option value="">선택</option>';
+			var html = '<option value="">' + window._BOARD_LANG.select + '</option>';
 			var subCate = this.subCategory;
 			if(cate === ''){
 				$('#MD_sub_category').html(html);

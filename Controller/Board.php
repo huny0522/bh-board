@@ -90,8 +90,8 @@ class Board{
 		if(App::$settingData['GetUrl'][1] == \Paths::NameOfAdmin()){
 			if(CM::GetAdminIs()) $this->adminPathIs = true;
 			else{
-				if(_JSONIS === true) JSON(false, _MSG_WRONG_CONNECTED);
-				URLReplace(App::URLBase('Login'), _MSG_WRONG_CONNECTED);
+				if(_JSONIS === true) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
+				URLReplace(App::URLBase('Login'), App::$lang['MSG_WRONG_CONNECTED']);
 			}
 		}
 	}
@@ -146,7 +146,7 @@ class Board{
 	}
 
 	protected function _BoardSetting(){
-		if(!isset($this->bid) || $this->bid == '') URLReplace('-1', '잘못된 접근입니다.');
+		if(!isset($this->bid) || $this->bid == '') URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
 
 		App::SetFollowQuery(array('page','stype','keyword','cate','lastSeq','scate'));
 
@@ -175,7 +175,7 @@ class Board{
 
 		$this->_SetCategory();
 
-		if(!$this->adminPathIs && _MEMBERIS !== true && $this->boardManger->GetValue('man_to_man') === 'y') URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
+		if(!$this->adminPathIs && _MEMBERIS !== true && $this->boardManger->GetValue('man_to_man') === 'y') URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 		if($this->boardManger->GetValue('man_to_man') === 'y') $this->boardManger->SetValue('use_secret', 'n');
 	}
 
@@ -284,8 +284,8 @@ class Board{
 	public function Index(){
 		$res = $this->GetAuth('List');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
-			URLReplace('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 		if($this->getListIs || $this->moreListIs){
 			if(_JSONIS === true) JSON(true, '', App::GetView($this->model));
@@ -341,8 +341,8 @@ class Board{
 	public function GetList($viewPageIs = false){
 		$res = $this->GetAuth('List');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
-			URLReplace('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 
 		$s_keyword = Get('keyword');
@@ -385,8 +385,8 @@ class Board{
 	public function MoreList($backIs = false){
 		$res = $this->GetAuth('List');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
-			URLReplace('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 
 		$s_keyword = Get('keyword');
@@ -497,15 +497,15 @@ class Board{
 
 		$viewAuth = $this->GetAuth('View');
 		if(!$viewAuth){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
-			URLReplace('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 
 		$this->_GetBoardData($seq);
 
 		if(!$this->adminPathIs){
-			if($this->model->GetValue('delis') == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
-			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !$this->_CheckMyMUid($this->model, 'muid') && !$this->_CheckMyMUid($this->model, 'target_muid')) URLReplace('-1', _MSG_WRONG_CONNECTED);
+			if($this->model->GetValue('delis') == 'y') URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
+			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !$this->_CheckMyMUid($this->model, 'muid') && !$this->_CheckMyMUid($this->model, 'target_muid')) URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
 		}
 
 		$data['answerAuth'] = $this->GetAuth('Answer');
@@ -539,15 +539,15 @@ class Board{
 
 			// 원글이나 현재 글이 비회원글일 경우 비밀번호를 체크
 			if(!$viewAuth && (!$this->model->GetValue('muid') || $this->model->GetValue('first_member_is') == 'n')){
-				if(_POSTIS !==	true || !isset($_POST['pwd'])) URLReplace('-1', _MSG_WRONG_CONNECTED);
+				if(_POSTIS !==	true || !isset($_POST['pwd'])) URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
 
 				if(_password_verify(Post('pwd'), $this->model->GetValue('pwd')) || (isset($firstDoc) && _password_verify(Post('pwd'), $firstDoc['pwd']))){
 					$viewAuth = true;
 				}
-				else URLReplace('-1', _MSG_WRONG_PASSWORD);
+				else URLReplace('-1', App::$lang['MSG_WRONG_PASSWORD']);
 			}
 
-			if(!$viewAuth) URLReplace('-1', _MSG_NO_AUTH);
+			if(!$viewAuth) URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 
 		$cookieName = $this->model->table.$seq;
@@ -602,18 +602,18 @@ class Board{
 	public function Write(){
 		$res = $this->GetAuth('Write');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
-			URLReplace('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 
 		if(sizeof($this->additionalSubId)){
 			$arr = $this->_GetAdditionalSubidList();
 
 			if(sizeof($arr)){
-				if(EmptyGet('subid')) URLReplace(-1, _MSG_WRONG_CONNECTED);
+				if(EmptyGet('subid')) URLReplace(-1, App::$lang['MSG_WRONG_CONNECTED']);
 				else{
 					$this->subid = Get('subid');
-					if(!isset($arr[$this->subid])) URLRedirect(-1, '게시판이 존재하지 않습니다.');
+					if(!isset($arr[$this->subid])) URLRedirect(-1, App::$lang['NO_BOARD']);
 				}
 			}
 		}
@@ -626,8 +626,8 @@ class Board{
 	public function Answer(){
 		$res = $this->GetAuth('Answer');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
-			URLReplace('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 		$seq = to10(strlen(Post('target')) ? Post('target') : Get('target'));
 		if(!strlen($seq)) URLReplace('-1');
@@ -638,11 +638,11 @@ class Board{
 		$this->_R_CommonQry($qry);
 		$data = $qry->Get();
 		if(!$this->adminPathIs){
-			if($data['delis'] == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
-			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !$this->_CheckMyMUid($data, 'muid') && !$this->_CheckMyMUid($data, 'target_muid')) URLReplace('-1', _MSG_WRONG_CONNECTED);
+			if($data['delis'] == 'y') URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
+			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !$this->_CheckMyMUid($data, 'muid') && !$this->_CheckMyMUid($data, 'target_muid')) URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
 		}
 
-		$this->model->SetValue('subject', strpos('[답변]', $data['subject']) === false ? '[답변] '.$data['subject'] : $data['subject']);
+		$this->model->SetValue('subject', strpos('[' . App::$lang['ANSWER'] . ']', $data['subject']) === false ? '[' . App::$lang['ANSWER'] . '] '.$data['subject'] : $data['subject']);
 		$this->model->SetValue('secret', $data['secret']);
 
 		$this->_R_AnswerEnd();  // Reserved
@@ -658,15 +658,15 @@ class Board{
 
 		$res = $this->GetAuth('Modify');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
-			URLReplace('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 
 		$seq = to10(App::$id);
 		$this->_GetBoardData($seq);
 		if(!$this->adminPathIs){
-			if($this->model->GetValue('delis') == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
-			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !$this->_CheckMyMUid($this->model, 'muid') && !$this->_CheckMyMUid($this->model, 'target_muid')) URLReplace('-1', _MSG_WRONG_CONNECTED);
+			if($this->model->GetValue('delis') == 'y') URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
+			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !$this->_CheckMyMUid($this->model, 'muid') && !$this->_CheckMyMUid($this->model, 'target_muid')) URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
 		}
 
 		// 회원 글 체크
@@ -688,8 +688,8 @@ class Board{
 		}
 		$res = $this->GetAuth('Modify');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
-			URLReplace('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 
 		$seq = to10(App::$id);
@@ -702,9 +702,9 @@ class Board{
 		$this->_GetBoardData($seq);
 		$beforeFile = $this->model->_file1->value;
 		if(!$this->adminPathIs){
-			if($this->model->GetValue('delis') == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
+			if($this->model->GetValue('delis') == 'y') URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
 			$this->model->AddExcept('delis');
-			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !$this->_CheckMyMUid($this->model, 'muid') && !$this->_CheckMyMUid($this->model, 'target_muid')) URLReplace('-1', _MSG_WRONG_CONNECTED);
+			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !$this->_CheckMyMUid($this->model, 'muid') && !$this->_CheckMyMUid($this->model, 'target_muid')) URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
 		}
 
 		$res = $this->model->SetPostValuesWithFile();
@@ -752,7 +752,7 @@ class Board{
 
 		if($res2->result){
 			$this->_R_PostModifyUpdateAfter();  // Reserved
-			if(_AJAXIS === true) JSON(true, '',_MSG_COMPLETE_MODIFY);
+			if(_AJAXIS === true) JSON(true, '',App::$lang['MSG_COMPLETE_MODIFY']);
 			else{
 				if(!isset($this->model->_muid->value) || !strlen($this->model->_muid->value)){
 					echo '<form action="' . App::URLAction('View/') . App::$id . App::GetFollowQuery() . '" method="post" id="redirectForm">';
@@ -760,7 +760,7 @@ class Board{
 					echo '</form>';
 					echo '<script>document.getElementById(\'redirectForm\').submit()</script>';
 				}
-				URLReplace(App::URLAction('View/'.App::$id).App::GetFollowQuery(), _MSG_COMPLETE_MODIFY);
+				URLReplace(App::URLAction('View/'.App::$id).App::GetFollowQuery(), App::$lang['MSG_COMPLETE_MODIFY']);
 			}
 		}
 		else{
@@ -776,12 +776,12 @@ class Board{
 	}
 
 	public function PostWrite(){
-		if(_POSTIS !== true) URLReplace('-1', _MSG_WRONG_CONNECTED);
+		if(_POSTIS !== true) URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
 
 		$res = $this->GetAuth('Write');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
-			URLReplace('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 
 		$first_seq = '';
@@ -791,8 +791,8 @@ class Board{
 		if(App::$action == 'Answer'){
 			$auth = $this->GetAuth('Answer');
 			if(!$auth){
-				if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
-				URLReplace('-1', _MSG_NO_AUTH);
+				if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+				URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 			}
 
 			$qry = DB::GetQryObj($this->model->table)
@@ -801,8 +801,8 @@ class Board{
 			$this->_R_CommonQry($qry);
 			App::$data['targetData'] = $qry->Get();
 			if(!$this->adminPathIs){
-				if(App::$data['targetData']['delis'] == 'y') URLReplace('-1', _MSG_WRONG_CONNECTED);
-				if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !_CheckMyMUid(App::$data['targetData'], 'muid') && !_CheckMyMUid(App::$data['targetData'], 'target_muid')) URLReplace('-1', _MSG_WRONG_CONNECTED);
+				if(App::$data['targetData']['delis'] == 'y') URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
+				if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !_CheckMyMUid(App::$data['targetData'], 'muid') && !_CheckMyMUid(App::$data['targetData'], 'target_muid')) URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
 			}
 
 			$first_seq = strlen(App::$data['targetData']['first_seq']) ? App::$data['targetData']['first_seq'] : App::$data['targetData']['seq'];
@@ -914,9 +914,9 @@ class Board{
 			}
 
 			if(_AJAXIS === true){
-				JSON(true, '', '등록되었습니다.');
+				JSON(true, '', App::$lang['MSG_COMPLETE_REGISTER']);
 			}
-			else URLReplace(App::URLAction(), '등록되었습니다.');
+			else URLReplace(App::URLAction(), App::$lang['MSG_COMPLETE_REGISTER']);
 		}else{
 			if(_AJAXIS === true) JSON(false, $result->message ? $result->message : 'ERROR');
 			App::$data['error'] = $result->message ? $result->message : 'ERROR';
@@ -928,8 +928,8 @@ class Board{
 	public function PostDelete(){
 		$res = $this->GetAuth('Write');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, _MSG_NEED_LOGIN, _NEED_LOGIN);
-			URLReplace('-1', _MSG_NO_AUTH);
+			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 
 		$seq = to10(App::$id);
@@ -937,8 +937,8 @@ class Board{
 		$this->_GetBoardData($seq);
 
 		if(!$this->adminPathIs){
-			if($this->model->GetValue('delis') == 'y') URLReplace('-1', '이미 삭제된 글입니다.');
-			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !$this->_CheckMyMUid($this->model, 'muid')) URLReplace('-1', _MSG_WRONG_CONNECTED);
+			if($this->model->GetValue('delis') == 'y') URLReplace('-1', App::$lang['MSG_DELETED_ARTICLE']);
+			if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !$this->_CheckMyMUid($this->model, 'muid')) URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
 		}
 
 		// 회원 글 체크
@@ -952,12 +952,12 @@ class Board{
 		$this->model->SetValue('delis', 'y');
 		$this->model->DBUpdate();
 
-		if(_AJAXIS === true) JSON(true, '', '삭제되었습니다.');
-		else URLReplace(App::URLAction('').App::GetFollowQuery(), '삭제되었습니다.');
+		if(_AJAXIS === true) JSON(true, '', App::$lang['MSG_COMPLETE_DELETE']);
+		else URLReplace(App::URLAction('').App::GetFollowQuery(), App::$lang['MSG_COMPLETE_DELETE']);
 	}
 
 	public function Undelete(){
-		if(!$this->adminPathIs) URLReplace('-1', _MSG_WRONG_CONNECTED);
+		if(!$this->adminPathIs) URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
 
 		$seq = to10(App::$id);
 
@@ -965,8 +965,8 @@ class Board{
 		$this->model->SetValue('delis', 'n');
 		$this->model->DBUpdate();
 
-		if(_AJAXIS === true) JSON(true, '', '복구되었습니다.');
-		else URLReplace(App::URLAction('').App::GetFollowQuery(), '복구되었습니다.');
+		if(_AJAXIS === true) JSON(true, '', App::$lang['COMPLETE_RESTORE']);
+		else URLReplace(App::URLAction('').App::GetFollowQuery(), App::$lang['COMPLETE_RESTORE']);
 	}
 
 	public function Download(){
@@ -986,7 +986,7 @@ class Board{
 			$file[1] = end($name);
 		}
 		if(file_exists(\Paths::DirOfUpload() . $file[0]) && !is_dir(\Paths::DirOfUpload() . $file[0])) Download(\Paths::DirOfUpload() . $file[0], $file[1]);
-		else URLRedirect(-1, '파일이 존재하지 않습니다.');
+		else URLRedirect(-1, App::$lang['TXT_FILE_NOT_EXIST']);
 	}
 
 	public function RepAttachDownload(){
@@ -1001,7 +1001,7 @@ class Board{
 			$file[1] = end($name);
 		}
 		if(file_exists(\Paths::DirOfUpload() . $file[0]) && !is_dir(\Paths::DirOfUpload() . $file[0])) Download(\Paths::DirOfUpload() . $file[0], $file[1]);
-		else URLRedirect(-1, '파일이 존재하지 않습니다.');
+		else URLRedirect(-1, App::$lang['TXT_FILE_NOT_EXIST']);
 	}
 
 	/**
@@ -1009,7 +1009,7 @@ class Board{
 	 */
 	public function PostRemove(){
 		$seq = to10(App::$id);
-		if(!$this->adminPathIs) URLReplace(-1, _MSG_WRONG_CONNECTED);
+		if(!$this->adminPathIs) URLReplace(-1, App::$lang['MSG_WRONG_CONNECTED']);
 		$this->_CheckArticleRemove($seq);
 
 		URLReplace(App::URLAction().App::GetFollowQuery());
@@ -1145,13 +1145,13 @@ class Board{
 			else if(!$this->_CheckMyMUid($this->model, 'muid')) return 'ERROR#102';
 		}
 		else{
-			if(!isset($_POST['pwd'])) return _MSG_WRONG_CONNECTED;
+			if(!isset($_POST['pwd'])) return App::$lang['MSG_WRONG_CONNECTED'];
 
 			$qry = DB::GetQryObj($this->model->table)->SetConnName($this->connName)->AddWhere('seq = %d', $this->model->GetValue('seq'))->SetKey('pwd');
 			$this->_R_CommonQry($qry);
 			$pwd = $qry->Get();
 			if(!_password_verify(Post('pwd'), $pwd['pwd'])){
-				return _MSG_WRONG_PASSWORD;
+				return App::$lang['MSG_WRONG_PASSWORD'];
 			}
 		}
 		return true;
@@ -1161,7 +1161,7 @@ class Board{
 	 * JSON 게시물 액션 실행
 	 */
 	public function PostJSONAction(){
-		if(_MEMBERIS !== true) JSON(false, _MSG_NEED_LOGIN);
+		if(_MEMBERIS !== true) JSON(false, App::$lang['MSG_NEED_LOGIN']);
 
 		$articleAction = $this->GetArticleAction();
 		switch(Post('type')){
@@ -1182,7 +1182,7 @@ class Board{
 				echo json_encode($res);
 			break;
 			default:
-				JSON(false, _MSG_WRONG_CONNECTED);
+				JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 			break;
 		}
 	}
@@ -1191,7 +1191,7 @@ class Board{
 	 * JSON 게시물 액션 취소
 	 */
 	public function PostJSONCancelAction(){
-		if(_MEMBERIS !== true) JSON(false, _MSG_NEED_LOGIN);
+		if(_MEMBERIS !== true) JSON(false, App::$lang['MSG_NEED_LOGIN']);
 
 		$articleAction = $this->GetArticleAction();
 		switch(Post('type')){
@@ -1212,7 +1212,7 @@ class Board{
 				echo json_encode($res);
 			break;
 			default:
-				JSON(false, _MSG_WRONG_CONNECTED);
+				JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 			break;
 		}
 	}
@@ -1222,7 +1222,7 @@ class Board{
 	 */
 	public function PostGetSubCategory(){
 		$res = $this->boardManger->DBGet(Post('bid'), Post('subid'));
-		if(!$res->result) JSON(false, $res->message ? $res->message : _MSG_WRONG_CONNECTED);
+		if(!$res->result) JSON(false, $res->message ? $res->message : App::$lang['MSG_WRONG_CONNECTED']);
 		$res = $this->boardManger->GetSubCategory(Post('cate'));
 		JSON(true, '', $res);
 	}
@@ -1238,7 +1238,7 @@ class Board{
 
 		if(!strlen($this->menuSubCategory) && strlen($this->menuCategory) && sizeof(App::$data['subCategory'])){
 			App::$data['categoryHtml'] .= '<div class="categoryTab categoryTabC categoryTabC1"><ul>';
-			App::$data['categoryHtml'] .= '<li class="all ' . (EmptyGet('scate') ? 'active' : '') . '"><a href="' . App::URLAction() . '">전체</a></li>';
+			App::$data['categoryHtml'] .= '<li class="all ' . (EmptyGet('scate') ? 'active' : '') . '"><a href="' . App::URLAction() . '">' . App::$lang['ALL'] . '</a></li>';
 			foreach(App::$data['subCategory'] as $v){
 				$active = $v == Get('scate') ? ' class="active"' : '';
 				App::$data['categoryHtml'] .= '<li' . $active . '><a href="' . App::URLAction() . '?scate=' . GetDBText($v) . '">' . GetDBText($v) . '</a></li>';
@@ -1249,8 +1249,8 @@ class Board{
 		else if(!strlen($this->menuSubCategory)){
 			if(!EmptyGet('cate') && sizeof(App::$data['subCategory'])){
 				App::$data['categoryHtml'] .= '<div class="categoryTab categoryTabC categoryTabC1"><ul>';
-				App::$data['categoryHtml'] .= '<li class="parent"><a href="' . App::URLAction() . '">상위</a></li>';
-				App::$data['categoryHtml'] .= '<li class="all ' . (EmptyGet('scate') ? 'active' : '') . '"><a href="' . App::URLAction() . '?cate=' . GetDBText(Get('cate')) . '">전체</a></li>';
+				App::$data['categoryHtml'] .= '<li class="parent"><a href="' . App::URLAction() . '">' . App::$lang['PARENT_CATEGORY'] . '</a></li>';
+				App::$data['categoryHtml'] .= '<li class="all ' . (EmptyGet('scate') ? 'active' : '') . '"><a href="' . App::URLAction() . '?cate=' . GetDBText(Get('cate')) . '">' . App::$lang['ALL'] . '</a></li>';
 				foreach(App::$data['subCategory'] as $v){
 					$active = $v == Get('scate') ? ' class="active"' : '';
 					App::$data['categoryHtml'] .= '<li' . $active . '><a href="' . App::URLAction() . '?cate=' . GetDBText(Get('cate')) . '&scate=' . GetDBText($v) . '">' . GetDBText($v) . '</a></li>';
@@ -1259,7 +1259,7 @@ class Board{
 			}
 			else if(sizeof(App::$data['category'])){
 				App::$data['categoryHtml'] .= '<div class="categoryTab categoryTabC categoryTabC2"><ul>';
-				App::$data['categoryHtml'] .= '<li class="all ' . (EmptyGet('cate') ? 'active' : '') . '"><a href="' . App::URLAction() . '">전체</a></li>';
+				App::$data['categoryHtml'] .= '<li class="all ' . (EmptyGet('cate') ? 'active' : '') . '"><a href="' . App::URLAction() . '">' . App::$lang['ALL'] . '</a></li>';
 				foreach(App::$data['category'] as $v){
 					$active = $v == Get('cate') ? ' class="active"' : '';
 					App::$data['categoryHtml'] .= '<li' . $active . '><a href="' . App::URLAction() . '?cate=' . GetDBText($v) . '">' . GetDBText($v) . '</a></li>';
@@ -1276,8 +1276,8 @@ class Board{
 	 * 체크 항목 삭제
 	 */
 	public function PostSysDel(){
-		if(!$this->managerIs) JSON(false, _MSG_WRONG_CONNECTED);
-		if(EmptyPost('seq')) JSON(false, '삭제할 게시물을 선택하여 주세요.');
+		if(!$this->managerIs) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
+		if(EmptyPost('seq')) JSON(false, App::$lang['SELECT_DELETE_POST']);
 		$chk = explode(',', Post('seq'));
 
 		DB::UpdateQryObj($this->model->table)
@@ -1292,8 +1292,8 @@ class Board{
 	 * 체크 항목 복구
 	 */
 	public function PostSysUnDel(){
-		if(!$this->managerIs) JSON(false, _MSG_WRONG_CONNECTED);
-		if(EmptyPost('seq')) JSON(false, '복구할 게시물을 선택하여 주세요.');
+		if(!$this->managerIs) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
+		if(EmptyPost('seq')) JSON(false, App::$lang['SELECT_RESTORE_POST']);
 		$chk = explode(',', Post('seq'));
 
 		DB::UpdateQryObj($this->model->table)
@@ -1308,9 +1308,9 @@ class Board{
 	 * 체크 항목 이동
 	 */
 	public function PostSysMove(){
-		if(!$this->managerIs) JSON(false, _MSG_WRONG_CONNECTED);
-		if(EmptyPost('seq')) JSON(false, '이동할 게시물을 선택하여 주세요.');
-		if(EmptyPost('bid') || EmptyPost('subid')) JSON(false, '이동할 게시판을 선택하여 주세요.');
+		if(!$this->managerIs) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
+		if(EmptyPost('seq')) JSON(false, App::$lang['SELECT_MOVE_POST']);
+		if(EmptyPost('bid') || EmptyPost('subid')) JSON(false, App::$lang['SELECT_MOVE_BOARD']);
 		$chk = explode(',', Post('seq'));
 
 		$resChk = $this->_CheckArticleCopy($chk, Post('bid'), Post('subid'), 'move');
@@ -1325,9 +1325,9 @@ class Board{
 	 * 체크 항목 복사
 	 */
 	public function PostSysCopy(){
-		if(!$this->managerIs) JSON(false, _MSG_WRONG_CONNECTED);
-		if(EmptyPost('seq')) JSON(false, '복사할 게시물을 선택하여 주세요.');
-		if(EmptyPost('bid') || EmptyPost('subid')) JSON(false, '이동할 게시판을 선택하여 주세요.');
+		if(!$this->managerIs) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
+		if(EmptyPost('seq')) JSON(false, App::$lang['SELECT_COPY_POST']);
+		if(EmptyPost('bid') || EmptyPost('subid')) JSON(false, App::$lang['SELECT_COPY_BOARD']);
 		$chk = explode(',', Post('seq'));
 
 		$chk = $this->_CheckArticleCopy($chk, Post('bid'), Post('subid'));
@@ -1573,8 +1573,8 @@ class Board{
 	 * @return ArticleAction
 	 */
 	protected function GetArticleAction(){
-		if(!strlen(App::$id)) JSON(false,  _MSG_WRONG_CONNECTED);
-		if(!isset($_SESSION['boardView']['bid']) || !isset($_SESSION['boardView']['seq']) || $_SESSION['boardView']['bid'] != $this->bid || $_SESSION['boardView']['seq'] != App::$id) JSON(false, '마지막으로 본 게시물만 가능합니다.');
+		if(!strlen(App::$id)) JSON(false,  App::$lang['MSG_WRONG_CONNECTED']);
+		if(!isset($_SESSION['boardView']['bid']) || !isset($_SESSION['boardView']['seq']) || $_SESSION['boardView']['bid'] != $this->bid || $_SESSION['boardView']['seq'] != App::$id) JSON(false, App::$lang['POSSIBLE_LAST_POST']);
 
 		$seq = to10(App::$id);
 		return ArticleAction::GetInstance($this->bid)
@@ -1587,10 +1587,10 @@ class Board{
 	protected function _GetBoardData($id){
 		$args = func_get_args();
 		$res = $this->model->DBGet($args);
-		if(!$res->result) URLRedirect(-1, _MSG_WRONG_CONNECTED);
+		if(!$res->result) URLRedirect(-1, App::$lang['MSG_WRONG_CONNECTED']);
 		if(_MEMBERIS === true && strlen($this->model->_muid->value)){
 			$blockUser = CM::GetBlockUsers();
-			if(in_array($this->model->_muid->value, $blockUser)) URLRedirect(-1, '차단된 사용자의 글입니다.');
+			if(in_array($this->model->_muid->value, $blockUser)) URLRedirect(-1, App::$lang['BLOCKED_USER_POST']);
 		}
 	}
 

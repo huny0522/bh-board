@@ -36,6 +36,8 @@ class BH_Application
 	public static $bodyHtml = '';
 	public static $extendMethod = array();
 
+	public static $lang = array();
+
 	private function __construct(){
 
 	}
@@ -143,7 +145,7 @@ class BH_Application
 			require $path;
 			$controller = '\\Controller\\' . (self::$nativeDir ? str_replace('/', '\\', self::$nativeDir) . '\\' : '') . self::$controllerName;
 			if(!class_exists($controller)){
-				if(_DEVELOPERIS === true) echo 'CLASS(' . $controller . ') DOES NOT EXIST.' . BH_APP_NOT_EXISTS;
+				if(_DEVELOPERIS === true) echo 'CLASS(' . $controller . ') DOES NOT EXIST.';
 				exit;
 			}
 

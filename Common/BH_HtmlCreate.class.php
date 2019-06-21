@@ -111,9 +111,9 @@ class {$ControllerName}{
 	}
 
 	private function _ModelSet(\$seq){
-		if(!strlen(\$seq)) URLReplace(-1, _MSG_WRONG_CONNECTED);
+		if(!strlen(\$seq)) URLReplace(-1, App::\$lang['MSG_WRONG_CONNECTED']);
 		\$res = \$this->{$ModelValueName}->DBGet(\$seq);
-		if(!\$res->result) URLReplace(-1, \$res->message ? \$res->message : _MSG_NO_ARTICLE);
+		if(!\$res->result) URLReplace(-1, \$res->message ? \$res->message : App::\$lang['MSG_NO_ARTICLE']);
 	}
 }";
 		if($create){

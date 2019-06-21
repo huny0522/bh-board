@@ -33,8 +33,8 @@ class Upload{
 
 			$temp = explode('.',$name);
 			$filename_ext = strtolower(array_pop($temp));
-			if(!in_array($filename_ext, App::$settingData['POSSIBLE_EXT']) || in_array($filename_ext, App::$settingData['noext'])) JSON(false, _MSG_IMPOSSIBLE_FILE);
-			if(($type == 'image' && !in_array($filename_ext, App::$settingData['IMAGE_EXT'])) || ($type == '' && !in_array($filename_ext, App::$settingData['POSSIBLE_EXT']))) JSON(false, _MSG_IMPOSSIBLE_FILE);
+			if(!in_array($filename_ext, App::$settingData['POSSIBLE_EXT']) || in_array($filename_ext, App::$settingData['noext'])) JSON(false, App::$lang['MSG_IMPOSSIBLE_FILE']);
+			if(($type == 'image' && !in_array($filename_ext, App::$settingData['IMAGE_EXT'])) || ($type == '' && !in_array($filename_ext, App::$settingData['POSSIBLE_EXT']))) JSON(false, App::$lang['MSG_IMPOSSIBLE_FILE']);
 			$path = '/temp/';
 			$uploadDir = \Paths::DirOfUpload().$path;
 			if(!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
@@ -50,7 +50,7 @@ class Upload{
 		}
 		// FAILED
 		else{
-			if($_FILES['Filedata']['error'] ===  UPLOAD_ERR_INI_SIZE) JSON(false, _MSG_FILE_TOO_BIG);
+			if($_FILES['Filedata']['error'] ===  UPLOAD_ERR_INI_SIZE) JSON(false, App::$lang['MSG_FILE_TOO_BIG']);
 			JSON(false, 'File Upload Error');
 		}
 	}

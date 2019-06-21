@@ -102,7 +102,7 @@ class ArticleAction
 
 
 	public function GetReplyActions($articleSeqArr){
-		if(!is_numeric($this->mUid)) return \BH_Result::Init(false, '회원번호에는 숫자가 들어가야합니다.');
+		if(!is_numeric($this->mUid)) return \BH_Result::Init(false, App::$lang['MEMBER_NUM_HAS_NOT_NUM']);
 
 		$data = array();
 
@@ -151,8 +151,8 @@ class ArticleAction
 	 * @return \BH_Result
 	 */
 	protected function SettingCheck(){
-		if(!is_numeric($this->mUid)) return \BH_Result::Init(false, '회원번호에는 숫자가 들어가야합니다.');
-		if(!is_numeric($this->articleSeq)) return \BH_Result::Init(false, '게시물번호에는 숫자가 들어가야합니다.');
+		if(!is_numeric($this->mUid)) return \BH_Result::Init(false, App::$lang['MEMBER_NUM_HAS_NOT_NUM']);
+		if(!is_numeric($this->articleSeq)) return \BH_Result::Init(false, App::$lang['POST_NUM_HAS_NOT_NUM']);
 		return \BH_Result::Init(true);
 	}
 
@@ -343,10 +343,10 @@ class ArticleAction
 	 * @return \BH_InsertResult|\BH_Result
 	 */
 	protected function RunInsert(){
-		if(!$this->actionDBType) return \BH_Result::Init(false, '중복체크가 필요합니다.');
+		if(!$this->actionDBType) return \BH_Result::Init(false, App::$lang['DUPLICATE_CHECK_IS_REQUIRED']);
 		$res = $this->InsertQuery()->Run();
 		if($res->result) $this->RunUpdateTable();
-		else if(!$res->message) $res->message = 'DB 삽입 오류';
+		else if(!$res->message) $res->message = App::$lang['ERROR_INSERT_DB'];
 		return $res;
 	}
 
@@ -355,7 +355,7 @@ class ArticleAction
 	 * @return \BH_InsertResult|\BH_Result
 	 */
 	protected function RunUpdateTable(){
-		if(!$this->actionDBType) return \BH_Result::Init(false, '중복체크가 필요합니다.');
+		if(!$this->actionDBType) return \BH_Result::Init(false, App::$lang['DUPLICATE_CHECK_IS_REQUIRED']);
 		$qry = $this->UpdateTableQuery();
 		if(!is_null($qry)) return $qry->Run();
 		return null;
@@ -382,7 +382,7 @@ class ArticleAction
 			if(!$data) return \BH_Result::Init(true, '', $this->actionDBType);
 
 			if($data['reg_date'] <= date('Y-m-d H:i:s', strtotime('-1 day', time()))){
-				return \BH_Result::Init(false, '하루가 지나 취소가 불가능합니다.');
+				return \BH_Result::Init(false, App::$lang['CANT_CANCEL_AFTER_A_DAY']);
 			}
 		}
 
@@ -391,7 +391,7 @@ class ArticleAction
 			->AddWhere('`article_seq` = %d', $this->articleSeq)
 			->AddWhere('`action_type` = %s', $this->actionDBType)
 			->Run();
-		if(!$res) return \BH_Result::Init(false, '취소 DB 오류');
+		if(!$res) return \BH_Result::Init(false, App::$lang['ERROR_CANCEL_DB']);
 
 		$this->RunUpdateTable();
 
@@ -405,15 +405,15 @@ class ArticleAction
 	protected function TypeCheck(){
 		$this->actionDBType = $this->type;
 		if($this->type === 'read'){
-			if($this->replyIs === true) return \BH_Result::Init(false, '댓글에는 \'읽음\'기능이 없습니다.');
+			if($this->replyIs === true) return \BH_Result::Init(false, App::$lang['COMMENT_NO_READ']);
 		}
 		else if($this->type === 'scrap'){
-			if($this->replyIs === true) return \BH_Result::Init(false, '댓글에는 \'스크랩\'기능이 없습니다.');
+			if($this->replyIs === true) return \BH_Result::Init(false, App::$lang['COMMENT_NO_SCRAP']);
 		}
 		else if($this->type === 'recommend') $this->actionDBType = $this->replyIs ? 'rp_recommend' : 'recommend';
 		else if($this->type === 'oppose') $this->actionDBType = $this->replyIs ? 'rp_oppose' : 'oppose';
 		else if($this->type === 'report') $this->actionDBType = $this->replyIs ? 'rp_report' : 'report';
-		else return \BH_Result::Init(false, '알수없는 타입입니다.');
+		else return \BH_Result::Init(false, App::$lang['UNKNOWN_TYPE']);
 		return \BH_Result::Init(true);
 	}
 

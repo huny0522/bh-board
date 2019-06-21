@@ -155,12 +155,12 @@ define('_JSONIS', isset($_SERVER['HTTP_ACCEPT']) && strpos(strtolower($_SERVER['
 if(_IS_DEVELOPER_IP === true){
 	$developerBottomHtml = '<ul style="position:fixed; bottom:10px; right:10px; z-index:9999; display:table; opacity:0;" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=0">';
 	if(_DEVELOPERIS !== true){
-		$developerBottomHtml .= '<li style="display:table-cell; vertical-align:middle;"><form method="post" action="' . Paths::UrlOfAdmin() . '/Login/DevLogin?r_url=' . urlencode($_SERVER['REQUEST_URI']) . '"><input type="password" name="devpwd" value="" style="height:30px; padding:0 15px; margin-right:5px; border:0; font-size:12px; background:rgba(0,0,0,0.2); color:#fff; border-radius:15px;"><button type="submit" style="height:30px; padding:0 15px; margin-right:15px; font-size:12px; background:rgba(0,0,0,0.5); color:#fff; border-radius:15px;">개발자로그인</button></form></li>';
+		$developerBottomHtml .= '<li style="display:table-cell; vertical-align:middle;"><form method="post" action="' . Paths::UrlOfAdmin() . '/Login/DevLogin?r_url=' . urlencode($_SERVER['REQUEST_URI']) . '"><input type="password" name="devpwd" value="" style="height:30px; padding:0 15px; margin-right:5px; border:0; font-size:12px; background:rgba(0,0,0,0.2); color:#fff; border-radius:15px;"><button type="submit" style="height:30px; padding:0 15px; margin-right:15px; font-size:12px; background:rgba(0,0,0,0.5); color:#fff; border-radius:15px;">Developer Join</button></form></li>';
 	}
 	else{
-		$developerBottomHtml .= '<li style="display:table-cell; vertical-align:middle;"><a href="' . Paths::UrlOfAdmin() . '/Login/DevLogout?r_url=' . urlencode(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '') . '" style="display:block; height:30px; line-height:30px; padding:0 15px; margin-right:5px; font-size:12px; background:rgba(0,0,0,0.5); color:#fff; border-radius:15px;">개발자로그아웃</a></li>';
+		$developerBottomHtml .= '<li style="display:table-cell; vertical-align:middle;"><a href="' . Paths::UrlOfAdmin() . '/Login/DevLogout?r_url=' . urlencode(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '') . '" style="display:block; height:30px; line-height:30px; padding:0 15px; margin-right:5px; font-size:12px; background:rgba(0,0,0,0.5); color:#fff; border-radius:15px;">Developer Logout</a></li>';
 
-		$developerBottomHtml .= '<li style="display:table-cell; vertical-align:middle;"><a id="_BH_RefreshBtn" href="' . Paths::Url() . '/_Refresh?r_url=' . urlencode(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '') . '" style="display:block; height:30px; line-height:30px; padding:0 15px; font-size:12px; background:rgba(0,0,0,0.5); color:#fff; border-radius:15px;">새로고침</a></li>';
+		$developerBottomHtml .= '<li style="display:table-cell; vertical-align:middle;"><a id="_BH_RefreshBtn" href="' . Paths::Url() . '/_Refresh?r_url=' . urlencode(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '') . '" style="display:block; height:30px; line-height:30px; padding:0 15px; font-size:12px; background:rgba(0,0,0,0.5); color:#fff; border-radius:15px;">Refresh</a></li>';
 	}
 	$developerBottomHtml .= '</ul>';
 }
@@ -177,13 +177,15 @@ require _COMMONDIR . '/BH_Common.class.php';
 if(file_exists(_DIR . '/Custom/ConfigSetting.php')) require _DIR . '/Custom/ConfigSetting.php';
 require _COMMONDIR . '/BHCss/core/BHCss.php';
 
+require _DIR . '/Custom/Lang/' . LANG_FILE;
+
 if(get_magic_quotes_gpc()){
 	$_POST = BH_Common::StripSlashes($_POST);
 	$_GET = BH_Common::StripSlashes($_GET);
 }
 
-App::$settingData['LevelArray'] = array(0 => '비회원', 1 => '일반회원', 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8,
-	9 => 9, 10 => 10, 15 => '매니저', 18 => '관리자', 20 => '최고관리자');
+App::$settingData['LevelArray'] = array(0 => App::$lang['TXT_NOT_MEMBER'], 1 => App::$lang['TXT_MEMBER'], 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8,
+	9 => 9, 10 => 10, 15 => App::$lang['TXT_NOT_MANAGER'], 18 => App::$lang['TXT_ADMIN'], 20 => App::$lang['TXT_SUPER_ADMIN']);
 App::$settingData['noext'] = array('php', 'htm', 'html', 'cfg', 'inc', 'phtml', 'php5', 'asp', 'jsp');
 App::$settingData['IMAGE_EXT'] = array('jpg', 'jpeg', 'png', 'gif', 'bmp');
 App::$settingData['POSSIBLE_EXT'] = array('jpg', 'jpeg', 'png', 'gif', 'bmp', 'zip', '7z', 'gz', 'xz', 'tar', 'xls',
@@ -335,10 +337,14 @@ function OptionPhoneFirstNumber($find = ''){
 }
 
 function OptionEmailAddress($find = ''){
-	$addr = array();
-	$addr[] = 'naver.com';
-	$addr[] = 'gmail.com';
-	$addr[] = 'hanmail.net';
+	if(isset(App::$settingData['optionEmail'])) $addr = App::$settingData['optionEmail'];
+	else{
+		$addr = array(
+			'naver.com',
+			'gmail.com',
+			'hanmail.net'
+		);
+	}
 
 	$str = '';
 	foreach($addr as $item){
@@ -483,7 +489,7 @@ function Download($path, $fname){
 
 
 	$dl_file = filter_var($path, FILTER_SANITIZE_URL); // Remove (more) invalid characters
-	if(!file_exists($dl_file)) URLReplace(-1, '파일이 존재하지 않습니다.');
+	if(!file_exists($dl_file)) URLReplace(-1, App::$lang['TXT_FILE_NOT_EXIST']);
 
 	if($fd = fopen($dl_file, "r")){
 		$fsize = filesize($dl_file);
@@ -619,11 +625,11 @@ function ValidateInt($txt){
 	$val = ToInt($txt);
 	if(!strlen($txt)){
 		$res->result = false;
-		$res->message = '숫자값이 비어있습니다.';
+		$res->message = App::$lang['TXT_EMPTY_NUMBER'];
 	}
 	else if((string)$val !== (string)$txt){
 		$res->result = false;
-		$res->message = '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.';
+		$res->message = App::$lang['TXT_ONLY_NUMBER_NOT_CHARACTER'];
 	}
 	return $res;
 }
@@ -633,9 +639,9 @@ function SetDBInt($txt){
 		foreach($txt as $k => &$v) $v = SetDBInt($v);
 		return $txt;
 	}
-	if(!strlen($txt)) URLReplace('-1', '숫자값이 비어있습니다.');
+	if(!strlen($txt)) URLReplace('-1', App::$lang['TXT_EMPTY_NUMBER']);
 	$val = ToInt($txt);
-	if((string)$val !== (string)$txt) URLReplace('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+	if((string)$val !== (string)$txt) URLReplace('-1', App::$lang['TXT_ONLY_NUMBER_NOT_CHARACTER']);
 	return $txt;
 }
 
@@ -653,11 +659,11 @@ function ValidateFloat($txt){
 	$val = ToFloat($txt);
 	if(!strlen($txt)){
 		$res->result = false;
-		$res->message = '숫자값이 비어있습니다.';
+		$res->message = App::$lang['TXT_EMPTY_NUMBER'];
 	}
 	else if((string)$val !== (string)$txt){
 		$res->result = false;
-		$res->message = '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.';
+		$res->message = App::$lang['TXT_ONLY_NUMBER_NOT_CHARACTER'];
 	}
 	return $res;
 }
@@ -669,14 +675,14 @@ function SetDBFloat($txt){
 	}
 
 	if(!strlen($txt)){
-		if(_DEVELOPERIS === true) PrintError('숫자값이 비어있습니다.');
-		URLReplace('-1', '숫자값이 비어있습니다.');
+		if(_DEVELOPERIS === true) PrintError(App::$lang['TXT_EMPTY_NUMBER']);
+		URLReplace('-1', App::$lang['TXT_EMPTY_NUMBER']);
 	}
 
 	$val = ToFloat($txt);
 	if((string)$val !== (string)$txt){
-		if(_DEVELOPERIS === true) PrintError('숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
-		URLReplace('-1', '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.');
+		if(_DEVELOPERIS === true) PrintError(App::$lang['TXT_ONLY_NUMBER_NOT_CHARACTER']);
+		URLReplace('-1', App::$lang['TXT_ONLY_NUMBER_NOT_CHARACTER']);
 	}
 
 	return $val;

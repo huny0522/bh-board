@@ -92,7 +92,7 @@ class MessageModel extends \BH_Model
 	 * @return BH_Result
 	 */
 	public function Del(){
-		if(_MEMBERIS !== true) return BH_Result::Init(false, _MSG_NEED_LOGIN, _NEED_LOGIN);
+		if(_MEMBERIS !== true) return BH_Result::Init(false, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 		if(!strlen($this->_seq->Val())){
 			if(_DEVELOPERIS === true) PrintError('삭제할 데이터가 없습니다.');
 			return BH_Result::Init(false, 'MESSAGE DELETE ERROR #01');
@@ -120,8 +120,8 @@ class MessageModel extends \BH_Model
 			$qry->SetDataStr('target_delis', 'y');
 		}
 
-		if(!$qrySetIs) return BH_Result::Init(false, _MSG_WRONG_CONNECTED);
-		else return BH_Result::Init(false, _MSG_WRONG_CONNECTED);
+		if(!$qrySetIs) return BH_Result::Init(false, App::$lang['MSG_WRONG_CONNECTED']);
+		else return BH_Result::Init(false, App::$lang['MSG_WRONG_CONNECTED']);
 		$qry->Run();
 		return BH_Result::Init(true);
 	}
@@ -155,7 +155,7 @@ class MessageModel extends \BH_Model
 	 * @return BH_Result
 	 */
 	public static function GetChat($targetMuid, $articleNumber = 20, $lastSeq = null, $beforeIs = false){
-		if(_MEMBERIS !== true) return BH_Result::Init(false, _MSG_NEED_LOGIN, _NEED_LOGIN);
+		if(_MEMBERIS !== true) return BH_Result::Init(false, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 		$blockUsers = CM::GetBlockUsers();
 		if(in_array($targetMuid, $blockUsers)) return BH_Result::Init(false, '차단된 유저입니다.');
 		$qry = DB::GetListQryObj(TABLE_MESSAGE)
@@ -177,7 +177,7 @@ class MessageModel extends \BH_Model
 	 * @return BH_Result|void
 	 */
 	public static function UpdateReadArticles($seqArr){
-		if(_MEMBERIS !== true) return BH_Result::Init(false, _MSG_NEED_LOGIN, _NEED_LOGIN);
+		if(_MEMBERIS !== true) return BH_Result::Init(false, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 		if(!sizeof($seqArr)) return;
 		DB::UpdateQryObj(TABLE_MESSAGE)
 			->AddWhere('`target_muid` = %d', $_SESSION['member']['muid'])

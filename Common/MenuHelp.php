@@ -383,13 +383,13 @@ class MenuHelp
 				->Get();
 
 			if(isset($disabledData['category']) && strlen($disabledData['category'])){
-				if(_DEVELOPERIS === true) URLReplace(-1, '접근이 불가능한 메뉴입니다.');
+				if(_DEVELOPERIS === true) URLReplace(-1, App::$lang['INACCESSIBLE_MENU']);
 				URLReplace(-1);
 			}
 		}
 		else{
 			if((_MEMBERIS !== true && $this->activeMenu['con_level']) || (_MEMBERIS === true && $this->activeMenu['con_level'] > $_SESSION['member']['level'])){
-				if(_DEVELOPERIS === true) URLReplace(-1, '현재 등급으로 접근이 불가능한 메뉴입니다.');
+				if(_DEVELOPERIS === true) URLReplace(-1, App::$lang['MENU_NOT_ACCESSIBLE_BY_RATING']);
 				URLReplace(-1);
 			}
 			if($this->activeMenu['category'] === $this->rootCategory){

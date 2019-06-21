@@ -27,7 +27,7 @@ class Config{
 		App::SetFollowQuery(array('where', 'keyword','page'));
 		App::$layout = '_Admin';
 		App::$data['Code'] = App::$action;
-		if(App::$action === 'SuperSet' && $_SESSION['member']['level'] < _SADMIN_LEVEL) URLRedirect(-1, _MSG_WRONG_CONNECTED);
+		if(App::$action === 'SuperSet' && $_SESSION['member']['level'] < _SADMIN_LEVEL) URLRedirect(-1, App::$lang['MSG_WRONG_CONNECTED']);
 	}
 
 	public function Index(){
@@ -61,7 +61,7 @@ class Config{
 		App::$data['Code'] = (!App::$id) ? 'EmailCollector' : App::$id;
 
 		$class = '\\Config' . App::$data['Code'];
-		if(!class_exists($class)) URLRedirect(-1, _MSG_WRONG_CONNECTED);
+		if(!class_exists($class)) URLRedirect(-1, App::$lang['MSG_WRONG_CONNECTED']);
 		App::$data['class'] = $class::GetInstance();
 
 

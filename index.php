@@ -105,6 +105,27 @@ define('_MSG_IMPOSSIBLE_FILE', '등록 불가능한 파일입니다.');
 define('_MSG_FILE_TOO_BIG', '업로드한 파일이 제한용량보다 큽니다.(' . ini_get('upload_max_filesize') . ')');
 define('_MSG_UPLOAD_ERROR', '파일 등록 오류');
 
+// -------------------------------------
+//
+//			Language Setting
+//
+// -------------------------------------
+
+define('LANG_KOR', 0);
+define('LANG_ENG', 1);
+define('LANG_JPN', 2);
+define('LANG_CHN', 3);
+
+$langFile = array(
+	LANG_KOR => 'kor.php',
+	LANG_ENG => 'eng.php',
+	LANG_JPN => 'jpn.php',
+	LANG_CHN => 'chn.php',
+);
+
+define('SELECT_LANG', LANG_KOR);
+define('LANG_FILE', $langFile[SELECT_LANG]);
+
 define('_NEED_LOGIN', 'NEED LOGIN');
 
 // -------------------------------------

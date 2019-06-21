@@ -1074,7 +1074,7 @@ class BH_DB_Insert{
 		$res = new \BH_Result();
 		if(!sizeof($this->data)){
 			$res->result = false;
-			$res->message = '등록할 자료가 없습니다.';
+			$res->message = BH_Application::$lang['NO_REGISTER_DATA'];
 			return $res;
 		}
 
@@ -1192,7 +1192,7 @@ class BH_DB_Insert{
 			DB::SQL($this->connName)->Query($minInsSql);
 			$keyRes = DB::SQL($this->connName)->Fetch($keyQry);
 		}
-		if(!$keyRes) PrintError('`' . $this->table . '` 최소설정값 생성 에러');
+		if(!$keyRes) PrintError('`' . $this->table . '` ' . BH_Application::$lang['ERROR_DECREMENT_KEY']);
 
 		$keyRes['keyName'] = $kn;
 		return $keyRes;
@@ -1329,7 +1329,7 @@ class BH_DB_Update{
 		}
 		else{
 			$res->result = false;
-			$res->message = _DEVELOPERIS === true ? 'WHERE 구문이 없습니다.' : 'ERROR #101';
+			$res->message = _DEVELOPERIS === true ? BH_Application::$lang['NO_WHERE'] : 'ERROR #101';
 			return $res;
 		}
 

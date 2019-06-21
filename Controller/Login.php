@@ -46,19 +46,19 @@ class Login{
 		else $key = trim(Post('mid'));
 
 		if(strlen($key) < 1){
-			URLReplace('-1', ($this->useMailId ? '이메일을' : '아이디를') . ' 입력하여 주세요.');
+			URLReplace('-1', $this->useMailId ? App::$lang['NEED_EMAIL'] : App::$lang['NEED_ID']);
 		}
 		if(strlen(Post('pwd')) < 1){
-			URLReplace('-1', '패스워드를 입력하여 주세요.');
+			URLReplace('-1', App::$lang['INPUT_PASSWORD']);
 		}
 		$res = $this->useMailId ? $this->LoginEmailCheck($key, Post('pwd')) : $this->LoginMidCheck($key, Post('pwd'));
 
 		if($res === false){
-			URLReplace('-1', '일치하는 회원이 없습니다.');
+			URLReplace('-1', App::$lang['NOT_MATCH_MEMBER']);
 		}else{
 			if($res['approve'] !== 'y'){
-				if($this->defCfg->joinApprove->Val() !== 'y' && $this->defCfg->emailCer->Val() !== 'n') URLRedirect(-1, '이메일 인증이 되지 않았습니다. 가입시 입력한 이메일을 확인해주세요.');
-				else URLRedirect(-1, '승인되지 않은 아이디입니다.');
+				if($this->defCfg->joinApprove->Val() !== 'y' && $this->defCfg->emailCer->Val() !== 'n') URLRedirect(-1, App::$lang['NO_AUTH_EMAIL']);
+				else URLRedirect(-1, App::$lang['NOT_APPROVE_ID']);
 			}
 			else{
 				DB::UpdateQryObj(TABLE_MEMBER)
@@ -105,29 +105,29 @@ class Login{
 		if(strlen($email)){
 			$res = $this->Check('email', $email, false);
 			if(!$res){
-				$this->_PostRegister('이미 사용중인 이메일입니다.');
+				$this->_PostRegister(App::$lang['ALREADY_EMAIL']);
 				return;
 			}
 		}
-		else if($this->useMailId) URLRedirect(-1, _MSG_WRONG_CONNECTED);
+		else if($this->useMailId) URLRedirect(-1, App::$lang['MSG_WRONG_CONNECTED']);
 
 		if(!EmptyPost('mid')){
 			$res = $this->Check('mid', Post('mid'), false);
 			if(!$res){
-				$this->_PostRegister('이미 사용중인 아이디입니다.');
+				$this->_PostRegister(App::$lang['ALREADY_ID']);
 				return;
 			}
 		}
-		else if(!$this->useMailId) URLRedirect(-1, _MSG_WRONG_CONNECTED);
+		else if(!$this->useMailId) URLRedirect(-1, App::$lang['MSG_WRONG_CONNECTED']);
 
 		$res = $this->Check('nickname', Post('nickname'));
 		if(!$res){
-			$this->_PostRegister('이미 사용중인 닉네임입니다.');
+			$this->_PostRegister(App::$lang['ALREADY_NICKNAME']);
 			return;
 		}
 
 		if(Post('pwd') != Post('chkpwd')){
-			$this->_PostRegister('패스워드가 일치하지 않습니다.');
+			$this->_PostRegister(App::$lang['MSG_NOT_MATCH_PASSWORD']);
 			return;
 		}
 
@@ -158,9 +158,9 @@ class Login{
 
 		if($this->defCfg->joinApprove->Val() !== 'y' && $this->defCfg->emailCer->Val() !== 'n'){
 			$this->_SendEmailCode($this->model);
-			URLReplace(\Paths::Url().'/', '등록되었습니다. 이용하시려면 이메일 인증을 해주셔야합니다. 입력하신 이메일을 확인 바랍니다.');
+			URLReplace(\Paths::Url().'/', App::$lang['REGISTERED_AND_CHECK_EMAIL']);
 		}
-		else URLReplace(\Paths::Url().'/', '등록되었습니다.');
+		else URLReplace(\Paths::Url().'/', App::$lang['MSG_COMPLETE_REGISTER']);
 
 	}
 
@@ -262,8 +262,8 @@ class Login{
 
 				\DB::SQL()->Query('UPDATE %1 SET pw_reset_code = %s WHERE muid = %d', $this->model->table, aes_encrypt($code, PW_RESET_KEY), $res['muid']);
 				$mail->SendMailByFindPW(Post($key), Post('mid'), substr($code, 19));
-				JSON(true, '해당메일('.GetDBText(Post('email')).')로 비밀번호 변경 코드를 발송하였습니다.');
-			}else JSON(false, '해당 정보와 일치하는 회원이 없습니다.');
+				JSON(true, str_replace('{email}', GetDBText(Post('email')), App::$lang['SEND_PW_CHANGE_CODE']));
+			}else JSON(false, App::$lang['NOT_MATCH_MEMBER_BY_INF']);
 		}
 
 		// 아이디 찾기
@@ -273,8 +273,8 @@ class Login{
 				$mail = Email::GetInstance();
 				$mail->AddMail(Post('email'), Post($key));
 				$mail->SendMailByFindID(Post($key), $res['mid']);
-				JSON(true, '해당메일('.GetDBText(Post('email')).')로 아이디를 발송하였습니다.');
-			}else JSON(false, '해당 정보와 일치하는 회원이 없습니다.');
+				JSON(true, str_replace('{email}', GetDBText(Post('email')), App::$lang['SEND_EMAIL_ID']));
+			}else JSON(false, App::$lang['NOT_MATCH_MEMBER_BY_INF']);
 		}
 	}
 
@@ -287,7 +287,7 @@ class Login{
 			->AddWhere('`mid` = %s', Post('mid'))
 			->Get();
 		if(!$data){
-			URLRedirect(-1, '해당 아이디가 존재하지 않습니다.');
+			URLRedirect(-1, App::$lang['ID_NO_EXIST']);
 		}
 		/**
 		 * @var \MemberModel
@@ -305,7 +305,7 @@ class Login{
 			return;
 		}
 		if(Post('pwd') !== Post('chkpwd')){
-			URLRedirect(-1, '비밀번호가 일치하지 않습니다.');
+			URLRedirect(-1, App::$lang['MSG_NOT_MATCH_PASSWORD']);
 			return;
 		}
 
@@ -317,52 +317,52 @@ class Login{
 				$code = substr($temp, 19);
 				$min = date('Y-m-d H:i:s', strtotime('-1 hour'));
 				if($date < $min){
-					URLRedirect(-1, '기간이 만료된 코드입니다.');
+					URLRedirect(-1, App::$lang['EXPIRED_CODE']);
 					return;
 				}
 				if($code !== Post('pw_reset_code')){
-					URLRedirect(-1, '비밀번호 변경 코드가 불일치합니다.');
+					URLRedirect(-1, App::$lang['NOT_MATCH_PW_CHANGE_CODE']);
 					return;
 				}
 
 				$res = $this->model->DBUpdate();
 				if($res->result){
-					URLRedirect(\Paths::Url().'/', '비밀번호가 변경되었습니다.');
+					URLRedirect(\Paths::Url().'/', App::$lang['PW_CHANGED']);
 				}
 				else{
-					URLRedirect('-1', '비밀번호 변경 오류');
+					URLRedirect('-1', App::$lang['ERROR_PW_CHANGE']);
 				}
 			}
-			else URLRedirect(-1, '해당 계정은 비밀번호 변경 요청이 없습니다.');
+			else URLRedirect(-1, App::$lang['ACCOUNT_NO_REQUEST_CHANGE_PASSWORD']);
 		}
 
 	}
 
 	public function EmailCertification(){
 		if($this->defCfg->joinApprove->Val() === 'y' || $this->defCfg->emailCer->Val() === 'n'){
-			URLRedirect(-1, _MSG_WRONG_CONNECTED.'(1)');
+			URLRedirect(-1, App::$lang['MSG_WRONG_CONNECTED'].'(1)');
 		}
-		if(EmptyGet('code')) URLRedirect(-1, _MSG_WRONG_CONNECTED.'(2)');
+		if(EmptyGet('code')) URLRedirect(-1, App::$lang['MSG_WRONG_CONNECTED'].'(2)');
 
 		$temp = explode(':', Get('code'));
-		if(sizeof($temp) !== 2) URLRedirect(-1, _MSG_WRONG_CONNECTED.'(3)');
+		if(sizeof($temp) !== 2) URLRedirect(-1, App::$lang['MSG_WRONG_CONNECTED'].'(3)');
 		$mid = $temp[0];
 		$get_code = $temp[1];
 		$data = DB::GetQryObj($this->model->table)
 			->AddWhere('`mid` = %s', $mid)
 			->Get();
 		if(!$data){
-			URLRedirect(-1, '해당 코드의 아이디가 존재하지 않습니다.');
+			URLRedirect(-1, App::$lang['ID_OF_CODE_NOT_EXIST']);
 		}
 		else{
 			if($data['approve'] == 'y'){
-				URLRedirect(-1, '이미 인증이 완료된 회원입니다.');
+				URLRedirect(-1, App::$lang['ALREADY_AUTH_ID']);
 			}
 			else if($data['email_code']){
 				$temp = aes_decrypt($data['email_code'], PW_RESET_KEY);
 				$code = substr($temp, 19);
 				if($code !== $get_code){
-					URLRedirect(-1, _MSG_WRONG_CONNECTED.'(4)'.$code.'/'.$get_code);
+					URLRedirect(-1, App::$lang['MSG_WRONG_CONNECTED'].'(4)'.$code.'/'.$get_code);
 					return;
 				}
 
@@ -372,13 +372,13 @@ class Login{
 					->SetDataStr('approve', 'y')
 					->Run();
 				if($res->result){
-					URLRedirect(\Paths::Url().'/', '승인되었습니다.');
+					URLRedirect(\Paths::Url().'/', App::$lang['APPROVED']);
 				}
 				else{
-					URLRedirect('-1', '승인 DB 오류');
+					URLRedirect('-1', App::$lang['ERROR_APPROVE_DB']);
 				}
 			}
-			else URLRedirect(-1, '이메일 인증코드가 등록되어 있지 않습니다.');
+			else URLRedirect(-1, App::$lang['NOT_REGISTERED_AUTH_CODE']);
 		}
 
 	}

@@ -38,7 +38,7 @@ class Contents{
 			App::$html = '/Contents/'.$html;
 		}
 
-		if(!file_exists(\Paths::DirOfSkin() . App::$html)) URLReplace(\Paths::Url() . '/', _DEVELOPERIS === true ? '컨텐츠 파일이 없습니다.(' . App::$html . ')' : '');
+		if(!file_exists(\Paths::DirOfSkin() . App::$html)) URLReplace(\Paths::Url() . '/', _DEVELOPERIS === true ? 'Contents files does not exist.(' . App::$html . ')' : '');
 
 		$cookieName = $this->model->table.$this->model->GetValue('bid');
 		if(!isset($_COOKIE[$cookieName]) || !$_COOKIE[$cookieName]){
@@ -56,11 +56,11 @@ class Contents{
 			App::$data['contentActionData'] = $this->model->GetMyActions($this->model->GetValue('bid'), $_SESSION['member']['muid']);
 		}
 
-		App::$data['recommendButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  GetDBText(App::$tid) . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . GetDBText(App::$tid) . '" data-type="recommend" class="contentActionBtn contentRecommendActionBtn' .(isset(App::$data['contentActionData']['recommend']) ? ' already' : ''). '"><b>추천</b> <span class="num">' . ($this->model->_recommend->Txt()) . '</span></a>';
+		App::$data['recommendButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  GetDBText(App::$tid) . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . GetDBText(App::$tid) . '" data-type="recommend" class="contentActionBtn contentRecommendActionBtn' .(isset(App::$data['contentActionData']['recommend']) ? ' already' : ''). '"><b>' . App::$lang['RECOMMEND'] . '</b> <span class="num">' . ($this->model->_recommend->Txt()) . '</span></a>';
 
-		App::$data['scrapButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  GetDBText(App::$tid) . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . GetDBText(App::$tid) . '" data-type="scrap" class="contentActionBtn contentSubscribeActionBtn' .(isset(App::$data['contentActionData']['scrap']) ? ' already' : ''). '"><b>스크랩</b> <span class="num">' . ($this->model->_scrap->Txt()) . '</span></a>';
+		App::$data['scrapButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  GetDBText(App::$tid) . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . GetDBText(App::$tid) . '" data-type="scrap" class="contentActionBtn contentSubscribeActionBtn' .(isset(App::$data['contentActionData']['scrap']) ? ' already' : ''). '"><b>' . App::$lang['SCRAP'] . '</b> <span class="num">' . ($this->model->_scrap->Txt()) . '</span></a>';
 
-		App::$data['opposeButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  GetDBText(App::$tid) . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . GetDBText(App::$tid) . '" data-type="oppose" class="contentActionBtn contentOpposeActionBtn' .(isset(App::$data['contentActionData']['oppose']) ? ' already' : ''). '"><b>반대</b> <span class="num">' . ($this->model->_oppose->Txt()) . '</span></a>';
+		App::$data['opposeButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  GetDBText(App::$tid) . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . GetDBText(App::$tid) . '" data-type="oppose" class="contentActionBtn contentOpposeActionBtn' .(isset(App::$data['contentActionData']['oppose']) ? ' already' : ''). '"><b>' . App::$lang['OPPOSE'] . '</b> <span class="num">' . ($this->model->_oppose->Txt()) . '</span></a>';
 
 		$this->model->_ReadAction($this->model->_bid->Txt());
 
@@ -78,7 +78,7 @@ class Contents{
 			App::$html = '/Contents/'.$html;
 		}
 
-		if(!file_exists(\Paths::DirOfSkin() . App::$html)) URLReplace(\Paths::Url() . '/', _DEVELOPERIS === true ? '컨텐츠 파일이 없습니다.(' . App::$html . ')' : '');
+		if(!file_exists(\Paths::DirOfSkin() . App::$html)) URLReplace(\Paths::Url() . '/', _DEVELOPERIS === true ? 'Contents files does not exist.(' . App::$html . ')' : '');
 
 		$this->_LayoutSet();
 
@@ -112,7 +112,7 @@ class Contents{
 
 		$res = $this->model->InsertAction($type, App::$id);
 		if($res->result) JSON(true);
-		else JSON(false, $res->message ? $res->message : '삽입오류');
+		else JSON(false, $res->message ? $res->message : App::$lang['ERROR_INSERT']);
 	}
 
 	public function PostJSONCancelAction(){
@@ -121,15 +121,15 @@ class Contents{
 
 		$res = $this->model->DeleteAction($type, App::$id);
 		if($res->result) JSON(true);
-		else JSON(false, $res->message ? $res->message : '삭제 오류');
+		else JSON(false, $res->message ? $res->message : App::$lang['ERROR_DELETE']);
 	}
 
 	protected function _ActionCheck($type){
-		if(_MEMBERIS !== true) JSON(false, _MSG_NEED_LOGIN, _NEED_LOGIN);
+		if(_MEMBERIS !== true) JSON(false, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 
-		if(!in_array($type, $this->possibleActionType)) JSON(false, _MSG_WRONG_CONNECTED);
+		if(!in_array($type, $this->possibleActionType)) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 
 		$res = $this->model->DBGet(App::$id);
-		if(!$res->result) JSON(false, _MSG_WRONG_CONNECTED);
+		if(!$res->result) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 	}
 }

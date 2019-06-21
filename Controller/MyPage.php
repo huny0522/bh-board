@@ -70,7 +70,7 @@ class MyPage{
 	public function PostPassword(){
 		$model = App::InitModel('Member');
 		if(!isset($_POST['pwd']) || strlen($_POST['pwd']) < 1){
-			URLReplace('-1', '패스워드를 입력하여 주세요.');
+			URLReplace('-1', App::$lang['INPUT_PASSWORD']);
 		}
 
 		$dbGet = new \BH_DB_Get();
@@ -79,7 +79,7 @@ class MyPage{
 		$dbGet->AddWhere('muid='.$_SESSION['member']['muid']);
 		$res = $dbGet->Get();
 		if(!$res || !_password_verify($_POST['pwd'], $res['pwd'])){
-			URLReplace('-1', '비밀번호가 일치하지 않습니다.');
+			URLReplace('-1', App::$lang['MSG_WRONG_PASSWORD']);
 		}else{
 			$_SESSION['MyInfoView'] = true;
 			URLReplace($_POST['url']);
@@ -99,10 +99,10 @@ class MyPage{
 	}
 
 	public function PostMyInfo(){
-		if($_SESSION['member']['level'] >= _ADMIN_LEVEL) URLRedirect(-1, '관리자는 관리자페이지에서 수정이 가능합니다.');
+		if($_SESSION['member']['level'] >= _ADMIN_LEVEL) URLRedirect(-1, App::$lang['ADMIN_NOT_MODIFY']);
 
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
-			URLReplace(\Paths::Url().'/', _MSG_WRONG_CONNECTED);
+			URLReplace(\Paths::Url().'/', App::$lang['MSG_WRONG_CONNECTED']);
 		}
 
 		$model = App::InitModel('Member');
@@ -112,9 +112,9 @@ class MyPage{
 		$model->SetPostValues();
 		if(isset($_POST['pwd']) && strlen($_POST['pwd'])){
 			if(isset($_POST['pwdchk'])){
-				if($_POST['pwdchk'] !== $_POST['pwd']) App::$data['error'] = '비밀번호가 일치하지 않습니다.';
+				if($_POST['pwdchk'] !== $_POST['pwd']) App::$data['error'] = App::$lang['MSG_NOT_MATCH_PASSWORD'];
 			}else{
-				URLReplace('-1', _MSG_WRONG_CONNECTED);
+				URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
 			}
 		}else{
 			$model->AddExcept('pwd');
@@ -127,7 +127,7 @@ class MyPage{
 
 		if(!isset(App::$data['error'])){
 			$model->DBUpdate();
-			URLReplace(App::URLAction(), '수정되었습니다.');
+			URLReplace(App::URLAction(), App::$lang['MSG_COMPLETE_MODIFY']);
 		}
 		else{
 			App::View($model);
@@ -135,23 +135,23 @@ class MyPage{
 	}
 
 	public function PostBlockUser(){
-		if(EmptyPost('id')) JSON(false, _MSG_WRONG_CONNECTED);
+		if(EmptyPost('id')) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 		$res = DB::InsertQryObj(TABLE_USER_BLOCK)
 			->SetDataStr('reg_date', date('Y-m-d H:i:s'))
 			->SetDataNum('muid', $_SESSION['member']['muid'])
 			->SetDataNum('target_muid', Post('id'))
 			->Run();
 		if($res->result) JSON($res->result);
-		else  JSON($res->result, $res->message ? $res->message : '차단 오류');
+		else  JSON($res->result, $res->message ? $res->message : App::$lang['ERROR_BLOCK_USER']);
 	}
 
 	public function PostUnBlockUser(){
-		if(EmptyPost('id')) JSON(false, _MSG_WRONG_CONNECTED);
+		if(EmptyPost('id')) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 		$res = DB::DeleteQryObj(TABLE_USER_BLOCK)
 			->AddWhere('muid = %d', $_SESSION['member']['muid'])
 			->AddWhere('target_muid = %d', Post('id'))
 			->Run();
-		JSON($res, $res ? '' : '차단취소 오류');
+		JSON($res, $res ? '' : App::$lang['ERROR_CANCEL_BLOCK_USER']);
 	}
 
 	public function BlockList(){
@@ -166,7 +166,7 @@ class MyPage{
 	}
 
 	public function WithDraw(){
-		if($_SESSION['member']['level'] >= _ADMIN_LEVEL) URLRedirect(-1, '관리자는 탈퇴가 불가능합니다.');
+		if($_SESSION['member']['level'] >= _ADMIN_LEVEL) URLRedirect(-1, App::$lang['ADMIN_CANT_WITHDRAW']);
 
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
 			App::$html = 'Password.html';
@@ -177,17 +177,17 @@ class MyPage{
 	}
 
 	public function PostWithDraw(){
-		if($_SESSION['member']['level'] >= _ADMIN_LEVEL) URLRedirect(-1, '관리자는 탈퇴가 불가능합니다.');
+		if($_SESSION['member']['level'] >= _ADMIN_LEVEL) URLRedirect(-1, App::$lang['ADMIN_CANT_WITHDRAW']);
 
 		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
-			URLReplace(\Paths::Url().'/', _MSG_WRONG_CONNECTED);
+			URLReplace(\Paths::Url().'/', App::$lang['MSG_WRONG_CONNECTED']);
 		}
 
 		$res = Member::_Withdraw($_SESSION['member']['muid'], Post('withdraw_reason'));
-		if(!$res->result) URLRedirect(-1, $res->message ? $res->message : '탈퇴 오류');
+		if(!$res->result) URLRedirect(-1, $res->message ? $res->message : App::$lang['ERROR_WITHDRAW']);
 
 		unset($_SESSION['member']);
 		session_destroy();
-		URLReplace(\Paths::Url().'/', '탈퇴되었습니다. 이용해 주셔서 감사합니다.');
+		URLReplace(\Paths::Url().'/', App::$lang['SUCCESS_WITHDRAW']);
 	}
 }
