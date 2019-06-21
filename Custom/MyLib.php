@@ -26,6 +26,12 @@ App::$extendMethod['AfterSetView'] = function(){
 App::$settingData['tinyMCEPath'] = \Paths::UrlOfSkin() . '/js/tinymce/tinymce.min.js';
 */
 
+$keyValue = _SecretKeyByFile(_DIR . '/personal_security_key.dont.delete.it.php');
+define('PERSONAL_INFO_KEY', $keyValue);
+
+$keyValue = _SecretKeyByFile(_DIR . '/pw_reset_key.dont.delete.it.php');
+define('PW_RESET_KEY', $keyValue);
+
 // 에러 출력 여부
 if(_DEVELOPERIS === true) App::$showError = true;
 

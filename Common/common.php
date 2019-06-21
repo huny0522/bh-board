@@ -975,4 +975,16 @@ function IsImageFileName($path){
 	return in_array(strtolower($ext), array('png','jpg','jpeg','gif'));
 }
 
+
+function _SecretKeyByFile($filePath){
+	if(!file_exists($filePath)){
+		$ch = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@.*^_-!';
+		$key = '<?php //';
+		for($i = 0; $i < 20; $i++){
+			$key .= $ch[mt_rand(0, strlen($ch) - 1)];
+		}
+		file_put_contents($filePath, $key);
+	}
+	return substr(file_get_contents($filePath), 8);
+}
 require _DIR . '/Custom/MyLib.php';
