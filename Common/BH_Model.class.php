@@ -560,15 +560,24 @@ class BH_Model{
 
 	/**
 	 * 값 유효성 검사 후 할당
-	 * @param $key
-	 * @param $v
-	 * @return bool
+	 * @param array|string $key
+	 * @param string $v
+	 * @return true|string|array
 	 */
-	public function SetValue($key, $v){
+	public function SetValue($key, $v = ''){
+		if(is_array($key)){
+			$r = array();
+			foreach($key as $k2 => $v2){
+				$res = $this->SetValue($k2, $v2);
+				if($res !== true) $r[] = $res;
+			}
+			return sizeof($r) ? $r : true;
+		}
 		if(!isset($this->data[$key])) return str_replace('{key}', $key, BH_Application::$lang['MODEL_NOT_DEFINED_KEY']);
 
 		$this->data[$key]->value = trim($v);
 		$this->data[$key]->needIs = true;
+		return true;
 	}
 
 	/**

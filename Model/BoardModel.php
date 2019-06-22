@@ -205,17 +205,42 @@ class BoardModel extends \BH_Model
 	 *
 	 * @param string $type <'hit', 'recommend', 'report', 'read', 'scrap', 'oppose', 'reply_cnt'>
 	 * @param int $day
-	 * @param callable $func
 	 * @return BH_DB_GetList
 	 */
-	public function GetHighArticleQuery($type = 'recommend', $day = 1, $func = null){
+	public function GetHighArticleQuery($type = 'recommend', $day = 1){
 		$qry = DB::GetListQryObj($this->table . ' A')
 			->SetConnName($this->connName)
 			->AddWhere('`A`.`delis`=\'n\'')
 			->AddWhere('`A`.`reg_date` >= %s', date('Y-m-d H:i:s', strtotime('-' . $day . ' day', time())))
 			->SetSort('`A`.`%1` DESC', $type);
 
-		if(is_callable($func)) $func($qry);
+		return $qry;
+	}
+
+	/**
+	 * @param int $page
+	 * @param int $viewArticle
+	 * @return BH_DB_GetListWithPage
+	 */
+	public function GetPageListQuery($page, $viewArticle = 10){
+		$qry = DB::GetListPageQryObj('`%1` `A`', $this->table)
+			->SetPage($page)
+			->SetConnName($this->connName)
+			->SetSort('A.sort1, A.sort2')
+			->SetPageUrl(App::URLAction('').App::GetFollowQuery('page'))
+			->SetArticleCount($viewArticle);
+		return $qry;
+	}
+
+	/**
+	 * @param int $viewArticle
+	 * @return BH_DB_GetList
+	 */
+	public function GetListQuery($viewArticle = 10){
+		$qry = DB::GetListQryObj('`%1` `A`', $this->table)
+			->SetConnName($this->connName)
+			->SetSort('A.sort1, A.sort2')
+			->SetLimit($viewArticle);
 		return $qry;
 	}
 }

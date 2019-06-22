@@ -354,14 +354,10 @@ class Board{
 		if(($s_page < 2) && !strlen($s_keyword)) App::$data['notice'] = $this->_GetNotice()->data;
 
 		// 리스트를 불러온다.
-		$dbList = DB::GetListPageQryObj($this->model->table . ' A')->SetConnName($this->connName);
+		$dbList = $this->model->GetPageListQuery($s_page, $this->boardManger->GetValue('article_count'));
 
 		if($this->boardManger->_list_show_notice->Txt() == 'n' && ($s_page < 2) && !strlen($s_keyword)) $dbList->AddWhere('A.notice=\'n\'');
 
-		$dbList->SetSort('A.sort1, A.sort2')
-			->SetPage($s_page)
-			->SetPageUrl(App::URLAction('').App::GetFollowQuery('page'))
-			->SetArticleCount($this->boardManger->GetValue('article_count'));
 		$this->_R_CommonQry($dbList);
 
 		if(!$this->adminPathIs){
@@ -375,7 +371,7 @@ class Board{
 		$dbList->DrawRows();
 		$this->_RowSet($dbList->data);
 
-		if(App::$action !== 'Index') $this->_SetFilePath($this->getListIs ? 'GetList' : ($this->moreListIs ? 'MoreList' : 'MoreList'));
+		if(App::$action !== 'Index') $this->_SetFilePath($this->getListIs ? 'GetList' : ($this->moreListIs ? 'MoreList' : 'Index'));
 
 		if($viewPageIs) return App::GetOnlyView($this->model, $dbList);
 		else if(_JSONIS === true) JSON(true, '', App::GetView($this->model, $dbList));
@@ -399,12 +395,10 @@ class Board{
 		if(!strlen($s_seq) && !strlen($s_last_seq) && !strlen($s_keyword)) App::$data['notice'] = $this->_GetNotice()->data;
 
 		// 리스트를 불러온다.
-		$dbList = DB::GetListQryObj($this->model->table. ' A')->SetConnName($this->connName);
+		$dbList = $this->model->GetListQuery($this->boardManger->GetValue('article_count'));
 
 		if($this->boardManger->_list_show_notice->Txt() == 'n' && !strlen($s_keyword)) $dbList->AddWhere('A.notice=\'n\'');
 
-		$dbList->SetLimit($this->boardManger->GetValue('article_count'))
-			->SetSort('A.sort1, A.sort2');
 		$this->_R_CommonQry($dbList);
 
 		if(!$this->adminPathIs){
@@ -861,16 +855,18 @@ class Board{
 				$this->Write();
 				return;
 			}
-			$this->model->SetValue('first_seq', $first_seq);
-			$this->model->SetValue('first_member_is', $first_member_is);
-			$this->model->SetValue('target_mname', App::$data['targetData']['mname']);
-			$this->model->SetValue('category', App::$data['targetData']['category']);
-			$this->model->SetValue('sub_category', App::$data['targetData']['sub_category']);
-			$this->model->SetValue('subid', App::$data['targetData']['subid']);
-			$this->model->SetValue('target_muid', App::$data['targetData']['muid'] ? App::$data['targetData']['muid'] : 0);
-			$this->model->SetValue('sort1', App::$data['targetData']['sort1']);
-			$this->model->SetValue('sort2', App::$data['targetData']['sort2'] + 1);
-			$this->model->SetValue('depth', App::$data['targetData']['depth'] + 1);
+			$this->model->SetValue(array(
+				'first_seq' => $first_seq,
+				'first_member_is' => $first_member_is,
+				'target_mname' => App::$data['targetData']['mname'],
+				'category' => App::$data['targetData']['category'],
+				'sub_category' => App::$data['targetData']['sub_category'],
+				'subid' => App::$data['targetData']['subid'],
+				'target_muid' => App::$data['targetData']['muid'] ? App::$data['targetData']['muid'] : 0,
+				'sort1' => App::$data['targetData']['sort1'],
+				'sort2' => App::$data['targetData']['sort2'] + 1,
+				'depth' => App::$data['targetData']['depth'] + 1,
+			));
 		}else{
 			$this->model->SetValue('first_member_is', _MEMBERIS === true ? 'y' : 'n');
 			$this->model->SetQueryValue('sort1', '(SELECT IF(COUNT(s.sort1) = 0, 0, MIN(s.sort1))-1 FROM '.$this->model->table.' as s)');
