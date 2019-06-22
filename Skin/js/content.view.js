@@ -71,7 +71,7 @@ var ContentView = {
 			else if(data == 'oppose') msg = window._CVIEW_LANG.oppose;
 			else if(data == 'scrap') CMAlert(window._CVIEW_LANG.alreadyScratched);
 
-			if(msg !== '') CMAlert(window._CVIEW_LANG.actionFailed.replace('/\{t1\}/g', msg).replace('{t2}', msg2));
+			if(msg !== '') CMAlert(window._CVIEW_LANG.actionFailed.replace(/\{t1\}/g, msg).replace(/\{t2\}/g, msg2));
 		});
 	},
 

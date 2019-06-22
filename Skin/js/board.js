@@ -331,7 +331,7 @@ var AppBoard = {
 				else if(data == 'report' || data == 'rp_report') msg = window._BOARD_LANG.report;
 				else if(data == 'scrap') CMAlert(window._BOARD_LANG.alreadyScratched);
 
-				if(msg !== '') CMAlert(window._BOARD_LANG.actionFailed.replace('/\{t1\}/g', msg).replace('{t2}', msg2));
+				if(msg !== '') CMAlert(window._BOARD_LANG.actionFailed.replace(/\{t1\}/g, msg).replace(/\{t2\}/g, msg2));
 			});
 		},
 

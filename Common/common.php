@@ -885,27 +885,35 @@ function StrToSql($args){
 }
 
 function SqlPassword($input){
-	$pass = strtoupper(sha1(sha1($input, true)));
-	return $pass;
+	return '*' . strtoupper(sha1(sha1($input, true)));
+}
+
+function SqlOldPassword($password) {
+	$nr=0x50305735;
+	$nr2=0x12345671;
+	$add=7;
+	$charArr = preg_split("//", $password);
+	foreach ($charArr as $char) {
+		if (($char == '') || ($char == ' ') || ($char == '\t')) continue;
+		$charVal = ord($char);
+		$nr ^= ((($nr & 63) + $add) * $charVal) + ($nr << 8);
+		$nr2 += ($nr2 << 8) ^ $nr;
+		$add += $charVal;
+	}
+	return sprintf("%08x%08x", ($nr & 0x7fffffff), ($nr2 & 0x7fffffff));
 }
 
 function _password_hash($str){
-	if(_USE_OLD_PASSWORD === true) return '*' . SqlPassword($str);
-	if(_USE_DB_PASSWORD === true){
-		$qry = DB::SQL()->Fetch('SELECT PASSWORD(%s) as txt', $str);
-		return $qry['txt'];
-	}
+	if(_USE_DB_PASSWORD === true) return SqlPassword($str);
+	if(_USE_OLD_PASSWORD === true) SqlOldPassword($str);
 	if(phpversion() < '5.3.7') return hash('sha256', hash('sha512', sha1(sha1($str, true))));
 	else if(phpversion() < '5.5') require_once _COMMONDIR . '/password.php';
 	return password_hash(hash('sha256', $str), PASSWORD_BCRYPT);
 }
 
 function _password_verify($str, $hash){
-	if(_USE_OLD_PASSWORD === true) return '*' . SqlPassword($str) === $hash;
-	if(_USE_DB_PASSWORD === true){
-		$qry = DB::SQL()->Fetch('SELECT PASSWORD(%s) as txt', $str);
-		return $qry['txt'] === $hash;
-	}
+	if(_USE_DB_PASSWORD === true) return SqlPassword($str) === $hash;
+	if(_USE_OLD_PASSWORD === true) return SqlOldPassword($str) === $hash;
 	if(phpversion() < '5.3.7') return $hash === hash('sha256', hash('sha512', sha1(sha1($str, true))));
 	else if(phpversion() < '5.5') require_once _COMMONDIR . '/password.php';
 	if(password_verify(hash('sha256', $str), $hash)) return true;

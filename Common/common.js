@@ -1746,9 +1746,9 @@ $(document).on('click','.se2_add_link button',function(e){
 	var sname = $(this).attr('data-sname');
 	if($('#urlLinkModal').length) return;
 	var html = '<article id="urlLinkModal" class="modal_layer" data-sname="' + sname + '"><div class="modal_wrap">' +
-		'<header class="modal_header"><h1>' . window._CM_LANG.appendLink + '</h1><button type="button" class="close"><i class="cross"></i></button></header><div class="modal_contents">' +
-		'<dl><dt>' . window._CM_LANG.linkUrl + '</dt><dd><input type="text" id="urlLinkInp" class="w100p"></dd></dl>' +
-		'<footer><button type="button" id="urlLinkSubmitBtn" class="mBtn btn2">' . window._CM_LANG.append + '</button></footer>' +
+		'<header class="modal_header"><h1>' + window._CM_LANG.appendLink + '</h1><button type="button" class="close"><i class="cross"></i></button></header><div class="modal_contents">' +
+		'<dl><dt>' + window._CM_LANG.linkUrl + '</dt><dd><input type="text" id="urlLinkInp" class="w100p"></dd></dl>' +
+		'<footer><button type="button" id="urlLinkSubmitBtn" class="mBtn btn2">' + window._CM_LANG.append + '</button></footer>' +
 		'</div></div></article>';
 	$('body').append(html);
 	JCM.showModal('urlLinkModal');

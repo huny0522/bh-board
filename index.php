@@ -59,8 +59,8 @@ if(PHP_RUN_CLI === true){
 	define('_DEVELOPERIS', true);
 }
 else{
-	define('_IS_DEVELOPER_IP', in_array($_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP));
-	define('_DEVELOPERIS', true && in_array($_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP) && isset($_SESSION['developer_login']) && $_SESSION['developer_login'] === 'y');
+	define('_IS_DEVELOPER_IP', true && in_array($_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP));
+	define('_DEVELOPERIS', true && _IS_DEVELOPER_IP && isset($_SESSION['developer_login']) && $_SESSION['developer_login'] === 'y');
 }
 define('_CREATE_HTML_ALL', false && _DEVELOPERIS === true);
 define('_REFRESH_HTML_ALL', true && _DEVELOPERIS === true);
@@ -72,7 +72,6 @@ define('_USE_OLD_PASSWORD', false);
 define('_SHOW_CREATE_GUIDE', true);
 define('_USE_BC_TO', true);
 
-define('_STYLEFILE', '_bhinline.bhcss.php');
 define('_FILE_PUT_GUIDE', true);
 
 define('_MAX_IMAGE_WIDTH', '1024');

@@ -31,6 +31,9 @@ use \BH_Application as App;
  * @property BH_ModelData $_scrap
  * @property BH_ModelData $_oppose
  * @property BH_ModelData $_reply_cnt
+ * @property BH_ModelData $_reply_top_recommend
+ * @property BH_ModelData $_reply_top_oppose
+ * @property BH_ModelData $_reply_top_report
  * @property BH_ModelData $_delis
  * @property BH_ModelData $_htmlis
  * @property BH_ModelData $_email_alarm
@@ -50,9 +53,6 @@ use \BH_Application as App;
  * @property BH_ModelData $_youtube
  * @property BH_ModelData $_link1
  * @property BH_ModelData $_link2
- * @property BH_ModelData $_reply_top_recommend
- * @property BH_ModelData $_reply_top_oppose
- * @property BH_ModelData $_reply_top_report
  */
 
 class BoardModel extends \BH_Model
