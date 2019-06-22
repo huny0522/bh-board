@@ -53,6 +53,7 @@ var AppReply = {
 		JCM.ajaxForm(this, function(data){
 			var btns = '<a href="#" class="answerBtn">' + window._REPLY_LANG.answer + '</a><a href="#" class="modifyBtn">' + window._REPLY_LANG.modify + '</a><a href="#" class="deleteBtn">' + window._REPLY_LANG.del + '</a>';
 			$('#repArticle'+seq).attr(data.file_name);
+			$('#repArticle'+seq+' .comment').prepend(data.file_html);
 			$('#repArticle'+seq+' .commentText').html(data.comment);
 			$('#repArticle'+seq+' .btns').html(btns);
 			$('#replyPwdLayer form')[0].reset();

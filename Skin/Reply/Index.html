@@ -49,7 +49,7 @@ use \BH_Application as App;
 		<?php
 		foreach($Data->data as $row){
 			$md = new ReplyModel();
-			$md->SetDBValues($row);
+			$md->SetArrayToData($row);
 			$newCommentBtnIs = $row['secretIs'] && $row['first_member_is'] != 'y' && _MEMBERIS !== true;
 			$repIcon = $row['depth'] ? '<span class="answerDoc">[답변글]</span> ' : '';
 			?>
@@ -72,28 +72,7 @@ use \BH_Application as App;
 				</header>
 				<div class="comment">
 					<?php
-					if($row['delis'] == 'n'){
-						if($row['file']){
-							$fn = $md->GetFileName('file');
-							$fp = $md->GetFilePath('file');
-							$d = explode('.', $Ctrl->model->GetFileNameByValue($row['file']));
-							$ext = strtolower(end($d));
-							if(in_array($ext, array('jpeg', 'jpg', 'gif', 'png'))){
-								?>
-								<div class="repAttach repAttachImg">
-									<span><a href="<?p. \Paths::Url() . '/Board/' . App::$tid . '/RepAttachDownload/' . toBase($row['seq']) ?>" alt=""><img src="<?p. ResizeImage($fp, 300) ?>" alt=""></a></span>
-								</div>
-								<?php
-							}
-							else{
-								?>
-								<div class="repAttach repAttachFile">
-									<span><a href="<?p. Paths::UrlOfUpload() ?><?v. $fp ?>" alt=""><?v. $fn ?></span>
-								</div>
-								<?php
-							}
-						}
-					}
+					if($row['delis'] == 'n' && $row['secret'] !== 'y') echo $Ctrl->_FileHtml($row['file'], $row['seq']);
 					?>
 					<p>
 						<?p. $repIcon ?>

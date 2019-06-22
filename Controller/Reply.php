@@ -378,7 +378,7 @@ class Reply{
 			if(!$same) JSON(false, App::$lang['MSG_WRONG_PASSWORD']);
 		}
 
-		JSON(true, '', array('comment' => nl2br(GetDBText($this->model->GetValue('comment'))), 'file_name' => $this->model->GetFileName('file')));
+		JSON(true, '', array('comment' => nl2br(GetDBText($this->model->GetValue('comment'))), 'file_html' => $this->_FileHtml($this->model->_file->value, $this->model->_seq->Val()), 'file_name' => $this->model->GetFileName('file')));
 	}
 
 	public function PostModify(){
@@ -580,5 +580,26 @@ class Reply{
 
 			$rows[$k]['reportButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  $v['seq'] . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . $v['seq'] . '" data-type="report" class="replyActionBtn replyReportActionBtn' .(isset($replyActionData[$v['seq']]['rp_report']) ? ' already' : ''). '"><b>' . App::$lang['REPORT'] . '</b> <span class="num">' . ($v['report']) . '</span></a>';
 		}
+	}
+
+	public function _FileHtml($fileData, $seq){
+		$html = '';
+		if($fileData){
+			$fn = $this->model->GetFileNameByValue($fileData);
+			$fp = $this->model->GetFilePathByValue($fileData);
+			$d = explode('.', $this->model->GetFileNameByValue($fileData));
+			$ext = strtolower(end($d));
+			if(in_array($ext, array('jpeg', 'jpg', 'gif', 'png'))){
+				$html = '<div class="repAttach repAttachImg">
+						<span><a href="' . \Paths::Url() . '/Board/' . App::$tid . '/RepAttachDownload/' . toBase($seq) .'" alt=""><img src="'. ResizeImage($fp, 300) .'" alt=""></a></span>
+					</div>';
+			}
+			else{
+				$html = '<div class="repAttach repAttachFile">
+					<span><a href="'. \Paths::UrlOfUpload() . GetDBText($fp) .'" alt="">'. GetDBText($fn) .'</span>
+				</div>';
+			}
+		}
+		return $html;
 	}
 }
