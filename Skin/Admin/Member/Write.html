@@ -12,7 +12,7 @@ use \BH_Application as App;
 <?php if(isset(App::$data['error']) && strlen(App::$data['error'])){ ?><p class="alert"><?v. App::$data['error'] ?></p><?php } ?>
 <form name="MemberWriteForm" id="MemberWriteForm" method="post" action="<?a. App::$action ?><?fq. '' ?>">
 	<?php if(App::$action == 'Modify'){ ?>
-		<input type="hidden" name="muid" value="<?p. $Ctrl->model->GetValue('muid') ?>">
+		<input type="hidden" name="muid" value="<?p. $Model->GetValue('muid') ?>">
 	<?php } ?>
 
 	<table class="write">
@@ -36,6 +36,15 @@ use \BH_Application as App;
 				<?minp('pwd') ?>
 				<ul class="guide">
 					<li>8자 이상, 16자 이하로 입력하여주세요.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<th><?php if(App::$action == 'Write'){ ?><i class="requiredBullet" title="필수항목">*</i><?php } ?> 패스워드 확인</th>
+			<td>
+				<input type="password" name="pwdchk" data-same="pwd">
+				<ul class="guide">
+					<li>비밀번호 확인을 위해 한번 더 입력하여 주세요.</li>
 				</ul>
 			</td>
 		</tr>
