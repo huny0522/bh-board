@@ -1344,7 +1344,7 @@ var _SelectBox = new SelectBox(jQuery);
 					}
 
 					if($(this).hasClass('tel')){
-						var val = this.value.replace(/[^0-9\-\*\#]/gi,'');
+						var val = this.value.replace(/[^0-9\-\+\(\)\*\#]/gi,'');
 						if(val !== this.value){
 							var obj = this;
 							CMAlert(window._CM_LANG.wrongType.replace('{item}', $(this).attr('data-displayname')), function(){
@@ -1943,7 +1943,7 @@ $(document).on('keyup', 'input.engnumonly', function() {
 });
 
 $(document).on('keyup', 'input.tel', function() {
-	var val = this.value.replace(/[^0-9\-\*\#]/gi,'');
+	var val = this.value.replace(/[^0-9\-\+\(\)\*\#]/gi,'');
 	if(this.value !== val) this.value = val;
 });
 

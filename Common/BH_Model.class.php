@@ -1076,7 +1076,7 @@ class _ModelFunc{
 				}
 			break;
 			case HTMLType::TEL:
-				$val = preg_replace('/[^0-9\-\*\#]/','',$data->value);
+				$val = preg_replace('/[^0-9\-\+\(\)\*\#]/','',$data->value);
 				if($val != $data->value){
 					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_VALUE_WRONG_TYPE']);
 					return false;
@@ -1359,7 +1359,7 @@ class _ModelFunc{
 				if(isset($v->value)){
 					if(in_array($k, $model->key) && $v->autoDecrement === true) continue;
 
-					if(!$v->valueIsQuery && $v->htmlType == HTMLType::TEL) $v->value = preg_replace('/[^0-9\-\*\#]/','',$v->value);
+					if(!$v->valueIsQuery && $v->htmlType == HTMLType::TEL) $v->value = preg_replace('/[^0-9\-\+\(\)\*\#]/','',$v->value);
 
 					if($v->valueIsQuery) $dbInsert->data[$k] = $v->value;
 					else if($v->type == ModelType::INT){
@@ -1421,7 +1421,7 @@ class _ModelFunc{
 				if(isset($v->value)){
 					if(in_array($k, $model->key) && $v->autoDecrement === true) continue;
 
-					if(!$v->valueIsQuery && $v->htmlType == HTMLType::TEL) $v->value = preg_replace('/[^0-9\-\*\#]/','',$v->value);
+					if(!$v->valueIsQuery && $v->htmlType == HTMLType::TEL) $v->value = preg_replace('/[^0-9\-\+\(\)\*\#]/','',$v->value);
 
 					if($v->valueIsQuery) $dbUpdate->SetData($k, $v->value);
 					else if($v->type == ModelType::INT){

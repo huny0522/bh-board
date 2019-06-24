@@ -1,0 +1,16 @@
+/.idea
+/.vscode
+db.info.php
+/Data
+/.phpintel
+/nbproject
+/문서
+jsconfig.json
+*Test*.*
+*test*.*
+*Test*
+*test*
+composer.lock
+/vendor
+/favicon.ico
+*.dont.delete.it.php
