@@ -245,7 +245,7 @@ var AppBoard = {
 		var sub_category = (typeof(t) !== 'undefined' && t.length) ? JSON.parse(t) : null;
 		console.log(sub_category);
 		if(sub_category !== null){
-			var html = '<select name="sub_category" id="c_a_sub_category" required data-btn-id="' + $(this).attr('id') + '">';
+			var html = '';
 			for(var x = 0; x < sub_category.length; x++){
 				if(sub_category[x].category === $('#c_a_category').val()){
 					for(var i = 0; i < sub_category[x].sub_category.length; i++){
@@ -253,8 +253,7 @@ var AppBoard = {
 					}
 				}
 			};
-			html += '</select>';
-			$('#c_a_category').after(html);
+			if(html !== '') $('#c_a_category').after('<select name="sub_category" id="c_a_sub_category" required data-btn-id="' + $(this).attr('id') + '">' + html + '</select>');
 		}
 	},
 
