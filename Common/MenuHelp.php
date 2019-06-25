@@ -397,16 +397,19 @@ class MenuHelp
 				return $this->routingSuccess;
 			}
 
+			$realController = trim($this->activeMenu['real_controller']);
+			$defaultAction = trim($this->activeMenu['default_action']);
 			if($this->activeMenu['type'] == 'board') App::$controllerName = 'Board';
 			else if($this->activeMenu['type'] == 'content') App::$controllerName = 'Contents';
-			else App::$controllerName = App::$settingData['GetUrl'][$start];
+			else App::$controllerName = strlen($realController) ? $realController :  App::$settingData['GetUrl'][$start];
 
 			App::$tid = $this->activeMenu['bid'];
 			App::$sub_tid = $this->activeMenu['subid'];
 			App::$settingData['additionalSubid'] = $this->activeMenu['addi_subid'];
 			if(strlen($this->activeMenu['board_category'])) App::$settingData['boardCategory'] = $this->activeMenu['board_category'];
 			if(strlen($this->activeMenu['board_sub_category'])) App::$settingData['boardSubCategory'] = $this->activeMenu['board_sub_category'];
-			App::$action = App::$settingData['GetUrl'][$start + 1];
+			$a = App::$settingData['GetUrl'][$start + 1];
+			App::$action = strlen($a) ? App::$settingData['GetUrl'][$start + 1] : $defaultAction;
 			App::$id = App::$settingData['GetUrl'][$start + 2];
 			App::$ctrlUrl = $url.'/'.App::$settingData['GetUrl'][$start];
 			$this->routingSuccess = true;

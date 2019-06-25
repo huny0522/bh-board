@@ -25,6 +25,9 @@ use \BH_Application as App;
  * @property BH_ModelData $_board_sub_category
  * @property BH_ModelData $_show_level
  * @property BH_ModelData $_con_level
+ * @property BH_ModelData $_title2
+ * @property BH_ModelData $_real_controller
+ * @property BH_ModelData $_default_action
  */
 class MenuModel extends \BH_Model
 {
@@ -80,6 +83,15 @@ class MenuModel extends \BH_Model
 		$this->data['con_level'] = new \BH_ModelData(ModelType::ENUM, '메뉴 접근 레벨', HTMLType::SELECT);
 		$this->data['con_level']->enumValues = App::$settingData['LevelArray'];
 		$this->data['con_level']->defaultValue = 0;
+
+		$this->data['title2'] = new \BH_ModelData(ModelType::STRING, 'title2');
+		$this->data['title2']->maxLength = '64';
+
+		$this->data['real_controller'] = new \BH_ModelData(ModelType::STRING, '실제 컨트롤러');
+		$this->data['real_controller']->maxLength = '32';
+
+		$this->data['default_action'] = new \BH_ModelData(ModelType::STRING, '기본 액션');
+		$this->data['default_action']->maxLength = '32';
 	} // __Init
 
 
