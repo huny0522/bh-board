@@ -18,6 +18,7 @@ class DB{
 	private static $conn = array();
 	private static $connName = '';
 	private static $connectionInfo = array();
+	private static $transactionCounter = array();
 
 	public static $bindNum = 0;
 
@@ -71,6 +72,22 @@ class DB{
 	public static function &PDO($connName = self::DefaultConnName){
 		self::SQL($connName);
 		return self::$conn[self::$connName];
+	}
+
+	public static function BeginTransaction($connName = null){
+		if(is_null($connName)) $connName = self::$connName;
+		if(!isset(self::$transactionCounter[$connName]) || !self::$transactionCounter[$connName]){
+			self::$transactionCounter[$connName] = 0;
+			self::$conn[$connName]->beginTransaction();
+		}
+		self::$transactionCounter[$connName]++;
+	}
+
+	public static function Commit($connName = null){
+		if(is_null($connName)) $connName = self::$connName;
+		if(!isset(self::$transactionCounter[$connName])) self::$transactionCounter[$connName] = 1;
+		self::$transactionCounter[$connName]--;
+		if(!self::$transactionCounter[$connName]) self::$conn[$connName]->commit();
 	}
 
 	/**
@@ -1079,7 +1096,7 @@ class BH_DB_Insert{
 		}
 
 		try{
-			DB::PDO($this->connName)->beginTransaction();
+			DB::BeginTransaction();
 
 			if($this->decrement) $keyRes = $this->GetKeySetting();
 			else $keyRes = array();
@@ -1099,11 +1116,11 @@ class BH_DB_Insert{
 			$res->result = $qry->execute();
 			if(!$res->result && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($qry->errorInfo());
 
-			if($res->result) DB::SQL($this->connName)->Query('UPDATE '.TABLE_FRAMEWORK_SETTING.' SET `data` = \''.($keyRes['data']).'\' WHERE `key_name` = \''.$keyRes['keyName'].'\'');
+			if($res->result && $this->decrement) DB::SQL($this->connName)->Query('UPDATE '.TABLE_FRAMEWORK_SETTING.' SET `data` = \''.($keyRes['data']).'\' WHERE `key_name` = \''.$keyRes['keyName'].'\'');
 
-			DB::PDO($this->connName)->commit();
+			DB::Commit();
 		}
-		catch(\Exception $e){
+		catch(\PDOException $e){
 			DB::PDO($this->connName)->rollBack();
 			PrintError($e->getMessage().'('.$e->getCode().')');
 		}
@@ -1134,7 +1151,7 @@ class BH_DB_Insert{
 		}
 
 		try{
-			DB::PDO($this->connName)->beginTransaction();
+			DB::BeginTransaction();
 
 			if($this->decrement) $keyRes = $this->GetKeySetting();
 			else $keyRes = array();
@@ -1162,9 +1179,9 @@ class BH_DB_Insert{
 			}
 			else if(_DEVELOPERIS === true && $this->showError && BH_Application::$showError) PrintError($qry->errorInfo());
 
-			DB::PDO($this->connName)->commit();
+			DB::Commit();
 		}
-		catch(\Exception $e){
+		catch(\PDOException $e){
 			DB::PDO($this->connName)->rollBack();
 			PrintError($e->getMessage().'('.$e->getCode().')');
 		}
