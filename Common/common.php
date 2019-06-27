@@ -30,6 +30,101 @@ class BH_InsertResult
 	public $message = '';
 }
 
+
+class ResultAction
+{
+	public $result = false;
+	public $message = '';
+	public $data = '';
+	public $url = '';
+	public $isJson = false;
+
+	/**
+	 * @param bool $result
+	 * @param string $message
+	 * @param string $data
+	 * @param string $url
+	 * @return ResultAction
+	 */
+	public static function GetInstance($result = false, $message = '', $data = '', $url = ''){
+		$static = new static();
+		$static->result = $result;
+		$static->message = $message;
+		$static->data = $data;
+		$static->url = (!$url && !$static->result) ? '-1' : $url;
+		return $static;
+	}
+
+	/**
+	 * @param $result
+	 * @return ResultAction
+	 */
+	public function SetResult($result){
+		$this->result = $result;
+		return $this;
+	}
+
+	/**
+	 * @param mixed $data
+	 * @return ResultAction
+	 */
+	public function SetData($data){
+		$this->data = $data;
+		return $this;
+	}
+
+	/**
+	 * @param string $url
+	 * @return ResultAction
+	 */
+	public function SetUrl($url = '-1'){
+		$this->url = $url;
+		return $this;
+	}
+
+	/**
+	 * @param string $message
+	 * @return ResultAction
+	 */
+	public function SetMessage($message){
+		$this->message = $message;
+		return $this;
+	}
+
+	/**
+	 * @param bool $bool
+	 * @return ResultAction
+	 */
+	public function IsJson($bool = false){
+		$this->isJson = $bool;
+		return $this;
+	}
+
+	/**
+	 * @param string $data
+	 * @param string $url
+	 */
+	public function SetTrueAndAction($data = '', $url = ''){
+		$this->data = $data;
+		$this->url = $url;
+		$this->result = true;
+		$this->Action();
+	}
+
+	/**
+	 * @param string $message
+	 */
+	public function SetMsgAndAction($message){
+		$this->message = $message;
+		$this->Action();
+	}
+
+	public function Action(){
+		if($this->isJson) JSON($this->result, $this->message, $this->data);
+		else URLRedirect($this->url, $this->message);
+	}
+}
+
 class Paths{
 	private static $dir = _DIR;
 
