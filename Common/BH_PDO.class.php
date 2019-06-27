@@ -1050,20 +1050,35 @@ class BH_DB_Insert{
 	}
 
 	/**
-	 * @param string $str
+	 * @param string $key
+	 * @param array $otherKeys
 	 * @return $this
 	 */
-	public function &AddWhere($str){
-		$w = $this->StrToPDO(func_get_args());
-		if($w !== false) $this->where[] = '('.$w.')';
+	public function SetDataDecrement($key, $otherKeys){
+		$this->SetDataIncrement($key, $otherKeys, true);
 		return $this;
 	}
 
 	/**
+	 * @param string $key
+	 * @param array $otherKeys
+	 * @param bool $isDecrement
 	 * @return $this
 	 */
-	public function &UnsetWhere(){
-		unset($this->where);
+	public function SetDataIncrement($key, $otherKeys, $isDecrement = false){
+		$decWhere = array();
+		foreach($otherKeys as $k => $v){
+			if($k === $this->decrement) unset($otherKeys[$k]);
+			else{
+				$decWhere[] = $this->StrToPDO('`BHTMP`.`%1` = %s', $k, $v);
+				$this->SetDataStr($k, $v);
+			}
+		}
+
+		if(!sizeof($decWhere) && _DEVELOPERIS === true && $this->showError && BH_Application::$showError) PrintError('Set Increment(Decrement) - No Multi Key');
+
+		$keySql = $this->StrToPDO('IF(COUNT(*) > 0, %1(`BHTMP`.`%1`), %1) + %1', ($isDecrement ? 'MIN' : 'MAX'), $key, ($isDecrement ? _DBMAXINT : 0), ($isDecrement ? '(-' . (sizeof($this->MultiValues) + 1). ')' : sizeof($this->MultiValues) + 1));
+		$this->data[$key] = $this->StrToPDO('(SELECT %1 FROM `%1` `BHTMP` %1)', $keySql, $this->table, sizeof($decWhere) ? ' WHERE ' . implode(' AND ', $decWhere) : '');
 		return $this;
 	}
 

@@ -1095,11 +1095,9 @@ class Board{
 					// 여기 수정
 					$dbInsert = DB::InsertQryObj($this->model->imageTable)
 						->SetConnName($this->connName)
-						->SetDataNum('article_seq', $seq)
 						->SetDataStr('image', $newpath)
 						->SetDataStr('imagename', $exp[1])
-						->SetDecrementKey('seq')
-						->AddWhere('article_seq = %d', $seq);
+						->SetDataDecrement('seq', array('article_seq' => $seq));
 					$this->_R_CommonQry($dbInsert, 'ImageInsert');
 					$dbInsert->Run();
 					$imageCount++;

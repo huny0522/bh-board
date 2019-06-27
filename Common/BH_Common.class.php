@@ -189,13 +189,9 @@ class BH_Common
 
 					unset($dbInsert);
 					$dbInsert = new \BH_DB_Insert(TABLE_IMAGES);
-					$dbInsert->SetDataStr('tid', $tid);
-					$dbInsert->SetDataStr('article_seq', $dbKeyValue);
 					$dbInsert->SetDataStr('image', $newpath);
 					$dbInsert->SetDataStr('imagename', $exp[1]);
-					$dbInsert->decrement = 'seq';
-					$dbInsert->AddWhere('tid = %s', $tid);
-					$dbInsert->AddWhere('article_seq = %s', $dbKeyValue);
+					$dbInsert->SetDataDecrement('seq', array('tid' => $tid, 'article_seq' => $dbKeyValue));
 					//$params['test'] = true;
 					$dbInsert->Run();
 					$imageCount++;
