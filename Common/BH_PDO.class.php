@@ -267,63 +267,68 @@ class DB{
 
 		if($n == 1) return array($args[0], $bindParam);
 		else{
-			$p = -1;
-			$w = $args[0];
-			for($i = 1; $i < $n; $i++){
-				$p = strpos($w, '%', $p+1);
-				$find = false;
-				while(!$find && $p !== false && $p < strlen($w)){
-					$t = $w[$p+1];
-					if($t === 's'){
-						if(is_array($args[$i])){
-							$bindNames = array();
-							foreach($args[$i] as $row){
-								$bindParam[self::BIND_NAME.self::$bindNum.'X'] = array($row, \PDO::PARAM_STR);
-								$bindNames[] = self::BIND_NAME.self::$bindNum.'X';
-								self::$bindNum++;
-							}
-							$t = implode(',', $bindNames);
-						}else{
-							$t = self::BIND_NAME.self::$bindNum.'X';
-							$bindParam[self::BIND_NAME.self::$bindNum.'X'] = array($args[$i], \PDO::PARAM_STR);
+			$prn = 1;
+			$ex = explode('%', $args[0]);
+			$m = sizeof($ex);
+			if($m < 2) return array($args[0], $bindParam);
+
+			$str = array($ex[0]);
+
+			for($i = 1; $i < $m; $i++){
+				if(!strlen($ex[$i])){
+					$str[] = '%';
+					continue;
+				}
+				$ns = $ex[$i][0];
+
+				if($ns === 's'){
+					if(is_array($args[$prn])){
+						$bindNames = array();
+						foreach($args[$prn] as $row){
+							$bindNames[] = $k = self::BIND_NAME.self::$bindNum.'X';
+							$bindParam[$k] = array($row, \PDO::PARAM_STR);
 							self::$bindNum++;
 						}
-						$w = substr_replace($w, $t, $p, 2);
-						$p += strlen($t);
-						$find = true;
-					}
-					else if($t === 'f'){
-						$res = ValidateFloat($args[$i]);
-						if(!$res->result) $validateOk = $res;
-						$t = is_array($args[$i]) ? implode(',', $args[$i]) : $args[$i];
-						$w = substr_replace($w, $t, $p, 2);
-						$p += strlen($t);
-						$find = true;
-					}
-					else if($t === 'd'){
-						$res = ValidateInt($args[$i]);
-						if(!$res->result) $validateOk = $res;
-						$t = is_array($args[$i]) ? implode(',', $args[$i]) : $args[$i];
-						$w = substr_replace($w, $t, $p, 2);
-						$p += strlen($t);
-						$find = true;
-					}
-					else if($t === '1'){
-						$t = is_array($args[$i]) ? implode(',', $args[$i]) : $args[$i];
-						$w = substr_replace($w, $t, $p, 2);
-						$p += strlen($t);
-						$find = true;
+						$str[] = implode(',', $bindNames);
 					}
 					else{
-						$p = strpos($w, '%', $p+1);
+						$str[] = $t = self::BIND_NAME.self::$bindNum.'X';
+						$bindParam[$t] = array($args[$prn], \PDO::PARAM_STR);
+						self::$bindNum++;
 					}
+					$str[] = substr($ex[$i], 1);
+					$prn++;
+				}
+				else if($ns === 'f'){
+					$res = ValidateFloat($args[$prn]);
+					if(!$res->result) $validateOk = $res;
+					$str[] = is_array($args[$prn]) ? implode(',', $args[$prn]) : $args[$prn];
+					$str[] = substr($ex[$i], 1);
+					$prn++;
+				}
+				else if($ns === 'd'){
+					$res = ValidateInt($args[$prn]);
+					if(!$res->result) $validateOk = $res;
+					$str[] = is_array($args[$prn]) ? implode(',', $args[$prn]) : $args[$prn];
+					$str[] = substr($ex[$i], 1);
+					$prn++;
+				}
+				else if($ns === '1'){
+					$str[] = is_array($args[$prn]) ? implode(',', $args[$prn]) : $args[$prn];
+					$str[] = substr($ex[$i], 1);
+					$prn++;
+				}
+				else{
+					$str[] = '%';
+					$str[] = $ex[$i];
 				}
 			}
-			$w = str_replace(array('%\s', '%\f', '%\d', '%\1', '%\t'), array('%s', '%f', '%d', '%1', '%t'), $w);
-			if($validateOk->result) return array($w, $bindParam);
-			else URLReplace(-1, $validateOk->message.(_DEVELOPERIS === true ? '['.$w.']' : ''));
+
+			$sql = str_replace(array('%\s', '%\f', '%\d', '%\1'), array('%s', '%f', '%d', '%1'), implode($str));
+			if($validateOk->result) return array($sql, $bindParam);
+			else URLReplace(-1, $validateOk->message.(_DEVELOPERIS === true ? '['.$args[0].']' : ''));
+
 		}
-		return false;
 	}
 }
 

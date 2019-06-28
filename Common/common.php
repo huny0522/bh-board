@@ -651,12 +651,12 @@ function DeleteOldTempFiles($tempfile_path, $time){
 
 function ToInt($s){
 	if(!$s) return 0;
-	return (substr($s, 0, 1) == '-' ? substr($s, 0, 1) : '') . preg_replace('/[^0-9]/', '', $s);
+	return ($s[0] == '-' ? $s[0] : '') . preg_replace('/[^0-9]/', '', $s);
 }
 
 function ToFloat($s){
 	if(!$s) return 0;
-	return (substr($s, 0, 1) == '-' ? substr($s, 0, 1) : '') . preg_replace('/[^0-9\.]/', '', $s);
+	return ($s[0] == '-' ? $s[0] : '') . preg_replace('/[^0-9\.]/', '', $s);
 }
 
 function RemoveScriptTag($str){
