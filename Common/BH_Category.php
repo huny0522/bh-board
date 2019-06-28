@@ -48,7 +48,7 @@ class BH_Category{
 			$res = $this->model->DBUpdate();
 			if($res->result) $this->_MenuChangeAfter();
 			$dt = $this->model->GetParent($this->model->GetValue('category'));
-			$this->model->SetChildEnabled($_POST['category'], $_POST['enabled'] == 'y' && (!$dt || ($dt['enabled'] == 'y' && $dt['parent_enabled'] == 'y')) ? 'y' : 'n');
+			$this->model->SetChildEnabled(Post('category'), Post('enabled') == 'y' && (!$dt || ($dt['enabled'] == 'y' && $dt['parent_enabled'] == 'y')) ? 'y' : 'n');
 			JSON($res->result, $res->message);
 		}
 
@@ -106,7 +106,7 @@ class BH_Category{
 	}
 
 	public function PostGetChild(){
-		$res = $this->model->GetChild($_POST['parent']);
+		$res = $this->model->GetChild(Post('parent'));
 		JSON(true, '', GetDBText($res));
 	}
 
@@ -114,7 +114,7 @@ class BH_Category{
 		if(in_array(Post('category'), $this->lockId)) JSON(true);
 		$this->ModelDBGet();
 		$this->model->need = array('title');
-		if(isset($_POST['title'])) $_POST['title'] = preg_replace('/\|/is', '', $_POST['title']);
+		if(!EmptyPost('title')) $_POST['title'] = preg_replace('/\|/is', '', Post('title'));
 		$res = $this->model->SetPostValues();
 		if(!$res->result){
 			JSON(false, $res->message);
@@ -127,9 +127,9 @@ class BH_Category{
 	public function PostModifySort(){
 		$data = $this->ModelDBGet();
 		if($data->result){
-			$sort = SetDBInt($_POST['sort']);
-			$parentWhere = StrToSql('LEFT(category,%d) = %s', strlen($_POST['parent']), $_POST['parent']);
-			$parentWhere .= StrToSql(' AND LENGTH(category) = %d', strlen($_POST['parent']) + $this->model->CategoryLength);
+			$sort = SetDBInt(Post('sort'));
+			$parentWhere = StrToSql('LEFT(category,%d) = %s', strlen(Post('parent')), Post('parent'));
+			$parentWhere .= StrToSql(' AND LENGTH(category) = %d', strlen(Post('parent')) + $this->model->CategoryLength);
 
 			$res = false;
 			if($sort < $this->model->GetValue('sort')){
@@ -154,7 +154,7 @@ class BH_Category{
 			if($res){
 				$qry = $this->SqlUpdateQry();
 				$qry->SetDataNum('sort', $sort);
-				$qry->AddWhere('category = %s', $_POST['category']);
+				$qry->AddWhere('category = %s', Post('category'));
 				$qry->AddWhere($parentWhere);
 				$result = $qry->Run();
 				$res = $result->result;
@@ -170,14 +170,14 @@ class BH_Category{
 		if(in_array(Post('category'), $this->lockId)) JSON(true);
 		$dbGet = $this->SqlGetQry();
 		$dbGet->SetKey('category', 'sort');
-		$dbGet->AddWhere('category = %s', $_POST['category']);
+		$dbGet->AddWhere('category = %s', Post('category'));
 		$data = $dbGet->Get();
 
 		$parent = substr($data['category'], 0, strlen($data['category']) - $this->model->CategoryLength);
 
 		if($data !== false && $data){
 			$qry = $this->SqlDeleteQry();
-			$qry->AddWhere('LEFT(category, %d) = %s', strlen($_POST['category']), $_POST['category']);
+			$qry->AddWhere('LEFT(category, %d) = %s', strlen(Post('category')), Post('category'));
 			$res = $qry->Run();
 			if($res){
 				$qry = $this->SqlUpdateQry();
