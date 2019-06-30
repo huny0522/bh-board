@@ -295,6 +295,14 @@ class BH_ModelData
 	public function HTMLPrintInput($htmlAttribute = array()){
 		return _ModelFunc::HTMLPrintInput($this->GetKeyName(), $this, $htmlAttribute, $this->idFirst);
 	}
+
+	public function GetFileName($n = 0){
+		return _ModelFunc::GetFilePath($this, 1, $n);
+	}
+
+	public function GetFilePath($n = 0){
+		return _ModelFunc::GetFilePath($this, 0, $n);
+	}
 }
 
 /**
@@ -317,7 +325,6 @@ class BH_Model{
 	protected $connName = '';
 	private $dataExcept = array();
 	public $isBHModel = true;
-	public $naming = '';
 
 	public function __construct($connName = ''){
 		$this->data = new BH_ModelDataArray();
@@ -336,15 +343,6 @@ class BH_Model{
 	public static function GetInstance($connName = ''){
 		$static = new static($connName);
 		return $static;
-	}
-
-	/**
-	 * @param string $str
-	 * @return static
-	 */
-	public function SetNaming($str){
-		$this->naming = $str;
-		return $this;
 	}
 
 	public function SetShowError($bool = true){
@@ -755,11 +753,28 @@ class BH_Model{
 		return _ModelFunc::DBDelete($this, $keyData, true);
 	}
 
-	public function Fetch($qry){
+	public function Fetch($qry, $func = null){
 		$row = $qry->Get();
 		if(!$row) return false;
 		$this->SetArrayToData($row);
+
+		if(is_callable($func)) $func($row);
+
 		return true;
+	}
+
+	/**
+	 * @param int $page
+	 * @param string $naming
+	 * @param string $pageUrlQueryName
+	 * @return BH_DB_GetListWithPage
+	 */
+	public function GetPageListQry($page, $naming = '', $pageUrlQueryName = 'page'){
+		if($naming) $naming = '`' . $naming . '`';
+		$qry = DB::GetListPageQryObj('`%1` %1', $this->table, $naming)
+			->SetPage($page)
+			->SetPageUrl(BH_Application::URLAction(BH_Application::$action === 'Index' ? '' : BH_Application::$action) . BH_Application::GetFollowQuery($pageUrlQueryName));
+		return $qry;
 	}
 }
 
