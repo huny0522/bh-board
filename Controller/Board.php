@@ -59,9 +59,11 @@ class Board{
 	protected function _R_CommonQry(&$qry, $opt = null){}
 	/** @param \BH_Model */
 	protected function _R_CheckArticleCopyInsBefore($model){}
-	protected function _R_CheckArticleCopyInsAfter($type, $before_article_seq, $before_bid, $before_subid, $after_article_seq, $after_bid, $after_subid){}
+	/** @param PostsCopyOrMoveParam */
+	protected function _R_CheckArticleCopyInsAfter($param){}
 	protected function _R_CheckArticleReplyCopyInsBefore($model){}
-	protected function _R_CheckArticleReplyCopyInsAfter($type, $before_reply_seq, $before_bid, $before_subid, $after_reply_seq, $after_bid, $after_subid){}
+	/** @param PostsCopyOrMoveParam */
+	protected function _R_CheckArticleReplyCopyInsAfter($param){}
 	protected function _R_CheckArticleRemoveAfter($article_seq, $bid, $subid){}
 
 
@@ -338,7 +340,12 @@ class Board{
 
 	}
 
-	public function GetList($viewPageIs = false){
+	/**
+	 * @param bool $viewPageIs
+	 * @param callable(BH_DB_GetListWithPage) $listQueryFunc 쿼리 변형을 위한 함수
+	 * @return string
+	 */
+	public function GetList($viewPageIs = false, $listQueryFunc = null){
 		$res = $this->GetAuth('List');
 		if(!$res){
 			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
@@ -368,6 +375,7 @@ class Board{
 		$this->_SearchQuery($dbList);
 
 		$this->_R_GetListQuery($dbList); // Reserved
+		if(is_callable($listQueryFunc)) $listQueryFunc($dbList);
 		$dbList->DrawRows();
 		$this->_RowSet($dbList->data);
 
@@ -378,7 +386,12 @@ class Board{
 		else  App::View($this->model, $dbList);
 	}
 
-	public function MoreList($backIs = false){
+	/**
+	 * @param bool $backIs
+	 * @param callable(BH_DB_GetList) $listQueryFunc 쿼리 변형을 위한 함수
+	 * @return string
+	 */
+	public function MoreList($backIs = false, $listQueryFunc = null){
 		$res = $this->GetAuth('List');
 		if(!$res){
 			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
@@ -417,6 +430,7 @@ class Board{
 		}
 
 		$this->_R_MoreListQuery($dbList);  // Reserved
+		if(is_callable($listQueryFunc)) $listQueryFunc($dbList);
 		$dbList->DrawRows();
 		$this->_RowSet($dbList->data);
 
@@ -479,7 +493,10 @@ class Board{
 		$this->View();
 	}
 
-	public function View(){
+	/**
+	 * @param callable(array) $printBeforeFunc
+	 */
+	public function View($printBeforeFunc = null){
 		if($this->boardManger->GetValue('list_in_view') == 'y' && !$this->moreListIs){
 			App::$data['List'] = $this->GetList(true);
 			$this->_SetFilePath('View');
@@ -588,12 +605,16 @@ class Board{
 		$_SESSION['boardView']['seq'] = App::$id;
 
 		$this->_R_ViewEnd($data);  // Reserved
+		if(is_callable($printBeforeFunc)) $printBeforeFunc($data);
 
 		if(_JSONIS === true) JSON(true, '', App::GetView($this->model, $data));
 		else App::View($this->model, $data);
 	}
 
-	public function Write(){
+	/**
+	 * @param callable $printBeforeFunc
+	 */
+	public function Write($printBeforeFunc = null){
 		$res = $this->GetAuth('Write');
 		if(!$res){
 			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
@@ -613,11 +634,15 @@ class Board{
 		}
 
 		$this->_R_WriteEnd();  // Reserved
+		if(is_callable($printBeforeFunc)) $printBeforeFunc();
 		if(_JSONIS === true) JSON(true, '', App::GetView($this->model));
 		else App::View($this->model);
 	}
 
-	public function Answer(){
+	/**
+	 * @param callable $printBeforeFunc
+	 */
+	public function Answer($printBeforeFunc = null){
 		$res = $this->GetAuth('Answer');
 		if(!$res){
 			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
@@ -640,12 +665,16 @@ class Board{
 		$this->model->SetValue('secret', $data['secret']);
 
 		$this->_R_AnswerEnd();  // Reserved
+		if(is_callable($printBeforeFunc)) $printBeforeFunc();
 
 		if(_JSONIS === true) JSON(true, '', App::GetView($this->model));
 		else App::View($this->model);
 	}
 
-	public function Modify(){
+	/**
+	 * @param callable $printBeforeFunc
+	 */
+	public function Modify($printBeforeFunc = null){
 		if(!isset(App::$id) || !strlen(App::$id)){
 			URLReplace('-1');
 		}
@@ -670,12 +699,17 @@ class Board{
 		}
 
 		$this->_R_ModifyEnd();  // Reserved
+		if(is_callable($printBeforeFunc)) $printBeforeFunc();
 
 		if(_JSONIS === true) JSON(true, '', App::GetView($this->model));
 		else App::View($this->model);
 	}
 
-	public function PostModify(){
+	/**
+	 * @param callable $dbUpdateBefore
+	 * @param callable $dbUpdateAfter
+	 */
+	public function PostModify($dbUpdateBefore = null, $dbUpdateAfter = null){
 		if(Post('mode') == 'view'){
 			$this->Modify();
 			return;
@@ -729,6 +763,7 @@ class Board{
 		}
 
 		$this->_R_PostModifyUpdateBefore();  // Reserved
+		if(is_callable($dbUpdateBefore)) $dbUpdateBefore();
 
 		$error = $this->model->GetErrorMessage();
 		if(sizeof($error)){
@@ -746,6 +781,7 @@ class Board{
 
 		if($res2->result){
 			$this->_R_PostModifyUpdateAfter();  // Reserved
+			if(is_callable($dbUpdateAfter)) $dbUpdateAfter();
 			if(_AJAXIS === true) JSON(true, '',App::$lang['MSG_COMPLETE_MODIFY']);
 			else{
 				if(!isset($this->model->_muid->value) || !strlen($this->model->_muid->value)){
@@ -769,7 +805,11 @@ class Board{
 		$this->PostWrite();
 	}
 
-	public function PostWrite(){
+	/**
+	 * @param callable $dbInsertBefore
+	 * @param callable $dbInsertAfter
+	 */
+	public function PostWrite($dbInsertBefore = null, $dbInsertAfter = null){
 		if(_POSTIS !== true) URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
 
 		$res = $this->GetAuth('Write');
@@ -876,6 +916,7 @@ class Board{
 		}
 
 		$this->_R_PostWriteInsertBefore();  // Reserved
+		if(is_callable($dbInsertBefore)) $dbInsertBefore();
 
 		$error = $this->model->GetErrorMessage();
 		if(sizeof($error)){
@@ -899,6 +940,7 @@ class Board{
 		if($result->result){
 			$this->_ContentImageUpdate(Post('content'), $res->id);
 			$this->_R_PostWriteInsertAfter($res->id);  // Reserved
+			if(is_callable($dbInsertAfter)) $dbInsertAfter();
 
 			// 알람
 			if(class_exists('PHPMailer\\PHPMailer\\PHPMailer') && App::$action == 'Answer' && App::$data['targetData']['email_alarm'] == 'y' && strlen(App::$data['targetData']['email']) && App::$cfg->Def()->sendEmail->value){
@@ -1014,7 +1056,7 @@ class Board{
 	/**
 	 * 공지사항을 반환
 	 *
-	 * @param callable $func
+	 * @param callable(\BH_DB_GetList) $func
 	 * @return \BH_DB_GetList
 	 */
 	public function _GetNotice($func = null){
@@ -1307,7 +1349,8 @@ class Board{
 		if(EmptyPost('bid') || EmptyPost('subid')) JSON(false, App::$lang['SELECT_MOVE_BOARD']);
 		$chk = explode(',', Post('seq'));
 
-		$resChk = $this->_CheckArticleCopy($chk, Post('bid'), Post('subid'), 'move');
+		$moveParam = PostsCopyOrMoveParam::GetInst()->SetDestBId(Post('bid'), Post('subid'))->SetMoveType()->SetPosts($chk);
+		$resChk = $this->_CheckArticleCopy($moveParam);
 		if(sizeof($resChk)){
 			$this->_CheckArticleRemove($resChk);
 		}
@@ -1324,41 +1367,44 @@ class Board{
 		if(EmptyPost('bid') || EmptyPost('subid')) JSON(false, App::$lang['SELECT_COPY_BOARD']);
 		$chk = explode(',', Post('seq'));
 
-		$chk = $this->_CheckArticleCopy($chk, Post('bid'), Post('subid'));
+		$moveParam = PostsCopyOrMoveParam::GetInst()->SetDestBId(Post('bid'), Post('subid'))->SetPosts($chk);
+		$chk = $this->_CheckArticleCopy($moveParam);
 		JSON(true);
 	}
 
 	/**
-	 * @param array $arr
-	 * @param string $bid
-	 * @param string $subid
-	 * @param string $type
+	 * @param PostsCopyOrMoveParam $param
+	 * @param callable(\BoardModel) $copyInsBefore
+	 * @param callable(PostsCopyOrMoveParam) $copyInsAfter
+	 * @param callable(\ReplyModel) $replyCopyInsBefore
+	 * @param callable(PostsCopyOrMoveParam) $replyCopyInsAfter
 	 * @return int[]
 	 */
-	protected function _CheckArticleCopy($arr, $bid, $subid, $type = 'copy'){
+	protected function _CheckArticleCopy($param, $copyInsBefore = null, $copyInsAfter = null, $replyCopyInsBefore = null, $replyCopyInsAfter = null){
 		$returnArray = array();
-		if(!is_array($arr)) $arr = array($arr);
+		if(!is_array($param->posts)) $param->posts = array($param->posts);
 
-		$newTable = TABLE_FIRST . 'bbs_' . $bid;
-		$newUploadDir = '/board/'.$bid.(strlen($subid) ? '-' . $subid  : '').'/'.date('ym').'/';
-		$newRepUploadDir = '/reply/'.$bid.(strlen($subid) ? '-' . $subid  : '').'/'.date('ym').'/';
-		$newUploadImageDir = '/boardimage/'.$bid.(strlen($subid) ? '-' . $subid  : '').'/'.date('ym').'/';
+		$newTable = TABLE_FIRST . 'bbs_' . $param->destBid;
+		$action = $param->destBid.(strlen($param->destSubId) ? '-' . $param->destSubId  : '');
+		$newUploadDir = '/board/'.$action.'/'.date('ym').'/';
+		$newRepUploadDir = '/reply/'.$action.'/'.date('ym').'/';
+		$newUploadImageDir = '/boardimage/'.$action.'/'.date('ym').'/';
 
 		$boardModel = new \BoardModel();
 		$boardModel->SetConnName($this->connName);
-		$boardModel->bid = $bid;
+		$boardModel->bid = $param->destBid;
 		$boardModel->table = TABLE_FIRST.'bbs_'.$boardModel->bid;
 		$boardModel->_pwd->htmlType = \HTMLType::TEXT;
 
 		$except = array('file1', 'file2', 'thumbnail', 'seq', 'reg_date', 'sort1', 'sort2', 'subid', 'category', 'sub_category');
-		if($type == 'copy'){
+		if($param->type == 'copy'){
 			$except = array_merge($except, array('hit','reply_cnt', 'recommend', 'report', 'read', 'scrap', 'oppose'));
 		}
 		$repExcept = array('article_seq', 'file');
 		$sort1Arr = array();
 		$qry = DB::GetListQryObj($this->model->table)
 			->SetConnName($this->connName)
-			->AddWhere('seq IN (%d)', $arr)
+			->AddWhere('seq IN (%d)', $param->posts)
 			->SetSort('sort1 DESC, sort2 DESC');
 		$this->_R_CommonQry($qry);
 		while($row = $qry->Get()){
@@ -1372,7 +1418,7 @@ class Board{
 				}
 			}
 
-			$boardModel->SetValue('subid', $subid);
+			$boardModel->SetValue('subid', $param->destSubId);
 			$boardModel->SetValue('category', Post('category'));
 			$boardModel->SetValue('sub_category', Post('sub_category'));
 
@@ -1389,6 +1435,7 @@ class Board{
 
 
 			$this->_R_CheckArticleCopyInsBefore($boardModel); // Reserved
+			if(is_callable($copyInsBefore)) $copyInsBefore($boardModel);
 
 			$res = $boardModel->DBInsert();
 			if(!$res->result) return $returnArray;
@@ -1438,9 +1485,11 @@ class Board{
 					->Run();
 			}
 
-			$this->_R_CheckArticleCopyInsAfter($type, $row['seq'], $this->bid, $row['subid'], $article_seq, $bid, $subid); // Reserved
+			$param->SetSourceBId($this->bid, $row['subid'])->SetSourceSeq($row['seq'])->SetDestSeq($article_seq);
+			$this->_R_CheckArticleCopyInsAfter($param); // Reserved
+			if(is_callable($copyInsAfter)) $copyInsAfter($param);
 
-			if($type == 'move'){
+			if($param->type == 'move'){
 				// 액션 복사
 				DB::SQL($this->connName)->Query('INSERT INTO %1 (SELECT `action_type`, %d as `article_seq`, `muid`, `reg_date` FROM %1 WHERE article_seq = %d)', $newTable . '_action', $article_seq, $this->model->table . '_action', $row['seq']);
 
@@ -1453,7 +1502,7 @@ class Board{
 
 
 					$replyModel = new \ReplyModel($this->connName);
-					$replyModel->bid = $bid;
+					$replyModel->bid = $param->destBid;
 					$replyModel->table = TABLE_FIRST.'bbs_'.$replyModel->bid.'_reply';
 
 					$fcRes = $this->_FileCopy($newRepUploadDir, $rep['file']);
@@ -1467,8 +1516,13 @@ class Board{
 
 					$replyModel->SetValue('article_seq', $article_seq);
 					$this->_R_CheckArticleReplyCopyInsBefore($replyModel); // Reserved
+					if(is_callable($replyCopyInsBefore)) $replyCopyInsBefore($replyModel);
 					$res = $replyModel->DBInsert();
-					if($res->result) $this->_R_CheckArticleReplyCopyInsAfter($type, $rep['seq'], $this->bid, $row['subid'], $res->id, $bid, $subid); // Reserved
+					if($res->result){
+						$param->SetSourceBId($this->bid, $row['subid'])->SetSourceSeq($rep['seq'])->SetDestSeq($res->id);
+						$this->_R_CheckArticleReplyCopyInsAfter($param); // Reserved
+						if(is_callable($replyCopyInsAfter)) $replyCopyInsAfter($param);
+					}
 				}
 			}
 		}
@@ -1494,8 +1548,9 @@ class Board{
 
 	/**
 	 * @param array $arr
+	 * @param callable(int,string,string) $removeAfter param : $seq, $bid, $subid
 	 */
-	protected function _CheckArticleRemove($arr){
+	protected function _CheckArticleRemove($arr, $removeAfter = null){
 		if(!is_array($arr)) $arr = array($arr);
 
 		foreach($arr as $seq){
@@ -1558,6 +1613,7 @@ class Board{
 			$qry->Run();
 
 			$this->_R_CheckArticleRemoveAfter($seq, $this->bid, $row['subid']);
+			if(is_callable($removeAfter)) $removeAfter($seq, $this->bid, $row['subid']);
 		}
 	}
 
@@ -1611,5 +1667,61 @@ class Board{
 			return $data;
 		}
 		return array();
+	}
+}
+
+class PostsCopyOrMoveParam
+{
+	public $type = 'copy';
+	public $posts = array();
+
+	public $sourceBId = '';
+	public $sourceSubId = '';
+	public $sourceSeq = '';
+
+	public $destBid = '';
+	public $destSubId = '';
+	public $destSeq = '';
+
+	public static function GetInst(){
+		$static = new static();
+		return $static;
+	}
+
+	public function SetMoveType(){
+		$this->type = 'move';
+		return $this;
+	}
+
+	public function SetCopyType(){
+		$this->type = 'copy';
+		return $this;
+	}
+
+	public function SetPosts($arr){
+		$this->posts = $arr;
+		return $this;
+	}
+
+	public function SetSourceBId($str, $subid = ''){
+		$this->sourceBId = $str;
+		if(strlen($subid)) $this->sourceSubId = $subid;
+		return $this;
+	}
+
+	public function SetSourceSeq($int){
+		$this->sourceSeq = $int;
+		return $this;
+	}
+
+	public function SetDestBId($str, $subid = ''){
+		$this->destBid = $str;
+		if(strlen($subid)) $this->destSubId = $subid;
+		return $this;
+	}
+
+	public function SetDestSeq($int){
+		$this->destSeq = $int;
+		return $this;
 	}
 }

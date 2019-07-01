@@ -764,15 +764,14 @@ class BH_Model{
 	}
 
 	/**
-	 * @param int $page
 	 * @param string $naming
 	 * @param string $pageUrlQueryName
 	 * @return BH_DB_GetListWithPage
 	 */
-	public function GetPageListQry($page, $naming = '', $pageUrlQueryName = 'page'){
+	public function GetPageListQry($naming = '', $pageUrlQueryName = 'page'){
 		if($naming) $naming = '`' . $naming . '`';
 		$qry = DB::GetListPageQryObj('`%1` %1', $this->table, $naming)
-			->SetPage($page)
+			->SetPage(Get($pageUrlQueryName))
 			->SetPageUrl(BH_Application::URLAction(BH_Application::$action === 'Index' ? '' : BH_Application::$action) . BH_Application::GetFollowQuery($pageUrlQueryName));
 		return $qry;
 	}
