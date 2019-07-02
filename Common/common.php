@@ -242,6 +242,86 @@ class Paths{
 	}
 }
 
+class BHError
+{
+	private $first = 1;
+	private $second = 0;
+	private $third = 1;
+	private $msg = '';
+	private $devMsg = '';
+	private $url = '-1';
+	private $isJson = false;
+
+	public function __construct($first, $second, $num, $msg = '', $devMsg = ''){
+		$this->first = $first;
+		$this->second = $second;
+		$this->third = $num;
+		$this->msg = $msg;
+		$this->devMsg = $devMsg;
+	}
+
+	public function __toString(){
+		return $this->Get();
+	}
+
+	/**
+	 * @param string $first
+	 * @param string $second
+	 * @param int $num
+	 * @param string $msg
+	 * @param string $devMsg
+	 * @return BHError
+	 */
+	public static function Instance($first, $second, $num, $msg = '', $devMsg = ''){
+		$static = new static($first, $second, $num, $msg, $devMsg);
+		return $static;
+	}
+	public function Msg($msg, $devMsg = ''){ $this->msg = $msg; $this->devMsg = $devMsg; return $this; }
+
+	public function IsJson($bool = true){ $this->isJson = $bool; return $this; }
+
+	public function SetUrl($url = '-1'){ $this->url = $url; return $this; }
+
+	/**
+	 * @param string $msg
+	 * @param string $devMsg
+	 * @return string
+	 */
+	public function Get($msg = '', $devMsg = ''){
+		if(strlen($msg)) $this->msg = $msg;
+		if(strlen($devMsg)) $this->devMsg = $devMsg;
+		$res = 'Error#' . $this->first . $this->second . $this->third;
+		if(strlen($this->msg)) $res = '['  . $res . ']' . $this->msg;
+		if(_DEVELOPERIS === true && strlen($this->devMsg)) $res .= ' (' . $this->devMsg . ')';
+		return $res;
+	}
+
+	/**
+	 * @param string $msg
+	 * @param string $devMsg
+	 */
+	public function Run($msg = '', $devMsg = ''){
+		if($this->isJson) $this->JSON($msg, $devMsg);
+		else $this->Redirect($this->url, $msg, $devMsg);
+	}
+
+	/**
+	 * @param string $msg
+	 * @param string $devMsg
+	 */
+	public function JSON($msg = '', $devMsg = ''){
+		JSON(false, $this->Get($msg, $devMsg));
+	}
+
+	/**
+	 * @param string $url
+	 * @param string $msg
+	 * @param string $devMsg
+	 */
+	public function Redirect($url = '-1', $msg = '', $devMsg = ''){
+		URLRedirect($url, $this->Get($msg, $devMsg));
+	}
+}
 
 define('_POSTIS', isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST');
 define('_AJAXIS', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
