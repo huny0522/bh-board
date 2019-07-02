@@ -71,6 +71,10 @@ App::$lang['TXT_EMPTY_NUMBER'] = '숫자값이 비어있습니다.';
 App::$lang['TXT_ONLY_NUMBER_NOT_CHARACTER'] = '숫자가 들아갈 항목에 문자가 들어갈 수 없습니다.';
 App::$lang['TXT_ONLY_FLOAT_NOT_CHARACTER'] = '숫자(소수)가 들아갈 항목에 문자가 들어갈 수 없습니다.';
 
+App::$lang['MODIFIED'] = '수정되었습니다.';
+App::$lang['DELETED'] = '삭제되었습니다.';
+App::$lang['NO_DATA'] = '등록된 자료가 없습니다.';
+
 // Board.php
 App::$lang['NO_BOARD'] = '게시판이 존재하지 않습니다.';
 App::$lang['COMPLETE_RESTORE'] = '복구되었습니다.';

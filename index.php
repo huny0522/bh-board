@@ -86,6 +86,17 @@ define('_MENU_CACHE_FILE', true);
 //			Site Common
 //
 // -------------------------------------
+define('BHERR1_QUERY', '1');
+define('BHERR1_PROCESS', '2');
+define('BHERR1_UNKNOWN', '3');
+define('BHERR1_VALID', '4');
+
+define('BHERR2_INSERT', '0');
+define('BHERR2_SELECT', '1');
+define('BHERR2_UPDATE', '2');
+define('BHERR2_DELETE', '3');
+define('BHERR2_OTHER', '9');
+
 define('_MSG_SECRET_ARTICLE', '비밀글입니다.');
 define('_MSG_DELETED_ARTICLE', '삭제된 게시물입니다.');
 define('_MSG_DELETED_REPLY', '삭제된 댓글입니다.');
@@ -121,6 +132,10 @@ $langFile = array(
 	LANG_JPN => 'jpn.php',
 	LANG_CHN => 'chn.php',
 );
+
+// 다국어 지원일때 관리자 페이지를 한국어로 표시할때 아래 주석 제거
+// $GetUrl = explode('/', isset($_GET['_bh_url']) ? $_GET['_bh_url'] : '');
+// if(isset($GetUrl[1]) && $GetUrl[1] === _ADMINURLNAME) define('SELECT_LANG', LANG_KOR);
 
 define('SELECT_LANG', LANG_KOR);
 define('LANG_FILE', $langFile[SELECT_LANG]);
