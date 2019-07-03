@@ -731,11 +731,13 @@ function DeleteOldTempFiles($tempfile_path, $time){
 
 function ToInt($s){
 	if(!$s) return 0;
+	$s = (string)$s;
 	return ($s[0] == '-' ? $s[0] : '') . preg_replace('/[^0-9]/', '', $s);
 }
 
 function ToFloat($s){
 	if(!$s) return 0;
+	$s = (string)$s;
 	return ($s[0] == '-' ? $s[0] : '') . preg_replace('/[^0-9\.]/', '', $s);
 }
 
