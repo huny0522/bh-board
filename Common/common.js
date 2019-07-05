@@ -895,7 +895,7 @@ var EventLink = {
 			if(EventLink.startPos === null) return true;
 			if(EventLink.endPos === null) EventLink.endPos = EventLink.startPos;
 
-			var node = document.elementFromPoint(EventLink.endPos.clientX - $(window).scrollLeft(), EventLink.endPos.clientY - $(window).scrollTop());
+			var node = document.elementFromPoint(EventLink.endPos.pageX - $(window).scrollLeft(), EventLink.endPos.pageY - $(window).scrollTop());
 
 			var x = EventLink.endPos.clientX - EventLink.startPos.clientX;
 			var y = EventLink.endPos.clientY - EventLink.startPos.clientY;
