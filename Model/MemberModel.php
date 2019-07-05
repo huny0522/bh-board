@@ -45,8 +45,10 @@ class MemberModel extends \BH_Model
 		$this->data['muid']->autoDecrement = true;
 
 		$this->data['mid'] = new \BH_ModelData(ModelType::STRING, '아이디');
-		$this->data['mid']->minLength = '4';
-		$this->data['mid']->maxLength = '16';
+		if(App::$cfg->Def()->useMailId->Val() != 'y'){
+			$this->data['mid']->minLength = '4';
+			$this->data['mid']->maxLength = '16';
+		}
 
 		$this->data['pwd'] = new \BH_ModelData(ModelType::STRING, '패스워드', HTMLType::PASSWORD);
 		$this->data['pwd']->minLength = '8';
