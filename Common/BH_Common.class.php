@@ -34,7 +34,7 @@ class BH_Common
 	public static function MemberAuth($level = 1){
 		if(_MEMBERIS !== true){
 			if(_AJAXIS === true) JSON(false, App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN'], array('needLogin' => true));
-			else URLReplace(Paths::Url() . '/Login', App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN']);
+			else URLReplace(Paths::Url() . '/Login?r_url=' . urlencode($_SERVER['REQUEST_URI']), App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN']);
 		}
 		if($_SESSION['member']['level'] < $level){
 			if(_AJAXIS === true) JSON(false, App::$lang['MSG_NO_AUTH']);
