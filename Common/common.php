@@ -742,7 +742,7 @@ function ToFloat($s){
 }
 
 function RemoveScriptTag($str){
-	return preg_replace(array('/\<\/*\s*(script|form|input|select|button|textarea).*?\>/is', '/\<\s*(\S+?)(\s+[^\>]*\s+on|\s+on)[^\>]*?\>/is', '/\<a[^\>]*?src\s*\=\s*[^\>]*?javascript\s*\:[^\>]*\>/'), array('', '<$1>', ''), $str);
+	return preg_replace(array('/\<\/*\s*(script|form|input|select|button|textarea).*?\>/is', '/\<\s*(\S+?)(\s+[^\>]*\s+on[a-zA-Z]+|\s+on[a-zA-Z]+)\s*\=[^\>]*?\>/is', '/\<a[^\>]*?src\s*\=\s*[^\>]*?javascript\s*\:[^\>]*\>/'), array('', '<$1>', ''), $str);
 }
 
 function RemoveIFrame($str){
