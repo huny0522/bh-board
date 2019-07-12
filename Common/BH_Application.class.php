@@ -198,8 +198,8 @@ class BH_Application
 
 		$queryparam = '';
 		foreach($fq as $k => $v){
-			if(is_array($v)) foreach($v as $v2) $queryparam .= ($queryparam ? '&' : $begin) . $k . '[]=' . $v2;
-			else $queryparam .= ($queryparam ? '&' : $begin) . $k . '=' . $v;
+			if(is_array($v)) foreach($v as $v2) $queryparam .= ($queryparam ? '&' : $begin) . $k . '[]=' . urlencode($v2);
+			else $queryparam .= ($queryparam ? '&' : $begin) . $k . '=' . urlencode($v);
 		}
 		return $queryparam;
 	}

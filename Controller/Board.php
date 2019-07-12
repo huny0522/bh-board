@@ -1012,13 +1012,17 @@ class Board{
 			$temp = explode('-', App::$id);
 			$md = $temp[0];
 			$seq = to10($temp[1]);
+			$n = isset($temp[2]) ? $temp[2] : 0;
 		}
 		else{
 			$seq = to10(App::$id);
 			$md = 'file1';
+			$n = 0;
 		}
 		$this->_GetBoardData($seq);
-		$file = explode('*', $this->model->GetValue($md));
+		$fileExplode = explode(';', $this->model->GetValue($md));
+		if(!isset($fileExplode[$n])) $n = 0;
+		$file = explode('*', $fileExplode[$n]);
 		if(sizeof($file) < 2){
 			$name = explode('/', $file[0]);
 			$file[1] = end($name);
@@ -1277,7 +1281,7 @@ class Board{
 			App::$data['categoryHtml'] .= '<li class="all ' . (EmptyGet('scate') ? 'active' : '') . '"><a href="' . App::URLAction() . '">' . App::$lang['ALL'] . '</a></li>';
 			foreach(App::$data['subCategory'] as $v){
 				$active = $v == Get('scate') ? ' class="active"' : '';
-				App::$data['categoryHtml'] .= '<li' . $active . '><a href="' . App::URLAction() . '?scate=' . GetDBText($v) . '">' . GetDBText($v) . '</a></li>';
+				App::$data['categoryHtml'] .= '<li' . $active . '><a href="' . App::URLAction() . '?scate=' . urlencode($v) . '">' . GetDBText($v) . '</a></li>';
 			}
 			App::$data['categoryHtml'] .= '</ul></div>';
 		}
@@ -1286,10 +1290,10 @@ class Board{
 			if(!EmptyGet('cate') && sizeof(App::$data['subCategory'])){
 				App::$data['categoryHtml'] .= '<div class="categoryTab categoryTabC categoryTabC1"><ul>';
 				App::$data['categoryHtml'] .= '<li class="parent"><a href="' . App::URLAction() . '">' . App::$lang['PARENT_CATEGORY'] . '</a></li>';
-				App::$data['categoryHtml'] .= '<li class="all ' . (EmptyGet('scate') ? 'active' : '') . '"><a href="' . App::URLAction() . '?cate=' . GetDBText(Get('cate')) . '">' . App::$lang['ALL'] . '</a></li>';
+				App::$data['categoryHtml'] .= '<li class="all ' . (EmptyGet('scate') ? 'active' : '') . '"><a href="' . App::URLAction() . '?cate=' . urlencode(Get('cate')) . '">' . App::$lang['ALL'] . '</a></li>';
 				foreach(App::$data['subCategory'] as $v){
 					$active = $v == Get('scate') ? ' class="active"' : '';
-					App::$data['categoryHtml'] .= '<li' . $active . '><a href="' . App::URLAction() . '?cate=' . GetDBText(Get('cate')) . '&scate=' . GetDBText($v) . '">' . GetDBText($v) . '</a></li>';
+					App::$data['categoryHtml'] .= '<li' . $active . '><a href="' . App::URLAction() . '?cate=' . urlencode(Get('cate')) . '&scate=' . urlencode($v) . '">' . GetDBText($v) . '</a></li>';
 				}
 				App::$data['categoryHtml'] .= '</ul></div>';
 			}
@@ -1298,7 +1302,7 @@ class Board{
 				App::$data['categoryHtml'] .= '<li class="all ' . (EmptyGet('cate') ? 'active' : '') . '"><a href="' . App::URLAction() . '">' . App::$lang['ALL'] . '</a></li>';
 				foreach(App::$data['category'] as $v){
 					$active = $v == Get('cate') ? ' class="active"' : '';
-					App::$data['categoryHtml'] .= '<li' . $active . '><a href="' . App::URLAction() . '?cate=' . GetDBText($v) . '">' . GetDBText($v) . '</a></li>';
+					App::$data['categoryHtml'] .= '<li' . $active . '><a href="' . App::URLAction() . '?cate=' . urlencode($v) . '">' . GetDBText($v) . '</a></li>';
 				}
 				App::$data['categoryHtml'] .= '</ul></div>';
 			}
@@ -1411,6 +1415,7 @@ class Board{
 			// 게시물 복사
 			$fcRes1 = $this->_FileCopy($newUploadDir, $row['file1']);
 			$fcRes2 = $this->_FileCopy($newUploadDir, $row['file2']);
+			$fcRes3 = $this->_FileCopy($newUploadDir, $row['thumbnail']);
 
 			foreach($boardModel->data as $k => $d){
 				if(isset($row[$k]) && !in_array($k, $except)){
@@ -1424,6 +1429,7 @@ class Board{
 
 			if($fcRes1['path']) $boardModel->SetValue('file1', $fcRes1['path'].($fcRes1['name'] ? '*' . $fcRes1['name'] : ''));
 			if($fcRes2['path']) $boardModel->SetValue('file2', $fcRes2['path'].($fcRes2['name'] ? '*' . $fcRes2['name'] : ''));
+			if($fcRes3['path']) $boardModel->SetValue('thumbnail', $fcRes3['path'].($fcRes3['name'] ? '*' . $fcRes3['name'] : ''));
 			if(isset($sort1Arr[$row['sort1']]) && strlen($sort1Arr[$row['sort1']])){
 				$boardModel->SetValue('sort1', $sort1Arr[$row['sort1']]);
 			}
