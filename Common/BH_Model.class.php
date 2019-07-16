@@ -1833,7 +1833,7 @@ class _ModelFunc{
 class CfgEmptyClass
 {
 	public function __call($name, $arguments){
-		if(class_exists('_ConfigMap')) _ConfigMap::{$name}();
+		if(class_exists('_ConfigMap')) call_user_func('_ConfigMap::'.$name); // for 5.3
 		return _ConfigModel::GetInstance();
 	}
 }
