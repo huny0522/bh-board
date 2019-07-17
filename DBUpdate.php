@@ -235,6 +235,8 @@ CREATE TABLE `".TABLE_MENU."` (
 	`board_sub_category` VARCHAR(256) NOT NULL DEFAULT '',
 	`show_level` TINYINT(2) NOT NULL DEFAULT '0',
 	`con_level` TINYINT(2) NOT NULL DEFAULT '0',
+	`real_controller` VARCHAR(32) NOT NULL DEFAULT '',
+	`default_action` VARCHAR(32) NOT NULL DEFAULT '',
 	PRIMARY KEY (`category`),
 	INDEX `controller` (`controller`),
 	INDEX `enabled` (`enabled`),
