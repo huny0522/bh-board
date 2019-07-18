@@ -1099,6 +1099,7 @@ function _password_verify($str, $hash){
 
 function modifyFileTime($file, $group = 'default'){
 	if(!file_exists($file)) return false;
+	if(!is_dir(\Paths::DirOfData())) @mkdir(\Paths::DirOfData(), 0777, true);
 	$path = \Paths::DirOfData() . '/fileModTime.php';
 	if(file_exists($path)) require_once $path;
 
