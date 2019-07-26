@@ -801,8 +801,12 @@ class Board{
 		}
 	}
 
-	public function PostAnswer(){
-		$this->PostWrite();
+	/**
+	* @param callable $dbInsertBefore
+	* @param callable $dbInsertAfter
+	*/
+	public function PostAnswer($dbInsertBefore = null, $dbInsertAfter = null){
+		$this->PostWrite($dbInsertBefore, $dbInsertAfter);
 	}
 
 	/**
@@ -940,7 +944,7 @@ class Board{
 		if($result->result){
 			$this->_ContentImageUpdate(Post('content'), $res->id);
 			$this->_R_PostWriteInsertAfter($res->id);  // Reserved
-			if(is_callable($dbInsertAfter)) $dbInsertAfter();
+			if(is_callable($dbInsertAfter)) $dbInsertAfter($res->id);
 
 			// 알람
 			if(class_exists('PHPMailer\\PHPMailer\\PHPMailer') && App::$action == 'Answer' && App::$data['targetData']['email_alarm'] == 'y' && strlen(App::$data['targetData']['email']) && App::$cfg->Def()->sendEmail->value){
