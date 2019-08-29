@@ -194,15 +194,19 @@ function Common($){
 	this.popup = function(target, seq, top, left, width, height, data) {
 		var ck = _this.getCookie('todayClosePopup' + seq);
 		if (ck === 'y') return;
+		if(document.getElementById('BH_Popup' + seq)){
+			$('#BH_Popup' + seq).show();
+			return;
+		}
 		//return;
 		var html = '';
-		html += '<div class="BH_Popup" id="BH_Popup' + seq + '" style="top:' + top + 'px; left:' + left + 'px;">'
+		html += '<div class="BH_Popup" id="BH_Popup' + seq + '" style="top:' + top + 'px; left:' + left + 'px;"><div class="BH_PopupWrap">'
 			+ '<div class="BH_PopupContent" style="width:'+ width + 'px; height:'+ height + 'px; background:#fff;">' + data + '</div>'
 			+ '<div class="BH_PopupBtns">'
-			+ '<span class="BH_PopupTodayClose"><a onclick="JCM.todayPopupClose(' + seq + ');">' + window._CM_LANG.todayClose + '</a></span>'
-			+ '<span class="BH_PopupClose"><a onclick="jQuery(this).closest(\'.BH_Popup\').hide();">' + window._CM_LANG.close + '</a></span>'
+			+ '<span class="BH_PopupTodayClose"><a onclick="JCM.todayPopupClose(' + seq + ');"><i></i> <span>' + window._CM_LANG.todayClose + '</span></a></span>'
+			+ '<span class="BH_PopupClose"><a onclick="jQuery(this).closest(\'.BH_Popup\').hide();"><i></i> <span>' + window._CM_LANG.close + '</span></a></span>'
 			+ '</div>'
-			+ '</div>';
+			+ '</div></div>';
 		$(target).append(html);
 	};
 
@@ -561,7 +565,7 @@ function Common($){
 
 	this.popPostCode = function (callback) {
 		if (typeof daum === "undefined" || typeof(daum.postcode) === 'undefined') {
-			jQuery.getScript("http://dmaps.daum.net/map_js_init/postcode.v2.js").done(function (script, textStatus) {
+			jQuery.getScript("http://dmaps.daum.net/map_js_init/postcode.v2.js?autoload=false").done(function (script, textStatus) {
 				_this.popDaumPostCode(callback);
 			});
 		} else {
@@ -1956,9 +1960,9 @@ $(document).on('keyup click change focusin focusout', 'input.numberformat', func
 	var cp = getCaretPosition(this);
 	var end = $(this).val().length - cp.end;
 	if(this.value === '') this.value = '0';
-	var val = JCM.setComma(parseInt(this.value.replace(/[^0-9]/gi,'')));
+	var val = JCM.setComma(this.value.replace(/[^0-9]/gi,''));
 	if(e.type !== 'focusout' && val === '0') val = '';
-	if(!this.hasAttribute('data-before-value') || $(this).attr('data-before-value') !== val){
+	if(!this.hasAttribute('data-before-value') || $(this).attr('data-before-value') !== this.value){
 		this.value = '';
 		this.value = val;
 		cp.end = $(this).val().length - end;

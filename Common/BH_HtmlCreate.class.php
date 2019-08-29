@@ -369,8 +369,8 @@ use \\BH_Common as CM;
 				$html .= '</tr>' . chr(10);
 			}
 			$html .= '</table>' . chr(10);
-			$html .= '<div class="bottomBtn"><a href="<?a. \'\' ?><?fq. \'\' ?>" class="bBtn">리스트</a><a href="<?a. \'Modify/\'.App::$id ?><?fq. \'\' ?>" class="bBtn">수정</a><a href="#" id="deleteArticle" class="bBtn">삭제</a><a href="#" class="backbtn bBtn">뒤로</a></div>' . chr(10);
-			$html .= '<div id="deleteForm" class="modalConfirm hidden">' . chr(10) . chr(9) . '<form id="delForm" name="delForm" method="post" action="<?a. \'Delete/\'.App::$id ?><?fq. \'\' ?>">' . chr(10);
+			$html .= '<div class="bottomBtn"><a href="<?a. \'\' ?><?fqq. \'\' ?>" class="bBtn">리스트</a><a href="<?a. \'Modify/\'.App::$id ?><?fqq. \'\' ?>" class="bBtn">수정</a><a href="#" id="deleteArticle" class="bBtn">삭제</a><a href="#" class="backbtn bBtn">뒤로</a></div>' . chr(10);
+			$html .= '<div id="deleteForm" class="modalConfirm hidden">' . chr(10) . chr(9) . '<form id="delForm" name="delForm" method="post" action="<?a. \'Delete/\'.App::$id ?><?fqq. \'\' ?>">' . chr(10);
 
 			$html .= chr(9) . chr(9) . '<p>정말 삭제하시겠습니까?</p>' . chr(10) . chr(9) . chr(9) . '<div class="sPopBtns">' . chr(10) . chr(9) . chr(9) . chr(9) . '<button type="submit" class="sBtn btn2">삭제하기</button>' . chr(10) . chr(9) . chr(9) . chr(9) . '<button type="reset" class="sBtn btn2">취소</button>' . chr(10) . chr(9) . chr(9) . '</div>' . chr(10) . chr(9) . '</form>' . chr(10) . '</div>' . chr(10);
 			$html .= '<script>' . chr(9) . '$(\'#deleteArticle\').on(\'click\', function(e){' . chr(10) . chr(9) . chr(9) . 'e.preventDefault();' . chr(10) . chr(9) . chr(9) . '$(\'#deleteForm\').show();' . chr(10) . chr(9) . '});' . chr(10) . chr(9) . '$(\'#deleteForm button[type=reset]\').on(\'click\', function(e){' . chr(10) . chr(9) . chr(9) . 'e.preventDefault();' . chr(10) . chr(9) . chr(9) . '$(\'#deleteForm\').hide();' . chr(10) . chr(9) . '});' . chr(10) . '</script>';
@@ -412,7 +412,7 @@ use \\BH_Common as CM;
 ?>
 
 ";
-			$html .= '<form name="' . $model . 'WriteForm" id="' . $model . 'WriteForm" method="post" action="<?a. App::$action.\'/\'.App::$id ?><?fq. \'\' ?>">' . chr(10);
+			$html .= '<form name="' . $model . 'WriteForm" id="' . $model . 'WriteForm" method="post" action="<?a. App::$action.\'/\'.App::$id ?><?fqq. \'\' ?>">' . chr(10);
 
 			$html .= chr(10) . '	<table class="write">' . chr(10);
 			foreach($modelClass->data as $k => $row){
@@ -519,7 +519,7 @@ use \\BH_Common as CM;
 			foreach($modelClass->key as $k){
 				$keys[] = '$row[\'' . $k . '\']';
 			}
-			$html .= '	<td><a href="<?a. \'View/\'.' . implode('.\'/\'.', $keys) . ' ?><?fn. \'\' ?>">상세보기</a></td>' . chr(10);
+			$html .= '	<td><a href="<?a. \'View/\'.' . implode('.\'/\'.', $keys) . ' ?><?fqn. \'\' ?>">상세보기</a></td>' . chr(10);
 
 			$html .= '</tr>' . chr(10);
 			$html .= '<?php } ?>' . chr(10);
@@ -528,7 +528,7 @@ use \\BH_Common as CM;
 			$html .= '<?php } else{ ?>' . chr(10);
 			$html .= '<p class="nothing">등록된 게시물이 없습니다.</p>' . chr(10);
 			$html .= '<?php } ?>' . chr(10);
-			$html .= '<div class="left_btn"><a href="<?a. \'Write\' ?><?fq. \'\' ?>" class="mBtn">글쓰기</a></div>' . chr(10);
+			$html .= '<div class="left_btn"><a href="<?a. \'Write\' ?><?fqq. \'\' ?>" class="mBtn">글쓰기</a></div>' . chr(10);
 			$html .= '<?e. $Data->GetPageHtml() ?>' . chr(10);
 			return $html;
 			/*file_put_contents(\Paths::DirOfSkin() . $path, $html);

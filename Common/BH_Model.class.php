@@ -303,6 +303,10 @@ class BH_ModelData
 	public function GetFilePath($n = 0){
 		return _ModelFunc::GetFilePath($this, 0, $n);
 	}
+
+	public function GetFilePaths(){
+		return _ModelFunc::GetFiles($this->value);
+	}
 }
 
 /**
@@ -840,7 +844,7 @@ class _ModelFunc{
 								if(in_array($path, $delFiles)) $v->__deleteFile[] = $path;
 								else $valuePath[]= $path;
 							}
-							$values = array_merge($values, $valuePath);
+							$values = array_merge($valuePath, $values);
 						}
 						$v->value = implode(';', $values);
 						$v->needIs = true;
@@ -1036,6 +1040,23 @@ class _ModelFunc{
 			}
 		}
 		else return NULL;
+	}
+
+	public static function GetFiles($value){
+		if(!$value) return array();
+		$p = explode(';', $value);
+		$ret = array();
+		foreach($p as $v){
+			$f = explode('*', $v);
+			if(sizeof($f) > 1){
+				$ret[] = array('name' => $f[0], 'path' => $f[1]);
+			}
+			else{
+				$exv = explode('/', $v);
+				$ret[] = array('name' => end($exv), 'path' => $v);
+			}
+		}
+		return $ret;
 	}
 
 	/**

@@ -3,17 +3,23 @@ var StatePage = {
 	_completeAction : [],
 	url : '',
 	targetId : 'containerWrap',
-	targetElement : null,
 	isInit : false,
+	beforeHash : '',
+	hashAction : {},
+	emptyHashAction : {},
+	isAnimate : false,
+	animateSpeed : 300,
+	animateDirection : 'left',
+	historyForwardCount : 0,
 
 	/**
 	 * 최초 실행
 	 */
 	Init : function(tid){
 		StatePage.isInit = true;
-		if(typeof(tid) === 'string') this.targetElement = document.getElementById(tid);
-		else this.targetElement = document.getElementById(this.targetId);
-		if(!this.targetElement){
+		if(typeof(tid) === 'string' && tid.length) this.targetId = tid;
+		var targetElement = document.getElementById(this.targetId);
+		if(!targetElement){
 			console.log('StatePage Warning : 페이지 컨테이너 객체가 존재하지 않습니다.');
 			return;
 		}
@@ -21,12 +27,46 @@ var StatePage = {
 		// a 태그 기본 액션 설정
 		$(document).on('click', 'a', StatePage._LinkAction);
 
+		$(document).on('click', '.hashClose', function(e){
+			e.preventDefault();
+			if(location.hash.length > 1) window.history.back();
+			else if($(this).closest('.hashModal').length) $(this).closest('.hashModal').remove();
+		});
+
+		$(document).on('click', '.hashChangeBtn', function(e){
+			if(this.hasAttribute('data-hash')){
+				e.preventDefault();
+				location.href = '#' + $(this).attr('data-hash');
+			}
+		});
+
 		$(window).on('popstate', function(e) {
 			var href = location.href;
+			console.log(document.referrer);
+			StatePage.HashAction();
 			StatePage.Load(href, null, true);
 		});
 
-		StatePage.url = location.pathname;
+		StatePage.url = location.pathname + location.search;
+
+		$(function(){
+			StatePage.HashAction(true);
+			var splitHref = location.href.split('#');
+			StatePage.beforeHash = splitHref.length > 1 ? splitHref[1] : '';
+		});
+	},
+
+	HashAction : function(disableEmptyAction){
+		var hash = location.hash.length > 1 ? location.hash.substr(1) : '';
+		if(StatePage.beforeHash === hash) return;
+		if(hash.length){
+			if(typeof(StatePage.hashAction[hash]) === 'function') StatePage.hashAction[hash]();
+		}
+		else if(disableEmptyAction !== true){
+			$.each(StatePage.emptyHashAction, function(i, obj){
+				if(typeof(obj) === 'function') obj();
+			});
+		}
 	},
 
 	/**
@@ -35,30 +75,75 @@ var StatePage = {
 	 * @param href
 	 * @param obj
 	 * @param noPush boolean(true : replaceState, false : pushState) default : false
+	 * @param force boolean
 	 * @public
 	 */
-	Load : function(href, obj, noPush){
+	Load : function(href, targetId, noPush, force){
+		var splitHref = href.split('#');
+		StatePage.beforeHash = splitHref.length > 1 ? splitHref[1] : '';
 		if(!StatePage.isInit){
 			location.href = href;
 			return;
 		}
-		var el = null;
-		if(typeof(obj) === 'string') el = document.getElementById(obj);
-		else if(typeof(obj) === 'object') el = obj;
-		if(!el) el = StatePage.targetElement;
 
 		var linkEl = document.createElement("a");
 		linkEl.href = href;
 
-		if(StatePage.url !== '' && StatePage.url === linkEl.pathname + linkEl.search) return;
+		if(StatePage.url !== '' && (StatePage.url == linkEl.pathname + linkEl.search && force !== true)) return;
 
-		JCM.get(href, {hash : linkEl.hash}, function(html){
+		JCM.getWithLoading(href, {hash : linkEl.hash}, function(html){
+
+			var el = null;
+			if(typeof(targetId) === 'string') el = $('#wrapInWrap').find('#' + targetId);
+			if(!el) el = $('#wrapInWrap').find('#' + StatePage.targetId);
+
 			$(el).html(html);
-			StatePage.url = linkEl.pathname + linkEl.search;
-			StatePage._CompleteAction();
+			StatePage.url = linkEl.href;
+
+			if(StatePage.isAnimate === true){
+				var temp = document.createElement('div');
+				temp.id = 'wrapInWrap2';
+				$(temp).html($('#wrapInWrap').html());
+				$(temp).find('script').remove();
+				$('#wrap').append(temp);
+
+				$('#wrapInWrap').css({
+					position : 'fixed',
+					top : 0,
+					left : 0
+				});
+				var d = {
+					'wrap1x' : ['100%', '0%'],
+					'wrap2x' : ['0%', '-100%'],
+				};
+				if(StatePage.animateDirection === 'right'){
+					d = {
+						'wrap1x' : ['-100%', '0%'],
+						'wrap2x' : ['0%', '100%'],
+					};
+				}
+				$('#wrapInWrap').translate3d({x : d.wrap1x[0]}, {x : d.wrap1x[1]}, StatePage.animateSpeed, function(){
+					$('#wrapInWrap2').remove();
+					$('#wrapInWrap').css({'position' : 'static', 'transition' : '0s', 'transform' : '', '-webkit-transform' : '', '-ms-transform' : ''});
+
+					StatePage._CompleteAction();
+				});
+
+				$('#wrapInWrap2').translate3d({x : d.wrap2x[0]}, {x : d.wrap2x[1]}, StatePage.animateSpeed);
+				StatePage.animateDirection = 'left';
+			}
+			else{
+				StatePage._CompleteAction();
+			}
+
+
 			if(noPush) history.replaceState('', '', href);
 			else history.pushState('', '', href);
 		});
+	},
+
+	LoadForce : function(href, obj, noPush){
+		StatePage.Load(href, obj, noPush, true);
 	},
 
 	/**

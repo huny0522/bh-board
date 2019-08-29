@@ -653,6 +653,13 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	public $beginNum = '';
 	public $pageHtml = '';
 
+	public static $pageNumberView = 10;
+
+	public function __construct($table = ''){
+		$this->pageCount = self::$pageNumberView;
+		parent::__construct($table);
+	}
+
 	/**
 	 * @param string $str
 	 * @return $this
