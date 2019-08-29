@@ -57,8 +57,8 @@ use \BH_Application as App;
 <?php while($row = $Data->Get()){?>
 <tr>
 	<td><?p. $Data->beginNum-- ?></td>
-	<td><a href="<?a. 'View' ?>?muid=<?p. $row['muid'] ?><?fn. '' ?>"><?v. $row['mid']; ?></a></td>
-	<td><a href="<?a. 'View' ?>?muid=<?p. $row['muid'] ?><?fn. '' ?>"><?v. $row['mname']; ?></a></td>
+	<td><a href="<?a. 'View' ?>?muid=<?p. $row['muid'] ?><?fqn. '' ?>"><?v. $row['mid']; ?></a></td>
+	<td><a href="<?a. 'View' ?>?muid=<?p. $row['muid'] ?><?fqn. '' ?>"><?v. $row['mname']; ?></a></td>
 	<td><?v. $row['nickname']; ?></td>
 	<td><?menum('level', $row['level']) ?></td>
 	<td><?v. $row['phone']; ?></td>
@@ -73,7 +73,7 @@ use \BH_Application as App;
 	<p class="nothing">등록된 회원이 없습니다.</p>
 <?php } ?>
 
-<div class="left_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn">회원추가</a></div>
+<div class="left_btn"><a href="<?a. 'Write' ?><?fqq. '' ?>" class="mBtn">회원추가</a></div>
 <div class="paging"><?p. $Data->pageHtml ?></div>
 
 <script>

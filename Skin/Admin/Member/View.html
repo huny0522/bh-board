@@ -93,9 +93,9 @@ use \BH_Application as App;
 		<td><?menum('approve') ?></td>
 	</tr>
 </table>
-<div class="bottomBtn"><a href="<?a. '' ?><?fq. '' ?>" class="bBtn">리스트</a><a href="<?a. 'Modify' ?>?muid=<?v. $_GET['muid'] ?><?fn. '' ?>" class="bBtn">수정</a><a href="#" id="deleteArticle" data-muid="<?v. $_GET['muid'] ?>" class="bBtn">탈퇴처리</a><a href="#" class="backbtn bBtn">뒤로</a></div>
+<div class="bottomBtn"><a href="<?a. '' ?><?fqq. '' ?>" class="bBtn">리스트</a><a href="<?a. 'Modify' ?>?muid=<?v. $_GET['muid'] ?><?fqn. '' ?>" class="bBtn">수정</a><a href="#" id="deleteArticle" data-muid="<?v. $_GET['muid'] ?>" class="bBtn">탈퇴처리</a><a href="#" class="backbtn bBtn">뒤로</a></div>
 <div id="deleteForm" class="hidden modalConfirm">
-	<form id="delForm" name="delForm" method="post" action="<?a. 'Withdraw' ?><?fq. '' ?>">
+	<form id="delForm" name="delForm" method="post" action="<?a. 'Withdraw' ?><?fqq. '' ?>">
 		<input type="hidden" name="muid" value="<?v. $_GET['muid'] ?>">
 		<p>정말 탈퇴처리하시겠습니까? 한번 탈퇴처리하면 복구되지 않습니다.</p>
 		<div class="sPopBtns">

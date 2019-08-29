@@ -56,7 +56,7 @@ use \BH_Common as CM;
 	<footer class="bottomBtn">
 		<button type="button" class="mBtn close">닫기</button>
 		<?php if($_SESSION['member']['muid'] == $Model->_muid->value){ ?>
-			<a href="<?a. 'Modify/'.App::$id ?><?fq. '' ?>" class="mBtn" id="msgModifyBtn">수정</a>
+			<a href="<?a. 'Modify/'.App::$id ?><?fqq. '' ?>" class="mBtn" id="msgModifyBtn">수정</a>
 			<a href="#" id="deleteArticle" class="mBtn">삭제</a>
 		<?php } ?>
 	</footer>
@@ -66,7 +66,7 @@ use \BH_Common as CM;
 
 
 <div id="deleteForm" class="modalConfirm hidden">
-	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete/'.App::$id ?><?fq. '' ?>">
+	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete/'.App::$id ?><?fqq. '' ?>">
 		<p>정말 삭제하시겠습니까?</p>
 		<div class="sPopBtns">
 			<button type="submit" class="sBtn btn2">삭제하기</button>

@@ -44,13 +44,13 @@ $_rpData = array(
 		'replace' => '<?php echo nl2br(GetDBText(strip_tags($1))); ?>'
 	),
 
-	//fn,fq
+	//fqn,fqq
 	array(
-		'pattern' => '/<\?\s*fn\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'pattern' => '/<\?\s*fqn\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
 		'replace' => '<?php echo \BH_Application::GetFollowQuery($1, \'&\'); ?>'
 	),
 	array(
-		'pattern' => '/<\?\s*fq\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'pattern' => '/<\?\s*fqq\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
 		'replace' => '<?php echo \BH_Application::GetFollowQuery($1, \'?\'); ?>'
 	),
 

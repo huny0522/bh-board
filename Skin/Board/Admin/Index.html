@@ -65,10 +65,10 @@ App::JSAdd('board.js', 200);
 				<td><?v. KrDate($row['reg_date'],'ymd', 24) ?></td>
 				<td>
 					<?php if($row['delis'] != 'y'){ ?>
-						<a href="<?a. 'Delete/'.toBase($row['seq']) ?><?fq. '' ?>" class="deleteArticle">삭제</a>
+						<a href="<?a. 'Delete/'.toBase($row['seq']) ?><?fqq. '' ?>" class="deleteArticle">삭제</a>
 					<?php }else{ ?>
-						<a href="<?a. 'Undelete/'.toBase($row['seq']) ?><?fq. '' ?>" class="unDeleteArticle">삭제복구</a>
-						<a href="<?a. 'Remove/'.toBase($row['seq']) ?><?fq. '' ?>" class="removeArticle">완전삭제</a>
+						<a href="<?a. 'Undelete/'.toBase($row['seq']) ?><?fqq. '' ?>" class="unDeleteArticle">삭제복구</a>
+						<a href="<?a. 'Remove/'.toBase($row['seq']) ?><?fqq. '' ?>" class="removeArticle">완전삭제</a>
 					<?php } ?>
 				</td>
 
@@ -97,10 +97,10 @@ App::JSAdd('board.js', 200);
 				<td><?v. KrDate($row['reg_date'],'ymd', 24) ?></td>
 				<td>
 					<?php if($row['delis'] != 'y'){ ?>
-						<a href="<?a. 'Delete/'.toBase($row['seq']) ?><?fq. '' ?>" class="deleteArticle">삭제</a>
+						<a href="<?a. 'Delete/'.toBase($row['seq']) ?><?fqq. '' ?>" class="deleteArticle">삭제</a>
 					<?php }else{ ?>
-						<a href="<?a. 'Undelete/'.toBase($row['seq']) ?><?fq. '' ?>" class="unDeleteArticle">복구</a> |
-						<a href="<?a. 'Remove/'.toBase($row['seq']) ?><?fq. '' ?>" class="removeArticle">완전삭제</a>
+						<a href="<?a. 'Undelete/'.toBase($row['seq']) ?><?fqq. '' ?>" class="unDeleteArticle">복구</a> |
+						<a href="<?a. 'Remove/'.toBase($row['seq']) ?><?fqq. '' ?>" class="removeArticle">완전삭제</a>
 					<?php } ?>
 				</td>
 			</tr>
@@ -132,7 +132,7 @@ App::JSAdd('board.js', 200);
 </form>
 
 <?php if($Ctrl->GetAuth('Write')){ ?>
-	<div class="right_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn btn2 boardWriteBtn">글쓰기</a></div>
+	<div class="right_btn"><a href="<?a. 'Write' ?><?fqq. '' ?>" class="mBtn btn2 boardWriteBtn">글쓰기</a></div>
 	<?php if(sizeof($Ctrl->additionalSubId)){ ?>
 		<?inc. '/Board/SubSelect.html' ?>
 	<?php } ?>

@@ -74,7 +74,7 @@ use \BH_Application as App;
 				<td><?menum('auth_answer_level', $row['auth_answer_level']) ?></td>
 				<td><?menum('use_reply', $row['use_reply']) ?></td>
 				<td><?v. $row['title'] ?></td>
-				<td><a href="<?a. 'Modify/' . $bid . '/' . $subid ?><?fn. '' ?>">관리</a> | <a href="<?a. 'Copy/' . $bid . '/' . $subid ?><?fn. '' ?>">복사</a> | <a href="<?c. 'Board/'.$bid.(strlen($subid) ? '-' : '').$row['subid'] ?>">보기</a> | <a href="<?a. 'CategoryChange/' . $bid . '/' . $subid ?>">분류변경</a></td>
+				<td><a href="<?a. 'Modify/' . $bid . '/' . $subid ?><?fqn. '' ?>">관리</a> | <a href="<?a. 'Copy/' . $bid . '/' . $subid ?><?fqn. '' ?>">복사</a> | <a href="<?c. 'Board/'.$bid.(strlen($subid) ? '-' : '').$row['subid'] ?>">보기</a> | <a href="<?a. 'CategoryChange/' . $bid . '/' . $subid ?>">분류변경</a></td>
 			</tr>
 		<?php } ?>
 		</tbody>
@@ -83,5 +83,5 @@ use \BH_Application as App;
 	<p class="nothing">등록된 게시판이 없습니다.</p>
 <?php } ?>
 
-<div class="left_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn">게시판생성</a></div>
+<div class="left_btn"><a href="<?a. 'Write' ?><?fqq. '' ?>" class="mBtn">게시판생성</a></div>
 <div class="paging"><?p. $Data->pageHtml ?></div>

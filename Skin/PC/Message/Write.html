@@ -11,7 +11,7 @@ $Model = &$Ctrl->messageModel;
 ?>
 
 <article class="messageWrite">
-	<form name="MessagesWriteForm" id="MessagesWriteForm" method="post" action="<?a. App::$action.'/'.App::$id ?><?fq. '' ?>">
+	<form name="MessagesWriteForm" id="MessagesWriteForm" method="post" action="<?a. App::$action.'/'.App::$id ?><?fqq. '' ?>">
 		<?php if(App::$action === 'Modify'){ ?>
 			<input type="hidden" name="seq" value="<?p. $Model->_seq->value ?>">
 		<?php }else{ ?>

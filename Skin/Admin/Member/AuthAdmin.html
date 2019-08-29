@@ -10,7 +10,7 @@ use \BH_Application as App;
 	<div class="opt">
 		<input type="checkbox" id="AllCheck"><label for="AllCheck">전체선택</label>
 	</div>
-	<form name="AuthForm" id="AuthForm" method="post" action="<?a. App::$action ?><?fq. '' ?>">
+	<form name="AuthForm" id="AuthForm" method="post" action="<?a. App::$action ?><?fqq. '' ?>">
 		<input type="hidden" name="muid" value="<?p. SetDBInt($_GET['muid']) ?>">
 		<?php if(sizeof(App::$settingData['AdminMenu']) && isset(App::$settingData['AdminMenu'])){ ?>
 

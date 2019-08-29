@@ -12,7 +12,7 @@ $useHtml = ($Ctrl->boardManger->_use_html->value == 'y' && (_MOBILEIS !== true |
 ?>
 
 
-<form name="BoardWriteForm" id="BoardWriteForm" method="post" action="<?a. App::$action ?>/<?php if(App::$action == 'Modify') echo App::$id; ?><?fq. '' ?>" enctype="multipart/form-data">
+<form name="BoardWriteForm" id="BoardWriteForm" method="post" action="<?a. App::$action ?>/<?php if(App::$action == 'Modify') echo App::$id; ?><?fqq. '' ?>" enctype="multipart/form-data">
 	<input type="hidden" name="htmlis" value="<?p. $useHtml ?>">
 	<input type="hidden" name="subid" value="<?v. $subid ?>">
 	<?php if(App::$action == 'Answer'){ ?>
@@ -139,7 +139,7 @@ $useHtml = ($Ctrl->boardManger->_use_html->value == 'y' && (_MOBILEIS !== true |
 	<div class="bottomBtn">
 		<button type="submit" class="mBtn btn2"><?php echo App::$action == 'Modify' ? '수정' : '등록'; ?></button>
 		<a href="#" class="backbtn mBtn btn1">뒤로</a>
-		<a href="<?a. '' ?><?fq. '' ?>" class="mBtn btn1">리스트</a>
+		<a href="<?a. '' ?><?fqq. '' ?>" class="mBtn btn1">리스트</a>
 	</div>
 
 	<?php if(is_array(Post('addimg'))) foreach(Post('addimg') as $v){?>

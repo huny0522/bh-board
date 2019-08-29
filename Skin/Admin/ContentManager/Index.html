@@ -61,7 +61,7 @@ use \BH_Application as App;
 			<tr>
 				<td><?p. $Data->beginNum-- ?></td>
 				<td><?v. $row['category']; ?></td>
-				<td><a href="<?a. 'Modify' ?>?bid=<?p. $row['bid'] ?><?fn. '' ?>"><?v. $row['subject']; ?></a></td>
+				<td><a href="<?a. 'Modify' ?>?bid=<?p. $row['bid'] ?><?fqn. '' ?>"><?v. $row['subject']; ?></a></td>
 				<td><?v. $row['bid']; ?></td>
 				<td><?v. $row['html']; ?></td>
 				<td><?v. $row['layout']; ?></td>
@@ -76,7 +76,7 @@ use \BH_Application as App;
 	<p class="nothing">등록된 게시물이 없습니다.</p>
 <?php } ?>
 
-<div class="left_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn">컨텐츠등록</a></div>
+<div class="left_btn"><a href="<?a. 'Write' ?><?fqq. '' ?>" class="mBtn">컨텐츠등록</a></div>
 <div class="paging"><?p. $Data->pageHtml ?></div>
 
 

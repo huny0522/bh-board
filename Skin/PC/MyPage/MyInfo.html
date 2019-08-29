@@ -9,7 +9,7 @@ use \BH_Application as App;
 
 <h2>회원정보수정</h2>
 
-<form name="MemberWriteForm" id="MemberWriteForm" method="post" action="<?a. App::$action ?><?fq. '' ?>">
+<form name="MemberWriteForm" id="MemberWriteForm" method="post" action="<?a. App::$action ?><?fqq. '' ?>">
 	<?php if(isset(App::$data['error'])) echo '<p class="alert">'.App::$data['error'].'</p>'; ?>
 
 	<table class="write">
@@ -85,7 +85,7 @@ use \BH_Application as App;
 	<div class="bottomBtn">
 		<button type="submit" class="mBtn btn2">수정</button>
 		<button type="reset" class="mBtn btn1">취소</button>
-		<a href="<?a. 'MyInfo' ?><?fq. '' ?>" class="mBtn btn1">뒤로</a>
+		<a href="<?a. 'MyInfo' ?><?fqq. '' ?>" class="mBtn btn1">뒤로</a>
 	</div>
 </form>
 

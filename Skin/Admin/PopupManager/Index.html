@@ -67,7 +67,7 @@ use \BH_Application as App;
 			<td><?menum('kind', $row['kind']) ?></td>
 			<td><?menum('enabled', $row['enabled']) ?></td>
 			<td><?v. $row['sort']; ?></td>
-			<td><a href="<?a. 'Modify' ?>/<?p. toBase($row['seq']) ?><?fn. '' ?>">수정</a></td>
+			<td><a href="<?a. 'Modify' ?>/<?p. toBase($row['seq']) ?><?fqn. '' ?>">수정</a></td>
 		</tr>
 	<?php } ?>
 	</tbody>
@@ -76,7 +76,7 @@ use \BH_Application as App;
 	<p class="nothing">등록된 팝업이 없습니다.</p>
 <?php } ?>
 
-<div class="left_btn"><a href="<?a. 'Write' ?><?fq. '' ?>" class="mBtn">팝업등록</a></div>
+<div class="left_btn"><a href="<?a. 'Write' ?><?fqq. '' ?>" class="mBtn">팝업등록</a></div>
 <div class="paging"><?p. $Data->pageHtml ?></div>
 
 <script>

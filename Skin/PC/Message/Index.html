@@ -44,7 +44,7 @@ $Model = &$Ctrl->messageModel;
 				<li class="category"><?p. $row['muid'] == $_SESSION['member']['muid'] ? '보낸쪽지' : '받은쪽지' ?></li>
 				<li class="name"><?p. $row['muid'] == $_SESSION['member']['muid'] ? CM::MemName($row['target_muid'], $row['receiver_name']) : CM::MemName($row['muid'], $row['sender_name']) ?>
 				</li>
-				<li class="subject"><a href="<?a. 'View/'.$row['seq'] ?><?fn. '' ?>" class="viewBtn"><?v. StringCut($row['comment'], 50); ?></a></li>
+				<li class="subject"><a href="<?a. 'View/'.$row['seq'] ?><?fqn. '' ?>" class="viewBtn"><?v. StringCut($row['comment'], 50); ?></a></li>
 				<li class="date"><?p. substr($row['reg_date'], 0, 10) ?></li>
 				<li class="date"><?p. strlen($row['read_date']) ? '<span class="read">' . substr($row['read_date'], 0, 10) . '</span>' : '<span class="notRead">읽지않음</span>' ?></li>
 			</ul>

@@ -7,7 +7,7 @@ use \BH_Application as App;
 */
 ?>
 
-<form name="BannerWriteForm" id="BannerWriteForm" method="post" action="<?a. App::$action ?><?v. '/'.App::$id ?><?fq. '' ?>" enctype="multipart/form-data">
+<form name="BannerWriteForm" id="BannerWriteForm" method="post" action="<?a. App::$action ?><?v. '/'.App::$id ?><?fqq. '' ?>" enctype="multipart/form-data">
 
 	<table class="write">
 		<tr>
@@ -167,7 +167,7 @@ use \BH_Application as App;
 
 <?php if(App::$action == 'Modify'){ ?>
 <div id="deleteForm" class="hidden modalConfirm">
-	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete' ?><?fq. '' ?>">
+	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete' ?><?fqq. '' ?>">
 		<input type="hidden" name="seq" value="<?v. App::$id ?>">
 		<p>정말 삭제하시겠습니까?</p>
 		<div class="sPopBtns">

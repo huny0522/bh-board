@@ -22,7 +22,7 @@ else if(App::$action === 'Modify'){
 
 <?php if(isset(App::$data['error'])) echo '<p class="alert">' . App::$data['error'] . '</p>'; ?>
 
-<form name="BoardManagerWriteForm" id="BoardManagerWriteForm" method="post" action="<?a. App::$action == 'Copy' ? 'Write' : App::$action ?><?fq. '' ?>">
+<form name="BoardManagerWriteForm" id="BoardManagerWriteForm" method="post" action="<?a. App::$action == 'Copy' ? 'Write' : App::$action ?><?fqq. '' ?>">
 	<?php if(App::$action == 'Modify'){?>
 		<input type="hidden" name="bid" value="<?mv('bid') ?>">
 		<input type="hidden" name="subid" value="<?mv('subid') ?>">
@@ -268,7 +268,7 @@ else if(App::$action === 'Modify'){
 	<div class="bottomBtn">
 		<button type="submit" class="bBtn"><?php echo App::$action == 'Modify' ? '수정' : '등록'; ?></button>
 		<a href="#" id="deleteArticle" class="bBtn btn3">삭제</a>
-		<a href="<?a. '' ?><?fq. '' ?>" class="bBtn">목록</a>
+		<a href="<?a. '' ?><?fqq. '' ?>" class="bBtn">목록</a>
 	</div>
 </form>
 
@@ -416,7 +416,7 @@ else if(App::$action === 'Modify'){
 
 
 <div id="deleteForm" class="hidden modalConfirm">
-	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete' ?><?fq. '' ?>">
+	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete' ?><?fqq. '' ?>">
 		<input type="hidden" name="bid" value="<?v. $Model->_bid->value ?>">
 		<input type="hidden" name="subid" value="<?v. $Model->_subid->value ?>">
 		<p>정말 삭제하시겠습니까?</p>

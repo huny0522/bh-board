@@ -9,7 +9,7 @@ use \BH_Application as App;
 
 <h2>컨텐츠관리</h2>
 
-<form name="ContentWriteForm" id="ContentWriteForm" method="post" action="<?a. App::$action ?><?fq. '' ?>">
+<form name="ContentWriteForm" id="ContentWriteForm" method="post" action="<?a. App::$action ?><?fqq. '' ?>">
 	<?php if(App::$action == 'Modify'){?>
 		<input type="hidden" name="bid" value="<?mv('bid') ?>">
 	<?php } ?>
@@ -113,7 +113,7 @@ use \BH_Application as App;
 	<div class="bottomBtn">
 		<button type="submit" class="bBtn"><?php echo App::$action == 'Modify' ? '수정' : '등록'; ?></button>
 		<button type="reset" class="bBtn">취소</button>
-		<a href="<?a. '' ?><?fq. '' ?>" class="bBtn">목록</a>
+		<a href="<?a. '' ?><?fqq. '' ?>" class="bBtn">목록</a>
 	</div>
 </form>
 

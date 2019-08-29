@@ -15,7 +15,7 @@ $useHtml = $Ctrl->boardManger->_use_html->value;
 <h2><?p. $Ctrl->boardManger->GetValue('subject') ?> 게시물관리</h2>
 <div class="right_btn"><a href="<?c. 'BoardManager' ?>" class="sBtn">게시판 관리로 이동</a></div>
 
-<form name="BoardWriteForm" id="BoardWriteForm" method="post" action="<?a. App::$action ?>/<?php if(App::$action == 'Modify') echo App::$id; ?><?fq. '' ?>" enctype="multipart/form-data">
+<form name="BoardWriteForm" id="BoardWriteForm" method="post" action="<?a. App::$action ?>/<?php if(App::$action == 'Modify') echo App::$id; ?><?fqq. '' ?>" enctype="multipart/form-data">
 	<input type="hidden" name="htmlis" value="<?p. $useHtml ?>" id="htmlis">
 	<input type="hidden" name="subid" value="<?v. $subid ?>">
 	<?php if(App::$action == 'Answer'){ ?>
