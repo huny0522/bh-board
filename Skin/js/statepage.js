@@ -94,7 +94,7 @@ var StatePage = {
 		JCM.getWithLoading(href, {hash : linkEl.hash}, function(html){
 
 			var el = null;
-			if(typeof(targetId) === 'string') el = $('#wrapInWrap').find('#' + targetId);
+			if(typeof(targetId) === 'string' && targetId !== '') el = $('#wrapInWrap').find('#' + targetId);
 			if(!el) el = $('#wrapInWrap').find('#' + StatePage.targetId);
 
 			$(el).html(html);

@@ -399,7 +399,10 @@ function Common($){
 	 ------------------------------------------- */
 
 	this.imageFileFormRunIs = false;
-	this.imageFileForm = function(){
+	this.imageFileFormBtnAction = null;
+	this.imageFileForm = function(btnCallback){
+		if(typeof(btnCallback) === 'function') this.imageFileFormBtnAction = btnCallback;
+		var _this = this;
 		if(this.imageFileFormRunIs) return;
 		this.imageFileFormRunIs = true;
 
@@ -414,7 +417,8 @@ function Common($){
 			$('#_uploadImgFrm').data({
 				obj : $(this).closest('.fileUploadArea').find('input.fileUploadInput')[0]
 			});
-			$('#_uploadImgInp').click();
+			if(typeof(_this.imageFileFormBtnAction) === 'function') _this.imageFileFormBtnAction(document.getElementById('_uploadImgInp'));
+			else $('#_uploadImgInp').click();
 		});
 		$(document).on('click','.fileUploadArea button.fileUploadAreaAddBtn',function(e){
 			AddFileInp.call(this);
@@ -440,17 +444,19 @@ function Common($){
 
 		$(document).on('submit','#_uploadImgFrm',function(e){
 			e.preventDefault();
-			_this.ajaxForm(this, function(result){
-				$('#_uploadImgFrm')[0].reset();
-				var obj = $('#_uploadImgFrm').data().obj;
-				var area = $(obj).closest('.fileUploadArea');
-				$(obj).val(result.path);
-				var img = area.find('.fileUploadImage');
-				if(img.length){
-					img.html('<i style="background-image:url(' + result.uploadDir + result.path  + ')"></i>');
-				}
-			});
+			_this.ajaxForm(this, _this.imageFileSubmitRes);
 		});
+	};
+
+	this.imageFileSubmitRes = function(result){
+		$('#_uploadImgFrm')[0].reset();
+		var obj = $('#_uploadImgFrm').data().obj;
+		var area = $(obj).closest('.fileUploadArea');
+		$(obj).val(result.path);
+		var img = area.find('.fileUploadImage');
+		if(img.length){
+			img.html('<i style="background-image:url(' + result.uploadDir + result.path  + ')"></i>');
+		}
 	};
 
 	/* -------------------------------------------
@@ -464,7 +470,9 @@ function Common($){
 	 ------------------------------------------- */
 
 	this.fileFormRunIs = false;
-	this.fileForm = function(){
+	this.fileFormBtnAction = null;
+	this.fileForm = function(btnCallback){
+		if(typeof(btnCallback) === 'function') this.fileFormBtnAction = btnCallback;
 		if(this.fileFormRunIs) return;
 		this.fileFormRunIs = true;
 
@@ -479,7 +487,8 @@ function Common($){
 			$('#_uploadFileFrm').data({
 				obj : $(this).closest('.fileUploadArea2').find('input.fileUploadInput')[0]
 			});
-			$('#_uploadFileInp').click();
+			if(typeof(_this.fileFormBtnAction) === 'function') _this.fileFormBtnAction(document.getElementById('_uploadFileInp'));
+			else $('#_uploadFileInp').click();
 		});
 		$(document).on('click','.fileUploadArea2 button.fileUploadAreaAddBtn',function(e){
 			AddFileInp2.call(this);
@@ -505,17 +514,19 @@ function Common($){
 
 		$(document).on('submit','#_uploadFileFrm',function(e){
 			e.preventDefault();
-			_this.ajaxForm(this, function(result){
-				$('#_uploadFileFrm')[0].reset();
-				var obj = $('#_uploadFileFrm').data().obj;
-				var area = $(obj).closest('.fileUploadArea2');
-				$(obj).val(result.path + '*' + result.fname);
-				var file = area.find('p');
-				if(file.length){
-					file.html('<span class="fileName">' + result.fname + '</span>');
-				}
-			});
+			_this.ajaxForm(this, this.fileSubmitRes);
 		});
+	};
+
+	this.fileSubmitRes = function(result){
+		$('#_uploadFileFrm')[0].reset();
+		var obj = $('#_uploadFileFrm').data().obj;
+		var area = $(obj).closest('.fileUploadArea2');
+		$(obj).val(result.path + '*' + result.fname);
+		var file = area.find('p');
+		if(file.length){
+			file.html('<span class="fileName">' + result.fname + '</span>');
+		}
 	};
 
 	/* -------------------------------------------
@@ -564,8 +575,8 @@ function Common($){
 	 ------------------------------------------- */
 
 	this.popPostCode = function (callback) {
-		if (typeof daum === "undefined" || typeof(daum.postcode) === 'undefined') {
-			jQuery.getScript("http://dmaps.daum.net/map_js_init/postcode.v2.js?autoload=false").done(function (script, textStatus) {
+		if (typeof daum === "undefined" || typeof daum.postcode === "undefined") {
+			jQuery.getScript(document.location.protocol == 'https:' ? 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js?autoload=false' : 'http://dmaps.daum.net/map_js_init/postcode.v2.js?autoload=false').done(function (script, textStatus) {
 				_this.popDaumPostCode(callback);
 			});
 		} else {
@@ -605,11 +616,14 @@ function Common($){
 			'left': '50%',
 			'width': w + 'px',
 			'height': h + 'px',
-			'margin-top': '-' + (h/2) + 'px',
-			'margin-left': '-' + (w/2) + 'px',
+			'max-height' : '100%',
 			'box-sizing': 'border-box',
 			'background': 'white',
-			'border': '5px solid black'
+			'border': '5px solid black',
+			'transform' : 'translate(-50%, -50%)',
+			'-webkit-transform' : 'translate(-50%, -50%)',
+			'-moz-transform' : 'translate(-50%, -50%)',
+			'-ms-transform' : 'translate(-50%, -50%)',
 		});
 
 		daum.postcode.load(function () {
@@ -670,7 +684,7 @@ function Common($){
 	this.lang = function(text){
 		if(!Array.isArray(text)){
 			if(arguments.length === 1) return text;
-			else text = arguments;
+			else text = Array.from(arguments);
 		}
 		return text[typeof(window._lang) === 'undefined' ? 0 : window._lang];
 	};
