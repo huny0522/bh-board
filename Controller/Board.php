@@ -802,9 +802,9 @@ class Board{
 	}
 
 	/**
-	* @param callable $dbInsertBefore
-	* @param callable $dbInsertAfter
-	*/
+	 * @param callable $dbInsertBefore
+	 * @param callable $dbInsertAfter
+	 */
 	public function PostAnswer($dbInsertBefore = null, $dbInsertAfter = null){
 		$this->PostWrite($dbInsertBefore, $dbInsertAfter);
 	}
@@ -967,7 +967,11 @@ class Board{
 		}
 	}
 
-	public function PostDelete(){
+	/**
+	 * @param callable $deleteBefore
+	 * @param callable $deleteAfter
+	 */
+	public function PostDelete($deleteBefore = null, $deleteAfter = null){
 		$res = $this->GetAuth('Write');
 		if(!$res){
 			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
@@ -992,7 +996,9 @@ class Board{
 		}
 
 		$this->model->SetValue('delis', 'y');
-		$this->model->DBUpdate();
+		if(is_callable($deleteBefore)) $deleteBefore();
+		$res = $this->model->DBUpdate();
+		if(is_callable($deleteAfter)) $deleteAfter($res);
 
 		if(_AJAXIS === true) JSON(true, '', App::$lang['MSG_COMPLETE_DELETE']);
 		else URLReplace(App::URLAction('').App::GetFollowQuery(), App::$lang['MSG_COMPLETE_DELETE']);

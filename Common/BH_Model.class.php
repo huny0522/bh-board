@@ -381,7 +381,7 @@ class BH_Model{
 	 * @return array|BH_ModelData
 	 */
 	public function __get($name){
-		if($name === 'Need'){
+		if($name === 'need'){
 			$res = array();
 			foreach($this->data as $k => $v){
 				if($v->needIs) $res[] = $k;

@@ -246,8 +246,14 @@ BHCss::$variable['$c4'] = 'rgb(10, 25, 40)';
 	#replyListContents header{ padding:0.7rem; background:#f4f4f4;}
 	#replyListContents .btns{float:right;}
 	#replyListContents .btns a{ display:inline-block; padding:2px 5px; background:#555; color:#fff; font-size:0.9em; border-radius:2px;}
+	#replyListContents .btns a + a{margin-left:5px;}
 	#replyListContents .comment{ padding:1.0rem; line-height:1.5em;}
 	#replyListContents .comment b{ color:#999; margin-right:10px;}
+	#replyListContents .attachFileArea{float:left;}
+	#replyListContents .btn{padding:10px 0; float:right;}
+	#replyListContents fieldset{padding-bottom:0;}
+	#replyListContents form:after{$cb;}
+	#replyListContents .replyDelete p{padding:20px; text-align:center;}
 
 	.repLayer{ position:fixed; top:0; left:0; z-index:100; width:100%; height:100%; background:#999; background:rgba(0,0,0,0.1);}
 	.repLayer form{ position:absolute; top:50%; left:50%; width:40.0rem; padding:2.0rem; margin:-8.0rem 0 0 -15.0rem; border:2px solid #333; background:#fff; text-align:center;}

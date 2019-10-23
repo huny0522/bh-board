@@ -102,7 +102,7 @@ class Reply{
 		else JSON(true, '', App::GetView($this->model));
 	}
 
-	public function PostGetList(){
+	public function PostGetList($listQueryFunc = null){
 		if(!isset($_POST['article_seq']) || !strlen($_POST['article_seq'])) exit;
 
 		if(isset($this->boardManger) && $this->boardManger->GetValue('use_reply') == 'n') return;
@@ -128,6 +128,7 @@ class Reply{
 
 		$this->_R_CommonQry($dbList);
 		$this->_R_GetListQuery($dbList);
+		if(is_callable($listQueryFunc)) $listQueryFunc($dbList);
 		$dbList->DrawRows();
 		foreach($dbList->data as $k => $v){
 			$row = &$dbList->data[$k];
@@ -169,7 +170,7 @@ class Reply{
 		JSON(true, '', App::GetView(null, $dbList));
 	}
 
-	public function PostMoreList(){
+	public function PostMoreList($listQueryFunc = null){
 		if(!isset($_POST['article_seq']) || !strlen($_POST['article_seq'])) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 
 		if(isset($this->boardManger) && $this->boardManger->GetValue('use_reply') == 'n') return;
@@ -212,6 +213,7 @@ class Reply{
 		}
 
 		$this->_R_MoreListQuery($dbList);
+		if(is_callable($listQueryFunc)) $listQueryFunc($dbList);
 
 		$dbList->DrawRows();
 		foreach($dbList->data as $k => $v){
@@ -251,7 +253,11 @@ class Reply{
 		JSON(true, '', App::GetView($dbList));
 	}
 
-	public function PostWrite($answerIs = false){
+	/**
+	 * @param callable $dbInsertBefore
+	 * @param callable $dbInsertAfter
+	 */
+	public function PostWrite($dbInsertBefore = null, $dbInsertAfter = null){
 		$res = $this->GetAuth();
 		if(!isset($_POST['article_seq']) || !strlen($_POST['article_seq'])) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 		if(!$res) JSON(false, App::$lang['MSG_NO_AUTH']);
@@ -269,7 +275,7 @@ class Reply{
 		$first_member_is = 'n';
 		$target = '';
 
-		if($answerIs){
+		if(App::$action == 'Answer'){
 			$target = SetDBInt($_POST['target_seq']);
 			$dbGet = DB::GetQryObj($this->model->table)
 				->SetConnName($this->connName)
@@ -308,7 +314,7 @@ class Reply{
 		}
 
 		// 답글쓰기라면 sort 정렬
-		if($answerIs){
+		if(App::$action == 'Answer'){
 			$qry = DB::GetQryObj($this->model->table)
 				->SetConnName($this->connName)
 				->SetKey('mname, depth, muid, sort1, sort2')
@@ -341,6 +347,7 @@ class Reply{
 		}
 
 		$this->_R_PostWriteInsertBefore();
+		if(is_callable($dbInsertBefore)) $dbInsertBefore();
 
 		$error = $this->model->GetErrorMessage();
 		if(sizeof($error)) JSON(false, $error[0]);
@@ -349,6 +356,7 @@ class Reply{
 
 		if($res->result){
 			$this->_R_PostWriteInsertAfter($res->id);
+			if(is_callable($dbInsertAfter)) $dbInsertAfter($res->id);
 			// 댓글갯수 업데이트
 			$this->model->article_count_set($this->model->GetValue('article_seq'));
 			JSON(true, App::$lang['MSG_COMPLETE_REGISTER']);
@@ -356,8 +364,12 @@ class Reply{
 		else JSON(result, $res->message ? $res->message : 'ERROR');
 	}
 
-	public function PostAnswer(){
-		$this->PostWrite(true);
+	/**
+	 * @param callable $dbInsertBefore
+	 * @param callable $dbInsertAfter
+	 */
+	public function PostAnswer($dbInsertBefore = null, $dbInsertAfter = null){
+		$this->PostWrite($dbInsertBefore, $dbInsertAfter);
 	}
 
 	public function PostViewSecret(){
@@ -381,7 +393,11 @@ class Reply{
 		JSON(true, '', array('comment' => nl2br(GetDBText($this->model->GetValue('comment'))), 'file_html' => $this->_FileHtml($this->model->_file->value, $this->model->_seq->Val()), 'file_name' => $this->model->GetFileName('file')));
 	}
 
-	public function PostModify(){
+	/**
+	 * @param callable $dbUpdateBefore
+	 * @param callable $dbUpdateAfter
+	 */
+	public function PostModify($dbUpdateBefore = null, $dbUpdateAfter = null){
 		$res = $this->GetAuth();
 		if(!$res) JSON(false, App::$lang['MSG_NO_AUTH']);
 
@@ -424,6 +440,7 @@ class Reply{
 		}
 
 		$this->_R_PostModifyUpdateBefore();  // Reserved
+		if(is_callable($dbUpdateBefore)) $dbUpdateBefore();
 
 		$error = $this->model->GetErrorMessage();
 		if(sizeof($error)) JSON(false, $error[0]);
@@ -433,13 +450,18 @@ class Reply{
 
 		if($res->result){
 			$this->_R_PostModifyUpdateAfter();  // Reserved
+			if(is_callable($dbUpdateAfter)) $dbUpdateAfter();
 			JSON(true, App::$lang['MSG_COMPLETE_MODIFY']);
 		}
 		else JSON(false, $res->message ? $res->message : 'ERROR');
 
 	}
 
-	public function PostDelete(){
+	/**
+	 * @param callable $deleteBefore
+	 * @param callable $deleteAfter
+	 */
+	public function PostDelete($deleteBefore = null, $deleteAfter = null){
 		$res = $this->GetAuth('Write');
 		if(!$res) JSON(false, App::$lang['MSG_NO_AUTH']);
 
@@ -466,7 +488,9 @@ class Reply{
 		}
 
 		$this->model->SetValue('delis', 'y');
-		$this->model->DBUpdate();
+		if(is_callable($deleteBefore)) $deleteBefore();
+		$res = $this->model->DBUpdate();
+		if(is_callable($deleteAfter)) $deleteAfter($res);
 		$this->model->article_count_set($article_seq);
 
 		JSON(true, App::$lang['MSG_COMPLETE_DELETE']);
