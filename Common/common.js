@@ -163,10 +163,14 @@ function Common($){
 	};
 
 	this.setCookie = function(cname, cvalue, exdays){
+		this.setCookieMinute(cname, cvalue, exdays === null ? null : exdays * 60 * 24);
+	};
+
+	this.setCookieMinute = function(cname, cvalue, exdays){
 		var expires = '';
 		if(exdays !== null){
 			var d = new Date();
-			d.setTime(d.getTime() + (exdays*24*60*60*1000));
+			d.setTime(d.getTime() + (exdays*60*1000));
 			expires = "expires="+ d.toUTCString();
 		}
 		document.cookie = cname + "=" + cvalue + "; path=/;" + expires;
@@ -1945,9 +1949,30 @@ $(document).on('change', '.UploadImagePreview input[type=file]', function () {
  *   Input Value Check
  *
  ------------------------------------------- */
-$(document).on('keyup', 'input.numberonly, input.numberOnly', function() {
-	var val = this.value.replace(/[^0-9]/gi,'');
-	if(this.value !== val) this.value = val;
+$(document).on('keyup click change focusin focusout', 'input.numberonly, input.numberOnly', function() {
+	var val = this.value;
+	var minusIs = false;
+	if(val.length){
+		if(val[0] === '-') minusIs = true;
+		val = val.replace(/[^0-9\.]/ig, '');
+		var vsp = val.split('.');
+		vsp[0] = vsp[0].replace(/^[0]+/ig, '');
+		if(vsp.length > 1) val = (vsp[0].length ? vsp[0] : '0') + '.' + vsp[1];
+		else val = vsp[0];
+		val = (minusIs ? '-' : '') + val;
+	}
+	else val = '';
+	if(this.value !== val){
+		var cp = getCaretPosition(this);
+		var end = this.value.length - cp.end;
+		if(!this.hasAttribute('data-before-value') || $(this).attr('data-before-value') !== this.value){
+			this.value = '';
+			this.value = val;
+			cp.end = this.value.length - end;
+			setCaretPosition(this, cp.end, cp.end);
+			$(this).attr('data-before-value', val);
+		}
+	}
 });
 
 $(document).on('keyup', 'input.engonly', function() {

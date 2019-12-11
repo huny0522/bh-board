@@ -241,6 +241,12 @@ class BH_Application
 		$html = substr($viewAction, 0, 1) == '/' ? $viewAction : (self::$nativeSkinDir ? '/' . self::$nativeSkinDir : '') . '/' . self::$controllerName . '/' . $viewAction;
 		if(substr($html, -5) != '.html') $html .= '.html';
 
+		if(isset(self::$extendMethod['htmlPathSet']) && is_callable(self::$extendMethod['htmlPathSet'])){
+			$htmlPathSet = self::$extendMethod['htmlPathSet'];
+			$h = $htmlPathSet($html);
+			if($h) $html = $h;
+		}
+
 		$path = \Paths::DirOfHtml() . $html;
 		$skinPath = \Paths::DirOfSkin() . $html;
 		if((_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) || !file_exists($path)){
@@ -264,6 +270,12 @@ class BH_Application
 
 				$layout = '/Layout/' . self::$layout;
 				if(substr($layout, -5) != '.html') $layout .= '.html';
+
+				if(isset(self::$extendMethod['layoutPathSet']) && is_callable(self::$extendMethod['layoutPathSet'])){
+					$htmlPathSet = self::$extendMethod['layoutPathSet'];
+					$l = $htmlPathSet($layout);
+					if($l) $layout = $l;
+				}
 
 				$path = \Paths::DirOfHtml() . $layout;
 				if((_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) || !file_exists($path)){

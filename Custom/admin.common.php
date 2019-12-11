@@ -24,7 +24,7 @@ App::$settingData['AdminMenu'] = array(
 		'Name' => '팝업관리'
 	),
 	'001050' => array(
-		'Category' => 'Config/Content',
+		'Category' => 'Config/Texts',
 		'Name' => '사이트내용관리'
 	),
 	'002' => array(

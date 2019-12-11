@@ -1865,30 +1865,49 @@ class _CfgData
 {
 	public $value = '';
 	public $defaultValue = '';
+	public $code = '';
 	public $key = '';
 	public $title = '';
 	public $type = \HTMLType::TEXT;
+	public $isSeparate = false;
+	private $isSeparateLoading = false;
 	public $enumValues = array();
 
 	/**
-	 * @param string $k
 	 * @return _CfgData
 	 */
-	public static function GetInstance($k = ''){
+	public static function GetInstance(){
 		$static = new static();
-		$static->key = $k;
 		return $static;
 	}
 
+	private function GetSeparateVal(){
+		if($this->isSeparate && !$this->isSeparateLoading){
+			$this->isSeparateLoading = true;
+			// 설정불러오기
+			$path = \Paths::DirOfData().'/CFG/'.$this->code.'-'.$this->key.'.php';
+			if(file_exists($path)){
+				$data = file_get_contents($path);
+				if(substr($data, 0, 15) == '<?php return;/*'){
+					$temp = json_decode(substr($data, 15), true);
+					if(isset($temp['value'])) $this->SetValue($temp['value']);
+				}
+			}
+		}
+	}
+
 	public function __toString(){
+		$this->GetSeparateVal();
 		return $this->value;
 	}
 
 	public function Val(){
+		$this->GetSeparateVal();
 		return ((is_string($this->value) && strlen($this->value)) || !is_string($this->value)) ? $this->value : $this->defaultValue;
 	}
 
 	public function IntVal(){
+		$this->GetSeparateVal();
 		return ((is_string($this->value) && strlen($this->value)) || !is_string($this->value)) ? ToInt($this->value) : $this->defaultValue;
 	}
 
@@ -1916,6 +1935,15 @@ class _CfgData
 	 */
 	public function SetValue($v){
 		$this->value = $v;
+		return $this;
+	}
+
+	/**
+	 * @param bool $bool
+	 * @return _CfgData
+	 */
+	public function SetIsSeparate($bool){
+		$this->isSeparate = $bool;
 		return $this;
 	}
 
@@ -1994,8 +2022,20 @@ class _CfgData
 	}
 }
 
-class _ConfigModel{
+class _ConfigModel extends ArrayObject{
 	protected $_code = '';
+
+	public function __set($name, $val) {
+		if(is_object($val) && get_class($val) === '_CfgData'){
+			$val->key = $name;
+			$val->code = $this->_code;
+		}
+		$this[$name] = $val;
+	}
+
+	public function __get($name) {
+		return $this[$name];
+	}
 
 	/**
 	 * @return static
@@ -2003,16 +2043,15 @@ class _ConfigModel{
 	public static function GetInstance(){
 		static $instance;
 		if(!$instance) $instance = new static();
+		$instance->__Init();
 		return $instance;
 	}
 
-	protected function __construct(){ }
+	public function __construct($input = array(), $flags = 0, $iterator_class = "ArrayIterator"){
+		parent::__construct($input, $flags, $iterator_class);
+	}
 
-	private function __clone(){}
-
-	public function __get($name){
-		if(BH_Application::$showError) PrintError(BH_Application::$lang['C_MODEL_NO_PARAM']);
-		return _CfgData::GetInstance($name);
+	protected function __Init(){
 	}
 
 	protected function GetFileSetting(){
@@ -2027,10 +2066,10 @@ class _ConfigModel{
 			if(substr($data, 0, 15) == '<?php return;/*'){
 				$temp = json_decode(substr($data, 15), true);
 				foreach($temp as $k => $v){
-					if(isset($this->{$k})) $this->{$k}->SetValue($v);
+					if(isset($this[$k])) $this[$k]->SetValue($v);
 					else if(_DEVELOPERIS === true){
 						$k = strtolower($k[0]) . substr($k, 1);
-						if(isset($this->{$k})) $this->{$k}->SetValue($v);
+						if(isset($this[$k])) $this[$k]->SetValue($v);
 					}
 				}
 			}
@@ -2049,38 +2088,43 @@ class _ConfigModel{
 		$fileNames = isset($data['file_field']) ? $data['file_field'] : array();
 
 		if(!file_exists( \Paths::DirOfData().'/CFG') || !is_dir(\Paths::DirOfData().'/CFG')) mkdir(\Paths::DirOfData().'/CFG', 0755, true);
+
+		foreach($this as $k => $v){
+			if($this[$k]->isSeparate) $this[$k]->Val();
+		}
+
 		foreach($data as $k => $v){
-			if(!isset($this->{$k}) || $k === '_delFile') continue;
-			$this->{$k}->value = $v;
-			if($this->{$k}->type == \HTMLType::TEXTAREA) $this->{$k}->value = BH_Common::ContentImageUpdate('cfg.ct', array('content_cfg_' . $k), array('contents' => $this->{$k}->value), 'modify-cfg');
+			if(!isset($this[$k]) || $k === '_delFile') continue;
+			$this[$k]->value = $v;
+			if($this[$k]->type == \HTMLType::TEXTAREA) $this[$k]->value = BH_Common::ContentImageUpdate('cfg.ct', array('content_cfg_' . $k), array('contents' => $this[$k]->value), 'modify-cfg');
 		}
 
 		if(isset($data['_delFile']) && is_array($data['_delFile'])){
 			foreach($data['_delFile'] as $v){
 				preg_match('/([a-zA-Z0-9_]+)\[([0-9]*?)\]/', $v, $matches);
 				if(isset($matches[2])){
-					if(isset($this->{$matches[1]}[$matches[2]])){
-						@unlink(\Paths::DirOfUpload().$this->{$matches[1]}[$matches[2]]->value);
-						$this->{$matches[1]}[$matches[2]]->value = '';
+					if(isset($this[$matches[1]][$matches[2]])){
+						@unlink(\Paths::DirOfUpload().$this[$matches[1]][$matches[2]]->value);
+						$this[$matches[1]][$matches[2]]->value = '';
 					}
 
 				}
 				else{
-					@unlink(\Paths::DirOfUpload().$this->{$v}->value);
-					if(isset($this->{$v})) $this->{$v}->value = '';
+					@unlink(\Paths::DirOfUpload().$this[$v]->value);
+					if(isset($this[$v])) $this[$v]->value = '';
 				}
 			}
 		}
 
 		if(!is_null($files)){
 			foreach($files as $k => $file){
-				if(!isset($this->{$k})) continue;
+				if(!isset($this[$k])) continue;
 				if(in_array($k, $fileNames)){
 					if(is_array($file['name'])){
 						$fres_em = \_ModelFunc::FileUploadArray($file, null, '/CFG/files/');
 						foreach($fres_em as $row){
 							if(is_array($row)){
-								$this->{$k}->value[] = $row['file'];
+								$this[$k]->value[] = $row['file'];
 							}
 						}
 					}
@@ -2089,8 +2133,8 @@ class _ConfigModel{
 
 						if(is_string($fres_em)) URLRedirect(-1, $fres_em);
 						else if(is_array($fres_em)){
-							if(strlen($this->{$k}->value)) @unlink(\Paths::DirOfUpload().$this->{$k}->value);
-							$this->{$k}->value = $fres_em['file'];
+							if(strlen($this[$k]->value)) @unlink(\Paths::DirOfUpload().$this[$k]->value);
+							$this[$k]->value = $fres_em['file'];
 							if(class_exists('\\PHP_ICO')){
 								if($this->_code === 'Default' && $k == 'FaviconPng'){
 									$temp = explode('.', $fres_em['file']);
@@ -2109,7 +2153,13 @@ class _ConfigModel{
 		$arr = get_object_vars($this);
 		$saveData = array();
 		foreach($arr as $k => $v){
-			if($k[0] !== '_') $saveData[$k] = $v->value;
+			if($k[0] !== '_'){
+				if($v->isSeparate){
+					$txt = '<?php return;/*'.json_encode(array('value' => $v->value));
+					file_put_contents(\Paths::DirOfData().'/CFG/'.$this->_code.'-'.$k.'.php', $txt);
+				}
+				else $saveData[$k] = $v->value;
+			}
 		}
 		$txt = '<?php return;/*'.json_encode($saveData);
 		file_put_contents($path, $txt);

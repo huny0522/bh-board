@@ -1,0 +1,47 @@
+<?php
+if(_BH_ !== true) exit;
+use \BH_Common as CM;
+use \BH_Application as App;
+
+$cls = App::$cfg->Texts();
+$menus = array();
+foreach($cls as $k => $v){
+	$menus[$k] = $v->title;
+}
+?>
+
+<h2><?p. AdminTitleSet() ?></h2>
+<div class="topTab">
+	<ul>
+		<?php foreach($menus as $k => $v){ ?>
+			<li<?php if($k == App::$data['id']) echo ' class="active"'; ?>><a href="<?a. App::$action.'/'. $k ?>"><?p. $v ?></a></li>
+		<?php } ?>
+	</ul>
+</div>
+
+<form name="ConfigForm" id="ConfigForm" method="post" action="<?a. 'Write' ?>?redirect_url=<?a. App::$action.'/'.App::$data['id'] ?>">
+	<input type="hidden" name="Code" value="<?v. $cls->GetCode() ?>">
+	<fieldset>
+		<h3><?p. $cls->{App::$data['id']}->title ?></h3>
+		<div class="writeField">
+			<article>
+				<textarea name="<?v. App::$data['id'] ?>" id="text"><?v. CustomText($cls->{App::$data['id']}->Val()) ?></textarea>
+			</article>
+		</div>
+	</fieldset>
+
+	<div class="bottomBtn">
+		<button type="submit" class="bBtn">확인</button>
+		<button type="reset" class="bBtn">취소</button>
+		<a href="#" class="backbtn bBtn">뒤로</a>
+	</div>
+</form>
+
+<script>
+	<?p. CM::TinyMCEScript() ?>
+	SE2_paste('text', '<?php _URL ?>', true);
+
+	$(document).on('submit', '#ConfigForm', function(e){
+		SE2_update('text');
+	});
+</script>

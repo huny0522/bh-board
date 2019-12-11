@@ -67,4 +67,10 @@ class Config{
 
 		App::View();
 	}
+
+	public function Texts(){
+		App::$data['NowMenu'] = '001050';
+		App::$data['id'] = (!App::$id) ? 'emailCollector' : App::$id;
+		App::View();
+	}
 }
