@@ -775,6 +775,7 @@ class BH_Model{
 	public function GetPageListQry($naming = '', $pageUrlQueryName = 'page'){
 		if($naming) $naming = '`' . $naming . '`';
 		$qry = DB::GetListPageQryObj('`%1` %1', $this->table, $naming)
+			->SetPageQueryName($pageUrlQueryName)
 			->SetPage(Get($pageUrlQueryName))
 			->SetPageUrl(BH_Application::URLAction(BH_Application::$action === 'Index' ? '' : BH_Application::$action) . BH_Application::GetFollowQuery($pageUrlQueryName));
 		return $qry;

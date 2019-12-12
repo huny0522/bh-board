@@ -652,6 +652,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	public $totalRecord = '';
 	public $beginNum = '';
 	public $pageHtml = '';
+	public $pageQueryParam = 'page';
 
 	public static $pageNumberView = 10;
 
@@ -676,6 +677,15 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	 */
 	public function &SetPage($str){
 		$this->page = $str;
+		return $this;
+	}
+
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
+	public function &SetPageQueryName($str = 'page'){
+		$this->pageQueryParam = $str;
 		return $this;
 	}
 
@@ -886,8 +896,8 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	 * @param $pageParams
 	 * @return string
 	 */
-	public static function SqlGetPage($pageParams){
-		$linkfirst =(strpos($pageParams['pageUrl'], '?') === false) ? '?page=' : '&page=';
+	public function SqlGetPage($pageParams){
+		$linkfirst =(strpos($pageParams['pageUrl'], '?') === false) ? '?' . $this->pageQueryParam . '=' : '&' . $this->pageQueryParam . '=';
 
 		if(!$pageParams['articleCount']) $pageParams['articleCount'] = 10;
 
