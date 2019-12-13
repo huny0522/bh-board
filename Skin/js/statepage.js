@@ -11,11 +11,13 @@ var StatePage = {
 	animateSpeed : 300,
 	animateDirection : 'left',
 	historyForwardCount : 0,
+	wrapObj : null,
 
 	/**
 	 * 최초 실행
 	 */
 	Init : function(tid){
+		this.wrapObj = document.body;
 		StatePage.isInit = true;
 		if(typeof(tid) === 'string' && tid.length) this.targetId = tid;
 		var targetElement = document.getElementById(this.targetId);
@@ -56,6 +58,19 @@ var StatePage = {
 		});
 	},
 
+	/**
+	 * 애니메이션 활성화
+	 *
+	 * @param wrapObj 애니메이션을 할 객체
+	 * @returns {StatePage}
+	 * @constructor
+	 */
+	EnableAnimation : function(wrapObj){
+		this.wrapObj = wrapObj;
+		this.isAnimate = true;
+		return this;
+	},
+
 	HashAction : function(disableEmptyAction){
 		var hash = location.hash.length > 1 ? location.hash.substr(1) : '';
 		if(StatePage.beforeHash === hash) return;
@@ -94,20 +109,20 @@ var StatePage = {
 		JCM.getWithLoading(href, {hash : linkEl.hash}, function(html){
 
 			var el = null;
-			if(typeof(targetId) === 'string' && targetId !== '') el = $('#wrapInWrap').find('#' + targetId);
-			if(!el) el = $('#wrapInWrap').find('#' + StatePage.targetId);
+			if(typeof(targetId) === 'string' && targetId !== '') el = $(this.wrapObj).find('#' + targetId);
+			if(!el) el = $(this.wrapObj).find('#' + StatePage.targetId);
 
 			$(el).html(html);
 			StatePage.url = linkEl.href;
 
 			if(StatePage.isAnimate === true){
 				var temp = document.createElement('div');
-				temp.id = 'wrapInWrap2';
-				$(temp).html($('#wrapInWrap').html());
+				temp.id = 'statePageAnimationObj';
+				$(temp).html($(this.wrapObj).html());
 				$(temp).find('script').remove();
 				$('#wrap').append(temp);
 
-				$('#wrapInWrap').css({
+				$(this.wrapObj).css({
 					position : 'fixed',
 					top : 0,
 					left : 0
@@ -122,14 +137,14 @@ var StatePage = {
 						'wrap2x' : ['0%', '100%'],
 					};
 				}
-				$('#wrapInWrap').translate3d({x : d.wrap1x[0]}, {x : d.wrap1x[1]}, StatePage.animateSpeed, function(){
-					$('#wrapInWrap2').remove();
-					$('#wrapInWrap').css({'position' : 'static', 'transition' : '0s', 'transform' : '', '-webkit-transform' : '', '-ms-transform' : ''});
+				$(this.wrapObj).translate3d({x : d.wrap1x[0]}, {x : d.wrap1x[1]}, StatePage.animateSpeed, function(){
+					$(temp).remove();
+					$(this.wrapObj).css({'position' : 'static', 'transition' : '0s', 'transform' : '', '-webkit-transform' : '', '-ms-transform' : ''});
 
 					StatePage._CompleteAction();
 				});
 
-				$('#wrapInWrap2').translate3d({x : d.wrap2x[0]}, {x : d.wrap2x[1]}, StatePage.animateSpeed);
+				$(temp).translate3d({x : d.wrap2x[0]}, {x : d.wrap2x[1]}, StatePage.animateSpeed);
 				StatePage.animateDirection = 'left';
 			}
 			else{
