@@ -109,8 +109,8 @@ var StatePage = {
 		JCM.getWithLoading(href, {hash : linkEl.hash}, function(html){
 
 			var el = null;
-			if(typeof(targetId) === 'string' && targetId !== '') el = $(this.wrapObj).find('#' + targetId);
-			if(!el) el = $(this.wrapObj).find('#' + StatePage.targetId);
+			if(typeof(targetId) === 'string' && targetId !== '') el = $(StatePage.wrapObj).find('#' + targetId);
+			if(!el) el = $(StatePage.wrapObj).find('#' + StatePage.targetId);
 
 			$(el).html(html);
 			StatePage.url = linkEl.href;
@@ -118,11 +118,11 @@ var StatePage = {
 			if(StatePage.isAnimate === true){
 				var temp = document.createElement('div');
 				temp.id = 'statePageAnimationObj';
-				$(temp).html($(this.wrapObj).html());
+				$(temp).html($(StatePage.wrapObj).html());
 				$(temp).find('script').remove();
 				$('#wrap').append(temp);
 
-				$(this.wrapObj).css({
+				$(StatePage.wrapObj).css({
 					position : 'fixed',
 					top : 0,
 					left : 0
@@ -137,9 +137,9 @@ var StatePage = {
 						'wrap2x' : ['0%', '100%'],
 					};
 				}
-				$(this.wrapObj).translate3d({x : d.wrap1x[0]}, {x : d.wrap1x[1]}, StatePage.animateSpeed, function(){
+				$(StatePage.wrapObj).translate3d({x : d.wrap1x[0]}, {x : d.wrap1x[1]}, StatePage.animateSpeed, function(){
 					$(temp).remove();
-					$(this.wrapObj).css({'position' : 'static', 'transition' : '0s', 'transform' : '', '-webkit-transform' : '', '-ms-transform' : ''});
+					$(StatePage.wrapObj).css({'position' : 'static', 'transition' : '0s', 'transform' : '', '-webkit-transform' : '', '-ms-transform' : ''});
 
 					StatePage._CompleteAction();
 				});

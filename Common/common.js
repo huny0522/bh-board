@@ -1390,7 +1390,7 @@ var _SelectBox = new SelectBox(jQuery);
 					}
 
 					if($(this).hasClass('numberonly')){
-						var val = this.value.replace(/[^0-9]/gi,'');
+						var val = this.value.replace(/[^0-9\-\.]/gi,'');
 						if(val !== this.value){
 							var obj = this;
 							CMAlert(window._CM_LANG.onlyNum.replace('{item}', $(this).attr('data-displayname')), function(){

@@ -1308,10 +1308,10 @@ class _ModelFunc{
 				if(strlen($data->value)){
 					$h = ' <span class="uploadedFile"><label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><i></i><span> ' . BH_Application::$lang['DEL_FILE'] . '</span></label></span>';
 				}
-				return $h . ' <input type="file" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$fileRequired.'>';
+				return $h . ' <input type="file" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$fileRequired.$Attribute.'>';
 			break;
 			case HTMLType::FILE_IMAGE:
-				$h = '<div class="fileUploadArea"><input type="hidden" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$fileRequired.'>';
+				$h = '<div class="fileUploadArea"><input type="hidden" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$fileRequired.$Attribute.'>';
 				$h .= '<span class="fileUploadImage">';
 				if(strlen($data->value)){
 					$h .= '<i style="background-image:url(' . Paths::UrlOfUpload() . $data->value . ')"></i>';
