@@ -26,12 +26,12 @@ class Login{
 
 	public function __construct(){
 		$this->defCfg = App::$cfg->Def();
+		$this->model = new \MemberModel();
+		$this->useMailId = ($this->defCfg->useMailId->Val() == 'y');
+		$this->mailIdAddrSelection = ($this->defCfg->mailIdAddrSelection->Val() == 'y');
 	}
 
 	public function __init(){
-		$this->model = App::InitModel('Member');
-		$this->useMailId = ($this->defCfg->useMailId->Val() == 'y');
-		$this->mailIdAddrSelection = ($this->defCfg->mailIdAddrSelection->Val() == 'y');
 		if(_MEMBERIS === true && !in_array(App::$action, array('Logout'))) URLRedirect(\Paths::Url() . '/');
 	}
 
@@ -397,5 +397,17 @@ class Login{
 
 		\DB::SQL()->Query('UPDATE %1 SET email_code = %s WHERE muid = %d', $this->model->table, aes_encrypt($code, PW_RESET_KEY), $model->_muid->value);
 		$mail->SendMailByEmailCertification($model->_mid->value, $model->_mname->value, $model->_mid->value.':'.substr($code, 19));
+	}
+
+	public static function PwdCheck($pwd){
+		$checkPwd = preg_replace(NOT_ENG_NUM_SPECIAL_CHAR_PATTERN,'', $pwd);
+		if($checkPwd !== $pwd) return \BH_Result::Init(false, App::$lang['PWD_USABLE_ENG_SPECIAL_NUMBER_CHAR']);
+		$checkPwd = preg_replace(SPECIAL_CHAR_PATTERN,'', $pwd);
+		if($checkPwd === $pwd) return \BH_Result::Init(false, App::$lang['PWD_NEED_SPECIAL_CHAR']);
+		$checkPwd = preg_replace('#[a-zA-Z]#','', $pwd);
+		if($checkPwd === $pwd) return \BH_Result::Init(false, App::$lang['PWD_NEED_ENG_CHAR']);
+		$checkPwd = preg_replace('#[0-9]#','', $pwd);
+		if($checkPwd === $pwd) return \BH_Result::Init(false, App::$lang['PWD_NEED_NUMBER_CHAR']);
+		return \BH_Result::Init(true);
 	}
 }

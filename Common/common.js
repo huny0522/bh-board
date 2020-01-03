@@ -238,10 +238,11 @@ function Common($){
 				if(typeof response.message !== 'undefined' && response.message !== null && response.message.length) CMAlert(response.message);
 				if(typeof response.result !== 'undefined' && response.result !== null){
 					if(response.result === true){
-						if(typeof success_func !== 'undefined') success_func(response.data);
+						if(typeof(_this.ajaxSuccess) === 'function')_this.ajaxSuccess(response.data, success_func);
+						else if(typeof success_func !== 'undefined') success_func(response.data);
 					}else{
-						if(typeof fail_func !== 'undefined') fail_func(response.data);
-						if(typeof(_this.ajaxFailed) === 'function')_this.ajaxFailed(response.data);
+						if(typeof(_this.ajaxFailed) === 'function')_this.ajaxFailed(response.data, fail_func);
+						else if(typeof fail_func !== 'undefined') fail_func(response.data);
 					}
 				}else{
 					if(typeof success_func !== 'undefined') success_func(response);
@@ -283,10 +284,11 @@ function Common($){
 				if (typeof response.message !== 'undefined' && response.message !== null && response.message.length) CMAlert(response.message);
 				if(typeof response.result !== 'undefined' && response.result !== null){
 					if(response.result === true){
-						if (typeof success_func !== 'undefined') success_func(response.data);
+						if(typeof(_this.ajaxSuccess) === 'function')_this.ajaxSuccess(response.data, success_func);
+						else if(typeof success_func !== 'undefined') success_func(response.data);
 					}else{
-						if (typeof fail_func !== 'undefined') fail_func(response.data);
-						if(typeof(_this.ajaxFailed) === 'function')_this.ajaxFailed(response.data);
+						if(typeof(_this.ajaxFailed) === 'function')_this.ajaxFailed(response.data, fail_func);
+						else if(typeof fail_func !== 'undefined') fail_func(response.data);
 					}
 				}else{
 					if (typeof success_func !== 'undefined') success_func(response);
@@ -518,7 +520,7 @@ function Common($){
 
 		$(document).on('submit','#_uploadFileFrm',function(e){
 			e.preventDefault();
-			_this.ajaxForm(this, this.fileSubmitRes);
+			_this.ajaxForm(this, _this.fileSubmitRes);
 		});
 	};
 

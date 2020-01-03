@@ -164,3 +164,7 @@ App::$lang['UNKNOWN_TYPE'] = '알수없는 타입입니다.';
 App::$lang['INACCESSIBLE_MENU'] = '접근이 불가능한 메뉴입니다.';
 App::$lang['MENU_NOT_ACCESSIBLE_BY_RATING'] = '현재 등급으로 접근이 불가능한 메뉴입니다.';
 
+App::$lang['PWD_USABLE_ENG_SPECIAL_NUMBER_CHAR'] = '비밀번호 항목은 영문과 숫자, 특수문자만 입력가능합니다.';
+App::$lang['PWD_NEED_SPECIAL_CHAR'] = '비밀번호에 특수문자를 포함하여 입력하셔야합니다.';
+App::$lang['PWD_NEED_ENG_CHAR'] = '비밀번호에 영문을 포함하여 입력하셔야합니다.';
+App::$lang['PWD_NEED_NUMBER_CHAR'] = '비밀번호에 숫자를 포함하여 입력하셔야합니다.';

@@ -4,6 +4,9 @@
  * 16.07.10
  */
 
+define('NOT_ENG_NUM_SPECIAL_CHAR_PATTERN', '/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>\'\"\?\-=\+_\:\;\[\]\{\}\/]/');
+define('SPECIAL_CHAR_PATTERN', '/[\~!@\#$%^&*\(\)\.\,\<\>\'\"\?\-=\+_\:\;\[\]\{\}\/]/');
+
 class ModelType{
 	const INT = 1;
 	const STRING = 2;
@@ -24,6 +27,7 @@ class HTMLType{
 	const TEL = 'tel';
 	const FILE = 'file';
 	const FILE_WITH_NAME = 'filewithname';
+	const FILE_ARRAY = 'filearray';
 	/**
 	 * 아래 플러그인이 필요합니다.
 	 * composer require blueimp/jquery-file-upload
@@ -380,7 +384,7 @@ class BH_Model{
 	 * @param $name
 	 * @return array|BH_ModelData
 	 */
-	public function __get($name){
+	public function &__get($name){
 		if($name === 'need'){
 			$res = array();
 			foreach($this->data as $k => $v){
@@ -784,7 +788,7 @@ class BH_Model{
 
 class _ModelFunc{
 	public static function IsFileType($type){
-		return in_array($type, array(HTMLType::FILE, HTMLType::FILE_WITH_NAME, HTMLType::FILE_IMAGE, HTMLType::FILE_IMAGE_ARRAY, HTMLType::FILE_JQUERY));
+		return in_array($type, array(HTMLType::FILE, HTMLType::FILE_WITH_NAME, HTMLType::FILE_IMAGE, HTMLType::FILE_IMAGE_ARRAY, HTMLType::FILE_JQUERY, HTMLType::FILE_ARRAY));
 	}
 
 	public static function SetPostValues(&$model, &$post, $withFile = false){
@@ -810,7 +814,7 @@ class _ModelFunc{
 					else if($v->htmlType === HTMLType::CHECKBOX && $v->required) $v->needIs = true;
 				}
 				else{
-					if($v->htmlType == HTMLType::FILE_IMAGE_ARRAY){
+					if($v->htmlType == HTMLType::FILE_IMAGE_ARRAY || $v->htmlType == HTMLType::FILE_ARRAY){
 						$delFiles = Post('del_file_' . $k);
 						if(!is_array($delFiles)) $delFiles = array();
 
@@ -823,10 +827,11 @@ class _ModelFunc{
 
 						foreach($post[$k] as $path){
 							if($path){
-								$newpath = self::ReservedMoveFile($path, $model->uploadDir);
+								$m = explode('*', $path);
+								$newpath = self::ReservedMoveFile($m[0], $model->uploadDir);
 								if(is_string($newpath)){
-									$values[]= $newpath;
-									$v->__moveFile[]= array('source' => $path, 'dest' => $newpath);
+									$values[]= $newpath . (sizeof($m) > 1 ? '*' . $m[1] : '');
+									$v->__moveFile[]= array('source' => $m[0], 'dest' => $newpath);
 									$v->needIs = true;
 								}
 								else if($newpath->result === -1){
@@ -842,7 +847,8 @@ class _ModelFunc{
 							$p = explode(';', $v->value);
 							$valuePath = array();
 							foreach($p as $path){
-								if(in_array($path, $delFiles)) $v->__deleteFile[] = $path;
+								$m = explode('*', $path);
+								if(in_array($m[0], $delFiles)) $v->__deleteFile[] = $m[0];
 								else $valuePath[]= $path;
 							}
 							$values = array_merge($valuePath, $values);
@@ -1132,7 +1138,7 @@ class _ModelFunc{
 				}
 			break;
 			case HTMLType::TEXT_ENG_SPECIAL:
-				$val = preg_replace('/[^a-zA-Z0-9~!@\#$%^&*\(\)\.\,\<\>\'\"\?\-=\+_\:\;\[\]\{\}\/]/','',$data->value);
+				$val = preg_replace(NOT_ENG_NUM_SPECIAL_CHAR_PATTERN,'',$data->value);
 				if($val != $data->value){
 					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_ONLY_ENG_NUM_SPECIAL']);
 					return false;
@@ -1236,7 +1242,7 @@ class _ModelFunc{
 		else if($data->htmlType == HTMLType::TEXT_ENG_NUM) $htmlAttribute['class'] .= ($htmlAttribute['class'] ? ' ' : '').HTMLType::TEXT_ENG_NUM;
 		else if($data->htmlType == HTMLType::TEXT_ENG_ONLY) $htmlAttribute['class'] .= ($htmlAttribute['class'] ? ' ' : '').HTMLType::TEXT_ENG_ONLY;
 		else if($data->htmlType == HTMLType::TEXT_ENG_SPECIAL) $htmlAttribute['class'] .= ($htmlAttribute['class'] ? ' ' : '').HTMLType::TEXT_ENG_SPECIAL;
-		else if(in_array($data->htmlType, array(HTMLType::FILE_IMAGE, HTMLType::FILE_IMAGE_ARRAY))) $htmlAttribute['class'] .= ($htmlAttribute['class'] ? ' ' : '').'fileUploadInput';
+		else if(in_array($data->htmlType, array(HTMLType::FILE_IMAGE, HTMLType::FILE_IMAGE_ARRAY, HTMLType::FILE_ARRAY))) $htmlAttribute['class'] .= ($htmlAttribute['class'] ? ' ' : '').'fileUploadInput';
 
 		foreach($htmlAttribute as $k => $row) $Attribute .= ' '.$k.'="'.$row.'"';
 
@@ -1282,7 +1288,7 @@ class _ModelFunc{
 				if(strlen($data->value)) $h .= '<p><b class="upload_file_name">'.(isset($f[1]) ? GetDBText($f[1]) : '').'</b> <label class="checkbox"><input type="checkbox" name="del_file_'.$Name.'" value="y"><i></i><span> ' .BH_Application::$lang['DEL_FILE'] . '</span></label></p>';
 				else $h .= '<p><b class="upload_file_name"></b></p>';
 				$h .= '</div>
-						<div style="display:block; width: 0; height: 0; overflow: hidden; opacity: 0; filter:alpha(0);">
+						<div style="display:block; width: 0; height: 0; overflow: hidden; opacity: 0;">
 							<input type="file" name="temp_upload_file" class="fileUploadInp">
 						</div>
 						<button type="button" class="mBtn fileUploadBtn">' . (isset($htmlAttribute['button']) ? $htmlAttribute['button'] : BH_Application::$lang['REG_FILE']) . '</button>
@@ -1330,6 +1336,18 @@ class _ModelFunc{
 				}
 				$h .= '<div class="fileUploadArea"><span class="fileUploadImage"></span><input type="hidden" name="'.$Name.'[]" data-displayname="' . $data->displayName . '" '.$Attribute.'><button type="button" class="fileUploadBtn sBtn"><span>' . BH_Application::$lang['REG_IMAGE'] . '</span></button><button type="button" class="fileUploadAreaAddBtn sBtn">' . BH_Application::$lang['ADD'] . '</button><button type="button" class="fileUploadAreaRmBtn sBtn">' . BH_Application::$lang['DEL'] . '</button></div>';
 				return $h . '</div><script>JCM.imageFileForm();</script>';
+			break;
+			case HTMLType::FILE_ARRAY:
+				$h = '<div class="multiFileUploadArea">';
+				if(strlen($data->value)){
+					$p = explode(';', $data->value);
+					foreach($p as $path){
+						$f = explode('*', $path);
+						$h .= ' <p><span class="fileName">' . (isset($f[1]) ? GetDBText($f[1]) : basename($f[0])) . '</span> <label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '[]" value="' . $f[0] . '"><i></i><span> ' . BH_Application::$lang['DEL'] . '</span></label></p>';
+					}
+				}
+				$h .= '<div class="fileUploadArea2"><input type="hidden" name="' . $Name . '[]" class="fileUploadInput" value=""><p><span class="fileName"></span></p><button type="button" class="fileUploadBtn sBtn"><i></i> <span>' . BH_Application::$lang['REG_FILE'] . '</span></button><button type="button" class="fileUploadAreaAddBtn sBtn">' . BH_Application::$lang['ADD'] . '</button><button type="button" class="fileUploadAreaRmBtn sBtn">' . BH_Application::$lang['DEL'] . '</button></div>';
+				return $h . '</div><script>JCM.fileForm();</script>';
 			break;
 			case HTMLType::TEXTAREA:
 				return '<textarea name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$Attribute.'>'.(isset($val) ? GetDBText($val) : '').'</textarea>';
@@ -2005,7 +2023,7 @@ class _CfgData
 				if($this->value){
 					$h .= '<img src="' . Paths::UrlOfUpload(). GetDBText($this->value) . '" style="max-width:100px; max-height:100px;">';
 				}
-				$h .= '<input type="file" name="' . $this->key .'" accept="image/*" ' . $attr . '> <label class="checkbox"><input type="checkbox" name="_delFile[]" value="' . GetDBText($this->value) . '"><i></i><span>' . BH_Application::$lang['DEL'] . '</span></label>';
+				$h .= '<input type="file" name="' . $this->key .'" accept="image/*" ' . $attr . '> <label class="checkbox"><input type="checkbox" name="_delFile[]" value="' . GetDBText($this->key) . '"><i></i><span>' . BH_Application::$lang['DEL'] . '</span></label>';
 			break;
 			case \HTMLType::RADIO:
 				$h = InputRadio($this->key, $this->enumValues, strlen($this->Val()) ? $this->Val() : $this->defaultValue, $class);
