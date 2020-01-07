@@ -53,6 +53,10 @@ function Common($){
 
 	this.loadingIs = false;
 
+	// 예약
+	this.ajaxSuccess = null;
+	this.ajaxFailed = null;
+
 	this.Init = function(){
 		var ieVer = getInternetExplorerVersion();
 		this.ie8 = ieVer === 8;

@@ -386,12 +386,15 @@ class BH_DB_Get{
 	}
 
 	/**
-	 * @param string $str
+	 * @param string|callable $str
 	 * @return $this
 	 */
 	public function &AddWhere($str){
-		$w = $this->StrToPDO(func_get_args());
-		if($w !== false) $this->where[] = '('.$w.')';
+		if(is_callable($str)) $this->where[] = '(' . $str($this) . ')';
+		else{
+			$w = $this->StrToPDO(func_get_args());
+			if($w !== false) $this->where[] = '('.$w.')';
+		}
 		return $this;
 	}
 
@@ -1040,12 +1043,13 @@ class BH_DB_Insert{
 
 	/**
 	 * @param string $key
-	 * @param string $val
+	 * @param string|callable $val
 	 * @return $this
 	 */
 	public function &SetData($key, $val){
 		if(is_object($key) && get_class($key) === 'BH_ModelData') $key = '`' . $key->GetKeyName() .'`';
-		$this->data[$key] = $val;
+		if(is_callable($val)) $this->data[$key] = '('.$val($this).')';
+		else $this->data[$key] = $val;
 		return $this;
 	}
 
@@ -1112,7 +1116,7 @@ class BH_DB_Insert{
 		$names = '';
 		$values = '';
 		foreach($this->data as $k => $v){
-			if(!$this->MultiNames) $names .= $temp . '`' . $k . '`';
+			if(!$this->MultiNames) $names .= $temp . ($k[0] === '`' ? $k : '`' . $k . '`');
 			$values .= $temp . $v;
 			$temp = ',';
 		}
@@ -1315,12 +1319,13 @@ class BH_DB_Update{
 
 	/**
 	 * @param string $key
-	 * @param string $val
+	 * @param string|callable $val
 	 * @return $this
 	 */
 	public function &SetData($key, $val){
 		if(is_object($key) && get_class($key) === 'BH_ModelData') $key = '`' . $key->parent->naming . '`.`' . $key->GetKeyName() .'`';
-		$this->data[$key] = $val;
+		if(is_callable($val)) $this->data[$key] = '('.$val($this).')';
+		else $this->data[$key] = $val;
 		return $this;
 	}
 
@@ -1347,12 +1352,15 @@ class BH_DB_Update{
 	}
 
 	/**
-	 * @param string $str
+	 * @param string|callable $str
 	 * @return $this
 	 */
 	public function &AddWhere($str){
-		$w = $this->StrToPDO(func_get_args());
-		if($w !== false) $this->where[] = '('.$w.')';
+		if(is_callable($str)) $this->where[] = '(' . $str($this) . ')';
+		else{
+			$w = $this->StrToPDO(func_get_args());
+			if($w !== false) $this->where[] = '('.$w.')';
+		}
 		return $this;
 	}
 
@@ -1472,12 +1480,15 @@ class BH_DB_Delete{
 	}
 
 	/**
-	 * @param string $str
+	 * @param string|callable $str
 	 * @return $this
 	 */
 	public function &AddWhere($str){
-		$w = $this->StrToPDO(func_get_args());
-		if($w !== false) $this->where[] = '('.$w.')';
+		if(is_callable($str)) $this->where[] = '(' . $str($this) . ')';
+		else{
+			$w = $this->StrToPDO(func_get_args());
+			if($w !== false) $this->where[] = '('.$w.')';
+		}
 		return $this;
 	}
 
