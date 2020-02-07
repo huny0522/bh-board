@@ -60,6 +60,8 @@ App::$lang['MODEL_KEY_LENGTH_NOT_MATCH'] = '모델의 키의 길이와 인자값
 App::$lang['C_MODEL_NO_PARAM'] = '존재하지 않는 환경설정값입니다.';
 App::$lang['C_MODEL_MISSING_CODE_NAME'] = '환경설정의 코드명이 빠졌습니다.';
 
+App::$lang['MODEL_OVER_FILE_NUMBER'] = '업로드 가능한 파일 수가 초과되었습니다.';
+
 // common.php
 App::$lang['TXT_NOT_MEMBER'] = '비회원';
 App::$lang['TXT_MEMBER'] = '일반회원';

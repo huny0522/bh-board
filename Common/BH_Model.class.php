@@ -69,6 +69,7 @@ class BH_ModelData
 	public $maxLength = false;
 	public $minValue = false;
 	public $maxValue = false;
+	public $maxFileNumber = 3;
 	public $enumValues;
 	public $value;
 	public $defaultValue;
@@ -100,6 +101,10 @@ class BH_ModelData
 		$this->type = $type;
 		$this->displayName = $displayName;
 		if($htmlType) $this->htmlType = $htmlType;
+	}
+
+	public static function CreateInstance($type = ModelType::STRING, $displayName = '', $htmlType = HTMLType::TEXT){
+		return new static($type, $displayName, $htmlType);
 	}
 
 	public function __debugInfo() {
@@ -214,6 +219,11 @@ class BH_ModelData
 
 	public function &SetMaxValue($num){
 		$this->maxValue = $num;
+		return $this;
+	}
+
+	public function &SetMaxFileNumber($num){
+		$this->maxFileNumber = $num;
 		return $this;
 	}
 
@@ -800,47 +810,11 @@ class _ModelFunc{
 				if(isset($v->htmlType) && self::IsFileType($v->htmlType) && isset($_FILES[$k])){
 					if($withFile) self::SetFileValue($model, $k);
 				}
-				else if(!isset($post[$k])){
-					if($v->blankIsNull){
-						$v->value = 'NULL';
-						$v->valueIsQuery = true;
-						$v->needIs = true;
-					}
-					else if($v->needIs && (!isset($v->value) || !strlen($v->value))){
-						$ret->message = $v->modelErrorMsg = str_replace('{item}', $v->displayName, BH_Application::$lang['MODEL_NOT_DEFINED_ITEM']);
-						$ret->result = false;
-						return $ret;
-					}
-					else if($v->htmlType === HTMLType::CHECKBOX && $v->required) $v->needIs = true;
-				}
 				else{
+					$values = array();
 					if($v->htmlType == HTMLType::FILE_IMAGE_ARRAY || $v->htmlType == HTMLType::FILE_ARRAY){
 						$delFiles = Post('del_file_' . $k);
 						if(!is_array($delFiles)) $delFiles = array();
-
-						$values = array();
-						if(!is_array($post[$k])){
-							$ret->message = $v->modelErrorMsg = str_replace('{item}', $v->displayName, BH_Application::$lang['MODEL_NOT_MULTI_FILE_ITEM']);
-							$ret->result = false;
-							return $ret;
-						}
-
-						foreach($post[$k] as $path){
-							if($path){
-								$m = explode('*', $path);
-								$newpath = self::ReservedMoveFile($m[0], $model->uploadDir);
-								if(is_string($newpath)){
-									$values[]= $newpath . (sizeof($m) > 1 ? '*' . $m[1] : '');
-									$v->__moveFile[]= array('source' => $m[0], 'dest' => $newpath);
-									$v->needIs = true;
-								}
-								else if($newpath->result === -1){
-									$ret->message = $v->modelErrorMsg = $v->displayName . ' - ' . $newpath->message;
-									$ret->result = false;
-									return $ret;
-								}
-							}
-						}
 
 						// 기존 파일
 						if(strlen($v->value)){
@@ -853,114 +827,164 @@ class _ModelFunc{
 							}
 							$values = array_merge($valuePath, $values);
 						}
+
 						$v->value = implode(';', $values);
 						$v->needIs = true;
 					}
-
-					else if(self::IsFileType($v->htmlType)){
-						$fileUpIs = false;
-						$m = explode('*', $post[$k]);
-						$fPath = $m[0];
-
-						$fName = '';
-						if($v->htmlType === HTMLType::FILE_WITH_NAME || $v->htmlType === HTMLType::FILE || $v->htmlType === HTMLType::FILE_JQUERY){
-							if(($v->htmlType === HTMLType::FILE_WITH_NAME || $v->htmlType === HTMLType::FILE_JQUERY) && isset($m[1]) && strlen($m[1])) $fName = '*' . $m[1];
+					if(!isset($post[$k])){
+						if($v->blankIsNull){
+							$v->value = 'NULL';
+							$v->valueIsQuery = true;
+							$v->needIs = true;
 						}
-
-						if(strlen($fPath) && file_exists(\Paths::DirOfUpload() . $fPath)){
-							$ext = explode('.', $fPath);
-							$ext = strtolower(array_pop($ext));
-
-							if(isset($v->addOption['possibleExt']) && is_array($v->addOption['possibleExt']) && sizeof($v->addOption['possibleExt'])){
-								if(!in_array($ext, $v->addOption['possibleExt'])){
-									$ret->message = $v->modelErrorMsg = str_replace('{item}', $v->displayName, BH_Application::$lang['MODEL_WRONG_FILE_TYPE']);
-									$ret->result = false;
-									return $ret;
-								}
-							}
-							else if(!in_array($ext, BH_Application::$settingData['POSSIBLE_EXT'])){
-								$ret->message = $v->modelErrorMsg = str_replace('{item}', $v->displayName, BH_Application::$lang['MODEL_WRONG_FILE_TYPE']);
+						else if($v->needIs && (!isset($v->value) || !strlen($v->value))){
+							$ret->message = $v->modelErrorMsg = str_replace('{item}', $v->displayName, BH_Application::$lang['MODEL_NOT_DEFINED_ITEM']);
+							$ret->result = false;
+							return $ret;
+						}
+						else if($v->htmlType === HTMLType::CHECKBOX && $v->required) $v->needIs = true;
+					}
+					else{
+						if($v->htmlType == HTMLType::FILE_IMAGE_ARRAY || $v->htmlType == HTMLType::FILE_ARRAY){
+							if(!is_array($post[$k])){
+								$ret->message = $v->modelErrorMsg = str_replace('{item}', $v->displayName, BH_Application::$lang['MODEL_NOT_MULTI_FILE_ITEM']);
 								$ret->result = false;
 								return $ret;
 							}
 
-							// 파일 용량검사
-							if(isset($v->addOption['maxFileSize']) && $v->addOption['maxFileSize']){
-								$s = preg_replace('/[^0-9\.]/', '', $v->addOption['maxFileSize']);
-								$type = strtolower(substr($v->addOption['maxFileSize'], -2));
-
-								if($type === 'mb') $s = $s * 1024 * 1024;
-								else if($type === 'kb') $s = $s * 1024;
-
-								if($s < filesize(\Paths::DirOfUpload() . $fPath)){
-									$ret->message = $v->modelErrorMsg = str_replace('{item}', $v->displayName, BH_Application::$lang['MODEL_EXCEED_FILE_SIZE']);
-									$ret->result = false;
-									return $ret;
+							foreach($post[$k] as $path){
+								if($path){
+									$m = explode('*', $path);
+									$newpath = self::ReservedMoveFile($m[0], $model->uploadDir);
+									if(is_string($newpath)){
+										$values[]= $newpath . (sizeof($m) > 1 ? '*' . $m[1] : '');
+										$v->__moveFile[]= array('source' => $m[0], 'dest' => $newpath);
+										$v->needIs = true;
+									}
+									else if($newpath->result === -1){
+										$ret->message = $v->modelErrorMsg = $v->displayName . ' - ' . $newpath->message;
+										$ret->result = false;
+										return $ret;
+									}
 								}
 							}
 
-							$fileUpIs = true;
+							$v->value = implode(';', $values);
+							$v->needIs = true;
 
-							// 파일명 변경
-							if($v->htmlType === HTMLType::FILE_JQUERY){
-								$tempPath = explode('/', $fPath);
-								array_pop($tempPath);
+							$fileNumber =  sizeof($v->GetFilePaths());
+							if($fileNumber > $v->maxFileNumber){
+								$ret->message = $v->modelErrorMsg = $v->displayName . ' - ' . BH_Application::$lang['MODEL_OVER_FILE_NUMBER'];
+								$ret->result = false;
+								return $ret;
+							}
+						}
 
-								$newFileName = '';
-								while($newFileName == '' || file_exists(\Paths::DirOfUpload() . implode('/', $tempPath) . '/' . $newFileName . '.' . $ext)) $newFileName = self::RandomFileName();
-								$old = $fPath;
-								$fPath = implode('/', $tempPath) . '/' . $newFileName . '.' . $ext;
-								rename(\Paths::DirOfUpload() . $old, \Paths::DirOfUpload() . $fPath);
+						else if(self::IsFileType($v->htmlType)){
+							$fileUpIs = false;
+							$m = explode('*', $post[$k]);
+							$fPath = $m[0];
+
+							$fName = '';
+							if($v->htmlType === HTMLType::FILE_WITH_NAME || $v->htmlType === HTMLType::FILE || $v->htmlType === HTMLType::FILE_JQUERY){
+								if(($v->htmlType === HTMLType::FILE_WITH_NAME || $v->htmlType === HTMLType::FILE_JQUERY) && isset($m[1]) && strlen($m[1])) $fName = '*' . $m[1];
 							}
 
-							$newpath = self::ReservedMoveFile($fPath, $model->uploadDir);
+							if(strlen($fPath) && file_exists(\Paths::DirOfUpload() . $fPath)){
+								$ext = explode('.', $fPath);
+								$ext = strtolower(array_pop($ext));
 
-							if(is_string($newpath)){
-								$v->__moveFile[]= array('source' => $fPath, 'dest' => $newpath);
-								// 기존 파일
-								if(strlen($v->value)) $v->__deleteFile[]= $v->value;
+								if(isset($v->addOption['possibleExt']) && is_array($v->addOption['possibleExt']) && sizeof($v->addOption['possibleExt'])){
+									if(!in_array($ext, $v->addOption['possibleExt'])){
+										$ret->message = $v->modelErrorMsg = str_replace('{item}', $v->displayName, BH_Application::$lang['MODEL_WRONG_FILE_TYPE']);
+										$ret->result = false;
+										return $ret;
+									}
+								}
+								else if(!in_array($ext, BH_Application::$SettingData['POSSIBLE_EXT'])){
+									$ret->message = $v->modelErrorMsg = str_replace('{item}', $v->displayName, BH_Application::$lang['MODEL_WRONG_FILE_TYPE']);
+									$ret->result = false;
+									return $ret;
+								}
 
-								$v->value = $newpath.$fName;
+								// 파일 용량검사
+								if(isset($v->addOption['maxFileSize']) && $v->addOption['maxFileSize']){
+									$s = preg_replace('/[^0-9\.]/', '', $v->addOption['maxFileSize']);
+									$type = strtolower(substr($v->addOption['maxFileSize'], -2));
+
+									if($type === 'mb') $s = $s * 1024 * 1024;
+									else if($type === 'kb') $s = $s * 1024;
+
+									if($s < filesize(\Paths::DirOfUpload() . $fPath)){
+										$ret->message = $v->modelErrorMsg = str_replace('{item}', $v->displayName, BH_Application::$lang['MODEL_EXCEED_FILE_SIZE']);
+										$ret->result = false;
+										return $ret;
+									}
+								}
+
+								$fileUpIs = true;
+
+								// 파일명 변경
+								if($v->htmlType === HTMLType::FILE_JQUERY){
+									$tempPath = explode('/', $fPath);
+									array_pop($tempPath);
+
+									$newFileName = '';
+									while($newFileName == '' || file_exists(\Paths::DirOfUpload() . implode('/', $tempPath) . '/' . $newFileName . '.' . $ext)) $newFileName = self::RandomFileName();
+									$old = $fPath;
+									$fPath = implode('/', $tempPath) . '/' . $newFileName . '.' . $ext;
+									rename(\Paths::DirOfUpload() . $old, \Paths::DirOfUpload() . $fPath);
+								}
+
+								$newpath = self::ReservedMoveFile($fPath, $model->uploadDir);
+
+								if(is_string($newpath)){
+									$v->__moveFile[]= array('source' => $fPath, 'dest' => $newpath);
+									// 기존 파일
+									if(strlen($v->value)) $v->__deleteFile[]= $v->value;
+
+									$v->value = $newpath.$fName;
+									$v->needIs = true;
+								}
+								else{
+									if($newpath->result === -1){
+										$ret->message = $v->modelErrorMsg = $v->displayName . ' - ' . $newpath->message;
+										$ret->result = false;
+										return $ret;
+									}
+								}
+							}
+
+							if(!$fileUpIs && strlen($v->value) && Post('del_file_' . $k) == 'y'){
+								$v->__deleteFile[]= $v->value;
+								$v->value = '';
 								$v->needIs = true;
 							}
-							else{
-								if($newpath->result === -1){
-									$ret->message = $v->modelErrorMsg = $v->displayName . ' - ' . $newpath->message;
+							if($v->required){
+								$v->needIs = true;
+							}
+						}
+
+						else if((isset($v->htmlType) || $v->required) && !self::IsFileType($v->htmlType)){
+							if(is_array($post[$k])){
+								if($v->htmlType === HTMLType::CHECKBOX){
+									$v->value = implode(',', $post[$k]);
+								}
+								else{
+									$ret->message = $v->modelErrorMsg = $v->displayName . BH_Application::$lang['MODEL_DO_NOT_ARRAY'];
 									$ret->result = false;
-									return $ret;
 								}
 							}
-						}
-
-						if(!$fileUpIs && strlen($v->value) && Post('del_file_' . $k) == 'y'){
-							$v->__deleteFile[]= $v->value;
-							$v->value = '';
-							$v->needIs = true;
-						}
-						if($v->required){
-							$v->needIs = true;
-						}
-					}
-
-					else if((isset($v->htmlType) || $v->required) && !self::IsFileType($v->htmlType)){
-						if(is_array($post[$k])){
-							if($v->htmlType === HTMLType::CHECKBOX){
-								$v->value = implode(',', $post[$k]);
+							else if(!strlen($post[$k]) && $v->blankIsNull){
+								$v->value = 'NULL';
+								$v->valueIsQuery = true;
 							}
 							else{
-								$ret->message = $v->modelErrorMsg = $v->displayName . BH_Application::$lang['MODEL_DO_NOT_ARRAY'];
-								$ret->result = false;
+								if($v->htmlType === HTMLType::NUMBER_FORMAT) $v->value = preg_replace('/[^0-9]/', '', $post[$k]);
+								else $v->value = $post[$k];
 							}
+							$v->needIs = true;
 						}
-						else if(!strlen($post[$k]) && $v->blankIsNull){
-							$v->value = 'NULL';
-							$v->valueIsQuery = true;
-						}
-						else{
-							if($v->htmlType === HTMLType::NUMBER_FORMAT) $v->value = preg_replace('/[^0-9]/', '', $post[$k]);
-							else $v->value = $post[$k];
-						}
-						$v->needIs = true;
 					}
 				}
 			}
@@ -1327,18 +1351,20 @@ class _ModelFunc{
 				return $h . '<button type="button" class="fileUploadBtn sBtn"><span>' . BH_Application::$lang['REG_IMAGE'] . '</span></button></div><script>JCM.imageFileForm();</script>';
 			break;
 			case HTMLType::FILE_IMAGE_ARRAY:
-				$h = '<div class="multiFileUploadArea">';
+				$temp = '<div class="fileUploadArea"><span class="fileUploadImage"></span><input type="hidden" name="'.$Name.'[]" data-displayname="' . $data->displayName . '" '.$Attribute.'><button type="button" class="fileUploadBtn sBtn"><span>' . BH_Application::$lang['REG_IMAGE'] . '</span></button><button type="button" class="fileUploadAreaRmBtn sBtn">' . BH_Application::$lang['DEL'] . '</button></div>';
+				$h = '<div class="multiFileUploadArea" data-max-file-number="' . $data->maxFileNumber . '">';
 				if(strlen($data->value)){
 					$p = explode(';', $data->value);
 					foreach($p as $path){
 						$h .= ' <span class="fileUploadImage"><i style="background-image:url(' . Paths::UrlOfUpload() . $path . ')"></i></span> <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '[]" value="' . $path . '"><i></i><span>' . BH_Application::$lang['DEL'] . '</span></label>';
 					}
 				}
-				$h .= '<div class="fileUploadArea"><span class="fileUploadImage"></span><input type="hidden" name="'.$Name.'[]" data-displayname="' . $data->displayName . '" '.$Attribute.'><button type="button" class="fileUploadBtn sBtn"><span>' . BH_Application::$lang['REG_IMAGE'] . '</span></button><button type="button" class="fileUploadAreaAddBtn sBtn">' . BH_Application::$lang['ADD'] . '</button><button type="button" class="fileUploadAreaRmBtn sBtn">' . BH_Application::$lang['DEL'] . '</button></div>';
-				return $h . '</div><script>JCM.imageFileForm();</script>';
+				else $h .= $temp;
+				return $h . '</div><div class="multiFileUploadAdd"><button type="button" class="fileUploadAreaAddBtn sBtn" data-html="' . GetDBText($temp) . '">' . BH_Application::$lang['ADD'] . '</button></div><script>JCM.imageFileForm();</script>';
 			break;
 			case HTMLType::FILE_ARRAY:
-				$h = '<div class="multiFileUploadArea">';
+				$temp = '<div class="fileUploadArea2"><input type="hidden" name="' . $Name . '[]" class="fileUploadInput" value=""><p><span class="fileName"></span></p><button type="button" class="fileUploadBtn sBtn"><i></i> <span>' . BH_Application::$lang['REG_FILE'] . '</span></button><button type="button" class="fileUploadAreaRmBtn sBtn">' . BH_Application::$lang['DEL'] . '</button></div>';
+				$h = '<div class="multiFileUploadArea" data-max-file-number="' . $data->maxFileNumber . '">';
 				if(strlen($data->value)){
 					$p = explode(';', $data->value);
 					foreach($p as $path){
@@ -1346,8 +1372,8 @@ class _ModelFunc{
 						$h .= ' <p><span class="fileName">' . (isset($f[1]) ? GetDBText($f[1]) : basename($f[0])) . '</span> <label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '[]" value="' . $f[0] . '"><i></i><span> ' . BH_Application::$lang['DEL'] . '</span></label></p>';
 					}
 				}
-				$h .= '<div class="fileUploadArea2"><input type="hidden" name="' . $Name . '[]" class="fileUploadInput" value=""><p><span class="fileName"></span></p><button type="button" class="fileUploadBtn sBtn"><i></i> <span>' . BH_Application::$lang['REG_FILE'] . '</span></button><button type="button" class="fileUploadAreaAddBtn sBtn">' . BH_Application::$lang['ADD'] . '</button><button type="button" class="fileUploadAreaRmBtn sBtn">' . BH_Application::$lang['DEL'] . '</button></div>';
-				return $h . '</div><script>JCM.fileForm();</script>';
+				else $h .= $temp;
+				return $h . '</div><div class="multiFileUploadAdd"><button type="button" class="fileUploadAreaAddBtn sBtn" data-html="' . GetDBText($temp) . '">' . BH_Application::$lang['ADD'] . '</button></div><script>JCM.fileForm();</script>';
 			break;
 			case HTMLType::TEXTAREA:
 				return '<textarea name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$Attribute.'>'.(isset($val) ? GetDBText($val) : '').'</textarea>';

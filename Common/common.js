@@ -53,6 +53,8 @@ function Common($){
 
 	this.loadingIs = false;
 
+	this.modalAutoSize = false;
+
 	// 예약
 	this.ajaxSuccess = null;
 	this.ajaxFailed = null;
@@ -362,17 +364,43 @@ function Common($){
 
 	this.showModal = function(modal_id, w, h){
 		var wrap = $('#' + modal_id).children('.modal_wrap');
-		if (typeof(w) !== 'undefined') wrap.css({'width': w + 'px'});
-		if (typeof(h) !== 'undefined') wrap.css({'height': h + 'px'});
+		if(!this.modalAutoSize){
+			if(typeof (w) !== 'undefined') wrap.css({'width': w + 'px'});
+			if(typeof (h) !== 'undefined') wrap.css({'height': h + 'px'});
+		}
 
 		if (_this.ie8) {
 			$('#' + modal_id).append('<div style="position:absolute; top:0; left:0; z-index:1; width:100%; height:100%; filter:alpha(opacity:70); background:black;" class="background"></div>');
-		}
+		}data-same
 		$('#' + modal_id).css("display", "block");
 		var beforeW = $('body').width();
 		if(!$('body')[0].hasAttribute('data-ovy')) $('body').attr('data-ovy', $('body').css('overflow-y'));
 		$('body').css('overflow-y', 'hidden');
 		$('body').css({'position' : 'relative', 'width' : 'auto', 'margin-right' : ($('body').width() - beforeW)+'px'});
+
+		if(this.modalAutoSize){
+			if(typeof(this.modalAutoSizeWindowEvent) === 'undefined'){
+				this.modalAutoSizeWindowEvent = true;
+				$(window).resize(function(){
+					if($('.modal_wrap').length){
+						$('.modal_wrap').each(function(){
+							_this.modalResize(this);
+						});
+					}
+				});
+			}
+
+			_this.modalResize(wrap[0]);
+		}
+	};
+
+	this.modalResize = function(wrapEl){
+		$(wrapEl).css({
+			height : 'auto'
+		});
+		$(wrapEl).css({
+			height : $(wrapEl).outerHeight() + 'px'
+		});
 	};
 
 	// ajax를 보낸 후 모달창을 띄움(createModal)
@@ -408,6 +436,13 @@ function Common($){
 	 *
 	 ------------------------------------------- */
 
+	this.addFileInp = function(){
+		var area = $(this).parent().prev();
+		var maxFileN = area[0].hasAttribute('data-max-file-number') ? parseInt(area.attr('data-max-file-number')) : 3;
+		if(area.children().length >= maxFileN) return;
+		area.append($(this).attr('data-html'));
+	};
+
 	this.imageFileFormRunIs = false;
 	this.imageFileFormBtnAction = null;
 	this.imageFileForm = function(btnCallback){
@@ -430,16 +465,11 @@ function Common($){
 			if(typeof(_this.imageFileFormBtnAction) === 'function') _this.imageFileFormBtnAction(document.getElementById('_uploadImgInp'));
 			else $('#_uploadImgInp').click();
 		});
-		$(document).on('click','.fileUploadArea button.fileUploadAreaAddBtn',function(e){
-			AddFileInp.call(this);
-		});
-
-		function AddFileInp(){
-			var area = $(this).closest('.fileUploadArea');
-			var inHtml = '<div class="fileUploadArea">' + area.html().replace(/\<span.+?class\=\"fileUploadImage\"\>.*?\<\/span\>/ig, '<span class="fileUploadImage"></span>').replace(/value\=\".*?\"/ig, 'value=""') + '</div>';
-			area.after(inHtml);
+		$(document).off('click','.multiFileUploadArea + div.multiFileUploadAdd button.fileUploadAreaAddBtn');
+		$(document).on('click','.multiFileUploadArea + div.multiFileUploadAdd button.fileUploadAreaAddBtn',function(e){
 			e.preventDefault();
-		}
+			_this.addFileInp.call(this);
+		});
 
 		$(document).on('click','.fileUploadArea button.fileUploadAreaRmBtn',function(e){
 			e.preventDefault();
@@ -500,16 +530,11 @@ function Common($){
 			if(typeof(_this.fileFormBtnAction) === 'function') _this.fileFormBtnAction(document.getElementById('_uploadFileInp'));
 			else $('#_uploadFileInp').click();
 		});
-		$(document).on('click','.fileUploadArea2 button.fileUploadAreaAddBtn',function(e){
-			AddFileInp2.call(this);
-		});
-
-		function AddFileInp2(){
-			var area = $(this).closest('.fileUploadArea2');
-			var inHtml = '<div class="fileUploadArea2">' + area.html().replace(/\<span.+?class\=\"fileName\"\>.*?\<\/span\>/ig, '').replace(/value\=\".*?\"/ig, 'value=""') + '</div>';
-			area.after(inHtml);
+		$(document).off('click','.multiFileUploadArea + div.multiFileUploadAdd button.fileUploadAreaAddBtn');
+		$(document).on('click','.multiFileUploadArea + div.multiFileUploadAdd button.fileUploadAreaAddBtn',function(e){
 			e.preventDefault();
-		}
+			_this.addFileInp.call(this);
+		});
 
 		$(document).on('click','.fileUploadArea2 button.fileUploadAreaRmBtn',function(e){
 			e.preventDefault();
@@ -1485,7 +1510,7 @@ var _SelectBox = new SelectBox(jQuery);
 					var target = $(this).closest('form').find('input[name=' + $(this).attr('data-same') + ']');
 					if(target.length){
 						if($(this).val() !== target.val()){
-							CMAlert(window._CM_LANG.orLessValue.replace('{item}', target.attr('data-displayname')), function(){
+							CMAlert(window._CM_LANG.notMatchValue.replace('{item}', target.attr('data-displayname')), function(){
 								target.focus();
 							});
 							ret = false;
