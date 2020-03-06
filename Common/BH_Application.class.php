@@ -37,6 +37,8 @@ class BH_Application
 	public static $extendMethod = array();
 
 	public static $lang = array();
+	/** @var callable $routingFailFunc */
+	public static $routingFailFunc = null;
 
 	private function __construct(){
 
@@ -145,7 +147,13 @@ class BH_Application
 			require $path;
 			$controller = '\\Controller\\' . (self::$nativeDir ? str_replace('/', '\\', self::$nativeDir) . '\\' : '') . self::$controllerName;
 			if(!class_exists($controller)){
-				if(_DEVELOPERIS === true) echo 'CLASS(' . $controller . ') DOES NOT EXIST.';
+				$code = 101;
+				$msg = 'CLASS(' . $controller . ') DOES NOT EXIST.';
+				if(is_callable(self::$routingFailFunc)){
+					$func = self::$routingFailFunc;
+					$func($code, $msg);
+				}
+				else if(_DEVELOPERIS === true) echo $msg;
 				exit;
 			}
 
@@ -163,12 +171,28 @@ class BH_Application
 				self::$controllerInstance->{$action}();
 			}
 			else{
-				if(_DEVELOPERIS === true) echo 'METHOD DOES NOT EXIST(#2)';
+				$code = 201;
+				$msg = 'METHOD DOES NOT EXIST(#2)';
+				if(is_callable(self::$routingFailFunc)){
+					$func = self::$routingFailFunc;
+					$func($code, $msg);
+				}
+				else if(_DEVELOPERIS === true) echo $msg;
 				else URLReplace(Paths::Url() . '/');
 			}
 		}
 		else{
+			$code = 301;
+			$msg = 'Controller file not exist.';
+			if(is_callable(self::$routingFailFunc)){
+				$func = self::$routingFailFunc;
+				$func($code, $msg);
+			}
 			if(_DEVELOPERIS === true && _SHOW_CREATE_GUIDE === true) require _COMMONDIR . '/Create.html';
+			else if(is_callable(self::$routingFailFunc)){
+				$func = self::$routingFailFunc;
+				$func($code, $msg);
+			}
 			else URLReplace(Paths::Url() . '/');
 		}
 	}
