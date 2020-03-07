@@ -36,6 +36,7 @@ class BH_Application
 	public static $bodyHtml = '';
 	public static $extendMethod = array();
 
+	/** @var array $lang = \Custom\Lang\kor::Lang() */
 	public static $lang = array();
 	/** @var callable $routingFailFunc */
 	public static $routingFailFunc = null;
