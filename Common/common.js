@@ -1500,7 +1500,7 @@
 		}
 	});
 
-	function getCaretPosition(ctrl){
+	window.getCaretPosition = function(ctrl){
 		// IE < 9 Support
 		if (document.selection) {
 			ctrl.focus();
@@ -1518,7 +1518,7 @@
 		}
 	}
 
-	function setCaretPosition(ctrl, start, end){
+	window.setCaretPosition = function(ctrl, start, end){
 		// IE >= 9 and other browsers
 		if(ctrl.setSelectionRange)
 		{
