@@ -973,7 +973,7 @@ function bc_to10($num, $b = 62, $base = ENG_NUM){
 
 function JSON($bool, $message = '', $data = array(), $exitIs = true){
 	header('Content-Type: application/json');
-	echo json_encode(array('result' => $bool, 'message' => $message, 'data' => $data));
+	echo json_encode(array('result' => $bool, 'message' => $message, 'data' => $data, 'common' => (isset(App::$settingData['jsonCommonData']) ? App::$settingData['jsonCommonData'] : null)));
 	if($exitIs) exit;
 }
 

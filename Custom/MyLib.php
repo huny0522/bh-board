@@ -26,6 +26,9 @@ App::$extendMethod['AfterSetView'] = function(){
 App::$settingData['tinyMCEPath'] = \Paths::UrlOfSkin() . '/js/tinymce/tinymce.min.js';
 */
 
+// JSON 으로 공통으로 보낼 값
+App::$settingData['jsonCommonData'] = null;
+
 $keyValue = _SecretKeyByFile(_DIR . '/personal_security_key.dont.delete.it.php');
 define('PERSONAL_INFO_KEY', $keyValue);
 

@@ -14,16 +14,12 @@ use \BH_Application as App;
 		<dl>
 			<dt>기간 검색</dt>
 			<dd>
-				<div class="selectBox">
-					<select name="by">
-						<?p. SelectOption(App::$data['optYearArr'], Get('by')) ?>
-					</select>
-				</div>
-				<div class="selectBox">
-					<select name="bm">
-						<?p. SelectOption(App::$data['optMonthArr'], Get('bm')) ?>
-					</select>
-				</div>
+				<select name="by">
+					<?p. SelectOption(App::$data['optYearArr'], Get('by')) ?>
+				</select>
+				<select name="bm">
+					<?p. SelectOption(App::$data['optMonthArr'], Get('bm')) ?>
+				</select>
 				<button type="submit" class="mBtn">검색</button>
 			</dd>
 		</dl>
