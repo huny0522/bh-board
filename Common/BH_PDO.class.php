@@ -30,6 +30,12 @@ class DB{
 		foreach(self::$conn as $k => &$v) $v = null;
 	}
 
+	public static function _destroy(){
+		if(isset(self::$instance)){
+			self::$instance = null;
+		}
+	}
+
 	/**
 	 * DB 컨넥션 및 인스턴스 반환
 	 * @param string $connName
@@ -37,7 +43,7 @@ class DB{
 	 */
 	public static function &SQL($connName = self::DefaultConnName){
 		self::$connName = $connName === '' ? self::DefaultConnName : $connName;
-		if (!isset(self::$instance)) self::$instance = new self();
+		if (!isset(self::$instance) || is_null(self::$instance)) self::$instance = new self();
 
 		if(!isset(self::$conn[self::$connName])){
 			if(isset(self::$connectionInfo[self::$connName])){

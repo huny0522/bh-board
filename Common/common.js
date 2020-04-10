@@ -159,7 +159,7 @@
 					c = c.substring(1);
 				}
 				if (c.indexOf(name) === 0) {
-					return c.substring(name.length,c.length);
+					return decodeURIComponent(c.substring(name.length,c.length));
 				}
 			}
 			return "";
@@ -176,7 +176,7 @@
 				d.setTime(d.getTime() + (exdays*60*1000));
 				expires = "expires="+ d.toUTCString();
 			}
-			document.cookie = cname + "=" + cvalue + "; path=/;" + expires;
+			document.cookie = cname + "=" + encodeURIComponent(cvalue) + "; path=/;" + expires;
 		};
 
 		this.replaceTag = function(tag) {
