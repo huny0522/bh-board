@@ -195,7 +195,7 @@
 
 		this.todayPopupClose = function(seq) {
 			_this.setCookie('todayClosePopup' + seq, 'y', 1);
-			jQuery('#BH_Popup' + seq).hide();
+			bhJQuery('#BH_Popup' + seq).hide();
 		};
 
 		this.popup = function(target, seq, top, left, width, height, data) {
