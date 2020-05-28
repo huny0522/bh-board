@@ -476,7 +476,7 @@
 			bhJQuery(document).on('click','.fileUploadArea button.fileUploadAreaRmBtn',function(e){
 				e.preventDefault();
 				var area = bhJQuery(this).closest('.fileUploadArea');
-				if(!area.siblings('.fileUploadArea').length) AddFileInp.call(this);
+				if(!area.siblings('.fileUploadArea').length) _this.addFileInp.call(this);
 				area.remove();
 			});
 			bhJQuery(document).on('change', '#_uploadImgInp', function(e){
@@ -541,7 +541,7 @@
 			bhJQuery(document).on('click','.fileUploadArea2 button.fileUploadAreaRmBtn',function(e){
 				e.preventDefault();
 				var area = bhJQuery(this).closest('.fileUploadArea2');
-				if(!area.siblings('.fileUploadArea2').length) AddFileInp2.call(this);
+				if(!area.siblings('.fileUploadArea2').length) _this.addFileInp.call(this);
 				area.remove();
 			});
 			bhJQuery(document).on('change', '#_uploadFileInp', function(e){

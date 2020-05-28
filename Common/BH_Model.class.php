@@ -901,7 +901,7 @@ class _ModelFunc{
 										return $ret;
 									}
 								}
-								else if(!in_array($ext, BH_Application::$SettingData['POSSIBLE_EXT'])){
+								else if(!in_array($ext, BH_Application::$settingData['POSSIBLE_EXT'])){
 									$ret->message = $v->modelErrorMsg = str_replace('{item}', $v->displayName, BH_Application::$lang['MODEL_WRONG_FILE_TYPE']);
 									$ret->result = false;
 									return $ret;
