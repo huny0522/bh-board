@@ -5,13 +5,18 @@ var StatePage = {
 	targetId : 'containerWrap',
 	isInit : false,
 	beforeHash : '',
-	hashAction : {},
-	emptyHashAction : {},
+	hashAction : {}, // 해쉬가 있을 때 실행
+	emptyHashAction : {}, // 해쉬가 없을 때 실행
 	isAnimate : false,
 	animateSpeed : 300,
 	animateDirection : 'left',
 	historyForwardCount : 0,
+	isPopState : false,
+	isHashAction : false,
+	isHistoryBack : false,
+	beforeTime : 0,
 	wrapObj : null,
+	dataCheckFunc : null,
 
 	/**
 	 * 최초 실행
@@ -43,9 +48,14 @@ var StatePage = {
 		});
 
 		$(window).on('popstate', function(e) {
+			if(e.originalEvent.state !== null && typeof(e.originalEvent.state.time) !== 'undefined'){
+				if(StatePage.beforeTime > e.originalEvent.state.time) StatePage.isHistoryBack = true;
+				StatePage.beforeTime = e.originalEvent.state.time;
+			}
+
 			var href = location.href;
-			console.log(document.referrer);
 			StatePage.HashAction();
+			StatePage.isPopState = true;
 			StatePage.Load(href, null, true);
 		});
 
@@ -75,13 +85,34 @@ var StatePage = {
 		var hash = location.hash.length > 1 ? location.hash.substr(1) : '';
 		if(StatePage.beforeHash === hash) return;
 		if(hash.length){
-			if(typeof(StatePage.hashAction[hash]) === 'function') StatePage.hashAction[hash]();
+			var hash2 = hash.split('-');
+			var hash1 = hash2.shift();
+			if(typeof(StatePage.hashAction[hash1]) === 'function'){
+				StatePage.hashAction[hash1](hash2);
+				StatePage.isHashAction = true;
+			}
 		}
 		else if(disableEmptyAction !== true){
 			$.each(StatePage.emptyHashAction, function(i, obj){
 				if(typeof(obj) === 'function') obj();
+				StatePage.isHashAction = true;
 			});
 		}
+	},
+
+	AddHashAction : function(name, func){
+		StatePage.hashAction[name] = func;
+		return this;
+	},
+
+	AddEmptyHashAction : function(name, func){
+		StatePage.emptyHashAction[name] = func;
+		return this;
+	},
+
+	SetDataCheck : function(func){
+		this.dataCheckFunc = func;
+		return this;
 	},
 
 	/**
@@ -106,13 +137,20 @@ var StatePage = {
 
 		if(StatePage.url !== '' && (StatePage.url == linkEl.pathname + linkEl.search && force !== true)) return;
 
-		JCM.getWithLoading(href, {hash : linkEl.hash}, function(html){
+		if(!StatePage.isPopState) StatePage.beforeTime = (new Date()).getTime();
+
+		JCM.getWithLoading(href, {hash : linkEl.hash}, function(html, commonData){
 
 			var el = null;
 			if(typeof(targetId) === 'string' && targetId !== '') el = $(StatePage.wrapObj).find('#' + targetId);
 			if(!el) el = $(StatePage.wrapObj).find('#' + StatePage.targetId);
 
+			if(typeof StatePage.dataCheckFunc === 'function' && !StatePage.dataCheckFunc(html, commonData)) return;
 			$(el).html(html);
+
+			if(typeof(commonData) !== 'undefined' && commonData !== null && typeof(commonData.appendHtml) !== 'undefined'){
+				$(el).append(commonData.appendHtml);
+			}
 			StatePage.url = linkEl.href;
 
 			if(StatePage.isAnimate === true){
@@ -141,19 +179,17 @@ var StatePage = {
 					$(temp).remove();
 					$(StatePage.wrapObj).css({'position' : 'static', 'transition' : '0s', 'transform' : '', '-webkit-transform' : '', '-ms-transform' : ''});
 
-					StatePage._CompleteAction();
+					StatePage._CompleteAction(commonData);
 				});
 
 				$(temp).translate3d({x : d.wrap2x[0]}, {x : d.wrap2x[1]}, StatePage.animateSpeed);
 				StatePage.animateDirection = 'left';
 			}
-			else{
-				StatePage._CompleteAction();
-			}
 
+			if(noPush) history.replaceState({time : StatePage.beforeTime}, '', href);
+			else history.pushState({time : StatePage.beforeTime}, '', href);
 
-			if(noPush) history.replaceState('', '', href);
-			else history.pushState('', '', href);
+			if(StatePage.isAnimate !== true) StatePage._CompleteAction(commonData);
 		});
 	},
 
@@ -179,6 +215,7 @@ var StatePage = {
 	 */
 	AddCompleteKeepAction : function(func){
 		StatePage._completeKeepAction.push(func);
+		return this;
 	},
 
 	/**
@@ -188,7 +225,7 @@ var StatePage = {
 	 * @private
 	 */
 	_LinkAction : function(e){
-		if(!this.hasAttribute('href') || $(this).hasClass('button') || $(this).attr('href') === '#' || $(this).attr('href').substring(0, 11).toLowerCase() === 'javascript:') return;
+		if(!this.hasAttribute('href') || $(this).hasClass('button') || $(this).attr('href') === '#' || $(this).attr('href').substring(0, 11).toLowerCase() === 'javascript:' || $(this).closest('.buttons').length) return;
 		e.preventDefault();
 		StatePage.Load(this.href, this.hasAttribute('data-target-id') ? document.getElementById($(this).attr('data-target-id')) : null);
 	},
@@ -198,14 +235,17 @@ var StatePage = {
 	 *
 	 * @private
 	 */
-	_CompleteAction :function(){
+	_CompleteAction :function(commonData){
 		for(var i = 0; i < StatePage._completeKeepAction.length; i++){
-			if(typeof(StatePage._completeKeepAction[i]) === 'function') StatePage._completeKeepAction[i]();
+			if(typeof(StatePage._completeKeepAction[i]) === 'function') StatePage._completeKeepAction[i](commonData);
 		}
 		for(var i = 0; i < StatePage._completeAction.length; i++){
-			if(typeof(StatePage._completeAction[i]) === 'function') StatePage._completeAction[i]();
+			if(typeof(StatePage._completeAction[i]) === 'function') StatePage._completeAction[i](commonData);
 		}
 		StatePage._completeAction = [];
+		StatePage.isPopState = false;
+		StatePage.isHashAction = false;
+		StatePage.isHistoryBack = false;
 	},
 };
 

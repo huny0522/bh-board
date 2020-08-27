@@ -93,8 +93,7 @@ class BH_Category{
 
 		$dbGet = $this->SqlGetQry();
 		$dbGet->AddWhere('category = %s', $pCategory);
-		$dbGet->AddKey('parent_enabled');
-		$dbGet->AddKey('enabled');
+		$dbGet->AddKey('parent_enabled', 'enabled');
 		$parent = $dbGet->Get();
 		$this->model->SetValue('parent_enabled', $parent['parent_enabled'] == 'n' || $parent['enabled'] == 'n' ? 'n' : 'y');
 

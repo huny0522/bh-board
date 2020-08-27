@@ -339,7 +339,8 @@ class DB{
 }
 
 class BH_DB_Get{
-	public $table = '';
+	public $table = array();
+	public $noWhereTable = '';
 	public $sql = '';
 	public $showError = true;
 	public $test = false;
@@ -358,7 +359,10 @@ class BH_DB_Get{
 	protected $bindParam = array();
 
 	public function  __construct($table = ''){
-		if($table !== '') $this->table = $this->StrToPDO(func_get_args());
+		if($table !== ''){
+			$w = $this->StrToPDO(func_get_args());
+			if($w !== false) $this->table[] = array('sql' => $w);
+		}
 		$this->connName = DB::DefaultConnName;
 	}
 
@@ -387,7 +391,7 @@ class BH_DB_Get{
 	 */
 	public function &AddTable($str){
 		$w = $this->StrToPDO(func_get_args());
-		if($w !== false) $this->table .= ' '.$w;
+		if($w !== false) $this->table[] = array('sql' => $w);
 		return $this;
 	}
 
@@ -465,6 +469,17 @@ class BH_DB_Get{
 		return $this;
 	}
 
+	protected function TableImplode($incNoWhere = true){
+		if(is_array($this->table)){
+			return implode(' ', array_map(function($ent) use ($incNoWhere){
+				if($incNoWhere) return $ent['sql'];
+				if(!isset($ent['noWhere']) || $ent['noWhere'] !== true) return $ent['sql'];
+				return '';
+			}, $this->table));
+		}
+		return $this->table;
+	}
+
 	/**
 	 * @var callable(&$sql) $func
 	 * @return bool|array
@@ -482,7 +497,7 @@ class BH_DB_Get{
 		else $key = '*';
 
 
-		$this->sql = 'SELECT {{space1}} '.$key.' {{space2}} FROM {{space3}} '.$this->table.' {{space4}} '.$where;
+		$this->sql = 'SELECT {{space1}} '.$key.' {{space2}} FROM {{space3}} '.$this->TableImplode().' {{space4}} '.$where;
 		if($this->group) $this->sql .= ' {{space5}} GROUP BY ' . $this->group;
 		$this->sql .= $having;
 		if($this->sort) $this->sql .= ' {{space6}} ORDER BY ' . $this->sort;
@@ -605,7 +620,7 @@ class BH_DB_GetList extends BH_DB_Get{
 			$key = '*';
 		}
 
-		$this->sql = 'SELECT {{space1}} '.$key.' {{space2}} FROM {{space3}} '.$this->table.' {{space4}} '.$where;
+		$this->sql = 'SELECT {{space1}} '.$key.' {{space2}} FROM {{space3}} '.$this->TableImplode().' {{space4}} '.$where;
 
 		if($this->group) $this->sql .= ' {{space5}} GROUP BY ' . $this->group;
 		$this->sql .= $having;
@@ -663,11 +678,34 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	public $pageHtml = '';
 	public $pageQueryParam = 'page';
 
+	private $noGroupCount = false;
+
+	/**
+	 * @var array $pageData = ['articleCount' => 10, 'pageCount' => 10, 'page' => 10, 'pageUrl' => 10, 'totalRecord' => 10, 'img' => ['first' => 'First', 'prev' => 'Prev', 'back' => 'Back', 'forw' => 'Forward', 'next' => 'Next', 'last' => 'Last'], 'afterHtml' => '']
+	 */
+	public static $pageData = array();
 	public static $pageNumberView = 10;
+	/**
+	 * @var bool
+	 */
 
 	public function __construct($table = ''){
 		$this->pageCount = self::$pageNumberView;
 		parent::__construct($table);
+	}
+
+
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
+	public function &AddTable($str){
+		$arr = func_get_args();
+		$noWhere = false;
+		if(is_bool(end($arr))) $noWhere = array_pop($arr);
+		$w = $this->StrToPDO($arr);
+		if($w !== false) $this->table[] = array('noWhere' => $noWhere, 'sql' => $w);
+		return $this;
 	}
 
 	/**
@@ -745,6 +783,15 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	}
 
 	/**
+	 * @param bool $bool
+	 * @return $this
+	 */
+	public function &SetNoGroupCount($bool = true){
+		$this->noGroupCount = $bool;
+		return $this;
+	}
+
+	/**
 	 * @return $this
 	 */
 	public function &DrawRows(){
@@ -800,11 +847,11 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 			$subCnt_sql2 .= ', COUNT('.$k.') as '.$k;
 		}
 
-		$sql_cnt = 'SELECT COUNT('.($this->CountKey ? $this->CountKey : '*').') as cnt'.$subCnt_sql.' FROM '.$this->table.' '.$where;
-		$this->sql = 'SELECT {{space1}} '.$key.' {{space2}} FROM {{space3}} '.$this->table.' {{space4}} '.$where;
+		$sql_cnt = 'SELECT COUNT('.($this->CountKey ? $this->CountKey : '*').') as cnt'.$subCnt_sql.' FROM '.$this->TableImplode(false).' '.$where;
+		$this->sql = 'SELECT {{space1}} '.$key.' {{space2}} FROM {{space3}} '.$this->TableImplode().' {{space4}} '.$where;
 		if($this->group){
 			$this->sql .= ' {{space5}} GROUP BY ' . $this->group;
-			$sql_cnt .= ' GROUP BY ' . $this->group;
+			if(!$this->noGroupCount) $sql_cnt .= ' GROUP BY ' . $this->group;
 		}
 
 		$sql_cnt .= $having;
@@ -823,14 +870,16 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 
 		if($this->test && _DEVELOPERIS === true){
 			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
-			echo $this->sql;
+			if($this->group && !$this->noGroupCount) $sql_cnt = 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x';
+			foreach($this->bindParam as $k => $v) $sql_cnt = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $sql_cnt);
+			echo $this->sql . PHP_EOL . PHP_EOL . $sql_cnt;
 			exit;
 		}
 
 		$this->sql = $sql2 = trim($this->sql);
 		foreach($this->bindParam as $v) $sql2 .= '['.$v[0].']';
 
-		$qry = DB::PDO($this->connName)->prepare($this->group ? 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x' : $sql_cnt);
+		$qry = DB::PDO($this->connName)->prepare($this->group && !$this->noGroupCount ? 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x' : $sql_cnt);
 		foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
 		if($qry->execute()){
 			$this->countResult = $qry->fetch(PDO::FETCH_ASSOC);
@@ -844,14 +893,15 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		$this->query = DB::PDO($this->connName)->prepare($this->sql);
 		foreach($this->bindParam as $k => $v) $this->query->bindParam($k, $v[0], $v[1]);
 
+		$pageData = self::$pageData;
 		if($this->query->execute()){
-			$pagedata['articleCount'] = $this->articleCount;
-			$pagedata['pageCount'] = $this->pageCount;
-			$pagedata['page'] = $this->page ? $this->page : 1;
-			$pagedata['pageUrl'] = $this->pageUrl;
-			$pagedata['totalRecord'] = $totalRecord;
+			$pageData['articleCount'] = $this->articleCount;
+			$pageData['pageCount'] = $this->pageCount;
+			$pageData['page'] = $this->page ? $this->page : 1;
+			$pageData['pageUrl'] = $this->pageUrl;
+			$pageData['totalRecord'] = $totalRecord;
 
-			$this->pageHtml = $this->SqlGetPage($pagedata);
+			$this->pageHtml = $this->SqlGetPage($pageData);
 
 			$this->result = true;
 		}
@@ -902,7 +952,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	}
 
 	/**
-	 * @param $pageParams
+	 * @param array $pageParams = ['articleCount' => 10, 'pageCount' => 10, 'page' => 10, 'pageUrl' => 10, 'totalRecord' => 10, 'img' => ['first' => 'First', 'prev' => 'Prev', 'back' => 'Back', 'forw' => 'Forward', 'next' => 'Next', 'last' => 'Last'], 'afterHtml' => '']
 	 * @return string
 	 */
 	public function SqlGetPage($pageParams){
@@ -913,6 +963,12 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		// 전체페이지
 		if(!isset($pageParams['img']))
 			$pageParams['img'] = array('first' => 'First', 'prev' => 'Prev', 'back' => 'Back', 'forw' => 'Forward', 'next' => 'Next', 'last' => 'Last');
+		if(!isset($pageParams['img']['first'])) $pageParams['img']['first'] = 'First';
+		if(!isset($pageParams['img']['prev'])) $pageParams['img']['prev'] = 'Prev';
+		if(!isset($pageParams['img']['back'])) $pageParams['img']['back'] = 'Back';
+		if(!isset($pageParams['img']['forw'])) $pageParams['img']['forw'] = 'Forward';
+		if(!isset($pageParams['img']['next'])) $pageParams['img']['next'] = 'Next';
+		if(!isset($pageParams['img']['last'])) $pageParams['img']['last'] = 'Last';
 		if(!$pageParams['totalRecord'])
 			return '';
 		$nowPage = $pageParams['page'] - 1;
@@ -955,7 +1011,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		$tag = $pageParams['page'] < $pageAll ? 'a' : 'span';
 		$pageHTML .= ' <'.$tag.' class="last" href="' . $pageParams['pageUrl'] . $linkfirst. $pageAll . '" data-page="' . $pageAll . '">' . $pageParams['img']['last'] . '</'.$tag.'> ';
 
-		return '<div class="paging">'.$pageHTML.'</div>';
+		return '<div class="paging">'.$pageHTML.'</div>' . (isset($pageParams['afterHtml']) ? $pageParams['afterHtml'] : '');
 	}
 }
 

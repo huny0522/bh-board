@@ -385,6 +385,7 @@ function BHCategory(elem, opt){
 
 	// 마우스 이동
 	$(document).on('mousemove', function(e){
+		if(!$(e.target).closest('.BHCategory').length) return;
 		e.preventDefault();
 		if(!menuObject.mouseDownPosition.downIs) return;
 		if(!menuObject.mouseDownPosition.moveIs && (Math.abs(e.pageX - menuObject.mouseDownPosition.x) > 5 || Math.abs(e.pageY - menuObject.mouseDownPosition.y) > 5)){

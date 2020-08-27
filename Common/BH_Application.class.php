@@ -180,6 +180,7 @@ class BH_Application
 				}
 				else if(_DEVELOPERIS === true) echo $msg;
 				else URLReplace(Paths::Url() . '/');
+				exit;
 			}
 		}
 		else{
@@ -189,12 +190,9 @@ class BH_Application
 				$func = self::$routingFailFunc;
 				$func($code, $msg);
 			}
-			if(_DEVELOPERIS === true && _SHOW_CREATE_GUIDE === true) require _COMMONDIR . '/Create.html';
-			else if(is_callable(self::$routingFailFunc)){
-				$func = self::$routingFailFunc;
-				$func($code, $msg);
-			}
+			else if(_DEVELOPERIS === true && _SHOW_CREATE_GUIDE === true) require _COMMONDIR . '/Create.html';
 			else URLReplace(Paths::Url() . '/');
+			exit;
 		}
 	}
 
@@ -205,6 +203,15 @@ class BH_Application
 	public static function SetFollowQuery($ar){
 		if(!is_array($ar)) $ar = func_get_args();
 		foreach($ar as $v) if(isset($_GET[$v]) && !empty($_GET[$v])) self::$followQuery[$v] = $_GET[$v];
+	}
+
+	/**
+	 *  항상 따라다니는 URL을 지정(post)
+	 * @param array $ar
+	 */
+	public static function SetPostFollowQuery($ar){
+		if(!is_array($ar)) $ar = func_get_args();
+		foreach($ar as $v) if(isset($_POST[$v]) && !empty($_POST[$v])) self::$followQuery[$v] = $_POST[$v];
 	}
 
 	/**

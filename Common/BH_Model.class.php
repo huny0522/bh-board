@@ -2068,6 +2068,7 @@ class _CfgData
 }
 
 class _ConfigModel extends ArrayObject{
+	private static $instance = array();
 	protected $_code = '';
 
 	public function __set($name, $val) {
@@ -2086,10 +2087,11 @@ class _ConfigModel extends ArrayObject{
 	 * @return static
 	 */
 	public static function GetInstance(){
-		static $instance;
-		if(!$instance) $instance = new static();
-		$instance->__Init();
-		return $instance;
+		$c = get_called_class();
+		if(isset(self::$instance[$c])) return self::$instance[$c];
+		self::$instance[$c] = new static();
+		self::$instance[$c]->__Init();
+		return self::$instance[$c];
 	}
 
 	public function __construct($input = array(), $flags = 0, $iterator_class = "ArrayIterator"){

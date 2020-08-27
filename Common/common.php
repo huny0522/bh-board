@@ -459,8 +459,8 @@ function KrDate($date, $opt = 'ymdhis', $hourView = 0){
 	return trim($res);
 }
 
-function DotDate($dt){
-	return str_replace('-', '.', substr($dt, 0, 10));
+function DotDate($dt, $length = 10){
+	return str_replace('-', '.', substr($dt, 0, $length));
 }
 
 function AutoLinkText($text){
@@ -867,6 +867,14 @@ function SetDBFloat($txt){
 
 function PrintError($message){
 	if(_DEVELOPERIS !== true) exit;
+	function GetArrayData($arr){
+		if(is_array($arr)){
+			foreach($arr as $k => $v) $arr[$k] = GetArrayData($v);
+			return $arr;
+		}
+		if(is_object($arr)) return get_class($arr);
+		return $arr;
+	}
 	echo '<b style="color:#c00;">' . (is_array($message) ? implode('<br>', $message) : $message) . '</b><br>';
 	$d_b = phpversion() < 5.6 ? debug_backtrace() : debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 4);
 	for($k = 1; isset($d_b[$k]) && $k < 4;$k++){
@@ -875,7 +883,13 @@ function PrintError($message){
 		if(isset($d_b[$k]['class'])){
 			echo 'Class : ' . $d_b[$k]['class'].'<br>';
 		}
-		if(isset($d_b[$k]['function'])) echo 'Function : ' . $d_b[$k]['function'].'(' . (isset($d_b[$k]['args']) ?  (is_array($d_b[$k]['args']) ? implode(',', $d_b[$k]['args']) : print_r($d_b[$k]['args'], true) ) : '') . ')<br>';
+		$argVal = '';
+		if(isset($d_b[$k]['args'])){
+			$argVal = GetArrayData($d_b[$k]['args']);
+			if(is_array($argVal)) $argVal = implode(',', $argVal);
+			else $argVal = print_r($d_b[$k]['args'], true);
+		}
+		if(isset($d_b[$k]['function'])) echo 'Function : ' . $d_b[$k]['function'].'(' . $argVal . ')<br>';
 		if(isset($d_b[$k]['class']) && in_array($d_b[$k]['class'], array('BH_DB_Get', 'BH_DB_GetList', 'BH_DB_GetListWithPage', 'BH_DB_Update', 'BH_DB_Insert', 'BH_DB_Delete')) && $d_b[$k]['object']){
 			echo '<br><b style="color:#06c;">';
 			$d_b[$k]['object']->PrintTest();

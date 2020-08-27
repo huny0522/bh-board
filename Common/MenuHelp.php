@@ -19,6 +19,8 @@ class MenuHelp
 	private $activeMenu = null;
 	private $routingSuccess = false;
 
+	private $loginPage = '';
+
 	// HTML 옵션들
 	private $tagName = 'li';
 	private $class = '';
@@ -28,6 +30,9 @@ class MenuHelp
 	private $head = '';
 	private $tail = '';
 	private $idBegin = 'mn-';
+	private $titleFunc = null;
+	private $prepareFunc = null;
+	private $submenuFunc = null;
 
 	/**
 	 * @var MenuHelp[]
@@ -163,6 +168,11 @@ class MenuHelp
 		return $this;
 	}
 
+	public function SetLoginPage($url){
+		$this->loginPage = $url;
+		return $this;
+	}
+
 	/**
 	 * 파일 또는 DB에서 메뉴를 설정
 	 */
@@ -265,6 +275,7 @@ class MenuHelp
 	 */
 	public function SetRootTitle($name){
 		$this->rootTitle = $name;
+		return $this;
 	}
 
 	/**
@@ -294,14 +305,49 @@ class MenuHelp
 	}
 
 	/**
+	 * 타이틀을 꾸미기 위한 함수
+	 * @param callable $func
+	 * @return MenuHelp
+	 */
+	public function SetTitleFunc($func){
+		$this->titleFunc = $func;
+		return $this;
+	}
+
+	/**
+	 * @param callable $func
+	 * @return $this
+	 */
+	public function SetSubmenuFunc($func){
+		$this->submenuFunc = $func;
+		return $this;
+	}
+
+	/**
+	 * @param callable $func
+	 * @return $this
+	 */
+	public function SetPrepareFunc($func){
+		$this->prepareFunc = $func;
+		return $this;
+	}
+
+	/**
 	 * @param string $category
-	 * @param string $func 하위메뉴를 반환할 함수
 	 * @return string
 	 */
-	public function Html($category, $func = ''){
+	public function Html($category){
+		$func = $this->submenuFunc;
+		$prepareFunc = $this->prepareFunc;
+		$titleFunc = $this->titleFunc;
+
+		$this->submenuFunc = null;
+		$this->prepareFunc = null;
+		$this->titleFunc = null;
+
 		$menuData = $this->GetSubMenu($category);
 
-		// 바뀔수 서브함수로 바뀔수 있으므로 가져온다.
+		// 바뀔수 있으므로 서브함수로 가져온다.
 		$tagName = $this->tagName;
 		$attr = $this->attr;
 		$class = $this->class;
@@ -313,12 +359,19 @@ class MenuHelp
 		$html = '';
 
 		foreach($menuData as $menu){
-			$html .= '<'.$tagName.$attr.' id="' . $this->idBegin . $menu['category'] . '" class="'.$class.($this->ActiveCheck($menu['category']) ? ' '.$activeClass : '').'">';
-			if($linkWrapTag) echo '<'.$linkWrapTag.'>';
-			$html .= '<a href="'.\Paths::Url().'/'.urlencode(GetDBText($menu['controller'])).'">'.GetDBText($menu['title']).'</a>';
-			if($linkWrapTag) echo '</'.$linkWrapTag.'>';
-			if(is_callable($func)) $html .= $func($menu['category']);
-			$html .= '</'.$tagName.'>';
+			$opt = array('tagName' => $tagName, 'attr' => $attr, 'class' => $class, 'aTagClass' => '', 'activeClass' => $activeClass, 'linkWrapTag' => $linkWrapTag, 'isShow' => true);
+			if(is_callable($prepareFunc)) $prepareFunc($menu, $opt);
+			if(!$opt['isShow']) continue;
+
+			$menuArticle = '<'.$opt['tagName'].$opt['attr'].' id="' . $this->idBegin . $menu['category'] . '" class="'.$opt['class'].($this->ActiveCheck($menu['category']) ? ' '.$opt['activeClass'] : '').'">';
+			if($opt['linkWrapTag']) echo '<'.$opt['linkWrapTag'].'>';
+			if(is_callable($titleFunc)) $tt = $titleFunc($menu);
+			else $tt = GetDBText($menu['title']);
+			$menuArticle .= '<a href="'.App::$baseDir.'/'.urlencode(GetDBText($menu['controller'])).'" class="' . $opt['aTagClass'] . '">'.$tt.'</a>';
+			if($opt['linkWrapTag']) echo '</'.$opt['linkWrapTag'].'>';
+			if(is_callable($func)) $menuArticle .= $func($menu['category']);
+			$menuArticle .= '</'.$opt['tagName'].'>';
+			$html .= $menuArticle;
 		}
 
 		return ($html) ? $head . $html . $tail : '';
@@ -359,6 +412,7 @@ class MenuHelp
 	 * @return bool
 	 */
 	public function SetDBMenuRouter($url, $start = 1){
+		$loginPage = $this->loginPage;
 		$this->FindRootMenuByTitle();
 		$urlControllerName = App::$settingData['GetUrl'][$start];
 		if(!$urlControllerName) $urlControllerName = _DEFAULT_CONTROLLER;
@@ -388,7 +442,11 @@ class MenuHelp
 			}
 		}
 		else{
-			if((_MEMBERIS !== true && $this->activeMenu['con_level']) || (_MEMBERIS === true && $this->activeMenu['con_level'] > $_SESSION['member']['level'])){
+			if(_MEMBERIS !== true && $this->activeMenu['con_level']){
+				if(_DEVELOPERIS === true) URLReplace(strlen($loginPage) ? $loginPage : App::URLBase(''), App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+				URLReplace(-1);
+			}
+			else if(_MEMBERIS === true && $this->activeMenu['con_level'] > $_SESSION['member']['level']){
 				if(_DEVELOPERIS === true) URLReplace(-1, App::$lang['MENU_NOT_ACCESSIBLE_BY_RATING']);
 				URLReplace(-1);
 			}

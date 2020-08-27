@@ -166,7 +166,7 @@
 		};
 
 		this.setCookie = function(cname, cvalue, exdays){
-			this.setCookieMinute(cname, cvalue, exdays === null ? null : exdays * 60 * 24);
+			this.setCookieMinute(cname, cvalue, exdays === null || typeof(exdays) === 'undefined' ? null : exdays * 60 * 24);
 		};
 
 		this.setCookieMinute = function(cname, cvalue, exdays){
@@ -373,7 +373,7 @@
 
 			if (_this.ie8) {
 				bhJQuery('#' + modal_id).append('<div style="position:absolute; top:0; left:0; z-index:1; width:100%; height:100%; filter:alpha(opacity:70); background:black;" class="background"></div>');
-			}data-same
+			}
 			bhJQuery('#' + modal_id).css("display", "block");
 			var beforeW = bhJQuery('body').width();
 			if(!bhJQuery('body')[0].hasAttribute('data-ovy')) bhJQuery('body').attr('data-ovy', bhJQuery('body').css('overflow-y'));
