@@ -443,12 +443,10 @@ class MenuHelp
 		}
 		else{
 			if(_MEMBERIS !== true && $this->activeMenu['con_level']){
-				if(_DEVELOPERIS === true) URLReplace(strlen($loginPage) ? $loginPage : App::URLBase(''), App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
-				URLReplace(-1);
+				URLReplace(strlen($loginPage) ? $loginPage : App::URLBase(''), App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 			}
 			else if(_MEMBERIS === true && $this->activeMenu['con_level'] > $_SESSION['member']['level']){
-				if(_DEVELOPERIS === true) URLReplace(-1, App::$lang['MENU_NOT_ACCESSIBLE_BY_RATING']);
-				URLReplace(-1);
+				URLReplace(-1, App::$lang['MENU_NOT_ACCESSIBLE_BY_RATING']);
 			}
 			if($this->activeMenu['category'] === $this->rootCategory){
 				$this->routingSuccess = false;

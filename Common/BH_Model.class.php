@@ -75,6 +75,7 @@ class BH_ModelData
 	public $defaultValue;
 	public $htmlType;
 	public $autoDecrement = false;
+	public $autoIncrement = false;
 	public $valueIsQuery = false;
 	public $blankIsNull = false;
 	public $possibleExt;
@@ -264,6 +265,11 @@ class BH_ModelData
 
 	public function &SetAutoDecrement($bool = true){
 		$this->autoDecrement = $bool;
+		return $this;
+	}
+
+	public function &SetAutoIncrement($bool = true){
+		$this->autoIncrement = $bool;
 		return $this;
 	}
 
@@ -806,7 +812,7 @@ class _ModelFunc{
 		$ret->result = true;
 		foreach($model->data as $k => &$v){
 			/** @var BH_ModelData $v */
-			if($v->postExcept !== true && $v->dbExcept !== true && $v->autoDecrement !== true){
+			if($v->postExcept !== true && $v->dbExcept !== true && $v->autoDecrement !== true && $v->autoIncrement !== true){
 				if(isset($v->htmlType) && self::IsFileType($v->htmlType) && isset($_FILES[$k])){
 					if($withFile) self::SetFileValue($model, $k);
 				}
@@ -1202,7 +1208,7 @@ class _ModelFunc{
 	public static function CheckRequired(&$model, $key){
 		if($model->data[$key]->required == false) return true;
 		if(is_null($model->GetValue($key)) || !strlen($model->GetValue($key))){
-			if(!$model->data[$key]->dbExcept && !$model->data[$key]->postExcept && $model->data[$key]->autoDecrement !== true){
+			if(!$model->data[$key]->dbExcept && !$model->data[$key]->postExcept && $model->data[$key]->autoDecrement !== true && $model->data[$key]->autoIncrement !== true){
 				$model->data[$key]->modelErrorMsg = str_replace('{item}', $model->data[$key]->displayName, BH_Application::$lang['MODEL_REQUIRED']);
 				return false;
 			}
@@ -1437,7 +1443,7 @@ class _ModelFunc{
 			// 예외 패스, 셋이 없거나 셋에 있는것
 			if(!$v->dbExcept && (!self::HasNeed($model) || $v->needIs)){
 				if(isset($v->value)){
-					if(in_array($k, $model->key) && $v->autoDecrement === true) continue;
+					if(in_array($k, $model->key) && ($v->autoDecrement === true || $v->autoIncrement === true)) continue;
 
 					if(!$v->valueIsQuery && $v->htmlType == HTMLType::TEL) $v->value = preg_replace('/[^0-9\-\+\(\)\*\#]/','',$v->value);
 
@@ -1472,9 +1478,24 @@ class _ModelFunc{
 			}
 		}
 
+		$otherKey = array();
+		$decKey = '';
+		$isDec = true;
 		foreach($model->key as $k){
-			if($model->data[$k]->autoDecrement === true) $dbInsert->decrement = $k;
+			if($model->data[$k]->autoIncrement === true){
+				$isDec = false;
+				$decKey = $k;
+			}
+			else if($model->data[$k]->autoDecrement === true){
+				$isDec = true;
+				$decKey = $k;
+			}
+			else $otherKey[$k] = $model->data[$k]->value;
 		}
+		$dbInsert->SetIncrementKey($decKey)
+			->SetOtherKeys($otherKey)
+			->SetIsDecrement($isDec);
+
 		if(_DEVELOPERIS === true) $dbInsert->test = $test;
 		$result = $dbInsert->Run();
 		if($result->result){
@@ -1498,7 +1519,7 @@ class _ModelFunc{
 			// 예외와 키값 패스, 셋이 없거나 셋에 있는것
 			if(!$v->dbExcept && (!self::HasNeed($model) || $v->needIs) && !in_array($k, $model->key)){
 				if(isset($v->value)){
-					if(in_array($k, $model->key) && $v->autoDecrement === true) continue;
+					if(in_array($k, $model->key) && ($v->autoDecrement === true || $v->autoIncrement === true)) continue;
 
 					if(!$v->valueIsQuery && $v->htmlType == HTMLType::TEL) $v->value = preg_replace('/[^0-9\-\+\(\)\*\#]/','',$v->value);
 

@@ -228,11 +228,21 @@
 		 *   AJAX
 		 *
 		 ------------------------------------------- */
+		this.forceAjaxForm = function(formObj, success_func, fail_func, data){
+			if(_this.loadingIs){
+				setTimeout(function(){
+					_this.forceAjaxForm(formObj, success_func, fail_func, data);
+				}, 100);
+			}
+			else _this.ajaxForm(formObj, success_func, fail_func, data);
+		};
+
 		this.ajaxForm = function (formObj, success_func, fail_func, data){
 			if(typeof bhJQuery.fn.ajaxSubmit === 'undefined'){
 				console.log('jquery form not installed.');
 				return;
 			}
+			if(!bhJQuery(formObj).length) return;
 			if(this.loadingIs) return;
 			_this.loading();
 
@@ -322,9 +332,29 @@
 		};
 
 		// ajax post
+		this.forcePostWithLoading = function (ur, dt, success_func, fail_func) {
+			if(_this.loadingIs){
+				setTimeout(function(){
+					_this.forcePostWithLoading(ur, dt, success_func, fail_func);
+				}, 100);
+			}
+			else _this.postWithLoading(ur, dt, success_func, fail_func);
+		};
+
+		// ajax post
 		this.postWithLoading = function (ur, dt, success_func, fail_func) {
 			dt.loadingEnable = true;
 			this._ajax(ur, dt, {type : 'post'}, success_func, fail_func);
+		};
+
+		// ajax post
+		this.forceGetWithLoading = function (ur, dt, success_func, fail_func) {
+			if(_this.loadingIs){
+				setTimeout(function(){
+					_this.forceGetWithLoading(ur, dt, success_func, fail_func);
+				}, 100);
+			}
+			else _this.getWithLoading(ur, dt, success_func, fail_func);
 		};
 
 		// ajax get

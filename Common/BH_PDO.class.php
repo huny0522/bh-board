@@ -1028,6 +1028,8 @@ class BH_DB_Insert{
 	private $MultiValues = array();
 	private $connName = '';
 	private $duplicateData = array();
+	private $otherKeys = array();
+	private $isDecrement = true;
 
 	protected $tableBindParam = array();
 	protected $whereBindParam = array();
@@ -1100,6 +1102,26 @@ class BH_DB_Insert{
 	 */
 	public function &SetDecrementKey($str){
 		$this->decrement = $str;
+		$this->isDecrement = true;
+		return $this;
+	}
+
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
+	public function SetIncrementKey($str){
+		$this->decrement = $str;
+		$this->isDecrement = false;
+		return $this;
+	}
+
+	/**
+	 * @param bool $bool
+	 * @return $this
+	 */
+	public function SetIsDecrement($bool = true){
+		$this->isDecrement = $bool;
 		return $this;
 	}
 
@@ -1137,6 +1159,11 @@ class BH_DB_Insert{
 		return $this;
 	}
 
+	public function SetOtherKeys($keys = array()){
+		$this->otherKeys = $keys;
+		return $this;
+	}
+
 	/**
 	 * @param string $key
 	 * @param array $otherKeys
@@ -1165,7 +1192,7 @@ class BH_DB_Insert{
 
 		if(!sizeof($decWhere) && _DEVELOPERIS === true && $this->showError && BH_Application::$showError) PrintError('Set Increment(Decrement) - No Multi Key');
 
-		$keySql = $this->StrToPDO('IF(COUNT(*) > 0, %1(`BHTMP`.`%1`), %1) + %1', ($isDecrement ? 'MIN' : 'MAX'), $key, ($isDecrement ? _DBMAXINT : 0), ($isDecrement ? '(-' . (sizeof($this->MultiValues) + 1). ')' : sizeof($this->MultiValues) + 1));
+		$keySql = $this->StrToPDO('IF((SELECT `BHTMP2`.`%1` FROM `%1` `BHTMP2` LIMIT 1), %1(`BHTMP`.`%1`), %1) + %1', $key, $this->table, ($isDecrement ? 'MIN' : 'MAX'), $key, ($isDecrement ? _DBMAXINT : 0), ($isDecrement ? '(-' . (sizeof($this->MultiValues) + 1). ')' : sizeof($this->MultiValues) + 1));
 		$this->data[$key] = $this->StrToPDO('(SELECT %1 FROM `%1` `BHTMP` %1)', $keySql, $this->table, sizeof($decWhere) ? ' WHERE ' . implode(' AND ', $decWhere) : '');
 		return $this;
 	}
@@ -1201,11 +1228,11 @@ class BH_DB_Insert{
 		try{
 			DB::BeginTransaction();
 
-			if($this->decrement) $keyRes = $this->GetKeySetting();
+			if($this->decrement) $keyRes = $this->GetKeySetting($this->isDecrement, $this->otherKeys);
 			else $keyRes = array();
 
 			foreach($this->MultiValues as $k => $v){
-				$this->MultiValues[$k] = '(' . ($this->decrement ? ($keyRes['data']--).', ' : '') . $v . ')';
+				$this->MultiValues[$k] = '(' . ($this->decrement ? ($this->isDecrement ? $keyRes['data']-- : $keyRes['data']++).', ' : '') . $v . ')';
 			}
 
 			$this->sql = 'INSERT INTO ' . $this->table . '(' . ($this->decrement ? '`'.$this->decrement.'`, ' : '') . $this->MultiNames . ') VALUES '.implode(',', $this->MultiValues);
@@ -1256,7 +1283,7 @@ class BH_DB_Insert{
 		try{
 			DB::BeginTransaction();
 
-			if($this->decrement) $keyRes = $this->GetKeySetting();
+			if($this->decrement) $keyRes = $this->GetKeySetting($this->isDecrement, $this->otherKeys);
 			else $keyRes = array();
 
 			$this->sql = 'INSERT {{space1}} INTO {{space2}} `'.$this->table.'` {{space3}} ('.($this->decrement ? '`'.$this->decrement.'`, ' : '').$names.') {{space4}} VALUES ('.($this->decrement ? $keyRes['data'].', ' : '').$values.')'.(isset($duplicateSql) ? ' '.$duplicateSql : '');
@@ -1276,7 +1303,7 @@ class BH_DB_Insert{
 			if($res->result){
 				if($this->decrement){
 					$res->id = $keyRes['data'];
-					DB::SQL($this->connName)->Query('UPDATE '.TABLE_FRAMEWORK_SETTING.' SET `data` = \''.($keyRes['data'] - 1).'\' WHERE `key_name` = \''.$keyRes['keyName'].'\'');
+					DB::SQL($this->connName)->Query('UPDATE '.TABLE_FRAMEWORK_SETTING.' SET `data` = \''.($keyRes['data'] + ($this->isDecrement ? -1 : 1)).'\' WHERE `key_name` = \''.$keyRes['keyName'].'\'', true);
 				}
 				else $res->id = DB::PDO($this->connName)->lastInsertId();
 			}
@@ -1298,18 +1325,32 @@ class BH_DB_Insert{
 		}
 	}
 
-	private function GetKeySetting(){
+	private function GetKeySetting($isDecrement = true, $otherKeys = null){
+		$minSubSqlWhere = array();
+		$kn2 = array();
+		if(is_array($otherKeys) && sizeof($otherKeys)){
+			foreach($otherKeys as $k => $v){
+				$minSubSqlWhere[] = '`' . $k . '` = ' . SetDBText($v);
+				$kn2[] = $k;
+			}
+		}
+
 		$kn = '_table_' . $this->table . '_key';
+		if(sizeof($kn2)) $kn .= ':' . implode('^', $kn2);
 		$keyQry = 'SELECT `data` FROM ' . TABLE_FRAMEWORK_SETTING . ' WHERE `key_name` = \'' . $kn . '\' FOR UPDATE';
 		$keyRes = DB::SQL($this->connName)->Fetch($keyQry);
 
-		$minSubSql = 'SELECT IF(COUNT(' . $this->decrement . ') = 0, ' . $this->MAXInt . ', MIN(' . $this->decrement . ')) - 1 as `data` FROM `' . $this->table . '`';
+		$where = '';
+		if(sizeof($minSubSqlWhere)) $where = ' WHERE ' . implode(' AND ', $minSubSqlWhere);
+
+		$minSubSql = 'SELECT IF((SELECT `' . $this->decrement . '` FROM `' . $this->table . '` LIMIT 1), ' . ($isDecrement ? 'MIN(`' . $this->decrement . '`) - 1' : 'MAX(`' . $this->decrement . '`) + 1') . ', ' . ($isDecrement ? $this->MAXInt : 1) . ') as `data` FROM `' . $this->table . '`' . $where;
+
 		$minInsSql = 'INSERT INTO ' . TABLE_FRAMEWORK_SETTING . '(`key_name`, `data`) VALUES (\'' . $kn . '\', (' . $minSubSql . ')) ON DUPLICATE KEY UPDATE `data` = (' . $minSubSql . ')';
 
 		$preData = DB::SQL($this->connName)->Fetch($minSubSql);
 
-		if(!$keyRes || $keyRes['data'] >= $preData['data']){
-			DB::SQL($this->connName)->Query($minInsSql);
+		if(!$keyRes || $keyRes['data'] < $preData['data']){
+			DB::SQL($this->connName)->Query($minInsSql, true);
 			$keyRes = DB::SQL($this->connName)->Fetch($keyQry);
 		}
 		if(!$keyRes) PrintError('`' . $this->table . '` ' . BH_Application::$lang['ERROR_DECREMENT_KEY']);

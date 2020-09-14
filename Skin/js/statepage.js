@@ -139,11 +139,15 @@ var StatePage = {
 
 		if(!StatePage.isPopState) StatePage.beforeTime = (new Date()).getTime();
 
-		JCM.getWithLoading(href, {hash : linkEl.hash}, function(html, commonData){
+		var el = null;
+		if(typeof(targetId) === 'string' && targetId !== '') el = $(StatePage.wrapObj).find('#' + targetId);
+		if(el === null || !el.length) el = $(StatePage.wrapObj).find('#' + StatePage.targetId);
+		if(el === null || !el.length){
+			location.replace(linkEl.href);
+			return;
+		}
 
-			var el = null;
-			if(typeof(targetId) === 'string' && targetId !== '') el = $(StatePage.wrapObj).find('#' + targetId);
-			if(!el) el = $(StatePage.wrapObj).find('#' + StatePage.targetId);
+		JCM.getWithLoading(href, {hash : linkEl.hash}, function(html, commonData){
 
 			if(typeof StatePage.dataCheckFunc === 'function' && !StatePage.dataCheckFunc(html, commonData)) return;
 			$(el).html(html);
