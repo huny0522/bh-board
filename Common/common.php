@@ -185,12 +185,12 @@ class Paths{
 		self::$adminUrl = self::$url . '/' .self::$adminUrlName;
 	}
 
-	public static function Url(){
-		return self::$url;
+	public static function Url($str = ''){
+		return self::$url . $str;
 	}
 
-	public static function Dir(){
-		return self::$dir;
+	public static function Dir($str = ''){
+		return self::$dir . $str;
 	}
 
 	public static function NameOfAdmin(){
@@ -205,40 +205,40 @@ class Paths{
 		return self::$dataDirName;
 	}
 
-	public static function DirOfData(){
-		return self::$dataDir;
+	public static function DirOfData($str = ''){
+		return self::$dataDir . $str;
 	}
 
-	public static function UrlOfData(){
-		return self::$dataUrl;
+	public static function UrlOfData($str = ''){
+		return self::$dataUrl . $str;
 	}
 
-	public static function DirOfSkin(){
-		return self::$skinDir;
+	public static function DirOfSkin($str = ''){
+		return self::$skinDir . $str;
 	}
 
-	public static function UrlOfSkin(){
-		return self::$skinUrl;
+	public static function UrlOfSkin($str = ''){
+		return self::$skinUrl . $str;
 	}
 
-	public static function DirOfHtml(){
-		return self::$htmlDir;
+	public static function DirOfHtml($str = ''){
+		return self::$htmlDir . $str;
 	}
 
-	public static function UrlOfHtml(){
-		return self::$htmlUrl;
+	public static function UrlOfHtml($str = ''){
+		return self::$htmlUrl . $str;
 	}
 
-	public static function DirOfUpload(){
-		return self::$uploadDir;
+	public static function DirOfUpload($str = ''){
+		return self::$uploadDir . $str;
 	}
 
-	public static function UrlOfUpload(){
-		return self::$uploadUrl;
+	public static function UrlOfUpload($str = ''){
+		return self::$uploadUrl . $str;
 	}
 
-	public static function UrlOfAdmin(){
-		return self::$adminUrl;
+	public static function UrlOfAdmin($str = ''){
+		return self::$adminUrl . $str;
 	}
 }
 
@@ -539,7 +539,7 @@ function SelectOption($OptionValues, $SelectValue = '', $noOptValue = false){
 	if(!isset($OptionValues) || !is_array($OptionValues)) return $str;
 	foreach($OptionValues as $k => $v){
 		$key = $noOptValue ? $v : $k;
-		$str .= '<option' . ($noOptValue ? '' : ' value="' . $k . '"') . ($SelectValue === (string)$key ? ' selected="selected"' : '') . '>' . GetDBText($v) . '</option>';
+		$str .= '<option' . ($noOptValue ? '' : ' value="' . $k . '"') . ((string)$SelectValue === (string)$key ? ' selected="selected"' : '') . '>' . GetDBText($v) . '</option>';
 	}
 	return $str;
 }
@@ -996,7 +996,7 @@ function aes_encrypt($plaintext, $password){
 }
 
 function aes_decrypt($ciphertext, $password){
-	return @openssl_decrypt(hex2bin($ciphertext), 'aes-128-cbc', $password, true, '');
+	return openssl_decrypt(hex2bin($ciphertext), 'aes-128-cbc', $password, true, '');
 }
 
 function delTree($dir){
@@ -1165,6 +1165,18 @@ function EmptyGet($param){
 	return false;
 }
 
+function Session($param){
+	if(!isset($_SESSION[$param])) return null;
+	return $_SESSION[$param];
+}
+
+function EmptySession($param){
+	if(!isset($_SESSION[$param])) return true;
+	else if(is_string($_SESSION[$param])) return (strlen(trim($_SESSION[$param])) === 0);
+	else if(is_array($_SESSION[$param])) return (sizeof($_SESSION[$param]) === 0);
+	return false;
+}
+
 function CustomText($str){
 	return preg_replace('/\<font[^\>]*?\>\s*\<\/font\>/is', '', $str);
 }
@@ -1187,4 +1199,17 @@ function _SecretKeyByFile($filePath){
 	}
 	return substr(file_get_contents($filePath), 8);
 }
+
+function GetPathFromRoot($dir){
+	$dir = str_replace('\\', '/', $dir);
+	$dir2 = Paths::DirOfHtml();
+	if(substr($dir, 0, strlen($dir2)) !== $dir2){
+		if(_DEVELOPERIS === true){
+			URLRedirect(-1, '경로가 다릅니다.');
+			exit;
+		}
+	}
+	return substr($dir, strlen($dir2));
+}
+
 require _DIR . '/Custom/MyLib.php';

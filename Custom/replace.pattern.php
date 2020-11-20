@@ -164,7 +164,7 @@ $_rpData = array(
 		'replace' => ''
 	),
 	array(
-		'pattern' => '#<\?php\s*(.*?)(\s*[^\s\}\;\{])\s*\?>#is',
+		'pattern' => '#<\?php(\?(?!>)|[^\?]*)?([^\s\;\}\{])\s*\?>#is',
 		'replace' => '<?php $1$2; ?>'
 	),
 );

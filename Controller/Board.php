@@ -190,7 +190,11 @@ class Board{
 		else if(!EmptyGet('cate')) App::$data['subCategory'] = $this->boardManger->GetSubCategory(Get('cate'));
 
 		if(!is_null($this->boardManger->GetValue('category')) && strlen($this->boardManger->GetValue('category'))){
-			App::$data['category'] = explode(',', $this->boardManger->GetValue('category'));
+			$temp = explode(',', $this->boardManger->GetValue('category'));
+			foreach($temp as $v){
+				$v = trim($v);
+				if(strlen($v)) App::$data['category'][] = $v;
+			}
 		}
 	}
 

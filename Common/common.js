@@ -38,6 +38,7 @@
 			if (re.exec(ua) !== null)
 				rv = parseFloat(RegExp.$1);
 		}
+		else if (!navigator.userAgent.match(/Trident\/7\./) && navigator.userAgent.indexOf("rv:11.") >= 0) rv = 11;
 		return rv;
 	}
 
@@ -344,7 +345,7 @@
 		// ajax post
 		this.postWithLoading = function (ur, dt, success_func, fail_func) {
 			dt.loadingEnable = true;
-			this._ajax(ur, dt, {type : 'post'}, success_func, fail_func);
+			_this._ajax(ur, dt, {type : 'post'}, success_func, fail_func);
 		};
 
 		// ajax post
@@ -1351,9 +1352,9 @@
 		useTinyMce : false,
 		tinyMCELoadIs : false,
 		tinyMCEPath : '',
-		plugin : 'advlist autolink link image lists charmap print preview media emoticons',
-		toolbar : 'undo redo | styleselect | bold italic | alignleft aligncenter alignright | bulllist numlist outdent indent | link image media emoticons',
-		mobileToolbar : 'undo bold italic link image bullist styleselect forecolor',
+		plugin : 'advlist autolink link image lists charmap print preview media emoticons table',
+		toolbar : 'undo redo | styleselect | bold italic | alignleft aligncenter alignright | bulllist numlist outdent indent | link image media emoticons | table',
+		mobileToolbar : ['undo', 'bold', 'italic', 'link', 'image', 'bullist', 'styleselect'],
 		defaultFolder : '',
 		opt : {
 			selector: '',  // change this value according to your HTML
@@ -1363,6 +1364,7 @@
 			toolbar : '',
 			mobile: {
 				theme: 'mobile',
+				plugins: [ 'autosave', 'lists', 'autolink' ],
 				toolbar: null
 			},
 			images_upload_credentials: true,

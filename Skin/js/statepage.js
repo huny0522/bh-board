@@ -155,7 +155,7 @@ var StatePage = {
 			if(typeof(commonData) !== 'undefined' && commonData !== null && typeof(commonData.appendHtml) !== 'undefined'){
 				$(el).append(commonData.appendHtml);
 			}
-			StatePage.url = linkEl.href;
+			StatePage.url = linkEl.pathname + linkEl.search;
 
 			if(StatePage.isAnimate === true){
 				var temp = document.createElement('div');

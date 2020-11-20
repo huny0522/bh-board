@@ -699,24 +699,22 @@ class BH_Model{
 	 * @param string $name
 	 * @param bool $htmlAttribute
 	 * @param null|callable $callback
-	 * @param string $firstIDName
 	 *
 	 * @return string
 	 */
-	public function HTMLPrintLabel($name, $htmlAttribute = false, $callback = null, $firstIDName = 'MD_'){
-		return _ModelFunc::HTMLPrintLabel($this->data[$name], $name, $htmlAttribute, $callback, $firstIDName);
+	public function HTMLPrintLabel($name, $htmlAttribute = false, $callback = null){
+		return $this->data[$name]->HtmlPrintLabel($htmlAttribute, $callback);
 	}
 
 	/**
 	 * input, select textarea 출력
 	 * @param string $name
 	 * @param bool $htmlAttribute
-	 * @param string $firstIDName
 	 *
 	 * @return string
 	 */
-	public function HTMLPrintInput($name, $htmlAttribute = false, $firstIDName = 'MD_'){
-		return _ModelFunc::HTMLPrintInput($name, $this->data[$name], $htmlAttribute, $firstIDName);
+	public function HTMLPrintInput($name, $htmlAttribute = false){
+		return $this->data[$name]->HTMLPrintInput($htmlAttribute);
 	}
 
 	/**
@@ -1026,6 +1024,7 @@ class _ModelFunc{
 				if(isset($v->__moveFile) && is_array($v->__moveFile)){
 					foreach($v->__moveFile as $mv){
 						@copy(\Paths::DirOfUpload() . $mv['source'], \Paths::DirOfUpload() . $mv['dest']);
+						// $res = _ModelFunc::SendFileToMain($mv['dest']);
 						UnlinkImage(\Paths::DirOfUpload() . $mv['source']);
 					}
 				}
@@ -1231,7 +1230,7 @@ class _ModelFunc{
 		return '<label for="'.$firstIDName.$name.'" '.$Attribute.'>'.$data->displayName.'</label>';
 	}
 
-	public static function HTMLPrintInput($Name, &$data, $htmlAttribute = false, $firstIDName){
+	public static function HTMLPrintInput($Name, &$data, $htmlAttribute, $firstIDName){
 		$htmlType = strtolower($data->htmlType);
 		$Attribute = '';
 		$val = isset($data->value) ? $data->value : $data->defaultValue;
@@ -1253,7 +1252,7 @@ class _ModelFunc{
 		if($data->required) $Attribute .= ' required="required"';
 
 		// ModelType
-		if($data->type == ModelType::INT && $data->htmlType != 'numberformat') $htmlAttribute['class'] .= ($htmlAttribute['class'] ? ' ' : '').'numberonly';
+		if(($data->type == ModelType::INT || $data->type == ModelType::FLOAT) && $data->htmlType != 'numberformat') $htmlAttribute['class'] .= ($htmlAttribute['class'] ? ' ' : '').'numberonly';
 
 		// HTMLType
 		if($data->htmlType == HTMLType::EMAIL) $htmlAttribute['class'] .= ($htmlAttribute['class'] ? ' ' : '').'email';
@@ -1829,6 +1828,7 @@ class _ModelFunc{
 
 
 			copy($files['tmp_name'], \Paths::DirOfUpload().$path.$newFileName.'.'.$ext);
+			// $res = _ModelFunc::SendFileToMain($path.$newFileName.'.'.$ext);
 			$res['original'] = $files['name'];
 			$res['path'] = $path;
 			$res['name'] = $newFileName;
@@ -1914,6 +1914,68 @@ class _ModelFunc{
 		imagedestroy($target);
 		@chmod($thumb, 0666); // 추후 삭제를 위하여 파일모드 변경
 		return 1;
+	}
+
+	/**
+	 * TODO : 로드밸런싱용 파일 등록
+	 * 미완성
+	 * @param string $path
+	 * @param string $type
+	 * @return BH_Result
+	 */
+	public static function SendFileToMain($path, $type = 'uploadFile'){
+		$dir = _UPLOAD_DIR;
+		if($type === 'data') $dir = _DATADIR;
+
+		if(!isset(App::$settingData['loadBalancingMainIp'])) return BH_Result::Init(false, 'NOT SETTING MAIN IP');
+		if($_SERVER['SERVER_ADDR'] == App::$settingData['loadBalancingMainIp']) return BH_Result::Init(false, 'SAME SERVER');
+		$handle = fopen($dir . $path, "r");
+		$data = base64_encode(fread($handle, filesize($dir . $path)));
+
+		// $data is file data
+		$post   = array('file' => $data, 'path' => $path, 'type' => $type);
+		$timeout = 30;
+		$curl    = curl_init();
+
+		curl_setopt($curl, CURLOPT_URL, 'http://' . App::$settingData['loadBalancingMainIp'] . '/Upload/SubUpload');
+		curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
+		curl_setopt($curl, CURLOPT_POST, 1);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($curl, CURLOPT_POSTFIELDS, $post);
+
+		$str = curl_exec($curl);
+
+		curl_close($curl);
+
+		return BH_Result::Init(false, '', $str);
+	}
+
+	/**
+	 * TODO : 로드밸런싱용 파일 제거
+	 * 미완성
+	 * @param string $path
+	 * @param string $type
+	 * @return BH_Result
+	 */
+	public static function RemoveFileToMain($path, $type = 'uploadFile'){
+		if(!isset(App::$settingData['loadBalancingMainIp'])) return BH_Result::Init(false, 'NOT SETTING MAIN IP');
+		if($_SERVER['SERVER_ADDR'] == App::$settingData['loadBalancingMainIp']) return BH_Result::Init(false, 'SAME SERVER');
+
+		$post   = array('path' => $path, 'type' => $type);
+		$timeout = 30;
+		$curl    = curl_init();
+
+		curl_setopt($curl, CURLOPT_URL, 'http://' . App::$settingData['loadBalancingMainIp'] . '/Upload/SubUnlinkFile');
+		curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
+		curl_setopt($curl, CURLOPT_POST, 1);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($curl, CURLOPT_POSTFIELDS, $post);
+
+		$str = curl_exec($curl);
+
+		curl_close($curl);
+
+		return BH_Result::Init(false, '', $str);
 	}
 }
 
@@ -2100,6 +2162,10 @@ class _ConfigModel extends ArrayObject{
 		$this[$name] = $val;
 	}
 
+	/**
+	 * @param string $name
+	 * @return _CfgData
+	 */
 	public function __get($name) {
 		return $this[$name];
 	}
@@ -2112,6 +2178,7 @@ class _ConfigModel extends ArrayObject{
 		if(isset(self::$instance[$c])) return self::$instance[$c];
 		self::$instance[$c] = new static();
 		self::$instance[$c]->__Init();
+		self::$instance[$c]->GetFileSetting();
 		return self::$instance[$c];
 	}
 

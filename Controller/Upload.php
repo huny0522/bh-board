@@ -54,4 +54,52 @@ class Upload{
 			JSON(false, 'File Upload Error');
 		}
 	}
+
+	/**
+	 * TODO : 로드밸런싱용
+	 * 미완성
+	 */
+	public function PostSubUpload(){
+		if(EmptyPost('type')) JSON(false, 'NO HAVE TYPE FIELD');
+		if(EmptyPost('path')) JSON(false, 'NO HAVE PATH FIELD');
+		if(EmptyPost('file')) JSON(false, 'NO HAVE FILE FIELD');
+		if(!isset(App::$settingData['loadBalancingSubIp'])) JSON(false, 'NOT SETTING SUB IP');
+		if(!in_array($_SERVER['REMOTE_ADDR'], App::$settingData['loadBalancingSubIp'])) JSON(false, 'NO SUB IP');
+
+		$type = Post('type');
+		$path = Post('path');
+		$defaultDir = _UPLOAD_DIR;
+		if($type === 'data') $defaultDir = _DATADIR;
+		else if($type !== 'uploadFile') JSON(false, 'TYPE IS WRONG');
+
+		$ex = explode('/', $path);
+		array_pop($ex);
+		$dir = $defaultDir . implode('/', $ex);
+		@mkdir($dir, 0777, true);
+		@chmod($dir, 0777);
+
+		$str = base64_decode($_POST['file']);
+		$res = file_put_contents($defaultDir . $path, $str, FILE_BINARY);
+		JSON(true, '', $res);
+	}
+
+	/**
+	 * TODO : 로드밸런싱용
+	 * 미완성
+	 */
+	public function PostSubUnlinkFile(){
+		if(EmptyPost('type')) JSON(false, 'NO HAVE TYPE FIELD');
+		if(EmptyPost('path')) JSON(false, 'NO HAVE PATH FIELD');
+		if(!isset(App::$settingData['loadBalancingSubIp'])) JSON(false, 'NOT SETTING SUB IP');
+		if(!in_array($_SERVER['REMOTE_ADDR'], App::$settingData['loadBalancingSubIp'])) JSON(false, 'NO SUB IP');
+
+		$type = Post('type');
+		$path = Post('path');
+		$defaultDir = _UPLOAD_DIR;
+		if($type === 'data') $defaultDir = _DATADIR;
+		else if($type !== 'uploadFile') JSON(false, 'TYPE IS WRONG');
+
+		@UnlinkImage($defaultDir . $path);
+		JSON(true);
+	}
 }

@@ -1131,6 +1131,7 @@ class BH_DB_Insert{
 	 * @return $this
 	 */
 	public function &SetData($key, $val){
+		if(is_null($val)) $val = '';
 		if(is_object($key) && get_class($key) === 'BH_ModelData') $key = '`' . $key->GetKeyName() .'`';
 		if(is_callable($val)) $this->data[$key] = '('.$val($this).')';
 		else $this->data[$key] = $val;
@@ -1143,6 +1144,7 @@ class BH_DB_Insert{
 	 * @return $this
 	 */
 	public function &SetDataStr($key, $val){
+		if(is_null($val)) $val = '';
 		if(is_object($key) && get_class($key) === 'BH_ModelData') $key = '`' . $key->GetKeyName() .'`';
 		$this->data[$key] = $this->StrToPDO('%s', $val);
 		return $this;
@@ -1154,6 +1156,7 @@ class BH_DB_Insert{
 	 * @return $this
 	 */
 	public function &SetDataNum($key, $val){
+		if(is_null($val)) $val = '0';
 		if(is_object($key) && get_class($key) === 'BH_ModelData') $key = '`' . $key->GetKeyName() .'`';
 		$this->data[$key] = SetDBFloat($val);
 		return $this;
@@ -1426,6 +1429,7 @@ class BH_DB_Update{
 	 * @return $this
 	 */
 	public function &SetData($key, $val){
+		if(is_null($val)) $val = '';
 		if(is_object($key) && get_class($key) === 'BH_ModelData') $key = '`' . $key->parent->naming . '`.`' . $key->GetKeyName() .'`';
 		if(is_callable($val)) $this->data[$key] = '('.$val($this).')';
 		else $this->data[$key] = $val;
@@ -1438,6 +1442,7 @@ class BH_DB_Update{
 	 * @return $this
 	 */
 	public function &SetDataStr($key, $val){
+		if(is_null($val)) $val = '';
 		if(is_object($key) && get_class($key) === 'BH_ModelData') $key = '`' . $key->parent->naming . '`.`' . $key->GetKeyName() .'`';
 		$this->data[$key] = $this->StrToPDO('%s', $val);
 		return $this;
@@ -1449,6 +1454,7 @@ class BH_DB_Update{
 	 * @return $this
 	 */
 	public function &SetDataNum($key, $val){
+		if(is_null($val)) $val = '0';
 		if(is_object($key) && get_class($key) === 'BH_ModelData') $key = '`' . $key->parent->naming . '`.`' . $key->GetKeyName() .'`';
 		$this->data[$key] = SetDBFloat($val);
 		return $this;

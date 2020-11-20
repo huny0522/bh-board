@@ -133,8 +133,6 @@ class ConfigDefault extends _ConfigModel
 		$this->instagramToken = _CfgData::GetInstance()->SetTitle('인스타그램 Access Token');
 		$this->firebaseWebConfig = _CfgData::GetInstance()->SetTitle('firebase 웹설정 JSON')->SetType(HTMLType::TEXTAREA);
 		$this->googleServiceAccount = _CfgData::GetInstance()->SetTitle('구글 서비스 계정 JSON')->SetType(HTMLType::TEXTAREA);
-
-		$this->GetFileSetting();
 	}
 
 }
@@ -152,8 +150,6 @@ class ConfigSystem extends _ConfigModel
 		// 기본
 		$this->refresh = _CfgData::GetInstance();
 		$this->menuCache = _CfgData::GetInstance();
-
-		$this->GetFileSetting();
 	}
 }
 
@@ -170,8 +166,6 @@ class ConfigPrivacyText extends _ConfigModel
 		$this->_code = 'PrivacyText';
 		// 기본
 		$this->text = _CfgData::GetInstance()->SetTitle('개인정보보호정책');
-
-		$this->GetFileSetting();
 	}
 }
 
@@ -188,8 +182,6 @@ class ConfigTermsText extends _ConfigModel
 		$this->_code = 'TermsText';
 		// 기본
 		$this->text = _CfgData::GetInstance()->SetTitle('이용약관');
-
-		$this->GetFileSetting();
 	}
 }
 
@@ -206,8 +198,6 @@ class ConfigEmailCollector extends _ConfigModel
 		$this->_code = 'EmailCollector';
 		// 기본
 		$this->text = _CfgData::GetInstance()->SetTitle('이메일 수집 거부');
-
-		$this->GetFileSetting();
 	}
 }
 
@@ -230,7 +220,5 @@ class ConfigTexts extends _ConfigModel
 		$this->termsText = _CfgData::GetInstance()->SetTitle('이용약관')->SetIsSeparate(true);
 		$this->privacyText = _CfgData::GetInstance()->SetTitle('개인정보취급방침')->SetIsSeparate(true);
 		$this->pointGuide = _CfgData::GetInstance()->SetTitle('포인트 적립안내')->SetIsSeparate(true);
-
-		$this->GetFileSetting();
 	}
 }

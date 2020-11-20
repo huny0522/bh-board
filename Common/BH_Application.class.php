@@ -31,6 +31,7 @@ class BH_Application
 	public static $css = array();
 	public static $js = array();
 	public static $followQuery = array();
+	/** @var array $settingData = DeepAssocComplete::SettingData() */
 	public static $settingData = array();
 	public static $data = array();
 	public static $bodyHtml = '';

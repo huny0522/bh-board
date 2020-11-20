@@ -4,6 +4,7 @@ use \DB as DB;
 class BH_Common
 {
 	public static $member;
+	private static $otherMember = array();
 	public static $blockUser;
 
 	private static $fbSetIs = null;
@@ -64,14 +65,23 @@ class BH_Common
 
 	/**
 	 * @param int $muid
+	 * @param string $key
 	 * @return array|bool
 	 */
-	public static function GetOtherMember($muid){
-		$qry = new \BH_DB_Get(TABLE_MEMBER);
-		return $qry->AddWhere('muid = %d', $muid)
-			->AddWhere('withdraw = \'n\'')
-			->SetKey('*', 'NULL as pwd')
-			->Get();
+	public static function GetOtherMember($muid, $key = ''){
+		// 원글 가져오기
+		if(_MEMBERIS === true){
+			if(!isset(self::$otherMember[$muid]) || !self::$otherMember[$muid]){
+				$dbGet = new \BH_DB_Get(TABLE_MEMBER);
+				$dbGet->AddWhere('muid=' . SetDBInt($muid));
+				$dbGet->SetKey('*', 'NULL as pwd');
+				self::$otherMember[$muid] = $dbGet->Get();
+			}
+			if($key) return self::$otherMember[$muid][$key];
+			return self::$otherMember[$muid];
+		}else{
+			return false;
+		}
 	}
 
 	/**

@@ -27,26 +27,22 @@ function ReplaceHTMLFile($source, $target){
 		$f = preg_replace(
 			array(
 				'#(<\!--\s*remove\s*-->)(.*?)(<\!--\s*remove end\s*-->)#is',
+				'#(/\*\s*remove\s*\*/)(.*?)(/\*\s*remove end\s*\*/)#is',
 				'/(<\!--)([^\[].*?)(\-\->)/s',
-				'/(\/\*)(.*?)(\*\/)/s',
-				'/\n\s*/'
+				'/(\/\*)(.*?)(\*\/)/s'
 			),
 			array(
 				'',
 				'',
 				'',
-				"\n"
+				''
 			),
 			$f);
-		if(_REMOVE_SPACE === true){
-			$f = preg_replace(
-				array(
-					'/>\s*</s'
-				), array(
-				'><'
-			), $f);
+		foreach(BH_Application::$settingData['_replace_patterns'] as $k => $pt){
+			if(is_callable(BH_Application::$settingData['_replace_replace'][$k]))
+				$f = preg_replace_callback($pt, BH_Application::$settingData['_replace_replace'][$k], $f);
+			else $f = preg_replace($pt, BH_Application::$settingData['_replace_replace'][$k], $f);
 		}
-		$f = preg_replace(BH_Application::$settingData['_replace_patterns'], BH_Application::$settingData['_replace_replace'], $f);
 
 
 		file_put_contents($target, $f);

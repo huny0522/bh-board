@@ -90,8 +90,8 @@ class Email
 	}
 
 	public function &SetMailer($subject, $body){
-		$this->mailer->senderName = $this->defCfg->emailName->value ? $this->defCfg->emailName->value : 'mail@' . _DOMAIN;
-		$this->mailer->senderMail = $this->defCfg->sendEmail->value ? $this->defCfg->sendEmail->value : 'mail@' . _DOMAIN;
+		$this->mailer->senderName = $this->defCfg->emailName->value ? $this->defCfg->emailName->value : 'mail@' . $_SERVER['HTTP_HOST'];
+		$this->mailer->senderMail = $this->defCfg->sendEmail->value ? $this->defCfg->sendEmail->value : 'mail@' . $_SERVER['HTTP_HOST'];
 		$this->mailer->subject = $subject;
 		$this->mailer->body = $body;
 
