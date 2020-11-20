@@ -539,7 +539,7 @@ function SelectOption($OptionValues, $SelectValue = '', $noOptValue = false){
 	if(!isset($OptionValues) || !is_array($OptionValues)) return $str;
 	foreach($OptionValues as $k => $v){
 		$key = $noOptValue ? $v : $k;
-		$str .= '<option' . ($noOptValue ? '' : ' value="' . $k . '"') . ((string)$SelectValue === (string)$key ? ' selected="selected"' : '') . '>' . GetDBText($v) . '</option>';
+		$str .= '<option' . ($noOptValue ? '' : ' value="' . $k . '"') . ($SelectValue === (string)$key ? ' selected="selected"' : '') . '>' . GetDBText($v) . '</option>';
 	}
 	return $str;
 }
@@ -996,7 +996,7 @@ function aes_encrypt($plaintext, $password){
 }
 
 function aes_decrypt($ciphertext, $password){
-	return openssl_decrypt(hex2bin($ciphertext), 'aes-128-cbc', $password, true, '');
+	return @openssl_decrypt(hex2bin($ciphertext), 'aes-128-cbc', $password, true, '');
 }
 
 function delTree($dir){
