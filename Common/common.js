@@ -151,7 +151,7 @@
 			bhJQuery(window).scrollTop(bhJQuery('body').prop('scrollHeight') + bhJQuery('body').height());
 		};
 
-		this.getCookie = function(cname){
+		this.getCookie = function(cname, callback){
 			var name = cname + "=";
 			var ca = document.cookie.split(';');
 			for(var i = 0; i <ca.length; i++) {
@@ -160,9 +160,11 @@
 					c = c.substring(1);
 				}
 				if (c.indexOf(name) === 0) {
+					if(typeof(callback) === 'function') callback(decodeURIComponent(c.substring(name.length,c.length)));
 					return decodeURIComponent(c.substring(name.length,c.length));
 				}
 			}
+			if(typeof(callback) === 'function') callback('');
 			return "";
 		};
 
@@ -644,7 +646,8 @@
 
 		this.popPostCode = function (callback) {
 			if (typeof daum === "undefined" || typeof daum.postcode === "undefined") {
-				jQuery.getScript(document.location.protocol == 'https:' ? 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js?autoload=false' : 'http://dmaps.daum.net/map_js_init/postcode.v2.js?autoload=false').done(function (script, textStatus) {
+				JCM.addScript(document.location.protocol == 'https:' ? 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js?autoload=false' : 'http://dmaps.daum.net/map_js_init/postcode.v2.js?autoload=false', function() {
+					JCM.loading_end();
 					_this.popDaumPostCode(callback);
 				});
 			} else {
@@ -729,24 +732,21 @@
 			if(el.hasAttribute(name)) return el.getAttribute(name);
 			return '';
 		};
-		this.hasClass = function(el, name){
-			if(el.tagName === 'undefined') el = el[0];
-			return new RegExp('(\\s|^)'+name+'(\\s|$)').test(JCM.getAttribute(el, 'class'));
-		};
 
-		this.addClass = function(el, name){
-			if(el.tagName === 'undefined') el = el[0];
-			if (!this.hasClass(el, name)){
-				if(typeof(el.setAttribute) === 'undefined') return;
-				el.setAttribute('class', (JCM.getAttribute(el, 'class') ? JCM.getAttribute(el, 'class') + ' ' : '') +name);
+		this._addedScript = [];
+		this.addScript = function(url, callback){
+			if(bhJQuery.inArray(url, this._addedScript) >= 0){
+				if(typeof(callback) === 'function') callback();
+				return;
 			}
-		};
-
-		this.removeClass = function(el, name){
-			if(el.tagName === 'undefined') el = el[0];
-			if (this.hasClass(el, name)) {
-				el.setAttribute('class', JCM.getAttribute(el, 'class').replace(new RegExp('(\\s|^)'+name+'(\\s|$)'),' ').replace(/^\s+|\s+$/g, ''));
-			}
+			this._addedScript.push(url);
+			var el = document.createElement('script');
+			el.onload = function(e){
+				if(typeof(callback) === 'function') callback();
+			};
+			el.type = 'text/javascript';
+			el.src = url;
+			document.head.appendChild(el);
 		};
 
 		this.lang = function(text){
@@ -1471,7 +1471,7 @@
 	 *   Input Value Check
 	 *
 	 ------------------------------------------- */
-	bhJQuery(document).on('keyup click change focusin focusout', 'input.numberonly, input.numberOnly', function() {
+	bhJQuery(document).on('keyup click change focusin focusout', 'input.numberonly, input.numberOnly', function(e) {
 		var val = this.value;
 		var minusIs = false;
 		if(val.length){
@@ -1495,6 +1495,7 @@
 				bhJQuery(this).attr('data-before-value', val);
 			}
 		}
+		if(e.type === 'focusout' && this.value === '' && !bhJQuery(this).hasClass('leaveBlank') && !bhJQuery(this).hasClass('nozero')) this.value = '0';
 	});
 
 	bhJQuery(document).on('keyup', 'input.engonly', function() {
@@ -1813,4 +1814,14 @@
 
 	var customEvent = new CustomEvent('jcm_ready');
 	window.dispatchEvent(customEvent);
+
+	// 함수가 생성됐는지 체크 후 콜백 실행
+	window.ExecuteWhenExistsFunction = function(func, callback){
+		if(typeof(func) === 'function') callback();
+		else{
+			setTimeout(function(){
+				window.ExecuteWhenExistsFunction(func, callback);
+			}, 100);
+		}
+	}
 }($));

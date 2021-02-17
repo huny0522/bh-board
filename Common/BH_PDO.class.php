@@ -339,6 +339,7 @@ class DB{
 }
 
 class BH_DB_Get{
+	public $pos = 0;
 	public $table = array();
 	public $noWhereTable = '';
 	public $sql = '';
@@ -501,7 +502,7 @@ class BH_DB_Get{
 		if($this->group) $this->sql .= ' {{space5}} GROUP BY ' . $this->group;
 		$this->sql .= $having;
 		if($this->sort) $this->sql .= ' {{space6}} ORDER BY ' . $this->sort;
-		$this->sql .= ' {{space7}} LIMIT 1';
+		$this->sql .= ' {{space7}} LIMIT ' . ToInt($this->pos) . ', 1';
 
 		if(is_callable($func)) $func($this->sql);
 		$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
@@ -516,7 +517,7 @@ class BH_DB_Get{
 		foreach($this->bindParam as $k => $v) $sql2 .= '['.$v[0].']';
 
 		$this->query = DB::PDO($this->connName)->prepare($this->sql);
-		foreach($this->bindParam as $k => $v) $this->query->bindParam($k, $v[0], $v[1]);
+		foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $this->query->bindParam($k, $v[0], $v[1]);
 
 		if($this->query->execute()){
 			$row = $this->query->fetch(PDO::FETCH_ASSOC);
@@ -551,6 +552,15 @@ class BH_DB_Get{
 	 */
 	public function &SetShowError($bool = true){
 		$this->showError = $bool;
+		return $this;
+	}
+
+	/**
+	 * @param int $num
+	 * @return $this
+	 */
+	public function &SetPos($num = 0){
+		$this->pos = $num;
 		return $this;
 	}
 }
@@ -640,7 +650,7 @@ class BH_DB_GetList extends BH_DB_Get{
 		foreach($this->bindParam as $k => $v) $sql2 .= '['.$v[0].']';
 
 		$this->query = DB::PDO($this->connName)->prepare($this->sql);
-		foreach($this->bindParam as $k => $v) $this->query->bindParam($k, $v[0], $v[1]);
+		foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $this->query->bindParam($k, $v[0], $v[1]);
 
 		if($this->query->execute()) $this->result = true;
 		else{
@@ -879,8 +889,9 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		$this->sql = $sql2 = trim($this->sql);
 		foreach($this->bindParam as $v) $sql2 .= '['.$v[0].']';
 
-		$qry = DB::PDO($this->connName)->prepare($this->group && !$this->noGroupCount ? 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x' : $sql_cnt);
-		foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
+		$cntSql = $this->group && !$this->noGroupCount ? 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x' : $sql_cnt;
+		$qry = DB::PDO($this->connName)->prepare($cntSql);
+		foreach($this->bindParam as $k => $v) if(strpos($cntSql, $k) !== false) $qry->bindParam($k, $v[0], $v[1]);
 		if($qry->execute()){
 			$this->countResult = $qry->fetch(PDO::FETCH_ASSOC);
 			$totalRecord = $this->countResult['cnt']; //total값 구함
@@ -891,7 +902,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		$this->beginNum = $totalRecord - ($nowPage * $this->articleCount);
 
 		$this->query = DB::PDO($this->connName)->prepare($this->sql);
-		foreach($this->bindParam as $k => $v) $this->query->bindParam($k, $v[0], $v[1]);
+		foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $this->query->bindParam($k, $v[0], $v[1]);
 
 		$pageData = self::$pageData;
 		if($this->query->execute()){
@@ -1245,7 +1256,7 @@ class BH_DB_Insert{
 				exit;
 			}
 			$qry = DB::PDO($this->connName)->prepare($this->sql);
-			foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
+			foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $qry->bindParam($k, $v[0], $v[1]);
 			$res->result = $qry->execute();
 			if(!$res->result && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($qry->errorInfo());
 
@@ -1516,7 +1527,7 @@ class BH_DB_Update{
 			exit;
 		}
 		$qry = DB::PDO($this->connName)->prepare($this->sql);
-		foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
+		foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $qry->bindParam($k, $v[0], $v[1]);
 		$res->result = $qry->execute();
 		if(!$res->result && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($qry->errorInfo());
 		return $res;
@@ -1622,7 +1633,7 @@ class BH_DB_Delete{
 		}
 
 		$qry = DB::PDO($this->connName)->prepare($this->sql);
-		foreach($this->bindParam as $k => $v) $qry->bindParam($k, $v[0], $v[1]);
+		foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $qry->bindParam($k, $v[0], $v[1]);
 		$res = $qry->execute();
 		if(!$res && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($qry->errorInfo());
 		return $res;

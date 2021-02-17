@@ -43,7 +43,7 @@ var StatePage = {
 		$(document).on('click', '.hashChangeBtn', function(e){
 			if(this.hasAttribute('data-hash')){
 				e.preventDefault();
-				location.href = '#' + $(this).attr('data-hash');
+				StatePage.HashPush('#' + $(this).attr('data-hash'));
 			}
 		});
 
@@ -54,15 +54,19 @@ var StatePage = {
 			}
 
 			var href = location.href;
-			StatePage.HashAction();
+			StatePage._HashAction();
 			StatePage.isPopState = true;
-			StatePage.Load(href, null, true);
+			if(StatePage.isHashAction){
+				StatePage.isHashAction = false;
+				StatePage.isHistoryBack = false;
+			}
+			else StatePage.Load(href, null, {noPush : true});
 		});
 
 		StatePage.url = location.pathname + location.search;
 
 		$(function(){
-			StatePage.HashAction(true);
+			StatePage._HashAction(true);
 			var splitHref = location.href.split('#');
 			StatePage.beforeHash = splitHref.length > 1 ? splitHref[1] : '';
 		});
@@ -81,7 +85,16 @@ var StatePage = {
 		return this;
 	},
 
-	HashAction : function(disableEmptyAction){
+	HashPush : function(hash){
+		StatePage.beforeTime = (new Date()).getTime();
+		history.pushState({time : StatePage.beforeTime}, '', hash);
+		StatePage._HashAction();
+		StatePage.isHistoryBack = false;
+		StatePage.isPopState = false;
+		StatePage.isHashAction = false;
+	},
+
+	_HashAction : function(disableEmptyAction){
 		var hash = location.hash.length > 1 ? location.hash.substr(1) : '';
 		if(StatePage.beforeHash === hash) return;
 		if(hash.length){
@@ -98,6 +111,7 @@ var StatePage = {
 				StatePage.isHashAction = true;
 			});
 		}
+		StatePage.beforeHash = hash;
 	},
 
 	AddHashAction : function(name, func){
@@ -119,14 +133,18 @@ var StatePage = {
 	 * 해당 주소로 선택된 객체의 페이지를 변경
 	 *
 	 * @param href
-	 * @param obj
-	 * @param noPush boolean(true : replaceState, false : pushState) default : false
-	 * @param force boolean
+	 * @param {(Object|String|null)=} targetId
+	 * @param {({noPush : boolean=, force : boolean=, isPost : boolean=, queryData : {}=, onlyState : boolean=})=} opt noPush boolean(true : replaceState, false : pushState) default : false
 	 * @public
 	 */
-	Load : function(href, targetId, noPush, force){
-		var splitHref = href.split('#');
-		StatePage.beforeHash = splitHref.length > 1 ? splitHref[1] : '';
+	Load : function(href, targetId, opt){
+		// noPush, force
+		if(typeof(opt) === 'undefined') opt = {};
+		if(typeof(opt.noPush) === 'undefined') opt.noPush = false;
+		if(typeof(opt.force) === 'undefined') opt.force = false;
+		if(typeof(opt.isPost) === 'undefined') opt.isPost = false;
+		if(typeof(opt.queryData) === 'undefined') opt.queryData = {};
+		if(typeof(opt.onlyState) === 'undefined') opt.onlyState = false;
 		if(!StatePage.isInit){
 			location.href = href;
 			return;
@@ -135,7 +153,7 @@ var StatePage = {
 		var linkEl = document.createElement("a");
 		linkEl.href = href;
 
-		if(StatePage.url !== '' && (StatePage.url == linkEl.pathname + linkEl.search && force !== true)) return;
+		if(StatePage.url !== '' && (StatePage.url == linkEl.pathname + linkEl.search && opt.force !== true)) return;
 
 		if(!StatePage.isPopState) StatePage.beforeTime = (new Date()).getTime();
 
@@ -147,10 +165,10 @@ var StatePage = {
 			return;
 		}
 
-		JCM.getWithLoading(href, {hash : linkEl.hash}, function(html, commonData){
+		function successFunc(html, commonData){
 
 			if(typeof StatePage.dataCheckFunc === 'function' && !StatePage.dataCheckFunc(html, commonData)) return;
-			$(el).html(html);
+			if(typeof(html) !== 'undefined') $(el).html(html);
 
 			if(typeof(commonData) !== 'undefined' && commonData !== null && typeof(commonData.appendHtml) !== 'undefined'){
 				$(el).append(commonData.appendHtml);
@@ -190,15 +208,33 @@ var StatePage = {
 				StatePage.animateDirection = 'left';
 			}
 
-			if(noPush) history.replaceState({time : StatePage.beforeTime}, '', href);
+			if(opt.noPush) history.replaceState({time : StatePage.beforeTime}, '', href);
 			else history.pushState({time : StatePage.beforeTime}, '', href);
 
 			if(StatePage.isAnimate !== true) StatePage._CompleteAction(commonData);
-		});
+		};
+
+		opt.queryData.hash = linkEl.hash;
+		opt.queryData.statePage = 1;
+		if(opt.onlyState) successFunc();
+		else if(opt.isPost) JCM.postWithLoading(href, opt.queryData, successFunc);
+		else JCM.getWithLoading(href, opt.queryData, successFunc);
 	},
 
 	LoadForce : function(href, obj, noPush){
-		StatePage.Load(href, obj, noPush, true);
+		StatePage.Load(href, obj, {noPush : noPush, force : true});
+	},
+
+	State : function(href){
+		StatePage.Load(href, null, {onlyState : true});
+	},
+
+	PostLoad : function(href, obj, data, noPush){
+		StatePage.Load(href, obj, {noPush : noPush, isPost : true, queryData : data});
+	},
+
+	PostLoadForce : function(href, obj, data, noPush){
+		StatePage.Load(href, obj, {noPush : noPush, force : true, isPost : true, queryData : data});
 	},
 
 	/**

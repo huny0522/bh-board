@@ -56,7 +56,7 @@ class BH_Common
 				$dbGet->SetKey('*', 'NULL as pwd');
 				self::$member = $dbGet->Get();
 			}
-			if($key) return self::$member[$key];
+			if($key) return isset(self::$member[$key]) ? self::$member[$key] : '';
 			return self::$member;
 		}else{
 			return false;
@@ -77,7 +77,7 @@ class BH_Common
 				$dbGet->SetKey('*', 'NULL as pwd');
 				self::$otherMember[$muid] = $dbGet->Get();
 			}
-			if($key) return self::$otherMember[$muid][$key];
+			if($key) return isset(self::$otherMember[$muid][$key]) ? self::$otherMember[$muid][$key] : '';
 			return self::$otherMember[$muid];
 		}else{
 			return false;
