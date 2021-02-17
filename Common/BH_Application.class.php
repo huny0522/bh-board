@@ -42,6 +42,13 @@ class BH_Application
 	/** @var callable $routingFailFunc */
 	public static $routingFailFunc = null;
 
+	/** @var SysArrayObject */
+	public static $_get;
+	/** @var SysArrayObject */
+	public static $_post;
+	/** @var SysArrayObject */
+	public static $_session;
+
 	private function __construct(){
 
 	}
@@ -53,6 +60,10 @@ class BH_Application
 	}
 
 	public static function run(){
+		self::$_get = new SysArrayObject();
+		self::$_post = new SysArrayObject('post');
+		self::$_session = new SysArrayObject('session');
+
 		self::$settingData['URLFirst'] = '';
 		spl_autoload_register(array('BH_Application', 'AutoLoad'));
 
