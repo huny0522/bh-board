@@ -38,20 +38,21 @@ class Reply{
 	protected function _R_MoreListQuery(&$qry){}
 	protected function _R_CommonQry(&$qry, $opt = null){}
 
-	public function __construct(){
+	public function __construct($bid = '', $subid = ''){
 		$this->model = App::InitModel('Reply', $this->connName);
 		$this->boardModel = new \BoardModel($this->connName);
 		$this->boardManger = new \BoardManagerModel($this->connName);
 
 		$this->bid = App::$tid;
 		$this->subid = App::$sub_tid;
+		if($bid !== '') $this->bid = $bid;
+		if($subid !== '') $this->subid = $subid;
 
 		$this->uploadUrl = '/reply/' .$this->bid.(strlen($this->subid) ? '-' . $this->subid  : '').'/' . date('ym') . '/';
 		$this->model->uploadDir = $this->uploadUrl;
 	}
 
 	public function __init(){
-		if(_POSTIS !== true) exit;
 		if(!in_array(App::$action, array('JSONAction', 'JSONCancelAction'))){
 			App::$data['article_seq'] = SetDBInt((string)$_POST['article_seq']);
 			$this->boardManger->DBGet($this->bid, $this->subid);
@@ -64,7 +65,7 @@ class Reply{
 		else return ($obj->data[$key]->value === $_SESSION['member']['muid']);
 	}
 
-	protected function _ReplySetting(){
+	protected function _ReplySetting($html = ''){
 		App::$layout = null;
 		if(!isset($this->bid) || $this->bid == '') exit;
 
@@ -74,7 +75,7 @@ class Reply{
 			$this->managerIs = true;
 		}
 
-		$action = App::$action;
+		$action = $html ? $html : App::$action;
 		if($action == 'Answer' || $action == 'Modify') $action = 'Write';
 		if($action == '_DirectView') $action = 'View';
 		$this->path = '/Reply/'.App::$nativeSkinDir.'/'.$this->boardManger->GetValue('reply_skin').'/';
@@ -95,6 +96,20 @@ class Reply{
 		}
 
 		if(file_exists(\Paths::DirOfSkin().$this->path.'MoreList.html')) $this->moreListIs = true;
+	}
+
+	public function FormHtml($ArticleSeq, $parentUrl = null){
+		$temp = App::$html;
+		$tempLayout = App::$layout;
+		if($parentUrl === null) $parentUrl = \Paths::Url();
+		App::$data['parentUrl'] = $parentUrl;
+		App::$data['articleSeq'] = $ArticleSeq;
+		$this->boardManger->DBGet($this->bid, $this->subid);
+		$this->_ReplySetting('Form');
+		$res = App::GetOnlyView();
+		App::$html = $temp;
+		App::$layout = $tempLayout;
+		return $res;
 	}
 
 	public function PostIndex(){

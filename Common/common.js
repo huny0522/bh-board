@@ -646,8 +646,7 @@
 
 		this.popPostCode = function (callback) {
 			if (typeof daum === "undefined" || typeof daum.postcode === "undefined") {
-				JCM.addScript(document.location.protocol == 'https:' ? 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js?autoload=false' : 'http://dmaps.daum.net/map_js_init/postcode.v2.js?autoload=false', function() {
-					JCM.loading_end();
+				JCM.addScript('//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js', function() {
 					_this.popDaumPostCode(callback);
 				});
 			} else {
@@ -1312,14 +1311,17 @@
 			console.log('datepicker plugin not find.');
 			return;
 		}
-		bhJQuery(this).datepicker({
+		var opt = {
 			changeYear: true,
 			changeMonth: true,
 			showMonthAfterYear: true,
 			dateFormat: 'yy-mm-dd',
 			endDate: 'today',
 			todayHighlight: true
-		}).click(function () {
+		};
+		if(this.hasAttribute('data-yearRange')) opt.yearRange = $(this).attr('data-yearRange');
+		else if(this.hasAttribute('data-year-range')) opt.yearRange = $(this).attr('data-year-range');
+		bhJQuery(this).datepicker(opt).click(function () {
 			bhJQuery(this).datepicker('show');
 		});
 	};
@@ -1368,6 +1370,7 @@
 				toolbar: null
 			},
 			images_upload_credentials: true,
+			image_dimensions : false,
 			images_upload_handler: function (blobInfo, success, failure) {
 				var xhr, formData;
 
@@ -1424,12 +1427,14 @@
 			function _tmPaste(id, defaultfolder, hiddenimage){
 				var p = _this.plugin;
 				var t = _this.toolbar;
-				var mt = _this.mobileToolbar;
+				var mt = [];
 				if(hiddenimage === true){
 					p = p.replace(/image/, '');
 					t = t.replace(/image/, '');
-					mt = mt.replace(/image/, '');
-					mt = mt.replace(/\s\s/, ' ').split(' ');
+
+					for(var i = 0; i < _this.mobileToolbar.length; i++){
+						mt.push(_this.mobileToolbar[i]);
+					}
 				}
 				if(typeof callback === 'function'){
 					callback(tinymce);
@@ -1437,6 +1442,7 @@
 				_this.opt.plugins = p;
 				_this.opt.toolbar = t;
 				_this.opt.mobile.toolbar = mt;
+				if(tinymce.get(id)) tinymce.get(id).remove();
 				tinymce.init(_this.opt);
 			}
 		}
@@ -1473,15 +1479,25 @@
 	 ------------------------------------------- */
 	bhJQuery(document).on('keyup click change focusin focusout', 'input.numberonly, input.numberOnly', function(e) {
 		var val = this.value;
-		var minusIs = false;
 		if(val.length){
-			if(val[0] === '-') minusIs = true;
-			val = val.replace(/[^0-9\.]/ig, '');
-			var vsp = val.split('.');
-			vsp[0] = vsp[0].replace(/^[0]+/ig, '');
-			if(vsp.length > 1) val = (vsp[0].length ? vsp[0] : '0') + '.' + vsp[1];
-			else val = vsp[0];
-			val = (minusIs ? '-' : '') + val;
+			var re = '^([\\-]*)?(\\d+)?([\\.][0-9]*|)';
+			if(this.hasAttribute('data-decimal-places')){
+				var dp = bhJQuery(this).attr('data-decimal-places');
+				dp = dp.replace(/[^0-9]/ig, '');
+				if(dp.length){
+					dp = parseInt(dp);
+					if(dp === 0) re = '^([\\-]*)?(\\d+)';
+					else re = '^([\\-]*)?(\\d+)?([\\.][0-9]{0,' + dp + '}|)';
+				}
+			}
+			var r = RegExp(re, 'ig');
+			var m = r.exec(val);
+			val = '';
+			if(m && m.length > 1){
+				if(typeof(m[1]) !== 'undefined') val = '-';
+				if(m.length > 2 && typeof(m[2]) !== 'undefined') val += m[2];
+				if(m.length > 3 && typeof(m[3]) !== 'undefined') val += m[3];
+			}
 		}
 		else val = '';
 		if(this.value !== val){
@@ -1521,9 +1537,8 @@
 	bhJQuery(document).on('keyup click change focusin focusout', 'input.numberformat', function(e){
 		var cp = getCaretPosition(this);
 		var end = bhJQuery(this).val().length - cp.end;
-		if(this.value === '') this.value = '0';
 		var val = JCM.setComma(this.value.replace(/[^0-9]/gi,''));
-		if(e.type !== 'focusout' && val === '0') val = '';
+		if(e.type === 'focusout' && this.value === '' && !bhJQuery(this).hasClass('leaveBlank') && !bhJQuery(this).hasClass('nozero')) val = this.value = '0';
 		if(!this.hasAttribute('data-before-value') || bhJQuery(this).attr('data-before-value') !== this.value){
 			this.value = '';
 			this.value = val;
@@ -1812,9 +1827,6 @@
 		});
 	});
 
-	var customEvent = new CustomEvent('jcm_ready');
-	window.dispatchEvent(customEvent);
-
 	// 함수가 생성됐는지 체크 후 콜백 실행
 	window.ExecuteWhenExistsFunction = function(func, callback){
 		if(typeof(func) === 'function') callback();
@@ -1824,4 +1836,8 @@
 			}, 100);
 		}
 	}
+
+	var customEvent = new CustomEvent('jcm_ready');
+	window.dispatchEvent(customEvent);
+	window.isJcmReady = true;
 }($));

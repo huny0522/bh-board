@@ -443,6 +443,7 @@ class MenuHelp
 		}
 		else{
 			if(_MEMBERIS !== true && $this->activeMenu['con_level']){
+				if(!Get('statePage') && _JSONIS === true) JSON(false, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 				URLReplace(strlen($loginPage) ? $loginPage : App::URLBase(''), App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 			}
 			else if(_MEMBERIS === true && $this->activeMenu['con_level'] > $_SESSION['member']['level']){
@@ -537,7 +538,7 @@ class MenuHelp
 	 * @param string $bid
 	 * @param string $subid
 	 * @param string $category
-	 * @param bool $thisCateThenEmpty
+	 * @param bool $thisCateThenEmpty 하위 카테고리가 비어있을때는 현재 레벨의 카테고리들을 반환할지 여부
 	 * @return null|array
 	 */
 	public function GetSubMenusByBid($bid, $subid, $category, $thisCateThenEmpty = true){
@@ -561,7 +562,7 @@ class MenuHelp
 	}
 
 	/**
-	 * 게시판 카테고리와 bid 를 이용하여 하위 메뉴 가져오기
+	 * 게시판 카테고리와 bid 를 이용하여 하위 메뉴 전부 가져오기
 	 *
 	 * @param string $bid
 	 * @param string $subid

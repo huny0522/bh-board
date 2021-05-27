@@ -360,6 +360,15 @@ class BH_Model{
 		foreach($this->dataExcept as $v) if(isset($this->data[$v])) $this->data[$v]->dbExcept = true;
 	}
 
+	public function __clone(){
+		$this->data = clone $this->data;
+		foreach($this->data as $k => $v){
+			unset($this->{'_'.$k});
+			$this->data[$k] =  clone $this->data[$k];
+			$this->{'_'.$k} = $this->data[$k];
+		}
+	}
+
 	/**
 	 * @param string $connName
 	 * @return static
@@ -834,6 +843,7 @@ class _ModelFunc{
 
 						$v->value = implode(';', $values);
 						$v->needIs = true;
+						if(!isset($post[$k])) $post[$k] = array();
 					}
 					if(!isset($post[$k])){
 						if($v->blankIsNull){
@@ -841,7 +851,7 @@ class _ModelFunc{
 							$v->valueIsQuery = true;
 							$v->needIs = true;
 						}
-						else if($v->needIs && (!isset($v->value) || !strlen($v->value))){
+						else if($v->needIs && (!isset($v->value) || !strlen($v->value)) && !in_array($v->htmlType, array(HTMLType::FILE_IMAGE_ARRAY, HTMLType::FILE_ARRAY))){
 							$ret->message = $v->modelErrorMsg = str_replace('{item}', $v->displayName, BH_Application::$lang['MODEL_NOT_DEFINED_ITEM']);
 							$ret->result = false;
 							return $ret;
@@ -1085,7 +1095,7 @@ class _ModelFunc{
 		foreach($p as $v){
 			$f = explode('*', $v);
 			if(sizeof($f) > 1){
-				$ret[] = array('name' => $f[0], 'path' => $f[1]);
+				$ret[] = array('name' => $f[1], 'path' => $f[0]);
 			}
 			else{
 				$exv = explode('/', $v);
@@ -1312,7 +1322,7 @@ class _ModelFunc{
 				$f = explode('*', $data->value);
 
 				$h = '<div class="jqFileUploadArea"' . $Attribute . '>
-				<input type="hidden" name="' . $Name . '" value="" id="MD_'.$firstIDName.$Name.'" class="fileUploadPath" data-displayname="' . $data->displayName . '"' . $fileRequired . '>
+				<input type="hidden" name="' . $Name . '" value="" id="'.$firstIDName.$Name.'" class="fileUploadPath" data-displayname="' . $data->displayName . '"' . $fileRequired . '>
 				<div style="padding-bottom:10px;">';
 				if(strlen($data->value)) $h .= '<p><b class="upload_file_name">'.(isset($f[1]) ? GetDBText($f[1]) : '').'</b> <label class="checkbox"><input type="checkbox" name="del_file_'.$Name.'" value="y"><i></i><span> ' .BH_Application::$lang['DEL_FILE'] . '</span></label></p>';
 				else $h .= '<p><b class="upload_file_name"></b></p>';
@@ -1850,26 +1860,28 @@ class _ModelFunc{
 			$source = imagecreatefromgif($source);
 		else if ($size[2] == 2){
 			// TODO : 이미지 크기가 너무 클 경우 오류 또는 원본 반환 ($size[0] x $size[1])
-
-			$exif = @exif_read_data($source);
-			$source = imagecreatefromjpeg($source);
-			if(isset($exif['Orientation']) && !empty($exif['Orientation'])){
-				switch($exif['Orientation']){
-					case 8:
-						$source = imagerotate($source, 90, 0);
-						$temp = $size[0];
-						$size[0] = $size[1];
-						$size[1] = $temp;
-					break;
-					case 3:
-						$source = imagerotate($source, 180, 0);
-					break;
-					case 6:
-						$source = imagerotate($source, -90, 0);
-						$temp = $size[0];
-						$size[0] = $size[1];
-						$size[1] = $temp;
-					break;
+			if(!function_exists('exif_read_data')) $source = imagecreatefromjpeg($source);
+			else{
+				$exif = @exif_read_data($source);
+				$source = imagecreatefromjpeg($source);
+				if(isset($exif['Orientation']) && !empty($exif['Orientation'])){
+					switch($exif['Orientation']){
+						case 8:
+							$source = imagerotate($source, 90, 0);
+							$temp = $size[0];
+							$size[0] = $size[1];
+							$size[1] = $temp;
+						break;
+						case 3:
+							$source = imagerotate($source, 180, 0);
+						break;
+						case 6:
+							$source = imagerotate($source, -90, 0);
+							$temp = $size[0];
+							$size[0] = $size[1];
+							$size[1] = $temp;
+						break;
+					}
 				}
 			}
 		}

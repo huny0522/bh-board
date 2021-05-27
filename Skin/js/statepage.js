@@ -217,16 +217,26 @@ var StatePage = {
 		opt.queryData.hash = linkEl.hash;
 		opt.queryData.statePage = 1;
 		if(opt.onlyState) successFunc();
-		else if(opt.isPost) JCM.postWithLoading(href, opt.queryData, successFunc);
-		else JCM.getWithLoading(href, opt.queryData, successFunc);
+		else if(opt.isPost) JCM.postWithLoading(href, opt.queryData, successFunc, StatePage._FailFunc);
+		else JCM.getWithLoading(href, opt.queryData, successFunc, StatePage._FailFunc);
+	},
+
+	_FailFunc : function(){
+		if(StatePage.isPopState === true) history.back();
 	},
 
 	LoadForce : function(href, obj, noPush){
 		StatePage.Load(href, obj, {noPush : noPush, force : true});
 	},
 
-	State : function(href){
-		StatePage.Load(href, null, {onlyState : true});
+	State : function(href, opt){
+		var opt2 = {onlyState : true};
+		if(typeof(opt) === 'object'){
+			$.each(opt, function(idx, val){
+				opt2[idx] = val;
+			});
+		}
+		StatePage.Load(href, null, opt2);
 	},
 
 	PostLoad : function(href, obj, data, noPush){

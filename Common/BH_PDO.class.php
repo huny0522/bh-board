@@ -348,10 +348,12 @@ class BH_DB_Get{
 	public $sort = '';
 	public $group = '';
 
+	private $isRunGet = false;
+
 	/**
 	 * @var PDOStatement
 	 */
-	protected $query = null;
+	public $query = null;
 	protected $having = array();
 	protected $where = array();
 	protected $key = array();
@@ -369,6 +371,11 @@ class BH_DB_Get{
 
 	public function __destruct(){
 		if($this->query) DB::Sql($this->connName)->Free($this->query);
+	}
+
+	public function Retry(){
+		$this->isRunGet = false;
+		return $this;
 	}
 
 	public function StrToPDO($args){
@@ -393,6 +400,24 @@ class BH_DB_Get{
 	public function &AddTable($str){
 		$w = $this->StrToPDO(func_get_args());
 		if($w !== false) $this->table[] = array('sql' => $w);
+		return $this;
+	}
+
+	/**
+	 * @param string $key
+	 * @param string $str
+	 * @return $this
+	 */
+	public function &AddTableWithKey($key, $str){
+		$args = func_get_args();
+		array_shift($args);
+		$w = $this->StrToPDO($args);
+		if($w !== false) $this->table[$key] = array('sql' => $w);
+		return $this;
+	}
+
+	public function RemoveTableByKey($key){
+		unset($this->table[$key]);
 		return $this;
 	}
 
@@ -486,6 +511,8 @@ class BH_DB_Get{
 	 * @return bool|array
 	 */
 	public function Get(){
+		if($this->isRunGet) return false;
+		$this->isRunGet = true;
 		$func = null;
 		if(func_num_args()) $func = func_get_arg(0);
 
@@ -882,7 +909,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 			if($this->group && !$this->noGroupCount) $sql_cnt = 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x';
 			foreach($this->bindParam as $k => $v) $sql_cnt = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $sql_cnt);
-			echo $this->sql . PHP_EOL . PHP_EOL . $sql_cnt;
+			echo $this->sql . ';' . PHP_EOL . PHP_EOL . $sql_cnt . ';';
 			exit;
 		}
 
@@ -1045,6 +1072,8 @@ class BH_DB_Insert{
 	protected $tableBindParam = array();
 	protected $whereBindParam = array();
 	protected $bindParam = array();
+
+	public $query;
 
 	public function  __construct($table = ''){
 		if(is_object($table) && isset($table->isBHModel)) $this->table = $table->table;
@@ -1255,10 +1284,10 @@ class BH_DB_Insert{
 				echo $this->sql;
 				exit;
 			}
-			$qry = DB::PDO($this->connName)->prepare($this->sql);
-			foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $qry->bindParam($k, $v[0], $v[1]);
-			$res->result = $qry->execute();
-			if(!$res->result && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($qry->errorInfo());
+			$this->query = DB::PDO($this->connName)->prepare($this->sql);
+			foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $this->query->bindParam($k, $v[0], $v[1]);
+			$res->result = $this->query->execute();
+			if(!$res->result && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($this->query->errorInfo());
 
 			if($res->result && $this->decrement) DB::SQL($this->connName)->Query('UPDATE '.TABLE_FRAMEWORK_SETTING.' SET `data` = \''.($keyRes['data']).'\' WHERE `key_name` = \''.$keyRes['keyName'].'\'');
 
@@ -1311,9 +1340,9 @@ class BH_DB_Insert{
 				exit;
 			}
 
-			$qry = DB::PDO($this->connName)->prepare($this->sql);
-			foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $qry->bindParam($k, $v[0], $v[1]);
-			$res->result = $qry->execute();
+			$this->query = DB::PDO($this->connName)->prepare($this->sql);
+			foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $this->query->bindParam($k, $v[0], $v[1]);
+			$res->result = $this->query->execute();
 			if($res->result){
 				if($this->decrement){
 					$res->id = $keyRes['data'];
@@ -1321,7 +1350,7 @@ class BH_DB_Insert{
 				}
 				else $res->id = DB::PDO($this->connName)->lastInsertId();
 			}
-			else if(_DEVELOPERIS === true && $this->showError && BH_Application::$showError) PrintError($qry->errorInfo());
+			else if(_DEVELOPERIS === true && $this->showError && BH_Application::$showError) PrintError($this->query->errorInfo());
 
 			DB::Commit();
 		}
@@ -1403,6 +1432,8 @@ class BH_DB_Update{
 	private $connName = '';
 
 	protected $bindParam = array();
+
+	public $query;
 
 	public function  __construct($table = ''){
 		if($table !== '') $this->table = $this->StrToPDO(func_get_args());
@@ -1526,10 +1557,10 @@ class BH_DB_Update{
 			echo $this->sql;
 			exit;
 		}
-		$qry = DB::PDO($this->connName)->prepare($this->sql);
-		foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $qry->bindParam($k, $v[0], $v[1]);
-		$res->result = $qry->execute();
-		if(!$res->result && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($qry->errorInfo());
+		$this->query = DB::PDO($this->connName)->prepare($this->sql);
+		foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $this->query->bindParam($k, $v[0], $v[1]);
+		$res->result = $this->query->execute();
+		if(!$res->result && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($this->query->errorInfo());
 		return $res;
 	}
 
@@ -1568,6 +1599,8 @@ class BH_DB_Delete{
 	private $connName = '';
 
 	protected $bindParam = array();
+
+	public $query;
 
 	public function  __construct($table = ''){
 		if($table !== '') $this->table = $this->StrToPDO(func_get_args());
@@ -1632,10 +1665,10 @@ class BH_DB_Delete{
 
 		}
 
-		$qry = DB::PDO($this->connName)->prepare($this->sql);
-		foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $qry->bindParam($k, $v[0], $v[1]);
-		$res = $qry->execute();
-		if(!$res && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($qry->errorInfo());
+		$this->query = DB::PDO($this->connName)->prepare($this->sql);
+		foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $this->query->bindParam($k, $v[0], $v[1]);
+		$res = $this->query->execute();
+		if(!$res && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($this->query->errorInfo());
 		return $res;
 	}
 

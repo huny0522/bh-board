@@ -125,58 +125,67 @@ class ResultAction
 	}
 }
 
-class SysArrayObject extends ArrayObject
+class SysArrayObject implements ArrayAccess
 {
 	/** @var 'get'|'post'|'session'  */
 	private $type;
-	private $values;
+	public $values;
 
 	/**
 	 * @param string $type = 'get'|'post'|'session'
 	 */
 	public function __construct($type = 'get'){
 		$this->type = $type;
-		parent::__construct();
+		if($this->type === 'post') $this->values = TrimAll($_POST);
+		if($this->type === 'get') $this->values = TrimAll($_GET);
 	}
 
-	public function offsetGet($index){
-		if($this->type === 'post'){
-			if(!isset($_POST[$index])) return '';
-			if(!isset($this->values[$index])) $this->values[$index] = TrimAll($_POST[$index]);
-			return $this->values[$index];
+	public function &offsetGet($offset){
+		if($this->type === 'session'){
+			if(isset($_SESSION[$offset])) return $_SESSION[$offset];
+			$this->values[$offset] = null;
+			return $this->values[$offset];
 		}
-		else if($this->type === 'session'){
-			if(isset($_SESSION[$index])) return $_SESSION[$index];
-			return '';
-		}
-		if(!isset($_GET[$index])) return '';
-		if(!isset($this->values[$index])) $this->values[$index] = TrimAll($_GET[$index]);
-		return $this->values[$index];
+		if(!isset($this->values[$offset])) $this->values[$offset] = '';
+		return $this->values[$offset];
 	}
 
-	public function offsetSet($index, $newval){
-		if($this->type === 'session') $_SESSION[$index] = $newval;
-		$this->values[$index] = TrimAll($newval);
+	public function offsetSet($offset, $value){
+		if($this->type === 'session') $_SESSION[$offset] = $value;
+		$this->values[$offset] = TrimAll($value);
+	}
+
+	public function offsetUnset($offset){
+		if($this->type === 'session' && isset($_SESSION[$offset])) unset($_SESSION[$offset]);
+		if($this->type === 'post' && isset($_POST[$offset])) unset($_POST[$offset]);
+		if($this->type === 'get' && isset($_GET[$offset])) unset($_GET[$offset]);
+		if(isset($this->values[$offset])) unset($this->values[$offset]);
 	}
 
 	public function HasValue($name){
-		if($this->type === 'post'){
-			if(isset($_POST[$name])){
-				if(is_string($_POST[$name]) && strlen(trim($_POST[$name]))) return true;
-				if($_POST[$name]) return true;
-			}
-			return false;
-		}
-		else if($this->type === 'session'){
+		if($this->type === 'session'){
 			if(isset($_SESSION[$name])){
 				if(is_string($_SESSION[$name]) && strlen(trim($_SESSION[$name]))) return true;
 				if($_SESSION[$name]) return true;
 			}
-			return false;
 		}
-		if(isset($_GET[$name])){
-			if(is_string($_GET[$name]) && strlen(trim($_GET[$name]))) return true;
-			if($_GET[$name]) return true;
+		else{
+			if(isset($this->values[$name])){
+				if(is_string($this->values[ $name ]) && strlen(trim($this->values[ $name ]))) return true;
+				if(!is_string($this->values[ $name ]) && $this->values[ $name ]) return true;
+			}
+			if($this->type === 'post'){
+				if(isset($_POST[$name])){
+					if(is_string($_POST[$name]) && strlen(trim($_POST[$name]))) return true;
+					if(!is_string($_POST[$name]) && $_POST[$name]) return true;
+				}
+			}
+			else{
+				if(isset($_GET[$name])){
+					if(is_string($_GET[$name]) && strlen(trim($_GET[$name]))) return true;
+					if(!is_string($_GET[$name]) && $_GET[$name]) return true;
+				}
+			}
 		}
 		return false;
 	}
@@ -185,6 +194,10 @@ class SysArrayObject extends ArrayObject
 		if($this->type === 'post') return isset($_POST[$name]);
 		else if($this->type === 'session') return isset($_SESSION[$name]);
 		return isset($_GET[$name]);
+	}
+
+	public function offsetExists($offset){
+		return $this->Exists($offset);
 	}
 }
 
@@ -1059,7 +1072,8 @@ function aes_encrypt($plaintext, $password){
 }
 
 function aes_decrypt($ciphertext, $password){
-	return @openssl_decrypt(hex2bin($ciphertext), 'aes-128-cbc', $password, true, '');
+	$res = @openssl_decrypt(hex2bin($ciphertext), 'aes-128-cbc', $password, true, '');
+	return preg_replace("/[^\x{1100}-\x{11FF}\x{3130}-\x{318F}\x{AC00}-\x{D7AF}a-zA-Z0-9~!@\#$%^\&*()\-_+\=\,\.\/\;\"\'|<>?:{}\s\\\]+/u", '', $res);
 }
 
 function delTree($dir){

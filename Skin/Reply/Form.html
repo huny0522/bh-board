@@ -1,19 +1,36 @@
-<form id="replyGetForm" name="replyGetForm" action="<?c. $Controller ?>" method="post">
+<?php if(_BH_ !== true) exit;
+
+use \BH_Common as CM;
+use \BH_Application as App;
+
+/**
+ * @var \Controller\Reply $Ctrl
+ * @var array $Data
+ */
+/**
+ * @var string $ArticleSeq
+ */
+$Model = $Ctrl->model;
+$Controller = App::$data['parentUrl'] . '/Reply/' . $Ctrl->bid . (strlen($Ctrl->subid) ? '-' . $Ctrl->subid  : '');
+$ArticleSeq =  App::$data['articleSeq'];
+?>
+
+<form id="replyGetForm" name="replyGetForm" action="<?p. $Controller ?>" method="post">
 	<input type="hidden" name="page" value="0">
 	<input type="hidden" name="article_seq" value="<?p. $ArticleSeq ?>">
-	<input type="hidden" name="article_pwd" value="<?v. isset($_POST['pwd']) ? $_POST['pwd'] : '' ?>">
+	<input type="hidden" name="article_pwd" value="<?v. App::$_post['pwd'] ?>">
 </form>
 
-<form id="replyGetMoreForm" name="replyGetMoreForm" action="<?c. $Controller . '/MoreList' ?>" method="post">
+<form id="replyGetMoreForm" name="replyGetMoreForm" action="<?p. $Controller . '/MoreList' ?>" method="post">
 	<input type="hidden" name="page" value="0">
 	<input type="hidden" name="lastSeq" value="">
 	<input type="hidden" name="article_seq" value="<?p. $ArticleSeq ?>">
-	<input type="hidden" name="article_pwd" value="<?v. isset($_POST['pwd']) ? $_POST['pwd'] : '' ?>">
+	<input type="hidden" name="article_pwd" value="<?v. App::$_post['pwd'] ?>">
 </form>
 
 <?php if(_MEMBERIS !== true){ ?>
 	<div id="replyPwdLayer" class="repLayer hidden">
-		<form id="repPwdForm" name="repPwdForm" method="post" action="<?c. $Controller.'/ViewSecret' ?>">
+		<form id="repPwdForm" name="repPwdForm" method="post" action="<?p. $Controller.'/ViewSecret' ?>">
 			<input type="hidden" name="article_seq" value="<?p. $ArticleSeq ?>">
 			<input type="hidden" name="seq" value="">
 
@@ -31,7 +48,7 @@
 <?php } ?>
 
 <div id="replyDeleteLayer" class="repLayer hidden">
-	<form id="repDeleteForm" name="repDeleteForm" method="post" action="<?c. $Controller.'/Delete' ?>">
+	<form id="repDeleteForm" name="repDeleteForm" method="post" action="<?p. $Controller.'/Delete' ?>">
 		<input type="hidden" name="article_seq" value="<?p. $ArticleSeq ?>">
 		<input type="hidden" name="seq" value="">
 		<fieldset class="pwd">
@@ -46,7 +63,7 @@
 </div>
 
 <div id="replyModifyLayer" class="repLayer hidden">
-	<form id="repModifyForm" name="repModifyForm" method="post" action="<?c. $Controller.'/Modify' ?>">
+	<form id="repModifyForm" name="repModifyForm" method="post" action="<?p. $Controller.'/Modify' ?>">
 		<input type="hidden" name="article_seq" value="<?p. $ArticleSeq ?>">
 		<input type="hidden" name="seq" value="">
 
@@ -68,7 +85,7 @@
 </div>
 
 <div id="replyAnswerLayer" class="repLayer hidden">
-	<form id="repAnswerForm" name="repAnswerForm" method="post" action="<?c. $Controller.'/Answer' ?>">
+	<form id="repAnswerForm" name="repAnswerForm" method="post" action="<?p. $Controller.'/Answer' ?>">
 		<input type="hidden" name="article_seq" value="<?p. $ArticleSeq ?>">
 		<input type="hidden" name="seq" value="">
 		<input type="hidden" name="target_seq" value="">
