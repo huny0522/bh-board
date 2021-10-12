@@ -283,19 +283,19 @@
 
 		this._ajax = function (ur, dt, opt, success_func, fail_func) {
 			var le = false;
-			if (typeof(dt.loadingEnable) !== 'undefined'){
-				le = dt.loadingEnable;
-				if(dt.loadingEnable === true){
+			if (typeof(opt.loadingEnable) !== 'undefined'){
+				le = opt.loadingEnable;
+				if(opt.loadingEnable === true){
 					if(this.loadingIs) return;
 					_this.loading();
 				}
-				delete dt.loadingEnable;
+				delete opt.loadingEnable;
 			}
 
 
 			bhJQuery.ajax({
 				type: (typeof opt.type !== 'undefined' ? opt.type : 'post')
-				, dataType: 'json'
+				, dataType: (typeof opt.dataType !== 'undefined' ? opt.dataType : 'json')
 				, url: ur
 				, data: dt
 				, async: true
@@ -324,14 +324,12 @@
 
 		// ajax post
 		this.post = function (ur, dt, success_func, fail_func) {
-			dt.loadingEnable = false;
-			this._ajax(ur, dt, {type : 'post'}, success_func, fail_func);
+			this._ajax(ur, dt, {type : 'post', loadingEnable : false}, success_func, fail_func);
 		};
 
 		// ajax get
 		this.get = function (ur, dt, success_func, fail_func) {
-			dt.loadingEnable = false;
-			this._ajax(ur, dt, {type : 'get'}, success_func, fail_func);
+			this._ajax(ur, dt, {type : 'get', loadingEnable : false}, success_func, fail_func);
 		};
 
 		// ajax post
@@ -346,8 +344,7 @@
 
 		// ajax post
 		this.postWithLoading = function (ur, dt, success_func, fail_func) {
-			dt.loadingEnable = true;
-			_this._ajax(ur, dt, {type : 'post'}, success_func, fail_func);
+			_this._ajax(ur, dt, {type : 'post', loadingEnable : true}, success_func, fail_func);
 		};
 
 		// ajax post
@@ -362,9 +359,26 @@
 
 		// ajax get
 		this.getWithLoading = function (ur, dt, success_func, fail_func) {
-			dt.loadingEnable = true;
-			this._ajax(ur, dt, {type : 'get'}, success_func, fail_func);
+			this._ajax(ur, dt, {type : 'get', loadingEnable : true}, success_func, fail_func);
 		};
+
+		/**
+		 * @param {{url : string, data : object, type : 'get'|'post'|'delete'|'put'=, dataType : 'json'|'html'=, isForce : boolean=, successCallback : function=, failCallback : function=, withLoading : boolean=}} opt
+		 */
+		this.ajax = function(opt){
+			if(opt.isForce && _this.loadingIs){
+				setTimeout(function(){
+					_this.ajax(opt);
+				}, 100);
+			}
+			else{
+				var type = typeof(opt.type) === 'undefined' ? 'get' : opt.type;
+				var dataType = typeof(opt.dataType) === 'undefined' ? 'json' : opt.dataType;
+				var loadingEnable = typeof(opt.withLoading) === 'undefined' ? false : opt.withLoading;
+
+				this._ajax(opt.url, opt.data, {type: type, dataType: dataType, loadingEnable: loadingEnable}, opt.successCallback, opt.failCallback);
+			}
+		}
 
 		/* -------------------------------------------
 		 *
@@ -1113,7 +1127,7 @@
 
 				if ((this.hasAttribute('required') || bhJQuery(this).hasClass('checkboxRequired')) && !this.hasAttribute('disabled')) {
 					if (bhJQuery(this).attr('type') === 'checkbox' || bhJQuery(this).attr('type') === 'radio') {
-						if (!f.find('input[name="' + bhJQuery(this).attr('name') + '"]:checked').length) {
+						if (!f.find('input[name^="' + bhJQuery(this).attr('name').replace(/[\[\]]/g,'') + '"]:checked').length) {
 							var obj = this;
 							CMAlert(window._CM_LANG.selectItem.replace('{item}', bhJQuery(this).attr('data-displayname')), function(){
 								bhJQuery(obj).focus();

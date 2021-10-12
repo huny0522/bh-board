@@ -15,6 +15,7 @@ class ModelType{
 	const DATE = 8;
 	const ENUM = 9;
 	const TEXT = 10;
+	const BIT = 11;
 }
 
 class HTMLType{
@@ -123,7 +124,7 @@ class BH_ModelData
 	 */
 	public function Val(){
 		if(!isset($this->value)) return '';
-		if($this->type == ModelType::ENUM) return $this->GetEnumValues();
+		if($this->type == ModelType::ENUM || $this->type == ModelType::BIT) return $this->GetEnumValues();
 		return $this->value;
 	}
 
@@ -134,7 +135,7 @@ class BH_ModelData
 	 */
 	public function Safe(){
 		if(!isset($this->value)) return '';
-		if($this->type == ModelType::ENUM) return GetDBText($this->GetEnumValues());
+		if($this->type == ModelType::ENUM || $this->type == ModelType::BIT) return GetDBText($this->GetEnumValues());
 		return GetDBText($this->value);
 	}
 
@@ -163,7 +164,7 @@ class BH_ModelData
 	 */
 	public function SafeRaw(){
 		if(!isset($this->value)) return '';
-		if($this->type == ModelType::ENUM) return GetDBRaw($this->GetEnumValues());
+		if($this->type == ModelType::ENUM || $this->type == ModelType::BIT) return GetDBRaw($this->GetEnumValues());
 		return GetDBRaw($this->value);
 	}
 
@@ -174,22 +175,30 @@ class BH_ModelData
 	 */
 	public function SafeBr(){
 		if(!isset($this->value)) return '';
-		if($this->type == ModelType::ENUM) return nl2br(GetDBText($this->GetEnumValues()));
+		if($this->type == ModelType::ENUM || $this->type == ModelType::BIT) return nl2br(GetDBText($this->GetEnumValues()));
 		return nl2br(GetDBText($this->value));
 	}
 
-	public function GetEnumValues($val = false){
+	public function GetSelectedArray($val = false){
 		if($val === false) $val = $this->value;
-		if($this->htmlType === HTMLType::CHECKBOX){
-			$e = explode(',', $val);
-			$t = array();
-			foreach($e as $v){
-				if(isset($this->enumValues[$v])) $t[] = $this->enumValues[$v];
+		$res = array();
+		if($this->type === ModelType::BIT){
+			foreach($this->enumValues as $k => $v){
+				if((int)$k & (int)$val) $res[$k] = $v;
 			}
-			return implode(', ', $t);
 		}
-		else if(isset($this->enumValues[$val])) return $this->enumValues[$val];
-		else return '';
+		else if($this->htmlType === HTMLType::CHECKBOX){
+			$e = explode(',', $val);
+			foreach($e as $v){
+				if(isset($this->enumValues[$v])) $res[$v] = $this->enumValues[$v];
+			}
+		}
+		else if(isset($this->enumValues[$val])) $res[$val] = $this->enumValues[$val];
+		return $res;
+	}
+
+	public function GetEnumValues($val = false){
+		return implode(', ', $this->GetSelectedArray($val));
 	}
 
 	public function &SetValue($v){
@@ -552,24 +561,24 @@ class BH_Model{
 	 * @return null|string
 	 */
 	public function GetValue($key, $enumVal = false){
-		return isset($this->data[$key]->value) ? ($enumVal && $this->data[$key]->type == ModelType::ENUM ? $this->data[$key]->GetEnumValues() : $this->data[$key]->value) : NULL;
+		return isset($this->data[$key]->value) ? ($enumVal && ($this->data[$key]->type == ModelType::ENUM || $this->data[$key]->type == ModelType::BIT) ? $this->data[$key]->GetEnumValues() : $this->data[$key]->value) : NULL;
 	}
 
 	public function GetSafeValue($key, $enumVal = true){
 		if(!isset($this->data[$key]->value)) return '';
-		if($enumVal && $this->data[$key]->type == ModelType::ENUM) return GetDBText($this->data[$key]->GetEnumValues());
+		if($enumVal && ($this->data[$key]->type == ModelType::ENUM || $this->data[$key]->type == ModelType::BIT)) return GetDBText($this->data[$key]->GetEnumValues());
 		return GetDBText($this->data[$key]->value);
 	}
 
 	public function GetSafeRawValue($key, $enumVal = true){
 		if(!isset($this->data[$key]->value)) return '';
-		if($enumVal && $this->data[$key]->type == ModelType::ENUM) return GetDBRaw($this->data[$key]->GetEnumValues());
+		if($enumVal && ($this->data[$key]->type == ModelType::ENUM || $this->data[$key]->type == ModelType::BIT)) return GetDBRaw($this->data[$key]->GetEnumValues());
 		return GetDBRaw($this->data[$key]->value);
 	}
 
 	public function GetSafeBRValue($key, $enumVal = true){
 		if(!isset($this->data[$key]->value)) return '';
-		if($enumVal && $this->data[$key]->type == ModelType::ENUM) return nl2br(GetDBText($this->data[$key]->GetEnumValues()));
+		if($enumVal && ($this->data[$key]->type == ModelType::ENUM || $this->data[$key]->type == ModelType::BIT)) return nl2br(GetDBText($this->data[$key]->GetEnumValues()));
 		return nl2br(GetDBText($this->data[$key]->value));
 	}
 
@@ -980,7 +989,16 @@ class _ModelFunc{
 						}
 
 						else if((isset($v->htmlType) || $v->required) && !self::IsFileType($v->htmlType)){
-							if(is_array($post[$k])){
+							if($v->type === ModelType::BIT){
+								if(is_array($post[$k])){
+									$v->value = 0;
+									foreach($post[$k] as $bitVal){
+										$bitVal = preg_replace('#[^0-9]#s', '', $bitVal);
+										if(strlen($bitVal)) $v->value = $v->value | (int)$bitVal;
+									}
+								}
+							}
+							else if(is_array($post[$k])){
 								if($v->htmlType === HTMLType::CHECKBOX){
 									$v->value = implode(',', $post[$k]);
 								}
@@ -1402,7 +1420,8 @@ class _ModelFunc{
 				if(isset($data->enumValues) && is_array($data->enumValues)){
 					$i = 1;
 					foreach($data->enumValues as $k=>$v){
-						$checked = isset($val) && in_array($k, $tempVal) ? ' checked="checked"' : '';
+						if($data->type === ModelType::BIT) $checked = (int)$k & (int)$val ? ' checked="checked"' : '';
+						else $checked = isset($val) && in_array($k, $tempVal) ? ' checked="checked"' : '';
 
 						$ret .= '<label for="'.$firstIDName.$Name.'_'.$i.'" class="'.$htmlType.(isset($htmlAttribute['class']) ? ' ' . $htmlAttribute['class'] : '').'">
 							<input type="'.$htmlType.'" name="'.$nm.'" id="'.$firstIDName.$Name.'_'.$i.'" value="'.$k.'" data-displayname="' . $data->displayName . '" '.($htmlType !== HTMLType::CHECKBOX ? $Attribute : '').$checked.'><i></i><span>'.$v.'</span>

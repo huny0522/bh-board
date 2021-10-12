@@ -65,10 +65,6 @@ class BH_Application
 		self::$_session = new SysArrayObject('session');
 
 		self::$settingData['URLFirst'] = '';
-		spl_autoload_register(array('BH_Application', 'AutoLoad'));
-
-		$composerFile = _DIR . '/vendor/autoload.php';
-		if(file_exists($composerFile)) require $composerFile;
 
 
 		if(_IS_DEVELOPER_IP === true && PHP_RUN_CLI !== true) require _DIR . '/DBUpdate.php';
@@ -214,7 +210,7 @@ class BH_Application
 	 */
 	public static function SetFollowQuery($ar){
 		if(!is_array($ar)) $ar = func_get_args();
-		foreach($ar as $v) if(isset($_GET[$v]) && !empty($_GET[$v])) self::$followQuery[$v] = $_GET[$v];
+		foreach($ar as $v) if(isset($_GET[$v]) && strlen($_GET[$v])) self::$followQuery[$v] = $_GET[$v];
 	}
 
 	/**
@@ -223,7 +219,7 @@ class BH_Application
 	 */
 	public static function SetPostFollowQuery($ar){
 		if(!is_array($ar)) $ar = func_get_args();
-		foreach($ar as $v) if(isset($_POST[$v]) && !empty($_POST[$v])) self::$followQuery[$v] = $_POST[$v];
+		foreach($ar as $v) if(isset($_POST[$v]) && strlen($_POST[$v])) self::$followQuery[$v] = $_POST[$v];
 	}
 
 	/**

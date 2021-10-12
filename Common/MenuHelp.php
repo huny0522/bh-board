@@ -533,7 +533,7 @@ class MenuHelp
 	}
 
 	/**
-	 * 게시판 카테고리와 bid 를 이용하여 하위 메뉴 가져오기
+	 * 게시판 카테고리와 bid 를 이용하여 하위 메뉴 전부 가져오기
 	 *
 	 * @param string $bid
 	 * @param string $subid

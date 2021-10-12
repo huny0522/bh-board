@@ -9,3 +9,9 @@ self::$connectionInfo['MY']['hostName'] = 'localhost';
 self::$connectionInfo['MY']['userName'] = 'bh_site';
 self::$connectionInfo['MY']['userPassword'] = '1234';
 self::$connectionInfo['MY']['dbName'] = 'bh_site';
+
+// PHP CLI 용
+self::$connectionInfo['CLI']['hostName'] = 'localhost';
+self::$connectionInfo['CLI']['userName'] = 'bh_site';
+self::$connectionInfo['CLI']['userPassword'] = '1234';
+self::$connectionInfo['CLI']['dbName'] = 'bh_site';

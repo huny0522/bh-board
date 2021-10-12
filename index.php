@@ -178,10 +178,11 @@ define('_DEFAULT_LAYOUT', '_Default');
 
 require _COMMONDIR . '/common.php';
 
-$fetch = DB::GetQryObj(TABLE_FRAMEWORK_SETTING)
+$fetchQry = DB::GetQryObj(TABLE_FRAMEWORK_SETTING)
 	->AddWhere('`key_name` = \'version\'')
-	->SetShowError(false)
-	->Get();
+	->SetShowError(false);
+if(PHP_RUN_CLI === true) $fetchQry->SetConnName('CLI');
+$fetch = $fetchQry->Get();
 if($fetch) BH_Application::$version = $fetch['data'];
 
 define('_MEMBERIS', isset($_SESSION['member']) && strlen($_SESSION['member']['muid']));

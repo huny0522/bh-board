@@ -134,7 +134,7 @@ var StatePage = {
 	 *
 	 * @param href
 	 * @param {(Object|String|null)=} targetId
-	 * @param {({noPush : boolean=, force : boolean=, isPost : boolean=, queryData : {}=, onlyState : boolean=})=} opt noPush boolean(true : replaceState, false : pushState) default : false
+	 * @param {({noPush : boolean=, force : boolean=, isPost : boolean=, isForm : boolean=, queryData : {}=, onlyState : boolean=})=} opt noPush boolean(true : replaceState, false : pushState) default : false
 	 * @public
 	 */
 	Load : function(href, targetId, opt){
@@ -143,6 +143,7 @@ var StatePage = {
 		if(typeof(opt.noPush) === 'undefined') opt.noPush = false;
 		if(typeof(opt.force) === 'undefined') opt.force = false;
 		if(typeof(opt.isPost) === 'undefined') opt.isPost = false;
+		if(typeof(opt.isForm) === 'undefined') opt.isForm = false;
 		if(typeof(opt.queryData) === 'undefined') opt.queryData = {};
 		if(typeof(opt.onlyState) === 'undefined') opt.onlyState = false;
 		if(!StatePage.isInit){
@@ -217,6 +218,7 @@ var StatePage = {
 		opt.queryData.hash = linkEl.hash;
 		opt.queryData.statePage = 1;
 		if(opt.onlyState) successFunc();
+		else if(opt.isForm) JCM.ajaxForm(targetId, successFunc, StatePage._FailFunc);
 		else if(opt.isPost) JCM.postWithLoading(href, opt.queryData, successFunc, StatePage._FailFunc);
 		else JCM.getWithLoading(href, opt.queryData, successFunc, StatePage._FailFunc);
 	},
@@ -245,6 +247,11 @@ var StatePage = {
 
 	PostLoadForce : function(href, obj, data, noPush){
 		StatePage.Load(href, obj, {noPush : noPush, force : true, isPost : true, queryData : data});
+	},
+
+	LoadForm : function(obj, noPush){
+		if(typeof(noPush) === 'undefined') noPush = $(obj).attr('method').toLowerCase() === 'post';
+		StatePage.Load(noPush ? '' : obj.action, obj, {force : true, isForm : true, noPush : noPush});
 	},
 
 	/**
@@ -277,7 +284,7 @@ var StatePage = {
 	_LinkAction : function(e){
 		if(!this.hasAttribute('href') || $(this).hasClass('button') || $(this).attr('href') === '#' || $(this).attr('href').substring(0, 11).toLowerCase() === 'javascript:' || $(this).closest('.buttons').length) return;
 		e.preventDefault();
-		StatePage.Load(this.href, this.hasAttribute('data-target-id') ? document.getElementById($(this).attr('data-target-id')) : null);
+		StatePage.Load(this.href, this.hasAttribute('data-target-id') ? document.getElementById($(this).attr('data-target-id')) : null, {noPush : $(this).hasClass('replaceLink')});
 	},
 
 	/**

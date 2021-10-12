@@ -20,7 +20,7 @@ class BH_HtmlCreate
 			}
 			$table = constant($TableName);
 		}
-		if(!DB::SQL()->TableExists($table)){
+		if(!DB::SQL('CLI')->TableExists($table)){
 			URLRedirect(-1, '테이블이 존재하지 않습니다.');
 		}
 
@@ -192,13 +192,13 @@ class {$ModelName}Model extends \\BH_Model{
 		$initFuncText = '';
 		if(sizeof($fn_matches) > 1 && $fn_matches[1]) $initFuncText = str_replace(chr(9), '', $fn_matches[1]);
 
-		$qry = \DB::SQL()->Query('SHOW FULL COLUMNS FROM ' . $TableName, false);
+		$qry = \DB::SQL('CLI')->Query('SHOW FULL COLUMNS FROM ' . $TableName, false);
 		if(!$qry) return;
 
 		$primaryKey = array();
 		//$tData = array();
 		$propertyDoc = '';
-		while($row = \DB::SQL()->Fetch($qry)){
+		while($row = \DB::SQL('CLI')->Fetch($qry)){
 			//$tData[$row['Field']] = $row;
 			$findIs = preg_match('/\$this\-\>data\[\'' . $row['Field'] . '\'\]\s*=\s*new\s*[\\\]*BH_ModelData/is', $initFuncText);
 			$propertyDoc .= " * @property \\BH_ModelData \$_{$row['Field']}\n";

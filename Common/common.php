@@ -1300,4 +1300,9 @@ function TrimAll($val){
 	return trim($val);
 }
 
+spl_autoload_register(array('BH_Application', 'AutoLoad'));
+
+$composerFile = _DIR . '/vendor/autoload.php';
+if(file_exists($composerFile)) require $composerFile;
+
 require _DIR . '/Custom/MyLib.php';
