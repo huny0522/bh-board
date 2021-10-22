@@ -414,8 +414,18 @@
 		this.showModal = function(modal_id, w, h){
 			var wrap = bhJQuery('#' + modal_id).children('.modal_wrap');
 			if(!this.modalAutoSize){
-				if(typeof (w) !== 'undefined') wrap.css({'width': w + 'px'});
-				if(typeof (h) !== 'undefined') wrap.css({'height': h + 'px'});
+				if(typeof(w) === 'number') wrap.css({'width': w + 'px'});
+				else if(typeof(w) !== 'undefined'){
+					var w2 = w.replace(/[^0-9]/ig,'');
+					if(w2 == w) wrap.css({'width': w + 'px'});
+					else wrap.css({'width': w});
+				}
+				if(typeof (h) === 'number') wrap.css({'height': h + 'px'});
+				else if(typeof(h) !== 'undefined'){
+					var h2 = w.replace(/[^0-9]/ig,'');
+					if(h2 == w) wrap.css({'width': h + 'px'});
+					else wrap.css({'width': h});
+				}
 			}
 
 			if (_this.ie8) {

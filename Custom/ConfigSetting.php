@@ -91,7 +91,6 @@ BH_Application::$cfg = new _ConfigMap();
 class ConfigDefault extends _ConfigModel
 {
 	protected function __Init(){
-		$this->_code = 'Default';
 		// 기본
 		$this->lat = _CfgData::GetInstance();
 		$this->lng = _CfgData::GetInstance();
@@ -146,7 +145,6 @@ class ConfigSystem extends _ConfigModel
 {
 
 	protected function __Init(){
-		$this->_code = 'System';
 		// 기본
 		$this->refresh = _CfgData::GetInstance();
 		$this->menuCache = _CfgData::GetInstance();
@@ -163,7 +161,6 @@ class ConfigPrivacyText extends _ConfigModel
 {
 
 	protected function __Init(){
-		$this->_code = 'PrivacyText';
 		// 기본
 		$this->text = _CfgData::GetInstance()->SetTitle('개인정보보호정책');
 	}
@@ -179,7 +176,6 @@ class ConfigTermsText extends _ConfigModel
 {
 
 	protected function __Init(){
-		$this->_code = 'TermsText';
 		// 기본
 		$this->text = _CfgData::GetInstance()->SetTitle('이용약관');
 	}
@@ -195,7 +191,6 @@ class ConfigEmailCollector extends _ConfigModel
 {
 
 	protected function __Init(){
-		$this->_code = 'EmailCollector';
 		// 기본
 		$this->text = _CfgData::GetInstance()->SetTitle('이메일 수집 거부');
 	}
@@ -214,7 +209,6 @@ class ConfigTexts extends _ConfigModel
 {
 
 	protected function __Init(){
-		$this->_code = 'Texts';
 		// 기본
 		$this->emailCollector = _CfgData::GetInstance()->SetTitle('이메일 수집 거부')->SetIsSeparate(true);
 		$this->termsText = _CfgData::GetInstance()->SetTitle('이용약관')->SetIsSeparate(true);

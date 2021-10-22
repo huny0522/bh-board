@@ -2208,6 +2208,7 @@ class _ConfigModel extends ArrayObject{
 		$c = get_called_class();
 		if(isset(self::$instance[$c])) return self::$instance[$c];
 		self::$instance[$c] = new static();
+		self::$instance[$c]->_code = strtolower($c);
 		self::$instance[$c]->__Init();
 		self::$instance[$c]->GetFileSetting();
 		return self::$instance[$c];
