@@ -120,10 +120,11 @@ App::JSAdd('reply.js', 200);
 <?php
 if($Ctrl->boardManger->GetValue('use_reply') == 'y'){
 	$Controller = 'Reply/'.$Ctrl->bid . (strlen($Ctrl->subid) ? '-' . $Ctrl->subid  : '');
+	$replyCtrl = new \Controller\Reply($Ctrl->bid, $Ctrl->subid);
 	$ArticleSeq = to10(App::$id);
 	?>
 	<div id="Reply">
-		<?inc. '/Reply/Form.html' ?>
+		<?php echo $replyCtrl->FormHtml($ArticleSeq); ?>
 		<div id="ReplyList"></div>
 	</div>
 

@@ -430,7 +430,7 @@ require _COMMONDIR . '/BHCss/core/BHCss.php';
 
 require _DIR . '/Custom/Lang/' . LANG_FILE;
 
-if(get_magic_quotes_gpc()){
+if(phpversion() < '7.0.0' && get_magic_quotes_gpc()){
 	$_POST = BH_Common::StripSlashes($_POST);
 	$_GET = BH_Common::StripSlashes($_GET);
 }
