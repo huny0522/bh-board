@@ -993,16 +993,32 @@ function GetDBRaw($txt){
 	else return RemoveScriptTag($txt);
 }
 
+function SafeStr($txt){
+	if(is_array($txt)){
+		foreach($txt as $k => &$v) $v = SafeStr($v);
+		return $txt;
+	}
+	else return str_replace(array('\'', '"'), array('&#39;', '&quot;'), htmlspecialchars($txt));
+}
+
+function RawStr($txt){
+	if(is_array($txt)){
+		foreach($txt as $k => &$v) $v = RawStr($v);
+		return $txt;
+	}
+	else return RemoveScriptTag($txt);
+}
+
 function v($txt){
-	return GetDBText($txt);
+	return SafeStr($txt);
 }
 
 function vr($txt){
-	return GetDBRaw($txt);
+	return RawStr($txt);
 }
 
 function vb($txt){
-	return nl2br(GetDBText($txt));
+	return nl2br(SafeStr($txt));
 }
 
 function my_bcmod($x, $y){
