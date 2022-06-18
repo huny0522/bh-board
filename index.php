@@ -59,11 +59,13 @@ if(PHP_RUN_CLI === true){
 	define('_DEVELOPERIS', true);
 }
 else{
-	define('_IS_DEVELOPER_IP', true && in_array($_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP));
-	define('_DEVELOPERIS', true && _IS_DEVELOPER_IP && isset($_SESSION['developer_login']) && $_SESSION['developer_login'] === 'y');
+	define('_IS_DEVELOPER_IP', true && in_array(!empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['HTTP_X_REAL_IP'] :  $_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP));
+	define('_DEVELOPERIS', true && _IS_DEVELOPER_IP);
 }
 define('_CREATE_HTML_ALL', false && _DEVELOPERIS === true);
 define('_REFRESH_HTML_ALL', true && _DEVELOPERIS === true);
+
+ini_set('display_errors', _DEVELOPERIS ? 1 : 0);
 
 define('_REMOVE_SPACE', true);
 define('_VIEW_MICROTIME', true);
@@ -178,14 +180,16 @@ define('_DEFAULT_LAYOUT', '_Default');
 
 require _COMMONDIR . '/common.php';
 
-$fetchQry = DB::GetQryObj(TABLE_FRAMEWORK_SETTING)
-	->AddWhere('`key_name` = \'version\'')
-	->SetShowError(false);
-if(PHP_RUN_CLI === true) $fetchQry->SetConnName('CLI');
-$fetch = $fetchQry->Get();
-if($fetch) BH_Application::$version = $fetch['data'];
+if(DB::SQL()->TableExists(TABLE_FRAMEWORK_SETTING)){
+	$fetchQry = DB::GetQryObj(TABLE_FRAMEWORK_SETTING)
+		->AddWhere('`key_name` = \'version\'')
+		->SetShowError(false);
+	if(PHP_RUN_CLI === true) $fetchQry->SetConnName('CLI');
+	$fetch = $fetchQry->Get();
+	if($fetch) BH_Application::$version = $fetch['data'];
+}
 
-define('_MEMBERIS', isset($_SESSION['member']) && strlen($_SESSION['member']['muid']));
+define('_MEMBERIS', isset($_SESSION['member']['muid']) && strlen($_SESSION['member']['muid']));
 
 BH_Application::run();
 
