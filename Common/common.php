@@ -125,82 +125,6 @@ class ResultAction
 	}
 }
 
-class SysArrayObject implements ArrayAccess
-{
-	/** @var 'get'|'post'|'session'  */
-	private $type;
-	public $values;
-
-	/**
-	 * @param string $type = 'get'|'post'|'session'
-	 */
-	public function __construct($type = 'get'){
-		$this->type = $type;
-		if($this->type === 'post') $this->values = TrimAll($_POST);
-		if($this->type === 'get') $this->values = TrimAll($_GET);
-	}
-
-	public function &offsetGet($offset){
-		if($this->type === 'session'){
-			if(isset($_SESSION[$offset])) return $_SESSION[$offset];
-			$this->values[$offset] = null;
-			return $this->values[$offset];
-		}
-		if(!isset($this->values[$offset])) $this->values[$offset] = '';
-		return $this->values[$offset];
-	}
-
-	public function offsetSet($offset, $value){
-		if($this->type === 'session') $_SESSION[$offset] = $value;
-		$this->values[$offset] = TrimAll($value);
-	}
-
-	public function offsetUnset($offset){
-		if($this->type === 'session' && isset($_SESSION[$offset])) unset($_SESSION[$offset]);
-		if($this->type === 'post' && isset($_POST[$offset])) unset($_POST[$offset]);
-		if($this->type === 'get' && isset($_GET[$offset])) unset($_GET[$offset]);
-		if(isset($this->values[$offset])) unset($this->values[$offset]);
-	}
-
-	public function HasValue($name){
-		if($this->type === 'session'){
-			if(isset($_SESSION[$name])){
-				if(is_string($_SESSION[$name]) && strlen(trim($_SESSION[$name]))) return true;
-				if($_SESSION[$name]) return true;
-			}
-		}
-		else{
-			if(isset($this->values[$name])){
-				if(is_string($this->values[ $name ]) && strlen(trim($this->values[ $name ]))) return true;
-				if(!is_string($this->values[ $name ]) && $this->values[ $name ]) return true;
-			}
-			if($this->type === 'post'){
-				if(isset($_POST[$name])){
-					if(is_string($_POST[$name]) && strlen(trim($_POST[$name]))) return true;
-					if(!is_string($_POST[$name]) && $_POST[$name]) return true;
-				}
-			}
-			else{
-				if(isset($_GET[$name])){
-					if(is_string($_GET[$name]) && strlen(trim($_GET[$name]))) return true;
-					if(!is_string($_GET[$name]) && $_GET[$name]) return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	public function Exists($name){
-		if($this->type === 'post') return isset($_POST[$name]);
-		else if($this->type === 'session') return isset($_SESSION[$name]);
-		return isset($_GET[$name]);
-	}
-
-	public function offsetExists($offset){
-		return $this->Exists($offset);
-	}
-}
-
 class Paths{
 	private static $dir = _DIR;
 
@@ -659,7 +583,7 @@ function StringCut($title, $length, $last = '...'){
 }
 
 /**
- * @param $month 월 (숫자 두자리 또는 '2015-10-11'형식으로 $year 생략)
+ * @param int|string $month 월 (숫자 두자리 또는 '2015-10-11'형식으로 $year 생략)
  * @param false|int $year 년
  * @return bool|false|string
  */
@@ -679,7 +603,7 @@ function GetLastDay($month, $year = false){
 }
 
 /**
- * @param $month 월 (숫자 두자리 또는 '2015-10-11'형식으로 $year 생략)
+ * @param int|string $month 월 (숫자 두자리 또는 '2015-10-11'형식으로 $year 생략)
  * @param false|int $year 년
  * @return bool|false|string
  */
@@ -704,7 +628,7 @@ function GetBeforeMonth($month, $year = false){
 }
 
 /**
- * @param $month 월 (숫자 두자리 또는 '2015-10-11'형식으로 $year 생략)
+ * @param int|string $month 월 (숫자 두자리 또는 '2015-10-11'형식으로 $year 생략)
  * @param false|int $year 년
  * @return bool|false|string
  */
@@ -982,7 +906,7 @@ function GetDBText($txt){
 		foreach($txt as $k => &$v) $v = GetDBText($v);
 		return $txt;
 	}
-	else return str_replace(array('\'', '"'), array('&#39;', '&quot;'), htmlspecialchars($txt));
+	else return str_replace(array('\'', '"'), array('&#39;', '&quot;'), htmlspecialchars($txt ?? ''));
 }
 
 function GetDBRaw($txt){
@@ -998,7 +922,7 @@ function SafeStr($txt){
 		foreach($txt as $k => &$v) $v = SafeStr($v);
 		return $txt;
 	}
-	else return str_replace(array('\'', '"'), array('&#39;', '&quot;'), htmlspecialchars($txt));
+	else return str_replace(array('\'', '"'), array('&#39;', '&quot;'), htmlspecialchars($txt ?? ''));
 }
 
 function RawStr($txt){
@@ -1235,6 +1159,11 @@ function &Post($param){
 	return $_POST[$param];
 }
 
+/* php 8 대용 */
+function StrLength($param){
+	return isset($param) ? (is_string($param) ? strlen($param) : 0) : 0;
+}
+
 function EmptyPost($param){
 	if(!isset($_POST[$param])) return true;
 	else if(is_string($_POST[$param])) return (strlen(trim($_POST[$param])) === 0);
@@ -1310,10 +1239,8 @@ function TrimAll($val){
 		foreach($val as $k => $v) $val[$k] = TrimAll($v);
 		return $val;
 	}
-	else if(is_object($val)){
-		PrintError('trim 이용에 object가 사용되었습니다.');
-	}
-	return trim($val);
+	else if(is_string($val)) $val = trim($val);
+	return $val;
 }
 
 spl_autoload_register(array('BH_Application', 'AutoLoad'));

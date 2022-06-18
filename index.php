@@ -180,13 +180,14 @@ define('_DEFAULT_LAYOUT', '_Default');
 
 require _COMMONDIR . '/common.php';
 
-if(DB::SQL()->TableExists(TABLE_FRAMEWORK_SETTING)){
-	$fetchQry = DB::GetQryObj(TABLE_FRAMEWORK_SETTING)
-		->AddWhere('`key_name` = \'version\'')
-		->SetShowError(false);
-	if(PHP_RUN_CLI === true) $fetchQry->SetConnName('CLI');
-	$fetch = $fetchQry->Get();
-	if($fetch) BH_Application::$version = $fetch['data'];
+try{
+	$qry = DB::SQL()->Query('SELECT `data` FROM %1 WHERE `key_name` = \'version\'', TABLE_FRAMEWORK_SETTING, false);
+	if($qry){
+		$fetch = DB::SQL()->Fetch($qry);
+		if($fetch) BH_Application::$version = $fetch['data'];
+	}
+}catch(\PDOException $PDOException){
+
 }
 
 define('_MEMBERIS', isset($_SESSION['member']['muid']) && strlen($_SESSION['member']['muid']));

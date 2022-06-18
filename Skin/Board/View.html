@@ -53,7 +53,7 @@ App::JSAdd('reply.js', 200);
 			</div>
 		<?php } ?>
 
-		<?php if(IsImageFileName($Model->GetFilePath('file1'))){ ?>
+		<?php if(IsImageFileName($Model->GetFilePath('file1') ?? '')){ ?>
 			<div class="image">
 				<img src="<?p. Paths::UrlOfUpload() . $Model->GetFilePath('file1') ?>">
 			</div>

@@ -24,8 +24,8 @@ class BH_HtmlCreate
 			URLRedirect(-1, '테이블이 존재하지 않습니다.');
 		}
 
-		$path = _CONTROLLERDIR . (strlen($_POST['sub_dir']) ? '/' . $_POST['sub_dir'] : '') . '/' . $ControllerName . '.php';
-		$ndir = strlen($_POST['sub_dir']) ? '\\' . str_replace('/', '\\', $_POST['sub_dir']) : '';
+		$path = _CONTROLLERDIR . (StrLength($_POST['sub_dir']) ? '/' . $_POST['sub_dir'] : '') . '/' . $ControllerName . '.php';
+		$ndir = StrLength($_POST['sub_dir']) ? '\\' . str_replace('/', '\\', $_POST['sub_dir']) : '';
 
 		$ModelValueName = strtolower(substr($ModelName, 0, 1)) . substr($ModelName, 1).'Model';
 
@@ -332,7 +332,7 @@ class {$ModelName}Model extends \\BH_Model{
 		if(_DEVELOPERIS !== true) return;
 
 		$classname = $model . 'Model';
-		/* @var $modelClass Model */
+		/* @var \BH_Model $modelClass */
 		$modelClass = App::InitModel($model);
 		if(!file_exists(\Paths::DirOfSkin() . $path)){
 

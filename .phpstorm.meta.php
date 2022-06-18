@@ -30,6 +30,7 @@ namespace
 	function menum($str){/** @var BH_Model $Model */ echo $Model->HTMLPrintEnum($str);}
 
 	define('p', ''); // echo ([code]);
+	define('e', ''); // echo ([code]);
 	define('ifp', ''); // if(isset([code])) echo ([code]);
 
 	define('v', ''); // echo GetDBText([code]);

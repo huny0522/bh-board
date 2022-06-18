@@ -49,11 +49,11 @@ class Login{
 	}
 
 	public function PostLogin(){
-		$mid = trim($_POST['mid']);
+		$mid = trim($_POST['mid'] ?? '');
 		if(strlen($mid) < 1){
 			URLReplace('-1', '아이디를 입력하여 주세요.');
 		}
-		if(strlen($_POST['pwd']) < 1){
+		if(StrLength($_POST['pwd']) < 1){
 			URLReplace('-1', '패스워드를 입력하여 주세요.');
 		}
 		$res = $this->LoginMidCheck($mid, $_POST['pwd'], array(_SADMIN_LEVEL, _ADMIN_LEVEL));

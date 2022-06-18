@@ -1,9 +1,15 @@
 RewriteEngine on
 
-RewriteCond %{REQUEST_URI} \.inc$
-RewriteRule ^(.+)$ index.php [QSA,L]
+DirectorySlash Off
 
-RewriteCond %{REQUEST_URI} !\.(gif|jpg|png|css|js|php|pdf|zip|bmp|ico)$ [NC]
+RewriteCond %{REQUEST_URI} \.(git|gitignore|htaccess)$
+RewriteRule ^(.+)$ - [R=404]
+
+RewriteCond %{REQUEST_URI} ^\/index\.php$
+RewriteRule ^(.+)$ index.php?_bh_url=/ [QSA,L]
+
+RewriteCond %{REQUEST_URI} \.(php|html|htm|inc)$ [NC]
+RewriteRule ^(.+)$ index.php?_bh_url=/$1 [QSA,L]
+
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-l
 RewriteRule ^(.+)$ index.php?_bh_url=/$1 [QSA,L]

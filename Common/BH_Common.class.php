@@ -233,7 +233,7 @@ class BH_Common
 	public static function MenuConnect($bid, $type, $subid = ''){
 		$AdminAuth = explode(',', self::GetMember('admin_auth'));
 		if(in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL){
-			if(strlen($_POST['select_menu'])){
+			if(StrLength($_POST['select_menu'])){
 				$selectmenu = explode(',', $_POST['select_menu']);
 				$mUpdate = new \BH_DB_Update(TABLE_MENU);
 				$mUpdate->AddWhere('category IN (%s)', $selectmenu);
@@ -279,7 +279,7 @@ class BH_Common
 	public static function GetBoardArticleQuery($bid, $subid, $category = '', $limit = 10){
 		// 리스트를 불러온다.
 		$dbList = new \BH_DB_GetList(TABLE_FIRST.'bbs_'.$bid);
-		if((is_array($subid) && sizeof($subid)) || (is_string($subid) && strlen($subid))) $dbList->AddWhere('subid IN (%s)', is_array($subid) ? $subid : explode(',', $subid));
+		if((is_array($subid) && sizeof($subid)) || StrLength($subid)) $dbList->AddWhere('subid IN (%s)', is_array($subid) ? $subid : explode(',', $subid));
 		$dbList->AddWhere('delis=\'n\'');
 
 		$dbList->sort = 'sort1, sort2';

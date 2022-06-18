@@ -121,7 +121,6 @@ class MessageModel extends \BH_Model
 		}
 
 		if(!$qrySetIs) return BH_Result::Init(false, App::$lang['MSG_WRONG_CONNECTED']);
-		else return BH_Result::Init(false, App::$lang['MSG_WRONG_CONNECTED']);
 		$qry->Run();
 		return BH_Result::Init(true);
 	}

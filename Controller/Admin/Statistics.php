@@ -192,8 +192,8 @@ class Statistics
 	}
 
 	private function _SetGetParam(){
-		$bd = preg_replace('/[^0-9]/', '', Get('bd'));
-		$ed = preg_replace('/[^0-9]/', '', Get('ed'));
+		$bd = preg_replace('/[^0-9]/', '', Get('bd') ?? '');
+		$ed = preg_replace('/[^0-9]/', '', Get('ed') ?? '');
 		if(!strlen($bd)) $bd = date('Ymd');
 		if(!strlen($ed)) $ed = date('Ymd');
 		if(strlen($bd) >= 4) $this->visitCounter->viewOption['beginY'] = substr($bd, 0, 4);

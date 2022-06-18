@@ -80,7 +80,7 @@ class BH_Category{
 			$dbGet->AddWhere('LENGTH(category) = %d', strlen($pCategory) + $this->model->CategoryLength);
 		}
 		$ct = $dbGet->Get();
-		if(!strlen($ct['category'])) $newCategory = sprintf('%0'.$this->model->CategoryLength.'d', 0);
+		if(!StrLength($ct['category'])) $newCategory = sprintf('%0'.$this->model->CategoryLength.'d', 0);
 		else{
 			$newCategory = substr($ct['category'],strlen($pCategory), $this->model->CategoryLength);
 			if(!strlen($newCategory)) $newCategory = sprintf('%0'.$this->model->CategoryLength.'d', 0);
@@ -127,8 +127,8 @@ class BH_Category{
 		$data = $this->ModelDBGet();
 		if($data->result){
 			$sort = SetDBInt(Post('sort'));
-			$parentWhere = StrToSql('LEFT(category,%d) = %s', strlen(Post('parent')), Post('parent'));
-			$parentWhere .= StrToSql(' AND LENGTH(category) = %d', strlen(Post('parent')) + $this->model->CategoryLength);
+			$parentWhere = StrToSql('LEFT(category,%d) = %s', StrLength(Post('parent')), Post('parent'));
+			$parentWhere .= StrToSql(' AND LENGTH(category) = %d', StrLength(Post('parent')) + $this->model->CategoryLength);
 
 			$res = false;
 			if($sort < $this->model->GetValue('sort')){
@@ -172,11 +172,11 @@ class BH_Category{
 		$dbGet->AddWhere('category = %s', Post('category'));
 		$data = $dbGet->Get();
 
-		$parent = substr($data['category'], 0, strlen($data['category']) - $this->model->CategoryLength);
+		$parent = substr($data['category'], 0, StrLength($data['category']) - $this->model->CategoryLength);
 
 		if($data !== false && $data){
 			$qry = $this->SqlDeleteQry();
-			$qry->AddWhere('LEFT(category, %d) = %s', strlen(Post('category')), Post('category'));
+			$qry->AddWhere('LEFT(category, %d) = %s', StrLength(Post('category')), Post('category'));
 			$res = $qry->Run();
 			if($res){
 				$qry = $this->SqlUpdateQry();
@@ -202,7 +202,7 @@ class BH_Category{
 			$enabled = $this->model->GetValue('enabled') == 'y' ? 'n' : 'y';
 			$this->model->SetValue('enabled', $enabled);
 			$res = $this->model->DBUpdate();
-			if(strlen($this->model->GetValue('category')) == $this->model->CategoryLength) $dt = null;
+			if(StrLength($this->model->GetValue('category')) == $this->model->CategoryLength) $dt = null;
 			else $dt = $this->model->GetParent($this->model->GetValue('category'));
 			$this->model->SetChildEnabled($this->model->GetValue('category'), $enabled == 'y' && (!$dt || ($dt['enabled'] == 'y' && $dt['parent_enabled'] == 'y')) ? 'y' : 'n');
 

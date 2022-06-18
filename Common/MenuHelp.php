@@ -184,7 +184,7 @@ class MenuHelp
 			}
 			else{
 				$temp = App::$cfg->Sys()->menuCache->value;
-				if(!file_exists(\Paths::DirOfData() . '/CFG/System.php')) $this->MenusToFile();
+				if(!file_exists(\Paths::DirOfData() . '/CFG/ConfigSystem.php')) $this->MenusToFile();
 				if(!is_array($temp)) $this->menus = array();
 				else{
 					foreach($temp as $v) $this->menus[$v['category']] = $v;

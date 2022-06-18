@@ -18,14 +18,14 @@ $ArticleSeq =  App::$data['articleSeq'];
 <form id="replyGetForm" name="replyGetForm" action="<?p. $Controller ?>" method="post">
 	<input type="hidden" name="page" value="0">
 	<input type="hidden" name="article_seq" value="<?p. $ArticleSeq ?>">
-	<input type="hidden" name="article_pwd" value="<?v. App::$_post['pwd'] ?>">
+	<input type="hidden" name="article_pwd" value="<?v. Post('pwd') ?>">
 </form>
 
 <form id="replyGetMoreForm" name="replyGetMoreForm" action="<?p. $Controller . '/MoreList' ?>" method="post">
 	<input type="hidden" name="page" value="0">
 	<input type="hidden" name="lastSeq" value="">
 	<input type="hidden" name="article_seq" value="<?p. $ArticleSeq ?>">
-	<input type="hidden" name="article_pwd" value="<?v. App::$_post['pwd'] ?>">
+	<input type="hidden" name="article_pwd" value="<?v. Post('pwd') ?>">
 </form>
 
 <?php if(_MEMBERIS !== true){ ?>

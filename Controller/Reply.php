@@ -208,7 +208,7 @@ class Reply{
 			}
 		}
 
-		if(strlen(Post('seq'))){
+		if(StrLength(Post('seq'))){
 			$seq = to10(Post('seq'));
 			$dbList->AddWhere('seq = %d', $seq);
 		}
@@ -376,7 +376,7 @@ class Reply{
 			$this->model->article_count_set($this->model->GetValue('article_seq'));
 			JSON(true, App::$lang['MSG_COMPLETE_REGISTER']);
 		}
-		else JSON(result, $res->message ? $res->message : 'ERROR');
+		else JSON($res->result, $res->message ? $res->message : 'ERROR');
 	}
 
 	/**
@@ -533,7 +533,7 @@ class Reply{
 	protected function _MyArticleCheck(){
 		$myArticleIs = false;
 		if($this->managerIs || CM::GetAdminIs()) $myArticleIs = true;
-		else if(strlen($this->boardModel->GetValue('muid')))
+		else if(StrLength($this->boardModel->GetValue('muid')))
 			$myArticleIs = (_MEMBERIS === true && $this->_CheckMyMUid($this->boardModel, 'muid'));
 		else if(isset($this->boardModel->data['target_muid']) && strlen($this->boardModel->GetValue('target_muid')))
 			$myArticleIs = (_MEMBERIS === true && $this->_CheckMyMUid($this->boardModel, 'target_muid'));

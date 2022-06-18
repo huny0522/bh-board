@@ -53,8 +53,8 @@ class ContentManager{
 			->SetGroup('A.bid')
 			->SetKey('A.*, group_concat(B.title SEPARATOR \', \') as title');
 
-		if($category = trim(Get('category'))) $qry->AddWhere('`A`.`category` = %s', $category);
-		if($keyword = trim(Get('keyword'))) $qry->AddWhere('INSTR(`A`.`subject`, %s)', $keyword);
+		if($category = trim(Get('category') ?? '')) $qry->AddWhere('`A`.`category` = %s', $category);
+		if($keyword = trim(Get('keyword') ?? '')) $qry->AddWhere('INSTR(`A`.`subject`, %s)', $keyword);
 
 		$qry->Run();
 

@@ -320,14 +320,14 @@ class Board{
 		}
 		else $qry->AddWhere('`A`.`subid` = %s', $this->subid);
 
-		if(strlen(App::$data['categoryKeyword'])) $qry->AddWhere('`A`.category = %s', App::$data['categoryKeyword']);
+		if(StrLength(App::$data['categoryKeyword'])) $qry->AddWhere('`A`.category = %s', App::$data['categoryKeyword']);
 
 		if(strlen($this->menuSubCategory)) $qry->AddWhere('`A`.sub_category IN (%s)', explode(',', $this->menuSubCategory));
 		else if(!EmptyGet('scate')) $qry->AddWhere('`A`.sub_category = %s', Get('scate'));
 
 
 		if(!$noticeIs){
-			if(strlen($s_type) && strlen($s_keyword)){
+			if(StrLength($s_type) && StrLength($s_keyword)){
 				switch($s_type){
 					case 's':
 						$qry->AddWhere('INSTR(A.subject, %s)', $s_keyword);
@@ -362,12 +362,12 @@ class Board{
 
 		// 공지를 불러온다.
 		App::$data['notice'] = array();
-		if(($s_page < 2) && !strlen($s_keyword)) App::$data['notice'] = $this->_GetNotice()->data;
+		if(($s_page < 2) && !StrLength($s_keyword)) App::$data['notice'] = $this->_GetNotice()->data;
 
 		// 리스트를 불러온다.
 		$dbList = $this->model->GetPageListQuery($s_page, $this->boardManger->GetValue('article_count'));
 
-		if($this->boardManger->_list_show_notice->Txt() == 'n' && ($s_page < 2) && !strlen($s_keyword)) $dbList->AddWhere('A.notice=\'n\'');
+		if($this->boardManger->_list_show_notice->Txt() == 'n' && ($s_page < 2) && !StrLength($s_keyword)) $dbList->AddWhere('A.notice=\'n\'');
 
 		$this->_R_CommonQry($dbList);
 
@@ -409,12 +409,12 @@ class Board{
 
 		// 공지를 불러온다.
 		App::$data['notice'] = array();
-		if(!strlen($s_seq) && !strlen($s_last_seq) && !strlen($s_keyword)) App::$data['notice'] = $this->_GetNotice()->data;
+		if(!StrLength($s_seq) && !StrLength($s_last_seq) && !StrLength($s_keyword)) App::$data['notice'] = $this->_GetNotice()->data;
 
 		// 리스트를 불러온다.
 		$dbList = $this->model->GetListQuery($this->boardManger->GetValue('article_count'));
 
-		if($this->boardManger->_list_show_notice->Txt() == 'n' && !strlen($s_keyword)) $dbList->AddWhere('A.notice=\'n\'');
+		if($this->boardManger->_list_show_notice->Txt() == 'n' && !StrLength($s_keyword)) $dbList->AddWhere('A.notice=\'n\'');
 
 		$this->_R_CommonQry($dbList);
 
@@ -423,7 +423,7 @@ class Board{
 			if(!$this->managerIs && $this->boardManger->GetValue('man_to_man') === 'y') $dbList->AddWhere('A.muid = %d OR A.target_muid = %d', $_SESSION['member']['muid'], $_SESSION['member']['muid']);
 		}
 
-		if(strlen($s_seq)){
+		if(StrLength($s_seq)){
 			$seq = to10($s_seq);
 			$dbList->AddWhere('A.seq = %d', $seq);
 		}
@@ -482,7 +482,7 @@ class Board{
 	}
 
 	public function _RowSet(&$data){
-		$ck = strlen(App::$data['categoryKeyword']) ? true : false;
+		$ck = StrLength(App::$data['categoryKeyword']) ? true : false;
 		foreach($data as &$row){
 			if($this->managerIs || $row['secret'] == 'n' || ($row['first_member_is'] == 'y' && strlen($row['muid']))) $row['possibleView'] = true;
 			else $row['possibleView'] = false;
@@ -652,7 +652,7 @@ class Board{
 			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
-		$seq = to10(strlen(Post('target')) ? Post('target') : Get('target'));
+		$seq = to10(StrLength(Post('target')) ? Post('target') : Get('target'));
 		if(!strlen($seq)) URLReplace('-1');
 
 		$qry = DB::GetQryObj($this->model->table)
@@ -762,7 +762,7 @@ class Board{
 		$this->model->SetValue('htmlis', Post('htmlis') == 'y' ? 'y' : 'n');
 
 		// 섬네일 등록
-		if(IsImageFileName($this->model->_file1->value)){
+		if(IsImageFileName($this->model->_file1->value ?? '')){
 			$this->model->_thumbnail->SetValue($this->model->GetFilePath('file1'));
 		}
 
@@ -844,7 +844,7 @@ class Board{
 			App::$data['targetData'] = $qry->Get();
 			if(!$this->adminPathIs){
 				if(App::$data['targetData']['delis'] == 'y') URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
-				if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !_CheckMyMUid(App::$data['targetData'], 'muid') && !_CheckMyMUid(App::$data['targetData'], 'target_muid')) URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
+				if($this->boardManger->GetValue('man_to_man') === 'y' && !$this->managerIs && !$this->_CheckMyMUid(App::$data['targetData'], 'muid') && !$this->_CheckMyMUid(App::$data['targetData'], 'target_muid')) URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
 			}
 
 			$first_seq = strlen(App::$data['targetData']['first_seq']) ? App::$data['targetData']['first_seq'] : App::$data['targetData']['seq'];
@@ -935,7 +935,7 @@ class Board{
 		}
 
 		// 섬네일 등록
-		if(IsImageFileName($this->model->_file1->value)){
+		if(IsImageFileName($this->model->_file1->value ?? '')){
 			$this->model->_thumbnail->SetValue($this->model->GetFilePath('file1'));
 		}
 

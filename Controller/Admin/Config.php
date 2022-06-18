@@ -37,11 +37,11 @@ class Config{
 	}
 
 	public function PostWrite(){
-		$class = '\\Config'.Post('Code');
+		$class = '\\'.Post('Code');
 		if(EmptyPost('Code') || !class_exists($class)) URLRedirect(-1,  '설정이 존재하지 않습니다.');
 		$cfg = $class::GetInstance();
 
-		$arr = get_object_vars($cfg);
+		$arr = (array)$cfg;
 		foreach($arr as $k=> $v){
 			if($cfg->{$k}->type == \HTMLType::CHECKBOX) $cfg->{$k}->value = '';
 		}

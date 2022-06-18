@@ -42,13 +42,6 @@ class BH_Application
 	/** @var callable $routingFailFunc */
 	public static $routingFailFunc = null;
 
-	/** @var SysArrayObject */
-	public static $_get;
-	/** @var SysArrayObject */
-	public static $_post;
-	/** @var SysArrayObject */
-	public static $_session;
-
 	private function __construct(){
 
 	}
@@ -60,10 +53,6 @@ class BH_Application
 	}
 
 	public static function run(){
-		self::$_get = new SysArrayObject();
-		self::$_post = new SysArrayObject('post');
-		self::$_session = new SysArrayObject('session');
-
 		self::$settingData['URLFirst'] = '';
 
 
@@ -113,7 +102,7 @@ class BH_Application
 			exit;
 		}
 
-		if(!isset(self::$settingData['GetUrl'][1]) || !strlen(self::$settingData['GetUrl'][1])) self::$settingData['GetUrl'][1] = _DEFAULT_CONTROLLER;
+		if(!isset(self::$settingData['GetUrl'][1]) || !StrLength(self::$settingData['GetUrl'][1])) self::$settingData['GetUrl'][1] = _DEFAULT_CONTROLLER;
 
 
 		self::$baseDir = Paths::Url();
@@ -168,8 +157,8 @@ class BH_Application
 
 			$action = _POSTIS === true ? 'Post' . self::$action : self::$action;
 
-			if(method_exists($controller, $action) && is_callable(array($controller, $action))){
-				self::$controllerInstance = new $controller();
+			self::$controllerInstance = new $controller();
+			if(method_exists($controller, $action) && is_callable(array(self::$controllerInstance, $action))){
 
 				if(isset(self::$extendMethod['createControllerInstance'])){
 					$beforeLoadController = self::$extendMethod['createControllerInstance'];
@@ -181,6 +170,7 @@ class BH_Application
 			}
 			else{
 				$code = 201;
+				var_dump(is_callable(array($controller, $action)));
 				$msg = 'METHOD DOES NOT EXIST(#2)';
 				if(is_callable(self::$routingFailFunc)){
 					$func = self::$routingFailFunc;

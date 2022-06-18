@@ -197,7 +197,7 @@ class BoardManager
 	}
 
 	public function PostDelete(){
-		if(strlen(Post('bid'))){
+		if(StrLength(Post('bid'))){
 			if(isset(App::$settingData['FixedBoardId']) && is_array(App::$settingData['FixedBoardId']) && in_array(Post('bid'), App::$settingData['FixedBoardId'])) URLRedirect('-1', '해당 게시판은 삭제가 불가능합니다.');
 
 			$res = $this->model->DBDelete(Post('bid'), Post('subid'));

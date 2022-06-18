@@ -13,7 +13,7 @@ use \DB as DB;
 class JQUpload
 {
 	public function PostIndex(){
-		if(strlen(Get('ext'))) $possbieExt = explode(',', Get('ext'));
+		if(StrLength(Get('ext'))) $possbieExt = explode(',', Get('ext'));
 		else $possbieExt = App::$settingData['POSSIBLE_EXT'];
 
 		$option = array(
@@ -23,7 +23,7 @@ class JQUpload
 			'param_name' => 'temp_upload_file'
 		);
 
-		if(strlen(Get('maxfilesize'))){
+		if(StrLength(Get('maxfilesize'))){
 			$s = preg_replace('/[^0-9\.]/', '', Get('maxfilesize'));
 			$type = strtolower(substr(Get('maxfilesize'), -2));
 

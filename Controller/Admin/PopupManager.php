@@ -72,6 +72,7 @@ class PopupManager
 			URLReplace('-1',$res->message);
 		}
 		else{
+			echo 3;
 			/*if(isset($_FILES['img'])){
 				require_once _COMMONDIR.'/FileUpload.php';
 				$fres_em = FileUpload($_FILES['img'], App::$settingData['POSSIBLE_EXT'], '/board/'.date('ym').'/');
@@ -86,13 +87,17 @@ class PopupManager
 			if(sizeof($error)){
 				URLReplace(App::URLAction().App::GetFollowQuery(), $error[0]);
 			}
+			echo 4;
 
 			$res = $this->model->DBInsert();
 			if($res->result){
+				echo 5;
 				CM::ContentImageUpdate($this->model->table, array('seq' => $res->id), array('name' => 'contents', 'contents' => $_POST['contents']), 'modify');
+				echo 6;
 
 				URLReplace(App::URLAction().App::GetFollowQuery());
 			}else{
+				echo 7;
 				URLReplace(App::URLAction().App::GetFollowQuery(), 'ERROR');
 			}
 		}

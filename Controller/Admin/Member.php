@@ -38,13 +38,13 @@ class Member{
 			->SetArticleCount(20)
 			->AddWhere('withdraw = \'n\'')
 			->AddWhere('level < %d OR muid = %d', $_SESSION['member']['level'], $_SESSION['member']['muid']);
-		$keyword = trim(Get('Keyword'));
+		$keyword = trim(Get('Keyword') ?? '');
 		$slevel = Get('SLevel');
 
-		if(strlen($keyword)){
+		if(StrLength($keyword)){
 			$dbGetList->AddWhere('INSTR(mid, %s) OR INSTR(email, %s) OR INSTR(mname, %s) OR INSTR(nickname, %s) OR INSTR(phone, %s)', $keyword, $keyword, $keyword, $keyword, $keyword);
 		}
-		if(strlen($slevel)){
+		if(StrLength($slevel)){
 			$dbGetList->AddWhere('level = %d', $slevel);
 		}
 		$dbGetList->Run();
@@ -129,7 +129,7 @@ class Member{
 	}
 
 	public function PostModify(){
-		if(!strlen(Post('pwd'))) $this->model->AddExcept('pwd');
+		if(!StrLength(Post('pwd'))) $this->model->AddExcept('pwd');
 
 		$res = $this->model->DBGet(Post('muid'));
 		if($this->model->GetValue('level') > $_SESSION['member']['level'] || ($_SESSION['member']['muid'] != $this->model->GetValue('muid') && $this->model->GetValue('level') == $_SESSION['member']['level'])){

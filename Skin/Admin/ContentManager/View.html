@@ -61,10 +61,10 @@ use \BH_Application as App;
 		</td>
 	</tr>
 </table>
-<div class="bottomBtn"><a href="<?a. '' ?><?fqq. '' ?>" class="bBtn">리스트</a><a href="<?a. 'Modify' ?>?bid=<?v. $_GET['bid'] ?><?fqn. '' ?>" class="bBtn">수정</a><a href="#" id="deleteArticle" data-bid="<?v. $_GET['bid'] ?>" class="bBtn">삭제</a></div>
+<div class="bottomBtn"><a href="<?a. '' ?><?fqq. '' ?>" class="bBtn">리스트</a><a href="<?a. 'Modify' ?>?bid=<?v. Get('bid') ?><?fqn. '' ?>" class="bBtn">수정</a><a href="#" id="deleteArticle" data-bid="<?v. Get('bid') ?>" class="bBtn">삭제</a></div>
 <div id="deleteForm" class="hidden modalConfirm">
 	<form id="delForm" name="delForm" method="post" action="<?a. 'Delete' ?><?fqq. '' ?>">
-		<input type="hidden" name="bid" value="<?v. $_GET['bid'] ?>">
+		<input type="hidden" name="bid" value="<?v. Get('bid') ?>">
 		<p>정말 삭제하시겠습니까?</p>
 		<div class="sPopBtns">
 			<button type="submit" class="mBtn">삭제하기</button>
