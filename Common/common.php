@@ -901,48 +901,40 @@ function PrintError($message){
 	exit;
 }
 
-function GetDBText($txt){
+function v($txt){
 	if(is_array($txt)){
-		foreach($txt as $k => &$v) $v = GetDBText($v);
+		foreach($txt as $k => &$v) $v = v($v);
 		return $txt;
 	}
 	else return str_replace(array('\'', '"'), array('&#39;', '&quot;'), htmlspecialchars($txt ?? ''));
 }
 
-function GetDBRaw($txt){
+function vb($txt){
+	return nl2br(v($txt));
+}
+
+function vr($txt){
 	if(is_array($txt)){
-		foreach($txt as $k => &$v) $v = GetDBRaw($v);
+		foreach($txt as $k => &$v) $v = vr($v);
 		return $txt;
 	}
 	else return RemoveScriptTag($txt);
 }
 
 function SafeStr($txt){
-	if(is_array($txt)){
-		foreach($txt as $k => &$v) $v = SafeStr($v);
-		return $txt;
-	}
-	else return str_replace(array('\'', '"'), array('&#39;', '&quot;'), htmlspecialchars($txt ?? ''));
+	return v($txt);
 }
 
 function RawStr($txt){
-	if(is_array($txt)){
-		foreach($txt as $k => &$v) $v = RawStr($v);
-		return $txt;
-	}
-	else return RemoveScriptTag($txt);
+	return vr($txt);
 }
 
-function v($txt){
-	return SafeStr($txt);
+function GetDBRaw($txt){
+	return vr($txt);
 }
 
-function vr($txt){
-	return RawStr($txt);
-}
-
-function vb($txt){
-	return nl2br(SafeStr($txt));
+function GetDBText($txt){
+	return v($txt);
 }
 
 function my_bcmod($x, $y){

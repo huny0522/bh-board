@@ -7,15 +7,15 @@ $_rpData = array(
 	),
 	array(
 		'pattern' => '/<\?\s*ifv\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'replace' => '<?php if(isset($1)) echo GetDBText($1); ?>'
+		'replace' => '<?php if(isset($1)) echo v($1); ?>'
 	),
 	array(
 		'pattern' => '/<\?\s*ifvr\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'replace' => '<?php if(isset($1)) echo GetDBRaw($1); ?>'
+		'replace' => '<?php if(isset($1)) echo vr($1); ?>'
 	),
 	array(
 		'pattern' => '/<\?\s*ifvb\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'replace' => '<?php if(isset($1)) echo nl2br(GetDBText($1)); ?>'
+		'replace' => '<?php if(isset($1)) echo vb($1); ?>'
 	),
 
 	// p.
@@ -25,23 +25,23 @@ $_rpData = array(
 	),
 	array(
 		'pattern' => '/<\?\s*v\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'replace' => '<?php echo GetDBText($1); ?>'
+		'replace' => '<?php echo v($1); ?>'
 	),
 	array(
 		'pattern' => '/<\?\s*vr\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'replace' => '<?php echo GetDBRaw($1); ?>'
+		'replace' => '<?php echo vr($1); ?>'
 	),
 	array(
 		'pattern' => '/<\?\s*vb\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'replace' => '<?php echo nl2br(GetDBText($1)); ?>'
+		'replace' => '<?php echo vb($1); ?>'
 	),
 	array(
 		'pattern' => '/<\?\s*vstag\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'replace' => '<?php echo strip_tags(GetDBText($1)); ?>'
+		'replace' => '<?php echo strip_tags(v($1)); ?>'
 	),
 	array(
 		'pattern' => '/<\?\s*vbstag\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'replace' => '<?php echo nl2br(GetDBText(strip_tags($1))); ?>'
+		'replace' => '<?php echo nl2br(v(strip_tags($1))); ?>'
 	),
 
 	//fqn,fqq
