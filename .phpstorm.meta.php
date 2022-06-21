@@ -51,5 +51,5 @@ namespace
 	define('fqq', ''); // echo \BH_Application::GetFollowQuery([code], \'?\');
 	define('fqn', ''); // echo \BH_Application::GetFollowQuery([code], \'&\');
 
-	define('inc', ''); // if(_DEVELOPERIS === true || !file_exists(\Paths::DirOfHtml().[code])){require_once \Paths::Dir() . \'/Common/HtmlConvert.php\'; ReplaceHTMLFile(\Paths::DirOfSkin().[code], \Paths::DirOfHtml().[code]);} require \Paths::DirOfHtml().[code];
+	define('inc', ''); // ReplaceHTMLFile(\Paths::DirOfSkin().[code], \Paths::DirOfHtml().[code]); require \Paths::DirOfHtml().[code];
 }

@@ -279,10 +279,7 @@ class BH_Application
 
 		$path = \Paths::DirOfHtml() . $html;
 		$skinPath = \Paths::DirOfSkin() . $html;
-		if((_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) || !file_exists($path)){
-			require_once 'HtmlConvert.php';
-			ReplaceHTMLFile($skinPath, $path);
-		}
+		CheckReplaceHTMLFile($skinPath, $path);
 
 		ob_start();
 		if(file_exists($path)) require $path;
@@ -308,10 +305,7 @@ class BH_Application
 				}
 
 				$path = \Paths::DirOfHtml() . $layout;
-				if((_DEVELOPERIS === true && _CREATE_HTML_ALL !== true) || !file_exists($path)){
-					require_once 'HtmlConvert.php';
-					ReplaceHTMLFile(\Paths::DirOfSkin() . $layout, $path);
-				}
+				CheckReplaceHTMLFile(\Paths::DirOfSkin().$layout, $path);
 
 				if(file_exists($path)){
 					ob_start();

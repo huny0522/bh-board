@@ -104,8 +104,8 @@ class Email
 
 			// 파일이 수정되었거나 없으면 변환합니다.
 			// {?LEFT(category) = 0000}
-			$modifyIs = modifyFileTime(\Paths::DirOfSkin().$dir.$html, 'mall_email');
-			if(!file_exists($convertHtml) || $modifyIs){
+			// $modifyIs = modifyFileTime(\Paths::DirOfSkin().$dir.$html, 'mall_email');
+			// if(!file_exists($convertHtml) || $modifyIs){
 				if(!file_exists(\Paths::DirOfHtml().$dir) && !is_dir(\Paths::DirOfHtml().$dir)){
 					@mkdir(\Paths::DirOfHtml().$dir, 0777, true);
 				}
@@ -164,7 +164,7 @@ class Email
 					'<img $1 src="' . _DOMAIN . \Paths::Url() . '$2" $3>',
 				);
 				file_put_contents($convertHtml, preg_replace($patterns, $replace, $body));
-			}
+			//}
 			return $convertHtml;
 		}
 		else return false;

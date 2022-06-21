@@ -10,11 +10,16 @@ use \BH_Application as App;
 define('_BHSTYLEBEGIN', '//BH_STYLE:');
 define('_BHSTYLEND', '//BH_STYLE_END');
 
-require _DIR . '/Custom/replace.pattern.php';
+require \Paths::Dir() . '/Custom/replace.pattern.php';
+
+function CheckReplaceHTMLFile($source, $target){
+	if(!file_exists($source)) return;
+	if(!file_exists($target) || filemtime($source) > filemtime($target)) ReplaceHTMLFile($source, $target);
+}
 
 function ReplaceHTMLFile($source, $target){
-	$modifyIs = modifyFileTime($source);
-	if(file_exists($target) && !$modifyIs) return;
+	// $modifyIs = modifyFileTime($source);
+	// if(file_exists($target) && !$modifyIs) return;
 
 	$a = explode('/', $target);
 	array_pop($a);

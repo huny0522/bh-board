@@ -60,7 +60,7 @@ if(PHP_RUN_CLI === true){
 }
 else{
 	define('_IS_DEVELOPER_IP', true && in_array(!empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['HTTP_X_REAL_IP'] :  $_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP));
-	define('_DEVELOPERIS', true && _IS_DEVELOPER_IP);
+	define('_DEVELOPERIS', true && _IS_DEVELOPER_IP && isset($_SESSION['developer_login']) && $_SESSION['developer_login'] === 'y');
 }
 define('_CREATE_HTML_ALL', false && _DEVELOPERIS === true);
 define('_REFRESH_HTML_ALL', true && _DEVELOPERIS === true);
