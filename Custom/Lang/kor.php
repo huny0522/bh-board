@@ -175,6 +175,14 @@ class kor
 			'PWD_NEED_SPECIAL_CHAR' =>'비밀번호에 특수문자를 포함하여 입력하셔야합니다.',
 			'PWD_NEED_ENG_CHAR' =>'비밀번호에 영문을 포함하여 입력하셔야합니다.',
 			'PWD_NEED_NUMBER_CHAR' =>'비밀번호에 숫자를 포함하여 입력하셔야합니다.',
+
+			// DeveloperPage.php
+			'LOGIN' => '로그인',
+			'BTN_GO_BACK' => '뒤로 가기',
+			'BTN_DEL_HTML' => 'HTML 변환 데이타 삭제',
+			'BTN_CACHE_URI_QUERY' => '캐시방지 쿼리숫자 업데이트',
+			'BTN_LOGOUT_DEVELOPER' => '개발자 모드 나가기',
+			'BTN_GO_HOME' => '메인으로'
 		);
 	}
 }

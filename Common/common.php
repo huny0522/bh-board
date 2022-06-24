@@ -333,7 +333,7 @@ require _COMMONDIR . '/BH_Application.class.php';
 require _COMMONDIR . '/BH_Model.class.php';
 require _COMMONDIR . '/BH_Common.class.php';
 if(file_exists(_DIR . '/Custom/ConfigSetting.php')) require _DIR . '/Custom/ConfigSetting.php';
-require_once \Paths::Dir() . '/Common/HtmlConvert.php';
+require _DIR . '/Common/HtmlConvert.php';
 require _COMMONDIR . '/BHCss/core/BHCss.php';
 
 require _DIR . '/Custom/Lang/' . LANG_FILE;

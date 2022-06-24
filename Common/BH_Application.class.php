@@ -66,7 +66,7 @@ class BH_Application
 		for($i = 0; $i < 10; $i++) if(!isset(self::$settingData['GetUrl'][$i])) self::$settingData['GetUrl'][$i] = '';
 
 		if(self::$settingData['GetUrl'][1] == 'MyIp'){
-			echo $_SERVER['REMOTE_ADDR'];
+			echo !empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['HTTP_X_REAL_IP'] :  $_SERVER['REMOTE_ADDR'];
 			exit;
 		}
 

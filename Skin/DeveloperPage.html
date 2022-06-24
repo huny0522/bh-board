@@ -1,0 +1,77 @@
+<?php if(_BH_ !== true) exit;
+
+use \BH_Common as CM;
+use \BH_Application as App;
+
+/**
+ * @var null $Ctrl
+ * @var null $Data
+ */
+// $Model = $Ctrl->;
+App::$layout = '_Empty';
+?>
+
+<style>
+	body,html{background:#babfc7; height:100%; padding:0; margin:0;}
+	#wrap{width:100%; height:100%; background:radial-gradient(#0d514c, #0E5579);}
+	#develop_login_box{position:absolute; left:50%; top:50%; width:400px; background:#fff; box-shadow:3px 3px 3px rgba(0,0,0,0.2); transform:translate(-50%, -50%);}
+	#develop_login_box > div{padding:55px 30px 0 30px;}
+	#develop_login_box > footer{padding:30px 30px 55px 30px;}
+	#develop_login_box label{display:table; width:100%;}
+	#develop_login_box label + label{margin-top:20px;}
+	#develop_login_box label > span{display:table-cell; font-size:20px;}
+	#develop_login_box label > span:first-child{width:80px; text-align:center;}
+	#develop_login_box input{border:0; width:100%; height:40px; background:#dadee5; font-size:20px; text-align:center;}
+	#develop_login_box footer button, #develop_login_box footer a{display:block; height:40px; width:100%; border:0; background:#000; color:#fff; vertical-align:middle; font-size:14px; line-height:40px; cursor:pointer;}
+	#develop_login_box footer a{display:inline-block; text-align:center; text-decoration:none; background:#747683;}
+	#develop_login_box footer * ~ *{margin-top:10px;}
+	#develop_login_box footer p{position:absolute; left:0; bottom:10px; width:100%; text-align:center; padding:0; margin:0; font-size:12px; color:#999;}
+
+	#developer_box{position:absolute; left:50%; top:50%; width:400px; background:#fff; box-shadow:3px 3px 3px rgba(0,0,0,0.2); transform:translate(-50%, -50%);}
+	.developer_box_buttons{padding:20px;}
+	.developer_box_buttons button, .developer_box_buttons a{display:block; height:40px; width:100%; border:0; background:#2288c7; color:#fff; vertical-align:middle; font-size:14px; line-height:40px; cursor:pointer; text-align:center;}
+	.developer_box_buttons * ~ *{margin-top:10px;}
+	.developer_box_buttons a{display:inline-block; text-align:center; text-decoration:none;}
+	.developer_box_buttons a.sys_btn{background:#747683;}
+	.developer_box_buttons a.point_btn{background:#e11;}
+	.developer_box_buttons + .developer_box_buttons{padding-top:0;}
+</style>
+<div id="wrap">
+	<?php
+	if(_DEVELOPERIS !== true){
+		?>
+		<form id="develop_login_box" method="post" action="<?a. 'Login' ?>">
+			<div>
+				<label>
+					<span>ID</span>
+					<span><input type="text" name="mid"></span>
+				</label>
+				<label>
+					<span>PW</span>
+					<span><input type="password" name="pwd"></span>
+				</label>
+			</div>
+			<footer>
+				<button><?p. App::$lang['LOGIN'] ?></button>
+				<a href="<?c. '' ?>"><?p. App::$lang['BTN_GO_BACK'] ?></a>
+				<p><?p. !empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['HTTP_X_REAL_IP'] :  $_SERVER['REMOTE_ADDR'] ?></p>
+			</footer>
+		</form>
+	<?php
+	}
+	else{
+		?>
+		<div id="developer_box">
+			<div class="developer_box_buttons">
+				<a href="<?a. 'DeleteHTML' ?>"><?p. App::$lang['BTN_DEL_HTML'] ?></a>
+				<a href="<?a. 'CacheUriQuery' ?>"><?p. App::$lang['BTN_CACHE_URI_QUERY'] ?></a>
+			</div>
+			<footer class="developer_box_buttons">
+				<a href="<?a. 'Logout' ?>" class="point_btn"><?p. App::$lang['BTN_LOGOUT_DEVELOPER'] ?></a>
+				<a href="<?c. '' ?>" class="sys_btn"><?p. App::$lang['BTN_GO_HOME'] ?></a>
+			</footer>
+		</div>
+		<?php
+	}
+	?>
+</div>

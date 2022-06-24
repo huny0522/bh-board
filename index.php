@@ -187,14 +187,17 @@ try{
 		if($fetch) BH_Application::$version = $fetch['data'];
 	}
 }catch(\PDOException $PDOException){
-
+	if(_IS_DEVELOPER_IP !== true){
+		include _DIR.'/Skin/DeveloperSetup.html';
+		return;
+	}
 }
 
 define('_MEMBERIS', isset($_SESSION['member']['muid']) && strlen($_SESSION['member']['muid']));
 
 BH_Application::run();
 
-if(_VIEW_MICROTIME === true && _AJAXIS !== true){
+if(_DEVELOPERIS === true && _VIEW_MICROTIME === true && _AJAXIS !== true){
 	$_END_MICROTIME = array_sum(explode(' ', microtime()));
 	echo chr(10) . '<!-- RUNTIME : ' . sprintf('%02.6f', $_END_MICROTIME - $_BEGIN_MICROTIME) . ' -->';
 }

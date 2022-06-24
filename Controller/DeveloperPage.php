@@ -11,7 +11,7 @@ use \BH_Common as CM;
 use Custom\Email;
 use \DB as DB;
 
-class DeveloperLogin
+class DeveloperPage
 {
 
 	public $memberModel = null;
@@ -22,11 +22,11 @@ class DeveloperLogin
 
 	public function __init(){
 		// index.php 에서 $_DEVELOPER_IP 에 등록되지 않으면 로그인 할 수 없다.
-		if(_IS_DEVELOPER_IP !== true) exit;
+		if(_IS_DEVELOPER_IP !== true) URLReplace(App::URLBase());
 	}
 
 	public function Index(){
-		App::View('/DeveloperLogin');
+		App::View('/DeveloperPage');
 	}
 
 	public function PostLogin(){
@@ -52,9 +52,28 @@ class DeveloperLogin
 				$_SESSION['developer_login_muid'] = $res['muid'];
 				$_SESSION['developer_login'] = 'y';
 
-				URLReplace(EmptyGet('r_url') ? \Paths::Url().'/' : Get('r_url'));
+				URLReplace(App::URLAction());
 			}
 		}
+	}
+
+	public function Logout(){
+		unset($_SESSION['developer_login_muid']);
+		unset($_SESSION['developer_login']);
+		URLReplace(App::URLAction());
+	}
+
+	public function DeleteHTML(){
+		if(_DEVELOPERIS !== true) URLReplace(App::URLAction());
+		delTree(\Paths::DirOfHtml());
+		URLReplace(App::URLAction(), App::$lang['MSG_COMPLETE_DELETE']);
+	}
+
+	public function CacheUriQuery(){
+		if(_DEVELOPERIS !== true) URLReplace(App::URLAction());
+		App::$cfg->Sys()->refresh->value++;
+		$res = App::$cfg->Sys()->DataWrite();
+		URLReplace(App::URLAction(), App::$lang['MSG_COMPLETE_MODIFY'] . ' -> ' . App::$cfg->Sys()->refresh->value);
 	}
 
 	private function LoginMidCheck($mid, $pwd){
