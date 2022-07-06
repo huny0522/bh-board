@@ -640,7 +640,7 @@ function Download($path, $fname){
 	if(!$fname) $fname = $temp[sizeof($temp) - 1];
 	if(!App::$settingData['viewMobile']) $fname = mb_convert_encoding($fname, 'cp949', 'utf-8');
 
-	App::$layout = null;
+	App::$layout = '';
 
 	ignore_user_abort(true);
 	set_time_limit(0); // disable the time limit for this script
@@ -799,7 +799,7 @@ function SetDBInt($txt){
 		foreach($txt as $k => &$v) $v = SetDBInt($v);
 		return $txt;
 	}
-	if(!strlen($txt)) URLReplace('-1', App::$lang['TXT_EMPTY_NUMBER']);
+	if(!isset($txt) || !strlen($txt)) URLReplace('-1', App::$lang['TXT_EMPTY_NUMBER']);
 	$val = ToInt($txt);
 	if((string)$val !== (string)$txt) URLReplace('-1', App::$lang['TXT_ONLY_NUMBER_NOT_CHARACTER']);
 	return $txt;
@@ -889,7 +889,7 @@ function v($txt){
 		foreach($txt as $k => &$v) $v = v($v);
 		return $txt;
 	}
-	else return str_replace(array('\'', '"'), array('&#39;', '&quot;'), htmlspecialchars($txt ?? ''));
+	else return str_replace(array('\'', '"'), array('&#39;', '&quot;'), htmlspecialchars(isset($txt) ? (string)$txt : ''));
 }
 
 function vb($txt){
@@ -1140,23 +1140,27 @@ function StrLength($param){
 }
 
 function StrLenPost($param){
-	isset($_POST[$param]) ? (is_string($_POST[$param]) ? strlen($_POST[$param]): 0) : 0;
+	return isset($_POST[$param]) ? (is_string($_POST[$param]) ? strlen($_POST[$param]): 0) : 0;
 }
 
 function StrLenGet($param){
-	isset($_GET[$param]) ? (is_string($_GET[$param]) ? strlen($_GET[$param]): 0) : 0;
+	return isset($_GET[$param]) ? (is_string($_GET[$param]) ? strlen($_GET[$param]): 0) : 0;
 }
 
 function StrLenCookie($param){
-	isset($_COOKIE[$param]) ? (is_string($_COOKIE[$param]) ? strlen($_COOKIE[$param]): 0) : 0;
+	return isset($_COOKIE[$param]) ? (is_string($_COOKIE[$param]) ? strlen($_COOKIE[$param]): 0) : 0;
 }
 
 function StrLenSession($param){
-	isset($_SESSION[$param]) ? (is_string($_SESSION[$param]) ? strlen($_SESSION[$param]): 0) : 0;
+	return isset($_SESSION[$param]) ? (is_string($_SESSION[$param]) ? strlen($_SESSION[$param]): 0) : 0;
 }
 
 function StrLenVal(&$val){
-	isset($val) ? (is_string($val) ? strlen($val): 0) : 0;
+	return isset($val) ? (is_string($val) ? strlen($val): 0) : 0;
+}
+
+function StrTrim($val){
+	return isset($val) ? (is_string($val) ? trim($val): '') : '';
 }
 
 function EmptyPost($param){

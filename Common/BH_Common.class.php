@@ -118,7 +118,7 @@ class BH_Common
 	}
 
 	public static function FirebaseSetIs(){
-		if(is_null(self::$fbSetIs)) self::$fbSetIs = (class_exists('Kreait\Firebase\Factory') && strlen(trim(App::$cfg->Def()->firebaseWebConfig->Val() ?? '')) > 0 && strlen(trim(App::$cfg->Def()->googleServiceAccount->Val()??'')) > 0);
+		if(is_null(self::$fbSetIs)) self::$fbSetIs = (class_exists('Kreait\Firebase\Factory') && strlen(StrTrim(App::$cfg->Def()->firebaseWebConfig->Val())) > 0 && strlen(StrTrim(App::$cfg->Def()->googleServiceAccount->Val())) > 0);
 		return self::$fbSetIs;
 	}
 

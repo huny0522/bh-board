@@ -47,7 +47,7 @@ use \BH_Common as CM;
 		<table>
 			<tr>
 				<td>
-					<?php if($Model->_file->value && IsImageFileName($Model->GetFileName('file') ?? '')) echo '<div class="img"><img src="' . Paths::UrlOfUpload() . $Model->GetFilePath('file'). '"></div>'; ?>
+					<?php if($Model->_file->value && IsImageFileName((string)$Model->GetFileName('file'))) echo '<div class="img"><img src="' . Paths::UrlOfUpload() . $Model->GetFilePath('file'). '"></div>'; ?>
 					<?mvb('comment') ?>
 				</td>
 			</tr>

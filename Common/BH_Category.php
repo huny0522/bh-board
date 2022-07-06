@@ -29,7 +29,7 @@ class BH_Category{
 	}
 
 	public function Write(){
-		App::$layout = null;
+		App::$layout = '';
 		if(EmptyGet('category')) exit;
 		if(in_array(Get('category'), $this->lockId, true)) JSON(true);
 		$data = $this->ModelDBGet();
@@ -172,7 +172,7 @@ class BH_Category{
 		$dbGet->AddWhere('category = %s', Post('category'));
 		$data = $dbGet->Get();
 
-		$parent = substr($data['category'], 0, strlen($data['category']??'') - $this->model->CategoryLength);
+		$parent = substr($data['category'], 0, StrLenVal($data['category']) - $this->model->CategoryLength);
 
 		if($data !== false && $data){
 			$qry = $this->SqlDeleteQry();

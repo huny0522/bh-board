@@ -231,7 +231,7 @@ class Message
 					$row['fileLink'] = App::URLAction('Download/' . $row['seq']);
 					$row['filePath'] = \Paths::UrlOfUpload() . $this->messageModel->GetFilePathByValue($row['file']);
 					$row['fileName'] = $this->messageModel->GetFileNameByValue($row['file']);
-					$row['isImage'] = IsImageFileName($row['fileName'] ?? '');
+					$row['isImage'] = IsImageFileName(isset($row['fileName']) ? $row['fileName'] : '');
 				}
 				else{
 					$row['fileLink'] = '';

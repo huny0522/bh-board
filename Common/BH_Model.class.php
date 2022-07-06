@@ -842,7 +842,7 @@ class _ModelFunc{
 
 						// 기존 파일
 						if(StrLength($v->value)){
-							$p = explode(';', $v->value ?? '');
+							$p = explode(';', $v->value);
 							$valuePath = array();
 							foreach($p as $path){
 								$m = explode('*', $path);
@@ -907,7 +907,7 @@ class _ModelFunc{
 
 						else if(self::IsFileType($v->htmlType)){
 							$fileUpIs = false;
-							$m = explode('*', $post[$k] ?? '');
+							$m = explode('*', $post[$k]);
 							$fPath = $m[0];
 
 							$fName = '';
@@ -1078,7 +1078,7 @@ class _ModelFunc{
 	public static function GetFilePath($data, $n, $n2){
 		if(isset($data->value)){
 			if(self::IsFileType($data->htmlType)){
-				$p = explode(';', $data->value ?? '');
+				$p = explode(';', $data->value);
 				if(isset($p[$n2])){
 					$f = explode('*', $p[$n2]);
 					if(isset($f[$n])) return $f[$n];
@@ -1158,9 +1158,9 @@ class _ModelFunc{
 				}
 			break;
 			case ModelType::ENUM:
-				$v = $data->value;
+				$v = isset($data->value) ? $data->value : '';
 				if($data->htmlType == HTMLType::CHECKBOX){
-					$temp = explode(',', $data->value ?? '');
+					$temp = explode(',', $v);
 					$v = trim($temp[0]);
 				}
 				if(!(isset($data->enumValues) && is_array($data->enumValues) && isset($data->enumValues[$v]))){
@@ -1339,7 +1339,7 @@ class _ModelFunc{
 				if(isset($data->addOption['maxFileSize'])) $Attribute .= ' data-max-size="' . $data->addOption['maxFileSize'] . '"';
 				if(isset($data->addOption['possibleExt']) && is_array($data->addOption['possibleExt'])) $Attribute .= ' data-ext="' .  implode(',', $data->addOption['possibleExt']) . '"';
 
-				$f = explode('*', $data->value ?? '');
+				$f = explode('*', isset($data->value) ? $data->value : '');
 
 				$h = '<div class="jqFileUploadArea"' . $Attribute . '>
 				<input type="hidden" name="' . $Name . '" value="" id="'.$firstIDName.$Name.'" class="fileUploadPath" data-displayname="' . $data->displayName . '"' . $fileRequired . '>
@@ -1418,7 +1418,7 @@ class _ModelFunc{
 				$nm = $htmlType === HTMLType::CHECKBOX ? $Name . '[]' : $Name;
 				$ret = '';
 				if($htmlType === HTMLType::CHECKBOX && $data->required) $htmlAttribute['class'] .= ' checkboxRequired';
-				$tempVal = $htmlType === HTMLType::CHECKBOX ? explode(',', $val ?? '') : array($val);
+				$tempVal = $htmlType === HTMLType::CHECKBOX ? explode(',', isset($val) ? $val : '') : array($val);
 				if(isset($data->enumValues) && is_array($data->enumValues)){
 					$i = 1;
 					foreach($data->enumValues as $k=>$v){
@@ -1667,9 +1667,9 @@ class _ModelFunc{
 			$res = self::DBGet($model, $keyData);
 			foreach($model->data as $data){
 				if(self::IsFileType($data->htmlType) && StrLength($data->value)){
-					$p = explode(';', $data->value ?? '');
+					$p = explode(';', isset($data->value) ? $data->value : '');
 					foreach($p as $path){
-						$pn = explode('*', $path ?? '');
+						$pn = explode('*', $path);
 						UnlinkImage(\Paths::DirOfUpload() . $pn[0]);
 					}
 				}
@@ -1739,7 +1739,7 @@ class _ModelFunc{
 		// 단일 파일, 업로드 시 기존 파일 삭제
 		if(in_array($model->data[$key]->htmlType, array(HTMLType::FILE_IMAGE, HTMLType::FILE_WITH_NAME, HTMLType::FILE, HTMLType::FILE_JQUERY))){
 			if(isset($model->data[$key]->value) && strlen($model->data[$key]->value) && Post('del_file_' . $key) == 'y'){
-				$temp = explode('*', $model->data[$key]->value ?? '');
+				$temp = explode('*', isset($model->data[$key]->value) ? $model->data[$key]->value : '');
 				$model->data[$key]->__deleteFile[]= $temp[0];
 				$model->data[$key]->value = '';
 				$model->data[$key]->needIs = true;
@@ -1752,7 +1752,7 @@ class _ModelFunc{
 					$model->data[$key]->__moveFile[]= array('source' => $value[0]['file'], 'dest' => $newpath);
 					// 기존 파일
 					if(isset($model->data[$key]->value) && strlen($model->data[$key]->value)){
-						$temp = explode('*', $model->data[$key]->value ?? '');
+						$temp = explode('*', $model->data[$key]->value);
 						$model->data[$key]->__deleteFile[]= $temp[0];
 					}
 
@@ -1772,7 +1772,7 @@ class _ModelFunc{
 
 			$valuePath = array();
 			if(StrLength($model->data[$key]->value)){
-				$p = explode(';', $model->data[$key]->value ?? '');
+				$p = explode(';', $model->data[$key]->value);
 				foreach($p as $k => $v){
 					$f = explode('*', $v);
 					if(is_array($deleteFiles) && in_array($f[0], $deleteFiles)) $model->data[$key]->__deleteFile[]=  $f[0];

@@ -762,7 +762,7 @@ class Board{
 		$this->model->SetValue('htmlis', Post('htmlis') == 'y' ? 'y' : 'n');
 
 		// 섬네일 등록
-		if(IsImageFileName($this->model->_file1->value ?? '')){
+		if(IsImageFileName(isset($this->model->_file1->value) ? $this->model->_file1->value : '')){
 			$this->model->_thumbnail->SetValue($this->model->GetFilePath('file1'));
 		}
 
@@ -935,7 +935,7 @@ class Board{
 		}
 
 		// 섬네일 등록
-		if(IsImageFileName($this->model->_file1->value ?? '')){
+		if(IsImageFileName(isset($this->model->_file1->value) ? $this->model->_file1->value : '')){
 			$this->model->_thumbnail->SetValue($this->model->GetFilePath('file1'));
 		}
 

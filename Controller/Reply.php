@@ -66,7 +66,7 @@ class Reply{
 	}
 
 	protected function _ReplySetting($html = ''){
-		App::$layout = null;
+		App::$layout = '';
 		if(!isset($this->bid) || $this->bid == '') exit;
 
 		$mid = CM::GetMember('mid');

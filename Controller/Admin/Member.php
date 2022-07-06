@@ -38,7 +38,7 @@ class Member{
 			->SetArticleCount(20)
 			->AddWhere('withdraw = \'n\'')
 			->AddWhere('level < %d OR muid = %d', $_SESSION['member']['level'], $_SESSION['member']['muid']);
-		$keyword = trim(Get('Keyword') ?? '');
+		$keyword = StrTrim(Get('Keyword'));
 		$slevel = Get('SLevel');
 
 		if(StrLength($keyword)){
@@ -167,7 +167,7 @@ class Member{
 	}
 
 	public function AuthAdmin(){
-		App::$layout = null;
+		App::$layout = '';
 		if($_SESSION['member']['level'] != _SADMIN_LEVEL) return;
 		$dbGet = new \BH_DB_Get($this->model->table);
 		$dbGet->AddWhere('muid='.SetDBInt($_GET['muid']));

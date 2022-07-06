@@ -24,7 +24,7 @@ class BH_Application
 	 */
 	public static $cfg = array();
 	public static $showError = false;
-	public static $layout = null;
+	public static $layout = '';
 	public static $parentLayout = '';
 	public static $html;
 	public static $title;
@@ -289,8 +289,8 @@ class BH_Application
 		}
 		self::$bodyHtml = ob_get_clean();
 
-		if(!$disableLayout && !is_null(self::$layout)){
-			self::$parentLayout = self::$layout ?? '';
+		if(!$disableLayout && self::$layout != ''){
+			self::$parentLayout = self::$layout;
 			while(strlen(self::$parentLayout)){
 				self::$layout = self::$parentLayout;
 				self::$parentLayout = '';
