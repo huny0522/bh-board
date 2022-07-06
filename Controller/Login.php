@@ -48,7 +48,7 @@ class Login{
 		if(strlen($key) < 1){
 			URLReplace('-1', $this->useMailId ? App::$lang['NEED_EMAIL'] : App::$lang['NEED_ID']);
 		}
-		if(StrLength(Post('pwd')) < 1){
+		if(StrLenPost('pwd') < 1){
 			URLReplace('-1', App::$lang['INPUT_PASSWORD']);
 		}
 		$res = $this->useMailId ? $this->LoginEmailCheck($key, Post('pwd')) : $this->LoginMidCheck($key, Post('pwd'));
@@ -241,7 +241,7 @@ class Login{
 		$key = EmptyPost('mname') ? 'nickname' : 'mname';
 		if(EmptyPost($key)) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 		if(EmptyPost('email')) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
-		if(App::$id == 'PW' && !StrLength(Post('mid'))) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
+		if(App::$id == 'PW' && !StrLenPost('mid')) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 
 		$qry = DB::GetQryObj($this->model->table)
 			->AddWhere($key . ' = %s', Post($key))

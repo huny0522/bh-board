@@ -725,7 +725,7 @@ function ToFloat($s){
 }
 
 function RemoveScriptTag($str){
-	return preg_replace(array('/\<\/*\s*(script|form|input|select|button|textarea).*?\>/is', '/\<\s*(\S+?)(\s+[^\>]*\s+on[a-zA-Z]+|\s+on[a-zA-Z]+)\s*\=[^\>]*?\>/is', '/\<a[^\>]*?src\s*\=\s*[^\>]*?javascript\s*\:[^\>]*\>/'), array('', '<$1>', ''), $str);
+	return preg_replace(array('/\<\/*\s*(script|form|input|select|button|textarea).*?\>/is', '/\<\s*(\S+?)(\s+[^\>]*\s+on[a-zA-Z]+|\s+on[a-zA-Z]+)\s*\=[^\>]*?\>/is', '/\<a[^\>]*?src\s*\=\s*[^\>]*?javascript\s*\:[^\>]*\>/', '#\&(?!amp)#'), array('', '<$1>', '\&amp;'), $str);
 }
 
 function RemoveIFrame($str){
@@ -1134,9 +1134,29 @@ function &Post($param){
 	return $_POST[$param];
 }
 
-/* php 8 대용 */
+/* php 8 대응 */
 function StrLength($param){
-	return isset($param) ? (is_string($param) ? strlen($param) : 0) : 0;
+	return is_string($param) ? strlen($param) : 0;
+}
+
+function StrLenPost($param){
+	isset($_POST[$param]) ? (is_string($_POST[$param]) ? strlen($_POST[$param]): 0) : 0;
+}
+
+function StrLenGet($param){
+	isset($_GET[$param]) ? (is_string($_GET[$param]) ? strlen($_GET[$param]): 0) : 0;
+}
+
+function StrLenCookie($param){
+	isset($_COOKIE[$param]) ? (is_string($_COOKIE[$param]) ? strlen($_COOKIE[$param]): 0) : 0;
+}
+
+function StrLenSession($param){
+	isset($_SESSION[$param]) ? (is_string($_SESSION[$param]) ? strlen($_SESSION[$param]): 0) : 0;
+}
+
+function StrLenVal(&$val){
+	isset($val) ? (is_string($val) ? strlen($val): 0) : 0;
 }
 
 function EmptyPost($param){

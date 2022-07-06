@@ -24,8 +24,8 @@ class BH_HtmlCreate
 			URLRedirect(-1, '테이블이 존재하지 않습니다.');
 		}
 
-		$path = _CONTROLLERDIR . (StrLength($_POST['sub_dir']) ? '/' . $_POST['sub_dir'] : '') . '/' . $ControllerName . '.php';
-		$ndir = StrLength($_POST['sub_dir']) ? '\\' . str_replace('/', '\\', $_POST['sub_dir']) : '';
+		$path = _CONTROLLERDIR . (StrLenPost('sub_dir') ? '/' . Post('sub_dir') : '') . '/' . $ControllerName . '.php';
+		$ndir = StrLenPost('sub_dir') ? '\\' . str_replace('/', '\\', Post('sub_dir')) : '';
 
 		$ModelValueName = strtolower(substr($ModelName, 0, 1)) . substr($ModelName, 1).'Model';
 

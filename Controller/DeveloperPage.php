@@ -30,10 +30,10 @@ class DeveloperPage
 	}
 
 	public function PostLogin(){
-		if(StrLength(Post('mid')) < 1){
+		if(StrLenPost('mid') < 1){
 			URLReplace('-1', App::$lang['NEED_ID']);
 		}
-		if(StrLength(Post('pwd')) < 1){
+		if(StrLenPost('pwd') < 1){
 			URLReplace('-1', App::$lang['INPUT_PASSWORD']);
 		}
 		$res = $this->LoginMidCheck(Post('mid'), Post('pwd'));

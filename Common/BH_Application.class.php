@@ -102,7 +102,7 @@ class BH_Application
 			exit;
 		}
 
-		if(!isset(self::$settingData['GetUrl'][1]) || !StrLength(self::$settingData['GetUrl'][1])) self::$settingData['GetUrl'][1] = _DEFAULT_CONTROLLER;
+		if(!isset(self::$settingData['GetUrl'][1]) || !strlen(self::$settingData['GetUrl'][1])) self::$settingData['GetUrl'][1] = _DEFAULT_CONTROLLER;
 
 
 		self::$baseDir = Paths::Url();
@@ -290,7 +290,7 @@ class BH_Application
 		self::$bodyHtml = ob_get_clean();
 
 		if(!$disableLayout && !is_null(self::$layout)){
-			self::$parentLayout = self::$layout;
+			self::$parentLayout = self::$layout ?? '';
 			while(strlen(self::$parentLayout)){
 				self::$layout = self::$parentLayout;
 				self::$parentLayout = '';

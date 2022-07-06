@@ -129,7 +129,7 @@ class Member{
 	}
 
 	public function PostModify(){
-		if(!StrLength(Post('pwd'))) $this->model->AddExcept('pwd');
+		if(!StrLenPost('pwd')) $this->model->AddExcept('pwd');
 
 		$res = $this->model->DBGet(Post('muid'));
 		if($this->model->GetValue('level') > $_SESSION['member']['level'] || ($_SESSION['member']['muid'] != $this->model->GetValue('muid') && $this->model->GetValue('level') == $_SESSION['member']['level'])){

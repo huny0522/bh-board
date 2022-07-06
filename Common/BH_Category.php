@@ -80,7 +80,7 @@ class BH_Category{
 			$dbGet->AddWhere('LENGTH(category) = %d', strlen($pCategory) + $this->model->CategoryLength);
 		}
 		$ct = $dbGet->Get();
-		if(!StrLength($ct['category'])) $newCategory = sprintf('%0'.$this->model->CategoryLength.'d', 0);
+		if(isset($ct['category']) && !strlen($ct['category'])) $newCategory = sprintf('%0'.$this->model->CategoryLength.'d', 0);
 		else{
 			$newCategory = substr($ct['category'],strlen($pCategory), $this->model->CategoryLength);
 			if(!strlen($newCategory)) $newCategory = sprintf('%0'.$this->model->CategoryLength.'d', 0);
@@ -127,8 +127,8 @@ class BH_Category{
 		$data = $this->ModelDBGet();
 		if($data->result){
 			$sort = SetDBInt(Post('sort'));
-			$parentWhere = StrToSql('LEFT(category,%d) = %s', StrLength(Post('parent')), Post('parent'));
-			$parentWhere .= StrToSql(' AND LENGTH(category) = %d', StrLength(Post('parent')) + $this->model->CategoryLength);
+			$parentWhere = StrToSql('LEFT(category,%d) = %s', StrLenPost('parent'), Post('parent'));
+			$parentWhere .= StrToSql(' AND LENGTH(category) = %d', StrLenPost('parent') + $this->model->CategoryLength);
 
 			$res = false;
 			if($sort < $this->model->GetValue('sort')){
@@ -172,11 +172,11 @@ class BH_Category{
 		$dbGet->AddWhere('category = %s', Post('category'));
 		$data = $dbGet->Get();
 
-		$parent = substr($data['category'], 0, StrLength($data['category']) - $this->model->CategoryLength);
+		$parent = substr($data['category'], 0, strlen($data['category']??'') - $this->model->CategoryLength);
 
 		if($data !== false && $data){
 			$qry = $this->SqlDeleteQry();
-			$qry->AddWhere('LEFT(category, %d) = %s', StrLength(Post('category')), Post('category'));
+			$qry->AddWhere('LEFT(category, %d) = %s', StrLenPost('category'), Post('category'));
 			$res = $qry->Run();
 			if($res){
 				$qry = $this->SqlUpdateQry();

@@ -208,7 +208,7 @@ class Reply{
 			}
 		}
 
-		if(StrLength(Post('seq'))){
+		if(StrLenPost('seq')){
 			$seq = to10(Post('seq'));
 			$dbList->AddWhere('seq = %d', $seq);
 		}
@@ -535,7 +535,7 @@ class Reply{
 		if($this->managerIs || CM::GetAdminIs()) $myArticleIs = true;
 		else if(StrLength($this->boardModel->GetValue('muid')))
 			$myArticleIs = (_MEMBERIS === true && $this->_CheckMyMUid($this->boardModel, 'muid'));
-		else if(isset($this->boardModel->data['target_muid']) && strlen($this->boardModel->GetValue('target_muid')))
+		else if(isset($this->boardModel->data['target_muid']) && StrLength($this->boardModel->GetValue('target_muid')))
 			$myArticleIs = (_MEMBERIS === true && $this->_CheckMyMUid($this->boardModel, 'target_muid'));
 		return $myArticleIs;
 	}

@@ -118,7 +118,7 @@ class BH_Common
 	}
 
 	public static function FirebaseSetIs(){
-		if(is_null(self::$fbSetIs)) self::$fbSetIs = (class_exists('Kreait\Firebase\Factory') && strlen(trim(App::$cfg->Def()->firebaseWebConfig->Val())) > 0 && strlen(trim(App::$cfg->Def()->googleServiceAccount->Val())) > 0);
+		if(is_null(self::$fbSetIs)) self::$fbSetIs = (class_exists('Kreait\Firebase\Factory') && strlen(trim(App::$cfg->Def()->firebaseWebConfig->Val() ?? '')) > 0 && strlen(trim(App::$cfg->Def()->googleServiceAccount->Val()??'')) > 0);
 		return self::$fbSetIs;
 	}
 
@@ -233,7 +233,7 @@ class BH_Common
 	public static function MenuConnect($bid, $type, $subid = ''){
 		$AdminAuth = explode(',', self::GetMember('admin_auth'));
 		if(in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL){
-			if(StrLength($_POST['select_menu'])){
+			if(StrLenPost('select_menu')){
 				$selectmenu = explode(',', $_POST['select_menu']);
 				$mUpdate = new \BH_DB_Update(TABLE_MENU);
 				$mUpdate->AddWhere('category IN (%s)', $selectmenu);

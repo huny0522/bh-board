@@ -652,7 +652,7 @@ class Board{
 			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
-		$seq = to10(StrLength(Post('target')) ? Post('target') : Get('target'));
+		$seq = to10(StrLenPost('target') ? Post('target') : Get('target'));
 		if(!strlen($seq)) URLReplace('-1');
 
 		$qry = DB::GetQryObj($this->model->table)
