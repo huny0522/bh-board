@@ -40,8 +40,4 @@ foreach($cls as $k => $v){
 <script>
 	<?p. CM::TinyMCEScript() ?>
 	SE2_paste('text', '<?php _URL ?>', true);
-
-	$(document).on('submit', '#ConfigForm', function(e){
-		SE2_update('text');
-	});
 </script>

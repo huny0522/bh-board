@@ -8,7 +8,7 @@ use \BH_Application as App;
  */
 App::JSAdd('board.js', 200);
 $subid = $Ctrl->subid;
-$useHtml = ($Ctrl->boardManger->_use_html->value == 'y' && (_MOBILEIS !== true || CM::TinyMCEUseIs())) ? 'y' : 'n';
+$useHtml = ($Ctrl->boardManger->_use_html->value == 'y' && CM::TinyMCEUseIs()) ? 'y' : 'n';
 ?>
 
 
@@ -150,7 +150,7 @@ $useHtml = ($Ctrl->boardManger->_use_html->value == 'y' && (_MOBILEIS !== true |
 
 <script>
 	<?p. CM::TinyMCEScript() ?>
-	AppBoard.Write.subCategory = '<?p. str_replace('\'', '\\\'', $Model->_sub_category->Txt() ? $Model->_sub_category->Txt() : Get('scate')) ?>';
+	AppBoard.Write.subCategory = '<?p. str_replace('\'', '\\\'', $Model->_sub_category->Txt() ? $Model->_sub_category->Txt() : (string)Get('scate')) ?>';
 	AppBoard.Write.getSubCategoryUrl = '<?a. 'GetSubCategory' ?>';
 	AppBoard.Write.bid = '<?v. $Ctrl->bid ?>';
 	AppBoard.Write.subid = '<?v. $Ctrl->subid ?>';

@@ -118,7 +118,7 @@ class ConfigDefault extends _ConfigModel
 		$this->copyright = _CfgData::GetInstance()->SetTitle('COPYRIGHT');
 		$this->newIconDay = _CfgData::GetInstance()->SetTitle('새글 표시기간')->SetDefaultValue(1);
 		$this->addHead = _CfgData::GetInstance()->SetTitle('추가 HEAD')->SetType(HTMLType::TEXTAREA);
-		$this->htmlEditor = _CfgData::GetInstance()->SetTitle('HTML 에디터')->SetType(HTMLType::RADIO)->SetEnumValues(array('smarteditor2' => 'SmartEditor2', 'tinymce' => 'TinyMCE'))->SetDefaultValue('smarteditor2');
+		$this->htmlEditor = _CfgData::GetInstance()->SetTitle('HTML 에디터')->SetType(HTMLType::RADIO)->SetEnumValues(array('tinymce' => 'TinyMCE'))->SetDefaultValue('tinymce');
 		$this->useMailId = _CfgData::GetInstance()->SetTitle('메일아이디 사용')->SetType(HTMLType::CHECKBOX)->SetEnumValues(array('y' => '사용'));
 		$this->mailIdAddrSelection = _CfgData::GetInstance()->SetTitle('메일주소 선택 표시')->SetType(HTMLType::CHECKBOX)->SetEnumValues(array('y' => '메일주소 선택 표시'));
 		$this->joinApprove = _CfgData::GetInstance()->SetTitle('가입 즉시 사용')->SetType(HTMLType::RADIO)->SetEnumValues(array('n' => '가입 후 승인 필요', 'y' => '가입즉시 로그인 가능'))->SetDefaultValue('y');

@@ -208,7 +208,7 @@ class BoardManagerModel extends \BH_Model
 					INDEX `category` (`subid`, `category`, `sort1`, `sort2`, `delis`),
 					INDEX `category_sub` (`subid`, `category`, `sub_category`, `sort1`, `sort2`, `delis`)
 				)
-				COLLATE='utf8_general_ci'
+				COLLATE='utf8mb4_general_ci'
 				ENGINE=InnoDB";
 		$res = \DB::SQL()->Query($sql);
 		return $res;
@@ -240,7 +240,7 @@ class BoardManagerModel extends \BH_Model
 					PRIMARY KEY (`seq`),
 					INDEX `sort` (`article_seq`, `sort1`, `sort2`, `delis`)
 				)
-				COLLATE='utf8_general_ci'
+				COLLATE='utf8mb4_general_ci'
 				ENGINE=InnoDB";
 		$res = \DB::SQL()->Query($sql);
 		return $res;
@@ -259,7 +259,7 @@ class BoardManagerModel extends \BH_Model
 					`imagename` VARCHAR(128) NOT NULL DEFAULT '',
 					PRIMARY KEY (`article_seq`, `seq`)
 				)
-				COLLATE='utf8_general_ci'
+				COLLATE='utf8mb4_general_ci'
 				ENGINE=InnoDB";
 		$res = \DB::SQL()->Query($sql);
 		return $res;
@@ -273,7 +273,7 @@ class BoardManagerModel extends \BH_Model
 				`reg_date` DATETIME NOT NULL DEFAULT '0000-01-01 00:00:00',
 				PRIMARY KEY (`action_type`, `article_seq`, `muid`)
 			)
-			COLLATE='utf8_general_ci'
+			COLLATE='utf8mb4_general_ci'
 			ENGINE=InnoDB";
 		$res = \DB::SQL()->Query($sql);
 		return $res;

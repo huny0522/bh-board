@@ -134,6 +134,7 @@
 
 		this.html2txt = function(str){
 			//language=JSRegexp
+			str = str.replace(/\&/ig, '&amp;');
 			str = str.replace(/</ig, '&lt;');
 			str = str.replace(/>/ig, '&gt;');
 			str = str.replace(/'/ig, '&#39;');
@@ -1378,7 +1379,7 @@
 		useTinyMce : false,
 		tinyMCELoadIs : false,
 		tinyMCEPath : '',
-		plugin : 'advlist autolink link image lists charmap print preview media emoticons table',
+		plugin : 'advlist autolink link image lists charmap preview media emoticons table',
 		toolbar : 'undo redo | styleselect | bold italic | alignleft aligncenter alignright | bulllist numlist outdent indent | link image media emoticons | table',
 		mobileToolbar : ['undo', 'bold', 'italic', 'link', 'image', 'bullist', 'styleselect'],
 		defaultFolder : '',
@@ -1666,190 +1667,16 @@
 		});
 	});
 
-	/* -------------------------------------------
-	 *
-	 *   smart editor 2 attach
-	 *
-	 ------------------------------------------- */
-	var oEditors = [];
-	var SE2LoadIs = false;
 	window.SE2_paste = function(id, defaultfolder, hiddenBtns){
 		if(tinyMCEHelper.useTinyMce){
 			tinyMCEHelper.Paste(id, defaultfolder, hiddenBtns);
 			return;
 		}
-		var scriptLoadIs = typeof(nhn) !== 'undefined' && typeof(nhn.husky) !== 'undefined' && typeof(nhn.husky.EZCreator) !== 'undefined';
-		if(scriptLoadIs){
-			SE2LoadIs = true;
-			spaste(id, defaultfolder, hiddenBtns);
-		}
-		else{
-			if(!SE2LoadIs){
-				SE2LoadIs = true;
-				bhJQuery.getScript('/Skin/js/smarteditor2/dist/js/service/HuskyEZCreator.js').done(function( s, Status ) {
-					spaste(id, defaultfolder, hiddenBtns);
-				});
-			}
-			else{
-				setTimeout(function(){
-					SE2_paste(id, defaultfolder, hiddenBtns);
-				}, 200);
-			}
-		}
-
-
-		function spaste(id, defaultfolder, hiddenBtns){
-			if(!hiddenBtns){
-				var additionalBtns = '<div class="se2_add_img" data-sname="'+id+'">' +
-					'<span><button type="button" class="upbtn"><i></i><span>' + window._CM_LANG.image + '</span></button></span>' +
-					'<div></div>' +
-					'</div>';
-
-				additionalBtns += '<div class="se2_add_youtube">' +
-					'<span><button type="button" data-sname="'+id+'"><i></i><span>' + window._CM_LANG.youtube + '</span></button></span>' +
-					'</div>';
-
-				additionalBtns += '<div class="se2_add_link">' +
-					'<span><button type="button" data-sname="'+id+'"><i></i><span>' + window._CM_LANG.link + '</span></button></span>' +
-					'</div>';
-
-				bhJQuery('#'+id).before('<div class="se2_addi_btns">' + additionalBtns + '</div>');
-			}
-			if(!bhJQuery('#fileupfrm').length){
-				var imgfrm = '<form id="fileupfrm" method="post" action="/Upload/ImageUpload/" enctype="multipart/form-data" style="display:block; width:0; height:0; overflow: hidden;">' +
-					'<input type="file" name="Filedata" value="" data-sname="" accept="image/*" id="fileupinp" />' +
-					'</form>';
-				bhJQuery('body').append(imgfrm);
-			}
-
-			nhn.husky.EZCreator.createInIFrame({
-				oAppRef: oEditors,
-				elPlaceHolder: id,
-				sSkinURI: defaultfolder + "/Skin/js/smarteditor2/dist/SmartEditor2Skin.html",
-				htParams : {
-					bUseToolbar : true,				// 툴바 사용 여부 (true:사용/ false:사용하지 않음)
-					bUseVerticalResizer : true,		// 입력창 크기 조절바 사용 여부 (true:사용/ false:사용하지 않음)
-					bUseModeChanger : true,			// 모드 탭(Editor | HTML | TEXT) 사용 여부 (true:사용/ false:사용하지 않음)
-					//aAdditionalFontList : aAdditionalFontSet,		// 추가 글꼴 목록
-					// bSkipXssFilter : true,		// client-side xss filter 무시 여부 (true:사용하지 않음 / 그외:사용)
-					bSkipXssFilter : true,
-					fOnBeforeUnload : function(){
-						//CMAlert("완료!");
-					}
-				}, //boolean
-				fOnAppLoad : function(){
-					var sDefaultFont = '나눔고딕';
-					var nFontSize = 11;
-					oEditors.getById[id].setDefaultFont(sDefaultFont, nFontSize);
-					//예제 코드
-				},
-				fCreator: "createSEditor2"
-			});
-		}
 	}
 
 	window.SE2_update = function(id){
 		if(tinyMCEHelper.useTinyMce) return;
-		oEditors.getById[id].exec("UPDATE_CONTENTS_FIELD", []);	// 에디터의 내용이 textarea에 적용됩니다.
 	}
-
-	bhJQuery(document).on('click','.se2_add_img button.upbtn',function(e){
-		e.preventDefault();
-		bhJQuery('#fileupinp').attr('data-sname', bhJQuery(this).parents('.se2_add_img').attr('data-sname'));
-		bhJQuery('#fileupinp').click();
-	});
-
-	bhJQuery(document).on('click','.se2_add_youtube button',function(e){
-		e.preventDefault();
-		var sname = bhJQuery(this).attr('data-sname');
-		if(bhJQuery('#youtubeLinkModal').length) return;
-		var html = '<article id="youtubeLinkModal" class="modal_layer" data-sname="' + sname + '"><div class="modal_wrap">' +
-			'<header class="modal_header"><h1>' + window._CM_LANG.youtubeLink + '</h1><button type="button" class="close"><i class="cross"></i></button></header><div class="modal_contents">' +
-			'<dl><dt>' + window._CM_LANG.linkUrl + '</dt><dd><textarea id="youtubeText"></textarea></dd></dl>' +
-			'<dl><dt>' + window._CM_LANG.size + '</dt><dd>' + window._CM_LANG.width + ' : <input type="text" class="num" id="youtubeWidthInp" value="720"> * ' + window._CM_LANG.height + ' : <input type="text" id="youtubeHeightInp" class="num" value="405"></dd></dl>' +
-			'<footer><button type="button" id="youtubeSubmitBtn" class="mBtn btn2">' + window._CM_LANG.append + '</button></footer>' +
-			'</div></div></article>';
-		bhJQuery('body').append(html);
-		JCM.showModal('youtubeLinkModal');
-
-		bhJQuery('#youtubeSubmitBtn').on('click', function(){
-
-			var w = bhJQuery('#youtubeWidthInp').val();
-			var h = bhJQuery('#youtubeHeightInp').val();
-			if(!w.match(/[^0-9]/)) w = w + 'px';
-			if(!h.match(/[^0-9]/)) h = h + 'px';
-			var html = Youtube(bhJQuery('#youtubeText').val(), w, h);
-			oEditors.getById[sname].exec('PASTE_HTML', [html]);
-			JCM.removeModal('#youtubeLinkModal');
-		});
-
-
-
-		function Youtube(urlOrId, width, height){
-			urlOrId = GetYoutubeId(urlOrId);
-			if(typeof(height) !== 'undefined') height = 'height : ' + height + ';';
-			if(typeof(width) !== 'undefined') width = 'width : ' + width + ';';
-			if(urlOrId !== false) return '<iframe src="https://www.youtube.com/embed/' + urlOrId + '?rel=0&amp;showinfo=0&amp;autohide=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="' + width + height + '" autohide="1"></iframe>';
-			return '';
-		}
-
-		function GetYoutubeId(urlOrId){
-			urlOrId = bhJQuery.trim(urlOrId);
-			var find = urlOrId.match(/youtu\.be\/([a-zA-Z0-9\-\_]+)/);
-			if(find !== null && find.length > 1){
-				return find[1];
-			}
-
-			var find = urlOrId.match(/youtube\.com\/embed\/([a-zA-Z0-9\-\_]+)/);
-			if(find !== null && find.length > 1){
-				return find[1];
-			}
-
-			var find = urlOrId.match(/youtube\.com\/watch.*?v=([a-zA-Z0-9\-\_]+)/);
-			if(find !== null && find.length > 1){
-				return find[1];
-			}
-			return false;
-		}
-	});
-
-	bhJQuery(document).on('click','.se2_add_link button',function(e){
-		e.preventDefault();
-		var sname = bhJQuery(this).attr('data-sname');
-		if(bhJQuery('#urlLinkModal').length) return;
-		var html = '<article id="urlLinkModal" class="modal_layer" data-sname="' + sname + '"><div class="modal_wrap">' +
-			'<header class="modal_header"><h1>' + window._CM_LANG.appendLink + '</h1><button type="button" class="close"><i class="cross"></i></button></header><div class="modal_contents">' +
-			'<dl><dt>' + window._CM_LANG.linkUrl + '</dt><dd><input type="text" id="urlLinkInp" class="w100p"></dd></dl>' +
-			'<footer><button type="button" id="urlLinkSubmitBtn" class="mBtn btn2">' + window._CM_LANG.append + '</button></footer>' +
-			'</div></div></article>';
-		bhJQuery('body').append(html);
-		JCM.showModal('urlLinkModal');
-
-		bhJQuery('#urlLinkSubmitBtn').on('click', function(){
-			var url = bhJQuery.trim(bhJQuery('#urlLinkInp').val());
-			if(url !== ''){
-				var html = '<a href="' + url + '" target="_blank">' + url + '</a>';
-				oEditors.getById[sname].exec('PASTE_HTML', [html]);
-			}
-			JCM.removeModal('#urlLinkModal');
-		});
-	});
-
-	bhJQuery(document).on('change', '#fileupinp', function(e){
-		e.preventDefault();
-		bhJQuery('#fileupfrm').submit();
-	});
-
-	bhJQuery(document).on('submit','#fileupfrm',function(e){
-		e.preventDefault();
-		JCM.ajaxForm(this, function(result){
-			var hinp = '<input type="hidden" name="addimg[]" value="'+result.path+'|'+result.fname+'">';
-			bhJQuery('.se2_add_img div').append(hinp);
-			bhJQuery('#fileupfrm')[0].reset();
-			var html = '<img src="' + result.uploadDir + result.path + '">';
-			oEditors.getById[bhJQuery('#fileupinp').attr('data-sname')].exec('PASTE_HTML', [html]);
-		});
-	});
 
 	// 함수가 생성됐는지 체크 후 콜백 실행
 	window.ExecuteWhenExistsFunction = function(func, callback){

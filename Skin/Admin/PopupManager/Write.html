@@ -141,8 +141,6 @@ use \BH_Application as App;
 	}
 
 	$(document).on('submit', '#BannerWriteForm', function(e){
-		if(contentsViewIs) SE2_update('MD_contents');
-
 		var res = $(this).validCheck();
 		if(!res){
 			e.preventDefault();

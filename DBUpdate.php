@@ -21,7 +21,7 @@ $createSql['18.09.15'][] = array(
 					INDEX `muid` (`muid`),
 					INDEX `target_muid` (`target_muid`)
 				)
-				COLLATE='utf8_general_ci'
+				COLLATE='utf8mb4_general_ci'
 				ENGINE=InnoDB"
 );
 
@@ -36,7 +36,7 @@ $createSql['18.12.29'][] = array(
 					INDEX `muid` (`muid`),
 					INDEX `target_muid` (`target_muid`)
 				)
-				COLLATE='utf8_general_ci'
+				COLLATE='utf8mb4_general_ci'
 				ENGINE=InnoDB"
 );
 
@@ -88,7 +88,7 @@ CREATE TABLE `".TABLE_FRAMEWORK_SETTING."` (
 	`data` TEXT NOT NULL,
 	PRIMARY KEY (`key_name`)
 )
-COLLATE='utf8_general_ci'
+COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB
 ";
 	$sql[]="
@@ -113,7 +113,7 @@ CREATE TABLE `".TABLE_BANNER."` (
 	INDEX `end_date` (`end_date`),
 	INDEX `enabled` (`enabled`)
 )
-COLLATE='utf8_general_ci'
+COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB
 ";
 
@@ -150,7 +150,7 @@ CREATE TABLE `".TABLE_BOARD_MNG."` (
 	INDEX `group_name` (`group_name`, `bid`,`subid`)
 )
 COMMENT='게시판 관리'
-COLLATE='utf8_general_ci'
+COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB
 ";
 
@@ -170,7 +170,7 @@ CREATE TABLE `".TABLE_CONTENT."` (
 	PRIMARY KEY (`bid`),
 	INDEX `category` (`category`)
 )
-COLLATE='utf8_general_ci'
+COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB
 ";
 
@@ -183,7 +183,7 @@ CREATE TABLE `".TABLE_IMAGES."` (
 	`imagename` VARCHAR(128) NOT NULL DEFAULT '',
 	PRIMARY KEY (`tid`, `article_seq`, `seq`)
 )
-COLLATE='utf8_general_ci'
+COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB
 ";
 
@@ -215,7 +215,7 @@ CREATE TABLE `".TABLE_MEMBER."` (
 	UNIQUE INDEX `email` (`email`),
 	UNIQUE INDEX `mid` (`mid`)
 )
-COLLATE='utf8_general_ci'
+COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB
 ";
 
@@ -243,7 +243,7 @@ CREATE TABLE `".TABLE_MENU."` (
 	INDEX `parent_enabled` (`parent_enabled`),
 	INDEX `sort` (`sort`)
 )
-COLLATE='utf8_general_ci'
+COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB
 ";
 
@@ -272,7 +272,7 @@ CREATE TABLE `".TABLE_POPUP."` (
 	INDEX `end_date` (`end_date`),
 	INDEX `enabled` (`enabled`)
 )
-COLLATE='utf8_general_ci'
+COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB";
 
 	$sql[]= "
@@ -289,7 +289,7 @@ CREATE TABLE `".TABLE_WITHDRAW_MEMBER."` (
 	`w_date` DATETIME NOT NULL DEFAULT '0000-01-01 00:00:00' COMMENT '탈퇴일',
 	PRIMARY KEY (`muid`)
 )
-COLLATE='utf8_general_ci'
+COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB";
 
 	$sql[] = "CREATE TABLE `" . TABLE_CONTENT_ACTION . "` (
@@ -300,7 +300,7 @@ ENGINE=InnoDB";
 				PRIMARY KEY (`action_type`, `bid`, `muid`),
 				INDEX `bid` (`bid`, `muid`)
 			)
-			COLLATE='utf8_general_ci'
+			COLLATE='utf8mb4_general_ci'
 			ENGINE=InnoDB";
 
 	$sql[] = "CREATE TABLE `" . TABLE_VISIT . "` (

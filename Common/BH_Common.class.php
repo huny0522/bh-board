@@ -429,7 +429,7 @@ class BH_Common
 	}
 
 	public static function TinyMCEUseIs(){
-		return (isset(App::$settingData['tinyMCEPath']) && strlen(App::$settingData['tinyMCEPath']) && file_exists(_DIR . App::$settingData['tinyMCEPath']) && App::$cfg->Def()->htmlEditor->value == 'tinymce');
+		return (isset(App::$settingData['tinyMCEPath']) && strlen(App::$settingData['tinyMCEPath']) && file_exists(\Paths::Dir(App::$settingData['tinyMCEPath'])) && App::$cfg->Def()->htmlEditor->Val() == 'tinymce');
 	}
 
 	/**

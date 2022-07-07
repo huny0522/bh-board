@@ -396,8 +396,6 @@ var AppBoard = {
 		},
 
 		SubmitWrite : function(e){
-			if(AppBoard.Write.useSE2Is) SE2_update('MD_content');
-
 			var res = $(this).validCheck();
 			if(!res){
 				e.preventDefault();

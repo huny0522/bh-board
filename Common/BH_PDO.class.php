@@ -64,7 +64,7 @@ class DB{
 					exit;
 				}
 
-				self::$conn[self::$connName]->exec("set names utf8");
+				self::$conn[self::$connName]->exec("set names utf8mb4");
 			}
 			else{ echo('NOT_DEFINE_DB'); exit; }
 		}

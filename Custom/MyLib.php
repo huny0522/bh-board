@@ -22,14 +22,15 @@ App::$extendMethod['AfterSetView'] = function(){
 
 };
 
-// tinymce 에디터 경로
-App::$settingData['tinyMCEPath'] = \Paths::UrlOfSkin() . '/js/tinymce/tinymce.min.js';
-
 // 로드밸런싱용 서브 IP
 App::$settingData['loadBalancingSubIp'] = array();
 // 로드밸런싱용 메인 IP
 App::$settingData['loadBalancingMainIp'] = '192.168.0.2';
 */
+
+// composer require tinymce/tinymce
+if(file_exists(\Paths::Dir('/vendor/tinymce/tinymce/tinymce.min.js')))
+	App::$settingData['tinyMCEPath'] = \Paths::Url('/vendor/tinymce/tinymce/tinymce.min.js');
 
 // JSON 으로 공통으로 보낼 값
 App::$settingData['jsonCommonData'] = null;
