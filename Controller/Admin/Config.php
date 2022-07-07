@@ -52,7 +52,7 @@ class Config{
 		if(Get('redirect_url')){
 			URLReplace(Get('redirect_url'), '설정되었습니다.');
 		}
-		else URLReplace(App::URLAction(Post('Code') != 'Default' ? Post('Code') : ''), '설정되었습니다.');
+		else URLReplace(App::URLAction(Post('Code') != 'ConfigDefault' ? Post('Code') : ''), '설정되었습니다.');
 	}
 
 	public function Content(){

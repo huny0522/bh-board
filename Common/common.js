@@ -1396,7 +1396,8 @@
 			},
 			images_upload_credentials: true,
 			image_dimensions : false,
-			images_upload_handler: function (blobInfo, success, failure) {
+			images_upload_handler: function(blobInfo, progress){
+				return new Promise(function (resolve, reject) {
 				var xhr, formData;
 
 				xhr = new XMLHttpRequest();
@@ -1407,20 +1408,25 @@
 					var json;
 
 					if (xhr.status < 200 || xhr.status >= 300) {
-						failure('HTTP Error: ' + xhr.status);
+						reject('HTTP Error: ' + xhr.status);
 						return;
 					}
 
 					json = JSON.parse(xhr.responseText);
 
 					if (!json || !json.result || typeof json.data.path != 'string') {
-						failure('Invalid JSON: ' + xhr.responseText);
+						if(typeof(json.message) !== 'undefined') reject(json.message);
+						else reject('Invalid JSON: ' + xhr.responseText);
 						return;
 					}
 
 					var hinp = '<input type="hidden" name="addimg[]" value="'+json.data.path+'|'+json.data.fname+'">';
 					bhJQuery(tinyMCEHelper.opt.selector).after(hinp);
-					success(json.data.uploadDir + json.data.path);
+					resolve(json.data.uploadDir + json.data.path);
+				};
+
+				xhr.onerror = function () {
+					reject('Image upload failed due to a XHR Transport error. Code: ' + xhr.status);
 				};
 
 				formData = new FormData();
@@ -1428,7 +1434,7 @@
 				formData.append('Filedata', blobInfo.blob(), fileName);
 
 				xhr.send(formData);
-			}
+			});}
 		},
 		Paste : function(id, defaultfolder, hiddenimage, callback){
 			var _this = this;
