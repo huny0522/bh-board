@@ -323,6 +323,66 @@ class BHError
 	}
 }
 
+class BHSession
+{
+	private $__sessionValue;
+	/** @var BHSession[] */
+	private $__children = array();
+	/** @var BHSession */
+	private $__primary;
+
+	public function __construct($primary = null){
+		if(isset($primary)) $this->__primary = $primary;
+		else $this->__primary = $this;
+	}
+
+	public function __get($name) : BHSession{
+		if(!isset($this->__children[$name])) $this->__children[$name] = new BHSession($this->__primary);
+		return $this->__children[$name];
+	}
+
+	public function Get(){
+		if(isset($this->__sessionValue)) return $this->__sessionValue;
+		return $this->__GetData();
+	}
+
+	public function __unset($name){
+		if(isset($this->__children[$name])){
+			unset($this->__children[$name]);
+			$this->__AfterUpdate();
+		}
+	}
+
+	public function Set($value){
+		if(is_array($value)){
+			foreach($value as $k => $v){
+				$this->{$k}->Set($v);
+			}
+		}
+		else $this->__sessionValue = $value;
+		$this->__AfterUpdate();
+	}
+
+	public function __GetData() : mixed{
+		if(isset($this->__sessionValue)) return $this->__sessionValue;
+		if(!sizeof($this->__children)) return null;
+		$res = array();
+		foreach($this->__children as $k => $v){
+			$d = $v->__GetData();
+			if(!is_null($d)) $res[$k] = $d;
+		}
+		return sizeof($res) ? $res : null;
+	}
+
+	private function __AfterUpdate(){
+		$dt = $this->__primary->__GetData();
+		if(isset(BH_Application::$extendMethod['sessionAfterUpdate']) && is_callable(BH_Application::$extendMethod['sessionAfterUpdate'])){
+			$call = BH_Application::$extendMethod['sessionAfterUpdate'];
+			$call($dt);
+		}
+	}
+}
+
 define('_POSTIS', isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST');
 define('_AJAXIS', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
 define('_JSONIS', isset($_SERVER['HTTP_ACCEPT']) && strpos(strtolower($_SERVER['HTTP_ACCEPT']), 'application/json') !== false);
