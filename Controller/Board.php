@@ -177,7 +177,7 @@ class Board{
 
 		$this->_SetCategory();
 
-		if(!$this->adminPathIs && _MEMBERIS !== true && $this->boardManger->GetValue('man_to_man') === 'y') URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+		if(!$this->adminPathIs && \BHG::$isMember !== true && $this->boardManger->GetValue('man_to_man') === 'y') URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 		if($this->boardManger->GetValue('man_to_man') === 'y') $this->boardManger->SetValue('use_secret', 'n');
 	}
 
@@ -267,7 +267,7 @@ class Board{
 	public function GetAuth($mode){
 		if(CM::GetAdminIs()) return true;
 		if($this->managerIs) return true;
-		$memberLevel = _MEMBERIS === true ? $_SESSION['member']['level'] : 0;
+		$memberLevel = \BHG::$isMember === true ? $_SESSION['member']['level'] : 0;
 		switch($mode){
 			case 'Write':
 			case 'Modify':
@@ -290,7 +290,7 @@ class Board{
 	public function Index(){
 		$res = $this->GetAuth('List');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			if(\BHG::$isMember !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 		if($this->getListIs || $this->moreListIs){
@@ -304,7 +304,7 @@ class Board{
 
 	public function _SearchQuery($qry, $noticeIs = false){
 
-		if(_MEMBERIS === true){
+		if(\BHG::$isMember === true){
 			$blockUser = CM::GetBlockUsers();
 			if(sizeof($blockUser)){
 				$qry->AddWhere('`A`.`muid` NOT IN (%d)', $blockUser);
@@ -352,7 +352,7 @@ class Board{
 	public function GetList($viewPageIs = false, $listQueryFunc = null){
 		$res = $this->GetAuth('List');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			if(\BHG::$isMember !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 
@@ -398,7 +398,7 @@ class Board{
 	public function MoreList($backIs = false, $listQueryFunc = null){
 		$res = $this->GetAuth('List');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			if(\BHG::$isMember !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 
@@ -512,7 +512,7 @@ class Board{
 
 		$viewAuth = $this->GetAuth('View');
 		if(!$viewAuth){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			if(\BHG::$isMember !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 
@@ -527,7 +527,7 @@ class Board{
 
 		// 비밀번호없이 수정권한
 		$data['modifyAuthDirect'] = false;
-		if($this->GetAuth('Write') && _MEMBERIS === true && ($this->_CheckMyMUid($this->model, 'muid')|| CM::GetAdminIs() )){
+		if($this->GetAuth('Write') && \BHG::$isMember === true && ($this->_CheckMyMUid($this->model, 'muid')|| CM::GetAdminIs() )){
 			$data['modifyAuthDirect'] = true;
 		}
 
@@ -545,7 +545,7 @@ class Board{
 
 			}
 
-			if(_MEMBERIS === true){
+			if(\BHG::$isMember === true){
 				// 자신의 글 권한
 				if($this->_CheckMyMUid($this->model, 'muid') || (isset($firstDoc) && $this->model->GetValue('first_member_is') == 'y' && $this->_CheckMyMUid($firstDoc, 'muid'))){
 					$viewAuth = true;
@@ -578,7 +578,7 @@ class Board{
 		}
 
 		App::$data['boardActionData'] = array();
-		if(_MEMBERIS == true){
+		if(\BHG::$isMember == true){
 			$res = ArticleAction::GetInstance($this->bid)
 				->SetConnName($this->connName)
 				->SetArticleSeq($seq)
@@ -621,7 +621,7 @@ class Board{
 	public function Write($printBeforeFunc = null){
 		$res = $this->GetAuth('Write');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			if(\BHG::$isMember !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 
@@ -649,7 +649,7 @@ class Board{
 	public function Answer($printBeforeFunc = null){
 		$res = $this->GetAuth('Answer');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			if(\BHG::$isMember !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 		$seq = to10(StrLenPost('target') ? Post('target') : Get('target'));
@@ -685,7 +685,7 @@ class Board{
 
 		$res = $this->GetAuth('Modify');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			if(\BHG::$isMember !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 
@@ -697,7 +697,7 @@ class Board{
 		}
 
 		// 회원 글 체크
-		if(_MEMBERIS !== true || !CM::GetAdminIs()){
+		if(\BHG::$isMember !== true || !CM::GetAdminIs()){
 			$res = $this->_PasswordCheck();
 			if($res !== true) URLReplace('-1', $res);
 		}
@@ -720,7 +720,7 @@ class Board{
 		}
 		$res = $this->GetAuth('Modify');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			if(\BHG::$isMember !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 
@@ -728,7 +728,7 @@ class Board{
 
 		$this->model->need = array('subject', 'content');
 		if($this->boardManger->GetValue('use_secret') === 'y') $this->model->need = 'secret';
-		if(_MEMBERIS !== true) $this->model->need = 'mnane';
+		if(\BHG::$isMember !== true) $this->model->need = 'mnane';
 		else $this->model->AddExcept('pwd');
 
 		$this->_GetBoardData($seq);
@@ -748,7 +748,7 @@ class Board{
 			return;
 		}
 		// 회원 글 체크
-		if(_MEMBERIS !== true || !CM::GetAdminIs()){
+		if(\BHG::$isMember !== true || !CM::GetAdminIs()){
 			$res = $this->_PasswordCheck();
 			if($res !== true){
 				if(_AJAXIS === true) JSON(false, $res);
@@ -822,7 +822,7 @@ class Board{
 
 		$res = $this->GetAuth('Write');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			if(\BHG::$isMember !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 
@@ -833,7 +833,7 @@ class Board{
 		if(App::$action == 'Answer'){
 			$auth = $this->GetAuth('Answer');
 			if(!$auth){
-				if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+				if(\BHG::$isMember !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 				URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 			}
 
@@ -857,7 +857,7 @@ class Board{
 		if(!$this->adminPathIs) $this->model->AddExcept('delis');
 		$this->model->need = array('subject', 'content');
 		if($this->boardManger->GetValue('use_secret') === 'y') $this->model->need = 'secret';
-		if(_MEMBERIS === true){
+		if(\BHG::$isMember === true){
 			$member = CM::GetMember();
 			$this->model->AddExcept('pwd');
 		}
@@ -879,7 +879,7 @@ class Board{
 
 
 		// 회원유무
-		if(_MEMBERIS === true){
+		if(\BHG::$isMember === true){
 			$this->model->SetValue('muid', $_SESSION['member']['muid']);
 			$this->model->SetValue('mlevel', $member['level']);
 			$this->model->SetValue('email', $member['email']);
@@ -916,7 +916,7 @@ class Board{
 				'depth' => App::$data['targetData']['depth'] + 1,
 			));
 		}else{
-			$this->model->SetValue('first_member_is', _MEMBERIS === true ? 'y' : 'n');
+			$this->model->SetValue('first_member_is', \BHG::$isMember === true ? 'y' : 'n');
 			$this->model->SetQueryValue('sort1', '(SELECT IF(COUNT(s.sort1) = 0, 0, MIN(s.sort1))-1 FROM '.$this->model->table.' as s)');
 			if(sizeof($this->additionalSubId) && !EmptyPost('subid')){
 				$this->model->_subid->SetValue(Post('subid'));
@@ -978,7 +978,7 @@ class Board{
 	public function PostDelete($deleteBefore = null, $deleteAfter = null){
 		$res = $this->GetAuth('Write');
 		if(!$res){
-			if(_MEMBERIS !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+			if(\BHG::$isMember !== true) URLReplace(self::$loginUrl, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 			URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 
@@ -992,7 +992,7 @@ class Board{
 		}
 
 		// 회원 글 체크
-		if(_MEMBERIS !== true || !$this->managerIs){
+		if(\BHG::$isMember !== true || !$this->managerIs){
 			$res = $this->_PasswordCheck();
 			if($res !== true){
 				URLReplace('-1', $res);
@@ -1195,7 +1195,7 @@ class Board{
 	 */
 	protected function _PasswordCheck(){
 		if($this->model->GetValue('muid')){
-			if(_MEMBERIS !== true) return 'ERROR#101';
+			if(\BHG::$isMember !== true) return 'ERROR#101';
 			else if(!$this->_CheckMyMUid($this->model, 'muid')) return 'ERROR#102';
 		}
 		else{
@@ -1215,7 +1215,7 @@ class Board{
 	 * JSON 게시물 액션 실행
 	 */
 	public function PostJSONAction(){
-		if(_MEMBERIS !== true) JSON(false, App::$lang['MSG_NEED_LOGIN']);
+		if(\BHG::$isMember !== true) JSON(false, App::$lang['MSG_NEED_LOGIN']);
 
 		$articleAction = $this->GetArticleAction();
 		switch(Post('type')){
@@ -1245,7 +1245,7 @@ class Board{
 	 * JSON 게시물 액션 취소
 	 */
 	public function PostJSONCancelAction(){
-		if(_MEMBERIS !== true) JSON(false, App::$lang['MSG_NEED_LOGIN']);
+		if(\BHG::$isMember !== true) JSON(false, App::$lang['MSG_NEED_LOGIN']);
 
 		$articleAction = $this->GetArticleAction();
 		switch(Post('type')){
@@ -1658,7 +1658,7 @@ class Board{
 		$args = func_get_args();
 		$res = $this->model->DBGet($args);
 		if(!$res->result) URLRedirect(-1, App::$lang['MSG_WRONG_CONNECTED']);
-		if(_MEMBERIS === true && strlen($this->model->_muid->value)){
+		if(\BHG::$isMember === true && strlen($this->model->_muid->value)){
 			$blockUser = CM::GetBlockUsers();
 			if(in_array($this->model->_muid->value, $blockUser)) URLRedirect(-1, App::$lang['BLOCKED_USER_POST']);
 		}

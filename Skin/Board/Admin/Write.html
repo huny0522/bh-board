@@ -26,7 +26,7 @@ $useHtml = $Ctrl->boardManger->_use_html->value;
 
 	<?php if(isset(App::$data['error'])){ ?><p class="alert"><?p. App::$data['error'] ?></p><?php } ?>
 	<table class="write">
-		<?php if(_MEMBERIS === true && ($Ctrl->managerIs || $_SESSION['member']['level'] == _SADMIN_LEVEL || $_SESSION['member']['level'] == _ADMIN_LEVEL)){ ?>
+		<?php if(\BHG::$isMember === true && ($Ctrl->managerIs || $_SESSION['member']['level'] == _SADMIN_LEVEL || $_SESSION['member']['level'] == _ADMIN_LEVEL)){ ?>
 			<tr>
 				<th><?mt('notice')?></th>
 				<td>

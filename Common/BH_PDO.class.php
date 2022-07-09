@@ -152,7 +152,7 @@ class DB{
 		foreach($res[1] as $k => $v){
 			$qry->bindParam($k, $v[0], $v[1]);
 		}
-		if(_DEVELOPERIS === true){
+		if(\BHG::$isDeveloper === true){
 			$res = $qry->execute();
 			if(!$res){
 				if($dieIs) PrintError($qry->errorInfo());
@@ -169,7 +169,7 @@ class DB{
 	 */
 	public function Fetch($qry){
 		if(!isset($qry) || $qry === false || empty($qry)){
-			if(_DEVELOPERIS === true) echo 'FETCH ASSOC MESSAGE(DEBUG ON) : <b>query is empty( or null, false).</b><br>';
+			if(\BHG::$isDeveloper === true) echo 'FETCH ASSOC MESSAGE(DEBUG ON) : <b>query is empty( or null, false).</b><br>';
 			return false;
 		}
 		$string_is = false;
@@ -332,7 +332,7 @@ class DB{
 
 			$sql = str_replace(array('%\s', '%\f', '%\d', '%\1'), array('%s', '%f', '%d', '%1'), implode($str));
 			if($validateOk->result) return array($sql, $bindParam);
-			else URLReplace(-1, $validateOk->message.(_DEVELOPERIS === true ? '['.$args[0].']' : ''));
+			else URLReplace(-1, $validateOk->message.(\BHG::$isDeveloper === true ? '['.$args[0].']' : ''));
 
 		}
 	}
@@ -534,7 +534,7 @@ class BH_DB_Get{
 		if(is_callable($func)) $func($this->sql);
 		$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
 
-		if($this->test && _DEVELOPERIS === true){
+		if($this->test && \BHG::$isDeveloper === true){
 			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 			echo $this->sql;
 			exit;
@@ -553,12 +553,12 @@ class BH_DB_Get{
 				return $row;
 			}
 		}
-		else if(_DEVELOPERIS === true && $this->showError && BH_Application::$showError) PrintError($this->query->errorInfo());
+		else if(\BHG::$isDeveloper === true && $this->showError && BH_Application::$showError) PrintError($this->query->errorInfo());
 		return false;
 	}
 
 	public function PrintTest(){
-		if(_DEVELOPERIS === true){
+		if(\BHG::$isDeveloper === true){
 			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 			echo $this->sql;
 		}
@@ -667,7 +667,7 @@ class BH_DB_GetList extends BH_DB_Get{
 		if(is_callable($func)) $func($this->sql);
 		$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
 
-		if($this->test && _DEVELOPERIS === true){
+		if($this->test && \BHG::$isDeveloper === true){
 			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 			echo $this->sql;
 			exit;
@@ -681,7 +681,7 @@ class BH_DB_GetList extends BH_DB_Get{
 
 		if($this->query->execute()) $this->result = true;
 		else{
-			if(_DEVELOPERIS === true && $this->showError && BH_Application::$showError) PrintError($this->query->errorInfo());
+			if(\BHG::$isDeveloper === true && $this->showError && BH_Application::$showError) PrintError($this->query->errorInfo());
 			$this->result = false;
 		}
 
@@ -905,7 +905,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		if(is_callable($func)) $func($this->sql);
 		$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
 
-		if($this->test && _DEVELOPERIS === true){
+		if($this->test && \BHG::$isDeveloper === true){
 			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 			if($this->group && !$this->noGroupCount) $sql_cnt = 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x';
 			foreach($this->bindParam as $k => $v) $sql_cnt = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $sql_cnt);
@@ -944,7 +944,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 			$this->result = true;
 		}
 		else{
-			if(_DEVELOPERIS === true && $this->showError && BH_Application::$showError) PrintError($this->query->errorInfo());
+			if(\BHG::$isDeveloper === true && $this->showError && BH_Application::$showError) PrintError($this->query->errorInfo());
 			$this->result = false;
 		}
 		return $this;
@@ -1233,7 +1233,7 @@ class BH_DB_Insert{
 			}
 		}
 
-		if(!sizeof($decWhere) && _DEVELOPERIS === true && $this->showError && BH_Application::$showError) PrintError('Set Increment(Decrement) - No Multi Key');
+		if(!sizeof($decWhere) && \BHG::$isDeveloper === true && $this->showError && BH_Application::$showError) PrintError('Set Increment(Decrement) - No Multi Key');
 
 		$keySql = $this->StrToPDO('IF((SELECT `BHTMP2`.`%1` FROM `%1` `BHTMP2` LIMIT 1), %1(`BHTMP`.`%1`), %1) + %1', $key, $this->table, ($isDecrement ? 'MIN' : 'MAX'), $key, ($isDecrement ? _DBMAXINT : 0), ($isDecrement ? '(-' . (sizeof($this->MultiValues) + 1). ')' : sizeof($this->MultiValues) + 1));
 		$this->data[$key] = $this->StrToPDO('(SELECT %1 FROM `%1` `BHTMP` %1)', $keySql, $this->table, sizeof($decWhere) ? ' WHERE ' . implode(' AND ', $decWhere) : '');
@@ -1279,7 +1279,7 @@ class BH_DB_Insert{
 			}
 
 			$this->sql = 'INSERT INTO ' . $this->table . '(' . ($this->decrement ? '`'.$this->decrement.'`, ' : '') . $this->MultiNames . ') VALUES '.implode(',', $this->MultiValues);
-			if($this->test && _DEVELOPERIS === true){
+			if($this->test && \BHG::$isDeveloper === true){
 				foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 				echo $this->sql;
 				exit;
@@ -1287,7 +1287,7 @@ class BH_DB_Insert{
 			$this->query = DB::PDO($this->connName)->prepare($this->sql);
 			foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $this->query->bindParam($k, $v[0], $v[1]);
 			$res->result = $this->query->execute();
-			if(!$res->result && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($this->query->errorInfo());
+			if(!$res->result && (\BHG::$isDeveloper === true && $this->showError && BH_Application::$showError)) PrintError($this->query->errorInfo());
 
 			if($res->result && $this->decrement) DB::SQL($this->connName)->Query('UPDATE '.TABLE_FRAMEWORK_SETTING.' SET `data` = \''.($keyRes['data']).'\' WHERE `key_name` = \''.$keyRes['keyName'].'\'');
 
@@ -1334,7 +1334,7 @@ class BH_DB_Insert{
 			if(is_callable($func)) $func($this->sql);
 			$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
 
-			if($this->test && _DEVELOPERIS === true){
+			if($this->test && \BHG::$isDeveloper === true){
 				foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 				echo $this->sql;
 				exit;
@@ -1350,7 +1350,7 @@ class BH_DB_Insert{
 				}
 				else $res->id = DB::PDO($this->connName)->lastInsertId();
 			}
-			else if(_DEVELOPERIS === true && $this->showError && BH_Application::$showError) PrintError($this->query->errorInfo());
+			else if(\BHG::$isDeveloper === true && $this->showError && BH_Application::$showError) PrintError($this->query->errorInfo());
 
 			DB::Commit();
 		}
@@ -1362,7 +1362,7 @@ class BH_DB_Insert{
 	}
 
 	public function PrintTest(){
-		if(_DEVELOPERIS === true){
+		if(\BHG::$isDeveloper === true){
 			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 			echo $this->sql;
 		}
@@ -1542,7 +1542,7 @@ class BH_DB_Update{
 		}
 		else{
 			$res->result = false;
-			$res->message = _DEVELOPERIS === true ? BH_Application::$lang['NO_WHERE'] : 'ERROR #101';
+			$res->message = \BHG::$isDeveloper === true ? BH_Application::$lang['NO_WHERE'] : 'ERROR #101';
 			return $res;
 		}
 
@@ -1552,7 +1552,7 @@ class BH_DB_Update{
 		if(is_callable($func)) $func($this->sql);
 		$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
 
-		if($this->test && _DEVELOPERIS === true){
+		if($this->test && \BHG::$isDeveloper === true){
 			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 			echo $this->sql;
 			exit;
@@ -1560,12 +1560,12 @@ class BH_DB_Update{
 		$this->query = DB::PDO($this->connName)->prepare($this->sql);
 		foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $this->query->bindParam($k, $v[0], $v[1]);
 		$res->result = $this->query->execute();
-		if(!$res->result && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($this->query->errorInfo());
+		if(!$res->result && (\BHG::$isDeveloper === true && $this->showError && BH_Application::$showError)) PrintError($this->query->errorInfo());
 		return $res;
 	}
 
 	public function PrintTest(){
-		if(_DEVELOPERIS === true){
+		if(\BHG::$isDeveloper === true){
 			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 			echo $this->sql;
 		}
@@ -1658,7 +1658,7 @@ class BH_DB_Delete{
 		if(is_callable($func)) $func($this->sql);
 		$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
 
-		if($this->test && _DEVELOPERIS === true){
+		if($this->test && \BHG::$isDeveloper === true){
 			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 			echo $this->sql;
 			exit;
@@ -1668,12 +1668,12 @@ class BH_DB_Delete{
 		$this->query = DB::PDO($this->connName)->prepare($this->sql);
 		foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $this->query->bindParam($k, $v[0], $v[1]);
 		$res = $this->query->execute();
-		if(!$res && (_DEVELOPERIS === true && $this->showError && BH_Application::$showError)) PrintError($this->query->errorInfo());
+		if(!$res && (\BHG::$isDeveloper === true && $this->showError && BH_Application::$showError)) PrintError($this->query->errorInfo());
 		return $res;
 	}
 
 	public function PrintTest(){
-		if(_DEVELOPERIS === true){
+		if(\BHG::$isDeveloper === true){
 			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 			echo $this->sql;
 		}

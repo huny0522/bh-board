@@ -64,13 +64,13 @@ class DeveloperPage
 	}
 
 	public function DeleteHTML(){
-		if(_DEVELOPERIS !== true) URLReplace(App::URLAction());
+		if(\BHG::$isDeveloper !== true) URLReplace(App::URLAction());
 		delTree(\Paths::DirOfHtml());
 		URLReplace(App::URLAction(), App::$lang['MSG_COMPLETE_DELETE']);
 	}
 
 	public function CacheUriQuery(){
-		if(_DEVELOPERIS !== true) URLReplace(App::URLAction());
+		if(\BHG::$isDeveloper !== true) URLReplace(App::URLAction());
 		App::$cfg->Sys()->refresh->value++;
 		$res = App::$cfg->Sys()->DataWrite();
 		URLReplace(App::URLAction(), App::$lang['MSG_COMPLETE_MODIFY'] . ' -> ' . App::$cfg->Sys()->refresh->value);

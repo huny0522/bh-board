@@ -32,7 +32,7 @@ class Login{
 	}
 
 	public function __init(){
-		if(_MEMBERIS === true && !in_array(App::$action, array('Logout'))) URLRedirect(\Paths::Url() . '/');
+		if(\BHG::$isMember === true && !in_array(App::$action, array('Logout'))) URLRedirect(\Paths::Url() . '/');
 	}
 
 	public function Index(){

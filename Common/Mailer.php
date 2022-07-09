@@ -83,7 +83,7 @@ class Mailer
 		$this->mailer->Body = $this->body;
 
 		if(!$this->mailer->send()) {
-			if(_DEVELOPERIS === true){
+			if(\BHG::$isDeveloper === true){
 				echo var_dump($this->mailer->ErrorInfo);
 				exit;
 			}

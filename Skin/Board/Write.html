@@ -23,7 +23,7 @@ $useHtml = ($Ctrl->boardManger->_use_html->value == 'y' && CM::TinyMCEUseIs()) ?
 
 	<?php if(isset(App::$data['error'])){ ?><p class="alert"><?p. App::$data['error'] ?></p><?php } ?>
 	<table class="write boardCategoryArea">
-		<?php if(_MEMBERIS === true && $Ctrl->managerIs){ ?>
+		<?php if(\BHG::$isMember === true && $Ctrl->managerIs){ ?>
 			<tr>
 				<th><?mt('notice')?></th>
 				<td>
@@ -57,7 +57,7 @@ $useHtml = ($Ctrl->boardManger->_use_html->value == 'y' && CM::TinyMCEUseIs()) ?
 			</tr>
 		<?php } ?>
 
-		<?php if(_MEMBERIS !== true || (App::$action == 'Modify' && !strlen($Model->GetValue('muid')))){?>
+		<?php if(\BHG::$isMember !== true || (App::$action == 'Modify' && !strlen($Model->GetValue('muid')))){?>
 			<tr>
 				<th><?mt('mname')?></th>
 				<td>

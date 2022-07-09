@@ -43,7 +43,7 @@ if($activeCategory){
 
 			<nav id="gnb">
 				<ul>
-					<?php if(_MEMBERIS === true){ ?>
+					<?php if(\BHG::$isMember === true){ ?>
 						<li><a href="<?p. \Paths::Url() ?>/Login/Logout">로그아웃</a></li>
 						<li><a href="<?p. \Paths::Url() ?>/MyPage">마이페이지</a></li>
 						<?php if($_SESSION['member']['level'] >= _ADMIN_LEVEL){ ?><li class="admin"><a href="<?p. \Paths::UrlOfAdmin() ?>" target="_blank">Admin</a></li><?php } ?>

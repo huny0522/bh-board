@@ -13,6 +13,18 @@ error_reporting(E_ALL);
 date_default_timezone_set('Asia/Seoul');
 define('_BH_', true);
 
+// BH Global
+class BHG
+{
+	public static $session;
+	public static $isMember = false;
+	public static $isAdmin = false;
+	public static $isDeveloper = false;
+	public static $language = 0;
+	// public static $config;
+	// public static $setting;
+}
+
 // -------------------------------------
 //
 //			Directory & URL Set
@@ -56,16 +68,14 @@ define('_DOMAIN', isset($_SERVER['HTTP_HOST']) ? ((isset($_SERVER['HTTPS']) && $
 $_DEVELOPER_IP = array('127.0.0.1');
 if(PHP_RUN_CLI === true){
 	define('_IS_DEVELOPER_IP', true);
-	define('_DEVELOPERIS', true);
+	BHG::$isDeveloper = true;
 }
 else{
 	define('_IS_DEVELOPER_IP', true && in_array(!empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['HTTP_X_REAL_IP'] :  $_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP));
-	define('_DEVELOPERIS', true && _IS_DEVELOPER_IP && isset($_SESSION['developer_login']) && $_SESSION['developer_login'] === 'y');
+	BHG::$isDeveloper = true && _IS_DEVELOPER_IP && isset($_SESSION['developer_login']) && $_SESSION['developer_login'] === 'y';
 }
-define('_CREATE_HTML_ALL', false && _DEVELOPERIS === true);
-define('_REFRESH_HTML_ALL', true && _DEVELOPERIS === true);
 
-ini_set('display_errors', _DEVELOPERIS ? 1 : 0);
+ini_set('display_errors', BHG::$isDeveloper ? 1 : 0);
 
 define('_REMOVE_SPACE', true);
 define('_VIEW_MICROTIME', true);
@@ -193,11 +203,12 @@ try{
 	}
 }
 
-define('_MEMBERIS', isset($_SESSION['member']['muid']) && strlen($_SESSION['member']['muid']));
+\BHG::$session = new BHSession();
+\BHG::$isMember = isset($_SESSION['member']['muid']) && strlen($_SESSION['member']['muid']);
 
 BH_Application::run();
 
-if(_DEVELOPERIS === true && _VIEW_MICROTIME === true && _AJAXIS !== true){
+if(BHG::$isDeveloper === true && _VIEW_MICROTIME === true && _AJAXIS !== true){
 	$_END_MICROTIME = array_sum(explode(' ', microtime()));
 	echo chr(10) . '<!-- RUNTIME : ' . sprintf('%02.6f', $_END_MICROTIME - $_BEGIN_MICROTIME) . ' -->';
 }

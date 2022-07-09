@@ -71,33 +71,9 @@ class BH_Application
 		}
 
 		if(self::$settingData['GetUrl'][1] == '~Create'){
-			if(_DEVELOPERIS === true && _POSTIS === true){
+			if(\BHG::$isDeveloper === true && _POSTIS === true){
 				if(!isset($_POST['const']) || $_POST['const'] != 'y') $_POST['table_name'] = "'{$_POST['table_name']}'";
 				BH_HtmlCreate::CreateController($_POST['controller_name'], $_POST['model_name'], $_POST['table_name']);
-			}
-			exit;
-		}
-
-		if(self::$settingData['GetUrl'][1] == '_Refresh'){
-			if(_DEVELOPERIS === true){
-				self::$cfg->Sys()->refresh->value++;
-				$res = self::$cfg->Sys()->DataWrite();
-
-				if($res->result){
-					if(_REFRESH_HTML_ALL === true){
-						delTree(\Paths::DirOfHtml());
-						ReplaceHTMLAll(\Paths::DirOfSkin(), \Paths::DirOfHtml());
-						ReplaceBHCSSALL(\Paths::DirOfHtml(), \Paths::DirOfHtml());
-						ReplaceBHCSSALL(\Paths::DirOfSkin(), \Paths::DirOfHtml());
-					}
-
-					if(isset(self::$extendMethod['refreshExtend'])){
-						$RefreshExtend = self::$extendMethod['refreshExtend'];
-						$RefreshExtend();
-					}
-					URLReplace($_GET['r_url']);
-				}
-				else URLReplace(-1, $res->message);
 			}
 			exit;
 		}
@@ -151,7 +127,7 @@ class BH_Application
 					$func = self::$routingFailFunc;
 					$func($code, $msg);
 				}
-				else if(_DEVELOPERIS === true) echo $msg;
+				else if(\BHG::$isDeveloper === true) echo $msg;
 				exit;
 			}
 
@@ -176,7 +152,7 @@ class BH_Application
 					$func = self::$routingFailFunc;
 					$func($code, $msg);
 				}
-				else if(_DEVELOPERIS === true) echo $msg;
+				else if(\BHG::$isDeveloper === true) echo $msg;
 				else URLReplace(Paths::Url() . '/');
 				exit;
 			}
@@ -188,7 +164,7 @@ class BH_Application
 				$func = self::$routingFailFunc;
 				$func($code, $msg);
 			}
-			else if(_DEVELOPERIS === true && _SHOW_CREATE_GUIDE === true) require _COMMONDIR . '/Create.html';
+			else if(\BHG::$isDeveloper === true && _SHOW_CREATE_GUIDE === true) require _COMMONDIR . '/Create.html';
 			else URLReplace(Paths::Url() . '/');
 			exit;
 		}
@@ -284,7 +260,7 @@ class BH_Application
 		ob_start();
 		if(file_exists($path)) require $path;
 		else{
-			if(_DEVELOPERIS !== true) echo 'ERROR : NOT EXISTS TEMPLATE';
+			if(\BHG::$isDeveloper !== true) echo 'ERROR : NOT EXISTS TEMPLATE';
 			else echo 'ERROR : NOT EXISTS TEMPLATE : ' . $path;
 		}
 		self::$bodyHtml = ob_get_clean();
@@ -435,7 +411,7 @@ class BH_Application
 		$convCss = (substr($css, strlen(BH\BHCss\BHCss::$fileExtension) * (-1)) === BH\BHCss\BHCss::$fileExtension) ? substr($css, 0, strlen(BH\BHCss\BHCss::$fileExtension) * (-1)) . '.css' : implode('.', $ex) . '.css';
 		$target = '/css' . ($convCss[0] == '/' ? $convCss : '/' . $convCss);
 
-		if(_DEVELOPERIS === true || !file_exists(\Paths::DirOfHtml() . $target)){
+		if(\BHG::$isDeveloper === true || !file_exists(\Paths::DirOfHtml() . $target)){
 			$css2 = '/css' . ($css[0] == '/' ? $css : '/' . $css);
 			$dir = \Paths::DirOfSkin();
 			if(file_exists(\Paths::DirOfHtml() . $css2)) $dir = \Paths::DirOfHtml();
@@ -469,7 +445,7 @@ class BH_Application
 			return $newModel;
 		}
 
-		if(_DEVELOPERIS === true) echo $ModelName . '-Model is not exists';
+		if(\BHG::$isDeveloper === true) echo $ModelName . '-Model is not exists';
 		else echo 'ERROR';
 		exit;
 	}

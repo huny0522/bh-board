@@ -10,7 +10,7 @@ use \BH_Application as App;
 class BH_HtmlCreate
 {
 	public static function CreateController($ControllerName, $ModelName, $TableName){
-		if(_DEVELOPERIS !== true) return;
+		if(\BHG::$isDeveloper !== true) return;
 		$create = ($_SERVER['REMOTE_ADDR'] === '127.0.0.1' && _FILE_PUT_GUIDE === true);
 
 		$table = str_replace('\'', '', $TableName);
@@ -45,7 +45,7 @@ class {$ControllerName}{
 	}
 
 	public function __Init(){
-		if(_DEVELOPERIS === true) \\BH_HtmlCreate::Create('{$ControllerName}', '{$ModelName}');
+		if(\\BHG::\$isDeveloper === true) \\BH_HtmlCreate::Create('{$ControllerName}', '{$ModelName}');
 	}
 
 	public function Index(){
@@ -151,7 +151,7 @@ class {$ModelName}Model extends \\BH_Model{
 	}
 
 	public static function ModifyModel($f){
-		if(_DEVELOPERIS !== true) return;
+		if(\BHG::$isDeveloper !== true) return;
 		$oClass = new ReflectionClass('ModelType');
 		$mTypeKeys = array_keys($oClass->getConstants());
 		$oClass = new ReflectionClass('HTMLType');
@@ -292,7 +292,7 @@ class {$ModelName}Model extends \\BH_Model{
 	 * @param $model : 모델명(모델명이 TestModel 일 경우 Test)
 	 */
 	public static function Create($path, $model){
-		if(_DEVELOPERIS !== true) return;
+		if(\BHG::$isDeveloper !== true) return;
 		$create = ($_SERVER['REMOTE_ADDR'] === '127.0.0.1' && _FILE_PUT_GUIDE === true);
 
 		$path = '/' . $path;
@@ -329,7 +329,7 @@ class {$ModelName}Model extends \\BH_Model{
 	 * @return string
 	 */
 	public static function View($path, $model){
-		if(_DEVELOPERIS !== true) return;
+		if(\BHG::$isDeveloper !== true) return;
 
 		$classname = $model . 'Model';
 		/* @var \BH_Model $modelClass */
@@ -381,7 +381,7 @@ use \\BH_Common as CM;
 	}
 
 	public static function Write($path, $model){
-		if(_DEVELOPERIS !== true) return;
+		if(\BHG::$isDeveloper !== true) return;
 
 		$classname = $model . 'Model';
 		/* @var $modelClass BH_Model */
@@ -459,7 +459,7 @@ use \\BH_Common as CM;
 	}
 
 	public static function Index($path, $model){
-		if(_DEVELOPERIS !== true) return;
+		if(\BHG::$isDeveloper !== true) return;
 
 		$classname = $model . 'Model';
 		/* @var $modelClass BH_Model */

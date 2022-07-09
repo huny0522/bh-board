@@ -38,7 +38,7 @@ class Contents{
 			App::$html = '/Contents/'.$html;
 		}
 
-		if(!file_exists(\Paths::DirOfSkin() . App::$html)) URLReplace(\Paths::Url() . '/', _DEVELOPERIS === true ? 'Contents files does not exist.(' . App::$html . ')' : '');
+		if(!file_exists(\Paths::DirOfSkin() . App::$html)) URLReplace(\Paths::Url() . '/', \BHG::$isDeveloper === true ? 'Contents files does not exist.(' . App::$html . ')' : '');
 
 		$cookieName = $this->model->table.$this->model->GetValue('bid');
 		if(!isset($_COOKIE[$cookieName]) || !$_COOKIE[$cookieName]){
@@ -52,7 +52,7 @@ class Contents{
 		if(_JSONIS === true) JSON(true, '', App::GetView());
 
 		App::$data['contentActionData'] = array();
-		if(_MEMBERIS === true){
+		if(\BHG::$isMember === true){
 			App::$data['contentActionData'] = $this->model->GetMyActions($this->model->GetValue('bid'), $_SESSION['member']['muid']);
 		}
 
@@ -78,7 +78,7 @@ class Contents{
 			App::$html = '/Contents/'.$html;
 		}
 
-		if(!file_exists(\Paths::DirOfSkin() . App::$html)) URLReplace(\Paths::Url() . '/', _DEVELOPERIS === true ? 'Contents files does not exist.(' . App::$html . ')' : '');
+		if(!file_exists(\Paths::DirOfSkin() . App::$html)) URLReplace(\Paths::Url() . '/', \BHG::$isDeveloper === true ? 'Contents files does not exist.(' . App::$html . ')' : '');
 
 		$this->_LayoutSet();
 
@@ -125,7 +125,7 @@ class Contents{
 	}
 
 	protected function _ActionCheck($type){
-		if(_MEMBERIS !== true) JSON(false, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
+		if(\BHG::$isMember !== true) JSON(false, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 
 		if(!in_array($type, $this->possibleActionType)) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 

@@ -287,7 +287,7 @@ class MenuHelp
 	public function GetSubMenu($key){
 		$menu = array();
 		foreach($this->menus as $v){
-			if((!$v['show_level'] || (_MEMBERIS === true && $v['show_level'] <= $_SESSION['member']['level'])) && substr($v['category'], 0, strlen($key)) === $key && strlen($v['category']) === strlen($key) + _CATEGORY_LENGTH){
+			if((!$v['show_level'] || (\BHG::$isMember === true && $v['show_level'] <= $_SESSION['member']['level'])) && substr($v['category'], 0, strlen($key)) === $key && strlen($v['category']) === strlen($key) + _CATEGORY_LENGTH){
 				$menu[$v['category']] = $v;
 			}
 		}
@@ -437,16 +437,16 @@ class MenuHelp
 				->Get();
 
 			if(isset($disabledData['category']) && strlen($disabledData['category'])){
-				if(_DEVELOPERIS === true) URLReplace(-1, App::$lang['INACCESSIBLE_MENU']);
+				if(\BHG::$isDeveloper === true) URLReplace(-1, App::$lang['INACCESSIBLE_MENU']);
 				URLReplace(-1);
 			}
 		}
 		else{
-			if(_MEMBERIS !== true && $this->activeMenu['con_level']){
+			if(\BHG::$isMember !== true && $this->activeMenu['con_level']){
 				if(!Get('statePage') && _JSONIS === true) JSON(false, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 				URLReplace(strlen($loginPage) ? $loginPage : App::URLBase(''), App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 			}
-			else if(_MEMBERIS === true && $this->activeMenu['con_level'] > $_SESSION['member']['level']){
+			else if(\BHG::$isMember === true && $this->activeMenu['con_level'] > $_SESSION['member']['level']){
 				URLReplace(-1, App::$lang['MENU_NOT_ACCESSIBLE_BY_RATING']);
 			}
 			if($this->activeMenu['category'] === $this->rootCategory){

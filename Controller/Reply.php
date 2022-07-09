@@ -134,7 +134,7 @@ class Reply{
 			->AddWhere('article_seq='.App::$data['article_seq'])
 			->SetArticleCount(isset($this->boardManger) ? $this->boardManger->GetValue('reply_count') : 20);
 
-		if(_MEMBERIS === true){
+		if(\BHG::$isMember === true){
 			$blockUser = CM::GetBlockUsers();
 			if(sizeof($blockUser)){
 				$dbList->AddWhere('`muid` NOT IN (%d)', $blockUser);
@@ -149,11 +149,11 @@ class Reply{
 			$row = &$dbList->data[$k];
 			// 비밀번호없이 수정권한
 			$row['modifyAuthDirect'] = false;
-			if($this->GetAuth() && _MEMBERIS === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs() )) $row['modifyAuthDirect'] = true;
+			if($this->GetAuth() && \BHG::$isMember === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs() )) $row['modifyAuthDirect'] = true;
 
 			// 수정 버튼 보기
 			if(
-				(_MEMBERIS === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs())) ||
+				(\BHG::$isMember === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs())) ||
 				(!strlen($row['muid']))
 			) $row['modifyAuth'] = true;
 			else $row['modifyAuth'] = false;
@@ -170,7 +170,7 @@ class Reply{
 			}
 			else if($row['secret'] == 'y'){
 				if(!$myArticleIs){
-					if(!(_MEMBERIS === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs() || $this->managerIs))){
+					if(!(\BHG::$isMember === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs() || $this->managerIs))){
 						$row['comment'] = App::$lang['MSG_SECRET_ARTICLE'];
 						$row['secretIs'] = true;
 					}
@@ -201,7 +201,7 @@ class Reply{
 			->SetLimit(isset($this->boardManger) ? $this->boardManger->GetValue('reply_count') : 20);
 		$this->_R_CommonQry($dbList);
 
-		if(_MEMBERIS === true){
+		if(\BHG::$isMember === true){
 			$blockUser = CM::GetBlockUsers();
 			if(sizeof($blockUser)){
 				$dbList->AddWhere('`muid` NOT IN (%d)', $blockUser);
@@ -235,11 +235,11 @@ class Reply{
 			$row = &$dbList->data[$k];
 			// 비밀번호없이 수정권한
 			$row['modifyAuthDirect'] = false;
-			if($this->GetAuth() && _MEMBERIS === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs() )) $row['modifyAuthDirect'] = true;
+			if($this->GetAuth() && \BHG::$isMember === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs() )) $row['modifyAuthDirect'] = true;
 
 			// 수정 버튼 보기
 			if(
-				(_MEMBERIS === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs())) ||
+				(\BHG::$isMember === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs())) ||
 				(!strlen($row['muid']))
 			) $row['modifyAuth'] = true;
 			else $row['modifyAuth'] = false;
@@ -253,7 +253,7 @@ class Reply{
 			if($row['delis'] == 'y') $row['comment'] = App::$lang['MSG_DELETED_REPLY'];
 			else if($row['secret'] == 'y'){
 				if(!$myArticleIs){
-					if(!(_MEMBERIS === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs() || $this->managerIs))){
+					if(!(\BHG::$isMember === true && ($this->_CheckMyMUid($row, 'muid') || CM::GetAdminIs() || $this->managerIs))){
 						$row['comment'] = App::$lang['MSG_SECRET_ARTICLE'];
 						$row['secretIs'] = true;
 					}
@@ -278,7 +278,7 @@ class Reply{
 		if(!$res) JSON(false, App::$lang['MSG_NO_AUTH']);
 
 		$this->model->need = array('comment', 'article_seq');
-		if(_MEMBERIS !== true){
+		if(\BHG::$isMember !== true){
 			$this->model->need = 'mname';
 			$this->model->need = 'pwd';
 		}
@@ -320,7 +320,7 @@ class Reply{
 		$this->model->SetValue('reg_date', date('Y-m-d H:i:s'));
 
 		// 회원유무
-		if(_MEMBERIS === true){
+		if(\BHG::$isMember === true){
 			$member = CM::GetMember();
 
 			$this->model->SetValue('muid', $_SESSION['member']['muid']);
@@ -357,7 +357,7 @@ class Reply{
 			$this->model->SetValue('sort2', $row['sort2'] + 1);
 			$this->model->SetValue('depth', $row['depth'] + 1);
 		}else{
-			$this->model->SetValue('first_member_is', _MEMBERIS === true ? 'y' : 'n');
+			$this->model->SetValue('first_member_is', \BHG::$isMember === true ? 'y' : 'n');
 			$this->model->SetQueryValue('sort1', '(SELECT IF(COUNT(s.sort1) = 0, 0, MIN(s.sort1))-1 FROM '.$this->model->table.' as s WHERE s.article_seq='.App::$data['article_seq'].')');
 		}
 
@@ -417,7 +417,7 @@ class Reply{
 		if(!$res) JSON(false, App::$lang['MSG_NO_AUTH']);
 
 		$this->model->need = array('comment');
-		if(_MEMBERIS !== true){
+		if(\BHG::$isMember !== true){
 			$this->model->need = 'mnane';
 		}
 
@@ -428,10 +428,10 @@ class Reply{
 
 		// 회원 글 체크
 		if(strlen($this->model->GetValue('muid'))){
-			if(_MEMBERIS !== true) JSON(false, '#ERROR#101');
+			if(\BHG::$isMember !== true) JSON(false, '#ERROR#101');
 			else if(!$this->_CheckMyMUid($this->model, 'muid') && !CM::GetAdminIs()) JSON(false, 'ERROR#102');
 		}
-		else if(_MEMBERIS !== true || !CM::GetAdminIs()){
+		else if(\BHG::$isMember !== true || !CM::GetAdminIs()){
 			$qry = DB::GetQryObj($this->model->table, false)
 				->SetConnName($this->connName)
 				->SetKey('pwd')
@@ -488,10 +488,10 @@ class Reply{
 
 		// 회원 글 체크
 		if($this->model->GetValue('muid')){
-			if(_MEMBERIS !== true) JSON(false, 'ERROR#101');
+			if(\BHG::$isMember !== true) JSON(false, 'ERROR#101');
 			else if(!$this->_CheckMyMUid($this->model, 'muid') && !CM::GetAdminIs()) JSON(false, 'ERROR#102');
 		}
-		else if(_MEMBERIS !== true || !CM::GetAdminIs() || !$this->managerIs){
+		else if(\BHG::$isMember !== true || !CM::GetAdminIs() || !$this->managerIs){
 			$qry = DB::GetQryObj($this->model->table, false)
 				->SetConnName($this->connName)
 				->SetKey('pwd')
@@ -514,7 +514,7 @@ class Reply{
 
 	public function GetAuth(){
 		if(!isset($this->boardManger)) return true;
-		$memberLevel = _MEMBERIS === true ? $_SESSION['member']['level'] : 0;
+		$memberLevel = \BHG::$isMember === true ? $_SESSION['member']['level'] : 0;
 		if($this->managerIs) return true;
 		if($memberLevel < $this->boardManger->GetValue('auth_reply_level')) return false;
 		return true;
@@ -534,14 +534,14 @@ class Reply{
 		$myArticleIs = false;
 		if($this->managerIs || CM::GetAdminIs()) $myArticleIs = true;
 		else if(StrLength($this->boardModel->GetValue('muid')))
-			$myArticleIs = (_MEMBERIS === true && $this->_CheckMyMUid($this->boardModel, 'muid'));
+			$myArticleIs = (\BHG::$isMember === true && $this->_CheckMyMUid($this->boardModel, 'muid'));
 		else if(isset($this->boardModel->data['target_muid']) && StrLength($this->boardModel->GetValue('target_muid')))
-			$myArticleIs = (_MEMBERIS === true && $this->_CheckMyMUid($this->boardModel, 'target_muid'));
+			$myArticleIs = (\BHG::$isMember === true && $this->_CheckMyMUid($this->boardModel, 'target_muid'));
 		return $myArticleIs;
 	}
 
 	public function PostJSONAction(){
-		if(_MEMBERIS !== true) JSON(false, App::$lang['MSG_NEED_LOGIN']);
+		if(\BHG::$isMember !== true) JSON(false, App::$lang['MSG_NEED_LOGIN']);
 
 		$articleAction = $this->GetArticleAction();
 		switch(Post('type')){
@@ -565,7 +565,7 @@ class Reply{
 	}
 
 	public function PostJSONCancelAction(){
-		if(_MEMBERIS !== true) JSON(false, App::$lang['MSG_NEED_LOGIN']);
+		if(\BHG::$isMember !== true) JSON(false, App::$lang['MSG_NEED_LOGIN']);
 
 		$articleAction = $this->GetArticleAction();
 		switch(Post('type')){
@@ -601,7 +601,7 @@ class Reply{
 	}
 
 	protected function GetMemberAction(&$rows){
-		if(_MEMBERIS === true){
+		if(\BHG::$isMember === true){
 			$arrays = array();
 			foreach($rows as $v) $arrays[] = $v['seq'];
 

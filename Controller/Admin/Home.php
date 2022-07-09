@@ -11,7 +11,7 @@ class Home{
 	}
 
 	public function __init(){
-		if(_MEMBERIS !== true || ($_SESSION['member']['level'] != _SADMIN_LEVEL  && $_SESSION['member']['level'] != _ADMIN_LEVEL)){
+		if(\BHG::$isMember !== true || ($_SESSION['member']['level'] != _SADMIN_LEVEL  && $_SESSION['member']['level'] != _ADMIN_LEVEL)){
 			URLReplace(\Paths::UrlOfAdmin().'/Login');
 		}
 		App::$layout = '_Admin';

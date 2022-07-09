@@ -25,7 +25,7 @@ class Email
 
 	public function __construct(){
 		$this->defCfg = App::$cfg->Def();
-		$this->mailer = new Mailer(_DEVELOPERIS === true ? 4 : 0);
+		$this->mailer = new Mailer(\BHG::$isDeveloper === true ? 4 : 0);
 		App::$data['LogoUrl'] = \Paths::UrlOfUpload().$this->defCfg->emailLogoUrl->value;
 		App::$data['HomeUrl'] = _DOMAIN;
 	}

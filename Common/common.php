@@ -292,7 +292,7 @@ class BHError
 		if(strlen($devMsg)) $this->devMsg = $devMsg;
 		$res = 'Error#' . $this->first . $this->second . $this->third;
 		if(strlen($this->msg)) $res = '['  . $res . ']' . $this->msg;
-		if(_DEVELOPERIS === true && strlen($this->devMsg)) $res .= ' (' . $this->devMsg . ')';
+		if(\BHG::$isDeveloper === true && strlen($this->devMsg)) $res .= ' (' . $this->devMsg . ')';
 		return $res;
 	}
 
@@ -412,17 +412,10 @@ App::$settingData['POSSIBLE_EXT'] = array('jpg', 'jpeg', 'png', 'gif', 'bmp', 'z
 	'm4v', 'mp4', 'mp3', 'txt');
 App::$settingData['iframePossibleUrl'] = array('www.youtube.com');
 
-if(_DEVELOPERIS === true){
+if(\BHG::$isDeveloper === true){
 	if(!file_exists(\Paths::DirOfData()) || !is_dir(\Paths::DirOfData())) @mkdir(\Paths::DirOfData(), 0755, true);
 	BH\BHCss\BHCss::setNL(true);
 	require _COMMONDIR . '/BH_HtmlCreate.class.php';
-}
-
-if(_CREATE_HTML_ALL === true){
-	delTree(\Paths::DirOfHtml());
-	ReplaceHTMLAll(\Paths::DirOfSkin(), \Paths::DirOfHtml());
-	ReplaceBHCSSALL(\Paths::DirOfHtml(), \Paths::DirOfHtml());
-	ReplaceBHCSSALL(\Paths::DirOfSkin(), \Paths::DirOfHtml());
 }
 
 define('ENG_NUM', '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
@@ -895,13 +888,13 @@ function SetDBFloat($txt){
 	}
 
 	if(!strlen($txt)){
-		if(_DEVELOPERIS === true) PrintError(App::$lang['TXT_EMPTY_NUMBER']);
+		if(\BHG::$isDeveloper === true) PrintError(App::$lang['TXT_EMPTY_NUMBER']);
 		URLReplace('-1', App::$lang['TXT_EMPTY_NUMBER']);
 	}
 
 	$val = ToFloat($txt);
 	if((string)$val !== (string)$txt){
-		if(_DEVELOPERIS === true) PrintError(App::$lang['TXT_ONLY_NUMBER_NOT_CHARACTER']);
+		if(\BHG::$isDeveloper === true) PrintError(App::$lang['TXT_ONLY_NUMBER_NOT_CHARACTER']);
 		URLReplace('-1', App::$lang['TXT_ONLY_NUMBER_NOT_CHARACTER']);
 	}
 
@@ -909,7 +902,7 @@ function SetDBFloat($txt){
 }
 
 function PrintError($message){
-	if(_DEVELOPERIS !== true) exit;
+	if(\BHG::$isDeveloper !== true) exit;
 	function GetArrayData($arr){
 		if(is_array($arr)){
 			foreach($arr as $k => $v) $arr[$k] = GetArrayData($v);
@@ -1123,7 +1116,7 @@ function StrToSql($args){
 		$w = str_replace(array('%\s', '%\f', '%\d', '%\1', '%\t'), array('%s', '%f', '%d', '%1', '%t'), $w);
 		if($validateOk->result) return $w;
 		else
-			URLReplace(-1, $validateOk->message . (_DEVELOPERIS === true ? '[' . $w . ']' : ''));
+			URLReplace(-1, $validateOk->message . (\BHG::$isDeveloper === true ? '[' . $w . ']' : ''));
 	}
 }
 
@@ -1285,7 +1278,7 @@ function GetPathFromRoot($dir){
 	$dir = str_replace('\\', '/', $dir);
 	$dir2 = Paths::DirOfHtml();
 	if(substr($dir, 0, strlen($dir2)) !== $dir2){
-		if(_DEVELOPERIS === true){
+		if(\BHG::$isDeveloper === true){
 			URLRedirect(-1, '경로가 다릅니다.');
 			exit;
 		}

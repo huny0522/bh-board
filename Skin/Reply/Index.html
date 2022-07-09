@@ -13,7 +13,7 @@ use \BH_Application as App;
 		<form id="replyWriteForm" name="replyWriteForm" method="post" action="<?a. 'Write' ?>" autocomplete="off" class="reply_form">
 			<input type="hidden" name="article_seq" value="<?p. App::$data['article_seq'] ?>" id="rep_article_seq" />
 
-			<?php if(_MEMBERIS !== true){ ?>
+			<?php if(\BHG::$isMember !== true){ ?>
 				<fieldset class="user">
 					<dl>
 						<dt>이름</dt>
@@ -50,7 +50,7 @@ use \BH_Application as App;
 		foreach($Data->data as $row){
 			$md = new ReplyModel();
 			$md->SetArrayToData($row);
-			$newCommentBtnIs = $row['secretIs'] && $row['first_member_is'] != 'y' && _MEMBERIS !== true;
+			$newCommentBtnIs = $row['secretIs'] && $row['first_member_is'] != 'y' && \BHG::$isMember !== true;
 			$repIcon = $row['depth'] ? '<span class="answerDoc">[답변글]</span> ' : '';
 			?>
 			<article data-seq="<?p. $row['seq'] ?>" id="repArticle<?p. $row['seq'] ?>" data-file-name="<?v. $newCommentBtnIs ? '' : $md->GetFileName('file') ?>">

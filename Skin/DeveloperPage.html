@@ -38,7 +38,7 @@ App::$layout = '_Empty';
 </style>
 <div id="wrap">
 	<?php
-	if(_DEVELOPERIS !== true){
+	if(\BHG::$isDeveloper !== true){
 		?>
 		<form id="develop_login_box" method="post" action="<?a. 'Login' ?>">
 			<div>

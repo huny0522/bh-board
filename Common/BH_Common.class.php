@@ -14,7 +14,7 @@ class BH_Common
 
 	public static function AdminAuth($redirectUrl = ''){
 		if($redirectUrl === '') $redirectUrl = App::URLBase('Login');
-		if(_MEMBERIS !== true || ($_SESSION['member']['level'] != _SADMIN_LEVEL  && $_SESSION['member']['level'] != _ADMIN_LEVEL)){
+		if(\BHG::$isMember !== true || ($_SESSION['member']['level'] != _SADMIN_LEVEL  && $_SESSION['member']['level'] != _ADMIN_LEVEL)){
 			if(_AJAXIS === true) JSON(false, App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN']);
 			else URLReplace($redirectUrl, App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN']);
 		}
@@ -28,12 +28,12 @@ class BH_Common
 	}
 
 	public static function GetAdminIs(){
-		if(_MEMBERIS === true && ($_SESSION['member']['level'] == _SADMIN_LEVEL  || $_SESSION['member']['level'] == _ADMIN_LEVEL)) return true;
+		if(\BHG::$isMember === true && ($_SESSION['member']['level'] == _SADMIN_LEVEL  || $_SESSION['member']['level'] == _ADMIN_LEVEL)) return true;
 		return false;
 	}
 
 	public static function MemberAuth($level = 1){
-		if(_MEMBERIS !== true){
+		if(\BHG::$isMember !== true){
 			if(_AJAXIS === true) JSON(false, App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN'], array('needLogin' => true));
 			else URLReplace(Paths::Url() . '/Login?r_url=' . urlencode($_SERVER['REQUEST_URI']), App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN']);
 		}
@@ -49,7 +49,7 @@ class BH_Common
 	 */
 	public static function GetMember($key = ''){
 		// 원글 가져오기
-		if(_MEMBERIS === true){
+		if(\BHG::$isMember === true){
 			if(!isset(self::$member) || !self::$member){
 				$dbGet = new \BH_DB_Get(TABLE_MEMBER);
 				$dbGet->AddWhere('muid=' . SetDBInt($_SESSION['member']['muid']));
@@ -70,7 +70,7 @@ class BH_Common
 	 */
 	public static function GetOtherMember($muid, $key = ''){
 		// 원글 가져오기
-		if(_MEMBERIS === true){
+		if(\BHG::$isMember === true){
 			if(!isset(self::$otherMember[$muid]) || !self::$otherMember[$muid]){
 				$dbGet = new \BH_DB_Get(TABLE_MEMBER);
 				$dbGet->AddWhere('muid=' . SetDBInt($muid));
@@ -90,7 +90,7 @@ class BH_Common
 	 * @return array
 	 */
 	public static function GetBlockUsers(){
-		if(_MEMBERIS !== true) return array();
+		if(\BHG::$isMember !== true) return array();
 		if(!isset(self::$blockUser)){
 			$qry = DB::GetListQryObj(TABLE_USER_BLOCK . ' A')
 				->AddWhere('`A`.`muid` = %d', $_SESSION['member']['muid']);
@@ -110,7 +110,7 @@ class BH_Common
 	 * @return string
 	 */
 	public static function MemName($muid, $name){
-		if(_MEMBERIS !== true || $_SESSION['member']['muid'] == $muid) return GetDBText($name);
+		if(\BHG::$isMember !== true || $_SESSION['member']['muid'] == $muid) return GetDBText($name);
 		else{
 			$adtAttr = self::FirebaseSetIs() ? '' : ' data-no-chat="yes"';
 			return '<a href="#" class="userPopupMenuBtn" data-id="' . $muid . '"' . $adtAttr . '>' . GetDBText($name) . '</a>';
@@ -337,7 +337,7 @@ class BH_Common
 
 		if(is_callable($queryFunction)) $queryFunction($banner);
 
-		$mlevel = _MEMBERIS === true ? $_SESSION['member']['level'] : 0;
+		$mlevel = \BHG::$isMember === true ? $_SESSION['member']['level'] : 0;
 		$banner->AddWhere('mlevel <= '.$mlevel)
 			->DrawRows();
 
@@ -372,7 +372,7 @@ class BH_Common
 
 		if(is_callable($queryFunction)) $queryFunction($banner);
 
-		$mlevel = _MEMBERIS === true ? $_SESSION['member']['level'] : 0;
+		$mlevel = \BHG::$isMember === true ? $_SESSION['member']['level'] : 0;
 		$banner->AddWhere('mlevel <= '.$mlevel)
 			->DrawRows();
 

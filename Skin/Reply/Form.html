@@ -28,7 +28,7 @@ $ArticleSeq =  App::$data['articleSeq'];
 	<input type="hidden" name="article_pwd" value="<?v. Post('pwd') ?>">
 </form>
 
-<?php if(_MEMBERIS !== true){ ?>
+<?php if(\BHG::$isMember !== true){ ?>
 	<div id="replyPwdLayer" class="repLayer hidden">
 		<form id="repPwdForm" name="repPwdForm" method="post" action="<?p. $Controller.'/ViewSecret' ?>">
 			<input type="hidden" name="article_seq" value="<?p. $ArticleSeq ?>">
@@ -90,7 +90,7 @@ $ArticleSeq =  App::$data['articleSeq'];
 		<input type="hidden" name="seq" value="">
 		<input type="hidden" name="target_seq" value="">
 
-		<?php if(_MEMBERIS !== true){ ?>
+		<?php if(\BHG::$isMember !== true){ ?>
 			<fieldset class="user">
 				<dl>
 					<dt>이름</dt>

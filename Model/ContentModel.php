@@ -79,7 +79,7 @@ class ContentModel extends \BH_Model
 	}
 
 	public function _ReadAction($bid){
-		if(_MEMBERIS === true){
+		if(\BHG::$isMember === true){
 			$res = DB::InsertQryObj(TABLE_CONTENT_ACTION)
 				->SetDataNum('muid', $_SESSION['member']['muid'])
 				->SetDataStr('action_type', 'read')

@@ -1146,14 +1146,14 @@ class _ModelFunc{
 			case ModelType::INT:
 				$val = preg_replace('/[^0-9\-]/','',$data->value);
 				if($val != $data->value){
-					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_ONLY_NUMBER']);
+					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(\BHG::$isDeveloper === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_ONLY_NUMBER']);
 					return false;
 				}
 			break;
 			case ModelType::FLOAT:
 				$val = preg_replace('/[^0-9\.\-]/','',$data->value);
 				if($val != $data->value){
-					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_ONLY_NUMBER']);
+					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(\BHG::$isDeveloper === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_ONLY_NUMBER']);
 					return false;
 				}
 			break;
@@ -1164,7 +1164,7 @@ class _ModelFunc{
 					$v = trim($temp[0]);
 				}
 				if(!(isset($data->enumValues) && is_array($data->enumValues) && isset($data->enumValues[$v]))){
-					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_NEED_VALUE']);
+					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(\BHG::$isDeveloper === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_NEED_VALUE']);
 					return false;
 				}
 			break;
@@ -1172,34 +1172,34 @@ class _ModelFunc{
 		switch($data->htmlType){
 			case HTMLType::EMAIL:
 				if (!filter_var($data->value, FILTER_VALIDATE_EMAIL)) {
-					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_VALUE_WRONG_TYPE']);
+					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(\BHG::$isDeveloper === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_VALUE_WRONG_TYPE']);
 					return false;
 				}
 			break;
 			case HTMLType::TEL:
 				$val = preg_replace('/[^0-9\-\+\(\)\*\#]/','',$data->value);
 				if($val != $data->value){
-					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_VALUE_WRONG_TYPE']);
+					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(\BHG::$isDeveloper === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_VALUE_WRONG_TYPE']);
 					return false;
 				}
 			break;
 			case HTMLType::TEXT_ENG_ONLY:
 				$val = preg_replace('/[^a-zA-Z]/','',$data->value);
 				if($val != $data->value){
-					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_ONLY_ENG']);
+					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(\BHG::$isDeveloper === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_ONLY_ENG']);
 					return false;
 				}
 			break;
 			case HTMLType::TEXT_ENG_NUM:
 				if ( !ctype_alnum($data->value) ){
-					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_ONLY_ENG_NUM']);
+					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(\BHG::$isDeveloper === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_ONLY_ENG_NUM']);
 					return false;
 				}
 			break;
 			case HTMLType::TEXT_ENG_SPECIAL:
 				$val = preg_replace(NOT_ENG_NUM_SPECIAL_CHAR_PATTERN,'',$data->value);
 				if($val != $data->value){
-					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_ONLY_ENG_NUM_SPECIAL']);
+					$data->modelErrorMsg = str_replace('{item}', $data->displayName.(\BHG::$isDeveloper === true ? '('.$key.')' : ''), BH_Application::$lang['MODEL_ONLY_ENG_NUM_SPECIAL']);
 					return false;
 				}
 		}
@@ -1209,11 +1209,11 @@ class _ModelFunc{
 	public static function CheckValue($key, &$data){
 		if($data->type == ModelType::INT || $data->type == ModelType::FLOAT){
 			if($data->minValue !== false && $data->minValue > $data->value){
-				$data->modelErrorMsg = str_replace(array('{item}','{n}'), array($data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), $data->minValue),BH_Application::$lang['MODEL_OR_MORE']);
+				$data->modelErrorMsg = str_replace(array('{item}','{n}'), array($data->displayName.(\BHG::$isDeveloper === true ? '('.$key.')' : ''), $data->minValue),BH_Application::$lang['MODEL_OR_MORE']);
 				return false;
 			}
 			if($data->maxValue !== false && $data->maxValue < $data->value){
-				$data->modelErrorMsg = str_replace(array('{item}','{n}'), array($data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), $data->maxValue),BH_Application::$lang['MODEL_OR_LESS']);
+				$data->modelErrorMsg = str_replace(array('{item}','{n}'), array($data->displayName.(\BHG::$isDeveloper === true ? '('.$key.')' : ''), $data->maxValue),BH_Application::$lang['MODEL_OR_LESS']);
 				return false;
 			}
 		}
@@ -1223,11 +1223,11 @@ class _ModelFunc{
 	public static function CheckLength($key, &$data){
 		if($data->type == ModelType::STRING || $data->type == ModelType::TEXT){
 			if($data->minLength !== false && $data->minLength > mb_strlen($data->value, 'UTF-8')){
-				$data->modelErrorMsg = str_replace(array('{item}','{n}'), array($data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), $data->minLength),BH_Application::$lang['MODEL_OR_MORE_LENGTH']);
+				$data->modelErrorMsg = str_replace(array('{item}','{n}'), array($data->displayName.(\BHG::$isDeveloper === true ? '('.$key.')' : ''), $data->minLength),BH_Application::$lang['MODEL_OR_MORE_LENGTH']);
 				return false;
 			}
 			if($data->maxLength !== false && $data->maxLength < mb_strlen($data->value, 'UTF-8')){
-				$data->modelErrorMsg = str_replace(array('{item}','{n}'), array($data->displayName.(_DEVELOPERIS === true ? '('.$key.')' : ''), $data->maxLength),BH_Application::$lang['MODEL_OR_LESS_LENGTH']);
+				$data->modelErrorMsg = str_replace(array('{item}','{n}'), array($data->displayName.(\BHG::$isDeveloper === true ? '('.$key.')' : ''), $data->maxLength),BH_Application::$lang['MODEL_OR_LESS_LENGTH']);
 				return false;
 			}
 		}
@@ -1526,7 +1526,7 @@ class _ModelFunc{
 			->SetOtherKeys($otherKey)
 			->SetIsDecrement($isDec);
 
-		if(_DEVELOPERIS === true) $dbInsert->test = $test;
+		if(\BHG::$isDeveloper === true) $dbInsert->test = $test;
 		$result = $dbInsert->Run();
 		if($result->result){
 			self::FileProcess($model);
@@ -1586,7 +1586,7 @@ class _ModelFunc{
 			}
 		}
 
-		if(_DEVELOPERIS === true) $dbUpdate->SetTest($test);
+		if(\BHG::$isDeveloper === true) $dbUpdate->SetTest($test);
 		$result = $dbUpdate->Run();
 		if($result->result){
 			self::FileProcess($model);
@@ -1599,7 +1599,7 @@ class _ModelFunc{
 		$res = new \BH_Result();
 
 		if(!isset($model->key) || !is_array($model->key)){
-			if(_DEVELOPERIS === true){
+			if(\BHG::$isDeveloper === true){
 				echo BH_Application::$lang['MODEL_KEY_NOT_EXISTS'];
 				exit;
 			}
@@ -1608,7 +1608,7 @@ class _ModelFunc{
 			return $res;
 		}
 		else if(sizeof($keys) != sizeof($model->key)){
-			if(_DEVELOPERIS === true){
+			if(\BHG::$isDeveloper === true){
 				echo BH_Application::$lang['MODEL_KEY_LENGTH_NOT_MATCH'];
 				exit;
 			}
@@ -1637,7 +1637,7 @@ class _ModelFunc{
 		if(!is_array($keyData)) $keyData = array($keyData);
 
 		if(!isset($model->key) || !is_array($model->key)){
-			if(_DEVELOPERIS === true){
+			if(\BHG::$isDeveloper === true){
 				echo BH_Application::$lang['MODEL_KEY_NOT_EXISTS'];
 				exit;
 			}
@@ -1647,7 +1647,7 @@ class _ModelFunc{
 			return $res;
 		}
 		else if(sizeof($keyData) != sizeof($model->key)){
-			if(_DEVELOPERIS === true){
+			if(\BHG::$isDeveloper === true){
 				echo BH_Application::$lang['MODEL_KEY_LENGTH_NOT_MATCH'];
 				exit;
 			}
@@ -1689,14 +1689,14 @@ class _ModelFunc{
 
 	public static function CheckInt($k, $v){
 		if(!strlen($v)){
-			if(_DEVELOPERIS === true){
+			if(\BHG::$isDeveloper === true){
 				if(_AJAXIS === true) JSON(false, '['.$k.']' . BH_Application::$lang['TXT_EMPTY_NUMBER']);
 				else URLReplace('-1', '['.$k.']' . BH_Application::$lang['TXT_EMPTY_NUMBER']);
 			}else return 'ERROR#102';
 		}
 		$val = ToInt($v);
 		if($val != $v){
-			if(_DEVELOPERIS === true){
+			if(\BHG::$isDeveloper === true){
 				if(_AJAXIS === true) JSON(false, '['.$k.']' . BH_Application::$lang['TXT_ONLY_NUMBER_NOT_CHARACTER']);
 				else URLReplace('-1', '['.$k.']' . BH_Application::$lang['TXT_ONLY_NUMBER_NOT_CHARACTER']);
 			}else return 'ERROR#103';
@@ -1706,14 +1706,14 @@ class _ModelFunc{
 
 	public static function CheckFloat($k, $v){
 		if(!strlen($v)){
-			if(_DEVELOPERIS === true){
+			if(\BHG::$isDeveloper === true){
 				if(_AJAXIS === true) JSON(false, '['.$k.']' . BH_Application::$lang['TXT_EMPTY_NUMBER']);
 				else URLReplace('-1', '['.$k.']' . BH_Application::$lang['TXT_EMPTY_NUMBER']);
 			}else return 'ERROR#112';
 		}
 		$val = ToFloat($v);
 		if($val != $v){
-			if(_DEVELOPERIS === true){
+			if(\BHG::$isDeveloper === true){
 				if(_AJAXIS === true) JSON(false, '['.$k.']' . BH_Application::$lang['TXT_ONLY_FLOAT_NOT_CHARACTER']);
 				else URLReplace('-1', '['.$k.']' . BH_Application::$lang['TXT_ONLY_FLOAT_NOT_CHARACTER']);
 			}else return 'ERROR#113';
@@ -2236,7 +2236,7 @@ class _ConfigModel extends ArrayObject{
 				$temp = json_decode(substr($data, 15), true);
 				foreach($temp as $k => $v){
 					if(isset($this[$k])) $this[$k]->SetValue($v);
-					else if(_DEVELOPERIS === true){
+					else if(\BHG::$isDeveloper === true){
 						$k = strtolower($k[0]) . substr($k, 1);
 						if(isset($this[$k])) $this[$k]->SetValue($v);
 					}
