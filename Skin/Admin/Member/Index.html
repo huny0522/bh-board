@@ -64,7 +64,7 @@ use \BH_Application as App;
 	<td><?v. $row['phone']; ?></td>
 	<td><?p. substr($row['reg_date'],0,10); ?></td>
 	<td><?menum('approve', $row['approve']) ?></td>
-	<td><?php if($row['level'] == _ADMIN_LEVEL && $_SESSION['member']['level'] == _SADMIN_LEVEL){ ?><a href="<?a. 'AuthAdmin' ?>?muid=<?p. $row['muid'] ?>" class="adminAuthBtn sBtn">관리자권한관리</a><?php } ?></td>
+	<td><?php if($row['level'] == _ADMIN_LEVEL && \BHG::$session->member->level->Get() == _SADMIN_LEVEL){ ?><a href="<?a. 'AuthAdmin' ?>?muid=<?p. $row['muid'] ?>" class="adminAuthBtn sBtn">관리자권한관리</a><?php } ?></td>
 </tr>
 <?php } ?>
 </tbody>

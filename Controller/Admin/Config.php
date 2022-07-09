@@ -27,7 +27,7 @@ class Config{
 		App::SetFollowQuery(array('where', 'keyword','page'));
 		App::$layout = '_Admin';
 		App::$data['Code'] = App::$action;
-		if(App::$action === 'SuperSet' && $_SESSION['member']['level'] < _SADMIN_LEVEL) URLRedirect(-1, App::$lang['MSG_WRONG_CONNECTED']);
+		if(App::$action === 'SuperSet' && \BHG::$session->member->level->Get() < _SADMIN_LEVEL) URLRedirect(-1, App::$lang['MSG_WRONG_CONNECTED']);
 	}
 
 	public function Index(){

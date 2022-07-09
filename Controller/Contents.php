@@ -53,7 +53,7 @@ class Contents{
 
 		App::$data['contentActionData'] = array();
 		if(\BHG::$isMember === true){
-			App::$data['contentActionData'] = $this->model->GetMyActions($this->model->GetValue('bid'), $_SESSION['member']['muid']);
+			App::$data['contentActionData'] = $this->model->GetMyActions($this->model->GetValue('bid'), \BHG::$session->member->muid->Get());
 		}
 
 		App::$data['recommendButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  GetDBText(App::$tid) . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . GetDBText(App::$tid) . '" data-type="recommend" class="contentActionBtn contentRecommendActionBtn' .(isset(App::$data['contentActionData']['recommend']) ? ' already' : ''). '"><b>' . App::$lang['RECOMMEND'] . '</b> <span class="num">' . ($this->model->_recommend->Txt()) . '</span></a>';

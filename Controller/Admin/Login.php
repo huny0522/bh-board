@@ -31,20 +31,19 @@ class Login{
 			->Get();
 		if($res === false) URLRedirect(-1, '키값 오류');
 		if(_password_verify(Post('devpwd'), $res['pwd'])){
-			$_SESSION['developer_login'] = 'y';
+			\BHG::$session->developer_login->Set('y');
 			URLRedirect(Get('r_url') ? Get('r_url') : \Paths::Url() . '/', '개발자로 로그인하셨습니다.');
 		}
 		else URLRedirect(-1, '비밀번호 불일치');
 	}
 
 	public function DevLogout(){
-		$_SESSION['developer_login'] = null;
-		unset($_SESSION['developer_login']);
+		unset(\BHG::$session->developer_login);
 		URLRedirect(Get('r_url') ? Get('r_url') : \Paths::Url() . '/');
 	}
 
 	public function Index(){
-		if(\BHG::$isMember === true && ($_SESSION['member']['level'] == _SADMIN_LEVEL || $_SESSION['member']['level'] == _ADMIN_LEVEL)) URLReplace(\Paths::UrlOfAdmin());
+		if(\BHG::$isMember === true && (\BHG::$session->member->level->Get() == _SADMIN_LEVEL || \BHG::$session->member->level->Get() == _ADMIN_LEVEL)) URLReplace(\Paths::UrlOfAdmin());
 		App::View($this->model);
 	}
 
@@ -64,16 +63,15 @@ class Login{
 				->AddWhere('muid = %d', $res['muid'])
 				->SetDataStr('login_date', date('Y-m-d H:i:s'))
 				->Run();
-			$_SESSION['member'] = array();
-			$_SESSION['member']['muid'] = $res['muid'];
-			$_SESSION['member']['level'] = $res['level'];
+
+			\BHG::$session->member->muid->Set($res['muid']);
+			\BHG::$session->member->level->Set($res['level']);
 			URLReplace(\Paths::UrlOfAdmin());
 		}
 	}
 
 	public function Logout(){
-		$_SESSION['member'] = null;
-		unset($_SESSION['member']);
+		unset(\BHG::$session->member);
 		URLReplace(\Paths::UrlOfAdmin().'/Login');
 	}
 

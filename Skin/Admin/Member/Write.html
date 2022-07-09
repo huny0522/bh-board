@@ -110,7 +110,7 @@ use \BH_Application as App;
 				<?minp('phone') ?>
 			</td>
 		</tr>
-<?php if($_SESSION['member']['level'] > $Model->GetValue('level') && $Model->GetValue('level') < 20){ ?>
+<?php if(\BHG::$session->member->level->Get() > $Model->GetValue('level') && $Model->GetValue('level') < 20){ ?>
 		<tr>
 			<th><?mt('approve')?></th>
 			<td>

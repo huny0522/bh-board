@@ -61,8 +61,8 @@ class Reply{
 	}
 
 	protected function _CheckMyMUid(&$obj, $key){
-		if(is_array($obj)) return ($obj[$key] === $_SESSION['member']['muid']);
-		else return ($obj->data[$key]->value === $_SESSION['member']['muid']);
+		if(is_array($obj)) return ($obj[$key] === \BHG::$session->member->muid->Get());
+		else return ($obj->data[$key]->value === \BHG::$session->member->muid->Get());
 	}
 
 	protected function _ReplySetting($html = ''){
@@ -323,7 +323,7 @@ class Reply{
 		if(\BHG::$isMember === true){
 			$member = CM::GetMember();
 
-			$this->model->SetValue('muid', $_SESSION['member']['muid']);
+			$this->model->SetValue('muid', \BHG::$session->member->muid->Get());
 			$this->model->SetValue('mlevel', $member['level']);
 			$this->model->SetValue('mname', $member['nickname'] ? $member['nickname'] : $member['mname']);
 		}
@@ -514,7 +514,7 @@ class Reply{
 
 	public function GetAuth(){
 		if(!isset($this->boardManger)) return true;
-		$memberLevel = \BHG::$isMember === true ? $_SESSION['member']['level'] : 0;
+		$memberLevel = \BHG::$isMember === true ? \BHG::$session->member->level->Get() : 0;
 		if($this->managerIs) return true;
 		if($memberLevel < $this->boardManger->GetValue('auth_reply_level')) return false;
 		return true;
@@ -596,7 +596,7 @@ class Reply{
 			->SetConnName($this->connName)
 			->SetReplyIs(true)
 			->SetArticleSeq($seq)
-			->SetMUid($_SESSION['member']['muid'])
+			->SetMUid(\BHG::$session->member->muid->Get())
 			->SetParentTable($this->model->table, true);
 	}
 
@@ -606,7 +606,7 @@ class Reply{
 			foreach($rows as $v) $arrays[] = $v['seq'];
 
 			$replyActionData = array();
-			$res = ArticleAction::GetInstance($this->bid)->SetConnName($this->connName)->SetMUid($_SESSION['member']['muid'])->GetReplyActions($arrays);
+			$res = ArticleAction::GetInstance($this->bid)->SetConnName($this->connName)->SetMUid(\BHG::$session->member->muid->Get())->GetReplyActions($arrays);
 
 			if($res->result) $replyActionData = $res->data;
 		}

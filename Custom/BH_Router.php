@@ -13,10 +13,10 @@ if(PHP_RUN_CLI){
 
 App::$settingData['viewMobile'] = _MOBILEIS;
 
-if(Get('_view_mobile') === 'y') $_SESSION['viewMobile'] = true;
-if(Get('_view_pc') === 'y') $_SESSION['viewMobile'] = false;
+if(Get('_view_mobile') === 'y') \BHG::$session->viewMobile->Set(true);
+if(Get('_view_pc') === 'y') \BHG::$session->viewMobile->Set(false);
 
-if(isset($_SESSION['viewMobile'])) App::$settingData['viewMobile'] = $_SESSION['viewMobile'];
+if(strlen((string)\BHG::$session->viewMobile->Get())) App::$settingData['viewMobile'] = \BHG::$session->viewMobile->Get();
 
 switch(App::$settingData['GetUrl'][1]){
 	case \Paths::NameOfAdmin(): // 관리자

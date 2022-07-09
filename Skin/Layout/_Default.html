@@ -46,7 +46,7 @@ if($activeCategory){
 					<?php if(\BHG::$isMember === true){ ?>
 						<li><a href="<?p. \Paths::Url() ?>/Login/Logout">로그아웃</a></li>
 						<li><a href="<?p. \Paths::Url() ?>/MyPage">마이페이지</a></li>
-						<?php if($_SESSION['member']['level'] >= _ADMIN_LEVEL){ ?><li class="admin"><a href="<?p. \Paths::UrlOfAdmin() ?>" target="_blank">Admin</a></li><?php } ?>
+						<?php if(\BHG::$session->member->level->Get() >= _ADMIN_LEVEL){ ?><li class="admin"><a href="<?p. \Paths::UrlOfAdmin() ?>" target="_blank">Admin</a></li><?php } ?>
 					<?php }
 					else{ ?>
 						<li><a href="<?p. \Paths::Url() ?>/Login/Register">회원가입</a></li>

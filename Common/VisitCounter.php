@@ -17,11 +17,11 @@ class VisitCounter
 	private $today;
 
 	public function __construct(){
-		if((!isset($_SESSION['visit']) || !strlen($_SESSION['visit'])) && isset($_COOKIE['visit']) && strlen($_COOKIE['visit'])){
-			$_SESSION['visit'] = $_COOKIE['visit'];
+		if(!strlen((string)\BHG::$session->visit->Get()) && isset($_COOKIE['visit']) && strlen($_COOKIE['visit'])){
+			\BHG::$session->visit->Set($_COOKIE['visit']);
 		}
-		else if(isset($_SESSION['visit']) && isset($_COOKIE['visit']) && $_SESSION['visit'] != $_COOKIE['visit']){
-			setcookie('visit', $_SESSION['visit']);
+		else if(strlen((string)\BHG::$session->visit->Get()) && \BHG::$session->visit->Get() != $_COOKIE['visit']){
+			setcookie('visit', \BHG::$session->visit->Get());
 		}
 
 		$y = date('Y');
@@ -775,13 +775,13 @@ class VisitCounter
 	}
 
 	private function _SessionEmptyCheck(){
-		if(isset($_SESSION['visit']) && strlen($_SESSION['visit'])) return false;
+		if(strlen((string)\BHG::$session->visit->Get())) return false;
 		else return true;
 	}
 
 	private function _CreateSession(){
 		$t = \_ModelFunc::RandomFileName();
-		$_SESSION['visit'] = $t;
+		\BHG::$session->visit->Set($t);
 		setcookie('visit', $t);
 	}
 

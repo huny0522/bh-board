@@ -62,7 +62,7 @@ class BH_Application
 		//
 		//    라우팅 초기화
 		//
-		self::$settingData['GetUrl'] = explode('/', isset($_GET['_bh_url']) ? $_GET['_bh_url'] : '');
+		self::$settingData['GetUrl'] = explode('/', (string)Get('_bh_url'));
 		for($i = 0; $i < 10; $i++) if(!isset(self::$settingData['GetUrl'][$i])) self::$settingData['GetUrl'][$i] = '';
 
 		if(self::$settingData['GetUrl'][1] == 'MyIp'){
@@ -72,7 +72,7 @@ class BH_Application
 
 		if(self::$settingData['GetUrl'][1] == '~Create'){
 			if(\BHG::$isDeveloper === true && _POSTIS === true){
-				if(!isset($_POST['const']) || $_POST['const'] != 'y') $_POST['table_name'] = "'{$_POST['table_name']}'";
+				if(Post('const') != 'y') $_POST['table_name'] = "'{$_POST['table_name']}'";
 				BH_HtmlCreate::CreateController($_POST['controller_name'], $_POST['model_name'], $_POST['table_name']);
 			}
 			exit;

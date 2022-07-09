@@ -16,11 +16,13 @@ define('_BH_', true);
 // BH Global
 class BHG
 {
+	/** @var BHSession */
 	public static $session;
 	public static $isMember = false;
 	public static $isAdmin = false;
 	public static $isDeveloper = false;
 	public static $language = 0;
+	public static $device = 'PC';
 	// public static $config;
 	// public static $setting;
 }
@@ -72,7 +74,7 @@ if(PHP_RUN_CLI === true){
 }
 else{
 	define('_IS_DEVELOPER_IP', true && in_array(!empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['HTTP_X_REAL_IP'] :  $_SERVER['REMOTE_ADDR'], $_DEVELOPER_IP));
-	BHG::$isDeveloper = true && _IS_DEVELOPER_IP && isset($_SESSION['developer_login']) && $_SESSION['developer_login'] === 'y';
+	BHG::$isDeveloper = _IS_DEVELOPER_IP && isset($_SESSION['developer_login']) && $_SESSION['developer_login'] === 'y';
 }
 
 ini_set('display_errors', BHG::$isDeveloper ? 1 : 0);

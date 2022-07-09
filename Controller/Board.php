@@ -81,8 +81,8 @@ class Board{
 	}
 
 	protected function _CheckMyMUid(&$obj, $key){
-		if(is_array($obj)) return ($obj[$key] === $_SESSION['member']['muid']);
-		else return ($obj->data[$key]->value === $_SESSION['member']['muid']);
+		if(is_array($obj)) return ($obj[$key] === \BHG::$session->member->muid->Get());
+		else return ($obj->data[$key]->value === \BHG::$session->member->muid->Get());
 	}
 
 	/**
@@ -267,7 +267,7 @@ class Board{
 	public function GetAuth($mode){
 		if(CM::GetAdminIs()) return true;
 		if($this->managerIs) return true;
-		$memberLevel = \BHG::$isMember === true ? $_SESSION['member']['level'] : 0;
+		$memberLevel = \BHG::$isMember === true ? \BHG::$session->member->level->Get() : 0;
 		switch($mode){
 			case 'Write':
 			case 'Modify':
@@ -373,7 +373,7 @@ class Board{
 
 		if(!$this->adminPathIs){
 			$dbList->AddWhere('A.delis=\'n\'');
-			if(!$this->managerIs && $this->boardManger->GetValue('man_to_man') === 'y') $dbList->AddWhere('A.muid = %d OR A.target_muid = %d', $_SESSION['member']['muid'], $_SESSION['member']['muid']);
+			if(!$this->managerIs && $this->boardManger->GetValue('man_to_man') === 'y') $dbList->AddWhere('A.muid = %d OR A.target_muid = %d', \BHG::$session->member->muid->Get(), \BHG::$session->member->muid->Get());
 		}
 
 		$this->_SearchQuery($dbList);
@@ -420,7 +420,7 @@ class Board{
 
 		if(!$this->adminPathIs){
 			$dbList->AddWhere('A.delis=\'n\'');
-			if(!$this->managerIs && $this->boardManger->GetValue('man_to_man') === 'y') $dbList->AddWhere('A.muid = %d OR A.target_muid = %d', $_SESSION['member']['muid'], $_SESSION['member']['muid']);
+			if(!$this->managerIs && $this->boardManger->GetValue('man_to_man') === 'y') $dbList->AddWhere('A.muid = %d OR A.target_muid = %d', \BHG::$session->member->muid->Get(), \BHG::$session->member->muid->Get());
 		}
 
 		if(StrLength($s_seq)){
@@ -582,7 +582,7 @@ class Board{
 			$res = ArticleAction::GetInstance($this->bid)
 				->SetConnName($this->connName)
 				->SetArticleSeq($seq)
-				->SetMUid($_SESSION['member']['muid'])
+				->SetMUid(\BHG::$session->member->muid->Get())
 				->GetAllAction();
 			if($res->result) App::$data['boardActionData'] = $res->data;
 
@@ -590,7 +590,7 @@ class Board{
 				ArticleAction::GetInstance($this->bid)
 					->SetConnName($this->connName)
 					->SetArticleSeq($seq)
-					->SetMUid($_SESSION['member']['muid'])
+					->SetMUid(\BHG::$session->member->muid->Get())
 					->SetParentTable($this->bid)
 					->Read();
 			}
@@ -604,9 +604,8 @@ class Board{
 
 		App::$data['reportButton'] = '<a href="' . App::URLAction('JSONAction') . '/' .  GetDBText(App::$id) . '" data-cancel-href="' . App::URLAction('JSONCancelAction') . '/' . GetDBText(App::$id) . '" data-type="report" class="boardActionBtn boardReportActionBtn' .(isset(App::$data['boardActionData']['report']) ? ' already' : ''). '"><b>신고</b> <span class="num">' . ($this->model->_report->Txt()) . '</span></a>';
 
-
-		$_SESSION['boardView']['bid'] = $this->bid;
-		$_SESSION['boardView']['seq'] = App::$id;
+		\BHG::$session->boardView->bid->Set($this->bid);
+		\BHG::$session->boardView->seq->Set(App::$id);
 
 		$this->_R_ViewEnd($data);  // Reserved
 		if(is_callable($printBeforeFunc)) $printBeforeFunc($data);
@@ -880,7 +879,7 @@ class Board{
 
 		// 회원유무
 		if(\BHG::$isMember === true){
-			$this->model->SetValue('muid', $_SESSION['member']['muid']);
+			$this->model->SetValue('muid', \BHG::$session->member->muid->Get());
 			$this->model->SetValue('mlevel', $member['level']);
 			$this->model->SetValue('email', $member['email']);
 			$this->model->SetValue('mname', $member['nickname'] ? $member['nickname'] : ($member['mname'] ? $member['mname'] : $member['mid']));
@@ -1644,13 +1643,13 @@ class Board{
 	 */
 	protected function GetArticleAction(){
 		if(!strlen(App::$id)) JSON(false,  App::$lang['MSG_WRONG_CONNECTED']);
-		if(!isset($_SESSION['boardView']['bid']) || !isset($_SESSION['boardView']['seq']) || $_SESSION['boardView']['bid'] != $this->bid || $_SESSION['boardView']['seq'] != App::$id) JSON(false, App::$lang['POSSIBLE_LAST_POST']);
+		if(!\BHG::$session->boardView->bid->Get() || !\BHG::$session->boardView->seq->Get() || \BHG::$session->boardView->bid->Get() != $this->bid || \BHG::$session->boardView->seq->Get() != App::$id) JSON(false, App::$lang['POSSIBLE_LAST_POST']);
 
 		$seq = to10(App::$id);
 		return ArticleAction::GetInstance($this->bid)
 			->SetConnName($this->connName)
 			->SetArticleSeq($seq)
-			->SetMUid($_SESSION['member']['muid'])
+			->SetMUid(\BHG::$session->member->muid->Get())
 			->SetParentTable($this->bid);
 	}
 

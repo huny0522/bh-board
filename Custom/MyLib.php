@@ -28,12 +28,14 @@ App::$settingData['loadBalancingSubIp'] = array();
 App::$settingData['loadBalancingMainIp'] = '192.168.0.2';
 */
 
+// 필요 시 파일 세션이나 DB 세션은 유효 기간 별도 설정
+// 세션 데이터 업데이트
+\BHG::$session->SetAfterUpdate(function($data){
+	$_SESSION = $data ? $data : array();
+});
 
 // 세션 데이터를 등록
-// 별도 파일이나 DB 사용은 언제까지 유지할지 설정
-App::$extendMethod['sessionAfterUpdate'] = function($data){
-	$_SESSION = $data;
-};
+\BHG::$session->Set($_SESSION, false);
 
 // composer require tinymce/tinymce
 if(file_exists(\Paths::Dir('/vendor/tinymce/tinymce/tinymce.min.js')))
@@ -65,8 +67,8 @@ App::$extendMethod['createControllerInstance'] = function(){
 
 	// 회원 정보 수정 비밀번호 입력 초기화
 	if(\BHG::$isMember === true && App::$settingData['GetUrl'][1] != 'MyPage' && App::$settingData['GetUrl'][1] != 'Upload'){
-		$_SESSION['MyInfoView'] = false;
-		unset($_SESSION['MyInfoView']);
+		\BHG::$session->MyInfoView->Set(false);
+		unset(\BHG::$session->MyInfoView);
 	}
 
 };

@@ -14,11 +14,11 @@ class BH_Common
 
 	public static function AdminAuth($redirectUrl = ''){
 		if($redirectUrl === '') $redirectUrl = App::URLBase('Login');
-		if(\BHG::$isMember !== true || ($_SESSION['member']['level'] != _SADMIN_LEVEL  && $_SESSION['member']['level'] != _ADMIN_LEVEL)){
+		if(\BHG::$isMember !== true || (\BHG::$session->member->level->Get() != _SADMIN_LEVEL  && \BHG::$session->member->level->Get() != _ADMIN_LEVEL)){
 			if(_AJAXIS === true) JSON(false, App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN']);
 			else URLReplace($redirectUrl, App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN']);
 		}
-		if($_SESSION['member']['level'] == _ADMIN_LEVEL){
+		if(\BHG::$session->member->level->Get() == _ADMIN_LEVEL){
 			$AdminAuth = explode(',', self::GetMember('admin_auth'));
 			if(!in_array(App::$data['NowMenu'], $AdminAuth)){
 				if(_AJAXIS === true) JSON(false, App::$lang['MSG_NO_AUTH']);
@@ -28,7 +28,7 @@ class BH_Common
 	}
 
 	public static function GetAdminIs(){
-		if(\BHG::$isMember === true && ($_SESSION['member']['level'] == _SADMIN_LEVEL  || $_SESSION['member']['level'] == _ADMIN_LEVEL)) return true;
+		if(\BHG::$isMember === true && (\BHG::$session->member->level->Get() == _SADMIN_LEVEL  || \BHG::$session->member->level->Get() == _ADMIN_LEVEL)) return true;
 		return false;
 	}
 
@@ -37,7 +37,7 @@ class BH_Common
 			if(_AJAXIS === true) JSON(false, App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN'], array('needLogin' => true));
 			else URLReplace(Paths::Url() . '/Login?r_url=' . urlencode($_SERVER['REQUEST_URI']), App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN']);
 		}
-		if($_SESSION['member']['level'] < $level){
+		if(\BHG::$session->member->level->Get() < $level){
 			if(_AJAXIS === true) JSON(false, App::$lang['MSG_NO_AUTH']);
 			else URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
@@ -52,7 +52,7 @@ class BH_Common
 		if(\BHG::$isMember === true){
 			if(!isset(self::$member) || !self::$member){
 				$dbGet = new \BH_DB_Get(TABLE_MEMBER);
-				$dbGet->AddWhere('muid=' . SetDBInt($_SESSION['member']['muid']));
+				$dbGet->AddWhere('muid=' . SetDBInt(\BHG::$session->member->muid->Get()));
 				$dbGet->SetKey('*', 'NULL as pwd');
 				self::$member = $dbGet->Get();
 			}
@@ -93,7 +93,7 @@ class BH_Common
 		if(\BHG::$isMember !== true) return array();
 		if(!isset(self::$blockUser)){
 			$qry = DB::GetListQryObj(TABLE_USER_BLOCK . ' A')
-				->AddWhere('`A`.`muid` = %d', $_SESSION['member']['muid']);
+				->AddWhere('`A`.`muid` = %d', \BHG::$session->member->muid->Get());
 			$list = array();
 			while($row = $qry->Get()){
 				$list[] = $row['target_muid'];
@@ -110,7 +110,7 @@ class BH_Common
 	 * @return string
 	 */
 	public static function MemName($muid, $name){
-		if(\BHG::$isMember !== true || $_SESSION['member']['muid'] == $muid) return GetDBText($name);
+		if(\BHG::$isMember !== true || \BHG::$session->member->muid->Get() == $muid) return GetDBText($name);
 		else{
 			$adtAttr = self::FirebaseSetIs() ? '' : ' data-no-chat="yes"';
 			return '<a href="#" class="userPopupMenuBtn" data-id="' . $muid . '"' . $adtAttr . '>' . GetDBText($name) . '</a>';
@@ -232,7 +232,7 @@ class BH_Common
 	 */
 	public static function MenuConnect($bid, $type, $subid = ''){
 		$AdminAuth = explode(',', self::GetMember('admin_auth'));
-		if(in_array('004', $AdminAuth) || $_SESSION['member']['level'] == _SADMIN_LEVEL){
+		if(in_array('004', $AdminAuth) || \BHG::$session->member->level->Get() == _SADMIN_LEVEL){
 			if(StrLenPost('select_menu')){
 				$selectmenu = explode(',', $_POST['select_menu']);
 				$mUpdate = new \BH_DB_Update(TABLE_MENU);
@@ -337,7 +337,7 @@ class BH_Common
 
 		if(is_callable($queryFunction)) $queryFunction($banner);
 
-		$mlevel = \BHG::$isMember === true ? $_SESSION['member']['level'] : 0;
+		$mlevel = \BHG::$isMember === true ? \BHG::$session->member->level->Get() : 0;
 		$banner->AddWhere('mlevel <= '.$mlevel)
 			->DrawRows();
 
@@ -372,7 +372,7 @@ class BH_Common
 
 		if(is_callable($queryFunction)) $queryFunction($banner);
 
-		$mlevel = \BHG::$isMember === true ? $_SESSION['member']['level'] : 0;
+		$mlevel = \BHG::$isMember === true ? \BHG::$session->member->level->Get() : 0;
 		$banner->AddWhere('mlevel <= '.$mlevel)
 			->DrawRows();
 

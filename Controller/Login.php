@@ -65,9 +65,9 @@ class Login{
 					->AddWhere('muid = %d', $res['muid'])
 					->SetDataStr('login_date', date('Y-m-d H:i:s'))
 					->Run();
-				$_SESSION['member'] = array();
-				$_SESSION['member']['muid'] = $res['muid'];
-				$_SESSION['member']['level'] = $res['level'];
+
+				\BHG::$session->member->muid->Set($res['muid']);
+				\BHG::$session->member->level->Set($res['level']);
 
 				// 로그인 카운터
 				$vcnt = \Common\VisitCounter::GetInstance();
@@ -196,8 +196,7 @@ class Login{
 
 
 	public function Logout(){
-		$_SESSION['member'] = null;
-		unset($_SESSION['member']);
+		unset(\BHG::$session->member);
 		URLReplace(\Paths::Url().'/');
 	}
 

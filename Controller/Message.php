@@ -27,11 +27,11 @@ class Message
 
 	public function Index(){
 		App::$layout = '_MyPage';
-		$qry = \MessageModel::GetListQry($_SESSION['member']['muid'], Get('page'))
+		$qry = \MessageModel::GetListQry(\BHG::$session->member->muid->Get(), Get('page'))
 			->SetPageUrl(App::URLAction().App::GetFollowQuery('page'));
 
-		if(Get('type') === 'send') $qry->AddWhere('`MSG`.`muid` = %d', $_SESSION['member']['muid']);
-		else if(Get('type') === 'receive') $qry->AddWhere('`MSG`.`target_muid` = %d', $_SESSION['member']['muid']);
+		if(Get('type') === 'send') $qry->AddWhere('`MSG`.`muid` = %d', \BHG::$session->member->muid->Get());
+		else if(Get('type') === 'receive') $qry->AddWhere('`MSG`.`target_muid` = %d', \BHG::$session->member->muid->Get());
 
 		if(!EmptyGet('keyword')) $qry->AddWhere('INSTR(`MSG`.`comment`, %s)', Get('keyword'));
 		if(!EmptyGet('id')) $qry->AddWhere('`MSG`.`muid` = %d OR `MSG`.`target_muid` = %d', Get('id'), Get('id'));
@@ -51,11 +51,11 @@ class Message
 		$blockUsers = CM::GetBlockUsers();
 
 		App::$data['targetMuid'] = $this->messageModel->GetTargetMuid();
-		if(App::$data['targetMuid'] === $_SESSION['member']['muid']) JSON(false, App::$lang['CANT_SEND_MSG_TO_SELF']);
+		if(App::$data['targetMuid'] === \BHG::$session->member->muid->Get()) JSON(false, App::$lang['CANT_SEND_MSG_TO_SELF']);
 		App::$data['target'] = CM::GetOtherMember(App::$data['targetMuid']);
 
 		if(in_array(App::$data['targetMuid'], $blockUsers)) JSON(false, App::$lang['POST_FROM_BLOCKED_USER']);
-		if($this->messageModel->_target_muid->value == $_SESSION['member']['muid'] && !strlen($this->messageModel->_read_date->value)){
+		if($this->messageModel->_target_muid->value == \BHG::$session->member->muid->Get() && !strlen($this->messageModel->_read_date->value)){
 			$this->messageModel->_read_date->SetValue(date('Y-m-d H:i:s'));
 			$this->messageModel->DBUpdate();
 		}
@@ -72,7 +72,7 @@ class Message
 	public function Modify(){
 		$this->_ModelSet(App::$id);
 
-		if($this->messageModel->_muid->value != $_SESSION['member']['muid']) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
+		if($this->messageModel->_muid->value != \BHG::$session->member->muid->Get()) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 		if(strlen($this->messageModel->_read_date->value)) JSON(false, App::$lang['CANT_MODIFY_ALREADY_READ']);
 
 		App::$data['targetMuid'] = $this->messageModel->GetTargetMuid();
@@ -84,7 +84,7 @@ class Message
 	public function PostWrite($seq = null){
 		if(!is_null($seq)){
 			$this->_ModelSet($seq);
-			if($this->messageModel->_muid->value != $_SESSION['member']['muid']) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
+			if($this->messageModel->_muid->value != \BHG::$session->member->muid->Get()) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 			if(strlen($this->messageModel->_read_date->value)) JSON(false, App::$lang['CANT_MODIFY_ALREADY_READ']);
 		}
 		$this->messageModel->SetPostValues();
@@ -92,7 +92,7 @@ class Message
 		if(sizeof($err)) JSON(false, $err[0]);
 
 		if(is_null($seq)){
-			$this->messageModel->_muid->SetValue($_SESSION['member']['muid']);
+			$this->messageModel->_muid->SetValue(\BHG::$session->member->muid->Get());
 			$res = $this->messageModel->DBInsert();
 		}
 		else $res = $this->messageModel->DBUpdate();
@@ -117,7 +117,7 @@ class Message
 		if(!strlen($seq)) URLReplace(-1, App::$lang['MSG_WRONG_CONNECTED']);
 		$res = $this->messageModel->DBGet($seq);
 		if(!$res->result) URLReplace(-1, $res->message ? $res->message : App::$lang['MSG_NO_ARTICLE']);
-		if(($this->messageModel->_muid->value == $_SESSION['member']['muid'] && $this->messageModel->_delis->value == 'y') || ($this->messageModel->_muid->value == $_SESSION['member']['muid'] && $this->messageModel->_delis->value == 'y')) URLRedirect(-1, App::$lang['MSG_DELETED_ARTICLE']);
+		if(($this->messageModel->_muid->value == \BHG::$session->member->muid->Get() && $this->messageModel->_delis->value == 'y') || ($this->messageModel->_muid->value == \BHG::$session->member->muid->Get() && $this->messageModel->_delis->value == 'y')) URLRedirect(-1, App::$lang['MSG_DELETED_ARTICLE']);
 	}
 
 	/* ----------------------------------------------
@@ -168,7 +168,7 @@ class Message
 		);
 		$this->GetFirebase()->getDatabase()->updateRules($ruleSet);*/
 
-		$uid = $_SESSION['member']['muid'];
+		$uid = \BHG::$session->member->muid->Get();
 		App::$data['timestamp'] = time();
 
 		App::$data['customToken'] = $this->GetFirebase()->getAuth()->createCustomToken($uid);
@@ -183,7 +183,7 @@ class Message
 		$this->messageModel->SetPostValuesWithFile();
 		if(EmptyPost('comment')) JSON(false, App::$lang['INPUT_CONTENTS']);
 
-		$this->messageModel->_muid->SetValue($_SESSION['member']['muid']);
+		$this->messageModel->_muid->SetValue(\BHG::$session->member->muid->Get());
 		$this->messageModel->_target_muid->SetRequired();
 		$this->messageModel->_comment->SetRequired();
 		$this->messageModel->_target_muid->SetValue(Post('target'));
@@ -220,7 +220,7 @@ class Message
 			$data = array();
 			$noReadSeq = array();
 			while($row = $res->data->Get()){
-				$row['sendIs'] = ($row['muid'] === $_SESSION['member']['muid']);
+				$row['sendIs'] = ($row['muid'] == \BHG::$session->member->muid->Get());
 				$week = $krWeek[date('w', strtotime($row['reg_date']))];
 				$hour = substr($row['reg_date'], 11, 2);
 				$h = ($hour >= 12) ? App::$lang['PM'] : App::$lang['AM'];

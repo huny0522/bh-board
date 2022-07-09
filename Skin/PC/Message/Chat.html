@@ -27,7 +27,7 @@ use \BH_Application as App;
 <script>
 	<?php ob_start(); ?>
 	App.messageChat.SetConfig(<?p. App::$cfg->Def()->firebaseWebConfig->Val() ?>)
-		.SetId('<?p. $_SESSION['member']['muid'] ?>')
+		.SetId('<?p. \BHG::$session->member->muid->Get() ?>')
 		.SetTargetId('<?p. App::$data['targetMember']['muid'] ?>')
 		.SetDataGetUrl('<?a. 'GetList' ?>')
 		.SetRoomId('<?p.App::$data['RoomId'] ?>')

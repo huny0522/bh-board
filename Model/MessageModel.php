@@ -60,7 +60,7 @@ class MessageModel extends \BH_Model
 	 * @return bool
 	 */
 	public function SendMessageIs($muid = null){
-		if(is_null($muid)) $muid = $_SESSION['member']['muid'];
+		if(is_null($muid)) $muid = \BHG::$session->member->muid->Get();
 		return ($this->_muid->Val() == $muid);
 	}
 
@@ -69,7 +69,7 @@ class MessageModel extends \BH_Model
 	 * @return bool
 	 */
 	public function GetTargetMuid($muid = null){
-		if(is_null($muid)) $muid = $_SESSION['member']['muid'];
+		if(is_null($muid)) $muid = \BHG::$session->member->muid->Get();
 		return ($this->_muid->Val() == $muid ? $this->_target_muid->Val() : $this->_muid->Val());
 	}
 
@@ -100,7 +100,7 @@ class MessageModel extends \BH_Model
 		$qry = DB::UpdateQryObj($this->table)
 			->AddWhere('seq = %d', $this->_seq->value);
 		$qrySetIs = false;
-		if($this->_muid->Val() === $_SESSION['member']['muid']){
+		if($this->_muid->Val() === \BHG::$session->member->muid->Get()){
 			$qrySetIs = true;
 
 			// 읽지 않은 메세지는 완전 삭제
@@ -115,7 +115,7 @@ class MessageModel extends \BH_Model
 
 			$qry->SetDataStr('delis', 'y');
 		}
-		if($this->_target_muid->Val() === $_SESSION['member']['muid']){
+		if($this->_target_muid->Val() == \BHG::$session->member->muid->Get()){
 			$qrySetIs = true;
 			$qry->SetDataStr('target_delis', 'y');
 		}
@@ -158,7 +158,7 @@ class MessageModel extends \BH_Model
 		$blockUsers = CM::GetBlockUsers();
 		if(in_array($targetMuid, $blockUsers)) return BH_Result::Init(false, '차단된 유저입니다.');
 		$qry = DB::GetListQryObj(TABLE_MESSAGE)
-			->AddWhere('(`muid` = %d AND `delis` = \'n\') OR (`target_muid` = %d AND `target_delis` = \'n\')', $_SESSION['member']['muid'], $_SESSION['member']['muid'])
+			->AddWhere('(`muid` = %d AND `delis` = \'n\') OR (`target_muid` = %d AND `target_delis` = \'n\')', \BHG::$session->member->muid->Get(), \BHG::$session->member->muid->Get())
 			->AddWhere('`muid` = %d OR `target_muid` = %d', $targetMuid, $targetMuid)
 			->SetSort('`seq` DESC');
 		if(!is_null($lastSeq)){
@@ -179,7 +179,7 @@ class MessageModel extends \BH_Model
 		if(\BHG::$isMember !== true) return BH_Result::Init(false, App::$lang['MSG_NEED_LOGIN'], _NEED_LOGIN);
 		if(!sizeof($seqArr)) return;
 		DB::UpdateQryObj(TABLE_MESSAGE)
-			->AddWhere('`target_muid` = %d', $_SESSION['member']['muid'])
+			->AddWhere('`target_muid` = %d', \BHG::$session->member->muid->Get())
 			->AddWhere('`seq` IN (%d)', $seqArr)
 			->SetDataStr('read_date', date('Y-m-d H:i:s'))
 			->Run();

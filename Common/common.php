@@ -323,6 +323,10 @@ class BHError
 	}
 }
 
+/**
+ * @property BHSession $developer_login
+ * @property BHSession $member
+ */
 class BHSession
 {
 	private $__sessionValue;
@@ -330,6 +334,7 @@ class BHSession
 	private $__children = array();
 	/** @var BHSession */
 	private $__primary;
+	private $__updateFunc;
 
 	public function __construct($primary = null){
 		if(isset($primary)) $this->__primary = $primary;
@@ -353,14 +358,14 @@ class BHSession
 		}
 	}
 
-	public function Set($value){
+	public function Set($value, $isUpdate = true){
 		if(is_array($value)){
 			foreach($value as $k => $v){
-				$this->{$k}->Set($v);
+				$this->{$k}->Set($v, false);
 			}
 		}
 		else $this->__sessionValue = $value;
-		$this->__AfterUpdate();
+		if($isUpdate) $this->__AfterUpdate();
 	}
 
 	public function __GetData() : mixed{
@@ -376,12 +381,18 @@ class BHSession
 
 	private function __AfterUpdate(){
 		$dt = $this->__primary->__GetData();
-		if(isset(BH_Application::$extendMethod['sessionAfterUpdate']) && is_callable(BH_Application::$extendMethod['sessionAfterUpdate'])){
-			$call = BH_Application::$extendMethod['sessionAfterUpdate'];
+		if(isset($this->__updateFunc) && is_callable($this->__updateFunc)){
+			$call = $this->__updateFunc;
 			$call($dt);
 		}
 	}
+
+	public function SetAfterUpdate($func){
+		$this->__updateFunc = $func;
+	}
 }
+
+\BHG::$session = new BHSession();
 
 define('_POSTIS', isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST');
 define('_AJAXIS', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
@@ -411,12 +422,6 @@ App::$settingData['POSSIBLE_EXT'] = array('jpg', 'jpeg', 'png', 'gif', 'bmp', 'z
 	'xlsx', 'ppt', 'doc', 'hwp', 'pdf', 'docx', 'pptx', 'avi', 'mov', 'mkv', 'mpg', 'mpeg', 'wmv', 'asf', 'asx', 'flv',
 	'm4v', 'mp4', 'mp3', 'txt');
 App::$settingData['iframePossibleUrl'] = array('www.youtube.com');
-
-if(\BHG::$isDeveloper === true){
-	if(!file_exists(\Paths::DirOfData()) || !is_dir(\Paths::DirOfData())) @mkdir(\Paths::DirOfData(), 0755, true);
-	BH\BHCss\BHCss::setNL(true);
-	require _COMMONDIR . '/BH_HtmlCreate.class.php';
-}
 
 define('ENG_NUM', '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
 define('ENG_UPPER', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
@@ -1204,10 +1209,6 @@ function StrLenCookie($param){
 	return isset($_COOKIE[$param]) ? (is_string($_COOKIE[$param]) ? strlen($_COOKIE[$param]): 0) : 0;
 }
 
-function StrLenSession($param){
-	return isset($_SESSION[$param]) ? (is_string($_SESSION[$param]) ? strlen($_SESSION[$param]): 0) : 0;
-}
-
 function StrLenVal(&$val){
 	return isset($val) ? (is_string($val) ? strlen($val): 0) : 0;
 }
@@ -1236,18 +1237,6 @@ function EmptyGet($param){
 	if(!isset($_GET[$param])) return true;
 	else if(is_string($_GET[$param])) return (strlen(trim($_GET[$param])) === 0);
 	else if(is_array($_GET[$param])) return (sizeof($_GET[$param]) === 0);
-	return false;
-}
-
-function Session($param){
-	if(!isset($_SESSION[$param])) return null;
-	return $_SESSION[$param];
-}
-
-function EmptySession($param){
-	if(!isset($_SESSION[$param])) return true;
-	else if(is_string($_SESSION[$param])) return (strlen(trim($_SESSION[$param])) === 0);
-	else if(is_array($_SESSION[$param])) return (sizeof($_SESSION[$param]) === 0);
 	return false;
 }
 

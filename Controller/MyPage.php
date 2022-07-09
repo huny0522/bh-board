@@ -29,7 +29,7 @@ class MyPage{
 			$bid = $row['bid'].($row['subid'] ? '-' . $row['subid'] : '');
 			$controller = $row['controller'] ? $row['controller'] : 'Board/'.$bid;
 			$qry = DB::GetListQryObj(TABLE_FIRST.'bbs_'.$row['bid'])
-				->AddWhere('muid='.$_SESSION['member']['muid'])
+				->AddWhere('muid='.\BHG::$session->member->muid->Get())
 				->AddWhere('subid = %s', $row['subid'])
 				->AddWhere('delis=\'n\'')
 				->SetKey('seq, subject, mname, reg_date, hit, recommend')
@@ -54,7 +54,7 @@ class MyPage{
 				->AddWhere('A.subid = %s', $row['subid'])
 				->AddWhere('A.delis=\'n\'')
 				->AddWhere('A.secret=\'n\'')
-				->AddWhere('B.muid = %d', $_SESSION['member']['muid'])
+				->AddWhere('B.muid = %d', \BHG::$session->member->muid->Get())
 				->AddWhere('B.`action_type` = \'scrap\'')
 				->SetKey('A.seq, A.subject, A.mname, A.reg_date, A.hit, A.recommend')
 				->SetLimit(5);
@@ -76,37 +76,37 @@ class MyPage{
 		$dbGet = new \BH_DB_Get();
 		$dbGet->table = $model->table;
 		$dbGet->SetKey(array('muid', 'pwd'));
-		$dbGet->AddWhere('muid='.$_SESSION['member']['muid']);
+		$dbGet->AddWhere('muid='.\BHG::$session->member->muid->Get());
 		$res = $dbGet->Get();
 		if(!$res || !_password_verify($_POST['pwd'], $res['pwd'])){
 			URLReplace('-1', App::$lang['MSG_WRONG_PASSWORD']);
 		}else{
-			$_SESSION['MyInfoView'] = true;
+			\BHG::$session->MyInfoView->Set(true);
 			URLReplace($_POST['url']);
 		}
 	}
 
 	public function MyInfo(){
-		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
+		if(!\BHG::$session->MyInfoView->Get()){
 			App::$html = 'Password.html';
 			App::View();
 			return;
 		}
 		$model = App::InitModel('Member');
 		$model->data['pwd']->required = false;
-		$model->DBGet($_SESSION['member']['muid']);
+		$model->DBGet(\BHG::$session->member->muid->Get());
 		App::View($model);
 	}
 
 	public function PostMyInfo(){
-		if($_SESSION['member']['level'] >= _ADMIN_LEVEL) URLRedirect(-1, App::$lang['ADMIN_NOT_MODIFY']);
+		if(\BHG::$session->member->level->Get() >= _ADMIN_LEVEL) URLRedirect(-1, App::$lang['ADMIN_NOT_MODIFY']);
 
-		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
+		if(!\BHG::$session->MyInfoView->Get()){
 			URLReplace(\Paths::Url().'/', App::$lang['MSG_WRONG_CONNECTED']);
 		}
 
 		$model = App::InitModel('Member');
-		$model->DBGet($_SESSION['member']['muid']);
+		$model->DBGet(\BHG::$session->member->muid->Get());
 		$model->AddExcept(array('level','approve'));
 		$model->data['pwd']->required = false;
 		$model->SetPostValues();
@@ -138,7 +138,7 @@ class MyPage{
 		if(EmptyPost('id')) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 		$res = DB::InsertQryObj(TABLE_USER_BLOCK)
 			->SetDataStr('reg_date', date('Y-m-d H:i:s'))
-			->SetDataNum('muid', $_SESSION['member']['muid'])
+			->SetDataNum('muid', \BHG::$session->member->muid->Get())
 			->SetDataNum('target_muid', Post('id'))
 			->Run();
 		if($res->result) JSON($res->result);
@@ -148,7 +148,7 @@ class MyPage{
 	public function PostUnBlockUser(){
 		if(EmptyPost('id')) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 		$res = DB::DeleteQryObj(TABLE_USER_BLOCK)
-			->AddWhere('muid = %d', $_SESSION['member']['muid'])
+			->AddWhere('muid = %d', \BHG::$session->member->muid->Get())
 			->AddWhere('target_muid = %d', Post('id'))
 			->Run();
 		JSON($res, $res ? '' : App::$lang['ERROR_CANCEL_BLOCK_USER']);
@@ -157,7 +157,7 @@ class MyPage{
 	public function BlockList(){
 		$qry = DB::GetListPageQryObj(TABLE_USER_BLOCK . ' A')
 			->AddTable('LEFT JOIN %1 `B` ON `A`.`muid` = `B`.`muid`', TABLE_MEMBER)
-			->AddWhere('`A`.`muid` = %d', $_SESSION['member']['muid'])
+			->AddWhere('`A`.`muid` = %d', \BHG::$session->member->muid->Get())
 			->SetKey('`A`.*, `B`.`nickname`')
 			->SetPage(Get('page'))
 			->SetPageUrl(App::URLAction(App::$action).App::GetFollowQuery('page'))
@@ -166,9 +166,9 @@ class MyPage{
 	}
 
 	public function WithDraw(){
-		if($_SESSION['member']['level'] >= _ADMIN_LEVEL) URLRedirect(-1, App::$lang['ADMIN_CANT_WITHDRAW']);
+		if(\BHG::$session->member->level->Get() >= _ADMIN_LEVEL) URLRedirect(-1, App::$lang['ADMIN_CANT_WITHDRAW']);
 
-		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
+		if(!\BHG::$session->MyInfoView->Get()){
 			App::$html = 'Password.html';
 			App::View();
 			return;
@@ -177,17 +177,16 @@ class MyPage{
 	}
 
 	public function PostWithDraw(){
-		if($_SESSION['member']['level'] >= _ADMIN_LEVEL) URLRedirect(-1, App::$lang['ADMIN_CANT_WITHDRAW']);
+		if(\BHG::$session->member->level->Get() >= _ADMIN_LEVEL) URLRedirect(-1, App::$lang['ADMIN_CANT_WITHDRAW']);
 
-		if(!isset($_SESSION['MyInfoView']) || !$_SESSION['MyInfoView']){
+		if(!\BHG::$session->MyInfoView->Get()){
 			URLReplace(\Paths::Url().'/', App::$lang['MSG_WRONG_CONNECTED']);
 		}
 
-		$res = Member::_Withdraw($_SESSION['member']['muid'], Post('withdraw_reason'));
+		$res = Member::_Withdraw(\BHG::$session->member->muid->Get(), Post('withdraw_reason'));
 		if(!$res->result) URLRedirect(-1, $res->message ? $res->message : App::$lang['ERROR_WITHDRAW']);
 
-		unset($_SESSION['member']);
-		session_destroy();
+		unset(\BHG::$session->member);
 		URLReplace(\Paths::Url().'/', App::$lang['SUCCESS_WITHDRAW']);
 	}
 }

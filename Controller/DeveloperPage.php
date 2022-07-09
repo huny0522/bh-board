@@ -49,8 +49,8 @@ class DeveloperPage
 					->AddWhere('muid = %d', $res['muid'])
 					->SetDataStr('login_date', date('Y-m-d H:i:s'))
 					->Run();
-				$_SESSION['developer_login_muid'] = $res['muid'];
-				$_SESSION['developer_login'] = 'y';
+				\BHG::$session->developer_login_muid->Set($res['muid']);
+				\BHG::$session->developer_login->Set('y');
 
 				URLReplace(App::URLAction());
 			}
@@ -58,8 +58,8 @@ class DeveloperPage
 	}
 
 	public function Logout(){
-		unset($_SESSION['developer_login_muid']);
-		unset($_SESSION['developer_login']);
+		unset(\BHG::$session->developer_login_muid);
+		unset(\BHG::$session->developer_login);
 		URLReplace(App::URLAction());
 	}
 

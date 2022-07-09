@@ -81,7 +81,7 @@ class ContentModel extends \BH_Model
 	public function _ReadAction($bid){
 		if(\BHG::$isMember === true){
 			$res = DB::InsertQryObj(TABLE_CONTENT_ACTION)
-				->SetDataNum('muid', $_SESSION['member']['muid'])
+				->SetDataNum('muid', \BHG::$session->member->muid->Get())
 				->SetDataStr('action_type', 'read')
 				->SetDataStr('bid', $bid)
 				->SetDataStr('reg_date', date('Y-m-d H:i:s'))
@@ -105,7 +105,7 @@ class ContentModel extends \BH_Model
 
 	public function InsertAction($type, $bid){
 		$res = DB::InsertQryObj(TABLE_CONTENT_ACTION)
-			->SetDataNum('muid', $_SESSION['member']['muid'])
+			->SetDataNum('muid', \BHG::$session->member->muid->Get())
 			->SetDataStr('action_type', $type)
 			->SetDataStr('bid', $bid)
 			->SetDataStr('reg_date', date('Y-m-d H:i:s'))
@@ -123,7 +123,7 @@ class ContentModel extends \BH_Model
 	public function DeleteAction($type, $bid){
 		if(in_array($type, array('recommend', 'oppose'))){
 			$data = DB::GetQryObj(TABLE_CONTENT_ACTION)
-				->AddWhere('muid = %d', $_SESSION['member']['muid'])
+				->AddWhere('muid = %d', \BHG::$session->member->muid->Get())
 				->AddWhere('action_type = %s', $type)
 				->AddWhere('bid = %s', $bid)
 				->SetKey('`reg_date`')
@@ -137,7 +137,7 @@ class ContentModel extends \BH_Model
 		}
 
 		$res = DB::DeleteQryObj(TABLE_CONTENT_ACTION)
-			->AddWhere('muid = %d', $_SESSION['member']['muid'])
+			->AddWhere('muid = %d', \BHG::$session->member->muid->Get())
 			->AddWhere('action_type = %s', $type)
 			->AddWhere('bid = %s', $bid)
 			->Run();
@@ -148,7 +148,7 @@ class ContentModel extends \BH_Model
 
 	public function ActionDuplicationCheck($type, $bid){
 		$qry = DB::GetQryObj(TABLE_CONTENT_ACTION)
-			->AddWhere('muid = %d', $_SESSION['member']['muid'])
+			->AddWhere('muid = %d', \BHG::$session->member->muid->Get())
 			->AddWhere('bid = %s', $bid);
 
 		// 아래 타입은 한가지만 가능
