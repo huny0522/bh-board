@@ -381,6 +381,10 @@ class BHSession
 
 	private function __AfterUpdate(){
 		$dt = $this->__primary->__GetData();
+		$this->__primary->__UpdateFunc($dt);
+	}
+
+	public function __UpdateFunc($dt){
 		if(isset($this->__updateFunc) && is_callable($this->__updateFunc)){
 			$call = $this->__updateFunc;
 			$call($dt);

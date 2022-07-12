@@ -66,7 +66,7 @@ class Login{
 					->SetDataStr('login_date', date('Y-m-d H:i:s'))
 					->Run();
 
-				\BHG::$session->member->muid->Set($res['muid']);
+				\BHG::$session->member->muid->Set($res['muid'], false);
 				\BHG::$session->member->level->Set($res['level']);
 
 				// 로그인 카운터

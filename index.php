@@ -205,8 +205,7 @@ try{
 	}
 }
 
-\BHG::$session = new BHSession();
-\BHG::$isMember = isset($_SESSION['member']['muid']) && strlen($_SESSION['member']['muid']);
+\BHG::$isMember = strlen((string)\BHG::$session->member->muid->Get()) ? true : false;
 
 BH_Application::run();
 
