@@ -205,7 +205,7 @@ try{
 	}
 }
 
-\BHG::$isMember = strlen((string)\BHG::$session->member->muid->Get()) ? true : false;
+\BHG::$isMember = (bool)strlen((string)\BHG::$session->member->muid->Get());
 
 BH_Application::run();
 
