@@ -393,6 +393,35 @@ class BH_Application
 		return $html;
 	}
 
+	/**
+	 * @param string $css
+	 * @param int|null $idx null일 경우 css변환은 하지만 불러오진 않는다.
+	 * @return void
+	 */
+	public static function CheckCssAdd($css, $idx = null){
+		if(strpos($css, '?') !== false){
+			$ex1 = explode('?', $css);
+			$queryParam = '?' . array_pop($ex1);
+			$css = $ex1[0];
+		}
+		else $queryParam = '';
+
+		$o = \Paths::UrlOfSkin($css[0] == '/' ? $css : '/css/' . $css);
+		$oPath = \Paths::Dir() . $o;
+		if(!file_exists($oPath)) return;
+		if(substr($css, strlen(BH\BHCss\BHCss::$fileExtension) * (-1)) !== BH\BHCss\BHCss::$fileExtension){
+			if($idx !== null) self::$css[$idx][] = $o . $queryParam;
+			return;
+		}
+
+		$d = substr($css, 0, strlen(BH\BHCss\BHCss::$fileExtension) * (-1)) . '.css';
+		$d = \Paths::UrlOfHtml($css[0] == '/' ? $d : '/css/' . $d);
+		$dPath = \Paths::Dir() . $d;
+
+		if(!file_exists($dPath) || filemtime($oPath) > filemtime($dPath)) BH\BHCss\BHCss::conv($oPath, $dPath);
+		if($idx !== null) self::$css[$idx][] = $d . $queryParam;
+	}
+
 	public static function CSSAdd($css, $idx = 100){
 		if(strpos($css, '?') !== false){
 			$ex1 = explode('?', $css);
