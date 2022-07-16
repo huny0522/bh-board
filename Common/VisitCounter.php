@@ -869,7 +869,7 @@ class VisitCounter
 	private function _InsertVisit(){
 		DB::InsertQryObj(TABLE_VISIT)
 			->SetDataStr('dt', date('Y-m-d'))
-			->SetDataStr('ip', $_SERVER['REMOTE_ADDR'])
+			->SetDataStr('ip', !empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['HTTP_X_REAL_IP'] :  $_SERVER['REMOTE_ADDR'])
 			->SetDataStr('browser', $this->browser)
 			->SetDataStr('os', $this->os)
 			->SetDataStr('device', $this->device)
