@@ -111,7 +111,6 @@ function _PropertyUpdate($file){
 	$propText .= " */";
 	$data = str_replace($temp, $propText, $data);
 	$data = str_replace("\r", '', $data);
-	$data = str_replace("\n", "\r\n", $data);
 	// if($modelName === 'BannerModel') echo $data;
 	if($source === $data) return \BH_Result::Init(false);
 	file_put_contents(_DIR . '/Model/' . $modelName . '.php', $data);

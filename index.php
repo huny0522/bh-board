@@ -192,7 +192,7 @@ define('_DEFAULT_LAYOUT', '_Default');
 
 require _COMMONDIR . '/common.php';
 
-if(!DB::SQL()->TableExists(TABLE_FRAMEWORK_SETTING) && _IS_DEVELOPER_IP !== true){
+if(!PHP_RUN_CLI && !DB::SQL()->TableExists(TABLE_FRAMEWORK_SETTING) && _IS_DEVELOPER_IP !== true){
 	include _DIR.'/Skin/DeveloperSetup.html';
 	return;
 }

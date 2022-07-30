@@ -369,7 +369,7 @@ class BHSession
 		if($isUpdate) $this->__AfterUpdate();
 	}
 
-	public function __GetData() : mixed{
+	public function __GetData(){
 		if(isset($this->__sessionValue)) return $this->__sessionValue;
 		if(!sizeof($this->__children)) return null;
 		$res = array();
@@ -411,6 +411,7 @@ require _COMMONDIR . '/BH_Common.class.php';
 if(file_exists(_DIR . '/Custom/ConfigSetting.php')) require _DIR . '/Custom/ConfigSetting.php';
 require _DIR . '/Common/HtmlConvert.php';
 require _COMMONDIR . '/BHCss/core/BHCss.php';
+if(BHG::$isDeveloper) require_once _COMMONDIR . '/BH_HtmlCreate.class.php';
 
 require _DIR . '/Custom/Lang/' . LANG_FILE;
 

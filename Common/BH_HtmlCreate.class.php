@@ -20,7 +20,7 @@ class BH_HtmlCreate
 			}
 			$table = constant($TableName);
 		}
-		if(!DB::SQL('CLI')->TableExists($table)){
+		if(!DB::SQL(PHP_RUN_CLI ? 'CLI' : '')->TableExists($table)){
 			URLRedirect(-1, '테이블이 존재하지 않습니다.');
 		}
 
@@ -49,9 +49,9 @@ class {$ControllerName}{
 	}
 
 	public function Index(){
-		\$qry = DB::GetListPageQryObj(\$this->{$ModelValueName}->table)
+		\$qry = DB::GetListPageQryObj('`%1`', \$this->{$ModelValueName}->table)
 			->SetArticleCount(10)
-			->SetPage(isset(\$_GET['page']) ? \$_GET['page'] : 0)
+			->SetPage(Get('page'))
 			->SetPageUrl(App::URLAction().App::GetFollowQuery('page'))
 			->Run();
 
@@ -74,7 +74,7 @@ class {$ControllerName}{
 
 	public function PostWrite(\$seq = null){
 		if(!is_null(\$seq)) \$this->_ModelSet(\$seq);
-		\$this->{$ModelValueName}->SetPostValues();
+		\$this->{$ModelValueName}->SetPostValuesWithFile();
 		\$err = \$this->{$ModelValueName}->GetErrorMessage();
 		if(sizeof(\$err)){
 			App::\$data['error'] = \$err[0];
@@ -85,14 +85,13 @@ class {$ControllerName}{
 		else \$res = \$this->{$ModelValueName}->DBUpdate();
 
 		if(!\$res->result) {
-			App::\$data['error'] = \$res->message ? \$res->message : 'Query Error';
+			App::\$data['error'] = \$res->message ?: 'Query Error';
 			App::View('Write');
 			return;
 		}
-		else{
-			if(is_null(\$seq)) URLReplace(App::URLAction().App::GetFollowQuery());
-			else URLReplace(App::URLAction('View/'.\$seq).App::GetFollowQuery());
-		}
+		
+		if(is_null(\$seq)) URLReplace(App::URLAction().App::GetFollowQuery());
+		else URLReplace(App::URLAction('View/'.\$seq).App::GetFollowQuery());
 	}
 
 	public function PostModify(){
@@ -106,14 +105,14 @@ class {$ControllerName}{
 			URLReplace(App::URLAction('').App::GetFollowQuery());
 		}
 		else{
-			URLReplace(App::URLAction('View/'.App::\$id).App::GetFollowQuery(), \$res->message ? \$res->message : 'Query Error');
+			URLReplace(App::URLAction('View/'.App::\$id).App::GetFollowQuery(), \$res->message ?: 'Query Error');
 		}
 	}
 
 	private function _ModelSet(\$seq){
 		if(!strlen(\$seq)) URLReplace(-1, App::\$lang['MSG_WRONG_CONNECTED']);
 		\$res = \$this->{$ModelValueName}->DBGet(\$seq);
-		if(!\$res->result) URLReplace(-1, \$res->message ? \$res->message : App::\$lang['MSG_NO_ARTICLE']);
+		if(!\$res->result) URLReplace(-1, \$res->message ?: App::\$lang['MSG_NO_ARTICLE']);
 	}
 }";
 		if($create){
@@ -192,13 +191,13 @@ class {$ModelName}Model extends \\BH_Model{
 		$initFuncText = '';
 		if(sizeof($fn_matches) > 1 && $fn_matches[1]) $initFuncText = str_replace(chr(9), '', $fn_matches[1]);
 
-		$qry = \DB::SQL('CLI')->Query('SHOW FULL COLUMNS FROM ' . $TableName, false);
+		$qry = \DB::SQL(PHP_RUN_CLI ? 'CLI' : '')->Query('SHOW FULL COLUMNS FROM ' . $TableName, false);
 		if(!$qry) return;
 
 		$primaryKey = array();
 		//$tData = array();
 		$propertyDoc = '';
-		while($row = \DB::SQL('CLI')->Fetch($qry)){
+		while($row = \DB::SQL(PHP_RUN_CLI ? 'CLI' : '')->Fetch($qry)){
 			//$tData[$row['Field']] = $row;
 			$findIs = preg_match('/\$this\-\>data\[\'' . $row['Field'] . '\'\]\s*=\s*new\s*[\\\]*BH_ModelData/is', $initFuncText);
 			$propertyDoc .= " * @property \\BH_ModelData \$_{$row['Field']}\n";
