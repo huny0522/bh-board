@@ -192,18 +192,12 @@ define('_DEFAULT_LAYOUT', '_Default');
 
 require _COMMONDIR . '/common.php';
 
-try{
-	$qry = DB::SQL()->Query('SELECT `data` FROM %1 WHERE `key_name` = \'version\'', TABLE_FRAMEWORK_SETTING, false);
-	if($qry){
-		$fetch = DB::SQL()->Fetch($qry);
-		if($fetch) BH_Application::$version = $fetch['data'];
-	}
-}catch(\PDOException $PDOException){
-	if(_IS_DEVELOPER_IP !== true){
-		include _DIR.'/Skin/DeveloperSetup.html';
-		return;
-	}
+if(!DB::SQL()->TableExists(TABLE_FRAMEWORK_SETTING) && _IS_DEVELOPER_IP !== true){
+	include _DIR.'/Skin/DeveloperSetup.html';
+	return;
 }
+
+if(file_exists(_COMMONDIR . '/version.php')) BH_Application::$version = trim(file_get_contents(_COMMONDIR . '/version.php'));
 
 \BHG::$isMember = (bool)strlen((string)\BHG::$session->member->muid->Get());
 
