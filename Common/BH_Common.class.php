@@ -3,7 +3,14 @@ use \BH_Application as App;
 use \DB as DB;
 class BH_Common
 {
+	/**
+	 * @var array
+	 */
 	public static $member;
+	/**
+	 * @var array
+	 */
+	private static $admin;
 	private static $otherMember = array();
 	public static $blockUser;
 
@@ -14,12 +21,12 @@ class BH_Common
 
 	public static function AdminAuth($redirectUrl = ''){
 		if($redirectUrl === '') $redirectUrl = App::URLBase('Login');
-		if(\BHG::$isMember !== true || (\BHG::$session->member->level->Get() != _SADMIN_LEVEL  && \BHG::$session->member->level->Get() != _ADMIN_LEVEL)){
+		if(\BHG::$isAdmin !== true || (\BHG::$session->admin->level->Get() != _SADMIN_LEVEL  && \BHG::$session->admin->level->Get() != _ADMIN_LEVEL)){
 			if(_AJAXIS === true) JSON(false, App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN']);
 			else URLReplace($redirectUrl, App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN']);
 		}
-		if(\BHG::$session->member->level->Get() == _ADMIN_LEVEL){
-			$AdminAuth = explode(',', self::GetMember('admin_auth'));
+		if(\BHG::$session->admin->level->Get() == _ADMIN_LEVEL){
+			$AdminAuth = explode(',', self::GetAdmin('admin_auth'));
 			if(!in_array(App::$data['NowMenu'], $AdminAuth)){
 				if(_AJAXIS === true) JSON(false, App::$lang['MSG_NO_AUTH']);
 				else URLReplace('-1', App::$lang['MSG_NO_AUTH']);
@@ -28,7 +35,7 @@ class BH_Common
 	}
 
 	public static function GetAdminIs(){
-		if(\BHG::$isMember === true && (\BHG::$session->member->level->Get() == _SADMIN_LEVEL  || \BHG::$session->member->level->Get() == _ADMIN_LEVEL)) return true;
+		if(\BHG::$isAdmin === true && (\BHG::$session->admin->level->Get() == _SADMIN_LEVEL  || \BHG::$session->admin->level->Get() == _ADMIN_LEVEL)) return true;
 		return false;
 	}
 
@@ -58,6 +65,26 @@ class BH_Common
 			}
 			if($key) return isset(self::$member[$key]) ? self::$member[$key] : '';
 			return self::$member;
+		}else{
+			return false;
+		}
+	}
+
+	/**
+	 * @param string $key
+	 * @return array|bool|null
+	 */
+	public static function GetAdmin($key = ''){
+		// 원글 가져오기
+		if(\BHG::$isAdmin === true){
+			if(!isset(self::$admin) || !self::$admin){
+				$dbGet = new \BH_DB_Get(TABLE_MEMBER);
+				$dbGet->AddWhere('muid=' . SetDBInt(\BHG::$session->admin->muid->Get()));
+				$dbGet->SetKey('*', 'NULL as pwd');
+				self::$admin = $dbGet->Get();
+			}
+			if($key) return isset(self::$admin[$key]) ? self::$admin[$key] : '';
+			return self::$admin;
 		}else{
 			return false;
 		}
@@ -231,8 +258,8 @@ class BH_Common
 	 * @param string $subid
 	 */
 	public static function MenuConnect($bid, $type, $subid = ''){
-		$AdminAuth = explode(',', self::GetMember('admin_auth'));
-		if(in_array('004', $AdminAuth) || \BHG::$session->member->level->Get() == _SADMIN_LEVEL){
+		$AdminAuth = explode(',', self::GetAdmin('admin_auth'));
+		if(in_array('004', $AdminAuth) || \BHG::$session->admin->level->Get() == _SADMIN_LEVEL){
 			if(StrLenPost('select_menu')){
 				$selectmenu = explode(',', $_POST['select_menu']);
 				$mUpdate = new \BH_DB_Update(TABLE_MENU);

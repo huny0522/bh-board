@@ -26,7 +26,7 @@ App::JSAdd('admin.js' . CM::RefreshParam(), 10);
 				<ul>
 					<li class="home"><a href="<?p. \Paths::Url().'/' ?>" target="_blank">홈으로</a></li>
 					<li class="logout"><a href="<?p. \Paths::UrlOfAdmin() ?>/Login/Logout">로그아웃</a></li>
-					<?php if(\BHG::$session->member->level->Get() == _SADMIN_LEVEL){ ?>
+					<?php if(\BHG::$session->admin->level->Get() == _SADMIN_LEVEL){ ?>
 					<li><a href="<?p. \Paths::UrlOfAdmin() ?>/Home/PHPInfo" target="_blank">PHPInfo()</a></li>
 					<?php } ?>
 				</ul>
@@ -35,16 +35,16 @@ App::JSAdd('admin.js' . CM::RefreshParam(), 10);
 				<ul>
 					<?php
 					$NM = App::$data['NowMenu'];
-					$AdminAuth = explode(',', CM::GetMember('admin_auth'));
+					$AdminAuth = explode(',', CM::GetAdmin('admin_auth'));
 					foreach(App::$settingData['AdminMenu'] as $c => $v){
-						if(strlen($c) == 3 && (\BHG::$session->member->level->Get() == _SADMIN_LEVEL || in_array($c, $AdminAuth))){
+						if(strlen($c) == 3 && (\BHG::$session->admin->level->Get() == _SADMIN_LEVEL || in_array($c, $AdminAuth))){
 							echo '<li '.(substr($NM,0,3) == $c ? ' class="Active"' : '').'>'
 								.'<span><a href="'. \Paths::UrlOfAdmin().'/'.$v['Category'].'">'.$v['Name'].'</a></span>';
 
 							$sub = '';
 
 							foreach(App::$settingData['AdminMenu'] as $c2 => $v2){
-								if(strlen($c2) == 6 && substr($c2, 0, 3) == $c && (\BHG::$session->member->level->Get() == _SADMIN_LEVEL || in_array($c2, $AdminAuth))){
+								if(strlen($c2) == 6 && substr($c2, 0, 3) == $c && (\BHG::$session->admin->level->Get() == _SADMIN_LEVEL || in_array($c2, $AdminAuth))){
 									$sub .= '<li '.(substr($NM,0,6) == $c2 ? ' class="Active"' : '').'>'
 										.'<span><a href="'. \Paths::UrlOfAdmin().'/'.$v2['Category'].'">'.$v2['Name'].'</a></span>';
 								}

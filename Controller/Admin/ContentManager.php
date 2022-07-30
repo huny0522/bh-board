@@ -38,8 +38,8 @@ class ContentManager{
 		App::SetFollowQuery(array('category', 'page', 'keyword'));
 		App::$layout = '_Admin';
 
-		$AdminAuth = explode(',', CM::GetMember('admin_auth'));
-		App::$data['menuAuth'] = (in_array('004', $AdminAuth) || \BHG::$session->member->level->Get() == _SADMIN_LEVEL);
+		$AdminAuth = explode(',', CM::GetAdmin('admin_auth'));
+		App::$data['menuAuth'] = (in_array('004', $AdminAuth) || \BHG::$session->admin->level->Get() == _SADMIN_LEVEL);
 	}
 
 	public function Index(){

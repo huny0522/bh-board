@@ -37,7 +37,7 @@ class Member{
 			->SetPageUrl(App::URLAction('').App::GetFollowQuery('page'))
 			->SetArticleCount(20)
 			->AddWhere('withdraw = \'n\'')
-			->AddWhere('level < %d OR muid = %d', \BHG::$session->member->level->Get(), \BHG::$session->member->muid->Get());
+			->AddWhere('level < %d OR muid = %d', \BHG::$session->admin->level->Get(), \BHG::$session->admin->muid->Get());
 		$keyword = StrTrim(Get('Keyword'));
 		$slevel = Get('SLevel');
 
@@ -54,7 +54,7 @@ class Member{
 
 	public function View(){
 		$res = $this->model->DBGet($_GET['muid']);
-		if($this->model->GetValue('level') > \BHG::$session->member->level->Get() || (\BHG::$session->member->muid->Get() != $this->model->GetValue('muid') && $this->model->GetValue('level') == \BHG::$session->member->level->Get())){
+		if($this->model->GetValue('level') > \BHG::$session->admin->level->Get() || (\BHG::$session->admin->muid->Get() != $this->model->GetValue('muid') && $this->model->GetValue('level') == \BHG::$session->admin->level->Get())){
 			URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
 		}
 
@@ -66,17 +66,17 @@ class Member{
 	}
 	public function Write(){
 		foreach($this->model->data['level']->enumValues as $k => $v){
-			if($k <= \BHG::$session->member->level->Get()) App::$data['level'][$k] = $v;
+			if($k <= \BHG::$session->admin->level->Get()) App::$data['level'][$k] = $v;
 		}
 		App::View($this->model);
 	}
 	public function Modify(){
 		foreach($this->model->data['level']->enumValues as $k => $v){
-			if($k <= \BHG::$session->member->level->Get()) App::$data['level'][$k] = $v;
+			if($k <= \BHG::$session->admin->level->Get()) App::$data['level'][$k] = $v;
 		}
 		$this->model->data['pwd']->required = false;
 		$res = $this->model->DBGet($_GET['muid']);
-		if($this->model->GetValue('level') > \BHG::$session->member->level->Get() || (\BHG::$session->member->muid->Get() != $this->model->GetValue('muid') && $this->model->GetValue('level') == \BHG::$session->member->level->Get())){
+		if($this->model->GetValue('level') > \BHG::$session->admin->level->Get() || (\BHG::$session->admin->muid->Get() != $this->model->GetValue('muid') && $this->model->GetValue('level') == \BHG::$session->admin->level->Get())){
 			URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
 		}
 
@@ -119,7 +119,7 @@ class Member{
 			return;
 		}
 
-		if($this->model->GetValue('level') >= \BHG::$session->member->level->Get()) URLReplace('-1', '해당 레벨로 등록이 불가능합니다.');
+		if($this->model->GetValue('level') >= \BHG::$session->admin->level->Get()) URLReplace('-1', '해당 레벨로 등록이 불가능합니다.');
 
 		$this->model->SetValue('reg_date', date('Y-m-d H:i:s'));
 		$res = $this->model->DBInsert();
@@ -132,12 +132,12 @@ class Member{
 		if(!StrLenPost('pwd')) $this->model->AddExcept('pwd');
 
 		$res = $this->model->DBGet(Post('muid'));
-		if($this->model->GetValue('level') > \BHG::$session->member->level->Get() || (\BHG::$session->member->muid->Get() != $this->model->GetValue('muid') && $this->model->GetValue('level') == \BHG::$session->member->level->Get())){
+		if($this->model->GetValue('level') > \BHG::$session->admin->level->Get() || (\BHG::$session->admin->muid->Get() != $this->model->GetValue('muid') && $this->model->GetValue('level') == \BHG::$session->admin->level->Get())){
 			URLReplace('-1', App::$lang['MSG_WRONG_CONNECTED']);
 		}
 
 		$res = $this->model->SetPostValues();
-		if($this->model->GetValue('level') >= \BHG::$session->member->level->Get() && $this->model->GetValue('muid') != \BHG::$session->member->muid->Get()){
+		if($this->model->GetValue('level') >= \BHG::$session->admin->level->Get() && $this->model->GetValue('muid') != \BHG::$session->admin->muid->Get()){
 			URLReplace('-1', '해당 레벨로 등록이 불가능합니다.');
 		}
 
@@ -168,7 +168,7 @@ class Member{
 
 	public function AuthAdmin(){
 		App::$layout = '';
-		if(\BHG::$session->member->level->Get() != _SADMIN_LEVEL) return;
+		if(\BHG::$session->admin->level->Get() != _SADMIN_LEVEL) return;
 		$dbGet = new \BH_DB_Get($this->model->table);
 		$dbGet->AddWhere('muid='.SetDBInt($_GET['muid']));
 		$dbGet->SetKey(array('level', 'admin_auth'));
@@ -180,7 +180,7 @@ class Member{
 	}
 
 	public function PostAuthAdmin(){
-		if(\BHG::$session->member->level->Get() != _SADMIN_LEVEL) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
+		if(\BHG::$session->admin->level->Get() != _SADMIN_LEVEL) JSON(false, App::$lang['MSG_WRONG_CONNECTED']);
 		$dbGet = new \BH_DB_Get($this->model->table);
 		$dbGet->AddWhere('muid =  %d', $_POST['muid']);
 		$dbGet->SetKey('level');
@@ -210,7 +210,7 @@ class Member{
 	public static function _Withdraw($muid, $reason){
 		$model = new \MemberModel();
 		$model->DBGet($muid);
-		if($model->_level->value >= _ADMIN_LEVEL && $model->_level->value >= \BHG::$session->member->level->Get()){
+		if($model->_level->value >= _ADMIN_LEVEL && $model->_level->value >= \BHG::$session->admin->level->Get()){
 			return \BH_Result::Init(false, '관리자는 탈퇴가 불가능합니다.');
 		}
 

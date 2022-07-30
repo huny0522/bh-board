@@ -43,7 +43,7 @@ class Login{
 	}
 
 	public function Index(){
-		if(\BHG::$isMember === true && (\BHG::$session->member->level->Get() == _SADMIN_LEVEL || \BHG::$session->member->level->Get() == _ADMIN_LEVEL)) URLReplace(\Paths::UrlOfAdmin());
+		if(\BHG::$isAdmin === true) URLReplace(\Paths::UrlOfAdmin());
 		App::View($this->model);
 	}
 
@@ -64,14 +64,14 @@ class Login{
 				->SetDataStr('login_date', date('Y-m-d H:i:s'))
 				->Run();
 
-			\BHG::$session->member->muid->Set($res['muid']);
-			\BHG::$session->member->level->Set($res['level']);
+			\BHG::$session->admin->muid->Set($res['muid']);
+			\BHG::$session->admin->level->Set($res['level']);
 			URLReplace(\Paths::UrlOfAdmin());
 		}
 	}
 
 	public function Logout(){
-		unset(\BHG::$session->member);
+		unset(\BHG::$session->admin);
 		URLReplace(\Paths::UrlOfAdmin().'/Login');
 	}
 

@@ -200,6 +200,7 @@ if(!DB::SQL()->TableExists(TABLE_FRAMEWORK_SETTING) && _IS_DEVELOPER_IP !== true
 if(file_exists(_COMMONDIR . '/version.php')) BH_Application::$version = trim(file_get_contents(_COMMONDIR . '/version.php'));
 
 \BHG::$isMember = (bool)strlen((string)\BHG::$session->member->muid->Get());
+\BHG::$isAdmin = (bool)strlen((string)\BHG::$session->admin->muid->Get());
 
 BH_Application::run();
 

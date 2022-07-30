@@ -33,8 +33,8 @@ class BoardManager
 		if(App::$settingData['GetUrl'][2] == 'Board' || !EmptyGet('gn')) App::$data['NowMenu'] = '002';
 		CM::AdminAuth();
 
-		$AdminAuth = explode(',', CM::GetMember('admin_auth'));
-		App::$data['menuAuth'] = (in_array('004', $AdminAuth) || \BHG::$session->member->level->Get() == _SADMIN_LEVEL);
+		$AdminAuth = explode(',', CM::GetAdmin('admin_auth'));
+		App::$data['menuAuth'] = (in_array('004', $AdminAuth) || \BHG::$session->admin->level->Get() == _SADMIN_LEVEL);
 
 		App::SetFollowQuery(array('where', 'keyword','page', 'gn'));
 		App::$layout = '_Admin';

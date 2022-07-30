@@ -11,7 +11,7 @@ class Home{
 	}
 
 	public function __init(){
-		if(\BHG::$isMember !== true || (\BHG::$session->member->level->Get() != _SADMIN_LEVEL  && \BHG::$session->member->level->Get() != _ADMIN_LEVEL)){
+		if(\BHG::$isAdmin !== true || (\BHG::$session->admin->level->Get() != _SADMIN_LEVEL  && \BHG::$session->admin->level->Get() != _ADMIN_LEVEL)){
 			URLReplace(\Paths::UrlOfAdmin().'/Login');
 		}
 		App::$layout = '_Admin';
@@ -34,7 +34,7 @@ class Home{
 	}
 
 	public function PHPInfo(){
-		if(\BHG::$session->member->level->Get() != _SADMIN_LEVEL) return;
+		if(\BHG::$session->admin->level->Get() != _SADMIN_LEVEL) return;
 
 		echo phpinfo();
 	}
