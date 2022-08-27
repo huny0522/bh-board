@@ -22,13 +22,13 @@ class BH_Common
 	public static function AdminAuth($redirectUrl = ''){
 		if($redirectUrl === '') $redirectUrl = App::URLBase('Login');
 		if(\BHG::$isAdmin !== true || (\BHG::$session->admin->level->Get() != _SADMIN_LEVEL  && \BHG::$session->admin->level->Get() != _ADMIN_LEVEL)){
-			if(_AJAXIS === true) JSON(false, App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN']);
+			if(_JSONIS === true) JSON(false, App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN']);
 			else URLReplace($redirectUrl, App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN']);
 		}
 		if(\BHG::$session->admin->level->Get() == _ADMIN_LEVEL){
 			$AdminAuth = explode(',', self::GetAdmin('admin_auth'));
 			if(!in_array(App::$data['NowMenu'], $AdminAuth)){
-				if(_AJAXIS === true) JSON(false, App::$lang['MSG_NO_AUTH']);
+				if(_JSONIS === true) JSON(false, App::$lang['MSG_NO_AUTH']);
 				else URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 			}
 		}
@@ -41,11 +41,11 @@ class BH_Common
 
 	public static function MemberAuth($level = 1){
 		if(\BHG::$isMember !== true){
-			if(_AJAXIS === true) JSON(false, App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN'], array('needLogin' => true));
+			if(_JSONIS === true) JSON(false, App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN'], array('needLogin' => true));
 			else URLReplace(Paths::Url() . '/Login?r_url=' . urlencode($_SERVER['REQUEST_URI']), App::$lang['MSG_NO_AUTH'].' ' .App::$lang['MSG_NEED_LOGIN']);
 		}
 		if(\BHG::$session->member->level->Get() < $level){
-			if(_AJAXIS === true) JSON(false, App::$lang['MSG_NO_AUTH']);
+			if(_JSONIS === true) JSON(false, App::$lang['MSG_NO_AUTH']);
 			else URLReplace('-1', App::$lang['MSG_NO_AUTH']);
 		}
 	}

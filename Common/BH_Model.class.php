@@ -204,7 +204,7 @@ class BH_ModelData
 	}
 
 	public function &SetValue($v){
-		$this->value = trim($v);
+		$this->value = trim((string)$v);
 		$this->needIs = true;
 		return $this;
 	}
@@ -1690,14 +1690,14 @@ class _ModelFunc{
 	public static function CheckInt($k, $v){
 		if(!strlen($v)){
 			if(\BHG::$isDeveloper === true){
-				if(_AJAXIS === true) JSON(false, '['.$k.']' . BH_Application::$lang['TXT_EMPTY_NUMBER']);
+				if(_JSONIS === true) JSON(false, '['.$k.']' . BH_Application::$lang['TXT_EMPTY_NUMBER']);
 				else URLReplace('-1', '['.$k.']' . BH_Application::$lang['TXT_EMPTY_NUMBER']);
 			}else return 'ERROR#102';
 		}
 		$val = ToInt($v);
 		if($val != $v){
 			if(\BHG::$isDeveloper === true){
-				if(_AJAXIS === true) JSON(false, '['.$k.']' . BH_Application::$lang['TXT_ONLY_NUMBER_NOT_CHARACTER']);
+				if(_JSONIS === true) JSON(false, '['.$k.']' . BH_Application::$lang['TXT_ONLY_NUMBER_NOT_CHARACTER']);
 				else URLReplace('-1', '['.$k.']' . BH_Application::$lang['TXT_ONLY_NUMBER_NOT_CHARACTER']);
 			}else return 'ERROR#103';
 		}
@@ -1707,14 +1707,14 @@ class _ModelFunc{
 	public static function CheckFloat($k, $v){
 		if(!strlen($v)){
 			if(\BHG::$isDeveloper === true){
-				if(_AJAXIS === true) JSON(false, '['.$k.']' . BH_Application::$lang['TXT_EMPTY_NUMBER']);
+				if(_JSONIS === true) JSON(false, '['.$k.']' . BH_Application::$lang['TXT_EMPTY_NUMBER']);
 				else URLReplace('-1', '['.$k.']' . BH_Application::$lang['TXT_EMPTY_NUMBER']);
 			}else return 'ERROR#112';
 		}
 		$val = ToFloat($v);
 		if($val != $v){
 			if(\BHG::$isDeveloper === true){
-				if(_AJAXIS === true) JSON(false, '['.$k.']' . BH_Application::$lang['TXT_ONLY_FLOAT_NOT_CHARACTER']);
+				if(_JSONIS === true) JSON(false, '['.$k.']' . BH_Application::$lang['TXT_ONLY_FLOAT_NOT_CHARACTER']);
 				else URLReplace('-1', '['.$k.']' . BH_Application::$lang['TXT_ONLY_FLOAT_NOT_CHARACTER']);
 			}else return 'ERROR#113';
 		}

@@ -204,7 +204,7 @@ if(file_exists(_COMMONDIR . '/version.php')) BH_Application::$version = trim(fil
 
 BH_Application::run();
 
-if(BHG::$isDeveloper === true && _VIEW_MICROTIME === true && _AJAXIS !== true){
+if(BHG::$isDeveloper === true && _VIEW_MICROTIME === true && _JSONIS !== true){
 	$_END_MICROTIME = array_sum(explode(' ', microtime()));
 	echo chr(10) . '<!-- RUNTIME : ' . sprintf('%02.6f', $_END_MICROTIME - $_BEGIN_MICROTIME) . ' -->';
 }

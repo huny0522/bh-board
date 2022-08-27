@@ -741,7 +741,7 @@ class Board{
 		$res = $this->model->SetPostValuesWithFile();
 		if(!$res->result){
 			$res->message ? $res->message : 'ERROR#101';
-			if(_AJAXIS === true) JSON(false, $res->message);
+			if(_JSONIS === true) JSON(false, $res->message);
 			App::$data['error'] = $res->message;
 			App::View($this->model);
 			return;
@@ -750,7 +750,7 @@ class Board{
 		if(\BHG::$isMember !== true || !CM::GetAdminIs()){
 			$res = $this->_PasswordCheck();
 			if($res !== true){
-				if(_AJAXIS === true) JSON(false, $res);
+				if(_JSONIS === true) JSON(false, $res);
 				App::$data['error'] = $res;
 				App::View($this->model);
 				return;
@@ -770,7 +770,7 @@ class Board{
 
 		$error = $this->model->GetErrorMessage();
 		if(sizeof($error)){
-			if(_AJAXIS === true) JSON(false, $error[0]);
+			if(_JSONIS === true) JSON(false, $error[0]);
 			App::$data['error'] = $error[0];
 			App::View($this->model);
 			return;
@@ -785,7 +785,7 @@ class Board{
 		if($res2->result){
 			$this->_R_PostModifyUpdateAfter();  // Reserved
 			if(is_callable($dbUpdateAfter)) $dbUpdateAfter();
-			if(_AJAXIS === true) JSON(true, '',App::$lang['MSG_COMPLETE_MODIFY']);
+			if(_JSONIS === true) JSON(true, '',App::$lang['MSG_COMPLETE_MODIFY']);
 			else{
 				if(!isset($this->model->_muid->value) || !strlen($this->model->_muid->value)){
 					echo '<form action="' . App::URLAction('View/') . App::$id . App::GetFollowQuery() . '" method="post" id="redirectForm">';
@@ -797,7 +797,7 @@ class Board{
 			}
 		}
 		else{
-			if(_AJAXIS === true) JSON(false, $res2->message ? $res2->message : 'ERROR#102');
+			if(_JSONIS === true) JSON(false, $res2->message ? $res2->message : 'ERROR#102');
 			App::$data['error'] = $res2->message ? $res2->message : 'ERROR#102';
 			App::View($this->model);
 			return;
@@ -958,12 +958,12 @@ class Board{
 				$mail->SendMailByAnswerAlarm(App::$data['targetData']['mname'], $url, $this->model->_mname->value, $this->model->_subject->value, ($this->model->_htmlis->value === 'y' ? $this->model->_content->SafeRaw() : $this->model->_content->SafeBr()));
 			}
 
-			if(_AJAXIS === true){
+			if(_JSONIS === true){
 				JSON(true, '', App::$lang['MSG_COMPLETE_REGISTER']);
 			}
 			else URLReplace(App::URLAction(), App::$lang['MSG_COMPLETE_REGISTER']);
 		}else{
-			if(_AJAXIS === true) JSON(false, $result->message ? $result->message : 'ERROR');
+			if(_JSONIS === true) JSON(false, $result->message ? $result->message : 'ERROR');
 			App::$data['error'] = $result->message ? $result->message : 'ERROR';
 			$this->Write();
 			return;
@@ -1003,7 +1003,7 @@ class Board{
 		$res = $this->model->DBUpdate();
 		if(is_callable($deleteAfter)) $deleteAfter($res);
 
-		if(_AJAXIS === true) JSON(true, '', App::$lang['MSG_COMPLETE_DELETE']);
+		if(_JSONIS === true) JSON(true, '', App::$lang['MSG_COMPLETE_DELETE']);
 		else URLReplace(App::URLAction('').App::GetFollowQuery(), App::$lang['MSG_COMPLETE_DELETE']);
 	}
 
@@ -1016,7 +1016,7 @@ class Board{
 		$this->model->SetValue('delis', 'n');
 		$this->model->DBUpdate();
 
-		if(_AJAXIS === true) JSON(true, '', App::$lang['COMPLETE_RESTORE']);
+		if(_JSONIS === true) JSON(true, '', App::$lang['COMPLETE_RESTORE']);
 		else URLReplace(App::URLAction('').App::GetFollowQuery(), App::$lang['COMPLETE_RESTORE']);
 	}
 

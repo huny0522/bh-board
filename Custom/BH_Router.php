@@ -45,7 +45,7 @@ switch(App::$settingData['GetUrl'][1]){
 
 		require _DIR . '/Custom/admin.common.php';
 
-		if(_AJAXIS === true) App::$layout = '';
+		if(_JSONIS === true) App::$layout = '';
 		else App::$layout = '_Admin';
 	break;
 
@@ -64,7 +64,7 @@ switch(App::$settingData['GetUrl'][1]){
 		App::$action = App::$settingData['GetUrl'][3];
 		App::$id = App::$settingData['GetUrl'][4];
 		App::$ctrlUrl = \Paths::Url().'/'.App::$controllerName.'/'.App::$settingData['GetUrl'][2];
-		if(_AJAXIS === true) App::$layout = '';
+		if(_JSONIS === true) App::$layout = '';
 		else if(App::$settingData['GetUrl'][1] == 'Board') App::$layout = '_Board';
 		else if(App::$settingData['GetUrl'][1] == 'Contents'){
 			if(substr(App::$tid, 0, 1) == '~'){
@@ -87,7 +87,7 @@ switch(App::$settingData['GetUrl'][1]){
 			App::$id = App::$settingData['GetUrl'][3];
 			App::$ctrlUrl = \Paths::Url().'/'.App::$controllerName;
 		}
-		if(_AJAXIS === true) App::$layout = '';
+		if(_JSONIS === true) App::$layout = '';
 		else App::$layout = _DEFAULT_LAYOUT;
 	break;
 }
