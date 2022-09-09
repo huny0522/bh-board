@@ -208,60 +208,67 @@ class Member{
 	 * @return \BH_InsertResult|\BH_Result
 	 */
 	public static function _Withdraw($muid, $reason){
-		$model = new \MemberModel();
-		$model->DBGet($muid);
-		if($model->_level->value >= _ADMIN_LEVEL && $model->_level->value >= \BHG::$session->admin->level->Get()){
-			return \BH_Result::Init(false, '관리자는 탈퇴가 불가능합니다.');
-		}
-
-		$dbInsert = new \BH_DB_Insert(TABLE_WITHDRAW_MEMBER);
-		$dbInsert->SetData('muid', $model->GetValue('muid'));
-		$dbInsert->SetDataStr('mid', $model->GetValue('mid'));
-		$dbInsert->SetDataStr('mname', $model->GetValue('mname'));
-		$dbInsert->SetDataStr('cname', $model->GetValue('cname'));
-		$dbInsert->SetDataStr('nickname', $model->GetValue('nickname'));
-		$dbInsert->SetDataStr('level', $model->GetValue('level'));
-		$dbInsert->SetDataStr('email', $model->GetValue('email'));
-		$dbInsert->SetDataStr('reg_date', $model->GetValue('reg_date'));
-		$dbInsert->SetDataStr('reason', $reason);
-		$dbInsert->SetData('w_date', 'NOW()');
-
-		foreach($model->data as $k => $v){
-			if($k == 'muid' || $k == 'nickname' || $k == 'email' || $k == 'mid') continue;
-			$v->SetMinLength(false);
-			$v->SetMinValue(false);
-			$v->SetRequired(false);
-			if($v->type == \ModelType::INT || $v->type == \ModelType::FLOAT){
-				$v->SetValue(0);
+		try{
+			DB::BeginTransaction();
+			$withdrawModel = new \WithdrawMemberModel();
+			$model = new \MemberModel();
+			$res = $model->DBGet($muid);
+			if(!$res) throw new \PDOException('회원 정보를 불러오지 못했습니다.');
+			if($model->_level->value >= _ADMIN_LEVEL && $model->_level->value >= \BHG::$session->admin->level->Get()){
+				return \BH_Result::Init(false, '관리자는 탈퇴가 불가능합니다.');
 			}
-			else if($v->type == \ModelType::ENUM){
-				if(is_array($v->enumValues) && sizeof($v->enumValues)){
-					reset($v->enumValues);
-					$v->SetValue(key($v->enumValues));
+
+			foreach($withdrawModel->data as $k => $v){
+				if(isset($model->data[$k])) $v->SetValue($model->data[$k]->Txt());
+			}
+			$withdrawModel->_reason->SetValue($reason);
+
+			foreach($model->data as $k => $v){
+				if($k == 'muid' || $k == 'nickname' || $k == 'email' || $k == 'mid') continue;
+				$v->SetMinLength(false);
+				$v->SetMinValue(false);
+				$v->SetRequired(false);
+				if($v->type == \ModelType::INT || $v->type == \ModelType::FLOAT){
+					$v->SetValue(0);
+				}
+				else if($v->type == \ModelType::ENUM){
+					if(is_array($v->enumValues) && sizeof($v->enumValues)){
+						reset($v->enumValues);
+						$v->SetValue(key($v->enumValues));
+					}
+				}
+				else if($v->type == \ModelType::DATE || $v->type == \ModelType::DATETIME){
+					continue;
+				}
+				else{
+					$v->SetValue('');
 				}
 			}
-			else if($v->type == \ModelType::DATE || $v->type == \ModelType::DATETIME){
-				continue;
-			}
-			else{
-				$v->SetValue('');
-			}
+
+			$model->_withdraw->SetValue('y');
+			$model->_email->SetValueIsQuery(true);
+			$model->_email->SetValue('NULL');
+			$model->_mid->SetValueIsQuery(true);
+			$model->_mid->SetValue('NULL');
+			$model->_nickname->SetValueIsQuery(true);
+			$model->_nickname->SetValue('NULL');
+
+			$err = $model->GetErrorMessage();
+			if(sizeof($err)) throw new \PDOException($err[0]);
+			$res = $withdrawModel->DBInsert();
+			if(!$res->result) throw new \PDOException($res->message);
+			$res2 = $model->DBUpdate();
+			if(!$res2->result) throw new \PDOException($res2->message);
+			DB::Commit();
+
+			return $res;
+		}
+		catch(\PDOException $exception){
+			DB::PDO()->rollBack();
+			$res = new \BH_InsertResult();
+			$res->message = $exception->getMessage() ?: 'DB 등록 오류';
+			return $res;
 		}
 
-		$model->_withdraw->SetValue('y');
-		$model->_email->SetValueIsQuery(true);
-		$model->_email->SetValue('NULL');
-		$model->_mid->SetValueIsQuery(true);
-		$model->_mid->SetValue('NULL');
-		$model->_nickname->SetValueIsQuery(true);
-		$model->_nickname->SetValue('NULL');
-
-		$err = $model->GetErrorMessage();
-		if(sizeof($err)) return (object)array('result' => false, 'message' => $err[0]);
-		$res = $dbInsert->Run();
-		if($res->result) $res = $model->DBUpdate();
-
-		return $res;
 	}
-
 }

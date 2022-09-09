@@ -52,4 +52,13 @@ namespace
 	define('fqn', ''); // echo \BH_Application::GetFollowQuery([code], \'&\');
 
 	define('inc', ''); // ReplaceHTMLFile(\Paths::DirOfSkin().[code], \Paths::DirOfHtml().[code]); require \Paths::DirOfHtml().[code];
+
+	/**
+	 * @property BHSession muid
+	 * @property BHSession level
+	 * @property BHSession mid
+	 */
+	class _SessionMember extends BHSession
+	{
+	}
 }

@@ -93,7 +93,8 @@ class DB{
 		if(is_null($connName)) $connName = self::$connName;
 		if(!isset(self::$transactionCounter[$connName])) self::$transactionCounter[$connName] = 1;
 		self::$transactionCounter[$connName]--;
-		if(!self::$transactionCounter[$connName]) self::$conn[$connName]->commit();
+		if(!self::$transactionCounter[$connName]) return self::$conn[$connName]->commit();
+		return false;
 	}
 
 	/**
@@ -1051,6 +1052,47 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 
 		return '<div class="paging">'.$pageHTML.'</div>' . (isset($pageParams['afterHtml']) ? $pageParams['afterHtml'] : '');
 	}
+
+	/**
+	 * @param array $pageParams = ['articleCount' => 10, 'pageCount' => 10, 'page' => 10, 'pageUrl' => 10, 'totalRecord' => 10, 'img' => ['first' => 'First', 'prev' => 'Prev', 'back' => 'Back', 'forw' => 'Forward', 'next' => 'Next', 'last' => 'Last'], 'afterHtml' => '']
+	 * @return array
+	 */
+	public function GetPageData($pageParams){
+		$res = [];
+		if(!$pageParams['articleCount']) $pageParams['articleCount'] = 10;
+
+		// 전체페이지
+		if(!$pageParams['totalRecord']) return $res;
+		$nowPage = $pageParams['page'] - 1;
+
+		$pageAll = ceil($pageParams['totalRecord'] / $pageParams['articleCount']);
+
+		// 뷰첫페이지
+		$pageFirst = $nowPage - ($nowPage % $pageParams['pageCount']) + 1;
+		// 뷰라스트페이지
+		$pageLast = $pageFirst + $pageParams['pageCount'] - 1;
+		if($pageLast > $pageAll)
+			$pageLast = $pageAll;
+
+		// 첫페이지
+		$res[]= ['name' => 'first', 'page' => 1, 'isActive' => $pageParams['page'] > 1];
+		// 이전 페이지목록
+		$res[]= ['name' => 'prev', 'page' => ($pageFirst - 1), 'isActive' => $pageFirst > 1];
+		// 이전 페이지
+		$res[]= ['name' => 'prevp', 'page' => ($pageParams['page'] - 1), 'isActive' => $pageParams['page'] > 1];
+
+		for($i = $pageFirst; $i <= $pageLast; $i++){
+			$res[] = ['name' => 'page', 'page' => $i, 'isActive' => $i != $pageParams['page']];
+		}
+
+		// 다음 페이지
+		$res[]= ['name' => 'nextp', 'page' => ($pageParams['page'] + 1), 'isActive' => $pageParams['page'] < $pageAll];
+		// 다음 페이지목록
+		$res[]= ['name' => 'next', 'page' => ($pageLast + 1), 'isActive' => $pageLast < $pageAll];
+		// 끝 페이지
+		$res[]= ['name' => 'last', 'page' => $pageAll, 'isActive' => $pageParams['page'] < $pageAll];
+		return $res;
+	}
 }
 
 class BH_DB_Insert{
@@ -1278,7 +1320,13 @@ class BH_DB_Insert{
 				$this->MultiValues[$k] = '(' . ($this->decrement ? ($this->isDecrement ? $keyRes['data']-- : $keyRes['data']++).', ' : '') . $v . ')';
 			}
 
-			$this->sql = 'INSERT INTO ' . $this->table . '(' . ($this->decrement ? '`'.$this->decrement.'`, ' : '') . $this->MultiNames . ') VALUES '.implode(',', $this->MultiValues);
+			if(sizeof($this->duplicateData)){
+				$set = array();
+				foreach($this->duplicateData as $k => $v) $set[]= '`' . $k . '` = ' . $v;
+				$duplicateSql = 'ON DUPLICATE KEY UPDATE '.implode(', ', $set);
+			}
+
+			$this->sql = 'INSERT INTO ' . $this->table . '(' . ($this->decrement ? '`'.$this->decrement.'`, ' : '') . $this->MultiNames . ') VALUES '.implode(',', $this->MultiValues).(isset($duplicateSql) ? ' '.$duplicateSql : '');
 			if($this->test && \BHG::$isDeveloper === true){
 				foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
 				echo $this->sql;

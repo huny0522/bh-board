@@ -325,8 +325,8 @@ class BHError
 
 /**
  * @property BHSession $developer_login
- * @property BHSession $member
- * @property BHSession $admin
+ * @property _SessionMember $member
+ * @property _SessionMember $admin
  */
 class BHSession
 {
