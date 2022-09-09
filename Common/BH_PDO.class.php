@@ -714,6 +714,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	public $totalRecord = '';
 	public $beginNum = '';
 	public $pageHtml = '';
+	public $rPageData = array();
 	public $pageQueryParam = 'page';
 
 	private $noGroupCount = false;
@@ -941,6 +942,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 			$pageData['totalRecord'] = $totalRecord;
 
 			$this->pageHtml = $this->SqlGetPage($pageData);
+			$this->SetPageData($pageData);
 
 			$this->result = true;
 		}
@@ -1057,12 +1059,11 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	 * @param array $pageParams = ['articleCount' => 10, 'pageCount' => 10, 'page' => 10, 'pageUrl' => 10, 'totalRecord' => 10, 'img' => ['first' => 'First', 'prev' => 'Prev', 'back' => 'Back', 'forw' => 'Forward', 'next' => 'Next', 'last' => 'Last'], 'afterHtml' => '']
 	 * @return array
 	 */
-	public function GetPageData($pageParams){
-		$res = [];
+	public function SetPageData($pageParams){
 		if(!$pageParams['articleCount']) $pageParams['articleCount'] = 10;
 
 		// 전체페이지
-		if(!$pageParams['totalRecord']) return $res;
+		if(!$pageParams['totalRecord']) return $this->rPageData;
 		$nowPage = $pageParams['page'] - 1;
 
 		$pageAll = ceil($pageParams['totalRecord'] / $pageParams['articleCount']);
@@ -1075,23 +1076,26 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 			$pageLast = $pageAll;
 
 		// 첫페이지
-		$res[]= ['name' => 'first', 'page' => 1, 'isActive' => $pageParams['page'] > 1];
+		$this->rPageData[]= ['name' => 'first', 'page' => 1, 'isActive' => $pageParams['page'] > 1];
 		// 이전 페이지목록
-		$res[]= ['name' => 'prev', 'page' => ($pageFirst - 1), 'isActive' => $pageFirst > 1];
+		$this->rPageData[]= ['name' => 'prev', 'page' => ($pageFirst - 1), 'isActive' => $pageFirst > 1];
 		// 이전 페이지
-		$res[]= ['name' => 'prevp', 'page' => ($pageParams['page'] - 1), 'isActive' => $pageParams['page'] > 1];
+		$this->rPageData[]= ['name' => 'prevp', 'page' => ($pageParams['page'] - 1), 'isActive' => $pageParams['page'] > 1];
 
 		for($i = $pageFirst; $i <= $pageLast; $i++){
-			$res[] = ['name' => 'page', 'page' => $i, 'isActive' => $i != $pageParams['page']];
+			$this->rPageData[] = ['name' => 'page', 'page' => $i, 'isActive' => $i != $pageParams['page']];
 		}
 
 		// 다음 페이지
-		$res[]= ['name' => 'nextp', 'page' => ($pageParams['page'] + 1), 'isActive' => $pageParams['page'] < $pageAll];
+		$this->rPageData[]= ['name' => 'nextp', 'page' => ($pageParams['page'] + 1), 'isActive' => $pageParams['page'] < $pageAll];
 		// 다음 페이지목록
-		$res[]= ['name' => 'next', 'page' => ($pageLast + 1), 'isActive' => $pageLast < $pageAll];
+		$this->rPageData[]= ['name' => 'next', 'page' => ($pageLast + 1), 'isActive' => $pageLast < $pageAll];
 		// 끝 페이지
-		$res[]= ['name' => 'last', 'page' => $pageAll, 'isActive' => $pageParams['page'] < $pageAll];
-		return $res;
+		$this->rPageData[]= ['name' => 'last', 'page' => $pageAll, 'isActive' => $pageParams['page'] < $pageAll];
+	}
+
+	public function GetPageData(){
+		return $this->rPageData;
 	}
 }
 
