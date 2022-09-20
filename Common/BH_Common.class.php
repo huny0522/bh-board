@@ -176,7 +176,14 @@ class BH_Common
 		return $beginMark.'r='.App::$cfg->Sys()->refresh->value;
 	}
 
-	// 이미지 등록
+	/**
+	 * 이미지등록
+	 * @param string $tid
+	 * @param array $keyValue ['DB 칼럼' => seq]
+	 * @param array $content [name : contents DB 칼럼, contents : 내용]
+	 * @param string $mode
+	 * @return mixed
+	 */
 	public static function ContentImageUpdate($tid, $keyValue, $content, $mode = 'write'){
 		$newcontent = $content['contents'];
 		$dbKeyValue = implode('|',$keyValue);
@@ -212,6 +219,10 @@ class BH_Common
 			$ym = date('ym');
 			foreach($_POST['addimg'] as $img){
 				$exp = explode('|', $img);
+				if(sizeof($exp) < 2){
+					$temp = explode('/', $exp[0]);
+					$exp[1] = array_pop($temp);
+				}
 
 				if(strpos($content['contents'], $exp[0]) !== false){
 
