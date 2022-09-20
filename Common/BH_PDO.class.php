@@ -1281,7 +1281,7 @@ class BH_DB_Insert{
 
 		if(!sizeof($decWhere) && \BHG::$isDeveloper === true && $this->showError && BH_Application::$showError) PrintError('Set Increment(Decrement) - No Multi Key');
 
-		$keySql = $this->StrToPDO('IF((SELECT `BHTMP2`.`%1` FROM `%1` `BHTMP2` LIMIT 1), %1(`BHTMP`.`%1`), %1) + %1', $key, $this->table, ($isDecrement ? 'MIN' : 'MAX'), $key, ($isDecrement ? _DBMAXINT : 0), ($isDecrement ? '(-' . (sizeof($this->MultiValues) + 1). ')' : sizeof($this->MultiValues) + 1));
+		$keySql = $this->StrToPDO('IFNULL(%1(`BHTMP`.`%1`), %1) + %1', ($isDecrement ? 'MIN' : 'MAX'), $key, ($isDecrement ? _DBMAXINT : 0), ($isDecrement ? '(-' . (sizeof($this->MultiValues) + 1). ')' : sizeof($this->MultiValues) + 1));
 		$this->data[$key] = $this->StrToPDO('(SELECT %1 FROM `%1` `BHTMP` %1)', $keySql, $this->table, sizeof($decWhere) ? ' WHERE ' . implode(' AND ', $decWhere) : '');
 		return $this;
 	}
