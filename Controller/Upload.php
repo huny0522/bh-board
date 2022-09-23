@@ -8,6 +8,7 @@ namespace Controller;
 
 use \BH_Application as App;
 use \BH_Common as CM;
+use Custom\FlowUpload;
 use \DB as DB;
 
 class Upload{
@@ -53,6 +54,34 @@ class Upload{
 			if($_FILES['Filedata']['error'] ===  UPLOAD_ERR_INI_SIZE) JSON(false, App::$lang['MSG_FILE_TOO_BIG']);
 			JSON(false, 'File Upload Error');
 		}
+	}
+
+	public function FlowUpload(){
+		@mkdir(\Paths::DirOfUpload('/chunks_temp_folder'), 0777, true);
+		@mkdir(\Paths::DirOfUpload('/temp'), 0777, true);
+		$config = new \Flow\Config();
+		$config->setTempDir(\Paths::DirOfUpload('/chunks_temp_folder'));
+		$request = new \Flow\Request();
+		$uploadFolder = \Paths::DirOfUpload('/temp'); // Folder where the file will be stored
+
+		$name = $request->getFileName();
+		$temp = explode('.',$name);
+		$filename_ext = strtolower(array_pop($temp));
+		$uploadFileName = \_ModelFunc::RandomFileName().'.'.$filename_ext;
+
+		$uploadPath = $uploadFolder.'/'.$uploadFileName;
+		if (\Flow\Basic::save($uploadPath, $config, $request)) {
+			$data['uploadDir'] = \Paths::UrlOfUpload();
+			$data['path'] = '/temp/'.$uploadFileName;
+			$data['fname'] = $request->getFileName();
+			JSON(true, '', $data);
+		} else {
+			// This is not a final chunk or request is invalid, continue to upload.
+		}
+	}
+
+	public function PostFlowUpload(){
+		$this->FlowUpload();
 	}
 
 	/**

@@ -3,6 +3,7 @@ if(BHCSS !== true) exit;
 
 //parent : admin.bhcss.php
 //parent : style.bhcss.php
+//parent : intranet.bhcss.php
 
 use BH\BHCss\BHCss;
 
@@ -16,8 +17,6 @@ BHCss::$variable['$dn'] = 'display:none';
 BHCss::$variable['$dt'] = 'display:table; width:100%; table-layout:fixed';
 BHCss::$variable['$dt2'] = 'display:table; table-layout:fixed';
 BHCss::$variable['$dtc'] = 'display:table-cell';
-BHCss::$variable['$di'] = 'display:inline';
-BHCss::$variable['$dib'] = 'display:inline-block';
 BHCss::$variable['$pa'] = 'position:absolute';
 BHCss::$variable['$pr'] = 'position:relative';
 BHCss::$variable['$pf'] = 'position:fixed';
@@ -111,7 +110,7 @@ BHCss::$variable['$fw'] = 'font-weight';
 
 	// 이메일
 	.dateInput{
-		{ $pr; $dib;}
+	{ $pr; display:inline-block;}
 		input.date, input.mdate{ $pr; z-index:2; background:none; $tal; margin:0; padding:0 4px; font-size:12px; font-family:'굴림체'; color:#333; width:85px; $fw7; $vam;}
 		.before{ $pa; top:50%; left:0; z-index:1; width:100%; height:100%; padding:0 4px; margin-top:-11px; line-height:22px; border:1px solid transparent; box-sizing:border-box; font-size:12px; color:#ddd; font-family:'굴림체'; $fw7;}
 		.before span{ color:#fff; opacity:0;}
@@ -119,16 +118,16 @@ BHCss::$variable['$fw'] = 'font-weight';
 
 	// 로딩레이어
 	.loading_layer{
-		{ position:fixed; top:0; left:0; z-index:5000; width:100%; height:100%; background:rgba(0,0,0,0.0); color:rgba(255, 255, 255, 0.0); $fz:14px; $tac;}
+	{ position:fixed; top:0; left:0; z-index:5000; width:100%; height:100%; background:rgba(0,0,0,0.0); color:rgba(255, 255, 255, 0.0); $fz:14px; $tac;}
 		p{ $pa; top:45%; left:0; width:100%; margin-top:55px; font-family:'Verdana'; $fw7;}
 	}
 
 	// 커스텀 체크박스
 	label.checkbox{
-		{$pr; $dib; line-height:16px; $vam;}
+	{$pr; display:inline-block; line-height:16px; $vam;}
 		input{$pa; top:0; left:0; opacity:0; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0, 0, 0, 0);}
 		input ~ span{
-			{$pr; $db; width:100%; height:100%; padding-left:21px;}
+		{$pr; $db; width:100%; height:100%; padding-left:21px;}
 			:before{ content:' '; $pa; top:50%; left:0; $db; width:14px; height:14px; border:1px solid #aaa; background:#fff; color:#c00; $tac; line-height:14px; $fz:14px; transform:translate(0, -50%);}
 		}
 		input:checked ~ span:before{ content:'\2714'; $fw4;}
@@ -136,10 +135,10 @@ BHCss::$variable['$fw'] = 'font-weight';
 
 	// 커스텀 라디오박스
 	label.radio{
-		{$pr; $dib; line-height:16px; $vam;}
+	{$pr; display:inline-block; line-height:16px; $vam;}
 		input{$pa; top:0; left:0; opacity:0; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0, 0, 0, 0);}
 		input ~ span{
-			{$pr; $db; width:100%; height:100%; padding-left:21px;}
+		{$pr; $db; width:100%; height:100%; padding-left:21px;}
 			:before{ content:' '; $pa; top:50%; left:0; $db; width:14px; height:14px; border:1px solid #aaa; background:#fff; color:#c00; $tac; line-height:14px; $fz:14px; border-radius:100%; transform:translate(0, -50%);}
 		}
 		input:checked ~ span:after{ content:' '; $pa; top:50%; left:3px; $db; width:10px; height:10px; background:#666; border-radius:100%; transform:translate(0, -50%);}
@@ -147,36 +146,36 @@ BHCss::$variable['$fw'] = 'font-weight';
 
 	// 커스텀 셀렉트
 	.selectBox{
-		{$dib; $pr; border:1px solid #d6d6d6; background:#fff; cursor:pointer; border-radius:5px; $fz:12px; overflow:hidden; $vam;}
+	{display:inline-block; $pr; border:1px solid #d6d6d6; background:#fff; cursor:pointer; border-radius:5px; $fz:12px; overflow:hidden; $vam;}
 		:before, :after{ content:''; $pa; top:0; right:0; width:30px; height:100%; background:#f8f8f8; $tac;}
 		:after{ content:'\2039'; top:50%; height:auto; line-height:20px; margin-top:-10px; background:none; color:#999; font-size:13px; transform:rotate(-90deg) scale(0.5,1); $fw8;}
 		span.selected{ $pa; top:0; left:0; $db; height:100%; width:100%; padding:0 35px 0 10px; $fw3; color:#222; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; $fz:inherit;}
-		span.selected:before{ content:' '; $dib; width:0; height:100%; $vam;}
+		span.selected:before{ content:' '; display:inline-block; width:0; height:100%; $vam;}
 		select{ $pr; z-index:2; opacity:0; -ms-filter:alpha(opacity=0); margin:0; padding:0 35px 0 10px; border:0; color:#333; $fz:inherit;}
 	}
 
 	// 컨펌, 경고 메세지 모달
 	.MessageModal{
-		{ position:fixed; top:0; left:0; z-index:6000; width:100%; height:100%; min-width:320px; background:rgba(0,0,0,0.5); font-size:13px; color:#333;}
+	{ position:fixed; top:0; left:0; z-index:6000; width:100%; height:100%; min-width:320px; background:rgba(0,0,0,0.5); font-size:13px; color:#333;}
 		.MessageModalWrap{
-			{ position:absolute; top:50%; left:50%; min-width:250px; max-width:500px; background:#fff; box-shadow:2px 2px 3px rgba(0, 0, 0, 0.3); border-radius:5px; overflow:hidden; transform:translate(-50%, -50%);}
+		{ position:absolute; top:50%; left:50%; min-width:250px; max-width:500px; background:#fff; box-shadow:2px 2px 3px rgba(0, 0, 0, 0.3); border-radius:5px; overflow:hidden; transform:translate(-50%, -50%);}
 			> header{ padding:7px; font-weight:700; background:#999; color:#fff;}
 			> div.text{ padding:10px; min-height:70px;}
 			> footer{ padding:7px 15px; text-align:right; background:#f6f6f6;}
-			> footer a{ $dib; margin-left:4px; $fw7; padding:2px 5px;}
+			> footer a{ display:inline-block; margin-left:4px; $fw7; padding:2px 5px;}
 			> footer a:focus{ background:#ddd;}
 		}
 	}
 
-	span.uploadedFile{$dib; padding:3px 5px; border:1px solid #ccc; background:#eee; border-radius:3px;}
+	span.uploadedFile{display:inline-block; padding:3px 5px; border:1px solid #ccc; background:#eee; border-radius:3px;}
 	.fileUploadArea{padding:10px 0;}
 	.fileUploadArea + .fileUploadArea{padding-top:0;}
-	.fileUploadImage{$dib; $vam;}
+	.fileUploadImage{display:inline-block; $vam;}
 	.fileUploadImage img{$db; max-width:100px; max-height:100px;}
 	.fileUploadImage i{$db; width:100px; height:100px; background:no-repeat center center; background-size:contain;}
 	.fileUploadArea2{padding:10px 0;}
 	.fileUploadArea2 + .fileUploadArea2{padding-top:0;}
-	.fileUploadArea2 p{$dib;}
+	.fileUploadArea2 p{display:inline-block;}
 
 	.jqFileUploadArea{
 		.progress{display: inline-block; height: 20px; width: 100px; overflow: hidden; border-radius:5px; background:#eee;vertical-align: middle;}
@@ -252,5 +251,40 @@ BHCss::$variable['$fw'] = 'font-weight';
 		dt{$dtc; width:80px; padding:2px;}
 		dd{$dtc; padding:2px;}
 		footer{margin-top:10px; text-align:center;}
+	}
+
+	.flowUploadWrap{
+		~.image{
+			~{padding:5px; background:#f4f4f4;}
+			.flowFileUploadArea{display:inline-block;}
+			p.flowImage{position:relative; display:inline-block; width:100px; height:100px; background:#ddd;}
+			label.delFile{position:absolute; display:block; top:2px; right:2px; padding:5px; background:rgba(0,0,0,0.4); color:#fff;}
+
+		}
+		~.image_arr{
+			.flowFileUploadArea{padding:10px; background:#f4f4f4; margin-bottom:5px;}
+			~{display:flex; flex-direction:column-reverse;}
+			ul{display:flex; max-width:100%; overflow-y:hidden; overflow-x:auto;}
+			li{position:relative;}
+			li + li{margin-left:5px;}
+			label.delFile{position:absolute; display:block; top:2px; right:2px; padding:5px; background:rgba(0,0,0,0.4); color:#fff;}
+		}
+		~.file{
+			~{padding:5px; background:#f4f4f4;}
+			.flowFileUploadArea{display:inline-block;}
+			p.flowFile{position:relative; display:inline-block; height:24px; padding:0 10px; line-height:24px; background:#eee; min-width:250px;}
+		}
+		~.files_arr{
+			.flowFileUploadArea{padding:10px; background:#f4f4f4; margin-bottom:5px;}
+			~{display:flex; flex-direction:column-reverse;}
+			ul{display:flex; flex-direction:column-reverse; padding:0 5px;}
+			li{padding:5px;}
+			li + li{border-bottom:1px dotted #ccc;}
+			label{margin-left:10px;}
+		}
+		i.image{display:inline-block; width:100px; height:100px; background-position:center center; background-size:cover;}
+
+		.progress{display: inline-block; height: 20px; width: 100px; overflow: hidden; border-radius:5px; background:#eee;vertical-align: middle; border:1px solid #ddd;}
+		.progress .bar{width:0%; height: 100%; background:#1c94c4;}
 	}
 </style>

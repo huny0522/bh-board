@@ -27,6 +27,7 @@
 	if(typeof(window._CM_LANG.height) === 'undefined') window._CM_LANG.height = '높이';
 	if(typeof(window._CM_LANG.append) === 'undefined') window._CM_LANG.append = '삽입';
 	if(typeof(window._CM_LANG.appendLink) === 'undefined') window._CM_LANG.appendLink = '링크 삽입';
+	if(typeof(window._CM_LANG.del) === 'undefined') window._CM_LANG.del = '삭제';
 }());
 
 (function(bhJQuery){
@@ -781,6 +782,91 @@
 			return text[typeof(window._lang) === 'undefined' ? 0 : window._lang];
 		};
 
+		/**
+		 *
+		 * @param string areaId
+		 * @param {{fname : string, path : string, uploadDir : string}} uploadInfo
+		 */
+		this.fileUploadSuccess = function(areaId, uploadInfo){
+			bhJQuery('#' + areaId).find('input[type=hidden]').val(uploadInfo.path + '*' + uploadInfo.fname);
+			bhJQuery('#' + areaId).find('p.flowFile').html('<span class="fileName"></span> <label class="delFile delNewFile checkbox"><input type="checkbox"><i></i><span>' + window._CM_LANG.del + '</span></label>');
+			bhJQuery('#' + areaId).find('p.flowFile span.fileName').text(uploadInfo.fname);
+		}
+
+		/**
+		 *
+		 * @param string areaId
+		 * @param {{fname : string, path : string, uploadDir : string}} uploadInfo
+		 */
+		this.imageUploadSuccess = function(areaId, uploadInfo){
+			bhJQuery('#' + areaId).find('input[type=hidden]').val(uploadInfo.path + '*' + uploadInfo.fname);
+			bhJQuery('#' + areaId).find('p.flowImage').html('<i class="image" style="background-image:url(' + uploadInfo.uploadDir + uploadInfo.path + ')"></i><label class="delFile delNewFile checkbox"><input type="checkbox"><i></i><span>' + window._CM_LANG.del + '</span></label>');
+		}
+
+		/**
+		 *
+		 * @param string areaId
+		 * @param {{fname : string, path : string, uploadDir : string}} uploadInfo
+		 */
+		this.multiFileUploadSuccess = function(areaId, uploadInfo){
+			const inpName = bhJQuery('#' + areaId).attr('data-name');
+			bhJQuery('#' + areaId).find('ul.flowFiles').append('<li><span class="fileName"></span><input type="hidden" name="' + inpName + '[]" value="' + uploadInfo.path + '*' + uploadInfo.fname + '"><label class="delFile delNewFile checkbox"><input type="checkbox"><i></i><span>' + window._CM_LANG.del + '</span></label></li>');
+			bhJQuery('#' + areaId).find('ul.flowFiles span.fileName').last().text(uploadInfo.fname);
+		}
+
+		/**
+		 *
+		 * @param string areaId
+		 * @param {{fname : string, path : string, uploadDir : string}} uploadInfo
+		 */
+		this.multiImageUploadSuccess = function(areaId, uploadInfo){
+			const inpName = bhJQuery('#' + areaId).attr('data-name');
+			bhJQuery('#' + areaId).find('ul.flowImages').append('<li><input type="hidden" name="' + inpName + '[]" value="' + uploadInfo.path + '*' + uploadInfo.fname + '"><i class="image" style="background-image:url(' + uploadInfo.uploadDir + uploadInfo.path + ')"></i><label class="delFile delNewFile checkbox"><input type="checkbox"><i></i><span>' + window._CM_LANG.del + '</span></label></li>');
+		}
+
+		bhJQuery(document).on('click', 'ul.flowImages label.delFile input[type=checkbox]', function(){
+			if(!this.name || this.name === ''){
+				bhJQuery(this).closest('li').remove();
+			}
+		});
+
+		bhJQuery(document).on('click', 'ul.flowFiles label.delFile input[type=checkbox]', function(){
+			if(!this.name || this.name === ''){
+				bhJQuery(this).closest('li').remove();
+			}
+		});
+
+		bhJQuery(document).on('click', 'p.flowFile label.delFile input[type=checkbox]', function(){
+			if(!this.name || this.name === ''){
+				const wrap = bhJQuery(this).closest('.flowUploadWrap');
+				wrap.find('input[type=hidden]').val('');
+				wrap.find('p.flowFile').text('');
+				const oldVal = wrap.find('input[type=hidden]').attr('data-old-value');
+				if(oldVal !== ''){
+					const inpName = wrap.find('input[type=hidden]').attr('name');
+					const val = oldVal.split('*');
+					const fName = val.length > 1 ? val[1] : val[0].split('/').pop();
+					wrap.find('p.flowFile').html('<span class="fileName"></span> <label class="delFile checkbox"><input type="checkbox" name="del_file_' + inpName + '" value="y"><i></i><span>' + window._CM_LANG.del + '</span></label>');
+					wrap.find('p.flowFile span.fileName').text(fName);
+				}
+			}
+		});
+
+		bhJQuery(document).on('click', 'p.flowImage label.delFile input[type=checkbox]', function(){
+			if(!this.name || this.name === ''){
+				const wrap = bhJQuery(this).closest('.flowUploadWrap');
+				wrap.find('input[type=hidden]').val('');
+				wrap.find('p.flowImage').text('');
+				const oldVal = wrap.find('input[type=hidden]').attr('data-old-value');
+				if(oldVal !== ''){
+					const inpName = wrap.find('input[type=hidden]').attr('name');
+					const val = oldVal.split('*');
+					wrap.find('p.flowImage').html('<i class="image" style="background-image:url(' + val[0] + ')"></i><label class="delFile checkbox"><input type="checkbox" name="del_file_' + inpName + '" value="y"><i></i><span>' + window._CM_LANG.del + '</span></label>');
+				}
+			}
+		});
+
+
 		this.Init();
 
 	}
@@ -1398,43 +1484,43 @@
 			image_dimensions : false,
 			images_upload_handler: function(blobInfo, progress){
 				return new Promise(function (resolve, reject) {
-				var xhr, formData;
+					var xhr, formData;
 
-				xhr = new XMLHttpRequest();
-				xhr.withCredentials = false;
-				xhr.open('POST', tinyMCEHelper.defaultFolder + '/Upload/ImageUpload');
+					xhr = new XMLHttpRequest();
+					xhr.withCredentials = false;
+					xhr.open('POST', tinyMCEHelper.defaultFolder + '/Upload/ImageUpload');
 
-				xhr.onload = function() {
-					var json;
+					xhr.onload = function() {
+						var json;
 
-					if (xhr.status < 200 || xhr.status >= 300) {
-						reject('HTTP Error: ' + xhr.status);
-						return;
-					}
+						if (xhr.status < 200 || xhr.status >= 300) {
+							reject('HTTP Error: ' + xhr.status);
+							return;
+						}
 
-					json = JSON.parse(xhr.responseText);
+						json = JSON.parse(xhr.responseText);
 
-					if (!json || !json.result || typeof json.data.path != 'string') {
-						if(typeof(json.message) !== 'undefined') reject(json.message);
-						else reject('Invalid JSON: ' + xhr.responseText);
-						return;
-					}
+						if (!json || !json.result || typeof json.data.path != 'string') {
+							if(typeof(json.message) !== 'undefined') reject(json.message);
+							else reject('Invalid JSON: ' + xhr.responseText);
+							return;
+						}
 
-					var hinp = '<input type="hidden" name="addimg[]" value="'+json.data.path+'|'+json.data.fname+'">';
-					bhJQuery(tinyMCEHelper.opt.selector).after(hinp);
-					resolve(json.data.uploadDir + json.data.path);
-				};
+						var hinp = '<input type="hidden" name="addimg[]" value="'+json.data.path+'|'+json.data.fname+'">';
+						bhJQuery(tinyMCEHelper.opt.selector).after(hinp);
+						resolve(json.data.uploadDir + json.data.path);
+					};
 
-				xhr.onerror = function () {
-					reject('Image upload failed due to a XHR Transport error. Code: ' + xhr.status);
-				};
+					xhr.onerror = function () {
+						reject('Image upload failed due to a XHR Transport error. Code: ' + xhr.status);
+					};
 
-				formData = new FormData();
-				var fileName = ( typeof(blobInfo.blob().name) !== undefined ) ? blobInfo.blob().name : blobInfo.filename();
-				formData.append('Filedata', blobInfo.blob(), fileName);
+					formData = new FormData();
+					var fileName = ( typeof(blobInfo.blob().name) !== undefined ) ? blobInfo.blob().name : blobInfo.filename();
+					formData.append('Filedata', blobInfo.blob(), fileName);
 
-				xhr.send(formData);
-			});}
+					xhr.send(formData);
+				});}
 		},
 		Paste : function(id, defaultfolder, hiddenimage, callback){
 			var _this = this;

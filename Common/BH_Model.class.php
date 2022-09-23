@@ -84,9 +84,7 @@ class BH_ModelData
 	public $possibleExt;
 	public $keyName = null;
 	/**
-	 * @var array
-	 * @option string maxFileSize : InputFileJQuery 에서 파일 최대 용량
-	 * @option array possibleExt : InputFileJQuery 에서 허용 확장자
+	 * @var array{maxFileSize: string, possibleExt: string[], useFlowUpload: bool}
 	 */
 	public $addOption = array();
 
@@ -1053,9 +1051,7 @@ class _ModelFunc{
 			if(self::IsFileType($v->htmlType)){
 				if(isset($v->__moveFile) && is_array($v->__moveFile)){
 					foreach($v->__moveFile as $mv){
-						@copy(\Paths::DirOfUpload() . $mv['source'], \Paths::DirOfUpload() . $mv['dest']);
-						// $res = _ModelFunc::SendFileToMain($mv['dest']);
-						UnlinkImage(\Paths::DirOfUpload() . $mv['source']);
+						rename(\Paths::DirOfUpload() . $mv['source'], \Paths::DirOfUpload() . $mv['dest']);
 					}
 				}
 				if(isset($v->__deleteFile) && is_array($v->__deleteFile)){
@@ -1260,6 +1256,86 @@ class _ModelFunc{
 		return '<label for="'.$firstIDName.$name.'" '.$Attribute.'>'.$data->displayName.'</label>';
 	}
 
+	/**
+	 * @param string $successJavascript
+	 * @return string
+	 */
+	private static function FlowUploadHtml($successJavascript, $uniqueName, $isImage = false){
+		$flow = 'flow' . $uniqueName;
+		$accept = $isImage ? '{accept:\'image/*\'}' : '{}';
+		$fileAdded = $isImage ? 'const ext = file.name.split(\'.\').pop().toLowerCase(); if(ext !== \'png\' && ext !== \'jpg\' && ext !== \'jpeg\' && ext !== \'gif\'){alert(\'Wrong file\'); event.preventDefault(); return false;}' : '';
+		return
+			<<<HTML
+			<div class="flowFileUploadArea" id="flowFileUploadArea$uniqueName">
+				<button type="button" class="sBtn fileUploadBtn browseButton">파일열기</button>
+				<div class="progress"><div class="bar"></div></div>
+			</div>
+			<script>
+				(function(){
+					const progressEl = document.querySelector('#flowFileUploadArea$uniqueName .progress .bar');
+					const $flow = new Flow({
+						target:'/Upload/FlowUpload',
+						singleFile : true
+					});
+					const area = document.getElementById('flowUploadWrap$uniqueName');
+					// Flow.js isn\'t supported, fall back on a different method
+					if(!$flow.support){
+						area.remove();
+						return;
+					}
+					$flow.assignBrowse(area.querySelector('.browseButton'), false, true, $accept);
+					$flow.assignDrop(area);
+	
+					area.querySelector('.browseButton').addEventListener('click', function(){
+						$flow.upload();
+					});
+	
+					$flow.on('fileProgress', function(file, chunk){
+						progressEl.style.width = ($flow.sizeUploaded() / $flow.getSize() * 100).toFixed(0) + '%';
+					});
+					
+					$flow.on('fileAdded', function(file, event){
+						$fileAdded
+					});
+					
+					$flow.on('filesSubmitted', function(files, event){
+						$flow.upload();
+					});
+					
+					$flow.on('fileSuccess', function(file,message){
+						progressEl.style.width = '0%';
+						try{
+							const res = JSON.parse(message);
+							if(res.message !== '') CMAlert(res.message);
+							if(res.result){
+								const data = res.data;
+								$successJavascript
+							}
+						}
+						catch(e){
+							$flow.cancel();
+							console.log(e);
+							CMAlert('전송 오류');
+							return;
+						}
+						$flow.cancel();
+					});
+					$flow.on('fileError', function(file, message){
+						CMAlert(message);
+					});
+				})();
+			</script>
+HTML;
+
+	}
+
+	/**
+	 * @param string $Name
+	 * @param BH_ModelData $data
+	 * @param array $htmlAttribute
+	 * @param string $firstIDName
+	 * @return string
+	 */
 	public static function HTMLPrintInput($Name, &$data, $htmlAttribute, $firstIDName){
 		$htmlType = strtolower($data->htmlType);
 		$Attribute = '';
@@ -1358,6 +1434,18 @@ class _ModelFunc{
 				return $h;
 			break;
 			case HTMLType::FILE_WITH_NAME:
+				if(isset($data->addOption['useFlowUpload']) && $data->addOption['useFlowUpload']){
+					$uniqueName = self::RandomFileName().$Name;
+					$h = '<div class="flowUploadWrap file" id="flowUploadWrap' . $uniqueName . '"><input type="hidden" name="' . $Name . '" class="fileUploadInput" value="" data-displayname="' . $data->displayName . '"' . $fileRequired . ' data-old-value="' . ($data->value ? Paths::UrlOfUpload(v($data->value)) : '') . '">';
+					$h .= '<p class="flowFile">';
+					if(StrLength($data->value)){
+						$f = explode('*', $data->value);
+						$h .= '<span class="fileName">' . (isset($f[1]) ? v($f[1]) : '') . '</span> <label class="delFile checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><i></i><span> ' . BH_Application::$lang['DEL_FILE'] . '</span></label>';
+					}
+					$h .= '</p>';
+					$h .= self::FlowUploadHtml("JCM.fileUploadSuccess('flowUploadWrap$uniqueName', data);", $uniqueName);
+					return $h . '</div>';
+				}
 				$h = '<div class="fileUploadArea2"><input type="hidden" name="' . $Name . '" class="fileUploadInput" value="" data-displayname="' . $data->displayName . '"' . $fileRequired . '> <button type="button" class="fileUploadBtn sBtn"><i></i>' . (isset($htmlAttribute['button']) ? $htmlAttribute['button'] : BH_Application::$lang['ATTACH_FILE']) . '</button>';
 				if(StrLength($data->value)){
 					$f = explode('*', $data->value);
@@ -1376,6 +1464,19 @@ class _ModelFunc{
 				return $h . ' <input type="file" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$fileRequired.$Attribute.'>';
 			break;
 			case HTMLType::FILE_IMAGE:
+				if(isset($data->addOption['useFlowUpload']) && $data->addOption['useFlowUpload']){
+					$uniqueName = self::RandomFileName().$Name;
+					$h = '<div class="flowUploadWrap image" id="flowUploadWrap' . $uniqueName . '"><input type="hidden" name="' . $Name . '" class="fileUploadInput" value="" data-displayname="' . $data->displayName . '"' . $fileRequired . ' data-old-value="' . ($data->value ? Paths::UrlOfUpload(v($data->value)) : '') . '">';
+					$h .= '<p class="flowImage">';
+					if(StrLength($data->value)){
+						$p2 = explode('*', $data->value);
+						$h .= '<i class="image" style="background-image:url(' . Paths::UrlOfUpload($p2[0]) . ')"></i>' .
+							' <label class="delFile checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><i></i><span>' . BH_Application::$lang['DEL'] . '</span></label>';
+					}
+					$h .= '</p>';
+					$h .= self::FlowUploadHtml("JCM.imageUploadSuccess('flowUploadWrap$uniqueName', data);", $uniqueName, true);
+					return $h . '</div>';
+				}
 				$h = '<div class="fileUploadArea"><input type="hidden" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$fileRequired.$Attribute.'>';
 				$h .= '<span class="fileUploadImage">';
 				if(StrLength($data->value)){
@@ -1386,25 +1487,63 @@ class _ModelFunc{
 				return $h . '<button type="button" class="fileUploadBtn sBtn"><span>' . BH_Application::$lang['REG_IMAGE'] . '</span></button></div><script>JCM.imageFileForm();</script>';
 			break;
 			case HTMLType::FILE_IMAGE_ARRAY:
+				if(isset($data->addOption['useFlowUpload']) && $data->addOption['useFlowUpload']){
+					$uniqueName = self::RandomFileName().$Name;
+					$h = '<div class="flowUploadWrap image_arr" id="flowUploadWrap' . $uniqueName . '" data-name="'.$Name.'">';
+					$h .= '<ul class="flowImages">';
+					if(StrLength($data->value)){
+						$p = explode(';', $data->value);
+						foreach($p as $path){
+							$p2 = explode('*', $path);
+							$h .= '<li>' .
+								'<i class="image" style="background-image:url(' . Paths::UrlOfUpload($p2[0]) . ')"></i>' .
+								'<label class="delFile checkbox"><input type="checkbox" name="del_file_' . $Name . '[]" value="' . $p2[0] . '" class=""><i></i><span>' . BH_Application::$lang['DEL'] . '</span></label>' .
+								'</li>';
+						}
+					}
+					$h .= '</ul>';
+					$h .= self::FlowUploadHtml("JCM.multiImageUploadSuccess('flowUploadWrap$uniqueName', data);", $uniqueName, true);
+					return $h . '</div>';
+				}
+
 				$temp = '<div class="fileUploadArea"><span class="fileUploadImage"></span><input type="hidden" name="'.$Name.'[]" data-displayname="' . $data->displayName . '" '.$Attribute.'><button type="button" class="fileUploadBtn sBtn"><span>' . BH_Application::$lang['REG_IMAGE'] . '</span></button><button type="button" class="fileUploadAreaRmBtn sBtn">' . BH_Application::$lang['DEL'] . '</button></div>';
 				$h = '<div class="multiFileUploadArea" data-max-file-number="' . $data->maxFileNumber . '">';
 				if(StrLength($data->value)){
 					$p = explode(';', $data->value);
 					foreach($p as $path){
-						$h .= ' <span class="fileUploadImage"><i style="background-image:url(' . Paths::UrlOfUpload() . $path . ')"></i></span> <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '[]" value="' . $path . '"><i></i><span>' . BH_Application::$lang['DEL'] . '</span></label>';
+						$p2 = explode('*', $path);
+						$h .= ' <span class="fileUploadImage"><i style="background-image:url(' . Paths::UrlOfUpload($p2[0]) . ')"></i></span> <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '[]" value="' . $p2[0] . '"><i></i><span>' . BH_Application::$lang['DEL'] . '</span></label>';
 					}
 				}
 				else $h .= $temp;
 				return $h . '</div><div class="multiFileUploadAdd"><button type="button" class="fileUploadAreaAddBtn sBtn" data-html="' . GetDBText($temp) . '">' . BH_Application::$lang['ADD'] . '</button></div><script>JCM.imageFileForm();</script>';
 			break;
 			case HTMLType::FILE_ARRAY:
+				if(isset($data->addOption['useFlowUpload']) && $data->addOption['useFlowUpload']){
+					$uniqueName = self::RandomFileName().$Name;
+					$h = '<div class="flowUploadWrap files_arr" id="flowUploadWrap' . $uniqueName . '" data-name="'.$Name.'">';
+					$h .= '<ul class="flowFiles">';
+					if(StrLength($data->value)){
+						$p = explode(';', $data->value);
+						foreach($p as $path){
+							$p2 = explode('*', $path);
+							$h .= '<li>' .
+								'<span class="fileName">' . (isset($p2[1]) ? v($p2[1]) : basename($p2[0])) . '</span>' .
+								'<label class="delFile checkbox"><input type="checkbox" name="del_file_' . $Name . '[]" value="' . $p2[0] . '" class=""><i></i><span>' . BH_Application::$lang['DEL'] . '</span></label>' .
+								'</li>';
+						}
+					}
+					$h .= '</ul>';
+					$h .= self::FlowUploadHtml("JCM.multiFileUploadSuccess('flowUploadWrap$uniqueName', data);", $uniqueName);
+					return $h . '</div>';
+				}
 				$temp = '<div class="fileUploadArea2"><input type="hidden" name="' . $Name . '[]" class="fileUploadInput" value=""><p><span class="fileName"></span></p><button type="button" class="fileUploadBtn sBtn"><i></i> <span>' . BH_Application::$lang['REG_FILE'] . '</span></button><button type="button" class="fileUploadAreaRmBtn sBtn">' . BH_Application::$lang['DEL'] . '</button></div>';
 				$h = '<div class="multiFileUploadArea" data-max-file-number="' . $data->maxFileNumber . '">';
 				if(StrLength($data->value)){
 					$p = explode(';', $data->value);
 					foreach($p as $path){
-						$f = explode('*', $path);
-						$h .= ' <p><span class="fileName">' . (isset($f[1]) ? GetDBText($f[1]) : basename($f[0])) . '</span> <label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '[]" value="' . $f[0] . '"><i></i><span> ' . BH_Application::$lang['DEL'] . '</span></label></p>';
+						$p2 = explode('*', $path);
+						$h .= ' <p><span class="fileName">' . (isset($p2[1]) ? GetDBText($p2[1]) : basename($p2[0])) . '</span> <label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '[]" value="' . $p2[0] . '"><i></i><span> ' . BH_Application::$lang['DEL'] . '</span></label></p>';
 					}
 				}
 				else $h .= $temp;

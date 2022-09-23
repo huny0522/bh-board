@@ -223,7 +223,7 @@ BHCss::$variable['$c4'] = 'rgb(10, 25, 40)';
 	.rightBoardSearch, .right_btn{ float:right; margin-top:20px; padding-bottom:20px;}
 	.bottomBtn{ margin-top:20px; text-align:center;}
 	.moreViewBtn{ margin-top:20px; $tac;}
-	.moreViewBtn a{$dib; width:300px; border:1px solid #ccc; line-height:30px; border-radius:5px; background:#f8f8f8;}
+	.moreViewBtn a{display:inline-block; width:300px; border:1px solid #ccc; line-height:30px; border-radius:5px; background:#f8f8f8;}
 
 	.left_btn + .table, .right_btn + table{ clear:both;}
 	.right_btn + .paging, .left_btn + .paging{ padding-top:0;}

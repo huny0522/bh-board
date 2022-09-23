@@ -4,6 +4,7 @@
         "chrisjean/php-ico": "1.0.4",
         "phpmailer/phpmailer": "~v6.6.3",
         "kreait/firebase-php" : "~6.5.0",
-        "tinymce/tinymce": "~6.1.0"
+        "tinymce/tinymce": "~6.1.0",
+        "flowjs/flow-php-server": "~v1.2.0"
     }
 }

@@ -16,6 +16,7 @@ App::JSAdd('jquery-ui.min.js', 10);
 App::JSAdd(\Paths::Url() . '/Common/common.js' . CM::RefreshParam(), 10);
 App::JSAdd('contents.js' . CM::RefreshParam(), 10);
 App::JSAdd('admin.js' . CM::RefreshParam(), 10);
+App::JSAdd('flow.js' . CM::RefreshParam(), 11);
 ?>
 
 <div id="wrap"<?php if((isset($_COOKIE['managerSideView']) && $_COOKIE['managerSideView'] == 'no') || App::$controllerName == 'Home') echo ' class="sideHidden"'; ?>>
