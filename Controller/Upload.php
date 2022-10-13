@@ -57,26 +57,42 @@ class Upload{
 	}
 
 	public function FlowUpload(){
-		@mkdir(\Paths::DirOfUpload('/chunks_temp_folder'), 0777, true);
-		@mkdir(\Paths::DirOfUpload('/temp'), 0777, true);
 		$config = new \Flow\Config();
 		$config->setTempDir(\Paths::DirOfUpload('/chunks_temp_folder'));
-		$request = new \Flow\Request();
-		$uploadFolder = \Paths::DirOfUpload('/temp'); // Folder where the file will be stored
+		$file = new \Flow\File($config);
 
+		if (_POSTIS !== true) {
+			if ($file->checkChunk()) {
+				header("HTTP/1.1 200 Ok");
+			} else {
+				header("HTTP/1.1 204 No Content");
+				return ;
+			}
+		} else {
+			if ($file->validateChunk()) {
+				$file->saveChunk();
+			} else {
+				// error, invalid chunk upload request, retry
+				header("HTTP/1.1 400 Bad Request");
+				return ;
+			}
+		}
+
+
+		$request = new \Flow\Request();
 		$name = $request->getFileName();
 		$temp = explode('.',$name);
 		$filename_ext = strtolower(array_pop($temp));
+		$uploadFolder = \Paths::DirOfUpload('/temp'); // Folder where the file will be stored
 		$uploadFileName = \_ModelFunc::RandomFileName().'.'.$filename_ext;
-
 		$uploadPath = $uploadFolder.'/'.$uploadFileName;
-		if (\Flow\Basic::save($uploadPath, $config, $request)) {
+		if ($file->validateFile() && $file->save($uploadPath)) {
 			$data['uploadDir'] = \Paths::UrlOfUpload();
 			$data['path'] = '/temp/'.$uploadFileName;
 			$data['fname'] = $request->getFileName();
 			JSON(true, '', $data);
 		} else {
-			// This is not a final chunk or request is invalid, continue to upload.
+			// This is not a final chunk, continue to upload
 		}
 	}
 
