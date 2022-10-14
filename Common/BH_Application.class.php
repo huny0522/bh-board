@@ -146,7 +146,6 @@ class BH_Application
 			}
 			else{
 				$code = 201;
-				var_dump(is_callable(array($controller, $action)));
 				$msg = 'METHOD DOES NOT EXIST(#2)';
 				if(is_callable(self::$routingFailFunc)){
 					$func = self::$routingFailFunc;
