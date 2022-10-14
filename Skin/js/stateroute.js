@@ -100,7 +100,7 @@ StateRoute.PushState = function(url){
 
 StateRoute.ReplaceState = function(url){
 	history.replaceState({}, '', url);
-	StateRoute._LocationChanged(true);
+	StateRoute._LocationChanged();
 }
 
 StateRoute.Alert = function(message, func){
@@ -108,13 +108,13 @@ StateRoute.Alert = function(message, func){
 	if(typeof func === 'function') func();
 }
 
-StateRoute._LocationChanged = function(force){
+StateRoute._LocationChanged = function(){
 	for(let i = StateRoute.routes.length - 1; i >= 0; i--){
 		if(!document.getElementById(StateRoute.routes[i].id)){
 			StateRoute.routes[i].Del();
 			StateRoute.routes.splice(i, 1);
 		}
-		else StateRoute.routes[i].PageLoaded(force);
+		else StateRoute.routes[i].PageLoaded();
 	}
 }
 
@@ -150,6 +150,7 @@ StateRoute.Ajax = async function(url, method, data){
 	let opt = {
 		method : method,
 		cache : 'no-cache',
+		credentials: 'same-origin',
 		mode: 'cors'
 	};
 
@@ -175,11 +176,17 @@ StateRoute.Ajax = async function(url, method, data){
 	if(res.ok){
 		try{
 			const json = await res.json();
-			return json;
+			if(typeof(json.result) !== 'undefined' && json.result === false) throw new Error(JSON.stringify(json));
+			else return json;
 		}
 		catch(e){
-			StateRoute.Alert('서버에서 정보를 불러오지 못했습니다.');
-			throw new Error('서버에서 잘못된 정보');
+			try{
+				const errorJson = JSON.parse(e.message);
+			}
+			catch(e2){
+				throw new Error('서버에서 정보를 불러오지 못했습니다.');
+			}
+			throw new Error(e.message);
 		}
 	}
 	else{
@@ -207,23 +214,26 @@ StateRoute.AjaxPost = function(url, data){
 	return StateRoute._AjaxGetOrPost(url, 'POST', data);
 }
 
-StateRoute._AjaxGetOrPost = async function(url, method, data){
+StateRoute._AjaxGetOrPost = function(url, method, data){
 	StateRoute._IsWaitPlus();
-	const res = await StateRoute.Ajax(url, method, data);
-	if(res.result){
+	return StateRoute.Ajax(url, method, data).then(r => {
 		StateRoute._IsWaitMinus();
-		if(typeof(res.message) !== 'undefined' && res.message.length) StateRoute.Alert(res.message);
-		if(typeof(res.result) === 'boolean'){
-			if(res.result) return res;
-			else throw new Error(typeof(res.data) === 'string' ? res.data : JSON.stringify(res.data));
+		if(typeof(r.message) !== 'undefined' && r.message.length) StateRoute.Alert(r.message);
+		return r;
+	}).catch(r => {
+		StateRoute._IsWaitMinus();
+		if(typeof(r.message) !== 'undefined' && r.message.length){
+			try{
+				const errorJson = JSON.parse(r.message);
+				if(typeof(errorJson.message) !== 'undefined' && errorJson.message !== '') StateRoute.Alert(errorJson.message);
+				return errorJson;
+			}
+			catch(e2){
+				StateRoute.Alert(r.message);
+			}
 		}
-		else throw new Error(res);
-	}
-	else{
-		StateRoute._IsWaitMinus();
-		if(typeof(res.message) !== 'undefined' && res.message.length) StateRoute.Alert(res.message);
-		throw new Error(res.data);
-	}
+		return r;
+	});
 }
 
 /**
@@ -282,7 +292,7 @@ StateRoute.prototype.PageLoaded = function(force){
 
 		if(isWildcard){
 			if(StateRoute.SubStr(chkNowPath, 0, chkRoutePath.length) === chkRoutePath && chkNowPath !== chkRoutePath) isMatch = true;
-			if(StateRoute.SubStr(chkBeforePath, 0, chkRoutePath.length) === chkRoutePath && chkBeforePath !== chkRoutePath) isBeforeMatch = true;
+			if(StateRoute.SubStr(chkBeforePath, 0, chkRoutePath.length) === chkRoutePath && chkBeforePath === chkRoutePath) isBeforeMatch = true;
 		}
 		else if(rData.ignoreSubPath){
 			if(StateRoute.SubStr(chkNowPath, 0, chkRoutePath.length) === chkRoutePath) isMatch = true;
