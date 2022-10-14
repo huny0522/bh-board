@@ -226,8 +226,8 @@ class Message
 				$h = ($hour >= 12) ? App::$lang['PM'] : App::$lang['AM'];
 				$h .= ($hour > 12) ? $hour - 12 : $hour;
 				$row['date'] = substr($row['reg_date'], 0,4) . '/' . substr($row['reg_date'], 5,2) . '/' . substr($row['reg_date'], 8,2).'(' . $week . ') ' . $h.substr($row['reg_date'], 13,3);
-				$row['readIs'] = StrLength($row['read_date']) ? true : false;
-				if(StrLength($row['file'])){
+				$row['readIs'] = strlen((string)$row['read_date']) ? true : false;
+				if(strlen((string)$row['file'])){
 					$row['fileLink'] = App::URLAction('Download/' . $row['seq']);
 					$row['filePath'] = \Paths::UrlOfUpload() . $this->messageModel->GetFilePathByValue($row['file']);
 					$row['fileName'] = $this->messageModel->GetFileNameByValue($row['file']);
@@ -240,7 +240,7 @@ class Message
 					$row['isImage'] = false;
 				}
 				// 읽음 처리 할 데이터
-				if($row['sendIs'] === false && !StrLength($row['read_date'])){
+				if($row['sendIs'] === false && !strlen((string)$row['read_date'])){
 					$noReadSeq[] = $row['seq'];
 					$row['readIs'] = true;
 				}

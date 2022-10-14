@@ -72,10 +72,10 @@ class BH_Category{
 	public function _InsertMenuModel($pCategory){
 		$dbGet = $this->SqlGetQry();
 		if($pCategory === ''){
-			$dbGet->AddKey('MAX(category) as category');
+			$dbGet->AddKey('IFNULL(MAX(category), \'\') as category');
 			$dbGet->AddWhere('LENGTH(category) = %s', $this->model->CategoryLength);
 		}else{
-			$dbGet->AddKey('MAX(category) as category');
+			$dbGet->AddKey('IFNULL(MAX(category), \'\') as category');
 			$dbGet->AddWhere('LEFT(category, %d) = %s', strlen($pCategory), $pCategory);
 			$dbGet->AddWhere('LENGTH(category) = %d', strlen($pCategory) + $this->model->CategoryLength);
 		}
@@ -95,7 +95,7 @@ class BH_Category{
 		$dbGet->AddWhere('category = %s', $pCategory);
 		$dbGet->AddKey('parent_enabled', 'enabled');
 		$parent = $dbGet->Get();
-		$this->model->SetValue('parent_enabled', $parent['parent_enabled'] == 'n' || $parent['enabled'] == 'n' ? 'n' : 'y');
+		$this->model->SetValue('parent_enabled', ($parent && ($parent['parent_enabled'] == 'n' || $parent['enabled'] == 'n')) ? 'n' : 'y');
 
 		$res = $this->model->DBInsert();
 		if($res->result) $this->_MenuChangeAfter();
@@ -202,7 +202,7 @@ class BH_Category{
 			$enabled = $this->model->GetValue('enabled') == 'y' ? 'n' : 'y';
 			$this->model->SetValue('enabled', $enabled);
 			$res = $this->model->DBUpdate();
-			if(StrLength($this->model->GetValue('category')) == $this->model->CategoryLength) $dt = null;
+			if(strlen((string)$this->model->GetValue('category')) == $this->model->CategoryLength) $dt = null;
 			else $dt = $this->model->GetParent($this->model->GetValue('category'));
 			$this->model->SetChildEnabled($this->model->GetValue('category'), $enabled == 'y' && (!$dt || ($dt['enabled'] == 'y' && $dt['parent_enabled'] == 'y')) ? 'y' : 'n');
 

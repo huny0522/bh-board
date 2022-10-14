@@ -839,7 +839,7 @@ class _ModelFunc{
 						if(!is_array($delFiles)) $delFiles = array();
 
 						// 기존 파일
-						if(StrLength($v->value)){
+						if(strlen((string)$v->value)){
 							$p = explode(';', $v->value);
 							$valuePath = array();
 							foreach($p as $path){
@@ -860,7 +860,7 @@ class _ModelFunc{
 							$v->valueIsQuery = true;
 							$v->needIs = true;
 						}
-						else if($v->needIs && (!StrLength($v->value)) && !in_array($v->htmlType, array(HTMLType::FILE_IMAGE_ARRAY, HTMLType::FILE_ARRAY))){
+						else if($v->needIs && (!strlen((string)$v->value)) && !in_array($v->htmlType, array(HTMLType::FILE_IMAGE_ARRAY, HTMLType::FILE_ARRAY))){
 							$ret->message = $v->modelErrorMsg = str_replace('{item}', $v->displayName, BH_Application::$lang['MODEL_NOT_DEFINED_ITEM']);
 							$ret->result = false;
 							return $ret;
@@ -913,7 +913,7 @@ class _ModelFunc{
 								if(($v->htmlType === HTMLType::FILE_WITH_NAME || $v->htmlType === HTMLType::FILE_JQUERY) && isset($m[1]) && strlen($m[1])) $fName = '*' . $m[1];
 							}
 
-							if(StrLength($fPath) && file_exists(\Paths::DirOfUpload() . $fPath)){
+							if(strlen((string)$fPath) && file_exists(\Paths::DirOfUpload() . $fPath)){
 								$ext = explode('.', $fPath);
 								$ext = strtolower(array_pop($ext));
 
@@ -964,7 +964,7 @@ class _ModelFunc{
 								if(is_string($newpath)){
 									$v->__moveFile[]= array('source' => $fPath, 'dest' => $newpath);
 									// 기존 파일
-									if(StrLength($v->value)) $v->__deleteFile[]= $v->value;
+									if(strlen((string)$v->value)) $v->__deleteFile[]= $v->value;
 
 									$v->value = $newpath.$fName;
 									$v->needIs = true;
@@ -978,7 +978,7 @@ class _ModelFunc{
 								}
 							}
 
-							if(!$fileUpIs && StrLength($v->value) && Post('del_file_' . $k) == 'y'){
+							if(!$fileUpIs && strlen((string)$v->value) && Post('del_file_' . $k) == 'y'){
 								$v->__deleteFile[]= $v->value;
 								$v->value = '';
 								$v->needIs = true;
@@ -1007,7 +1007,7 @@ class _ModelFunc{
 									$ret->result = false;
 								}
 							}
-							else if(!StrLength($post[$k]) && $v->blankIsNull){
+							else if(!strlen((string)$post[$k]) && $v->blankIsNull){
 								$v->value = 'NULL';
 								$v->valueIsQuery = true;
 							}
@@ -1129,7 +1129,7 @@ class _ModelFunc{
 	public static function ValueCheck(&$model, $key){
 		if($model->data[$key]->valueIsQuery || $model->data[$key]->dbExcept) return true;
 		if(self::CheckRequired($model, $key) === false) return false;
-		if(StrLength($model->data[$key]->value)){
+		if(strlen((string)$model->data[$key]->value)){
 			if(self::CheckType($key, $model->data[$key]) === false) return false;
 			if(self::CheckLength($key, $model->data[$key]) === false) return false;
 			if(self::CheckValue($key, $model->data[$key]) === false) return false;
@@ -1232,7 +1232,7 @@ class _ModelFunc{
 
 	public static function CheckRequired(&$model, $key){
 		if($model->data[$key]->required == false) return true;
-		if(!StrLength($model->GetValue($key))){
+		if(!strlen((string)$model->GetValue($key))){
 			if(!$model->data[$key]->dbExcept && !$model->data[$key]->postExcept && $model->data[$key]->autoDecrement !== true && $model->data[$key]->autoIncrement !== true){
 				$model->data[$key]->modelErrorMsg = str_replace('{item}', $model->data[$key]->displayName, BH_Application::$lang['MODEL_REQUIRED']);
 				return false;
@@ -1420,7 +1420,7 @@ HTML;
 				$h = '<div class="jqFileUploadArea"' . $Attribute . '>
 				<input type="hidden" name="' . $Name . '" value="" id="'.$firstIDName.$Name.'" class="fileUploadPath" data-displayname="' . $data->displayName . '"' . $fileRequired . '>
 				<div style="padding-bottom:10px;">';
-				if(StrLength($data->value)) $h .= '<p><b class="upload_file_name">'.(isset($f[1]) ? GetDBText($f[1]) : '').'</b> <label class="checkbox"><input type="checkbox" name="del_file_'.$Name.'" value="y"><i></i><span> ' .BH_Application::$lang['DEL_FILE'] . '</span></label></p>';
+				if(strlen((string)$data->value)) $h .= '<p><b class="upload_file_name">'.(isset($f[1]) ? GetDBText($f[1]) : '').'</b> <label class="checkbox"><input type="checkbox" name="del_file_'.$Name.'" value="y"><i></i><span> ' .BH_Application::$lang['DEL_FILE'] . '</span></label></p>';
 				else $h .= '<p><b class="upload_file_name"></b></p>';
 				$h .= '</div>
 						<div style="display:block; width: 0; height: 0; overflow: hidden; opacity: 0;">
@@ -1438,7 +1438,7 @@ HTML;
 					$uniqueName = self::RandomFileName().$Name;
 					$h = '<div class="flowUploadWrap file" id="flowUploadWrap' . $uniqueName . '"><input type="hidden" name="' . $Name . '" class="fileUploadInput" value="" data-displayname="' . $data->displayName . '"' . $fileRequired . ' data-old-value="' . ($data->value ? Paths::UrlOfUpload(v($data->value)) : '') . '">';
 					$h .= '<p class="flowFile">';
-					if(StrLength($data->value)){
+					if(strlen((string)$data->value)){
 						$f = explode('*', $data->value);
 						$h .= '<span class="fileName">' . (isset($f[1]) ? v($f[1]) : '') . '</span> <label class="delFile checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><i></i><span> ' . BH_Application::$lang['DEL_FILE'] . '</span></label>';
 					}
@@ -1447,7 +1447,7 @@ HTML;
 					return $h . '</div>';
 				}
 				$h = '<div class="fileUploadArea2"><input type="hidden" name="' . $Name . '" class="fileUploadInput" value="" data-displayname="' . $data->displayName . '"' . $fileRequired . '> <button type="button" class="fileUploadBtn sBtn"><i></i>' . (isset($htmlAttribute['button']) ? $htmlAttribute['button'] : BH_Application::$lang['ATTACH_FILE']) . '</button>';
-				if(StrLength($data->value)){
+				if(strlen((string)$data->value)){
 					$f = explode('*', $data->value);
 					$h .= ' <p><span class="fileName">' . (isset($f[1]) ? GetDBText($f[1]) : '') . '</span> <label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><i></i><span> ' . BH_Application::$lang['DEL_FILE'] . '</span></label></p>';
 				}
@@ -1458,7 +1458,7 @@ HTML;
 			break;
 			case HTMLType::FILE:
 				$h = '';
-				if(StrLength($data->value)){
+				if(strlen((string)$data->value)){
 					$h = ' <span class="uploadedFile"><label class="checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><i></i><span> ' . BH_Application::$lang['DEL_FILE'] . '</span></label></span>';
 				}
 				return $h . ' <input type="file" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$fileRequired.$Attribute.'>';
@@ -1468,7 +1468,7 @@ HTML;
 					$uniqueName = self::RandomFileName().$Name;
 					$h = '<div class="flowUploadWrap image" id="flowUploadWrap' . $uniqueName . '"><input type="hidden" name="' . $Name . '" class="fileUploadInput" value="" data-displayname="' . $data->displayName . '"' . $fileRequired . ' data-old-value="' . ($data->value ? Paths::UrlOfUpload(v($data->value)) : '') . '">';
 					$h .= '<p class="flowImage">';
-					if(StrLength($data->value)){
+					if(strlen((string)$data->value)){
 						$p2 = explode('*', $data->value);
 						$h .= '<i class="image" style="background-image:url(' . Paths::UrlOfUpload($p2[0]) . ')"></i>' .
 							' <label class="delFile checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><i></i><span>' . BH_Application::$lang['DEL'] . '</span></label>';
@@ -1479,11 +1479,11 @@ HTML;
 				}
 				$h = '<div class="fileUploadArea"><input type="hidden" name="'.$Name.'" id="'.$firstIDName.$Name.'" data-displayname="' . $data->displayName . '" '.$fileRequired.$Attribute.'>';
 				$h .= '<span class="fileUploadImage">';
-				if(StrLength($data->value)){
+				if(strlen((string)$data->value)){
 					$h .= '<i style="background-image:url(' . Paths::UrlOfUpload() . $data->value . ')"></i>';
 				}
 				$h .= '</span>';
-				if(StrLength($data->value)) $h .= ' <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><i></i><span>' . BH_Application::$lang['DEL'] . '</span></label>';
+				if(strlen((string)$data->value)) $h .= ' <label class="uploadedImgFile checkbox"><input type="checkbox" name="del_file_' . $Name . '" value="y"><i></i><span>' . BH_Application::$lang['DEL'] . '</span></label>';
 				return $h . '<button type="button" class="fileUploadBtn sBtn"><span>' . BH_Application::$lang['REG_IMAGE'] . '</span></button></div><script>JCM.imageFileForm();</script>';
 			break;
 			case HTMLType::FILE_IMAGE_ARRAY:
@@ -1491,7 +1491,7 @@ HTML;
 					$uniqueName = self::RandomFileName().$Name;
 					$h = '<div class="flowUploadWrap image_arr" id="flowUploadWrap' . $uniqueName . '" data-name="'.$Name.'">';
 					$h .= '<ul class="flowImages">';
-					if(StrLength($data->value)){
+					if(strlen((string)$data->value)){
 						$p = explode(';', $data->value);
 						foreach($p as $path){
 							$p2 = explode('*', $path);
@@ -1508,7 +1508,7 @@ HTML;
 
 				$temp = '<div class="fileUploadArea"><span class="fileUploadImage"></span><input type="hidden" name="'.$Name.'[]" data-displayname="' . $data->displayName . '" '.$Attribute.'><button type="button" class="fileUploadBtn sBtn"><span>' . BH_Application::$lang['REG_IMAGE'] . '</span></button><button type="button" class="fileUploadAreaRmBtn sBtn">' . BH_Application::$lang['DEL'] . '</button></div>';
 				$h = '<div class="multiFileUploadArea" data-max-file-number="' . $data->maxFileNumber . '">';
-				if(StrLength($data->value)){
+				if(strlen((string)$data->value)){
 					$p = explode(';', $data->value);
 					foreach($p as $path){
 						$p2 = explode('*', $path);
@@ -1523,7 +1523,7 @@ HTML;
 					$uniqueName = self::RandomFileName().$Name;
 					$h = '<div class="flowUploadWrap files_arr" id="flowUploadWrap' . $uniqueName . '" data-name="'.$Name.'">';
 					$h .= '<ul class="flowFiles">';
-					if(StrLength($data->value)){
+					if(strlen((string)$data->value)){
 						$p = explode(';', $data->value);
 						foreach($p as $path){
 							$p2 = explode('*', $path);
@@ -1539,7 +1539,7 @@ HTML;
 				}
 				$temp = '<div class="fileUploadArea2"><input type="hidden" name="' . $Name . '[]" class="fileUploadInput" value=""><p><span class="fileName"></span></p><button type="button" class="fileUploadBtn sBtn"><i></i> <span>' . BH_Application::$lang['REG_FILE'] . '</span></button><button type="button" class="fileUploadAreaRmBtn sBtn">' . BH_Application::$lang['DEL'] . '</button></div>';
 				$h = '<div class="multiFileUploadArea" data-max-file-number="' . $data->maxFileNumber . '">';
-				if(StrLength($data->value)){
+				if(strlen((string)$data->value)){
 					$p = explode(';', $data->value);
 					foreach($p as $path){
 						$p2 = explode('*', $path);
@@ -1618,8 +1618,8 @@ HTML;
 
 					if($v->valueIsQuery) $dbInsert->data[$k] = $v->value;
 					else if($v->type == ModelType::INT){
-						if(!StrLength($v->value) && !isset($v->defaultValue)) continue;
-						if(!StrLength($v->value) && isset($v->defaultValue)) $dbInsert->data[$k] = $v->defaultValue;
+						if(!strlen((string)$v->value) && !isset($v->defaultValue)) continue;
+						if(!strlen((string)$v->value) && isset($v->defaultValue)) $dbInsert->data[$k] = $v->defaultValue;
 						else{
 							$res = self::CheckInt($k, $v->value);
 							if($res === true) $dbInsert->data[$k] = $v->value;
@@ -1630,8 +1630,8 @@ HTML;
 						}
 					}
 					else if($v->type == ModelType::FLOAT){
-						if(!StrLength($v->value) && !isset($v->defaultValue)) continue;
-						if(!StrLength($v->value) && isset($v->defaultValue)) $dbInsert->data[$k] = $v->defaultValue;
+						if(!strlen((string)$v->value) && !isset($v->defaultValue)) continue;
+						if(!strlen((string)$v->value) && isset($v->defaultValue)) $dbInsert->data[$k] = $v->defaultValue;
 						else{
 							$res = self::CheckFloat($k, $v->value);
 							if($res === true) $dbInsert->data[$k] = $v->value;
@@ -1694,7 +1694,7 @@ HTML;
 
 					if($v->valueIsQuery) $dbUpdate->SetData($k, $v->value);
 					else if($v->type == ModelType::INT){
-						if(!StrLength($v->value)) continue;
+						if(!strlen((string)$v->value)) continue;
 						$res = self::CheckInt($k, $v->value);
 						if($res === true) $dbUpdate->SetDataNum($k, $v->value);
 						else{
@@ -1703,7 +1703,7 @@ HTML;
 						}
 					}
 					else if($v->type == ModelType::FLOAT){
-						if(!StrLength($v->value)) continue;
+						if(!strlen((string)$v->value)) continue;
 						$res = self::CheckFloat($k, $v->value);
 						if($res === true) $dbUpdate->SetDataNum($k, $v->value);
 						else{
@@ -1805,7 +1805,7 @@ HTML;
 		if($withFile){
 			$res = self::DBGet($model, $keyData);
 			foreach($model->data as $data){
-				if(self::IsFileType($data->htmlType) && StrLength($data->value)){
+				if(self::IsFileType($data->htmlType) && strlen((string)$data->value)){
 					$p = explode(';', isset($data->value) ? $data->value : '');
 					foreach($p as $path){
 						$pn = explode('*', $path);
@@ -1910,7 +1910,7 @@ HTML;
 			$deleteFiles = Post('del_file_' . $key);
 
 			$valuePath = array();
-			if(StrLength($model->data[$key]->value)){
+			if(strlen((string)$model->data[$key]->value)){
 				$p = explode(';', $model->data[$key]->value);
 				foreach($p as $k => $v){
 					$f = explode('*', $v);

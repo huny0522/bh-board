@@ -320,14 +320,14 @@ class Board{
 		}
 		else $qry->AddWhere('`A`.`subid` = %s', $this->subid);
 
-		if(StrLength(App::$data['categoryKeyword'])) $qry->AddWhere('`A`.category = %s', App::$data['categoryKeyword']);
+		if(strlen((string)App::$data['categoryKeyword'])) $qry->AddWhere('`A`.category = %s', App::$data['categoryKeyword']);
 
 		if(strlen($this->menuSubCategory)) $qry->AddWhere('`A`.sub_category IN (%s)', explode(',', $this->menuSubCategory));
 		else if(!EmptyGet('scate')) $qry->AddWhere('`A`.sub_category = %s', Get('scate'));
 
 
 		if(!$noticeIs){
-			if(StrLength($s_type) && StrLength($s_keyword)){
+			if(strlen((string)$s_type) && strlen((string)$s_keyword)){
 				switch($s_type){
 					case 's':
 						$qry->AddWhere('INSTR(A.subject, %s)', $s_keyword);
@@ -362,12 +362,12 @@ class Board{
 
 		// 공지를 불러온다.
 		App::$data['notice'] = array();
-		if(($s_page < 2) && !StrLength($s_keyword)) App::$data['notice'] = $this->_GetNotice()->data;
+		if(($s_page < 2) && !strlen((string)$s_keyword)) App::$data['notice'] = $this->_GetNotice()->data;
 
 		// 리스트를 불러온다.
 		$dbList = $this->model->GetPageListQuery($s_page, $this->boardManger->GetValue('article_count'));
 
-		if($this->boardManger->_list_show_notice->Txt() == 'n' && ($s_page < 2) && !StrLength($s_keyword)) $dbList->AddWhere('A.notice=\'n\'');
+		if($this->boardManger->_list_show_notice->Txt() == 'n' && ($s_page < 2) && !strlen((string)$s_keyword)) $dbList->AddWhere('A.notice=\'n\'');
 
 		$this->_R_CommonQry($dbList);
 
@@ -409,12 +409,12 @@ class Board{
 
 		// 공지를 불러온다.
 		App::$data['notice'] = array();
-		if(!StrLength($s_seq) && !StrLength($s_last_seq) && !StrLength($s_keyword)) App::$data['notice'] = $this->_GetNotice()->data;
+		if(!strlen((string)$s_seq) && !strlen((string)$s_last_seq) && !strlen((string)$s_keyword)) App::$data['notice'] = $this->_GetNotice()->data;
 
 		// 리스트를 불러온다.
 		$dbList = $this->model->GetListQuery($this->boardManger->GetValue('article_count'));
 
-		if($this->boardManger->_list_show_notice->Txt() == 'n' && !StrLength($s_keyword)) $dbList->AddWhere('A.notice=\'n\'');
+		if($this->boardManger->_list_show_notice->Txt() == 'n' && !strlen((string)$s_keyword)) $dbList->AddWhere('A.notice=\'n\'');
 
 		$this->_R_CommonQry($dbList);
 
@@ -423,7 +423,7 @@ class Board{
 			if(!$this->managerIs && $this->boardManger->GetValue('man_to_man') === 'y') $dbList->AddWhere('A.muid = %d OR A.target_muid = %d', \BHG::$session->member->muid->Get(), \BHG::$session->member->muid->Get());
 		}
 
-		if(StrLength($s_seq)){
+		if(strlen((string)$s_seq)){
 			$seq = to10($s_seq);
 			$dbList->AddWhere('A.seq = %d', $seq);
 		}
@@ -482,7 +482,7 @@ class Board{
 	}
 
 	public function _RowSet(&$data){
-		$ck = StrLength(App::$data['categoryKeyword']) ? true : false;
+		$ck = strlen((string)App::$data['categoryKeyword']) ? true : false;
 		foreach($data as &$row){
 			if($this->managerIs || $row['secret'] == 'n' || ($row['first_member_is'] == 'y' && strlen($row['muid']))) $row['possibleView'] = true;
 			else $row['possibleView'] = false;

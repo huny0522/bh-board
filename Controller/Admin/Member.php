@@ -41,10 +41,10 @@ class Member{
 		$keyword = StrTrim(Get('Keyword'));
 		$slevel = Get('SLevel');
 
-		if(StrLength($keyword)){
+		if(strlen((string)$keyword)){
 			$dbGetList->AddWhere('INSTR(mid, %s) OR INSTR(email, %s) OR INSTR(mname, %s) OR INSTR(nickname, %s) OR INSTR(phone, %s)', $keyword, $keyword, $keyword, $keyword, $keyword);
 		}
-		if(StrLength($slevel)){
+		if(strlen((string)$slevel)){
 			$dbGetList->AddWhere('level = %d', $slevel);
 		}
 		$dbGetList->Run();

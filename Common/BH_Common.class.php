@@ -317,7 +317,7 @@ class BH_Common
 	public static function GetBoardArticleQuery($bid, $subid, $category = '', $limit = 10){
 		// 리스트를 불러온다.
 		$dbList = new \BH_DB_GetList(TABLE_FIRST.'bbs_'.$bid);
-		if((is_array($subid) && sizeof($subid)) || StrLength($subid)) $dbList->AddWhere('subid IN (%s)', is_array($subid) ? $subid : explode(',', $subid));
+		if((is_array($subid) && sizeof($subid)) || strlen((string)$subid)) $dbList->AddWhere('subid IN (%s)', is_array($subid) ? $subid : explode(',', $subid));
 		$dbList->AddWhere('delis=\'n\'');
 
 		$dbList->sort = 'sort1, sort2';
@@ -490,8 +490,8 @@ class BH_Common
 	------------------------------------------------- */
 	public static function _CategoryGetChild($table, $parent, $length){
 		$dbGet = new \BH_DB_GetList($table);
-		$dbGet->AddWhere('LEFT(category, %d) = %s', strlen($parent), $parent);
-		$dbGet->AddWhere('LENGTH(category) = '.(strlen($parent) + $length));
+		$dbGet->AddWhere('LEFT(category, %d) = %s', strlen((string)$parent), (string)$parent);
+		$dbGet->AddWhere('LENGTH(category) = '.(strlen((string)$parent) + $length));
 		$dbGet->sort = 'sort';
 		return $dbGet->GetRows();
 	}

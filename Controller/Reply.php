@@ -533,9 +533,9 @@ class Reply{
 	protected function _MyArticleCheck(){
 		$myArticleIs = false;
 		if($this->managerIs || CM::GetAdminIs()) $myArticleIs = true;
-		else if(StrLength($this->boardModel->GetValue('muid')))
+		else if(strlen((string)$this->boardModel->GetValue('muid')))
 			$myArticleIs = (\BHG::$isMember === true && $this->_CheckMyMUid($this->boardModel, 'muid'));
-		else if(isset($this->boardModel->data['target_muid']) && StrLength($this->boardModel->GetValue('target_muid')))
+		else if(isset($this->boardModel->data['target_muid']) && strlen((string)$this->boardModel->GetValue('target_muid')))
 			$myArticleIs = (\BHG::$isMember === true && $this->_CheckMyMUid($this->boardModel, 'target_muid'));
 		return $myArticleIs;
 	}
