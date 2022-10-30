@@ -28,6 +28,8 @@ App::$settingData['loadBalancingSubIp'] = array();
 App::$settingData['loadBalancingMainIp'] = '192.168.0.2';
 */
 
+if(_IS_DEVELOPER_IP === true && PHP_RUN_CLI !== true) require Paths::Dir('/DBUpdate.php');
+
 // 필요 시 파일 세션이나 DB 세션은 유효 기간 별도 설정
 // 세션 데이터 업데이트
 \BHG::$session->SetAfterUpdate(function($data){

@@ -55,9 +55,6 @@ class BH_Application
 	public static function run(){
 		self::$settingData['URLFirst'] = '';
 
-
-		if(_IS_DEVELOPER_IP === true && PHP_RUN_CLI !== true) require _DIR . '/DBUpdate.php';
-
 		// ----------------------
 		//
 		//    라우팅 초기화
