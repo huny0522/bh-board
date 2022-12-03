@@ -424,9 +424,9 @@
 				}
 				if(typeof (h) === 'number') wrap.css({'height': h + 'px'});
 				else if(typeof(h) !== 'undefined'){
-					var h2 = w.replace(/[^0-9]/ig,'');
-					if(h2 == w) wrap.css({'width': h + 'px'});
-					else wrap.css({'width': h});
+					var h2 = h.replace(/[^0-9]/ig,'');
+					if(h2 == h) wrap.css({'height': h + 'px'});
+					else wrap.css({'height': h});
 				}
 			}
 
@@ -1007,7 +1007,7 @@
 					});
 
 					bhJQuery(this).on('touchstart mousedown', function(e){
-						JCM.addClass(this, 'bh-event-touch');
+						bhJQuery(this).addClass('bh-event-touch');
 						EventLink.touchStart.call(this, e);
 					});
 				}
@@ -1018,7 +1018,7 @@
 						e.preventDefault();
 					});
 					bhJQuery(this).on('touchstart mousedown', arg1, function(e){
-						JCM.addClass(this, 'bh-event-touch');
+						bhJQuery(this).addClass('bh-event-touch');
 						EventLink.touchStart.call(this, e);
 					});
 				}
@@ -1033,14 +1033,14 @@
 				if(this === arg1){
 					bhJQuery(this).on('e_touch_visible', arg2);
 					bhJQuery(this).on('touchstart mousedown', function(e){
-						JCM.addClass(this, 'bh-event-touch-visible');
+						bhJQuery(this).addClass('bh-event-touch-visible');
 						EventLink.touchStart.call(this, e);
 					});
 				}
 				else{
 					bhJQuery(this).on('e_touch_visible', arg1, arg2);
 					bhJQuery(this).on('touchstart mousedown', arg1, function(e){
-						JCM.addClass(this, 'bh-event-touch-visible');
+						bhJQuery(this).addClass('bh-event-touch-visible');
 						EventLink.touchStart.call(this, e);
 					});
 				}
@@ -1061,7 +1061,7 @@
 					bhJQuery(this).on('e_drag', arg2);
 					bhJQuery(this).on('e_drag_end', arg3);
 					bhJQuery(this).on('touchstart mousedown', function(e){
-						JCM.addClass(this, 'bh-event-drag');
+						bhJQuery(this).addClass('bh-event-drag');
 						EventLink.touchStart.call(this, e);
 					});
 				}
@@ -1070,7 +1070,7 @@
 					bhJQuery(this).on('e_drag', arg1, arg2);
 					bhJQuery(this).on('e_drag_end', arg1, arg3);
 					bhJQuery(this).on('touchstart mousedown', arg1, function(e){
-						JCM.addClass(this, 'bh-event-drag');
+						bhJQuery(this).addClass('bh-event-drag');
 						EventLink.touchStart.call(this, e);
 					});
 				}
