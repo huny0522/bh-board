@@ -478,15 +478,14 @@
 			dt.loadingEnable = true;
 			if(type === 'get'){
 				this.get(ur, dt, function(data){
-					_this.createModal(title, modal_id, data, w, h);
+					_this.createModal(title, modal_id, typeof(data.html) !== 'undefined' ? data.html : data, w, h);
 				});
 			}else{
 				this.post(ur, dt, function(data){
-					_this.createModal(title, modal_id, data, w, h);
+					_this.createModal(title, modal_id, typeof(data.html) !== 'undefined' ? data.html : data, w, h);
 				});
 			}
 		};
-
 		/* -------------------------------------------
 		 *
 		 *   이미지 파일업로드
