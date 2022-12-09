@@ -359,6 +359,10 @@ class BH_Model{
 	private $dataExcept = array();
 	public $isBHModel = true;
 
+	private $dbUpdateQry = null;
+	private $dbInsertQry = null;
+	private $dbGetQry = null;
+
 	public function __construct($connName = ''){
 		$this->data = new BH_ModelDataArray();
 		$this->data->SetParent($this);
@@ -385,6 +389,22 @@ class BH_Model{
 	public static function GetInstance($connName = ''){
 		$static = new static($connName);
 		return $static;
+	}
+
+	public function GetDBUpdateQry(){
+		if($this->dbUpdateQry === null){
+			$this->dbUpdateQry = new \BH_DB_Update($this->table);
+			$this->dbUpdateQry->SetConnName($this->GetConnName())->SetShowError($this->showError);
+		}
+		return $this->dbUpdateQry;
+	}
+
+	public function GetDBInsertQry(){
+		if($this->dbInsertQry === null){
+			$this->dbInsertQry = new \BH_DB_Insert($this->table);
+			$this->dbInsertQry->SetConnName($this->GetConnName())->SetShowError($this->showError);
+		}
+		return $this->dbInsertQry;
 	}
 
 	public function SetShowError($bool = true){
@@ -1594,8 +1614,7 @@ HTML;
 	}
 
 	public static function DBInsert(&$model, $test = false){
-		$dbInsert = new \BH_DB_Insert($model->table);
-		$dbInsert->SetConnName($model->GetConnName())->SetShowError($model->showError);
+		$dbInsert = $model->GetDBInsertQry();
 		$result = new \BH_InsertResult();
 
 		foreach($model->data as $k=>$v){
@@ -1676,8 +1695,7 @@ HTML;
 	public static function DBUpdate(&$model, $test = false){
 		$result = new \BH_Result();
 
-		$dbUpdate = new \BH_DB_Update($model->table);
-		$dbUpdate->SetConnName($model->GetConnName())->SetShowError($model->showError);
+		$dbUpdate = $model->GetDBUpdateQry();
 		foreach($model->data as $k=>$v){
 			if(!isset($v->value) && $v->needIs){
 				$result->result = false;
