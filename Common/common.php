@@ -28,6 +28,19 @@ class BH_InsertResult
 	public $result = false;
 	public $id = null;
 	public $message = '';
+
+	public static function InitFalse($mes = ''){
+		$result = new static();
+		$result->message = $mes;
+		return $result;
+	}
+
+	public static function InitSuccess($id){
+		$result = new static();
+		$result->result = true;
+		$result->id = $id;
+		return $result;
+	}
 }
 
 
