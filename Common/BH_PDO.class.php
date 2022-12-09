@@ -197,7 +197,7 @@ class DB{
 	 * @param string $table
 	 * @return \BH_DB_Get
 	 */
-	public static function &GetQryObj($table){
+	public static function &GetQryObj($table = ''){
 		$instance = new BH_DB_Get();
 		call_user_func_array(array($instance, 'AddTable'), func_get_args());
 		return $instance;
@@ -207,7 +207,7 @@ class DB{
 	 * @param string $table
 	 * @return \BH_DB_GetList
 	 */
-	public static function &GetListQryObj($table){
+	public static function &GetListQryObj($table = ''){
 		$instance = new BH_DB_GetList();
 		call_user_func_array(array($instance, 'AddTable'), func_get_args());
 		return $instance;
@@ -217,7 +217,7 @@ class DB{
 	 * @param string $table
 	 * @return \BH_DB_GetListWithPage
 	 */
-	public static function &GetListPageQryObj($table){
+	public static function &GetListPageQryObj($table = ''){
 		$instance = new BH_DB_GetListWithPage();
 		call_user_func_array(array($instance, 'AddTable'), func_get_args());
 		return $instance;
@@ -227,7 +227,7 @@ class DB{
 	 * @param string $table
 	 * @return \BH_DB_Update
 	 */
-	public static function &UpdateQryObj($table){
+	public static function &UpdateQryObj($table = ''){
 		$instance = new BH_DB_Update();
 		call_user_func_array(array($instance, 'AddTable'), func_get_args());
 		return $instance;
@@ -237,7 +237,7 @@ class DB{
 	 * @param string $table
 	 * @return \BH_DB_Insert
 	 */
-	public static function &InsertQryObj($table){
+	public static function &InsertQryObj($table = ''){
 		$instance = new BH_DB_Insert($table);
 		return $instance;
 	}
@@ -246,7 +246,7 @@ class DB{
 	 * @param string $table
 	 * @return \BH_DB_Delete
 	 */
-	public static function &DeleteQryObj($table){
+	public static function &DeleteQryObj($table = ''){
 		$instance = new BH_DB_Delete();
 		call_user_func_array(array($instance, 'AddTable'), func_get_args());
 		return $instance;
@@ -321,7 +321,12 @@ class DB{
 					$prn++;
 				}
 				else if($ns === '1'){
-					$str[] = is_array($args[$prn]) ? implode(',', $args[$prn]) : $args[$prn];
+					if(is_object($args[$prn]) && (get_class($args[$prn]) === 'BH_DB_Get' || get_class($args[$prn]) === 'BH_DB_GetList')){
+						$args[$prn]->QryToSql();
+						$bindParam = array_merge($bindParam, $args[$prn]->bindParam);
+						$str[] = $args[$prn]->sql;
+					}
+					else $str[] = is_array($args[$prn]) ? implode(',', $args[$prn]) : $args[$prn];
 					$str[] = substr($ex[$i], 1);
 					$prn++;
 				}
@@ -360,7 +365,7 @@ class BH_DB_Get{
 	protected $key = array();
 	protected $connName = '';
 
-	protected $bindParam = array();
+	public $bindParam = array();
 
 	public function  __construct($table = ''){
 		if($table !== ''){
@@ -481,6 +486,16 @@ class BH_DB_Get{
 	 * @param string $str
 	 * @return $this
 	 */
+	public function &AddKeySql($str){
+		$w = $this->StrToPDO(func_get_args());
+		if($w !== false) $this->key[] = $w;
+		return $this;
+	}
+
+	/**
+	 * @param string $str
+	 * @return $this
+	 */
 	public function &SetGroup($str){
 		$sql = $this->StrToPDO(func_get_args());
 		if($sql !== false) $this->group = $sql;
@@ -507,13 +522,7 @@ class BH_DB_Get{
 		return $this->table;
 	}
 
-	/**
-	 * @var callable(&$sql) $func
-	 * @return bool|array
-	 */
-	public function Get(){
-		if($this->isRunGet) return false;
-		$this->isRunGet = true;
+	public function QryToSql(){
 		$func = null;
 		if(func_num_args()) $func = func_get_arg(0);
 
@@ -535,14 +544,25 @@ class BH_DB_Get{
 		if(is_callable($func)) $func($this->sql);
 		$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
 
+		$this->sql = trim($this->sql);
+	}
+
+	/**
+	 * @var callable(&$sql) $func
+	 * @return bool|array
+	 */
+	public function Get(){
+		if($this->isRunGet) return false;
+		$this->isRunGet = true;
+		$func = null;
+		if(func_num_args()) $func = func_get_arg(0);
+
 		if($this->test && \BHG::$isDeveloper === true){
-			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
-			echo $this->sql;
+			echo $this->GetTestSql($func);
 			exit;
 		}
 
-		$this->sql = $sql2 = trim($this->sql);
-		foreach($this->bindParam as $k => $v) $sql2 .= '['.$v[0].']';
+		$this->QryToSql($func);
 
 		$this->query = DB::PDO($this->connName)->prepare($this->sql);
 		foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $this->query->bindParam($k, $v[0], $v[1]);
@@ -559,10 +579,19 @@ class BH_DB_Get{
 	}
 
 	public function PrintTest(){
-		if(\BHG::$isDeveloper === true){
-			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
-			echo $this->sql;
-		}
+		$func = null;
+		if(func_num_args()) $func = func_get_arg(0);
+		if(\BHG::$isDeveloper === true) echo $this->GetTestSql($func);
+	}
+
+	public function GetTestSql(){
+		$func = null;
+		if(func_num_args()) $func = func_get_arg(0);
+
+		$this->QryToSql($func);
+		$sql = $this->sql;
+		foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $sql);
+		return $sql;
 	}
 
 	/**
@@ -634,12 +663,9 @@ class BH_DB_GetList extends BH_DB_Get{
 		return $this;
 	}
 
-	/**
-	 * @var callable(&$sql) $func
-	 * @return $this
-	 */
-	function &Run($func = null){
-		$this->runIs = true;
+	public function QryToSql(){
+		$func = null;
+		if(func_num_args()) $func = func_get_arg(0);
 
 		$where = '';
 		if(isset($this->where) && is_array($this->where) && sizeof($this->where)){
@@ -668,14 +694,24 @@ class BH_DB_GetList extends BH_DB_Get{
 		if(is_callable($func)) $func($this->sql);
 		$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
 
+		$this->sql = trim($this->sql);
+	}
+	/**
+	 * @var callable(&$sql) $func
+	 * @return $this
+	 */
+	function &Run(){
+		$this->runIs = true;
+
+		$func = null;
+		if(func_num_args()) $func = func_get_arg(0);
+
 		if($this->test && \BHG::$isDeveloper === true){
-			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
-			echo $this->sql;
+			echo $this->GetTestSql($func);
 			exit;
 		}
 
-		$this->sql = $sql2 = trim($this->sql);
-		foreach($this->bindParam as $k => $v) $sql2 .= '['.$v[0].']';
+		$this->QryToSql($func);
 
 		$this->query = DB::PDO($this->connName)->prepare($this->sql);
 		foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $this->query->bindParam($k, $v[0], $v[1]);
@@ -855,8 +891,11 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	 * @var callable(&$sql) $func
 	 * @return $this
 	 */
-	public function &Run($func = null){
-		$this->runIs = true;
+
+	public function QryToSql(){
+		$func = null;
+		if(func_num_args()) $func = func_get_arg(0);
+
 		if($this->page < 1) $this->page = 1;
 		$nowPage = $this->page - 1;
 
@@ -907,18 +946,32 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		if(is_callable($func)) $func($this->sql);
 		$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
 
+		$this->sql = trim($this->sql);
+
+		return array(
+			'subCnt_sql2' => $subCnt_sql2,
+			'sql_cnt' => $sql_cnt,
+			'nowPage' => $nowPage
+		);
+	}
+	public function &Run(){
+		$func = null;
+		if(func_num_args()) $func = func_get_arg(0);
+
+		$this->runIs = true;
+
 		if($this->test && \BHG::$isDeveloper === true){
-			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
-			if($this->group && !$this->noGroupCount) $sql_cnt = 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x';
-			foreach($this->bindParam as $k => $v) $sql_cnt = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $sql_cnt);
-			echo $this->sql . ';' . PHP_EOL . PHP_EOL . $sql_cnt . ';';
+			echo $this->GetTestSql($func);
 			exit;
 		}
 
-		$this->sql = $sql2 = trim($this->sql);
-		foreach($this->bindParam as $v) $sql2 .= '['.$v[0].']';
+		$sqlData = $this->QryToSql($func);
+		$subCnt_sql2 = $sqlData['subCnt_sql2'];
+		$sql_cnt = $sqlData['sql_cnt'];
+		$nowPage = $sqlData['nowPage'];
 
 		$cntSql = $this->group && !$this->noGroupCount ? 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x' : $sql_cnt;
+
 		$qry = DB::PDO($this->connName)->prepare($cntSql);
 		foreach($this->bindParam as $k => $v) if(strpos($cntSql, $k) !== false) $qry->bindParam($k, $v[0], $v[1]);
 		if($qry->execute()){
@@ -937,7 +990,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		if($this->query->execute()){
 			$pageData['articleCount'] = $this->articleCount;
 			$pageData['pageCount'] = $this->pageCount;
-			$pageData['page'] = $this->page ? $this->page : 1;
+			$pageData['page'] = $this->page ?: 1;
 			$pageData['pageUrl'] = $this->pageUrl;
 			$pageData['totalRecord'] = $totalRecord;
 
@@ -951,6 +1004,20 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 			$this->result = false;
 		}
 		return $this;
+	}
+
+	public function GetTestSql(){
+		$func = null;
+		if(func_num_args()) $func = func_get_arg(0);
+
+		$sqlData = $this->QryToSql($func);
+		$subCnt_sql2 = $sqlData['subCnt_sql2'];
+		$sql_cnt = $sqlData['sql_cnt'];
+		$sql = $this->sql;
+		if($this->group && !$this->noGroupCount) $sql_cnt = 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x';
+		foreach($this->bindParam as $k => $v) $sql_cnt = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $sql_cnt);
+		foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $sql);
+		return $sql . ';' . PHP_EOL . PHP_EOL . $sql_cnt . ';';
 	}
 
 	/**
@@ -1303,6 +1370,60 @@ class BH_DB_Insert{
 		return $this;
 	}
 
+	private function MultiQryToSql(){
+		$func = null;
+		if(func_num_args()) $func = func_get_arg(0);
+
+		if($this->decrement) $keyRes = $this->GetKeySetting($this->isDecrement, $this->otherKeys);
+		else $keyRes = array();
+
+		foreach($this->MultiValues as $k => $v){
+			$this->MultiValues[$k] = '(' . ($this->decrement ? ($this->isDecrement ? $keyRes['data']-- : $keyRes['data']++).', ' : '') . $v . ')';
+		}
+
+		if(sizeof($this->duplicateData)){
+			$set = array();
+			foreach($this->duplicateData as $k => $v) $set[]= '`' . $k . '` = ' . $v;
+			$duplicateSql = 'ON DUPLICATE KEY UPDATE '.implode(', ', $set);
+		}
+
+		$this->sql = 'INSERT INTO ' . $this->table . '(' . ($this->decrement ? '`'.$this->decrement.'`, ' : '') . $this->MultiNames . ') VALUES '.implode(',', $this->MultiValues).(isset($duplicateSql) ? ' '.$duplicateSql : '');
+		return array(
+			'keyRes' => $keyRes
+		);
+	}
+
+	private function QryToSql(){
+		$func = null;
+		if(func_num_args()) $func = func_get_arg(0);
+
+		$temp = '';
+		$names = '';
+		$values = '';
+		foreach($this->data as $k => $v){
+			$names .= $temp . ($k[0] === '`' ? $k : '`' . $k . '`');
+			$values .= $temp . $v;
+			$temp = ',';
+		}
+
+		if(sizeof($this->duplicateData)){
+			$set = array();
+			foreach($this->duplicateData as $k => $v) $set[]= '`' . $k . '` = ' . $v;
+			$duplicateSql = 'ON DUPLICATE KEY UPDATE '.implode(', ', $set);
+		}
+
+		if($this->decrement) $keyRes = $this->GetKeySetting($this->isDecrement, $this->otherKeys);
+		else $keyRes = array();
+
+		$this->sql = 'INSERT {{space1}} INTO {{space2}} `'.$this->table.'` {{space3}} ('.($this->decrement ? '`'.$this->decrement.'`, ' : '').$names.') {{space4}} VALUES ('.($this->decrement ? $keyRes['data'].', ' : '').$values.')'.(isset($duplicateSql) ? ' '.$duplicateSql : '');
+
+		if(is_callable($func)) $func($this->sql);
+		$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
+		return array(
+			'keyRes' => $keyRes
+		);
+	}
+
 	/**
 	 * @return \BH_Result
 	 */
@@ -1317,31 +1438,18 @@ class BH_DB_Insert{
 		try{
 			DB::BeginTransaction();
 
-			if($this->decrement) $keyRes = $this->GetKeySetting($this->isDecrement, $this->otherKeys);
-			else $keyRes = array();
 
-			foreach($this->MultiValues as $k => $v){
-				$this->MultiValues[$k] = '(' . ($this->decrement ? ($this->isDecrement ? $keyRes['data']-- : $keyRes['data']++).', ' : '') . $v . ')';
-			}
-
-			if(sizeof($this->duplicateData)){
-				$set = array();
-				foreach($this->duplicateData as $k => $v) $set[]= '`' . $k . '` = ' . $v;
-				$duplicateSql = 'ON DUPLICATE KEY UPDATE '.implode(', ', $set);
-			}
-
-			$this->sql = 'INSERT INTO ' . $this->table . '(' . ($this->decrement ? '`'.$this->decrement.'`, ' : '') . $this->MultiNames . ') VALUES '.implode(',', $this->MultiValues).(isset($duplicateSql) ? ' '.$duplicateSql : '');
 			if($this->test && \BHG::$isDeveloper === true){
-				foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
-				echo $this->sql;
+				echo $this->GetTestMultiSql();
 				exit;
 			}
+			$sqlData = $this->MultiQryToSql();
 			$this->query = DB::PDO($this->connName)->prepare($this->sql);
 			foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $this->query->bindParam($k, $v[0], $v[1]);
 			$res->result = $this->query->execute();
 			if(!$res->result && (\BHG::$isDeveloper === true && $this->showError && BH_Application::$showError)) PrintError($this->query->errorInfo());
 
-			if($res->result && $this->decrement) DB::SQL($this->connName)->Query('UPDATE '.TABLE_FRAMEWORK_SETTING.' SET `data` = \''.($keyRes['data']).'\' WHERE `key_name` = \''.$keyRes['keyName'].'\'');
+			if($res->result && $this->decrement) DB::SQL($this->connName)->Query('UPDATE '.TABLE_FRAMEWORK_SETTING.' SET `data` = \''.($sqlData['keyRes']['data']).'\' WHERE `key_name` = \''.$sqlData['keyRes']['keyName'].'\'');
 
 			DB::Commit();
 		}
@@ -1358,47 +1466,31 @@ class BH_DB_Insert{
 	 * @var callable(&$sql) $func
 	 * @return \BH_InsertResult
 	 */
-	public function Run($func = null){
-		$res = new \BH_InsertResult();
-		$temp = '';
-		$names = '';
-		$values = '';
-		foreach($this->data as $k => $v){
-			$names .= $temp . ($k[0] === '`' ? $k : '`' . $k . '`');
-			$values .= $temp . $v;
-			$temp = ',';
-		}
+	public function Run(){
+		$func = null;
+		if(func_num_args()) $func = func_get_arg(0);
 
-		if(sizeof($this->duplicateData)){
-			$set = array();
-			foreach($this->duplicateData as $k => $v) $set[]= '`' . $k . '` = ' . $v;
-			$duplicateSql = 'ON DUPLICATE KEY UPDATE '.implode(', ', $set);
-		}
+		$res = new \BH_InsertResult();
 
 		try{
 			DB::BeginTransaction();
 
-			if($this->decrement) $keyRes = $this->GetKeySetting($this->isDecrement, $this->otherKeys);
-			else $keyRes = array();
 
-			$this->sql = 'INSERT {{space1}} INTO {{space2}} `'.$this->table.'` {{space3}} ('.($this->decrement ? '`'.$this->decrement.'`, ' : '').$names.') {{space4}} VALUES ('.($this->decrement ? $keyRes['data'].', ' : '').$values.')'.(isset($duplicateSql) ? ' '.$duplicateSql : '');
-
-			if(is_callable($func)) $func($this->sql);
-			$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
 
 			if($this->test && \BHG::$isDeveloper === true){
-				foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
-				echo $this->sql;
+				echo $this->GetTestSql();
 				exit;
 			}
+
+			$sqlData = $this->QryToSql($func);
 
 			$this->query = DB::PDO($this->connName)->prepare($this->sql);
 			foreach($this->bindParam as $k => $v) if(strpos($this->sql, $k) !== false) $this->query->bindParam($k, $v[0], $v[1]);
 			$res->result = $this->query->execute();
 			if($res->result){
 				if($this->decrement){
-					$res->id = $keyRes['data'];
-					DB::SQL($this->connName)->Query('UPDATE '.TABLE_FRAMEWORK_SETTING.' SET `data` = \''.($keyRes['data'] + ($this->isDecrement ? -1 : 1)).'\' WHERE `key_name` = \''.$keyRes['keyName'].'\'', true);
+					$res->id = $sqlData['keyRes']['data'];
+					DB::SQL($this->connName)->Query('UPDATE '.TABLE_FRAMEWORK_SETTING.' SET `data` = \''.($sqlData['keyRes']['data'] + ($this->isDecrement ? -1 : 1)).'\' WHERE `key_name` = \''.$sqlData['keyRes']['keyName'].'\'', true);
 				}
 				else $res->id = DB::PDO($this->connName)->lastInsertId();
 			}
@@ -1414,10 +1506,29 @@ class BH_DB_Insert{
 	}
 
 	public function PrintTest(){
-		if(\BHG::$isDeveloper === true){
-			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
-			echo $this->sql;
-		}
+		$func = null;
+		if(func_num_args()) $func = func_get_arg(0);
+		if(\BHG::$isDeveloper === true) echo $this->GetTestSql($func);
+	}
+
+	public function PrintMultiTest(){
+		if(\BHG::$isDeveloper === true) echo $this->GetTestMultiSql();
+	}
+
+	public function GetTestMultiSql(){
+		$this->MultiQryToSql();
+		$sql = $this->sql;
+		foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $sql);
+		return $sql;
+	}
+
+	public function GetTestSql(){
+		$func = null;
+		if(func_num_args()) $func = func_get_arg(0);
+		$this->QryToSql($func);
+		$sql = $this->sql;
+		foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $sql);
+		return $sql;
 	}
 
 	private function GetKeySetting($isDecrement = true, $otherKeys = null){
@@ -1580,7 +1691,10 @@ class BH_DB_Update{
 	 * @var callable(&$sql) $func
 	 * @return \BH_Result
 	 */
-	function Run($func = null){
+	function Run(){
+		$func = null;
+		if(func_num_args()) $func = func_get_arg(0);
+
 		$res = new \BH_Result();
 		$temp = '';
 		$set = '';
@@ -1605,8 +1719,7 @@ class BH_DB_Update{
 		$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
 
 		if($this->test && \BHG::$isDeveloper === true){
-			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
-			echo $this->sql;
+			echo $this->GetTestSql();
 			exit;
 		}
 		$this->query = DB::PDO($this->connName)->prepare($this->sql);
@@ -1617,10 +1730,13 @@ class BH_DB_Update{
 	}
 
 	public function PrintTest(){
-		if(\BHG::$isDeveloper === true){
-			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
-			echo $this->sql;
-		}
+		if(\BHG::$isDeveloper === true) echo $this->GetTestSql();;
+	}
+
+	public function GetTestSql(){
+		$sql = $this->sql;
+		foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $sql);
+		return $sql;
 	}
 
 	/**
@@ -1701,7 +1817,10 @@ class BH_DB_Delete{
 	 * @var callable(&$sql) $func
 	 * @return bool
 	 */
-	function Run($func = null){
+	function Run(){
+		$func = null;
+		if(func_num_args()) $func = func_get_arg(0);
+
 		$where = '';
 		if(isset($this->where) && is_array($this->where) && sizeof($this->where)) $where = ' WHERE ' . implode(' AND ', $this->where);
 
@@ -1711,8 +1830,7 @@ class BH_DB_Delete{
 		$this->sql = preg_replace('#{{space[0-9]+}}#s', '', $this->sql);
 
 		if($this->test && \BHG::$isDeveloper === true){
-			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
-			echo $this->sql;
+			echo $this->GetTestSql();
 			exit;
 
 		}
@@ -1725,10 +1843,13 @@ class BH_DB_Delete{
 	}
 
 	public function PrintTest(){
-		if(\BHG::$isDeveloper === true){
-			foreach($this->bindParam as $k => $v) $this->sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $this->sql);
-			echo $this->sql;
-		}
+		if(\BHG::$isDeveloper === true) echo $this->GetTestSql();
+	}
+
+	public function GetTestSql(){
+		$sql = $this->sql;
+		foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $sql);
+		return $sql;
 	}
 
 	/**
