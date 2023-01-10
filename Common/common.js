@@ -76,10 +76,6 @@
 			 *   Modal
 			 *
 			 ------------------------------------------- */
-			bhJQuery(document).on('click', '.modal_layer', function (e) {
-				_this.removeModal(this);
-			});
-
 			bhJQuery(document).on('click', '.modal_wrap', function (e) {
 				e.stopPropagation();
 			});
@@ -405,7 +401,7 @@
 			if (!modal_id) modal_id = 'modal_layer';
 			if (!w) w = 400;
 			if (!h) h = 300;
-			var html = '<div id="' + modal_id + '" class="modal_layer"><div class="modal_wrap">';
+			var html = '<div id="' + modal_id + '" class="modal_layer"><button type="button" class="close"></button><div class="modal_wrap">';
 			if (title && title !== '') html += '<div class="modal_header"><h1 class="modal_title">' + title + '</h1><button class="close"><i class="cross" title="' + window._CM_LANG.close + '"></i></button></div>';
 			html += '<div class="modal_contents">' + data + '</div>';
 			html += '</div></div>';

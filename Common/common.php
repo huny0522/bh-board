@@ -639,7 +639,7 @@ function InputCheckbox($name, $OptionValues, $SelectValue = array(), $class = ''
 function StringCut($title, $length, $last = '...'){
 	if(mb_strlen($title, 'utf-8') > $length) $result_title = mb_substr($title, 0, $length, 'utf-8') . $last;
 	else $result_title = $title;
-	Return $result_title;
+	return $result_title;
 }
 
 /**

@@ -16,8 +16,8 @@ class Mailer
 	// 'google' or blank
 	public $sendHost = '';
 
-	public $gMailId = '';
-	public $gMailPw = '';
+	public $mailId = '';
+	public $mailPw = '';
 
 	public $body = '';
 	public $subject = '';
@@ -34,12 +34,18 @@ class Mailer
 		$this->mailer->SMTPDebug = $debug;
 		$this->mailer->isHTML(true);
 		$this->mailer->CharSet = 'UTF-8';
+		$this->mailer->Timeout = 10;
 	}
 
 	// sendHost 가 구글일 경우 구글메일발송, 아니면 서버메일발송
 	public function Send(){
 		if($this->sendHost == 'google') return $this->SendGMail();
+		else if($this->sendHost) return $this->SendSMTP();
 		else return $this->DefaultSendMail();
+	}
+
+	public function GetMailer(){
+		return $this->mailer;
 	}
 
 	public function SendGMail(){
@@ -48,8 +54,17 @@ class Mailer
 		$this->mailer->Port = 587;
 		$this->mailer->SMTPAuth = true;
 		$this->mailer->SMTPSecure = 'tls';
-		$this->mailer->Username = $this->gMailId;
-		$this->mailer->Password = $this->gMailPw;
+		$this->mailer->Username = $this->mailId;
+		$this->mailer->Password = $this->mailPw;
+		$this->mailer->CharSet="UTF-8";
+		return $this->SendMail();
+	}
+
+	public function SendSMTP(){
+		$this->mailer->isSMTP();
+		$this->mailer->Host = $this->sendHost;
+		$this->mailer->Username = $this->mailId;
+		$this->mailer->Password = $this->mailPw;
 		$this->mailer->CharSet="UTF-8";
 		return $this->SendMail();
 	}
