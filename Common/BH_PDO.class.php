@@ -84,7 +84,7 @@ class DB{
 		if(is_null($connName)) $connName = self::$connName;
 		if(!isset(self::$transactionCounter[$connName]) || !self::$transactionCounter[$connName]){
 			self::$transactionCounter[$connName] = 0;
-			self::$conn[$connName]->beginTransaction();
+			self::PDO($connName)->beginTransaction();
 		}
 		self::$transactionCounter[$connName]++;
 	}
