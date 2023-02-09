@@ -37,6 +37,15 @@ class DB{
 	}
 
 	/**
+	 * @param string $name
+	 * @param array $data
+	 * @return void
+	 */
+	public static function SetConnectionInfo($name, $data){
+		self::$connectionInfo[$name] = $data;
+	}
+
+	/**
 	 * DB 컨넥션 및 인스턴스 반환
 	 * @param string $connName
 	 * @return $this
@@ -514,8 +523,9 @@ class BH_DB_Get{
 	protected function TableImplode($incNoWhere = true){
 		if(is_array($this->table)){
 			return implode(' ', array_map(function($ent) use ($incNoWhere){
-				if($incNoWhere) return $ent['sql'];
-				if(!isset($ent['noWhere']) || $ent['noWhere'] !== true) return $ent['sql'];
+				if($ent['noWhere'] === null) return $ent['sql'];
+				if($incNoWhere && $ent['noWhere'] === true) return $ent['sql'];
+				if(!$incNoWhere && $ent['noWhere'] === false) return $ent['sql'];
 				return '';
 			}, $this->table));
 		}
@@ -747,7 +757,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	public $result = false;
 	public $countResult = false;
 	public $data = array();
-	public $totalRecord = '';
+	public $totalRecord = null;
 	public $beginNum = '';
 	public $pageHtml = '';
 	public $rPageData = array();
@@ -776,7 +786,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 	 */
 	public function &AddTable($str){
 		$arr = func_get_args();
-		$noWhere = false;
+		$noWhere = null;
 		if(is_bool(end($arr))) $noWhere = array_pop($arr);
 		$w = $this->StrToPDO($arr);
 		if($w !== false) $this->table[] = array('noWhere' => $noWhere, 'sql' => $w);
@@ -970,17 +980,20 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		$sql_cnt = $sqlData['sql_cnt'];
 		$nowPage = $sqlData['nowPage'];
 
-		$cntSql = $this->group && !$this->noGroupCount ? 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x' : $sql_cnt;
+		if($this->totalRecord === null){
+			$cntSql = $this->group && !$this->noGroupCount ? 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x' : $sql_cnt;
+			$qry = DB::PDO($this->connName)->prepare($cntSql);
+			foreach($this->bindParam as $k => $v) if(strpos($cntSql, $k) !== false) $qry->bindParam($k, $v[0], $v[1]);
+			if($qry->execute()){
+				$this->countResult = $qry->fetch(\PDO::FETCH_ASSOC);
+				$totalRecord = $this->countResult['cnt']; //total값 구함
+			}
+			else $totalRecord = 0;
 
-		$qry = DB::PDO($this->connName)->prepare($cntSql);
-		foreach($this->bindParam as $k => $v) if(strpos($cntSql, $k) !== false) $qry->bindParam($k, $v[0], $v[1]);
-		if($qry->execute()){
-			$this->countResult = $qry->fetch(PDO::FETCH_ASSOC);
-			$totalRecord = $this->countResult['cnt']; //total값 구함
+			$this->totalRecord = $totalRecord;
 		}
-		else $totalRecord = 0;
+		else $totalRecord = $this->totalRecord;
 
-		$this->totalRecord = $totalRecord;
 		$this->beginNum = $totalRecord - ($nowPage * $this->articleCount);
 
 		$this->query = DB::PDO($this->connName)->prepare($this->sql);
