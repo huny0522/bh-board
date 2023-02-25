@@ -50,14 +50,14 @@ class DB{
 	 * @param string $connName
 	 * @return $this
 	 */
-	public static function &SQL($connName = self::DefaultConnName){
+	public static function &SQL($connName = self::DefaultConnName, $isDie = true){
 		self::$connName = $connName === '' ? self::DefaultConnName : $connName;
 		if (!isset(self::$instance) || is_null(self::$instance)) self::$instance = new self();
 
 		if(!isset(self::$conn[self::$connName])){
 			if(isset(self::$connectionInfo[self::$connName])){
 				try {
-					$opt = isset(self::$connectionInfo[self::$connName]['option']) ? isset(self::$connectionInfo[self::$connName]['dsn']) : null;
+					$opt = isset(self::$connectionInfo[self::$connName]['option']) ? self::$connectionInfo[self::$connName]['option'] : null;
 					if(isset(self::$connectionInfo[self::$connName]['dsn'])){
 						self::$conn[self::$connName] = new PDO(self::$connectionInfo[self::$connName]['dsn'], self::$connectionInfo[self::$connName]['userName'], self::$connectionInfo[self::$connName]['userPassword'], $opt);
 					}
@@ -67,13 +67,14 @@ class DB{
 							(isset(self::$connectionInfo[self::$connName]['port']) ? ';port=' . self::$connectionInfo[self::$connName]['port'] : '');
 						self::$conn[self::$connName] = new PDO($dsn, self::$connectionInfo[self::$connName]['userName'], self::$connectionInfo[self::$connName]['userPassword'], $opt);
 					}
+					self::$conn[self::$connName]->exec("set names utf8mb4");
 				}
 				catch(PDOException $e) {
-					echo $e->getMessage();
-					exit;
+					if($isDie){
+						echo $e->getMessage();
+						exit;
+					}
 				}
-
-				self::$conn[self::$connName]->exec("set names utf8mb4");
 			}
 			else{ echo('NOT_DEFINE_DB'); exit; }
 		}
@@ -84,8 +85,8 @@ class DB{
 	 * @param string $connName
 	 * @return PDO
 	 */
-	public static function &PDO($connName = self::DefaultConnName){
-		self::SQL($connName);
+	public static function &PDO($connName = self::DefaultConnName, $isDie = true){
+		self::SQL($connName, $isDie);
 		return self::$conn[self::$connName];
 	}
 
