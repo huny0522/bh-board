@@ -59,7 +59,8 @@ class BH_Application
 		//
 		//    라우팅 초기화
 		//
-		self::$settingData['GetUrl'] = explode('/', (string)Get('_bh_url'));
+		$rq = explode('?', isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : (string)Get('_bh_url'));
+		self::$settingData['GetUrl'] = explode('/', $rq[0]);
 		for($i = 0; $i < 10; $i++) if(!isset(self::$settingData['GetUrl'][$i])) self::$settingData['GetUrl'][$i] = '';
 
 		if(self::$settingData['GetUrl'][1] == 'MyIp'){
