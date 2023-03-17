@@ -524,7 +524,7 @@ class BH_DB_Get{
 	protected function TableImplode($incNoWhere = true){
 		if(is_array($this->table)){
 			return implode(' ', array_map(function($ent) use ($incNoWhere){
-				if($ent['noWhere'] === null) return $ent['sql'];
+				if(!isset($ent['noWhere'])) return $ent['sql'];
 				if($incNoWhere && $ent['noWhere'] === true) return $ent['sql'];
 				if(!$incNoWhere && $ent['noWhere'] === false) return $ent['sql'];
 				return '';
