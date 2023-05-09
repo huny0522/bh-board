@@ -874,15 +874,19 @@
 	window.CMAlert = function(message, callback){
 		alert(message);
 		if(typeof(callback) === 'function') callback();
+		return new Promise(function(resolve){
+			resolve(true);
+		});
 	};
 
 	window.CMConfirm = function(message, yesCallback, noCallback){
-		if(confirm(message)){
-			if(typeof(yesCallback) === 'function') yesCallback();
-		}
-		else{
-			if(typeof(noCallback) === 'function') noCallback();
-		}
+		const res = confirm(message);
+		if(res && typeof(yesCallback) === 'function') yesCallback();
+		if(!res && typeof(noCallback) === 'function') noCallback();
+
+		return new Promise(function(resolve){
+			resolve(res);
+		});
 	};
 
 	window.MessageModal = {
@@ -903,24 +907,30 @@
 				bhJQuery(MessageModal.activeElement).focus();
 			});
 
-			window.CMAlert = function(msg, callback){
-				if(typeof callback === 'function')
+			window.CMAlert = async function(msg, callback){
+				return new Promise(function(resolve){
 					MessageModal.Create(msg, [{text : window._CM_LANG.OK, onclick : function(obj){
-							callback();
+							if(typeof callback === 'function') callback();
+							resolve(true);
 						}}]);
-				else MessageModal.Create(msg);
+				});
 			};
 
 			window.CMConfirm = function(message, yesCallback, noCallback, title){
 				if(typeof title === 'undefined') title = window._CM_LANG.notification;
-				MessageModal.Create(message, [
-					{text : window._CM_LANG.OK, onclick : function(obj){
-							if(typeof yesCallback === 'function') yesCallback();
-						}},
-					{text : window._CM_LANG.cancel, onclick : function(obj){
-							if(typeof noCallback === 'function') noCallback();
-						}}
-				], title);
+
+				return new Promise(function(resolve){
+					MessageModal.Create(message, [
+						{text : window._CM_LANG.OK, onclick : function(obj){
+								if(typeof yesCallback === 'function') yesCallback();
+								resolve(true);
+							}},
+						{text : window._CM_LANG.cancel, onclick : function(obj){
+								if(typeof noCallback === 'function') noCallback();
+								resolve(false);
+							}}
+					], title);
+				});
 			};
 		},
 
@@ -1779,3 +1789,74 @@
 	window.dispatchEvent(customEvent);
 	window.isJcmReady = true;
 }($));
+
+
+window.__elementEventListener = [];
+window.__documentEventListener = [];
+window.__documentReadyEventListener = [];
+window.__addEventListenerInitial = (param) => {
+	param.obj.querySelectorAll(param.selector).forEach((obj) => {
+		if(typeof(obj._attachedElementChildAllEvent) !== 'undefined') return;
+		obj._attachedElementChildAllEvent = true;
+		obj.addEventListener(param.eventName, (e) => {
+			param.callback(e, obj);
+		});
+	});
+}
+
+Element.prototype.addEventListenerChild = window.__addEventListener = function(eventName, selector, callback){
+	window.__elementEventListener.push({obj : this, eventName : eventName, selector : selector, callback : callback});
+	window.__addEventListenerInitial({obj : this, eventName : eventName, selector : selector, callback : callback});
+
+	if(typeof(this._attachedChildAllEvent) !== 'undefined') return;
+	this._attachedChildAllEvent = true;
+	var wrapperObserver = new MutationObserver(function(mutations) {
+		for(let i = 0; i < window.__elementEventListener.length; i++){
+			window.__addEventListenerInitial(window.__elementEventListener[i]);
+		}
+	});
+
+	wrapperObserver.observe(this, {childList: true, subtree: true});
+};
+
+Document.prototype.addEventListenerChild = window.__addEventListener = function(eventName, selector, callback){
+	window.__documentEventListener.push({obj : this, eventName : eventName, selector : selector, callback : callback});
+	window.__addEventListenerInitial({obj : this, eventName : eventName, selector : selector, callback : callback});
+
+	if(typeof(this._attachedChildAllEvent) !== 'undefined') return;
+	this._attachedChildAllEvent = true;
+	const wrapperObserver = new MutationObserver(function(mutations) {
+		for(let i = 0; i < window.__documentEventListener.length; i++){
+			window.__addEventListenerInitial(window.__documentEventListener[i]);
+		}
+	});
+
+	wrapperObserver.observe(this, {childList: true, subtree: true});
+};
+
+Element.prototype.insertAfter = function(newNode){
+	if(!!this.nextSibling) this.parentNode.insertBefore(newNode, this.nextSibling);
+	else this.parentNode.appendChild(newNode);
+}
+
+Document.prototype.ready = (eventCallback) => {
+	window.__documentReadyEventListener.push(eventCallback);
+}
+
+const _documentReadyObserver = new MutationObserver(function(mutations) {
+	if(typeof(document.__isReady) === 'undefined') return;
+	while(window.__documentReadyEventListener.length){
+		const last = window.__documentReadyEventListener.pop();
+		last();
+	}
+});
+
+_documentReadyObserver.observe(document, {childList: true, subtree: true});
+
+document.addEventListener('DOMContentLoaded', function(){
+	document.__isReady = true;
+	while(window.__documentReadyEventListener.length){
+		const last = window.__documentReadyEventListener.pop();
+		last();
+	}
+});

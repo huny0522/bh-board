@@ -373,7 +373,7 @@ StateRoute.prototype._CloneNode = function(node){
 StateRoute.prototype._SearchParse = function(search){
 	let s = search[0] === '?' ? search.substring(1) : search;
 	if(s === '') return {};
-	return JSON.parse('{"' + decodeURI(s).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
+	return JSON.parse('{"' + decodeURI(s).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"').replace(/\t/g,'\\t') + '"}');
 }
 
 
