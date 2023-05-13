@@ -936,7 +936,8 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 			$subCnt_sql2 .= ', COUNT('.$k.') as '.$k;
 		}
 
-		$sql_cnt = 'SELECT COUNT('.($this->CountKey ? $this->CountKey : '*').') as cnt'.$subCnt_sql.' FROM '.$this->TableImplode(false).' '.$where;
+		$cntKey = (($this->having || $this->group) && !$this->noGroupCount) ? ($this->CountKey ?: '*') : 'COUNT(' . ($this->CountKey ?: '*') . ') as `cnt`';
+		$sql_cnt = 'SELECT '.$cntKey.$subCnt_sql.' FROM '.$this->TableImplode(false).' '.$where;
 		$this->sql = 'SELECT {{space1}} '.$key.' {{space2}} FROM {{space3}} '.$this->TableImplode().' {{space4}} '.$where;
 		if($this->group){
 			$this->sql .= ' {{space5}} GROUP BY ' . $this->group;
@@ -982,7 +983,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		$nowPage = $sqlData['nowPage'];
 
 		if($this->totalRecord === null){
-			$cntSql = $this->group && !$this->noGroupCount ? 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x' : $sql_cnt;
+			$cntSql = (($this->having || $this->group) && !$this->noGroupCount) ? 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x' : $sql_cnt;
 			$qry = DB::PDO($this->connName)->prepare($cntSql);
 			foreach($this->bindParam as $k => $v) if(strpos($cntSql, $k) !== false) $qry->bindParam($k, $v[0], $v[1]);
 			if($qry->execute()){
@@ -1028,7 +1029,7 @@ class BH_DB_GetListWithPage extends BH_DB_Get{
 		$subCnt_sql2 = $sqlData['subCnt_sql2'];
 		$sql_cnt = $sqlData['sql_cnt'];
 		$sql = $this->sql;
-		if($this->group && !$this->noGroupCount) $sql_cnt = 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x';
+		if(($this->having || $this->group) && !$this->noGroupCount) $sql_cnt = 'SELECT COUNT(*) as cnt'.$subCnt_sql2.' FROM ('.$sql_cnt.') AS x';
 		foreach($this->bindParam as $k => $v) $sql_cnt = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $sql_cnt);
 		foreach($this->bindParam as $k => $v) $sql = str_replace($k, '\''.str_replace("'", "\\'", $v[0]).'\'', $sql);
 		return $sql . ';' . PHP_EOL . PHP_EOL . $sql_cnt . ';';
