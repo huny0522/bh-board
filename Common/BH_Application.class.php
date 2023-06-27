@@ -213,7 +213,7 @@ class BH_Application
 	 * @return string
 	 */
 	public static function GetFollowQueryInput($ar = ''){
-		$ar = trim($ar);
+		if(is_string($ar)) $ar = trim($ar);
 		$fq = self::$followQuery;
 		if($ar){
 			if(is_string($ar)) $ar = explode(',', $ar);
