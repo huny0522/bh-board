@@ -230,6 +230,7 @@ class BH_Application
 	 * layout : /Layout 디렉토리에서 self::$layout 의 파일을 찾아 레이아웃을 생성
 	 */
 	private static function SetViewHtml(&$Model, &$Data, $disableLayout = false, $htmlPath = ''){
+		$viewExtend = defined('VIEW_FILE_EXTEND') ? VIEW_FILE_EXTEND : '.html';
 		$d_b = phpversion() < 5.6 ? debug_backtrace() : debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3);
 
 		$Ctrl = &$d_b[2]['object'];
@@ -242,7 +243,7 @@ class BH_Application
 
 		if(!self::$nativeSkinDir) self::$nativeSkinDir = self::$nativeDir;
 		$html = substr($viewAction, 0, 1) == '/' ? $viewAction : (self::$nativeSkinDir ? '/' . self::$nativeSkinDir : '') . '/' . self::$controllerName . '/' . $viewAction;
-		if(substr($html, -5) != '.html') $html .= '.html';
+		if(substr($html, -strlen($viewExtend)) != $viewExtend) $html .= $viewExtend;
 
 		if(isset(self::$extendMethod['htmlPathSet']) && is_callable(self::$extendMethod['htmlPathSet'])){
 			$htmlPathSet = self::$extendMethod['htmlPathSet'];
@@ -260,7 +261,7 @@ class BH_Application
 			if(\BHG::$isDeveloper !== true) echo 'ERROR : NOT EXISTS TEMPLATE';
 			else echo 'ERROR : NOT EXISTS TEMPLATE : ' . $path;
 		}
-		self::$bodyHtml = ob_get_clean();
+		$res = ob_get_clean();
 
 		if(!$disableLayout && self::$layout != ''){
 			self::$parentLayout = self::$layout;
@@ -269,7 +270,7 @@ class BH_Application
 				self::$parentLayout = '';
 
 				$layout = '/Layout/' . self::$layout;
-				if(substr($layout, -5) != '.html') $layout .= '.html';
+				if(substr($layout, -strlen($viewExtend)) != $viewExtend) $layout .= $viewExtend;
 
 				if(isset(self::$extendMethod['layoutPathSet']) && is_callable(self::$extendMethod['layoutPathSet'])){
 					$htmlPathSet = self::$extendMethod['layoutPathSet'];
@@ -281,9 +282,10 @@ class BH_Application
 				CheckReplaceHTMLFile(\Paths::DirOfSkin().$layout, $path);
 
 				if(file_exists($path)){
+					self::$bodyHtml = $res;
 					ob_start();
 					require $path;
-					self::$bodyHtml = ob_get_clean();
+					$res = ob_get_clean();
 				}
 
 			}
@@ -293,6 +295,7 @@ class BH_Application
 			$AfterSetView = self::$extendMethod['AfterSetView'];
 			$AfterSetView();
 		}
+		return $res;
 	}
 
 	// 레이아웃을 포함한 HTML을 출력한다.
@@ -304,10 +307,10 @@ class BH_Application
 			else if(!$k && is_string($row)) $html = $row;
 			else $Data = $row;
 		}
-		if(is_null($html)) self::SetViewHtml($Model, $Data);
-		else self::SetViewHtml($Model, $Data, false, $html);
-		if(_JSONIS === true) JSON(true, '', self::$bodyHtml);
-		else echo self::$bodyHtml;
+		if(is_null($html)) $res = self::SetViewHtml($Model, $Data);
+		else $res = self::SetViewHtml($Model, $Data, false, $html);
+		if(_JSONIS === true) JSON(true, '', $res);
+		else echo $res;
 	}
 
 	// 레이아웃을 제외한 HTML을 출력한다.
@@ -320,10 +323,10 @@ class BH_Application
 			else $Data = $row;
 		}
 
-		if(is_null($html)) self::SetViewHtml($Model, $Data, true);
-		else self::SetViewHtml($Model, $Data, true, $html);
-		if(_JSONIS === true) JSON(true, '', self::$bodyHtml);
-		else echo self::$bodyHtml;
+		if(is_null($html)) $res = self::SetViewHtml($Model, $Data, true);
+		else $res = self::SetViewHtml($Model, $Data, true, $html);
+		if(_JSONIS === true) JSON(true, '', $res);
+		else echo $res;
 	}
 
 	// 레이아웃을 포함한 HTML을 가져온다.
@@ -336,9 +339,8 @@ class BH_Application
 			else $Data = $row;
 		}
 
-		if(is_null($html)) self::SetViewHtml($Model, $Data);
-		else self::SetViewHtml($Model, $Data, false, $html);
-		return self::$bodyHtml;
+		if(is_null($html)) return self::SetViewHtml($Model, $Data);
+		else return self::SetViewHtml($Model, $Data, false, $html);
 	}
 
 	// 레이아웃을 제외한 HTML을 가져온다.
@@ -351,9 +353,8 @@ class BH_Application
 			else $Data = $row;
 		}
 
-		if(is_null($html)) self::SetViewHtml($Model, $Data, true);
-		else self::SetViewHtml($Model, $Data, true, $html);
-		return self::$bodyHtml;
+		if(is_null($html)) return self::SetViewHtml($Model, $Data, true);
+		else return self::SetViewHtml($Model, $Data, true, $html);
 	}
 
 	public static function JSPrint(){
@@ -415,7 +416,11 @@ class BH_Application
 		$d = \Paths::UrlOfHtml($css[0] == '/' ? $d : '/css/' . $d);
 		$dPath = \Paths::Dir() . $d;
 
-		if(!file_exists($dPath) || filemtime($oPath) > filemtime($dPath)) BH\BHCss\BHCss::conv($oPath, $dPath);
+		if(!file_exists($dPath) || filemtime($oPath) > filemtime($dPath)){
+			@unlink($dPath);
+			BH\BHCss\BHCss::conv($oPath, $dPath);
+			if(!file_exists($dPath)) file_put_contents($dPath, '');
+		}
 		if($idx !== null) self::$css[$idx][] = $d . $queryParam;
 	}
 

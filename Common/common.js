@@ -1796,8 +1796,8 @@ window.__documentEventListener = [];
 window.__documentReadyEventListener = [];
 window.__addEventListenerInitial = (param) => {
 	param.obj.querySelectorAll(param.selector).forEach((obj) => {
-		if(typeof(obj._attachedElementChildAllEvent) !== 'undefined') return;
-		obj._attachedElementChildAllEvent = true;
+		if(typeof(obj['_attachedElementChildAllEvent_' + param.eventName]) !== 'undefined') return;
+		obj['_attachedElementChildAllEvent_' + param.eventName] = true;
 		obj.addEventListener(param.eventName, (e) => {
 			param.callback(e, obj);
 		});

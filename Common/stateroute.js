@@ -1,5 +1,5 @@
 function StateRoute(){
-	/** @var {{path : string, api : string|null, ignoreSubPath : boolean, search : string[], hashCheck : boolean, matchAction : function, noMatchAction : function}[]} **/
+	/** @var {{path : string, api : string|null, ignoreSubPath : boolean, search : string[], hashCheck : boolean, matchAction : function, noMatchAction : function, isAllSearch : boolean}[]} **/
 	this.routeData = [];
 	this.beforeUrl = '';
 
@@ -27,7 +27,6 @@ StateRoute.prototype._Init = function(elementId, element){
 	this.id = elementId;
 	this.element = element;
 	this.beforeUrl = location.pathname + location.search + location.hash;
-	if(typeof StateRoute.IsWait === 'undefined') StateRoute.IsWait = 0;
 
 	if(typeof StateRoute.eventInit === 'undefined'){
 		StateRoute.eventInit = true;
@@ -36,7 +35,13 @@ StateRoute.prototype._Init = function(elementId, element){
 		});
 	}
 }
+StateRoute.IsWait = 0;
 
+/**
+ * @param {string} elementId
+ * @returns {StateRoute|null}
+ * @constructor
+ */
 StateRoute.Get = function(elementId){
 	const el = document.getElementById(elementId);
 	if(!el){
@@ -90,6 +95,16 @@ StateRoute.SetWrapLink = function(elementId){
 	});
 }
 
+StateRoute.StateChangeAction = function(func){
+	if(typeof(StateRoute.stateChangeActionFunc) === 'undefined') StateRoute.stateChangeActionFunc = [];
+	StateRoute.stateChangeActionFunc.push(func);
+}
+
+StateRoute.StatePreviousChangeAction = function(func){
+	if(typeof(StateRoute.stateChangePreActionFunc) === 'undefined') StateRoute.stateChangePreActionFunc = [];
+	StateRoute.stateChangePreActionFunc.push(func);
+}
+
 StateRoute.PushState = function(url){
 	const a = document.createElement('a');
 	a.href = url;
@@ -109,12 +124,22 @@ StateRoute.Alert = function(message, func){
 }
 
 StateRoute._LocationChanged = function(){
+	if(typeof(StateRoute.stateChangePreActionFunc) !== 'undefined'){
+		for(let i = 0; i < StateRoute.stateChangePreActionFunc.length; i++){
+			StateRoute.stateChangePreActionFunc[i]();
+		}
+	}
 	for(let i = StateRoute.routes.length - 1; i >= 0; i--){
 		if(!document.getElementById(StateRoute.routes[i].id)){
 			StateRoute.routes[i].Del();
 			StateRoute.routes.splice(i, 1);
 		}
 		else StateRoute.routes[i].PageLoaded();
+	}
+	if(typeof(StateRoute.stateChangeActionFunc) !== 'undefined'){
+		for(let i = 0; i < StateRoute.stateChangeActionFunc.length; i++){
+			StateRoute.stateChangeActionFunc[i]();
+		}
 	}
 }
 
@@ -127,11 +152,21 @@ StateRoute.StateChangeForm = function(form){
 	let formData = new FormData(form);
 	let data = {};
 	formData.forEach((value, key) => {
-		if(value !== '') data[key] = value;
+		if(/\[\]$/g.test(key)){
+			key = key.replace(/\[\]$/g, '');
+			if(typeof (data[key]) === 'undefined') data[key] = [];
+			data[key].push(value);
+		}
+		else if(value !== '') data[key] = value;
 	});
 	let body = [];
 	for(const [idx, val] of Object.entries(data)){
-		body.push(idx + '=' + encodeURIComponent(val));
+		if(Array.isArray(val)){
+			for(let i = 0; i < val.length; i++){
+				body.push(idx + '[]=' + encodeURIComponent(val[i]));
+			}
+		}
+		else body.push(idx + '=' + encodeURIComponent(val));
 	}
 
 	history.pushState({a : 'a'}, '', form.action + (body.length ? (form.action.indexOf('?') >= 0 ? '&' : '?') + body.join('&') : ''));
@@ -158,7 +193,12 @@ StateRoute.Ajax = async function(url, method, data){
 	let body = [];
 	if(method.toLowerCase() === 'post'){
 		for(const [idx, val] of Object.entries(data)){
-			body.push(idx + '=' + encodeURIComponent(val));
+			if(Array.isArray(val)){
+				for(let i = 0; i < val.length; i++){
+					body.push(idx + '[]=' + encodeURIComponent(val[i]));
+				}
+			}
+			else body.push(idx + '=' + encodeURIComponent(val));
 		}
 		opt.body = body.join('&');
 		opt.headers = {
@@ -202,7 +242,14 @@ StateRoute.AjaxForm = function(form){
 	}
 	let formData = new FormData(form);
 	let data = {};
-	formData.forEach((value, key) => data[key] = value);
+	formData.forEach((value, key) => {
+		if(/\[\]$/g.test(key)){
+			key = key.replace(/\[\]$/g, '');
+			if(typeof(data[key]) === 'undefined') data[key] = [];
+			data[key].push(value);
+		}
+		else data[key] = value;
+	});
 	return StateRoute._AjaxGetOrPost(form.action, form.method.toUpperCase(), data);
 }
 
@@ -237,7 +284,7 @@ StateRoute._AjaxGetOrPost = function(url, method, data){
 }
 
 /**
- * @param {{path : string, api : string|null=, search : string|null=, hashCheck : boolean=, noMatchAction : function=, matchAction : function=, ignoreSubPath : boolean=}} param
+ * @param {{path : string, api : string|null=, search : string|null=, hashCheck : boolean=, noMatchAction : function=, matchAction : function=, ignoreSubPath : boolean=, withSub : boolean=, isAllSearch : boolean=}} param
  * <pre>
  *     ignoreSubPath : URL이 변경되도 화면에 고정되는 페이지임.
  *     hashCheck : 해시 변경을 감지
@@ -252,12 +299,26 @@ StateRoute.prototype.AddRouteAction = function(param){
 		if(param.path === this.routeData[i].path) return this;
 	}
 	if(typeof param.api !== 'string') param.api = null;
-	if(typeof param.search !== 'string') param.search = null;
+	param.search = typeof param.search !== 'string' ? [] : param.search.split(',');
 	if(typeof param.hashCheck !== 'boolean') param.hashCheck = false;
 	if(typeof param.noMatchAction !== 'function') param.noMatchAction = null;
 	if(typeof param.matchAction !== 'function') param.matchAction = null;
 	if(typeof param.ignoreSubPath !== 'boolean') param.ignoreSubPath = false;
-	this.routeData.push({path : param.path, api : param.api, search : param.search === null ? [] : param.search.split(','), hashCheck : param.hashCheck, noMatchAction : param.noMatchAction, matchAction : param.matchAction, ignoreSubPath : param.ignoreSubPath});
+	if(typeof param.withSub !== 'boolean') param.withSub = false;
+	if(typeof param.isAllSearch !== 'boolean') param.isAllSearch = false;
+	if(param.withSub === true){
+		let param2 = {};
+		for(const [idx, obj] of Object.entries(param)){
+			param2[idx] = obj;
+		}
+		if(StateRoute.SubStr(param2.path, -1) !== '/') param2.path += '/';
+		param2.path += '*';
+		if(StateRoute.SubStr(param2.api, -1) !== '/') param2.api += '/';
+		param2.api += '*';
+
+		this.routeData.push(param2);
+	}
+	this.routeData.push(param);
 	return this;
 }
 
@@ -292,15 +353,15 @@ StateRoute.prototype.PageLoaded = function(force){
 
 		if(isWildcard){
 			if(StateRoute.SubStr(chkNowPath, 0, chkRoutePath.length) === chkRoutePath && chkNowPath !== chkRoutePath) isMatch = true;
-			if(StateRoute.SubStr(chkBeforePath, 0, chkRoutePath.length) === chkRoutePath && chkBeforePath === chkRoutePath) isBeforeMatch = true;
+			if(StateRoute.SubStr(chkBeforePath, 0, chkRoutePath.length) === chkRoutePath && chkNowPath !== chkRoutePath) isBeforeMatch = true;
 		}
 		else if(rData.ignoreSubPath){
 			if(StateRoute.SubStr(chkNowPath, 0, chkRoutePath.length) === chkRoutePath) isMatch = true;
 			if(StateRoute.SubStr(chkBeforePath, 0, chkRoutePath.length) === chkRoutePath) isBeforeMatch = true;
 		}
 		else{
-			if(!isWildcard && chkNowPath === chkRoutePath) isMatch = true;
-			if(!isWildcard && chkBeforePath === chkRoutePath) isBeforeMatch = true;
+			if(chkNowPath === chkRoutePath) isMatch = true;
+			if(chkBeforePath === chkRoutePath) isBeforeMatch = true;
 		}
 		if(chkNowPath === '/' && path === '/') isMatch = true;
 		if(chkBeforePath === '/' && path === '/') isBeforeMatch = true;
@@ -308,16 +369,27 @@ StateRoute.prototype.PageLoaded = function(force){
 		if(isMatch){
 			// step 1. path check
 			if(!isBeforeMatch) isChanged = true;
+			else if(isWildcard && chkNowPath !== chkBeforePath) isChanged = true;
 
 			// step 2. search check
 			const b_s = this._SearchParse(beforeSearch);
 			const n_s = this._SearchParse(location.search);
-			for(let s = 0; s < rData.search.length; s++){
-				const k = rData.search[s];
-				if((typeof(n_s[k]) !== 'undefined' && typeof(b_s[k]) === 'undefined')
-					|| (typeof(n_s[k]) === 'undefined' && typeof(b_s[k]) !== 'undefined')
-					|| (typeof(n_s[k]) !== 'undefined' && typeof(b_s[k]) !== 'undefined' && b_s[k] !== n_s[k])){
-					isChanged = true;
+			if(rData.isAllSearch){
+				for(const [idx, val] of Object.entries(b_s)){
+					if(n_s[idx] !== val) isChanged = true;
+				}
+				for(const [idx, val] of Object.entries(n_s)){
+					if(b_s[idx] !== val) isChanged = true;
+				}
+			}
+			else{
+				for(let s = 0; s < rData.search.length; s++){
+					const k = rData.search[s];
+					if((typeof(n_s[k]) !== 'undefined' && typeof(b_s[k]) === 'undefined')
+						|| (typeof(n_s[k]) === 'undefined' && typeof(b_s[k]) !== 'undefined')
+						|| (typeof(n_s[k]) !== 'undefined' && typeof(b_s[k]) !== 'undefined' && b_s[k] !== n_s[k])){
+						isChanged = true;
+					}
 				}
 			}
 			// step 3. hash check
@@ -382,3 +454,6 @@ StateRoute.prototype.Del = function(){
 	this.element = null;
 	delete this;
 }
+
+var customEvent = new CustomEvent('stateroute_ready');
+window.dispatchEvent(customEvent);

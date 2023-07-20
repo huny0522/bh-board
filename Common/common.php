@@ -253,6 +253,25 @@ class Paths{
 	public static function UrlOfAdmin($str = ''){
 		return self::$adminUrl . $str;
 	}
+
+	public static function GetSkinPathFromDir($skinFile, $realDir){
+		if(substr($skinFile, 0, 1) === '/') $path = $skinFile;
+		else{
+			$e = explode('/Data/_HTML', $realDir);
+			$path = $e[1] . '/' . $skinFile;
+		}
+		$skinPath = self::DirOfSkin() . $path;
+		$htmlPath = self::DirOfHtml() . $path;
+		if(!realpath($skinPath)) return null;
+
+		$filter = '#((?!\.\./)[^/]+?/)\.\./#';
+		while(strpos($skinPath, '../') !== false) $skinPath = preg_replace($filter, '', $skinPath);
+		while(strpos($htmlPath, '../') !== false) $htmlPath = preg_replace($filter, '', $htmlPath);
+		return array(
+			'skinPath' => preg_replace($filter, '', $skinPath),
+			'htmlPath' => preg_replace($filter, '', $htmlPath)
+		);
+	}
 }
 
 class BHError
@@ -340,6 +359,7 @@ class BHError
  * @property BHSession $developer_login
  * @property _SessionMember $member
  * @property _SessionMember $admin
+ * @property BHSession $viewMobile
  */
 class BHSession
 {
@@ -409,6 +429,26 @@ class BHSession
 		$this->__updateFunc = $func;
 	}
 }
+
+
+class MyArray extends ArrayObject{
+	public function __construct(array $data = []) {
+		foreach($data as $k => $v){
+			$this->offsetSet($k, $v);
+		}
+	}
+
+	public function offsetSet($index, $newval) : void{
+		if(is_array($newval)) $this->data[$index] = new static($newval);
+		else parent::offsetSet($index, $newval);
+	}
+
+	public function offsetGet($index) :mixed{
+		if(!$this->offsetExists($index)) return '';
+		return parent::offsetGet($index);
+	}
+}
+
 
 \BHG::$session = new BHSession();
 
@@ -487,6 +527,10 @@ function URLReplace($url, $msg = '', $data = '', $exitIs = true, $redirect = fal
 
 function URLRedirect($url, $msg = '', $data = '', $exitIs = true){
 	URLReplace($url, $msg, $data, $exitIs, true);
+}
+
+function FailURLRedirect($url, $msg = '', $data = '', $exitIs = true){
+	URLReplace(_JSONIS === true ? '-1' : $url, $msg, $data, $exitIs, true);
 }
 
 function PhoneNumber($num){
@@ -1149,23 +1193,12 @@ function SqlPassword($input){
 }
 
 function SqlOldPassword($password) {
-	$nr=0x50305735;
-	$nr2=0x12345671;
-	$add=7;
-	$charArr = preg_split("//", $password);
-	foreach ($charArr as $char) {
-		if (($char == '') || ($char == ' ') || ($char == '\t')) continue;
-		$charVal = ord($char);
-		$nr ^= ((($nr & 63) + $add) * $charVal) + ($nr << 8);
-		$nr2 += ($nr2 << 8) ^ $nr;
-		$add += $charVal;
-	}
-	return sprintf("%08x%08x", ($nr & 0x7fffffff), ($nr2 & 0x7fffffff));
+	return md5($password);
 }
 
 function _password_hash($str){
 	if(_USE_DB_PASSWORD === true) return SqlPassword($str);
-	if(_USE_OLD_PASSWORD === true) SqlOldPassword($str);
+	if(_USE_OLD_PASSWORD === true) return SqlOldPassword($str);
 	if(phpversion() < '5.3.7') return hash('sha256', hash('sha512', sha1(sha1($str, true))));
 	else if(phpversion() < '5.5') require_once _COMMONDIR . '/password.php';
 	return password_hash(hash('sha256', $str), PASSWORD_BCRYPT);
@@ -1211,24 +1244,29 @@ function &Post($param){
 	return $_POST[$param];
 }
 
+/* php 8 대응 */
+function StrLength($param){
+	return (!is_array($param) && !is_object($param)) ? strlen($param) : 0;
+}
+
 function StrLenPost($param){
-	return isset($_POST[$param]) ? (!is_array($_POST[$param]) ? strlen($_POST[$param]): 0) : 0;
+	return isset($_POST[$param]) ? ((!is_array($_POST[$param]) && !is_object($_POST[$param])) ? strlen($_POST[$param]): 0) : 0;
 }
 
 function StrLenGet($param){
-	return isset($_GET[$param]) ? (!is_array($_POST[$param]) ? strlen($_GET[$param]): 0) : 0;
+	return isset($_GET[$param]) ? ((!is_array($_GET[$param]) && !is_object($_GET[$param])) ? strlen($_GET[$param]): 0) : 0;
 }
 
 function StrLenCookie($param){
-	return isset($_COOKIE[$param]) ? (!is_array($_COOKIE[$param]) ? strlen($_COOKIE[$param]): 0) : 0;
+	return isset($_COOKIE[$param]) ? ((!is_array($_COOKIE[$param]) && !is_object($_COOKIE[$param])) ? strlen($_COOKIE[$param]): 0) : 0;
 }
 
 function StrLenVal(&$val){
-	return isset($val) ? (is_string($val) ? strlen($val): 0) : 0;
+	return isset($val) ? ((!is_array($val) && !is_object($val)) ? strlen($val): 0) : 0;
 }
 
 function StrTrim($val){
-	return isset($val) ? (is_string($val) ? trim($val): '') : '';
+	return isset($val) ? ((!is_array($val) && !is_object($val)) ? trim((string)$val): '') : '';
 }
 
 function EmptyPost($param){
@@ -1296,6 +1334,64 @@ function TrimAll($val){
 	}
 	else if(is_string($val)) $val = trim($val);
 	return $val;
+}
+
+function ViewModuleGetPath($filePath){
+	$f = explode(',', $filePath);
+	$filePath = $f[0];
+
+	$id = $f[1] ?? '';
+
+	if(substr($filePath, -4) === '.php') $filePath = substr($filePath, 0, -4);
+	if(substr($filePath, -6) !== 'Module') $filePath .= 'Module';
+	$jsFilePath = $filePath . '.js.php';
+	$phpFilePath = $filePath . '.php';
+
+	$res = [];
+	if(file_exists(Paths::Dir('/ViewModule' . $phpFilePath))){
+		CheckReplaceHTMLFile(\Paths::Dir('/ViewModule' . $phpFilePath), \Paths::DirOfHtml('/_ViewModule_' . $phpFilePath));
+		$res[] = ['path' => \Paths::DirOfHtml('/_ViewModule_' . $phpFilePath), 'type' => 'php', 'id' => $id];
+	}
+
+	if(file_exists(Paths::Dir('/ViewModule' . $jsFilePath))){
+		CheckReplaceHTMLFile(\Paths::Dir('/ViewModule' . $jsFilePath), \Paths::DirOfHtml('/_ViewModule_' . $jsFilePath));
+		$res[] = ['path' => \Paths::DirOfHtml('/_ViewModule_' . $jsFilePath), 'type' => 'js', 'id' => $id];
+	}
+
+	return $res;
+}
+
+/**
+ * 스타일시트 반환.
+ * 파라미터가 배열일 경우 css 파일이 존재하는 첫번째 항목만 적용.
+ *
+ * @param string|string[] $path
+ * @return string
+ */
+function GetCssStyle($path): string{
+	$pathArray = is_array($path) ? $path : array($path);
+	$cssPath = '';
+
+	foreach($pathArray as $p){
+		if(substr($p, -5) === '.html') $p = substr($p, 0, -5);
+		if(substr($p, -9) === '.html.php') $p = substr($p, 0, -9);
+		if(substr($p, -10) !== '.bhcss.php') $p .= '.bhcss.php';
+		if(!$cssPath && file_exists(Paths::DirOfSkin($p))){
+			$cssPath = $p;
+			break;
+		}
+	}
+	if(!$cssPath) return '';
+
+
+	$dPath = \Paths::DirOfHtml('/_css_' . $cssPath);
+	$oPath = \Paths::DirOfSkin($cssPath);
+	if(!file_exists($dPath) || filemtime($oPath) > filemtime($dPath)) BH\BHCss\BHCss::conv($oPath, $dPath);
+	ob_start();
+	echo '<style>';
+	require $dPath;
+	echo '</style>';
+	return ob_get_clean();
 }
 
 spl_autoload_register(array('BH_Application', 'AutoLoad'));

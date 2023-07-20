@@ -67,7 +67,13 @@ $_rpData = array(
 	// inc
 	array(
 		'pattern' => '/<\?\s*inc\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
-		'replace' => '<?php CheckReplaceHTMLFile(\Paths::DirOfSkin().$1, \Paths::DirOfHtml().$1); require \Paths::DirOfHtml().$1; ?>'
+		'replace' => '<?php \$p = Paths::GetSkinPathFromDir($1, __DIR__); if(\$p !== null){CheckReplaceHTMLFile(\$p[\'skinPath\'], \$p[\'htmlPath\']); require \$p[\'htmlPath\'];} else if(\BHG::\$isDeveloper === true) echo \'<div>\' . v($1) . \' not exists.</div>\'; ?>'
+	),
+
+	// module
+	array(
+		'pattern' => '/<\?\s*module\s*[\.|\;]\s*(.*?)(;*\s*\?>)/is',
+		'replace' => '<?php \$_module_path = ViewModuleGetPath($1); foreach(\$_module_path as \$mp){if(\$mp[\'type\'] === \'js\') echo \'<script>\' . PHP_EOL; if(\$mp[\'id\']) \$moduleId = \$mp[\'id\']; else \$moduleId = null; require \$mp[\'path\']; if(\$mp[\'type\'] === \'js\') echo PHP_EOL . \'</script>\' . PHP_EOL;} ?>'
 	),
 
 	// mv()

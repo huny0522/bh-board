@@ -52,13 +52,14 @@ namespace
 	define('fqn', ''); // echo \BH_Application::GetFollowQuery([code], \'&\');
 
 	define('inc', ''); // ReplaceHTMLFile(\Paths::DirOfSkin().[code], \Paths::DirOfHtml().[code]); require \Paths::DirOfHtml().[code];
+	define('module', ''); // $_module_path = ViewModuleGetPath([code]); foreach($_module_path as $mp){if($mp['type'] === 'js') echo '<script>' . PHP_EOL; if($mp['id'] === 'js') $moduleId = $mp['id']; require $mp['path']; if($mp['type'] === 'js') echo PHP_EOL . '</script>' . PHP_EOL;}
 
-	/**
-	 * @property BHSession muid
-	 * @property BHSession level
-	 * @property BHSession mid
-	 */
+
 	class _SessionMember extends BHSession
 	{
+		public BHSession $muid;
+		public BHSession $level;
+		public BHSession $mid;
+		public BHSession $seq;
 	}
 }
