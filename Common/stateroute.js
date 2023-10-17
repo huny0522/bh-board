@@ -190,24 +190,25 @@ StateRoute.Ajax = async function(url, method, data){
 	};
 
 	if(typeof(data) === 'undefined') data = {};
-	let body = [];
 	if(method.toLowerCase() === 'post'){
-		for(const [idx, val] of Object.entries(data)){
-			if(Array.isArray(val)){
-				for(let i = 0; i < val.length; i++){
-					body.push(idx + '[]=' + encodeURIComponent(val[i]));
-				}
-			}
-			else body.push(idx + '=' + encodeURIComponent(val));
-		}
-		opt.body = body.join('&');
+		opt.body = new URLSearchParams(data);
 		opt.headers = {
 			'Content-Type': 'application/x-www-form-urlencoded',
 			'Accept' : 'application/json'
 		};
 	}
 	else{
-		url = url + (url.indexOf('?') >= 0 ? '&' : '?') + new URLSearchParams(data).toString();
+		const newData = {};
+		const entries = data.constructor.name === 'FormData' ? data.entries() : Object.entries(data);
+		for(const [idx, val] of entries){
+			if(Array.isArray(val)){
+				for(let i = 0; i < val.length; i++){
+					newData[idx] = val[i];
+				}
+			}
+			else newData[idx] = val;
+		}
+		url = url + (url.indexOf('?') >= 0 ? '&' : '?') + new URLSearchParams(newData).toString();
 		opt.headers = {
 			'Content-Type': 'application/json'
 		};
@@ -240,17 +241,54 @@ StateRoute.AjaxForm = function(form){
 		console.error('ajaxForm:form 객체가 아닙니다.')
 		return false;
 	}
-	let formData = new FormData(form);
-	let data = {};
-	formData.forEach((value, key) => {
-		if(/\[\]$/g.test(key)){
-			key = key.replace(/\[\]$/g, '');
-			if(typeof(data[key]) === 'undefined') data[key] = [];
-			data[key].push(value);
-		}
-		else data[key] = value;
-	});
-	return StateRoute._AjaxGetOrPost(form.action, form.method.toUpperCase(), data);
+	return StateRoute._AjaxGetOrPost(form.action, form.method.toUpperCase(), new FormData(form));
+}
+
+StateRoute.__onceDuplicate = [];
+StateRoute.AjaxFormOnce = async function(form){
+	if(typeof form === 'string') form = document.querySelector(form);
+	if(form.tagName !== 'FORM'){
+		console.error('ajaxForm:form 객체가 아닙니다.')
+		return false;
+	}
+
+	return await StateRoute._AjaxOnce(form.action, form.method.toUpperCase(), new FormData(form), form);
+}
+
+/**
+ *
+ * @param {string} url
+ * @param {{}} data
+ * @param {string=} opt
+ * @returns {Promise<*>}
+ */
+StateRoute.AjaxPostOnce = async function(url, data, onceKey){
+	return await StateRoute._AjaxOnce(url, 'POST', data, onceKey);
+}
+
+/**
+ *
+ * @param {string} url
+ * @param {{}} data
+ * @param {string=} opt
+ * @returns {Promise<*>}
+ */
+StateRoute.AjaxGetOnce = async function(url, data, onceKey){
+	return await StateRoute._AjaxOnce(url, 'GET', data, onceKey);
+}
+
+StateRoute._AjaxOnce = async function(url, method, data, onceKey){
+	if(typeof onceKey === 'undefined') onceKey = method + ':' + url + JSON.stringify(data);
+
+	for(const [k, v] of StateRoute.__onceDuplicate.entries()){
+		if(v === onceKey) return;
+	}
+	StateRoute.__onceDuplicate.push(onceKey);
+	const res = await StateRoute._AjaxGetOrPost(url, method, data);
+	for(const [k, v] of StateRoute.__onceDuplicate.entries()){
+		if(v === onceKey) StateRoute.__onceDuplicate.splice(k, 1);
+	}
+	return res;
 }
 
 StateRoute.AjaxGet = function(url, data){
@@ -455,5 +493,5 @@ StateRoute.prototype.Del = function(){
 	delete this;
 }
 
-var customEvent = new CustomEvent('stateroute_ready');
+let customEvent = new CustomEvent('stateroute_ready');
 window.dispatchEvent(customEvent);

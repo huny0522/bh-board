@@ -103,6 +103,7 @@
 		};
 
 		this.loading = function () {
+			if(this.loadingIs) return;
 			this.loadingIs = true;
 			bhJQuery('body').append('<div class="loading_layer"><div class="loading_layer_wrap"><div class="animation"></div><p>Loading...</p></div></div>');
 			if(typeof this.loadingAnimation === 'function') this.loadingAnimation(bhJQuery('.loading_layer .animation').last());
@@ -238,16 +239,19 @@
 			else _this.ajaxForm(formObj, success_func, fail_func, data);
 		};
 
+		this.__onceDuplicate = [];
 		this.ajaxForm = function (formObj, success_func, fail_func, data){
 			if(typeof bhJQuery.fn.ajaxSubmit === 'undefined'){
 				console.log('jquery form not installed.');
 				return;
 			}
 			if(!bhJQuery(formObj).length) return;
-			if(this.loadingIs) return;
+
+			formObj = bhJQuery(formObj)[0];
+
 			_this.loading();
 
-			bhJQuery(formObj).ajaxSubmit({
+			return bhJQuery(formObj).ajaxSubmit({
 				dataType: 'json',
 				async : true,
 				data : typeof(data) === 'undefined' ? {} : data,
@@ -279,6 +283,24 @@
 
 		};
 
+		this.ajaxFormOnce = async function(formObj, success_func, fail_func, data){
+			if(!bhJQuery(formObj).length) return;
+			formObj = bhJQuery(formObj)[0];
+
+			for(const [k, v] of _this.__onceDuplicate.entries()){
+				if(v === formObj) return;
+			}
+			_this.__onceDuplicate.push(formObj);
+
+			const res = await this.ajaxForm(formObj, success_func, fail_func, data);
+
+			for(const [k, v] of _this.__onceDuplicate.entries()){
+				if(v === formObj) _this.__onceDuplicate.splice(k, 1);
+			}
+
+			return res;
+		}
+
 		this._ajax = function (ur, dt, opt, success_func, fail_func) {
 			var le = false;
 			if (typeof(opt.loadingEnable) !== 'undefined'){
@@ -291,7 +313,7 @@
 			}
 
 
-			bhJQuery.ajax({
+			return bhJQuery.ajax({
 				type: (typeof opt.type !== 'undefined' ? opt.type : 'post')
 				, dataType: (typeof opt.dataType !== 'undefined' ? opt.dataType : 'json')
 				, url: ur
@@ -322,13 +344,57 @@
 
 		// ajax post
 		this.post = function (ur, dt, success_func, fail_func) {
-			this._ajax(ur, dt, {type : 'post', loadingEnable : false}, success_func, fail_func);
+			return this._ajax(ur, dt, {type : 'post', loadingEnable : false}, success_func, fail_func);
 		};
 
 		// ajax get
 		this.get = function (ur, dt, success_func, fail_func) {
-			this._ajax(ur, dt, {type : 'get', loadingEnable : false}, success_func, fail_func);
+			return this._ajax(ur, dt, {type : 'get', loadingEnable : false}, success_func, fail_func);
 		};
+
+		/**
+		 *
+		 * @param {string} url
+		 * @param {{}} data
+		 * @param {{onceKey?:string,successFunc?:function,failFunc?:function}} opt
+		 * @returns {Promise<*>}
+		 */
+		this.postOnce = async function(url, data, opt){
+			if(typeof opt === 'undefined') opt = {};
+			if(typeof opt.onceKey === 'undefined') opt.onceKey = 'post:' + url + JSON.stringify(data);
+
+			for(const [k, v] of _this.__onceDuplicate.entries()){
+				if(v === opt.onceKey) return;
+			}
+			_this.__onceDuplicate.push(opt.onceKey);
+			const res = await this._ajax(url, data, {type : 'post', loadingEnable : false}, opt.successFunc, opt.failFunc);
+			for(const [k, v] of _this.__onceDuplicate.entries()){
+				if(v === opt.onceKey) _this.__onceDuplicate.splice(k, 1);
+			}
+			return res;
+		}
+
+		/**
+		 *
+		 * @param {string} url
+		 * @param {{}} data
+		 * @param {{onceKey?:string,successFunc?:function,failFunc?:function}=} opt
+		 * @returns {Promise<*>}
+		 */
+		this.getOnce = async function(url, data, opt){
+			if(typeof opt === 'undefined') opt = {};
+			if(typeof opt.onceKey === 'undefined') opt.onceKey = 'get:' + url + JSON.stringify(data);
+
+			for(const [k, v] of _this.__onceDuplicate.entries()){
+				if(v === opt.onceKey) return;
+			}
+			_this.__onceDuplicate.push(opt.onceKey);
+			const res = await this._ajax(url, data, {type : 'get', loadingEnable : false}, opt.successFunc, opt.failFunc);
+			for(const [k, v] of _this.__onceDuplicate.entries()){
+				if(v === opt.onceKey) _this.__onceDuplicate.splice(k, 1);
+			}
+			return res;
+		}
 
 		// ajax post
 		this.forcePostWithLoading = function (ur, dt, success_func, fail_func) {
@@ -1804,7 +1870,7 @@ window.__addEventListenerInitial = (param) => {
 	});
 }
 
-Element.prototype.addEventListenerChild = window.__addEventListener = function(eventName, selector, callback){
+Element.prototype.addEventListenerChild = function(eventName, selector, callback){
 	window.__elementEventListener.push({obj : this, eventName : eventName, selector : selector, callback : callback});
 	window.__addEventListenerInitial({obj : this, eventName : eventName, selector : selector, callback : callback});
 
@@ -1819,7 +1885,7 @@ Element.prototype.addEventListenerChild = window.__addEventListener = function(e
 	wrapperObserver.observe(this, {childList: true, subtree: true});
 };
 
-Document.prototype.addEventListenerChild = window.__addEventListener = function(eventName, selector, callback){
+Document.prototype.addEventListenerChild = function(eventName, selector, callback){
 	window.__documentEventListener.push({obj : this, eventName : eventName, selector : selector, callback : callback});
 	window.__addEventListenerInitial({obj : this, eventName : eventName, selector : selector, callback : callback});
 
@@ -1832,6 +1898,15 @@ Document.prototype.addEventListenerChild = window.__addEventListener = function(
 	});
 
 	wrapperObserver.observe(this, {childList: true, subtree: true});
+};
+
+Element.prototype.preventAddEventListener = function(eventName, callback){
+	const resFunc = function(e){
+		e.preventDefault();
+		callback.call(this, e);
+	}
+	this.addEventListener(eventName, resFunc);
+	return resFunc;
 };
 
 Element.prototype.insertAfter = function(newNode){
