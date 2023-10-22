@@ -848,7 +848,7 @@ class _ModelFunc{
 		$ret->result = true;
 		foreach($model->data as $k => &$v){
 			/** @var BH_ModelData $v */
-			if($v->postExcept !== true && $v->dbExcept !== true && $v->autoDecrement !== true && $v->autoIncrement !== true){
+			if($v->postExcept !== true && $v->autoDecrement !== true && $v->autoIncrement !== true){
 				if(isset($v->htmlType) && self::IsFileType($v->htmlType) && isset($_FILES[$k])){
 					if($withFile) self::SetFileValue($model, $k);
 				}
