@@ -371,6 +371,13 @@ class BH_Model{
 		$this->uploadDir = '/modelData/' . $this->table . '/' . date('Ym') . '/';
 		foreach($this->data as $k => $v) if(!isset($this->{'_'.$k})) $this->{'_'.$k} = $v;
 		foreach($this->dataExcept as $v) if(isset($this->data[$v])) $this->data[$v]->dbExcept = true;
+		$mVar = get_class_vars(get_class($this));
+		foreach($mVar as $k => $v){
+			$k2 = substr($k, 1);
+			if(substr($k, 0, 1) === '_' && !isset($this->data[$k2])){
+				$this->data[$k2] = $this->{$k};
+			}
+		}
 	}
 
 	public function __clone(){

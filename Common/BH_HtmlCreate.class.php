@@ -199,11 +199,12 @@ class {$ModelName}Model extends \\BH_Model{
 		$propertyDoc = '';
 		while($row = \DB::SQL(PHP_RUN_CLI ? 'CLI' : '')->Fetch($qry)){
 			//$tData[$row['Field']] = $row;
-			$findIs = preg_match('/\$this\-\>data\[\'' . $row['Field'] . '\'\]\s*=\s*new\s*[\\\]*BH_ModelData/is', $initFuncText);
+			$findIs1 = preg_match('/\$this\-\>data\[\'' . $row['Field'] . '\'\]\s*=\s*new\s*[\\\]*BH_ModelData/is', $initFuncText);
+			$findIs2 = preg_match('/\$this\-\>_' . $row['Field'] . '\s*=\s*new\s*[\\\]*BH_ModelData/is', $initFuncText);
 			$propertyDoc .= " * @property \\BH_ModelData \$_{$row['Field']}\n";
 			if(strtolower($row['Key']) == 'pri') $primaryKey[] = "'{$row['Field']}'";
 
-			if(!$findIs){
+			if(!$findIs1 && !$findIs2){
 
 				$modelType = '';
 				$htmlType = '';
@@ -229,7 +230,7 @@ class {$ModelName}Model extends \\BH_Model{
 				$type = strtolower($row['Type']);
 				if(strpos($type, 'int(') !== false){
 					if($modelType === '') $modelType = 'ModelType::INT';
-					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->defaultValue = ' . (int)$row['Default'] . ';';
+					$addOption .= chr(10) . '$this->_' . $row['Field'] . '->defaultValue = ' . (int)$row['Default'] . ';';
 				}
 				else if(strpos($type, 'date') !== false){
 					if($modelType === '') $modelType = 'ModelType::DATE';
@@ -249,12 +250,12 @@ class {$ModelName}Model extends \\BH_Model{
 						$v2 = substr($v, 1, -1);
 						$enum_t[] = $v . ' => ' . (isset($enumValues[$v2]) ? '"'.$enumValues[$v2].'"' : $v);
 					}
-					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->enumValues = array(' . implode(',', $enum_t) . ');';
-					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->defaultValue = \'' . $row['Default'] . '\';';
+					$addOption .= chr(10) . '$this->_' . $row['Field'] . '->enumValues = array(' . implode(',', $enum_t) . ');';
+					$addOption .= chr(10) . '$this->_' . $row['Field'] . '->defaultValue = \'' . $row['Default'] . '\';';
 				}
 				else if(strpos($type, 'varchar(') !== false){
 					preg_match('/\(([0-9]*?)\)/', $type, $matches);
-					$addOption .= chr(10) . '$this->data[\'' . $row['Field'] . '\']->maxLength = \'' . $matches[1] . '\';';
+					$addOption .= chr(10) . '$this->_' . $row['Field'] . '->maxLength = \'' . $matches[1] . '\';';
 				}
 				else if(strpos($row['Type'], 'text') !== false){
 					if($modelType === '') $modelType = 'ModelType::TEXT';
@@ -263,7 +264,7 @@ class {$ModelName}Model extends \\BH_Model{
 
 				if($modelType === '') $modelType = 'ModelType::STRING';
 
-				$initFuncText .= chr(10) . chr(10) . '$this->data[\'' . $row['Field'] . '\'] = new \\BH_ModelData(' . $modelType . ', \'' . ($cmt ? $cmt : $row['Field']) . '\'' . $htmlType . ');' . $addOption;
+				$initFuncText .= chr(10) . chr(10) . '$this->_' . $row['Field'] . ' = new \\BH_ModelData(' . $modelType . ', \'' . ($cmt ? $cmt : $row['Field']) . '\'' . $htmlType . ');' . $addOption;
 			}
 
 		}
@@ -282,6 +283,14 @@ class {$ModelName}Model extends \\BH_Model{
 		$initFuncText = str_replace(array("\t\t\n", "\t\t\r"), array("\n", "\r"), $initFuncText);
 		$pattern = '/function\s+__Init\s*\(\s*\)\s*\{\s*(.*?)\s*\}\s*\/\/\s*__Init/is';
 		$res = preg_replace($pattern, 'function __Init(){' . chr(10) . chr(9) . chr(9) . $initFuncText . chr(10) . chr(9) . '} // __Init', $f);
+
+		preg_match_all('#\$this->(_[a-zA-Z0-9_]+)\s*=\s*new\s+[\\\]*BH_ModelData#', $res, $matches);
+		$matches = array_unique($matches[1]);
+		foreach($matches as $v){
+			if(!preg_match('#\s*public\s+\$' . $v . '\s*;#', $res)){
+				$res = preg_replace('#extends\s+\\\BH_Model(\n|\s)*\{\n#',"extends \\BH_Model\n{\n\tpublic \$$v;\n", $res);
+			}
+		}
 
 		return $res;
 	}
