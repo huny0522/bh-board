@@ -132,6 +132,7 @@
 
 		this.html2txt = function(str){
 			//language=JSRegexp
+			if(typeof str !== 'string') return '';
 			str = str.replace(/\&/ig, '&amp;');
 			str = str.replace(/</ig, '&lt;');
 			str = str.replace(/>/ig, '&gt;');
@@ -251,7 +252,7 @@
 
 			_this.loading();
 
-			return bhJQuery(formObj).ajaxSubmit({
+			const res = bhJQuery(formObj).ajaxSubmit({
 				dataType: 'json',
 				async : true,
 				data : typeof(data) === 'undefined' ? {} : data,
@@ -280,6 +281,7 @@
 				}
 
 			});
+			return res;
 
 		};
 
@@ -1811,17 +1813,31 @@
 		history.back();
 	});
 
+	// MutationObserver 콜백 함수 정의
+	document.addEventListener('DOMContentLoaded', () => {
+		const handleMutations = (mutations) => {
+			mutations.forEach(mutation => {
+				mutation.addedNodes.forEach(node => {
+					// 추가된 노드가 datePicker 클래스를 가진 INPUT 요소이며 nopicker 클래스를 가지지 않는 경우 확인
+					if(node.nodeType === 1 && node.tagName === 'INPUT' && $(node).hasClass('datePicker') && !$(node).hasClass('nopicker')) {
+						datepicker.call(node);
+					}
+					// 해당 조건을 만족하는 자식 노드도 처리
+					$(node).find('input.datePicker').each(function() {
+						if($(this).hasClass('datePicker') && !$(this).hasClass('nopicker')) {
+							datepicker.call(this);
+						}
+					});
+				});
+			});
+		}
 
-	function DomInserted(e){
-		if(typeof(jQuery) === 'undefined' || typeof(jQuery.datepicker) === 'undefined') return;
-		if(e.target.tagName === 'INPUT' && bhJQuery(e.target).hasClass('datePicker') && !bhJQuery(e.target).hasClass('nopicker')) datepicker.call(e.target);
-		bhJQuery(e.target).find('input.datePicker').each(function(){
-			if(bhJQuery(this).hasClass('datePicker') && !bhJQuery(this).hasClass('nopicker')) datepicker.call(this);
-		});
-	}
+		// MutationObserver 인스턴스 생성
+		const observer = new MutationObserver(handleMutations);
 
-	document.addEventListener('DOMNodeInserted', DomInserted);
-	document.addEventListener('DomNodeInsertedIntoDocument', DomInserted);
+		// document.body에 대한 관찰 시작
+		observer.observe(document.querySelector('body'), {childList: true, subtree: true});
+	});
 
 	bhJQuery(function(){
 		if(typeof(jQuery) === 'undefined' || typeof(jQuery.datepicker) === 'undefined') return;
