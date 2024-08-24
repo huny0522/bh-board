@@ -1509,13 +1509,13 @@ class BH_DB_Insert{
 				}
 				else $res->id = DB::PDO($this->connName)->lastInsertId();
 			}
-			else if(\BHG::$isDeveloper === true && $this->showError && BH_Application::$showError) PrintError($this->query->errorInfo());
+			else throw new \PDOException($this->query->errorInfo());
 
 			DB::Commit();
 		}
 		catch(\PDOException $e){
 			DB::PDO($this->connName)->rollBack();
-			PrintError($e->getMessage().'('.$e->getCode().')');
+			if(\BHG::$isDeveloper === true && $this->showError && BH_Application::$showError) PrintError($e->getMessage().'('.$e->getCode().')');
 		}
 		return $res;
 	}
