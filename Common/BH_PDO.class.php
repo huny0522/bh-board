@@ -1509,7 +1509,10 @@ class BH_DB_Insert{
 				}
 				else $res->id = DB::PDO($this->connName)->lastInsertId();
 			}
-			else throw new \PDOException($this->query->errorInfo());
+			else{
+				$error = $this->query->errorInfo();
+				throw new \PDOException($error[2], $error[1]);
+			}
 
 			DB::Commit();
 		}
