@@ -30,7 +30,7 @@
 	if(typeof(window._CM_LANG.del) === 'undefined') window._CM_LANG.del = '삭제';
 }());
 
-(function(bhJQuery){
+function __bhJCM__(bhJQuery){
 	window.getInternetExplorerVersion = function() {
 		var rv = -1;
 		if (navigator.appName === 'Microsoft Internet Explorer') {
@@ -43,7 +43,7 @@
 		return rv;
 	}
 
-	window.JCM = new function(){
+	var JCM  = this.JCM = new function(){
 
 		var _this = this;
 
@@ -939,7 +939,7 @@
  *   Message Modal
  *
  ----------------------------------------------------- */
-	window.CMAlert = function(message, callback){
+	this.CMAlert = function(message, callback){
 		alert(message);
 		if(typeof(callback) === 'function') callback();
 		return new Promise(function(resolve){
@@ -947,7 +947,7 @@
 		});
 	};
 
-	window.CMConfirm = function(message, yesCallback, noCallback){
+	this.CMConfirm = function(message, yesCallback, noCallback){
 		const res = confirm(message);
 		if(res && typeof(yesCallback) === 'function') yesCallback();
 		if(!res && typeof(noCallback) === 'function') noCallback();
@@ -957,7 +957,7 @@
 		});
 	};
 
-	window.MessageModal = {
+	this.MessageModal = {
 		activeElement : null,
 		alertNumber : 0,
 
@@ -1037,7 +1037,7 @@
 		}
 	}
 
-	window.EventLink = {
+	this.EventLink = {
 
 		startPos : null,
 		endPos : null,
@@ -1490,7 +1490,7 @@
 		jQuery.datepicker.setDefaults(jQuery.datepicker.regional.ko);
 	}
 
-	window.datepicker = function() {
+	this.datepicker = function() {
 		if(typeof(jQuery) === 'undefined' || typeof(jQuery.datepicker) === 'undefined'){
 			console.log('datepicker plugin not find.');
 			return;
@@ -1534,7 +1534,7 @@
 	 *   tinymce
 	 *
 	 ------------------------------------------- */
-	window.tinyMCEHelper = {
+	this.tinyMCEHelper = {
 		useTinyMce : false,
 		tinyMCELoadIs : false,
 		tinyMCEPath : '',
@@ -1738,7 +1738,7 @@
 		}
 	});
 
-	window.getCaretPosition = function(ctrl){
+	this.getCaretPosition = function(ctrl){
 		// IE < 9 Support
 		if (document.selection) {
 			ctrl.focus();
@@ -1756,7 +1756,7 @@
 		}
 	}
 
-	window.setCaretPosition = function(ctrl, start, end){
+	this.setCaretPosition = function(ctrl, start, end){
 		// IE >= 9 and other browsers
 		if(ctrl.setSelectionRange)
 		{
@@ -1846,19 +1846,19 @@
 		});
 	});
 
-	window.SE2_paste = function(id, defaultfolder, hiddenBtns){
+	this.SE2_paste = function(id, defaultfolder, hiddenBtns){
 		if(tinyMCEHelper.useTinyMce){
 			tinyMCEHelper.Paste(id, defaultfolder, hiddenBtns);
 			return;
 		}
 	}
 
-	window.SE2_update = function(id){
+	this.SE2_update = function(id){
 		if(tinyMCEHelper.useTinyMce) return;
 	}
 
 	// 함수가 생성됐는지 체크 후 콜백 실행
-	window.ExecuteWhenExistsFunction = function(func, callback){
+	this.ExecuteWhenExistsFunction = function(func, callback){
 		if(typeof(func) === 'function') callback();
 		else{
 			setTimeout(function(){
@@ -1870,8 +1870,21 @@
 	var customEvent = new CustomEvent('jcm_ready');
 	window.dispatchEvent(customEvent);
 	window.isJcmReady = true;
-}($));
+};
 
+var _bhJCM_ = new __bhJCM__($);
+var JCM = _bhJCM_.JCM;
+var CMAlert = _bhJCM_.CMAlert;
+var CMConfirm = _bhJCM_.CMConfirm;
+var MessageModal = _bhJCM_.MessageModal;
+var EventLink = _bhJCM_.EventLink;
+var datepicker = _bhJCM_.datepicker;
+var tinyMCEHelper = _bhJCM_.tinyMCEHelper;
+var getCaretPosition = _bhJCM_.getCaretPosition;
+var setCaretPosition = _bhJCM_.setCaretPosition;
+var SE2_paste = _bhJCM_.SE2_paste;
+var SE2_update = _bhJCM_.SE2_update;
+var ExecuteWhenExistsFunction = _bhJCM_.ExecuteWhenExistsFunction;
 
 window.__elementEventListener = [];
 window.__documentEventListener = [];

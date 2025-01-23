@@ -14,3 +14,7 @@ composer.lock
 /vendor
 /favicon.ico
 *.dont.delete.it.php
+.DS_Store
+/.history
+/.lh
+/.cursor
